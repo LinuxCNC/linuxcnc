@@ -304,7 +304,6 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         if fname:
             if self.PREFS_:
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
-            f = open(fname, 'r')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
