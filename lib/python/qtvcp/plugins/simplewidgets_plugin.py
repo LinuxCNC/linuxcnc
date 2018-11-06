@@ -13,6 +13,7 @@ from qtvcp.widgets.general_hal_input import GeneralHALInput
 from qtvcp.widgets.xembed import XEmbed
 from qtvcp.widgets.radio_axis_selector import RadioAxisSelector
 from qtvcp.widgets.axis_tool_button import AxisToolButton
+from qtvcp.widgets.file_manager import FileManager
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -408,3 +409,35 @@ class AxisToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="AxisToolButton" name="axistoolbutton" />\n'
     def includeFile(self):
         return "qtvcp.widgets.axis_tool_button"
+
+####################################
+# FileManager
+####################################
+class FileManagerPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(FileManagerPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return FileManager(parent)
+    def name(self):
+        return "FileManager"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('filemanager')))
+    def toolTip(self):
+        return "Button for selecting an Axis and setting the Origin"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="FileManager" name="filemanager" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.file_manager"
