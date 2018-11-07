@@ -22,8 +22,8 @@
 #include "tc_types.h"
 #include "tp_types.h"
 
-double tcGetMaxTargetVel(TC_STRUCT const * const tc,
-        double max_scale);
+//double tcGetMaxTargetVel(TC_STRUCT const * const tc,
+//        double max_scale);
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
@@ -32,6 +32,9 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+
+double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction);
+double tcGetTarget(TC_STRUCT const * const tc, int direction);
 
 int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, PmCartesian * const point);

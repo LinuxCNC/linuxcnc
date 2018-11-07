@@ -1218,6 +1218,20 @@ void emcmotCommandHandler(void *arg, long period)
 	    emcmotStatus->paused = 1;
 	    break;
 
+	case EMCMOT_REVERSE:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "REVERSE");
+        tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE);
+	    break;
+
+	case EMCMOT_FORWARD:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FORWARD");
+        tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD);
+	    break;
+
 	case EMCMOT_RESUME:
 	    /* resume paused motion */
 	    /* can happen at any time */
@@ -1670,7 +1684,7 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* if (emcmotStatus->spindle.orient) { */
 	    /* 	reportError(_("cant turn on spindle during orient in progress")); */
 	    /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-	    /* 	tpAbort(&emcmotDebug->tp); */
+	    /* 	tpAbort(&emcmotDebug->coord_tp); */
 	    /* 	SET_MOTION_ERROR_FLAG(1); */
 	    /* } else {...} */
 	    emcmotStatus->spindle_status[spindle_num].speed = emcmotCommand->vel;
@@ -1727,7 +1741,7 @@ void emcmotCommandHandler(void *arg, long period)
 		// mah:FIXME unsure wether this is ok or an error
 		/* reportError(_("orient already in progress")); */
 		/* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-		/* tpAbort(&emcmotDebug->tp); */
+		/* tpAbort(&emcmotDebug->coord_tp); */
 		/* SET_MOTION_ERROR_FLAG(1); */
 	    }
 	    emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_IN_PROGRESS;

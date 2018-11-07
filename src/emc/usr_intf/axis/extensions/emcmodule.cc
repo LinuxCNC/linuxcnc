@@ -67,6 +67,8 @@
 #define LOCAL_AUTO_PAUSE (1)
 #define LOCAL_AUTO_RESUME (2)
 #define LOCAL_AUTO_STEP (3)
+#define LOCAL_AUTO_REVERSE (4)
+#define LOCAL_AUTO_FORWARD (5)
 
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
@@ -1174,6 +1176,8 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
     int fn;
     EMC_TASK_PLAN_RUN run;
     EMC_TASK_PLAN_PAUSE pause;
+    EMC_TASK_PLAN_REVERSE reverse;
+    EMC_TASK_PLAN_FORWARD forward;
     EMC_TASK_PLAN_RESUME resume;
     EMC_TASK_PLAN_STEP step;
 
@@ -1191,6 +1195,12 @@ static PyObject *emcauto(pyCommandChannel *s, PyObject *o) {
             break;
         case LOCAL_AUTO_STEP:
             emcSendCommand(s, step);
+            break;
+        case LOCAL_AUTO_REVERSE:
+            emcSendCommand(s, reverse);
+            break;
+        case LOCAL_AUTO_FORWARD:
+            emcSendCommand(s, forward);
             break;
         default:
             PyErr_Format(error, "Unexpected argument '%d' to command.auto", fn);
@@ -2268,6 +2278,8 @@ initlinuxcnc(void) {
     ENUMX(6, LOCAL_AUTO_PAUSE);
     ENUMX(6, LOCAL_AUTO_RESUME);
     ENUMX(6, LOCAL_AUTO_STEP);
+    ENUMX(6, LOCAL_AUTO_REVERSE);
+    ENUMX(6, LOCAL_AUTO_FORWARD);
 
     ENUMX(4, EMC_TRAJ_MODE_FREE);
     ENUMX(4, EMC_TRAJ_MODE_COORD);
