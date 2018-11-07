@@ -663,13 +663,15 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.resize(600, 400)
         # patch class to call our button methods rather then the
         # original methods (Gotta do before instantiation)
-        MacroTab.cancelChecked = self._cancel
-        MacroTab.okChecked = self._ok
+        MacroTab.closeChecked = self._close
+        MacroTab.runChecked = self._run
         # ok now instantiate patched class
         self.tab = MacroTab()
         l = QVBoxLayout()
         self.setLayout(l)
         l.addWidget(self.tab)
+        #we need the close button
+        self.tab.closeButton.setVisible(True)
 
     def _hal_init(self):
         x = self.geometry().x()
@@ -691,16 +693,16 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         if cmd == 'MACRO':
             self.load_dialog()
 
-    # This method is called instead of MacroTab's cancelChecked method
+    # This method is called instead of MacroTab's closeChecked method
     # we do this so we can use it's buttons to hide our dialog
     # rather then close the MacroTab widget
-    def _cancel(self):
+    def _close(self):
         self.close()
 
-    # This method is called instead of MacroTab's okChecked() method
+    # This method is called instead of MacroTab's runChecked() method
     # we do this so we can use it's buttons to hide our dialog
     # rather then close the MacroTab widget
-    def _ok(self):
+    def _run(self):
         self.tab.runMacro()
         self.close()
 

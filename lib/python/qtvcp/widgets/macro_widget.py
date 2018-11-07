@@ -121,19 +121,20 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             tpath = os.path.expanduser(INFO.SUB_PATH)
             self.filepath = os.path.join(tpath, '')
         except:
-            self.filepath = None
+            self.filepath = 'None'
         self.stack = QtWidgets.QStackedWidget()
 
-        # add some buttons to run,cancel and menu
+        # add some buttons to run,close and menu
         hbox = QtWidgets.QHBoxLayout()
-        self.okButton = QtWidgets.QPushButton("OK")
-        self.okButton.pressed.connect(self.okChecked)
-        cancelButton = QtWidgets.QPushButton("Cancel")
-        cancelButton.pressed.connect(self.cancelChecked)
+        self.runButton = QtWidgets.QPushButton("Run")
+        self.runButton.pressed.connect(self.runChecked)
+        self.closeButton = QtWidgets.QPushButton("Close")
+        self.closeButton.pressed.connect(self.closeChecked)
+        self.closeButton.setVisible(False)
         menuButton = QtWidgets.QPushButton("Menu")
         menuButton.pressed.connect(self.menuChecked)
-        hbox.addWidget(self.okButton)
-        hbox.addWidget(cancelButton)
+        hbox.addWidget(self.runButton)
+        hbox.addWidget(self.closeButton)
         hbox.insertSpacing(1, 20)
         hbox.addWidget(menuButton)
         hbox.addStretch(0)
@@ -147,9 +148,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.buildStack()
 
     def _hal_init(self):
-        self.okButton.setEnabled(False)
-        STATUS.connect('not-all-homed', lambda w, axis: self.okButton.setEnabled(False))
-        STATUS.connect('all-homed', lambda w: self.okButton.setEnabled(True))
+        self.runButton.setEnabled(False)
+        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
 
     # Build a stack per macro found
     # it finds the icon info from the macro file
@@ -245,7 +246,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         w = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout(w)
         vbox.addStretch(1)
-        mess = QtWidgets.QLabel('No Usable Macros Found In:')
+        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path specified in INI file under heading [RS274NGC],\nSUBROUTINE_PATH=')
         vbox.addWidget(mess)
         mess = QtWidgets.QLabel(self.filepath)
         vbox.addWidget(mess)
@@ -305,6 +306,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         except Exception as e:
             LOG.debug('Exception loading Macros:', exc_info=e)
             return None
+        if tName == []:
+            return None
         return tName
 
     # This figures out what macro is showing
@@ -331,13 +334,12 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
     # This could be 'class patched' to do something else
     # the macro dialog does this
-    def okChecked(self):
+    def runChecked(self):
         self.runMacro()
 
     # This could be 'class patched' to do something else
-    def cancelChecked(self):
+    def closeChecked(self):
         self.stack.setCurrentIndex(0)
-        self.close()
 
     # brings the menu selection page to the front
     def menuChecked(self):
