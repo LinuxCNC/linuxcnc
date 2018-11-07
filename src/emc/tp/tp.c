@@ -53,8 +53,8 @@ extern emcmot_config_t *emcmotConfig;
 STATIC int tpComputeBlendVelocity(
         TC_STRUCT const *tc,
         TC_STRUCT const *nexttc,
-        double target_vel_this,
-        double target_vel_next,
+        double v_target_this,
+        double v_target_next,
         double *v_blend_this,
         double *v_blend_next,
         double *v_blend_net);
@@ -72,6 +72,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
+
+STATIC inline double tcGetMaxTargetVel(TC_STRUCT const * const tc, double vLimit);
 
 STATIC int tpAdjustAccelForTangent(
         TC_STRUCT * const tc,
@@ -254,7 +256,7 @@ STATIC inline double getMaxFeedScale(TC_STRUCT const * tc)
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  * Note that this factors in the user-specified velocity limit.
  */
-double tcGetMaxTargetVel(TC_STRUCT const * const tc, double vLimit)
+STATIC inline double tcGetMaxTargetVel(TC_STRUCT const * const tc, double vLimit)
 {
     double max_scale = emcmotConfig->maxFeedScale;
     if (tc->is_blending) {
@@ -699,7 +701,7 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
  * This is used to estimate blend velocity, though by itself is not enough
  * (since requested velocity and max velocity could be lower).
  */
-STATIC double tcCalculateTriangleVel(TC_STRUCT const *tc) {
+STATIC double tcCalculateTriangleVel(TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tc);
     double length = tc->target;
