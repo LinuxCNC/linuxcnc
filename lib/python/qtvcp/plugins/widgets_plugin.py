@@ -8,6 +8,8 @@ from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
 from qtvcp.widgets.status_stacked import StatusStacked
 from qtvcp.widgets.widget_switcher import WidgetSwitcher
 from qtvcp.widgets.origin_offsetview import OriginOffsetView
+from qtvcp.widgets.tool_offsetview import ToolOffsetView
+from qtvcp.widgets.macro_widget import MacroTab
 
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
@@ -232,7 +234,7 @@ class OriginOffsetViewPlugin(QPyDesignerCustomWidgetPlugin):
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('originoffsetview')))
     def toolTip(self):
-        return "Gcode display / editor Widget"
+        return "User Origin Offset Editor Widget"
     def whatsThis(self):
         return ""
     def isContainer(self):
@@ -242,3 +244,66 @@ class OriginOffsetViewPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.origin_offsetview"
 
+####################################
+# ToolOffsetView Widget
+####################################
+class ToolOffsetViewPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(ToolOffsetViewPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return ToolOffsetView(parent)
+    def name(self):
+        return "ToolOffsetView"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('tooloffsetview')))
+    def toolTip(self):
+        return "Tool Offset Editor Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="ToolOffsetView" name="tooloffsetview" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.tool_offsetview"
+
+####################################
+# MacroTab Widget
+####################################
+class MacroTabPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(MacroTabPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return MacroTab(parent)
+    def name(self):
+        return "MacroTab"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('macrotab')))
+    def toolTip(self):
+        return "Macro Subroutine Selection Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="MacroTab" name="macrotab" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.macro_widget"
