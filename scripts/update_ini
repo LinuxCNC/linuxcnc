@@ -78,6 +78,9 @@ if dialogs:
     if ret == 'cancel': exit(42)
     elif ret == 'no': exit(0)
 
+# We want to work with the base INI file here, not the expanded version if #include is used
+filename = re.sub(r'\.expanded', '', filename)
+
 try:
     ini = linuxcnc.ini(filename)
 except:
@@ -165,6 +168,8 @@ if version == "1.0":
     newini = open(filename, 'w')
     inistring = re.sub("VERSION *= *(.*)", "VERSION = %s" % THIS_VERSION, inistring)
     newini.write(inistring)
+    newini.close()
+
 if version == "$Revision$" or version < "1.0":
     
     inistring = open(filename,'r').read()
