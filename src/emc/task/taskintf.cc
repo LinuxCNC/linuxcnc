@@ -1305,20 +1305,6 @@ int emcTrajPause()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajReverse()
-{
-    emcmotCommand.command = EMCMOT_REVERSE;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
-int emcTrajForward()
-{
-    emcmotCommand.command = EMCMOT_FORWARD;
-
-    return usrmotWriteEmcmotCommand(&emcmotCommand);
-}
-
 int emcTrajStep()
 {
     emcmotCommand.command = EMCMOT_STEP;

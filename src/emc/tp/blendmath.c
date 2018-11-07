@@ -121,21 +121,6 @@ double saturate(double x, double max) {
     }
 }
 
-/**
- * Saturate a value x to be within max and min.
- */
-double bisaturate(double x, double max, double min) {
-    if ( x > max ) {
-        return max;
-    }
-    else if ( x < min ) {
-        return min;
-    }
-    else {
-        return x;
-    }
-}
-
 
 /**
  * Apply bounds to a value x.
