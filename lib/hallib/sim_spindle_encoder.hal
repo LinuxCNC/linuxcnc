@@ -1,5 +1,3 @@
-show pin *spindle*
-
 # simulated spindle encoder (for spindle-synced moves)
 loadrt sim_spindle names=sim_spindle
 setp sim_spindle.scale 0.01666667
