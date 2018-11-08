@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
+from qtvcp.widgets.mdi_history import MDIHistory
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
 from qtvcp.widgets.status_stacked import StatusStacked
 from qtvcp.widgets.widget_switcher import WidgetSwitcher
@@ -77,6 +78,38 @@ class MDILinePlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="MDILine" name="mdiline" />\n'
     def includeFile(self):
         return "qtvcp.widgets.mdi_line"
+
+####################################
+# MDI History widget
+####################################
+class MDIHistoryPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(MDIHistoryPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return MDIHistory(parent)
+    def name(self):
+        return "MDIHistory"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('mdihistory')))
+    def toolTip(self):
+        return "MDI History Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="MDIHistory" name="mdihistory" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.mdi_history"
 
 ####################################
 # Gcode editor
