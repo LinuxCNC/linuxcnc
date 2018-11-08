@@ -1,5 +1,10 @@
 #MainWindow {background: black; }
 
+QTableView {
+    alternate-background-color: #f6fafb;
+    background: #e8f4fc;
+}
+
 QStatusBar {
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,

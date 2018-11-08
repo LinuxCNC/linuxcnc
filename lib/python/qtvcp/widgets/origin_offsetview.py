@@ -47,6 +47,7 @@ LOG = logger.getLogger(__name__)
 class OriginOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
         super(OriginOffsetView, self).__init__(parent)
+        self.setAlternatingRowColors(True)
 
         self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]

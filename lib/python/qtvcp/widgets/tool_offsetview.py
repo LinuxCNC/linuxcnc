@@ -47,6 +47,7 @@ LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 class ToolOffsetView(QTableView, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ToolOffsetView, self).__init__(parent)
+        self.setAlternatingRowColors(True)
 
         self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
