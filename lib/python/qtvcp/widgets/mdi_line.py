@@ -52,7 +52,7 @@ class MDI(QLineEdit):
         self.returnPressed.connect(self.submit)
 
     def submit(self):
-        text = str(self.text()).strip()
+        text = str(self.text()).rstrip()
         if text == '': return
         if text == 'HALMETER':
             AUX_PRGM.load_halmeter()
@@ -88,12 +88,17 @@ class MDI(QLineEdit):
     def keyPressEvent(self, event):
         super(MDI, self).keyPressEvent(event)
         if event.key() == Qt.Key_Up:
-            LOG.debug('up')
-            STATUS.emit('move-text-lineup')
+            self.line_up()
         if event.key() == Qt.Key_Down:
-            LOG.debug('down')
-            STATUS.emit('move-text-linedown')
+            self.line_down()
 
+    def line_up(self):
+        LOG.debug('up')
+        STATUS.emit('move-text-lineup')
+
+    def line_down(self):
+        LOG.debug('down')
+        STATUS.emit('move-text-linedown')
 
 class MDILine(MDI):
     def __init__(self, parent=None):
@@ -108,7 +113,10 @@ class MDILine(MDI):
         if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
             if self.soft_keyboard:
                 self._input_panel_full.show_input_panel(widget)
-                ACTION.SET_MDI_MODE()
+                try:
+                    ACTION.SET_MDI_MODE()
+                except:
+                    pass
         return False
 
     #########################################################################
