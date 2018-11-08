@@ -268,6 +268,10 @@ class HandlerClass:
         self.halcomp = halcomp
         self.builder = builder
         self.lcnc = linuxcncInterface()
+
+# disable reverse run button until reverse run is merged into master #####
+        self.builder.get_object('reverseRun').set_sensitive(False)
+
         gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.linuxcncIniFile.find('PLASMAC', 'THEME'))
         configEnable = self.lcnc.linuxcncIniFile.find('PLASMAC', 'CONFIG_ENABLE') or '1'
         sp.Popen(['halcmd setp gladevcp.configEnable ' + configEnable], shell=True)
