@@ -16,10 +16,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, _HalToggleBase, _HalSensitiveBase
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
+from qtvcp.core import Action
 from functools import partial
 import hal
 
 AUX_PRGM = _loader()
+ACTION = Action()
 
 # Set up logging
 from qtvcp import logger
@@ -107,7 +109,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
         self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
-                                 'PROGRAM_LOADER':AUX_PRGM}
+                                 'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION}
         self._localsParameter = {'dir': dir}
 
     # arbitraray python commands are possible using 'INSTANCE' in the string
