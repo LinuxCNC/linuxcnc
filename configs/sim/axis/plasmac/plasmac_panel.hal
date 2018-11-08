@@ -1,0 +1,49 @@
+# TYPICAL HAL CONNECTIONS FOR PLASMAC COMPONENT + PLASMAC-PANEL.PY + PLASMAC-PANEL.GLADE
+
+#***** PLASMAC COMPONENT ***********************************************
+net p_comp:axis-max-limit           ini.z.max_limit                 =>  plasmac.axis-max-limit
+net p_comp:axis-min-limit           ini.z.min_limit                 =>  plasmac.axis-min-limit
+
+#***** GLADEVCP RUN PAGE ***********************************************
+net p_run:arc-ok-out                plasmac.arc-ok-out              =>  gladevcp.arcOk
+net p_run:arc-voltage-out           plasmac.arc-voltage-out         =>  gladevcp.arcVoltage
+net p_run:cornerlock-enable         gladevcp.cornerlockEnable       =>  plasmac.cornerlock-enable
+net p_run:cornerlock-is-locked      plasmac.cornerlock-is-locked    =>  gladevcp.cornerlockIsLocked
+net p_run:cornerlock-threshold      gladevcp.cornerlockThreshold-f  =>  plasmac.cornerlock-threshold
+net p_run:cut-feed-rate             gladevcp.cutFeedRate-f          =>  plasmac.cut-feed-rate
+net p_run:cut-height                gladevcp.cutHeight-f            =>  plasmac.cut-height
+net p_run:cut-volts                 gladevcp.cutVolts-f             =>  plasmac.cut-volts
+net p_run:dry-run                   gladevcp.dryRunStart            =>  plasmac.dry-run-start
+net p_comp:float-switch-out                                         =>  gladevcp.floatSwitch
+net p_run:height-override           gladevcp.heightOverride         =>  plasmac.height-override
+net p_run:kerfcross-enable          gladevcp.kerfCrossEnable        =>  plasmac.kerfcross-enable
+net p_run:kerfcross-is-locked       plasmac.kerfcross-is-locked     =>  gladevcp.kerfCrossIsLocked
+net p_run:kerfcross-threshold       gladevcp.kerfCrossThreshold-f   =>  plasmac.kerfcross-threshold
+net p_run:led-down                  plasmac.led-down                =>  gladevcp.ledDown
+net p_run:led-up                    plasmac.led-up                  =>  gladevcp.ledUp
+net p_run:pid-p-gain                gladevcp.pidPGain-f             =>  plasmac.pid-p-gain
+net p_run:pierce-delay              gladevcp.pierceDelay-f          =>  plasmac.pierce-delay
+net p_run:pierce-height             gladevcp.pierceHeight-f         =>  plasmac.pierce-height
+net p_run:puddle-jump-delay         gladevcp.puddleJumpDelay-f      =>  plasmac.puddle-jump-delay
+net p_run:reverse-run               gladevcp.reverseRun             =>  plasmac.reverse-run
+net p_run:safe-height-is-limited    plasmac.safe-height-is-limited  =>  gladevcp.safeHeightIsLimited
+net p_run:thc-enable                gladevcp.thcEnable              =>  plasmac.thc-enable
+net p_run:thc-threshold             gladevcp.thcThreshold-f         =>  plasmac.thc-threshold
+net p_comp:torch-on                                                 =>  gladevcp.torchOn
+net p_run:use-auto-volts            gladevcp.useAutoVolts           =>  plasmac.use-auto-volts
+
+#***** GLADEVCP CONFIG PAGE ********************************************
+net p_config:arc-ok-high            gladevcp.arcOkHigh-f            =>  plasmac.arc-ok-high
+net p_config:arc-ok-low             gladevcp.arcOkLow-f             =>  plasmac.arc-ok-low
+net p_config:arc-max-starts         gladevcp.arcMaxStarts-s         =>  plasmac.arc-max-starts
+net p_config:arc-fail-delay         gladevcp.arcFailDelay-f         =>  plasmac.arc-fail-delay
+net p_config:arc-voltage-offset     gladevcp.arcVoltageOffset-f     =>  plasmac.arc-voltage-offset
+net p_config:arc-voltage-scale      gladevcp.arcVoltageScale-f      =>  plasmac.arc-voltage-scale
+net p_config:float-switch-travel    gladevcp.floatSwitchTravel-f    =>  plasmac.float-switch-travel
+net p_config:pid-d-gain             gladevcp.pidDGain-f             =>  plasmac.pid-d-gain
+net p_config:pid-i-gain             gladevcp.pidIGain-f             =>  plasmac.pid-i-gain
+net p_config:probe-feed-rate        gladevcp.probeFeedRate-f        =>  plasmac.probe-feed-rate
+net p_config:restart-delay          gladevcp.arcRestartDelay-f         =>  plasmac.restart-delay
+net p_config:safe-height            gladevcp.safeHeight-f           =>  plasmac.safe-height
+net p_config:setup-feed-rate        gladevcp.setupFeedRate-f        =>  plasmac.setup-feed-rate
+net p_config:torch-off-delay        gladevcp.torchOffDelay-f        =>  plasmac.torch-off-delay

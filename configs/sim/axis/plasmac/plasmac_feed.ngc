@@ -1,0 +1,39 @@
+o<plasmac_feed> sub
+
+o1 IF [#<_hal[plasmac.cut-feed-rate]> GT 0]
+    o2 IF [#<_hal[halui.machine.units-per-mm]> EQ 1]
+        o3 IF [#<_metric>]
+            F#<_hal[plasmac.cut-feed-rate]>
+        o3 ELSE
+            F[#<_hal[plasmac.cut-feed-rate]> * 0.03937008]
+        o3 ENDIF
+    o2 ELSEIF [#<_hal[halui.machine.units-per-mm]> EQ 0.039370]
+        o4 IF [#<_imperial>]
+            F#<_hal[plasmac.cut-feed-rate]>
+        o4 ELSE
+            F[#<_hal[plasmac.cut-feed-rate]> * 25.4]
+        o4 ENDIF
+    o2 ENDIF
+    #<feed_back> = #<_hal[plasmac.cut-feed-rate]>
+    #32 = #<_hal[plasmac.cut-feed-rate]>
+o1 ELSE
+    o5 IF [#<_hal[halui.machine.units-per-mm]> EQ 1]
+        o6 IF [#<_metric>]
+            #<feed_back> = #<feed>
+        o6 ELSE
+            #<feed_back> = [#<feed> * 25.4]
+        o6 ENDIF
+    o5 ELSEIF [#<_hal[halui.machine.units-per-mm]> EQ 0.039370]
+        o7 IF [#<_imperial>]
+            #<feed_back> = #<feed>
+        o7 ELSE
+            #<feed_back> = [#<feed> * 0.03937008]
+        o7 ENDIF
+    o5 ENDIF
+    F#<feed>
+o1 ENDIF
+
+; return the scaled feed rate:
+o<plasmac_feed> endsub [#<feed_back>]
+
+m2

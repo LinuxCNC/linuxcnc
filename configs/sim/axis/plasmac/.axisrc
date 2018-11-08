@@ -1,0 +1,42 @@
+#default_font = Tk.tkFont.nametofont("TkDefaultFont")
+#root_window.tk.call(default_font = tkFont.nametofont("TkDefaultFont"))
+#root_window.tk.call(default_font.configure(size=48))
+#root_window.tk.call(root.option_add("*Font", default_font))
+#root_window.tk.call(.pane.option_add("*Font", "courier"))
+
+
+########################################################################
+### get widget info
+
+my_widget = '.pane'
+#my_widget = '.pane.top'
+#my_widget = '.pane.top.tabs'
+#my_widget = '.pane.top.tabs.fmanual.axes.axisx'
+#my_widget = '.pane.top.right'
+#my_widget = '.pane.top.right.fpreview'
+#my_widget = '.pane.top.right.fnumbers'
+#my_widget = '.pane.top.right.fnumbers.text'
+
+if 'my_widget' in locals():
+    print '\n********** BEGIN WIDGET INFO **********'
+    print 'widget is:'
+    print my_widget
+    print
+
+    print 'parent is:', root_window.tk.call('winfo', 'parent',my_widget)
+    print
+
+    print 'children are:'
+    for item in root_window.tk.call('winfo', 'children',my_widget):
+        print item
+    #    if ord(item[1]) >= 48 and ord(item[1]) <=57:
+    #        print root_window.tk.call('winfo', 'children',item)
+    #        for conf in range (len(root_window.tk.call(item,'configure'))):
+    #            print root_window.tk.call(item,'configure')[conf]
+    print
+
+    print 'valid options are:'
+    for item in range (len(root_window.tk.call(my_widget,'configure'))):
+        print root_window.tk.call(my_widget,'configure')[item]
+    print '********** END WIDGET INFO **********\n'
+########################################################################

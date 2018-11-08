@@ -1,0 +1,47 @@
+
+#***** DEBOUNCE FOR THE FLOAT SWITCH ***********************************
+loadrt  debounce                cfg=1
+setp    debounce.0.delay        1
+addf    debounce.0              servo-thread
+
+#***** PLASMAC COMPONENT ***********************************************
+loadrt  plasmac
+addf    plasmac     servo-thread
+
+net p_comp:adaptive-feed            plasmac.adaptive-feed           =>  motion.adaptive-feed
+net p_comp:axis-position            joint.3.pos-fb                  =>  plasmac.axis-position
+net p_comp:current-velocity         motion.current-vel              =>  plasmac.current-velocity
+net p_comp:feed-hold                plasmac.feed-hold               =>  motion.feed-hold
+net p_comp:feed-override            halui.feed-override.value       =>  plasmac.feed-override
+net p_comp:float-switch-out         debounce.0.0.out                =>  plasmac.float-switch
+net p_comp:offset-counts            plasmac.offset-counts           =>  axis.z.eoffset-counts
+net p_comp:offset-current           axis.z.eoffset                  =>  plasmac.offset-current
+net p_comp:offset-enable            plasmac.offset-enable           =>  axis.z.eoffset-enable
+net p_comp:offset-scale             plasmac.offset-scale            =>  axis.z.eoffset-scale
+net p_comp:program.is-idle          halui.program.is-idle           =>  plasmac.program-is-idle
+net p_comp:program.is-paused        halui.program.is-paused         =>  plasmac.program-is-paused
+net p_comp:program.is-running       halui.program.is-running        =>  plasmac.program-is-running
+net p_comp:program-pause            plasmac.program-pause           =>  halui.program.pause
+net p_comp:program-resume           plasmac.program-resume          =>  halui.program.resume
+net p_comp:program-run              plasmac.program-run             =>  halui.program.run
+net p_comp:program-stop             plasmac.program-stop            =>  halui.program.stop
+net p_comp:spindle-is-on            spindle.0.on                    =>  plasmac.spindle-on
+net p_comp:torch-on                 plasmac.torch-on
+net p_comp:units-per-mm             halui.machine.units-per-mm      =>  plasmac.units-per-mm
+
+#***** SET THE FOLLOWING TO SUIT YOUR CONFIGURATION ********************
+
+# FOR ALL MODES
+#net p_comp:torch-on                                                 =>  ***YOUR TORCH ON***
+#net p_comp:float-switch             ***YOUR FLOAT SWITCH***         =>  debounce.0.0.in
+#net p_comp:breakaway                ***YOUR BREAKAWAY SWITCH***     =>  plasmac.breakaway
+
+# FOR MODE 0 AND MODE 1
+#net p_comp:arc-voltage-in           ***YOUR PLASMA ARC VOLTAGE***   =>  plasmac.arc-voltage-in
+
+# FOR MODE 1 AND MODE 2
+#net p_comp:arc-ok-in                ***YOUR PLASMA ARC OK***        =>  plasmac.arc-ok-in
+
+# FOR MODE 2 ONLY
+#net p_comp:move-down                ***YOUR MOVE DOWN SIGNAL***     =>  plasmac.move-down
+#net p_comp:move-up                  ***YOUR MOVE UP SIGNAL***       =>  plasmac.move-up

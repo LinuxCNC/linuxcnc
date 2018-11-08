@@ -1,0 +1,11 @@
+#   all fields must exist… whitespace is not required, ,,,,,,
+#   Format =:,,,,,,,
+#   name,   pierce height,   pierce-delay,   puddle-jump-delay, cut-height,   cut-speed,   cut-amps,   cut-volts
+#,,,,,,,
+Mild Steel 2mm,3.8,0.2,0,1.5,5560,45,128
+Mild Steel 3mm,3.8,0.2,0,1.5,3960,45,128
+Mild Steel 4mm,3.8,0.4,0,1.5,2800,45,128
+Mild Steel 6mm,3.8,0.6,0,1.5,1430,45,130
+Mild Steel 8mm,3.8,0.6,0,1.5,1020,45,133
+Mild Steel 10mm,3.8,0.8,0,1.5,780,45,136
+Mild Steel 12mm,3.8,1,0,1.5,540,45,140

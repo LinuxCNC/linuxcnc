@@ -1,0 +1,15 @@
+# halshow watchlist created Wed Nov 07 14:00:21 AEDT 2018
+
+pin+plasmac.axis-max-limit
+pin+plasmac.axis-min-limit
+pin+plasmac.axis-position
+pin+plasmac.adaptive-feed
+pin+plasmac.cut-feed-rate
+pin+plasmac.dry-run-start
+pin+plasmac.program-is-idle
+pin+plasmac.program-is-paused
+pin+plasmac.program-is-running
+pin+plasmac.program-run
+pin+plasmac.program-pause
+pin+plasmac.program-resume
+pin+plasmac.requested-velocity
