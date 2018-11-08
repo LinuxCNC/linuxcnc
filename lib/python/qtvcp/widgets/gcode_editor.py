@@ -236,7 +236,9 @@ class EditorBase(QsciScintilla):
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
         # here: http://www.scintilla.org/ScintillaDoc.html)
-        self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+        #self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
+        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTH,700)
+        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTHTRACKING)
 
         # default gray background
         self.set_background_color('#C0C0C0')
