@@ -2,14 +2,156 @@ component plasmac;
 
 description
 """
-plasma table controller
+A plasma cutting table control component for use with the linuxcnc master branch.
 
-V0.03 2018-11-06 fix arc restart and add arc restart delay
+.I VERSIONS:
 .br
-V0.02 2018-11-05 add dry run facility
+V0.04 2018-11-10 make the description more comprehensive.
 .br
-V0.01 2018-11-01 initial release
+V0.03 2018-11-06 fix arc restart and add arc restart delay.
+.br
+V0.02 2018-11-05 add dry run facility.
+.br
+V0.01 2018-11-01 initial release.
 
+.I SUMMARY:
+.br
+Not dependent on any particular hardware and should work with any hardware that provides the correct I/O.
+
+No Z axis commands are required in gcode as all required height movements are controlled by this component.
+
+Should scale correctly for both metric and inch configuraions.
+
+Three different operating modes:  
+.RS 3
+.br
+0 Use the plasmac.arc-voltage-in input pin for both arc-OK and THC.
+.br
+1 Use the plasmac.arc-ok-in input pin for arc-OK, use the plasmac.arc-voltage-in input pin for THC.
+.br
+2 Use the plasmac.arc-ok-in input pin for arc-OK, use the plasmac.move-up and the plasmac.move-down input pins for THC, kerf crossing lockout is disabled.
+.RE
+
+A spindle on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
+.RS 3
+.br
+set feedhold.
+.br
+find top of stock.
+.br
+move up to pierce height.
+.br
+start torch, retry if unsuccessful until too many attempts.
+.br
+wait for pierce delay.
+.br
+release feedhold, X/Y motion begins.
+.br
+wait for puddle jump delay.
+.br
+move down to cutting height.
+.br
+use THC (if enabled) to adjust torch height using rules for corner lock and kerf crossing.
+.br
+when spindle on is removed, turn torch off after delay.
+.br
+move to safe height.
+.br
+return to idle state and wait for next cut.
+.RE
+
+Turn torch off, pause program and move to safe height then wait for 'resume' or 'stop' if the following occur:
+.RS 3
+.br
+arc is lost.
+.br
+plasmac.float-switch input pin is activated.
+.br
+plasmac.breakaway input pin is activated.
+.br
+program is paused.
+.RE
+.br
+In the paused state the plasmac.reverse-run input pin will cause the motion to reverse whilst activated.
+.br
+The furthest reversal point is the beginning of the current cut.
+
+Turn torch off, move to safe height and stop program if the following occur:
+.RS 3
+.br
+program is stopped.
+.br
+minimum height is reached during THC.
+.br
+maximum height is reached during THC.
+.RE
+
+Safe height may be reduced if torch height (during THC moves) plus safe height would exceed the maximum height.
+.br
+The minimum allowed reduced safe height is Pierce Height plus 1mm (0.04").
+.br
+If safe height is reduced an error message is sent.
+
+Cut height can be adjusted on the fly by adding an offset to the plasmac.height-override input pin.
+.br
+This offset is added to the THC voltage target to lower or raise the torch.
+
+Target voltage can be selected from:
+.RS 3
+.br
+a voltage automatically read from the initial cut height.
+.br
+the plasmac.cut-volts input pin.
+.RE
+
+.I CUT FEED RATE
+.br
+Usage of the plasmac.cut-feed-rate input pin requires remapping of the F word, if not using this set the plasmac.cut-feed-rate input pin to 0 which will then use the feed rate from the gcode file.
+.br
+The example configuration has remapping for the F word set up as follows:
+.RS 3
+.br
+If the plasmac.cut-feed-rate input pin is > 0 it will use this value for the feed rate and THC calculations.
+.br
+If the plasmac.cut-feed-rate input pin = 0 then the feed rate and THC calculations will be read from the gcode file, scaled and sent to the plasmac.requested-velocity input pin to be used for THC calculations.
+.RE
+The remapped F word is scaled correctly so that both metric and imperial gcode files may be used on both metric and imperial machines.
+
+.I NOTES
+.br
+As at 11 Nov 2018:
+.RS 3
+.br
+there has been no testing done with a plasma cutter attached.
+.br
+software simulation appears to work ok.
+.br
+hardware testing has been limited to a parallel port driven XYZ test rig with simulated arc voltage, arc ok and up/down signals.
+.RE
+
+.I EXAMPLE CONFIGURATION
+.br
+There are example configuration files for both metric and imperial located in:
+.RS 3
+.br
+run in place "configs/sim/axis/plasmac/"
+.br
+installed    "/usr/share/doc/linuxcnc/examples/sample-configs/cim/axis/plasmac/"
+.RE
+.br
+Example ngc files can be found in "nc_files/plasmac/"
+
+.I DISCLAIMER
+.br
+THE AUTHOR OF THIS SOFTWARE ACCEPTS ABSOLUTELY NO LIABILITY FOR ANY HARM OR LOSS RESULTING FROM ITS USE.
+.br
+IT IS EXTREMELY UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.
+.br
+Any machinery capable of harming persons must have provisions for completely removing power from all motors, etc, before persons enter any danger area.
+.br
+All machinery must be designed to comply with local and national safety codes, and the author of this software can not, and does not, take any responsibility for such compliance.
+.br
+All plasmac related software is released under the GPLv2. See the file LICENSE for more details.
 """;
 
 /* INPUT PINS */
