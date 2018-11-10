@@ -31,7 +31,7 @@ def key_pressed( event):
                 Qt.Key_Tab: "Key_Tab",	
                 Qt.Key_Backtab: "Key_Backtab",
                 Qt.Key_Backspace: "Key_Backspace",
-                Qt.Key_Return: "Key_Retuen",
+                Qt.Key_Return: "Key_Return",
                 Qt.Key_Enter: "Key_Enter",
                 Qt.Key_Insert: "Key_Insert",
                 Qt.Key_Delete: "Key_Delete",
