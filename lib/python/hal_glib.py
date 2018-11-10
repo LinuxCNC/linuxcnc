@@ -850,6 +850,30 @@ class _GStat(gobject.GObject):
         if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
         return jjogmode,j_or_a
 
+    def get_probed_position_with_offsets(self) :
+        self.stat.poll()
+        probed_position=list(self.stat.probed_position)
+        coord=list(self.stat.probed_position)
+        g5x_offset=list(self.stat.g5x_offset)
+        g92_offset=list(self.stat.g92_offset)
+        tool_offset=list(self.stat.tool_offset)
+        for i in range(0, len(probed_position)-1):
+             coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
+        angl=self.stat.rotation_xy
+        res=self._rott00_point(coord[0],coord[1],-angl)
+        coord[0]=res[0]
+        coord[1]=res[1]
+        return coord
+
+    # rotate around 0,0 point coordinates
+    def _rott00_point(self,x1=0.,y1=0.,a1=0.) :
+        coord = [x1,y1]
+        if a1 != 0:
+            t = math.radians(a1)
+            coord[0] = x1 * math.cos(t) - y1 * math.sin(t)
+            coord[1] = x1 * math.sin(t) + y1 * math.cos(t)
+        return coord
+
     def shutdown(self):
         self.emit('shutdown')
 

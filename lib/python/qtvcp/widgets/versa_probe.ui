@@ -1,0 +1,2092 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>711</width>
+    <height>498</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QFrame" name="frame_probing">
+     <property name="frameShape">
+      <enum>QFrame::WinPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QStackedWidget" name="stackedWidget_6">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>450</width>
+        <height>210</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="probing_panel_inside_outside">
+       <widget class="QFrame" name="frame_8">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>450</width>
+          <height>182</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="QFrame" name="frame_probing_outside_measure">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>0</y>
+           <width>154</width>
+           <height>175</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="PushButton" name="pbtn_probing_outside_xpyp">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X+
+Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_xpym">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-
+X+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_xp">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_yp">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_ym">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbnt_probing_outside_center">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Outside
+Center</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_xmyp">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X-
+Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbnt_probing_outside_xmym">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-
+X-</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_outside_xm">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X-</string>
+          </property>
+         </widget>
+         <widget class="QFrame" name="frame_probing_outside_measure_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>154</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label_outside_measure">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>154</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Outside Measurements</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+        <widget class="QFrame" name="frame_probing_rotation_edge">
+         <property name="geometry">
+          <rect>
+           <x>338</x>
+           <y>0</y>
+           <width>102</width>
+           <height>123</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="PushButton" name="pbtn_probing_skewed_x_pos">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_skewed_Y_pos">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_skewed_y_neg_m">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_skewed_X_neg_m">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="QFrame" name="frame_rotation_label">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>91</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label_rotation_label">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>102</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Skew Measure</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+        <widget class="QFrame" name="frame_probing_inside_measure">
+         <property name="geometry">
+          <rect>
+           <x>174</x>
+           <y>0</y>
+           <width>154</width>
+           <height>175</height>
+          </rect>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <widget class="PushButton" name="pbtn_probing_inside_xmym">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-
+X-</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_xmyp">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X-
+Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_xm">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X-</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_ym">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_yp">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_xy_hole">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_Inside_xpym">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>125</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Y-
+X+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_xpyp">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>21</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X+
+Y+</string>
+          </property>
+         </widget>
+         <widget class="PushButton" name="pbtn_probing_inside_xp">
+          <property name="geometry">
+           <rect>
+            <x>104</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>X+</string>
+          </property>
+         </widget>
+         <widget class="QFrame" name="frame_probing_inside_label">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>151</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QLabel" name="label_inside_measure">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>154</width>
+             <height>21</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Inside Measurements</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </widget>
+        </widget>
+        <widget class="QLabel" name="label">
+         <property name="geometry">
+          <rect>
+           <x>338</x>
+           <y>134</y>
+           <width>102</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>PROBING  PANEL</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="probing_panel_rotation">
+       <widget class="QFrame" name="frame_probing_rotation">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>450</width>
+          <height>210</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="PushButton" name="pbtn_probing_auto_zero_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>210</y>
+           <width>50</width>
+           <height>42</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Auto
+Zero</string>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>297</y>
+        <width>598</width>
+        <height>102</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="lab_probing_z_2">
+       <property name="geometry">
+        <rect>
+         <x>464</x>
+         <y>46</y>
+         <width>33</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Z </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_xy_clearances">
+       <property name="geometry">
+        <rect>
+         <x>498</x>
+         <y>24</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_z_clearance">
+       <property name="geometry">
+        <rect>
+         <x>498</x>
+         <y>48</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_clearances">
+       <property name="geometry">
+        <rect>
+         <x>496</x>
+         <y>2</y>
+         <width>80</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="text">
+        <string>CLEARANCES</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labprobing_xy">
+       <property name="geometry">
+        <rect>
+         <x>464</x>
+         <y>22</y>
+         <width>33</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X &amp; Y</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_lenght">
+       <property name="geometry">
+        <rect>
+         <x>332</x>
+         <y>24</y>
+         <width>41</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Lenght</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_side_edge_lenght">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>24</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_side_edge">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>2</y>
+         <width>74</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="text">
+        <string>SIDE EDGE</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_rates">
+       <property name="geometry">
+        <rect>
+         <x>251</x>
+         <y>2</y>
+         <width>74</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="text">
+        <string>RATES</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_search_vel">
+       <property name="geometry">
+        <rect>
+         <x>188</x>
+         <y>24</y>
+         <width>58</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Seach Vel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_probe_vel">
+       <property name="geometry">
+        <rect>
+         <x>188</x>
+         <y>46</y>
+         <width>58</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Probe Vel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_search_velocity">
+       <property name="geometry">
+        <rect>
+         <x>251</x>
+         <y>24</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_touched_return_velocity">
+       <property name="geometry">
+        <rect>
+         <x>251</x>
+         <y>48</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_ball_diam">
+       <property name="geometry">
+        <rect>
+         <x>18</x>
+         <y>24</y>
+         <width>83</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Probe Diam</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_latch_return_distance">
+       <property name="geometry">
+        <rect>
+         <x>106</x>
+         <y>72</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_probe">
+       <property name="geometry">
+        <rect>
+         <x>106</x>
+         <y>2</y>
+         <width>74</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="text">
+        <string>PROBE</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_latch_rtrn_dist">
+       <property name="geometry">
+        <rect>
+         <x>2</x>
+         <y>72</y>
+         <width>98</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Latch Return Dist</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_ball_diameter">
+       <property name="geometry">
+        <rect>
+         <x>106</x>
+         <y>24</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_maxImum_travel">
+       <property name="geometry">
+        <rect>
+         <x>106</x>
+         <y>48</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_max_travel">
+       <property name="geometry">
+        <rect>
+         <x>18</x>
+         <y>48</y>
+         <width>83</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Max Travel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>182</y>
+        <width>450</width>
+        <height>116</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QFrame" name="frame_5">
+       <property name="geometry">
+        <rect>
+         <x>47</x>
+         <y>10</y>
+         <width>81</width>
+         <height>95</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="PushButton" name="pbtn_probing_auto_rotation">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>50</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Auto
+Rot</string>
+        </property>
+       </widget>
+       <widget class="LED" name="led">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>17</y>
+          <width>15</width>
+          <height>15</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="LED" name="led_2">
+        <property name="geometry">
+         <rect>
+          <x>60</x>
+          <y>64</y>
+          <width>15</width>
+          <height>15</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="PushButton" name="pbtn_probing_auto_zero">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Auto
+Zero</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QFrame" name="frame_7">
+       <property name="geometry">
+        <rect>
+         <x>252</x>
+         <y>59</y>
+         <width>154</width>
+         <height>45</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QLabel" name="label_z_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>74</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Adjust Angle</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="probe_offset_z_value_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>21</y>
+          <width>74</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="PushButton" name="pbtn_probing_offsets_set_angle">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>0</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set
+Angle</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QFrame" name="frame_probe_offsets">
+       <property name="geometry">
+        <rect>
+         <x>138</x>
+         <y>10</y>
+         <width>96</width>
+         <height>94</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QLabel" name="probe_offset_x_value">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>20</y>
+          <width>74</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="probe_offset_y_value">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>44</y>
+          <width>74</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_y">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>44</y>
+          <width>12</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Y</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_offsets">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>96</width>
+          <height>18</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="text">
+         <string>Adjust Offsets</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_z">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>68</y>
+          <width>12</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Z</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_x">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>20</y>
+          <width>12</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>X</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="probe_offset_z_value">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>70</y>
+          <width>74</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::WinPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QFrame" name="frame_4">
+       <property name="geometry">
+        <rect>
+         <x>252</x>
+         <y>10</y>
+         <width>154</width>
+         <height>44</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="PushButton" name="pbtn_probing_offsets_set_z">
+        <property name="geometry">
+         <rect>
+          <x>104</x>
+          <y>0</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set
+Z</string>
+        </property>
+       </widget>
+       <widget class="PushButton" name="pbtn_probing_offsets_set_y">
+        <property name="geometry">
+         <rect>
+          <x>52</x>
+          <y>0</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set
+Y</string>
+        </property>
+       </widget>
+       <widget class="PushButton" name="pbtn_probing_offsets_set_x">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>50</width>
+          <height>44</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set
+X</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_6">
+      <property name="geometry">
+       <rect>
+        <x>450</x>
+        <y>0</y>
+        <width>150</width>
+        <height>298</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="lab_probing_ang">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>266</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Angle</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_xn">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>8</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X Neg</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_xc">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>30</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X Cent</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_diam">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>244</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Diam</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_z">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>222</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Z</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_ly">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>170</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Len Y</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_yc">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>126</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Y Cent</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_xp">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>52</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X Pos</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_yn">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>104</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Y Neg</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_lx">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>74</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Len X</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_yp">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>148</y>
+         <width>42</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Y Pos</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_a">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>266</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_xp">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>52</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_d">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>244</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probe_offset_xm">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>8</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_lx">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>74</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_yp">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>148</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_xc">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>30</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_z">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>222</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_ym">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>104</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_yc">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>126</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_ly">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>170</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="lab_probing_offset_not_used">
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>200</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::WinPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pbtn_probing_skewed_y_neg_m</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>on_angle_ym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>424</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_probing_skewed_x_pos</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>on_angle_xp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>362</x>
+     <y>52</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>366</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_probing_skewed_X_neg_m</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>on_angle_xm_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>444</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_probing_skewed_Y_pos</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>on_angle_yp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>388</x>
+     <y>92</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>289</x>
+     <y>1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_probing_inside_xy_hole</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>on_xy_hole_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>skew_y_neg_released()</slot>
+  <slot>on_angle_xp_released()</slot>
+  <slot>on_angle_yp_released()</slot>
+  <slot>on_angle_ym_released()</slot>
+  <slot>on_angle_xm_released()</slot>
+  <slot>on_xy_hole_released()</slot>
+ </slots>
+</ui>

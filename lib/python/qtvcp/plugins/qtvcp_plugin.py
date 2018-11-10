@@ -38,3 +38,4 @@ from qtvcp.plugins.screenoptions_plugin import LcncScreenOptionsPlugin
 from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
 from qtvcp.plugins.camview_plugin import CamViewPlugin
 from qtvcp.plugins.toolbutton_plugin import SystemToolButtonPlugin
+from qtvcp.plugins.versa_probe_plugin import VersaProbePlugin
