@@ -67,6 +67,7 @@
   <object class="GtkAdjustment" id="setupFeedRateAdj"/>
   <object class="GtkAdjustment" id="thcMinVelocityAdj"/>
   <object class="GtkAdjustment" id="thcThresholdAdj"/>
+  <object class="GtkAdjustment" id="torchOffDelayAdj"/>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
@@ -106,7 +107,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_Label" id="arcVoltage">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="tooltip_text" translatable="yes">current arc voltage</property>
@@ -129,7 +130,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="arcVoltageLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -159,7 +160,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR000010">
-                                    <property name="width_request">43</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -189,7 +190,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR000011">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -218,7 +219,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR000020">
-                                    <property name="width_request">43</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -248,7 +249,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR000021">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -289,7 +290,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR000100">
-                                    <property name="width_request">43</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -319,7 +320,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR000101">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -347,8 +348,8 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkLabel" id="labelR000110">
-                                    <property name="width_request">43</property>
+                                  <object class="GtkLabel" id="labelR000130">
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -378,7 +379,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR000111">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -406,7 +407,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR000120">
-                                    <property name="width_request">43</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -436,14 +437,13 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR000121">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="tooltip_text" translatable="yes">an external estop has been activated</property>
                                     <property name="double_buffered">False</property>
                                     <property name="xalign">0</property>
-                                    <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">External Estop</property>
+                                    <property name="label" translatable="yes">Ext. Estop</property>
                                     <property name="justify">right</property>
                                   </object>
                                   <packing>
@@ -554,7 +554,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pierceHeight">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -577,7 +577,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200000">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -605,7 +605,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pierceDelay">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -628,7 +628,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200010">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -656,7 +656,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="puddleJumpDelay">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -679,7 +679,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200020">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="tooltip_text" translatable="yes">puddle jump delay in seconds</property>
@@ -730,7 +730,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cutHeight">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -753,7 +753,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200100">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -781,7 +781,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cutFeedRate">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -804,8 +804,8 @@ setting this to 0 will use feed rate from program</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="labelR200110">
-                                    <property name="width_request">110</property>
+                                  <object class="GtkLabel" id="labelR200130">
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -834,7 +834,7 @@ setting this to 0 will use feed rate from program</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cutAmps">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -858,7 +858,7 @@ setting this to 0 will use feed rate from program</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200120">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -886,7 +886,7 @@ setting this to 0 will use feed rate from program</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cutVolts">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -910,7 +910,7 @@ setting this to 0 will use feed rate from program</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="cutVoltsLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -984,7 +984,7 @@ setting this to 0 will use feed rate from program</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR300000">
-                                    <property name="width_request">44</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -1013,7 +1013,7 @@ setting this to 0 will use feed rate from program</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR300001">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1041,7 +1041,7 @@ setting this to 0 will use feed rate from program</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="thcThreshold">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1065,7 +1065,7 @@ setting this to 0 will use feed rate from program</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="thcThresholdLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1093,7 +1093,7 @@ setting this to 0 will use feed rate from program</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pidPGain">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1117,7 +1117,7 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="pidPLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1159,7 +1159,7 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR300100">
-                                    <property name="width_request">44</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -1190,7 +1190,7 @@ turn off to use cut volts from parameters</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="useAutoVoltsLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1218,8 +1218,8 @@ turn off to use cut volts from parameters</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkLabel" id="labelR300110">
-                                    <property name="width_request">43</property>
+                                  <object class="GtkLabel" id="labelR300130">
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -1249,7 +1249,7 @@ turn off to use cut volts from parameters</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR300111">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1277,7 +1277,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR300120">
-                                    <property name="width_request">43</property>
+                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -1307,7 +1307,7 @@ turn off to use cut volts from parameters</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR300121">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -1429,7 +1429,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="GtkLabel" id="labelR50000000">
-                                            <property name="width_request">44</property>
+                                            <property name="width_request">55</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                           </object>
@@ -1458,7 +1458,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR50000001">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -1486,7 +1486,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="HAL_SpinButton" id="cornerlockThreshold">
-                                            <property name="width_request">64</property>
+                                            <property name="width_request">75</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="has_tooltip">True</property>
@@ -1510,7 +1510,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR50000010">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -1538,7 +1538,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="GtkLabel" id="labelR50000020">
-                                            <property name="width_request">43</property>
+                                            <property name="width_request">55</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                           </object>
@@ -1568,7 +1568,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR50000021">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -1632,7 +1632,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="GtkLabel" id="labelR5001000">
-                                            <property name="width_request">44</property>
+                                            <property name="width_request">55</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                           </object>
@@ -1661,7 +1661,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR5001001">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -1689,7 +1689,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="HAL_SpinButton" id="kerfCrossThreshold">
-                                            <property name="width_request">64</property>
+                                            <property name="width_request">75</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="has_tooltip">True</property>
@@ -1713,7 +1713,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR5001010">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -1741,7 +1741,7 @@ turn off to use cut volts from parameters</property>
                                         <property name="can_focus">False</property>
                                         <child>
                                           <object class="GtkLabel" id="labelR5001020">
-                                            <property name="width_request">43</property>
+                                            <property name="width_request">55</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                           </object>
@@ -1771,7 +1771,7 @@ turn off to use cut volts from parameters</property>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="labelR5001021">
-                                            <property name="width_request">110</property>
+                                            <property name="width_request">128</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="has_tooltip">True</property>
@@ -2033,7 +2033,7 @@ turn torch on or use THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="safeHeight">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2057,7 +2057,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC000000">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2086,7 +2086,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="floatSwitchTravel">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2108,7 +2108,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC000010">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2148,7 +2148,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="probeFeedRate">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2170,14 +2170,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC1111">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">probe speed in machine units per minute</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Probe Feed Rate </property>
+                                    <property name="label" translatable="yes">Probe Speed</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2256,7 +2256,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcFailDelay">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2278,7 +2278,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC100000">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2306,7 +2306,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcMaxStarts">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2328,14 +2328,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC100010">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">maximumum number of allowed attempts to start the arc</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Start Attempts</property>
+                                    <property name="label" translatable="yes">Max.Starts</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2356,7 +2356,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcRestartDelay">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2378,14 +2378,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC100020">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">offset required to set actual voltage to zero when arc voltage is zero</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Restart Delay </property>
+                                    <property name="label" translatable="yes">Retry Delay </property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2406,7 +2406,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="torchOffDelay">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2428,14 +2428,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC100030">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">arc off delay in seconds</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Torch Off Delay </property>
+                                    <property name="label" translatable="yes">Off Delay </property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2468,7 +2468,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcVoltageScale">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2490,7 +2490,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="arcVoltageScaleLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2518,7 +2518,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcVoltageOffset">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2540,7 +2540,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="arcVoltageOffsetLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2568,7 +2568,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcOkHigh">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2590,14 +2590,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="arcOkHighLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">maximum voltage level for valid arc ok signal</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">OK High Voltage</property>
+                                    <property name="label" translatable="yes">OK High Volts</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2618,7 +2618,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arcOkLow">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2640,14 +2640,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="arcOkLowLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">minimum voltage level for valid arc ok signal</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">OK Low Voltage </property>
+                                    <property name="label" translatable="yes">OK Low Volts</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2717,7 +2717,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="maxOffsetVelocityIn">
-                                    <property name="width_request">40</property>
+                                    <property name="width_request">52</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2733,7 +2733,7 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label1">
-                                    <property name="width_request">24</property>
+                                    <property name="width_request">23</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -2745,14 +2745,14 @@ this may be reduced due to THC movement</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC200000">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="tooltip_text" translatable="yes">maximum allowed offset feed rate in machine units per minute</property>
                                     <property name="double_buffered">False</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Max Feed Rate </property>
+                                    <property name="label" translatable="yes">Max. Speed</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2773,7 +2773,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="setupFeedRate">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2799,7 +2799,7 @@ safe height</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelC200010">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2810,7 +2810,7 @@ cutting height
 safe height</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Setup Feed Rate </property>
+                                    <property name="label" translatable="yes">Setup Speed</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2843,7 +2843,7 @@ safe height</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pidIGain">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2865,7 +2865,7 @@ safe height</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="pidILabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -2893,7 +2893,7 @@ safe height</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pidDGain">
-                                    <property name="width_request">64</property>
+                                    <property name="width_request">75</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -2915,7 +2915,7 @@ safe height</property>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="pidDLabel">
-                                    <property name="width_request">110</property>
+                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -3087,5 +3087,4 @@ Note: this also saves current cut parameters as the default</property>
       </object>
     </child>
   </object>
-  <object class="GtkAdjustment" id="torchOffDelayAdj"/>
 </interface>

@@ -1,0 +1,96 @@
+# set the window size, change pad_width and pad_height to suit your setup
+#maxgeo=root_window.tk.call('wm', 'maxsize', '.')
+#if type(maxgeo) == tuple:
+#    fullsize=str(maxgeo[0]),str(maxgeo[1])
+#else:
+#    fullsize=maxgeo.split(' ')[0],maxgeo.split(' ')[1]
+#pad_width=60
+#pad_height=60
+#width=str(int(fullsize[0])-pad_width)
+#height=str(int(fullsize[1])-pad_height)
+#x=str(pad_width/2)
+#y=str(pad_height/2)
+#print '\nAxis window is', width, 'x', height, 'and starts at', x, 'x', y, '\n'
+#root_window.tk.call('wm', 'geometry', '.',width + 'x' + height + '+' + x + '+' + y)
+
+# disable the 'do you want to close' dialog
+root_window.tk.call('wm', 'protocol', '.', 'WM_DELETE_WINDOW', 'destroy .')
+
+# if we find plasma anywhere in the title
+if 'plasma' in inifile.find("EMC","MACHINE").lower():
+# set the view to Z
+    commands.set_view_z()
+
+# set the default font and the gcode font
+    font = inifile.find("PLASMAC","FONT") or 'sans 10'
+    fname = font.split()[0]
+    fsize = font.split()[1]
+#   default font
+    root_window.tk.call('font', 'configure', 'TkDefaultFont', '-family', fname, '-size', fsize)
+#   gcode font
+    root_window.tk.call('.pane.bottom.t.text', 'configure', '-height', '10','-font', font, '-foreground', 'blue')
+
+# redo the text in tabs so they resize for the new default font
+#   manual tab
+    root_window.tk.call('.pane.top.tabs', 'itemconfigure', 'manual', '-text', ' Manual - F3 ')
+#   mdi tab
+    root_window.tk.call('.pane.top.tabs', 'itemconfigure', 'mdi', '-text', ' MDI - F5 ')
+#   preview tab
+    root_window.tk.call('.pane.top.right', 'itemconfigure', 'preview', '-text', ' Preview ')
+#   dro tab
+    root_window.tk.call('.pane.top.right', 'itemconfigure', 'numbers', '-text', ' DRO ')
+
+# hide some widgets
+    root_window.tk.call('grid', 'forget', '.pane.top.tabs.fmanual.jogf.zerohome.tooltouch')
+    root_window.tk.call('pack', 'forget', '.pane.top.tabs.fmanual.spindlef.cw')
+    root_window.tk.call('pack', 'forget', '.pane.top.tabs.fmanual.spindlef.spindleminus')
+    root_window.tk.call('pack', 'forget', '.pane.top.tabs.fmanual.spindlef.spindleplus')
+    root_window.tk.call('pack', 'forget', '.pane.top.tabs.fmanual.spindlef.brake')
+
+# change some widgets
+    root_window.tk.call('.pane.top.tabs.fmanual.space1', 'configure', '-height', '30')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlel', 'configure', '-text', 'Torch: ')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlef.ccw', 'configure', '-image', '')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlef.ccw', 'configure', '-text', 'ON')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlef.ccw', 'configure', '-width', '6')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlef.stop', 'configure', '-text', 'OFF')
+    root_window.tk.call('.pane.top.tabs.fmanual.spindlef.stop', 'configure', '-width', '4')
+
+########################################################################
+#   gets widget information
+#   uncomment any you need to look at, one or more at a time
+#   lots more can be added
+
+my_widget = [\
+#'.pane',\
+#'.pane.top',\
+#'.pane.top.tabs',\
+#'.pane.top.tabs.c',\
+#'.pane.top.tabs.fmanual',\
+#'.pane.top.tabs.fmanual.space1',\
+#'.pane.top.tabs.fmanual.axis',\
+#'.pane.top.tabs.fmanual.axes',\
+#'.pane.top.tabs.fmanual.axes.axisx',\
+#'.pane.top.tabs.fmanual.spindlel',\
+#'.pane.top.tabs.fmanual.spindlef',\
+#'.pane.top.right',\
+#'.pane.top.right.fpreview',\
+#'.pane.top.right.fnumbers',\
+#'.pane.top.right.fnumbers.text',\
+#'.pane.bottom',\
+#'.pane.bottom.t',\
+#'.pane.bottom.t.text',\
+]
+for widget in my_widget:
+    print '\n********** BEGIN', widget, '**********'
+    print '\nwidget', widget, 'is a', root_window.tk.call('winfo', 'class', widget)
+    print '\nparent is:', root_window.tk.call('winfo', 'parent', widget)
+    print '\nchildren are:'
+    for item in root_window.tk.call('winfo', 'children', widget):
+        print '  ', item
+    print '\nvalid options are:'
+    for item in range (len(root_window.tk.call(widget,'configure'))):
+        print '  ', root_window.tk.call(widget,'configure')[item]
+    print '\n********** END', widget, '**********\n'
+
+########################################################################

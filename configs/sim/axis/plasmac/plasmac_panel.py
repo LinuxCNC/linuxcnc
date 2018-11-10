@@ -186,9 +186,9 @@ class HandlerClass:
         if mode != Global.oldMode:
             if mode == 0:
                 self.builder.get_object('arcOkHigh').show()
-                self.builder.get_object('arcOkHighLabel').set_text('OK High Voltage')
+                self.builder.get_object('arcOkHighLabel').set_text('OK High Volts')
                 self.builder.get_object('arcOkLow').show()
-                self.builder.get_object('arcOkLowLabel').set_text('OK Low Voltage')
+                self.builder.get_object('arcOkLowLabel').set_text('OK Low Volts')
                 self.builder.get_object('arcVoltage').show()
                 self.builder.get_object('arcVoltageLabel').set_text('Arc Voltage')
                 self.builder.get_object('arcVoltageScale').show()
@@ -268,11 +268,12 @@ class HandlerClass:
         self.halcomp = halcomp
         self.builder = builder
         self.lcnc = linuxcncInterface()
-
 # disable reverse run button until reverse run is merged into master #####
-        self.builder.get_object('reverseRun').set_sensitive(False)
-
+        #self.builder.get_object('reverseRun').set_sensitive(False)
+        self.builder.get_object('reverseRun').hide()
         gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.linuxcncIniFile.find('PLASMAC', 'THEME'))
+        font = self.lcnc.linuxcncIniFile.find('PLASMAC', 'FONT') or 'sans 10'
+        gtk.settings_get_default().set_property('gtk-font-name', font)
         configEnable = self.lcnc.linuxcncIniFile.find('PLASMAC', 'CONFIG_ENABLE') or '1'
         sp.Popen(['halcmd setp gladevcp.configEnable ' + configEnable], shell=True)
         Global.thcFeedRate = (float(self.lcnc.linuxcncIniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
