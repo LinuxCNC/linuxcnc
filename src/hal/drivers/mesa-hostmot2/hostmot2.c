@@ -1760,7 +1760,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         // if there's a watchdog, set it to safe the board right away
         if (hm2->watchdog.num_instances > 0) {
             hm2->watchdog.instance[0].enable = 1;
-            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
+            (*hm2->watchdog.instance[0].hal.pin.timeout_ns) = 1;
             hm2_watchdog_force_write(hm2);
         }
 

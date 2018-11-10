@@ -985,11 +985,8 @@ typedef struct {
 
         struct {
             hal_bit_t *has_bit;
+            hal_u32_t *timeout_ns;
         } pin;
-
-        struct {
-            hal_u32_t timeout_ns;
-        } param;
 
     } hal;
 
