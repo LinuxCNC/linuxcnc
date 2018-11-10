@@ -60,6 +60,7 @@ typedef struct {
     hal_bit_t *spindle_inhibit;
     hal_float_t *spindle_revs;
     hal_bit_t *spindle_is_atspeed;
+    hal_bit_t *spindle_amp_fault;
 
     // spindle orient
     hal_float_t *spindle_orient_angle;  /* out: desired spindle angle, degrees */

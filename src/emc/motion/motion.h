@@ -610,6 +610,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     double spindleRevs;     /* position of spindle in revolutions */
     double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
     int at_speed;
+	int fault; /* amplifier fault */
     } spindle_status_t;
     
     typedef struct {

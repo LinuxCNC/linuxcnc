@@ -457,6 +457,11 @@ static void process_inputs(void)
     // a fault was signalled during a spindle-orient in progress
     // signal error, and cancel the orient
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+        if(*(emcmot_hal_data->spindle[spindle_num].spindle_amp_fault)){
+            emcmotStatus->spindle_status[spindle_num].fault = 1;
+        }else{
+            emcmotStatus->spindle_status[spindle_num].fault = 0;
+        }
 		if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient)) {
 			if (*(emcmot_hal_data->spindle[spindle_num].spindle_orient_fault)) {
 				emcmotStatus->spindle_status[spindle_num].orient_state = EMCMOT_ORIENT_FAULTED;
@@ -692,7 +697,7 @@ static void process_probe_inputs(void)
 
 static void check_for_faults(void)
 {
-    int joint_num;
+    int joint_num, spindle_num;
     emcmot_joint_t *joint;
     int neg_limit_override, pos_limit_override;
 
@@ -703,6 +708,13 @@ static void check_for_faults(void)
 	    reportError(_("motion stopped by enable input"));
 	    emcmotDebug->enabling = 0;
 	}
+    }
+    /* check for spindle ampfifier errors */
+    for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+        if(emcmotStatus->spindle_status[spindle_num].fault && GET_MOTION_ENABLE_FLAG()){
+            reportError(_("spindle %d amplifier fault"), spindle_num);
+            emcmotDebug->enabling = 0;
+        }
     }
     /* check for various joint fault conditions */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
