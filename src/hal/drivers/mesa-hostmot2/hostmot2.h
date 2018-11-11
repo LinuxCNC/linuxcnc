@@ -250,13 +250,10 @@ typedef struct {
             hal_bit_t *in;
             hal_bit_t *in_not;
             hal_bit_t *out;
+            hal_bit_t *is_output;
+            hal_bit_t *is_opendrain;
+            hal_bit_t *invert_output;
         } pin;
-
-        struct {
-            hal_bit_t is_output;
-            hal_bit_t is_opendrain;
-            hal_bit_t invert_output;
-        } param;
 
     } hal;
 } hm2_gpio_instance_t;
