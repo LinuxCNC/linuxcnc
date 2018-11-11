@@ -136,7 +136,7 @@ void hm2_tp_pwmgen_force_write(hostmot2_t *hm2) {
     hm2->llio->write(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
     hm2->llio->write(hm2->llio, hm2->tp_pwmgen.pwmgen_master_rate_dds_addr, &hm2->tp_pwmgen.pwmgen_master_rate_dds_reg, sizeof(u32));
 
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return;
 
     for (i = 0; i < hm2->tp_pwmgen.num_instances; i ++) {
         hm2->tp_pwmgen.instance[i].written_faultpolarity = *hm2->tp_pwmgen.instance[i].hal.pin.faultpolarity;

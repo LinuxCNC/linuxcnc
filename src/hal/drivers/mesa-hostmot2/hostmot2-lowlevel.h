@@ -61,6 +61,12 @@
 
 typedef struct hm2_lowlevel_io_struct hm2_lowlevel_io_t;
 
+typedef struct {
+    struct {
+        hal_bit_t *io_error;
+    } pin;
+} hm2_low_level_io_global_t;
+
 // FIXME: this is really a lowlevel io *instance*, or maybe a "board"
 struct hm2_lowlevel_io_struct {
     char name[HAL_NAME_LEN+1];
@@ -98,7 +104,7 @@ struct hm2_lowlevel_io_struct {
     //   hostmot2 driver call into llio to reset the hardware and start
     //   driving it again.
     //
-    hal_bit_t *io_error;
+    hm2_low_level_io_global_t *hal;
 
     // this gets set to TRUE when the llio driver detects an io_error, and
     // by the hm2 watchdog (if present) when it detects a watchdog bite
