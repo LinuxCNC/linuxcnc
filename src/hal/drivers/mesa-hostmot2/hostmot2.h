@@ -469,13 +469,10 @@ typedef struct {
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *error;
+            hal_float_t *scale;
+            hal_float_t *vel_scale;
+            hal_u32_t *index_div;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_float_t vel_scale;
-            hal_u32_t index_div;
-        } param;
 
     } hal;
 
@@ -488,8 +485,8 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_float_t excitation_khz;
-    } param;
+        hal_float_t *excitation_khz;
+    } pin;
 } hm2_resolver_global_t;
 
 typedef struct {
