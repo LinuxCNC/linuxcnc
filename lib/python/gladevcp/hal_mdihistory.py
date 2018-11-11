@@ -14,7 +14,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import os, time, string
+import os
+#import pango
 
 import gobject, gtk
 
@@ -54,6 +55,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.tv.set_search_column(0)
         self.tv.set_reorderable(False)
         self.tv.set_headers_visible(True)
+        self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
 
         scroll = gtk.ScrolledWindow()
         scroll.add(self.tv)
@@ -62,6 +64,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
         self.entry = gtk.Entry()
         self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
+        #self.entry.modify_font(pango.FontDescription('Dejavu Sans 14'))
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -127,7 +130,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         lastiter = self._get_iter_last(self.model)
         len = int(self.model.get_string_from_iter(lastiter))
 
-        if actual[0] >= len - 2 and old_cmd == cmd:
+        if actual[0] == len and old_cmd == cmd:
             add_to_file = False
 
         if add_to_file:
@@ -142,6 +145,9 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             path = self.model.get_path(last)
             self.tv.scroll_to_cell(path)
             self.tv.set_cursor(path)
+            self.entry.set_text('')
+            self.entry.grab_focus()
+        self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
 
     def select(self, w):
         idx = w.get_cursor()[0]
@@ -154,6 +160,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     def on_key_press_event(self,w,event):
         # get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
+#        print(keyname)
         idx = self.tv.get_cursor()[0]
         if idx is None:
             return True
@@ -161,21 +168,41 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         lastiter = self._get_iter_last(self.model)
         len = int(self.model.get_string_from_iter(lastiter))
 
+        #if nothing is selected, we need to activate the last one on up key
+        selection = self.tv.get_selection()
+        _, selected = selection.get_selected()
+
+
         if keyname == 'Up':
-            if idx[0] > 0:
-                self.tv.set_cursor(idx[0] - 1)
+            self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
+            if not selected:
+                self.tv.set_cursor(len)
             else:
-                self.tv.set_cursor(idx[0])
+                if idx[0] > 0:
+                    self.tv.set_cursor(idx[0] - 1)
+                else:
+                    self.tv.set_cursor(idx[0])
             return True
 
         if keyname == 'Down':
+            if not selected:
+                return True
+            self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
             if idx[0] < len:
                 self.tv.set_cursor(idx[0] + 1)
             else:
                 self.tv.set_cursor(idx[0])
             return True
 
+        if keyname == 'Escape':
+            self.entry.set_text('')
+            self.entry.grab_focus()
+            self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
+
     def on_button_press_event(self,w,event):
+        print(event)
+#        if event.type == gtk.gdk._2BUTTON_PRESS:
+#            print("Double Click")
         idx = w.get_cursor()[0]
         if idx is None:
             return True
@@ -202,7 +229,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         return last
 
 # for testing without glade editor or LinuxCNC not running:
-if __name__ == "__main__":
+def main():
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     mdi = EMC_MDIHistory()
     window.add(mdi)
