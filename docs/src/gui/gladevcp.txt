@@ -1903,6 +1903,27 @@ This is for displaying and entering MDI codes. +
 It will automatically gray out when MDI is not available. +
 Eg during Estop and program running.
 
+font_size_tree::
+    a integer value between 8 and 96+
+    will modify the default font size of the treeview +
+    to the selected value +
+font_size_entry::
+    a integer value between 8 and 96+
+    will modify the default font size of the entry +
+    to the selected value +
+use_double_click::
+    True or False, setting this to True will enable the mouse double click +
+    feature and a double click on an entry will submit that command +
+    It is not recommended to use this feature on real machines, as a double +
+    click on a wrong entry may cause dangerous situations
+
+Using goobject to set the above listed properties::
+
+    Using goobject to set the listed properties:
+    [widget name].set_property("font_size_tree", 10)
+    [widget name].set_property("font_size_entry", 20)
+    [widget name].set_property("use_double_click", False)
+
 === Animated function diagrams: HAL widgets in a bitmap
 
 For some applications it might be desirable to have background image -
