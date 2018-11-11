@@ -67,6 +67,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.entry.connect('icon-press', self.submit)
         self.tv.connect('cursor-changed', self.select)
         self.tv.connect('key_press_event', self.on_key_press_event)
+        self.connect('key_press_event', self.on_key_press_event)
         self.tv.connect('button_press_event', self.on_button_press_event)
 
         self.pack_start(scroll, True)
@@ -101,44 +102,77 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
     def submit(self, *a):
         cmd = self.entry.get_text()
-        if cmd == 'HALMETER':
+        if cmd == 'HALMETER' or cmd == 'halmeter':
             self.load_halmeter()
             return
-        elif cmd == 'STATUS':
+        elif cmd == 'STATUS' or cmd == 'status':
             self.load_status()
             return
-        elif cmd == 'HALSHOW':
+        elif cmd == 'HALSHOW' or cmd == 'halshow':
             self.load_halshow()
             return
         if not cmd:
             return
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
 
-        try:
-            fp = open(self.filename, 'a')
-            fp.write(cmd + "\n")
-            fp.close()
-        except:
-            pass
-
         self.linuxcnc.mdi(cmd)
-        last = self.model.append((cmd,))
-        path = self.model.get_path(last)
-        self.tv.scroll_to_cell(path)
-        self.tv.set_cursor(path)
         self.entry.set_text('')
         self.entry.grab_focus()
 
-    def select(self, w):
-        self.entry.set_text('')
+        add_to_file = True
+        actual = self.tv.get_cursor()[0]
+        iter = self.model.get_iter(actual)
+        old_cmd = self.model.get_value(iter,0)
 
-    def on_key_press_event(self,w,event):
+        lastiter = self._get_iter_last(self.model)
+        len = int(self.model.get_string_from_iter(lastiter))
+
+        if actual[0] >= len - 2 and old_cmd == cmd:
+            add_to_file = False
+
+        if add_to_file:
+            try:
+                fp = open(self.filename, 'a')
+                fp.write(cmd + "\n")
+                fp.close()
+            except:
+                pass
+
+            last = self.model.append((cmd,))
+            path = self.model.get_path(last)
+            self.tv.scroll_to_cell(path)
+            self.tv.set_cursor(path)
+
+    def select(self, w):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        if gtk.gdk.keyval_name(event.keyval) == 'Return':
-            self.entry.set_text(self.model[idx][0])
-            self.entry.grab_focus()
+        self.entry.set_text(self.model[idx][0])
+        self.entry.grab_focus()
+        self.entry.set_position(-1)
+
+    def on_key_press_event(self,w,event):
+        # get the keyname
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        idx = self.tv.get_cursor()[0]
+        if idx is None:
+            return True
+
+        lastiter = self._get_iter_last(self.model)
+        len = int(self.model.get_string_from_iter(lastiter))
+
+        if keyname == 'Up':
+            if idx[0] > 0:
+                self.tv.set_cursor(idx[0] - 1)
+            else:
+                self.tv.set_cursor(idx[0])
+            return True
+
+        if keyname == 'Down':
+            if idx[0] < len:
+                self.tv.set_cursor(idx[0] + 1)
+            else:
+                self.tv.set_cursor(idx[0])
             return True
 
     def on_button_press_event(self,w,event):
@@ -146,6 +180,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         if idx is None:
             return True
         self.entry.set_text(self.model[idx][0])
+        self.entry.grab_focus()
+        self.entry.set_position(-1)
 
     def load_halmeter(self):
         p = os.popen("halmeter &")
@@ -156,3 +192,24 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
         except:
             self.entry.set_text('ERROR loading halshow')
+
+    def _get_iter_last(self, model):
+        itr = model.get_iter_first()
+        last = None
+        while itr:
+            last = itr
+            itr = model.iter_next(itr)
+        return last
+
+# for testing without glade editor or LinuxCNC not running:
+if __name__ == "__main__":
+    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    mdi = EMC_MDIHistory()
+    window.add(mdi)
+    window.connect("destroy", gtk.main_quit)
+    window.set_size_request(250, 400)
+    window.show_all()
+    gtk.main()
+
+if __name__ == "__main__":
+    main()
