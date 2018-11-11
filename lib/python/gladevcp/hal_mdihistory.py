@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 
 import os
-#import pango
+import pango
 
 import gobject, gtk
 
@@ -30,9 +30,30 @@ except:
     pass
 
 class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
+    '''
+    EMC_MDIHistory will store each MDI command to a file on your hard drive
+    and display the grabbed commands in a treeview so they can be used again
+    without typing the complete comand again
+    '''
+
     __gtype_name__ = 'EMC_MDIHistory'
+    __gproperties__ = {
+        'font_size_tree' : (gobject.TYPE_INT, 'Font Size', 'The font size of the tree view text',
+                    8, 96, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'font_size_entry' : (gobject.TYPE_INT, 'Font Size', 'The font size of the entry text',
+                    8, 96, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'use_double_click' : (gobject.TYPE_BOOLEAN, 'Enable submit a command using a double click', 'A double click on an entry will submit the selected command directly\nIt is not recommended to use this on real machines',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+    }
+    __gproperties = __gproperties__
+
+    __gsignals__ = {
+                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+                   }
+
     def __init__(self, *a, **kw):
         gtk.VBox.__init__(self, *a, **kw)
+        self.use_double_click = False
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
@@ -44,6 +65,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.model = gtk.ListStore(str)
 
         self.tv = gtk.TreeView()
+        self.default_font = self.tv.get_style().font_desc.to_string()
+        self.tv.modify_font(pango.FontDescription(self.default_font))
         self.tv.set_model(self.model)
         self.cell = gtk.CellRendererText()
 
@@ -64,7 +87,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
         self.entry = gtk.Entry()
         self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
-        #self.entry.modify_font(pango.FontDescription('Dejavu Sans 14'))
+        self.entry.modify_font(pango.FontDescription(self.default_font))
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -200,15 +223,17 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
 
     def on_button_press_event(self,w,event):
-        print(event)
-#        if event.type == gtk.gdk._2BUTTON_PRESS:
-#            print("Double Click")
         idx = w.get_cursor()[0]
         if idx is None:
             return True
+        self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
         self.entry.set_text(self.model[idx][0])
         self.entry.grab_focus()
         self.entry.set_position(-1)
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            print("Double Click", self.use_double_click)
+            if self.use_double_click:
+                self.submit()
 
     def load_halmeter(self):
         p = os.popen("halmeter &")
@@ -228,10 +253,49 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             itr = model.iter_next(itr)
         return last
 
+    def _change_font_entry(self, value):
+        font = self.default_font.split()[0]
+        new_font = font +" " + str(value)
+        self.entry.modify_font(pango.FontDescription(new_font))
+
+    def _change_font_tree(self, value):
+        font = self.default_font.split()[0]
+        new_font = font +" " + str(value)
+        self.tv.modify_font(pango.FontDescription(new_font))
+
+    # Get property
+    def do_get_property(self, property):
+        name = property.name.replace('-', '_')
+        if name in self.__gproperties.keys():
+            return getattr(self, name)
+        else:
+            raise AttributeError('unknown property %s' % property.name)
+
+    # Set property
+    def do_set_property(self, property, value):
+        try:
+            name = property.name.replace('-', '_')
+            if name in self.__gproperties.keys():
+                setattr(self, name, value)
+                self.queue_draw()
+                if name == "font_size_tree":
+                    self._change_font_tree(value)
+                if name == "font_size_entry":
+                    self._change_font_entry(value)
+                if name == "use_double_click":
+                    self.use_double_click = value
+            else:
+                raise AttributeError('unknown property %s' % property.name)
+        except:
+            pass
+
 # for testing without glade editor or LinuxCNC not running:
 def main():
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     mdi = EMC_MDIHistory()
+    mdi.set_property("font_size_tree", 12)
+    mdi.set_property("font_size_entry", 20)
+    mdi.set_property("use_double_click", True)
     window.add(mdi)
     window.connect("destroy", gtk.main_quit)
     window.set_size_request(250, 400)
