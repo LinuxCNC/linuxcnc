@@ -536,12 +536,9 @@ typedef struct {
         struct {
             hal_float_t *value;
             hal_bit_t *enable;
+            hal_float_t *scale;
+            hal_s32_t *output_type;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_s32_t output_type;
-        } param;
 
     } hal;
 
@@ -558,9 +555,9 @@ typedef struct {
 // these hal params affect all pwmgen instances
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency;
-        hal_u32_t pdm_frequency;
-    } param;
+        hal_u32_t *pwm_frequency;
+        hal_u32_t *pdm_frequency;
+    } pin;
 } hm2_pwmgen_module_global_t;
 
 
