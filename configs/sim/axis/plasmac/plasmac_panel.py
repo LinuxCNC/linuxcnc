@@ -269,8 +269,7 @@ class HandlerClass:
         self.builder = builder
         self.lcnc = linuxcncInterface()
 # disable reverse run button until reverse run is merged into master #####
-        #self.builder.get_object('reverseRun').set_sensitive(False)
-        self.builder.get_object('reverseRun').hide()
+        self.builder.get_object('reverseRun').set_sensitive(False)
         gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.linuxcncIniFile.find('PLASMAC', 'THEME'))
         font = self.lcnc.linuxcncIniFile.find('PLASMAC', 'FONT') or 'sans 10'
         gtk.settings_get_default().set_property('gtk-font-name', font)

@@ -23,7 +23,7 @@ No Z axis commands are required in gcode as all required height movements are co
 Should scale correctly for both metric and inch configuraions.
 
 Three different operating modes:  
-.RS 3
+..RS 1
 .br
 0 Use the plasmac.arc-voltage-in input pin for both arc-OK and THC.
 .br
@@ -33,57 +33,59 @@ Three different operating modes:
 .RE
 
 A spindle on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
-.RS 3
+.RS 1
 .br
-set feedhold.
+- set feedhold.
 .br
-find top of stock.
+- find top of stock.
 .br
-move up to pierce height.
+- move up to pierce height.
 .br
-start torch, retry if unsuccessful until too many attempts.
+- start torch, retry if unsuccessful until too many attempts.
 .br
-wait for pierce delay.
+- wait for pierce delay.
 .br
-release feedhold, X/Y motion begins.
+- release feedhold, X/Y motion begins.
 .br
-wait for puddle jump delay.
+- wait for puddle jump delay.
 .br
-move down to cutting height.
+- move down to cutting height.
 .br
-use THC (if enabled) to adjust torch height using rules for corner lock and kerf crossing.
+- use THC (if enabled) to adjust torch height using rules for corner lock and kerf crossing.
 .br
-when spindle on is removed, turn torch off after delay.
+- when spindle on is removed, turn torch off after delay.
 .br
-move to safe height.
+- move to safe height.
 .br
-return to idle state and wait for next cut.
+- return to idle state and wait for next cut.
 .RE
 
 Turn torch off, pause program and move to safe height then wait for 'resume' or 'stop' if the following occur:
-.RS 3
+.RS 1
 .br
-arc is lost.
+- arc is lost.
 .br
-plasmac.float-switch input pin is activated.
+- plasmac.float-switch input pin is activated.
 .br
-plasmac.breakaway input pin is activated.
+- plasmac.breakaway input pin is activated.
 .br
-program is paused.
-.RE
+- program is paused.
+..RE
+..br
+.In the paused state the plasmac.reverse-run input pin will cause the motion to reverse whilst activated.
+..br
+.The furthest reversal point is the beginning of the current cut.
 .br
-In the paused state the plasmac.reverse-run input pin will cause the motion to reverse whilst activated.
-.br
-The furthest reversal point is the beginning of the current cut.
+NOTE: Reverse run is not functional until the reverse-run branch is merged into the master branch.
 
 Turn torch off, move to safe height and stop program if the following occur:
-.RS 3
+.RS 1
 .br
-program is stopped.
+- program is stopped.
 .br
-minimum height is reached during THC.
+- minimum height is reached during THC.
 .br
-maximum height is reached during THC.
+- maximum height is reached during THC.
 .RE
 
 Safe height may be reduced if torch height (during THC moves) plus safe height would exceed the maximum height.
@@ -97,11 +99,11 @@ Cut height can be adjusted on the fly by adding an offset to the plasmac.height-
 This offset is added to the THC voltage target to lower or raise the torch.
 
 Target voltage can be selected from:
-.RS 3
+.RS 1
 .br
-a voltage automatically read from the initial cut height.
+- a voltage automatically read from the initial cut height.
 .br
-the plasmac.cut-volts input pin.
+- the plasmac.cut-volts input pin.
 .RE
 
 .I CUT FEED RATE
@@ -109,37 +111,37 @@ the plasmac.cut-volts input pin.
 Usage of the plasmac.cut-feed-rate input pin requires remapping of the F word, if not using this set the plasmac.cut-feed-rate input pin to 0 which will then use the feed rate from the gcode file.
 .br
 The example configuration has remapping for the F word set up as follows:
-.RS 3
+.RS 1
 .br
-If the plasmac.cut-feed-rate input pin is > 0 it will use this value for the feed rate and THC calculations.
+- If the plasmac.cut-feed-rate input pin is > 0 it will use this value for the feed rate and THC calculations.
 .br
-If the plasmac.cut-feed-rate input pin = 0 then the feed rate and THC calculations will be read from the gcode file, scaled and sent to the plasmac.requested-velocity input pin to be used for THC calculations.
+- If the plasmac.cut-feed-rate input pin = 0 then the feed rate and THC calculations will be read from the gcode file, scaled and sent to the plasmac.requested-velocity input pin to be used for THC calculations.
 .RE
 The remapped F word is scaled correctly so that both metric and imperial gcode files may be used on both metric and imperial machines.
 
 .I NOTES
 .br
 As at 11 Nov 2018:
-.RS 3
+.RS 1
 .br
-there has been no testing done with a plasma cutter attached.
+- there has been no testing done with a plasma cutter attached.
 .br
-software simulation appears to work ok.
+- software simulation appears to work ok.
 .br
-hardware testing has been limited to a parallel port driven XYZ test rig with simulated arc voltage, arc ok and up/down signals.
+- hardware testing has been limited to a parallel port driven XYZ test rig with simulated arc voltage, arc ok and up/down signals.
 .RE
 
 .I EXAMPLE CONFIGURATION
 .br
 There are example configuration files for both metric and imperial located in:
-.RS 3
+.RS 1
 .br
-run in place "configs/sim/axis/plasmac/"
+- run in place "configs/sim/axis/plasmac/"
 .br
-installed    "/usr/share/doc/linuxcnc/examples/sample-configs/cim/axis/plasmac/"
+- installed    "/usr/share/doc/linuxcnc/examples/sample-configs/sim/axis/plasmac/"
 .RE
 .br
-Example ngc files can be found in "nc_files/plasmac/"
+- Example ngc files can be found in "nc_files/plasmac/"
 
 .I DISCLAIMER
 .br
