@@ -3202,7 +3202,7 @@ root_window.bind("<FocusOut>", lambda e: str(e.widget) == "." and jog_off_all())
 
 open_directory = "programs"
 
-unit_values = {'inch': 1/25.4, 'mm': 1}
+unit_values = {'in': 1/25.4, 'inch': 1/25.4, 'imperial': 1/25.4, 'mm': 1, 'metric': 1}
 def units(s, d=1.0):
     try:
         return float(s)
@@ -3371,7 +3371,11 @@ if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
     raise SystemExit, (
           "Missing ini file setting for [RS274NGC]PARAMETER_FILE")
 try:
-    lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+    if inifile.find("TRAJ", "LINEAR_UNITS").lower() in ('in', 'inch', 'imperial', 'mm', 'metric'):
+        lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
+    else:
+        raise SystemExit, (
+              "Invalid [TRAJ]LINEAR_UNITS")
 except TypeError:
     raise SystemExit, (
           "Missing [TRAJ]LINEAR_UNITS or ANGULAR_UNITS")
