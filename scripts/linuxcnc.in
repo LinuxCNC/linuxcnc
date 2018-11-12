@@ -207,11 +207,26 @@ function ErrorCheck () {
             fi
 
             echo "\
-Machinekit terminated with an error.  You can find more information in the log:
+Machinekit terminated with an error.  For simple cases more information
+can be found in the following files:
     $HOME/linuxcnc_debug.txt
-and
     $HOME/linuxcnc_print.txt
-as well as in the output of the shell command 'dmesg' and in the terminal"
+
+For other cases get more meaningfull information by restarting after
+    export DEBUG=5
+
+and look at the output of:
+    /var/log/linuxcnc.log
+    dmesg
+
+When looking for errors, specifically look for libraries that fail to load
+by looking for lines with 'insmod failed' as per example below.
+
+insmod failed, returned -1:
+do_load_cmd: dlopen: nonexistant-component.so: cannot open shared object file:
+No such file or directory
+
+For getting help, please have a look here: www.machinekit.io/docs/getting-help/"
         else
             @WISH@ $LINUXCNC_TCL_DIR/show_errors.tcl $DEBUG_FILE $PRINT_FILE
         fi
