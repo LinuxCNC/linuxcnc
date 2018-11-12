@@ -891,7 +891,7 @@ small, tight corners, since you're limited by cornering acceleration.
    trivkins and other kinematics modules.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).
+    Possible choices are mm or inch.
     This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
