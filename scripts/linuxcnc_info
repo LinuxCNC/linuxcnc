@@ -21,9 +21,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ofile=/tmp/linuxcnc.info
-# all output
-exec 1>$ofile
-exec 2>&1
+PROG=$(basename $0)
+
+usage () {
+  cat <<EOF
+$PROG creates file $ofile
+USAGE:
+  $PROG [options]
+  options:
+    -s  silent (suppress automatic opening of file)
+    -h  help
+EOF
+exit 1
+}
 
 # try to find a visual editor to show created file
 # use list with existing preference first, then other common editors
@@ -34,6 +44,18 @@ for e in $editors ; do
     break #use first editor found
   fi
 done
+
+while getopts hs OPT; do
+  case $OPT in
+    s) VIEWER="";;
+    h) usage;;
+    *) usage;;
+  esac
+done
+
+# all subsequent output:
+exec 1>$ofile
+exec 2>&1
 
 function show () {
   if [ -z "$1" ] ; then
@@ -69,14 +91,15 @@ function tryversion () {
 }
 
 cat <<EOF
-This file can be posted to a web site like:
+The file:    $ofile
+can be posted to a forum or a web site like:
      http://pastebin.com
 in order to provide information about the linuxcnc
 system and configuration.
 
 EOF
 
-echo VIEWER=$VIEWER
+[ -n "$VIEWER" ] && echo VIEWER=$VIEWER
 
 show "            Date" $(date)
 show "        UTC Date" $(date -u)
@@ -130,4 +153,5 @@ for n in $(linuxcnc_var all) ; do
    show "${n%%=*}" ${n##*=}
 done
 
-[ -n $VIEWER ] && $VIEWER "$ofile"
+[ -n "$VIEWER" ] && $VIEWER "$ofile"
+exit 0
