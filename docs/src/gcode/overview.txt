@@ -219,7 +219,6 @@ in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the .var file and
 restored to their previous values when LinuxCNC is started again. Volatile
 numbered parameters are reset to zero.
-|G54| 0
 
 Intended Use::
 * user parameters:: numbered parameters in the range 31..5000, and named
