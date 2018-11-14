@@ -149,11 +149,11 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
         
         rtapi_snprintf(name, sizeof(name), "%s.resolver.excitation-khz", 
                        hm2->llio->name);
-        ret= hal_param_float_new(name, HAL_RW, 
-                                 &(hm2->resolver.hal->param.excitation_khz), 
+        ret= hal_pin_float_new(name, HAL_IO,
+                                 &(hm2->resolver.hal->pin.excitation_khz),
                                  hm2->llio->comp_id);
         if (ret < 0) {
-            HM2_ERR("error adding param '%s', aborting\n", name);
+            HM2_ERR("error adding pin '%s', aborting\n", name);
             goto fail1;
         }
         
@@ -244,31 +244,31 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.scale", 
                            hm2->llio->name, i);
-            ret= hal_param_float_new(name, HAL_RW, 
-                                     &(hm2->resolver.instance[i].hal.param.scale), 
+            ret= hal_pin_float_new(name, HAL_IO,
+                                     &(hm2->resolver.instance[i].hal.pin.scale),
                                      hm2->llio->comp_id);
             if (ret < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
             
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity-scale", 
                            hm2->llio->name, i);
-            ret= hal_param_float_new(name, HAL_RW, 
-                                     &(hm2->resolver.instance[i].hal.param.vel_scale), 
+            ret= hal_pin_float_new(name, HAL_IO,
+                                     &(hm2->resolver.instance[i].hal.pin.vel_scale),
                                      hm2->llio->comp_id);
             if (ret < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.index-divisor",
                            hm2->llio->name, i);
-            ret= hal_param_u32_new(name, HAL_RW,
-                                     &(hm2->resolver.instance[i].hal.param.index_div),
+            ret= hal_pin_u32_new(name, HAL_RW,
+                                     &(hm2->resolver.instance[i].hal.pin.index_div),
                                      hm2->llio->comp_id);
             if (ret < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
@@ -278,10 +278,10 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             //
             
             *hm2->resolver.instance[i].hal.pin.reset = 0;
-            hm2->resolver.instance[i].hal.param.scale = 1.0;
-            hm2->resolver.instance[i].hal.param.vel_scale = 1.0;
-            hm2->resolver.instance[i].hal.param.index_div = 1;
-            hm2->resolver.hal->param.excitation_khz = -1; // don't-write
+            *hm2->resolver.instance[i].hal.pin.scale = 1.0;
+            *hm2->resolver.instance[i].hal.pin.vel_scale = 1.0;
+            *hm2->resolver.instance[i].hal.pin.index_div = 1;
+            *hm2->resolver.hal->pin.excitation_khz = -1; // don't-write
             hm2->resolver.kHz = (hm2->resolver.clock_frequency / 5000);
         }
     }
@@ -310,13 +310,13 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         res = &hm2->resolver.instance[i];
         
         // sanity check
-        if (res->hal.param.scale == 0.0) {
+        if (*res->hal.pin.scale == 0.0) {
             HM2_ERR("resolver.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
-            res->hal.param.scale = 1.0;
+            *res->hal.pin.scale = 1.0;
         }
-        if (res->hal.param.vel_scale == 0.0) {
+        if (*res->hal.pin.vel_scale == 0.0) {
             HM2_ERR("resolver.%02d.velocity-scale == 0.0, bogus, setting to 1.0\n", i);
-            res->hal.param.vel_scale = 1.0;
+            *res->hal.pin.vel_scale = 1.0;
         }
         
         // PROCESS THE REGISTERS, SET THE PINS
@@ -326,9 +326,9 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         if ((res->old_reg > hm2->resolver.position_reg[i]) && (res->old_reg - hm2->resolver.position_reg[i] > 0x80000000)){
             res->index_cnts++;
             if (*res->hal.pin.index_enable){
-                int r = (res->index_cnts % res->hal.param.index_div);
-                if ((res->hal.param.index_div  > 1 && r == 1) 
-                 || (res->hal.param.index_div == 1 && r == 0)){
+                int r = (res->index_cnts % *res->hal.pin.index_div);
+                if ((*res->hal.pin.index_div  > 1 && r == 1)
+                 || (*res->hal.pin.index_div == 1 && r == 0)){
                     res->offset = (res->accum - hm2->resolver.position_reg[i]);
                     *res->hal.pin.index_enable = 0;
                 }
@@ -336,7 +336,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         }
         else if ((res->old_reg < hm2->resolver.position_reg[i]) && (hm2->resolver.position_reg[i] - res->old_reg > 0x80000000)){
             res->index_cnts--;
-            if (*res->hal.pin.index_enable && (res->index_cnts % res->hal.param.index_div == 0)){
+            if (*res->hal.pin.index_enable && (res->index_cnts % *res->hal.pin.index_div == 0)){
                 res->offset = (res->accum - hm2->resolver.position_reg[i] + 0x100000000LL);
                 *res->hal.pin.index_enable = 0;
             }
@@ -352,9 +352,9 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         *res->hal.pin.rawcounts = (res->accum >> 8);
         *res->hal.pin.count = (res->accum - res->offset) >> 8;
         *res->hal.pin.position = (res->accum - res->offset) / 4294967296.0
-                                 * res->hal.param.scale;
+                                 * *res->hal.pin.scale;
         *res->hal.pin.velocity = ((hm2->resolver.velocity_reg[i] / 4294967296.0)
-                                  * hm2->resolver.kHz * res->hal.param.vel_scale);
+                                  * hm2->resolver.kHz * *res->hal.pin.vel_scale);
         *res->hal.pin.error = *hm2->resolver.status_reg & (1 << i);
     }
 }
@@ -370,22 +370,22 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
     
     switch (state){
         case 0: // Idle/waiting
-            if (hm2->resolver.hal->param.excitation_khz < 0){
+            if (*hm2->resolver.hal->pin.excitation_khz < 0){
                 return;
             }
-            if (hm2->resolver.hal->param.excitation_khz != hm2->resolver.written_khz){
-                if (hm2->resolver.hal->param.excitation_khz > 8){
-                    hm2->resolver.hal->param.excitation_khz = 10;
+            if (*hm2->resolver.hal->pin.excitation_khz != hm2->resolver.written_khz){
+                if (*hm2->resolver.hal->pin.excitation_khz > 8){
+                    *hm2->resolver.hal->pin.excitation_khz = 10;
                     hm2->resolver.written_khz = 10;
                     hm2->resolver.kHz = (hm2->resolver.clock_frequency / 5000);
                     cmd_val = 0x803;
-                } else if (hm2->resolver.hal->param.excitation_khz > 4){
-                    hm2->resolver.hal->param.excitation_khz = 5;
+                } else if (*hm2->resolver.hal->pin.excitation_khz > 4){
+                    *hm2->resolver.hal->pin.excitation_khz = 5;
                     hm2->resolver.written_khz = 5;
                     hm2->resolver.kHz = (hm2->resolver.clock_frequency / 10000);
                     cmd_val = 0x802;
-                }else{
-                    hm2->resolver.hal->param.excitation_khz = 2.5;
+                } else {
+                    *hm2->resolver.hal->pin.excitation_khz = 2.5;
                     hm2->resolver.written_khz = 2.5;
                     hm2->resolver.kHz= (hm2->resolver.clock_frequency / 20000);
                     cmd_val = 0x801;

@@ -242,9 +242,9 @@ typedef struct {
     u32 *data_reg_read;
     u32 *data_reg_write;
     hal_u32_t *fault_count;
-    hal_u32_t fault_inc;
-    hal_u32_t fault_dec;
-    hal_u32_t fault_lim;
+    hal_u32_t *fault_inc;
+    hal_u32_t *fault_dec;
+    hal_u32_t *fault_lim;
     
     hal_bit_t *run;
     hal_u32_t *state;

@@ -52,7 +52,7 @@ void hm2_watchdog_process_tram_read(hostmot2_t *hm2) {
     if (hm2->watchdog.num_instances == 0) return;
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return;
 
     // if we've already noticed the board needs to be reset, don't re-read
     // the watchdog has-bit bit
@@ -300,7 +300,7 @@ void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
     if (hm2->watchdog.num_instances != 1) return;
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return;
 
     // if the watchdog has bit, wait for the user to reset it
     if (*hm2->watchdog.instance[0].hal.pin.has_bit) return;
@@ -317,7 +317,7 @@ void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
 
         // write all settings out to the FPGA
         hm2_force_write(hm2);
-        if ((*hm2->llio->io_error) != 0) {
+        if ((*hm2->llio->hal->pin.io_error) != 0) {
             HM2_PRINT("error recovery failed\n");
             return;
         }

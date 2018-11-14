@@ -258,34 +258,34 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             || (hm2->pin[i].direction == HM2_PIN_DIR_IS_OUTPUT)
         ) {
 
-            r = hal_param_bit_newf(
-                HAL_RW,
-                &(hm2->pin[i].instance->hal.param.invert_output),
+            r = hal_pin_bit_newf(
+                HAL_IO,
+                &(hm2->pin[i].instance->hal.pin.invert_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.invert_output",
                 hm2->llio->name,
                 i
             );
             if (r < 0) {
-                HM2_ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
 
-            r = hal_param_bit_newf(
-                HAL_RW,
-                &(hm2->pin[i].instance->hal.param.is_opendrain),
+            r = hal_pin_bit_newf(
+                HAL_IO,
+                &(hm2->pin[i].instance->hal.pin.is_opendrain),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_opendrain",
                 hm2->llio->name,
                 i
             );
             if (r < 0) {
-                HM2_ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
 
-            hm2->pin[i].instance->hal.param.invert_output = 0;
-            hm2->pin[i].instance->hal.param.is_opendrain = 0;
+            *hm2->pin[i].instance->hal.pin.invert_output = 0;
+            *hm2->pin[i].instance->hal.pin.is_opendrain = 0;
         }
 
 
@@ -311,20 +311,20 @@ int hm2_ioport_gpio_export_hal(hostmot2_t *hm2) {
             *(hm2->pin[i].instance->hal.pin.out) = 0;
 
             // parameters
-            r = hal_param_bit_newf(
-                HAL_RW,
-                &(hm2->pin[i].instance->hal.param.is_output),
+            r = hal_pin_bit_newf(
+                HAL_IO,
+                &(hm2->pin[i].instance->hal.pin.is_output),
                 hm2->llio->comp_id,
                 "%s.gpio.%03d.is_output",
                 hm2->llio->name,
                 i
             );
             if (r < 0) {
-                HM2_ERR("error %d adding gpio param, aborting\n", r);
+                HM2_ERR("error %d adding gpio pin, aborting\n", r);
                 return -EINVAL;
             }
 
-            hm2->pin[i].instance->hal.param.is_output = 0;
+            *hm2->pin[i].instance->hal.pin.is_output = 0;
         }
     }
 
@@ -389,7 +389,7 @@ void hm2_ioport_update(hostmot2_t *hm2) {
             int io_pin = (port * hm2->idrom.port_width) + port_pin;
 
             if (hm2->pin[io_pin].gtag == HM2_GTAG_IOPORT) {
-                if (hm2->pin[io_pin].instance->hal.param.is_output) {
+                if (*hm2->pin[io_pin].instance->hal.pin.is_output) {
                     hm2->pin[io_pin].direction = HM2_PIN_DIR_IS_OUTPUT;
                 } else {
                     hm2->pin[io_pin].direction = HM2_PIN_DIR_IS_INPUT;
@@ -400,14 +400,14 @@ void hm2_ioport_update(hostmot2_t *hm2) {
                 hm2->ioport.ddr_reg[port] |= (1 << port_pin);  // set the bit in the ddr register
 
                 // Open Drain Register
-                if (hm2->pin[io_pin].instance->hal.param.is_opendrain) {
+                if (*hm2->pin[io_pin].instance->hal.pin.is_opendrain) {
                     hm2->ioport.open_drain_reg[port] |= (1 << port_pin);  // set the bit in the open drain register
                 } else {
                     hm2->ioport.open_drain_reg[port] &= ~(1 << port_pin);  // clear the bit in the open drain register
                 }
 
                 // Invert Output Register
-                if (hm2->pin[io_pin].instance->hal.param.invert_output) {
+                if (*hm2->pin[io_pin].instance->hal.pin.invert_output) {
                     hm2->ioport.output_invert_reg[port] |= (1 << port_pin);  // set the bit in the output invert register
                 } else {
                     hm2->ioport.output_invert_reg[port] &= ~(1 << port_pin);  // clear the bit in the output invert register
