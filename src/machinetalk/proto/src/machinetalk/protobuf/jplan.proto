@@ -19,5 +19,5 @@ message JplanJoint {
 message JplanCommand {
     option (nanopb_msgopt).msgid = 354;
 
-    repeated JplanJoint joint =  2  [(nanopb).max_count = 10];;
+    repeated JplanJoint joint =  2  [(nanopb).max_count = 10];
 };
