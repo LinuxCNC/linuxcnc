@@ -215,6 +215,9 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
                 self.tv.set_cursor(idx[0] + 1)
             else:
                 self.tv.set_cursor(idx[0])
+                self.entry.set_text('')
+                self.entry.grab_focus()
+                self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
             return True
 
         if keyname == 'Escape':
