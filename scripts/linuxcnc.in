@@ -434,7 +434,7 @@ if [ "$retval" != "1.1" ]; then
         echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
         exit 1
     fi
-    update_ini -d $INIFILE
+    update_ini -d "$INIFILE"
     exitval=$?
     case "$exitval" in
     0) ;;
