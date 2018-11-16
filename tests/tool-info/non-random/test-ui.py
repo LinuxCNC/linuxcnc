@@ -205,7 +205,7 @@ h['tool-prepared'] = False
 
 verify_status_buffer(state='after T10', tool_in_spindle=1)
 verify_io_pins(state='after T10', tool_number=1, tool_prep_number=10, tool_prep_pocket=3)
-verify_interp_vars(state='after T10', current_tool=1, current_pocket=1, selected_tool=10, selected_pocket=2)
+verify_interp_vars(state='after T10', current_tool=1, current_pocket=1, selected_tool=10, selected_pocket=3)
 
 
 #
@@ -220,7 +220,7 @@ h['tool-changed'] = False
 
 verify_status_buffer(state='after T10 M6', tool_in_spindle=10)
 verify_io_pins(state='after T10 M6', tool_number=10, tool_prep_number=0, tool_prep_pocket=0)
-verify_interp_vars(state='after T10 M6', current_tool=10, current_pocket=2, selected_tool=10, selected_pocket=-1)
+verify_interp_vars(state='after T10 M6', current_tool=10, current_pocket=3, selected_tool=10, selected_pocket=-1)
 
 
 #
@@ -235,7 +235,7 @@ h['tool-prepared'] = False
 
 verify_status_buffer(state='after T99999', tool_in_spindle=10)
 verify_io_pins(state='after T99999', tool_number=10, tool_prep_number=99999, tool_prep_pocket=50)
-verify_interp_vars(state='after T99999', current_tool=10, current_pocket=2, selected_tool=99999, selected_pocket=3)
+verify_interp_vars(state='after T99999', current_tool=10, current_pocket=3, selected_tool=99999, selected_pocket=50)
 
 
 #
@@ -250,7 +250,7 @@ h['tool-changed'] = False
 
 verify_status_buffer(state='after T99999 M6', tool_in_spindle=99999)
 verify_io_pins(state='after T99999 M6', tool_number=99999, tool_prep_number=0, tool_prep_pocket=0)
-verify_interp_vars(state='after T99999 M6', current_tool=99999, current_pocket=3, selected_tool=99999, selected_pocket=-1)
+verify_interp_vars(state='after T99999 M6', current_tool=99999, current_pocket=50, selected_tool=99999, selected_pocket=-1)
 
 
 sys.exit(0)
