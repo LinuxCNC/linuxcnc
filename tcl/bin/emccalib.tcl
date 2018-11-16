@@ -147,11 +147,12 @@ set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlis
 set halfilelist ""
 
 for {set i $startline} {$i < $endline} {incr i} {
-    set thisstring [$initext get $i.0 $i.end]
-    if {   [lindex $thisstring 0] == "HALFILE"
-        || [lindex $thisstring 0] == "POSTGUI_HALFILE"
+    set thisstring [string trim [$initext get $i.0 $i.end]]
+    if {   ([string first         "HALFILE" "$thisstring"] == 0)
+        || ([string first "POSTGUI_HALFILE" "$thisstring"] == 0)
        } {
-        set thishalname [lindex $thisstring end]
+        set arglist [lindex [split $thisstring =] 1]
+        set thishalname [lindex $arglist 0]
         lappend halfilelist [find_file_in_hallib_path $thishalname $thisinifile]
     }
 }
