@@ -555,15 +555,15 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Mode | return value
-|G54| 0
-|G55| 1
-|G56| 2
-|G57| 3
-|G58| 4
-|G59| 5
-|G59.1|6
-|G59.2|7
-|G59.3|8
+|G54| 554
+|G55| 550
+|G56| 560
+|G57| 570
+|G58| 580
+|G59| 590
+|G59.1|591
+|G59.2|592
+|G59.3|593
 |====
 
 * '#<_tool_offset>' -
