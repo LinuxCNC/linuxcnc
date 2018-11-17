@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.3"
+_RELEASE = " 2.3.3.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -815,7 +815,8 @@ class gmoccapy(object):
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
         self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
 
-        # holds the max velocity value and is needed to be able to react to halui pin
+        # holds the max velocity value and is needed to be able to jog at
+        # at max velocity if <SHIFT> is hold during jogging
         self.max_velocity = self.stat.max_velocity
 
         # set and get all information for turtle jogging
@@ -2514,13 +2515,11 @@ class gmoccapy(object):
             self.initialized = False
             self.widgets.spc_rapid.set_value(self.stat.rapidrate * 100)
             self.rapidrate = self.stat.rapidrate
-            self.widgets.adj_max_vel.set_value( self.stat.max_velocity * 60 * self.faktor )
-            self.max_velocity = self.stat.max_velocity
             self.initialized = True
 
     def _update_slider(self, widgetlist):
         # update scales and sliders, this must happen if sliders shows units
-        # like max_vel and jog_vel
+        # like papid_vel and jog_vel
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
             min = self.widgets[widget].get_property("min")

@@ -1,3 +1,8 @@
+ver 2.3.3.4
+- a merge of 2.7 to master resulted in a call of a widget, that does not longer
+  exist in master (adj_max_velocity) causing an exception on halui pin changes.
+  Thanks to COlger81 and Chris Morley for reporting the bug
+
 ver 2.3.3.3
 - editing offsets, leaded to a error output in the console, due to missing
   widget btn_zero_x
