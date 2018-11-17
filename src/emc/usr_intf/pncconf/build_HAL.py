@@ -1124,7 +1124,7 @@ class HAL:
                 print >>file, "net spindle-output        <=  pid.%s.output"% (let)
         else:
            print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
-           print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
+           #print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
            print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
            print >>file, "net %s-output        <=  pid.%s.output"% (name, let)
            #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
