@@ -48,18 +48,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     #####################################################
     # button callbacks
     #####################################################
-    def skew_y_neg_released(self):
-        print 'skew_y_neg_released'
 
-    # --------------  Command buttons -----------------
-    #               Measurement angle
-    # -------------------------------------------------
-
-    # Angle
+######### rotation around z #####################
     # Move Probe manual under corner 2-3 mm
     # Y+Y+ 
     def on_angle_yp_released(self):
-        print 'skew_yp_released'
+        print 'angle_yp_released'
         #self.stat.poll()
         #xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
         #self.command.mode( linuxcnc.MODE_MDI )
@@ -107,7 +101,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # Y-Y- 
     def on_angle_ym_released(self):
-        print 'skew_ym_released'
+        print 'angle_ym_released'
         #self.stat.poll()
         #xstart=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0]
         #self.command.mode( linuxcnc.MODE_MDI )
@@ -154,7 +148,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # X+X+ 
     def on_angle_xp_released(self):
-        print 'skew_xp_released'
+        print 'angle_xp_released'
         #self.stat.poll()
         #ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
         #self.command.mode( linuxcnc.MODE_MDI )
@@ -201,7 +195,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # X-X- 
     def on_angle_xm_released(self):
-        print 'skew_xm_released'
+        print 'angle_xm_released'
         #self.stat.poll()
         #ystart=self.stat.position[1]-self.stat.g5x_offset[1] - self.stat.g92_offset[1] - self.stat.tool_offset[1]
         #self.command.mode( linuxcnc.MODE_MDI )
@@ -253,7 +247,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # Hole Xin- Xin+ Yin- Yin+
     def on_xy_hole_released(self):
-        print 'skew_xy_hole_released'
+        print 'angle_xy_hole_released'
         #self.command.mode( linuxcnc.MODE_MDI )
         #self.command.wait_complete()
         #if self.z_clearance_down() == -1:
@@ -339,6 +333,66 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ## move Z to start point
         #self.z_clearance_up()
         #self.set_zerro("XY")
+
+###### inside #######################
+    def on_xpyp1_released(self):
+        print 'xpyp1_released'
+
+    def on_xpym1_released(self):
+        print 'xpym1_released'
+
+    def on_ym1_released(self):
+        print 'ym1_released'
+
+    def on_xp1_released(self):
+        print 'xp1_released'
+
+    def on_xmym1_released(self):
+        print 'xmym1_released'
+
+    def on_xm1_released(self):
+        print 'xm1_released'
+
+    def on_xmyp1_released(self):
+        print 'xmyp1_released'
+
+    def on_yp1_released(self):
+        print 'yp1_released'
+
+    def on_xy_hole_released(self):
+        print 'xy_hole_released'
+
+####### outside #######################
+    def on_xpyp_released(self):
+        print 'xpyp_released'
+
+    def on_xp_released(self):
+        print 'xp_released'
+
+    def on_xpyp_released(self):
+        print 'xpyp_released'
+
+    def on_ym_released(self):
+        print 'ym_released'
+
+    def on_yp_released(self):
+        print 'yp_released'
+
+    def on_xmym_released(self):
+        print 'xmym_released'
+
+    def on_xm_released(self):
+        print 'xm_released'
+
+    def on_xmyp_released(self):
+        print 'xmyp_released'
+
+    def on_xy_center_released(self):
+        print 'xy_center_released'
+
+####### straight #######################
+    def on_down_released(self):
+        print 'down_released'
 
     #####################################################
     # Helper functions

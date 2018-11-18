@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>711</width>
-    <height>498</height>
+    <width>676</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,7 +65,7 @@
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="PushButton" name="pbtn_probing_outside_xpyp">
+         <widget class="PushButton" name="xpyp">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -75,11 +75,20 @@
            </rect>
           </property>
           <property name="text">
-           <string>X+
-Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_xpym">
+         <widget class="PushButton" name="xpym">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -89,11 +98,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-
-X+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_xp">
+         <widget class="PushButton" name="xp">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -103,10 +121,20 @@ X+</string>
            </rect>
           </property>
           <property name="text">
-           <string>X+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_yp">
+         <widget class="PushButton" name="yp">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -116,10 +144,20 @@ X+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_ym">
+         <widget class="PushButton" name="ym">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -129,10 +167,20 @@ X+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbnt_probing_outside_center">
+         <widget class="PushButton" name="xy_center">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -147,11 +195,20 @@ X+</string>
            </font>
           </property>
           <property name="text">
-           <string>Outside
-Center</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/center.png</normaloff>../../../../share/qtvcp/images/probe_icons/center.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_xmyp">
+         <widget class="PushButton" name="xmyp">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -161,11 +218,20 @@ Center</string>
            </rect>
           </property>
           <property name="text">
-           <string>X-
-Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbnt_probing_outside_xmym">
+         <widget class="PushButton" name="xmym">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -175,11 +241,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-
-X-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_outside_xm">
+         <widget class="PushButton" name="xm">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -189,7 +264,17 @@ X-</string>
            </rect>
           </property>
           <property name="text">
-           <string>X-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
          <widget class="QFrame" name="frame_probing_outside_measure_2">
@@ -240,7 +325,7 @@ X-</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="PushButton" name="pbtn_probing_skewed_x_pos">
+         <widget class="PushButton" name="angle_xp">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -263,7 +348,7 @@ X-</string>
            </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_skewed_Y_pos">
+         <widget class="PushButton" name="angle_yp">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -286,7 +371,7 @@ X-</string>
            </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_skewed_y_neg_m">
+         <widget class="PushButton" name="angle_ym">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -301,29 +386,6 @@ X-</string>
           <property name="icon">
            <iconset>
             <normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="pbtn_probing_skewed_X_neg_m">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -364,6 +426,26 @@ X-</string>
            </property>
           </widget>
          </widget>
+         <widget class="PushButton" name="angle_xm">
+          <property name="geometry">
+           <rect>
+            <x>52</x>
+            <y>73</y>
+            <width>50</width>
+            <height>50</height>
+           </rect>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+         </widget>
         </widget>
         <widget class="QFrame" name="frame_probing_inside_measure">
          <property name="geometry">
@@ -380,7 +462,7 @@ X-</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="PushButton" name="pbtn_probing_inside_xmym">
+         <widget class="PushButton" name="xmym1">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -390,11 +472,20 @@ X-</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-
-X-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_xmyp">
+         <widget class="PushButton" name="xmyp1">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -404,11 +495,20 @@ X-</string>
            </rect>
           </property>
           <property name="text">
-           <string>X-
-Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_xm">
+         <widget class="PushButton" name="xm1">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -418,10 +518,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>X-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_ym">
+         <widget class="PushButton" name="ym1">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -431,10 +541,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_yp">
+         <widget class="PushButton" name="yp1">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -444,10 +564,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_xy_hole">
+         <widget class="PushButton" name="xy_hole">
           <property name="geometry">
            <rect>
             <x>52</x>
@@ -475,7 +605,7 @@ Y+</string>
            </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_Inside_xpym">
+         <widget class="PushButton" name="xpym1">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -485,11 +615,20 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>Y-
-X+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_xpyp">
+         <widget class="PushButton" name="xpyp1">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -499,11 +638,20 @@ X+</string>
            </rect>
           </property>
           <property name="text">
-           <string>X+
-Y+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
-         <widget class="PushButton" name="pbtn_probing_inside_xp">
+         <widget class="PushButton" name="xp1">
           <property name="geometry">
            <rect>
             <x>104</x>
@@ -513,7 +661,17 @@ Y+</string>
            </rect>
           </property>
           <property name="text">
-           <string>X+</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
           </property>
          </widget>
          <widget class="QFrame" name="frame_probing_inside_label">
@@ -549,25 +707,36 @@ Y+</string>
           </widget>
          </widget>
         </widget>
-        <widget class="QLabel" name="label">
+        <widget class="PushButton" name="down">
          <property name="geometry">
           <rect>
-           <x>338</x>
-           <y>134</y>
-           <width>102</width>
-           <height>32</height>
+           <x>363</x>
+           <y>125</y>
+           <width>50</width>
+           <height>50</height>
           </rect>
          </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
          <property name="text">
-          <string>PROBING  PANEL</string>
+          <string/>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="icon">
+          <iconset>
+           <normaloff>../../../../share/qtvcp/images/probe_icons/down.png</normaloff>../../../../share/qtvcp/images/probe_icons/down.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>48</width>
+           <height>48</height>
+          </size>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+         <property name="indicator_option" stdset="0">
+          <bool>false</bool>
          </property>
         </widget>
        </widget>
@@ -636,60 +805,6 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_xy_clearances">
-       <property name="geometry">
-        <rect>
-         <x>498</x>
-         <y>24</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="lab_probing_z_clearance">
-       <property name="geometry">
-        <rect>
-         <x>498</x>
-         <y>48</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QLabel" name="lab_probing_clearances">
        <property name="geometry">
         <rect>
@@ -745,37 +860,10 @@ Zero</string>
         </rect>
        </property>
        <property name="text">
-        <string>Lenght</string>
+        <string>Length</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="lab_probing_side_edge_lenght">
-       <property name="geometry">
-        <rect>
-         <x>380</x>
-         <y>24</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="lab_probing_side_edge">
@@ -868,60 +956,6 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_search_velocity">
-       <property name="geometry">
-        <rect>
-         <x>251</x>
-         <y>24</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="lab_probing_touched_return_velocity">
-       <property name="geometry">
-        <rect>
-         <x>251</x>
-         <y>48</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QLabel" name="lab_probing_ball_diam">
        <property name="geometry">
         <rect>
@@ -936,33 +970,6 @@ Zero</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="lab_probing_latch_return_distance">
-       <property name="geometry">
-        <rect>
-         <x>106</x>
-         <y>72</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
        </property>
       </widget>
       <widget class="QLabel" name="lab_probing_probe">
@@ -1010,60 +1017,6 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_ball_diameter">
-       <property name="geometry">
-        <rect>
-         <x>106</x>
-         <y>24</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="lab_probing_maxImum_travel">
-       <property name="geometry">
-        <rect>
-         <x>106</x>
-         <y>48</y>
-         <width>74</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Sunken</enum>
-       </property>
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QLabel" name="lab_probing_max_travel">
        <property name="geometry">
         <rect>
@@ -1078,6 +1031,270 @@ Zero</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_z_clearance_2">
+       <property name="geometry">
+        <rect>
+         <x>498</x>
+         <y>48</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_xy_clearances_2">
+       <property name="geometry">
+        <rect>
+         <x>498</x>
+         <y>20</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_side_edge_lenght_2">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>24</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_search_vel_2">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>24</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_probe_vel_2">
+       <property name="geometry">
+        <rect>
+         <x>250</x>
+         <y>48</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_probe_diam_2">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>24</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_max_travel_2">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>48</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_latch_return_dist_2">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>72</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </widget>
@@ -1191,33 +1408,6 @@ Zero</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QLabel" name="probe_offset_z_value_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>21</y>
-          <width>74</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
        <widget class="PushButton" name="pbtn_probing_offsets_set_angle">
         <property name="geometry">
          <rect>
@@ -1230,6 +1420,39 @@ Zero</string>
         <property name="text">
          <string>Set
 Angle</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="input_adj_angle_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>20</y>
+          <width>74</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>IBeamCursor</cursorShape>
+        </property>
+        <property name="inputMask">
+         <string>999.9999</string>
+        </property>
+        <property name="text">
+         <string>000.0000</string>
+        </property>
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </widget>
@@ -1248,60 +1471,6 @@ Angle</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="probe_offset_x_value">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>20</y>
-          <width>74</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QLabel" name="probe_offset_y_value">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>44</y>
-          <width>74</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
-        </property>
-        <property name="text">
-         <string>0</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_y">
         <property name="geometry">
          <rect>
@@ -1379,28 +1548,106 @@ Angle</string>
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
-       <widget class="QLabel" name="probe_offset_z_value">
+       <widget class="QLineEdit" name="input_adj_x_2">
         <property name="geometry">
          <rect>
           <x>20</x>
-          <y>70</y>
+          <y>20</y>
           <width>74</width>
-          <height>21</height>
+          <height>23</height>
          </rect>
         </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>10</pointsize>
          </font>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
+        <property name="cursor">
+         <cursorShape>IBeamCursor</cursorShape>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Sunken</enum>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="inputMask">
+         <string>999.9999</string>
         </property>
         <property name="text">
-         <string>0</string>
+         <string>000.0000</string>
+        </property>
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="cursorPosition">
+         <number>8</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="input_adj_y_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>44</y>
+          <width>74</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>IBeamCursor</cursorShape>
+        </property>
+        <property name="inputMask">
+         <string>999.9999</string>
+        </property>
+        <property name="text">
+         <string>000.0000</string>
+        </property>
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="input_adj_z_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>68</y>
+          <width>74</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>IBeamCursor</cursorShape>
+        </property>
+        <property name="inputMask">
+         <string>999.9999</string>
+        </property>
+        <property name="text">
+         <string>000.0000</string>
+        </property>
+        <property name="maxLength">
+         <number>8</number>
+        </property>
+        <property name="frame">
+         <bool>true</bool>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1999,88 +2246,7 @@ X</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>pbtn_probing_skewed_y_neg_m</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>on_angle_ym_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>430</x>
-     <y>65</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>424</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_probing_skewed_x_pos</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>on_angle_xp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>362</x>
-     <y>52</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>366</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_probing_skewed_X_neg_m</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>on_angle_xm_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>420</x>
-     <y>101</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>444</x>
-     <y>5</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_probing_skewed_Y_pos</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>on_angle_yp_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>388</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>289</x>
-     <y>1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pbtn_probing_inside_xy_hole</sender>
-   <signal>released()</signal>
-   <receiver>Form</receiver>
-   <slot>on_xy_hole_released()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>261</x>
-     <y>102</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>148</x>
-     <y>3</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>skew_y_neg_released()</slot>
   <slot>on_angle_xp_released()</slot>
@@ -2088,5 +2254,23 @@ X</string>
   <slot>on_angle_ym_released()</slot>
   <slot>on_angle_xm_released()</slot>
   <slot>on_xy_hole_released()</slot>
+  <slot>on_down_released()</slot>
+  <slot>on_btn1_set_angle_released()</slot>
+  <slot>on_btn1_set_z_released()</slot>
+  <slot>on_btn1_set_y_released()</slot>
+  <slot>on_btn1_set_x_released()</slot>
+  <slot>on_xmyp1_released()</slot>
+  <slot>on_yp_released()</slot>
+  <slot>on_xpyp1_released()</slot>
+  <slot>on_xp_released()</slot>
+  <slot>on_xm_released()</slot>
+  <slot>on_xmym1_released()</slot>
+  <slot>on_ym_released()</slot>
+  <slot>on_xpym1_released()</slot>
+  <slot>on_xy_center_released()</slot>
+  <slot>on_xmym_released()</slot>
+  <slot>on_xpym_released()</slot>
+  <slot>on_xpyp_released()</slot>
+  <slot>on_xmyp_released()</slot>
  </slots>
 </ui>
