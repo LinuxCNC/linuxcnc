@@ -164,6 +164,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.mchnMsg_speak_errors:
                     STATUS.emit('play-alert', 'SPEAK %s ' % text)
             STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('error',kind,text)
 
     def closeEvent(self, event):
         if self.close_event:

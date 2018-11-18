@@ -170,7 +170,7 @@ class _GStat(gobject.GObject):
         'dro-reference-change-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'show-preference': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'shutdown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-
+        'error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'

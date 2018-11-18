@@ -1,4 +1,5 @@
 import linuxcnc
+import hal
 
 # Set up logging
 import logger
@@ -16,6 +17,8 @@ class _Lcnc_Action(object):
     def __init__(self):
         self.cmd = linuxcnc.command()
         self.tmp = None
+        STATUS.connect('error', lambda w, kind, text: self.record_error(kind, text))
+        self.clear_last_error()
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -57,6 +60,18 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
+    def CALL_MDI_WAIT(self, code): 
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.clear_last_error()
+        for l in code.split("\n"):
+            if "G1" in l :
+                l+= " F#<_ini[TOOLSENSOR]RAPID_SPEED>"
+            self.cmd.mdi( l )
+            self.cmd.wait_complete()
+            if self.check_error() == -1:
+                return -1
+        return 0
+
     def CALL_INI_MDI(self, number):
         try:
             mdi = INFO.MDI_COMMAND_LIST[number]
@@ -67,6 +82,22 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in(mdi_list):
             self.cmd.mdi('%s'% code)
+
+    def CALL_OWORD(self, code):
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.clear_last_error()
+        self.cmd.mdi(code)
+        STATUS.stat.poll()
+        while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
+                        STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
+            if self.check_error() == -1:
+                return -1
+            self.cmd.wait_complete()
+            STATUS.stat.poll()
+        self.cmd.wait_complete()
+        if self.check_error() == -1:
+            return -1
+        return 0
 
     def UPDATE_VAR_FILE(self):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
@@ -240,7 +271,19 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
-########################################################################
+    def check_error(self):
+        if self._error[0] != 0:
+                return -1
+        return 0
+
+    def record_error(self, kind, text):
+        self._error = [kind, text]
+
+    def clear_last_error(self):
+        self._error = [0, '']
+
+#############################
+###########################################
 # Filter Class
 ########################################################################
 import os, sys, time, select, re
