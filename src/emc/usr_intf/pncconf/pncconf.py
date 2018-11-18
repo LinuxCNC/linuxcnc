@@ -4905,7 +4905,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def axis_prepare(self, axis):
         d = self.d
         w = self.widgets
-        def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
+        def set_text_from_text(n): w[axis + n].set_text("%s" % d[axis + n])
+        def set_text(n): w[axis + n].set_text(locale.format("%.4f", (d[axis + n])))
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
@@ -5119,7 +5120,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
             set_value("minferror")
-            set_text("compfilename")
+            set_text_from_text("compfilename")
             set_active("comptype")
             set_active("usebacklash")
             set_value("backlash")
@@ -5304,7 +5305,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_active("invertmotor")
         get_active("invertencoder")
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
-        get_text("maxacc")
+        get_pagevalue("maxacc")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
         if not axis == "s":
             get_pagevalue("outputminlimit")
@@ -5594,7 +5595,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 motor_steps = get("steprev")
                 motor_scale = (motor_steps * microstepfactor * motor_pulley_ratio * motor_worm_ratio * motor_pitch) / rotary_scale
-                w["calcmotor_scale"].set_text("%.4f" % motor_scale)
+                w["calcmotor_scale"].set_text(locale.format("%.4f", (motor_scale)))
             else:
                 w["calcmotor_scale"].set_sensitive(False)
                 w["stepscaleframe"].set_sensitive(False)
@@ -5635,7 +5636,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 encoder_cpr = get_value(w[("encoderline")]) * 4
                 encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
-                w["calcencoder_scale"].set_text("%.4f" % encoder_scale)
+                w["calcencoder_scale"].set_text(locale.format("%.4f", (encoder_scale)))
             else:
                 w["calcencoder_scale"].set_sensitive(False)
                 w["encoderscaleframe"].set_sensitive(False)
