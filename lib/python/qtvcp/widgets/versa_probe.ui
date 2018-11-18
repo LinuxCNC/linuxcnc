@@ -277,7 +277,7 @@
            </size>
           </property>
          </widget>
-         <widget class="QFrame" name="frame_probing_outside_measure_2">
+         <widget class="QFrame" name="frame_probing_outside_measure">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -789,7 +789,7 @@ Zero</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="lab_probing_z_2">
+      <widget class="QLabel" name="lb_probe_z_2">
        <property name="geometry">
         <rect>
          <x>464</x>
@@ -805,7 +805,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_clearances">
+      <widget class="QLabel" name="lb_probe_clearances">
        <property name="geometry">
         <rect>
          <x>496</x>
@@ -850,7 +850,7 @@ Zero</string>
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_lenght">
+      <widget class="QLabel" name="lb_probe_lenght">
        <property name="geometry">
         <rect>
          <x>332</x>
@@ -866,7 +866,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_side_edge">
+      <widget class="QLabel" name="lb_probe_side_edge">
        <property name="geometry">
         <rect>
          <x>380</x>
@@ -895,7 +895,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_rates">
+      <widget class="QLabel" name="lb_probe_rates">
        <property name="geometry">
         <rect>
          <x>251</x>
@@ -924,7 +924,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_search_vel">
+      <widget class="QLabel" name="lb_probe_search_vel">
        <property name="geometry">
         <rect>
          <x>188</x>
@@ -940,7 +940,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_probe_vel">
+      <widget class="QLabel" name="lb_probe_probe_vel">
        <property name="geometry">
         <rect>
          <x>188</x>
@@ -956,7 +956,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_ball_diam">
+      <widget class="QLabel" name="lb_probe_ball_diam">
        <property name="geometry">
         <rect>
          <x>18</x>
@@ -972,7 +972,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_probe">
+      <widget class="QLabel" name="lb_probe_probe">
        <property name="geometry">
         <rect>
          <x>106</x>
@@ -1001,7 +1001,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_latch_rtrn_dist">
+      <widget class="QLabel" name="lb_probe_latch_rtrn_dist">
        <property name="geometry">
         <rect>
          <x>2</x>
@@ -1017,7 +1017,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_max_travel">
+      <widget class="QLabel" name="lb_probe_max_travel">
        <property name="geometry">
         <rect>
          <x>18</x>
@@ -1033,7 +1033,7 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_z_clearance_2">
+      <widget class="QLineEdit" name="input_z_clearance">
        <property name="geometry">
         <rect>
          <x>498</x>
@@ -1066,7 +1066,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_xy_clearances_2">
+      <widget class="QLineEdit" name="input_xy_clearance">
        <property name="geometry">
         <rect>
          <x>498</x>
@@ -1099,7 +1099,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_side_edge_lenght_2">
+      <widget class="QLineEdit" name="input_edge_length">
        <property name="geometry">
         <rect>
          <x>380</x>
@@ -1132,7 +1132,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_search_vel_2">
+      <widget class="QLineEdit" name="input_search_vel">
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -1165,7 +1165,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_probe_vel_2">
+      <widget class="QLineEdit" name="input_probe_vel">
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -1198,7 +1198,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_probe_diam_2">
+      <widget class="QLineEdit" name="input_probe_diam">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -1231,7 +1231,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_max_travel_2">
+      <widget class="QLineEdit" name="input_max_travel">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -1264,7 +1264,7 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_latch_return_dist_2">
+      <widget class="QLineEdit" name="input_latch_return_dist">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -1392,7 +1392,7 @@ Zero</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="label_z_2">
+       <widget class="QLabel" name="label_z">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -1422,7 +1422,7 @@ Zero</string>
 Angle</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="input_adj_angle_2">
+       <widget class="QLineEdit" name="input_adj_angle">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -1548,7 +1548,7 @@ Angle</string>
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
-       <widget class="QLineEdit" name="input_adj_x_2">
+       <widget class="QLineEdit" name="input_adj_x">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -1587,7 +1587,7 @@ Angle</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QLineEdit" name="input_adj_y_2">
+       <widget class="QLineEdit" name="input_adj_y">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -1620,7 +1620,7 @@ Angle</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QLineEdit" name="input_adj_z_2">
+       <widget class="QLineEdit" name="input_adj_z">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -1728,7 +1728,7 @@ X</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="lab_probing_ang">
+      <widget class="QLabel" name="lb_probe_ang">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1744,7 +1744,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_xn">
+      <widget class="QLabel" name="lb_probe_xn">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1760,7 +1760,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_xc">
+      <widget class="QLabel" name="lb_probe_xc">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1776,7 +1776,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_diam">
+      <widget class="QLabel" name="lb_probe_diam">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1792,7 +1792,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_z">
+      <widget class="QLabel" name="lb_probe_z">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1808,7 +1808,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_ly">
+      <widget class="QLabel" name="lb_probe_ly">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1824,7 +1824,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_yc">
+      <widget class="QLabel" name="lb_probe_yc">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1840,7 +1840,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_xp">
+      <widget class="QLabel" name="lb_probe_xp">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1856,7 +1856,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_yn">
+      <widget class="QLabel" name="lb_probe_yn">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1872,7 +1872,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_lx">
+      <widget class="QLabel" name="lb_probe_lx">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1888,7 +1888,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_yp">
+      <widget class="QLabel" name="lb_probe_yp">
        <property name="geometry">
         <rect>
          <x>4</x>
@@ -1904,7 +1904,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_a">
+      <widget class="QLabel" name="lb_probe_offset_a">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -1931,7 +1931,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_xp">
+      <widget class="QLabel" name="lb_probe_offset_xp">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -1958,7 +1958,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_d">
+      <widget class="QLabel" name="lb_probe_offset_d">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -1985,7 +1985,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probe_offset_xm">
+      <widget class="QLabel" name="lb_probe_offset_xm">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2012,7 +2012,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_lx">
+      <widget class="QLabel" name="lb_probe_offset_lx">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2039,7 +2039,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_yp">
+      <widget class="QLabel" name="lb_probe_offset_yp">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2066,7 +2066,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_xc">
+      <widget class="QLabel" name="lb_probe_offset_xc">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2093,7 +2093,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_z">
+      <widget class="QLabel" name="lb_probe_offset_z">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2120,7 +2120,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_ym">
+      <widget class="QLabel" name="lb_probe_offset_ym">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2147,7 +2147,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_yc">
+      <widget class="QLabel" name="lb_probe_offset_yc">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2174,7 +2174,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_ly">
+      <widget class="QLabel" name="lb_probe_offset_ly">
        <property name="geometry">
         <rect>
          <x>48</x>
@@ -2201,7 +2201,7 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lab_probing_offset_not_used">
+      <widget class="QLabel" name="lb_probe_offset_not_used">
        <property name="geometry">
         <rect>
          <x>48</x>

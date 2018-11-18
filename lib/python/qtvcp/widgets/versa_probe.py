@@ -18,17 +18,19 @@
 import sys
 import os
 import math
+import time
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status
+from qtvcp.core import Status, Action
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
 STATUS = Status()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
@@ -38,13 +40,27 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.setMinimumSize(600, 420)
         self.filename = os.path.join(DATADIR, 'versa_probe.ui')
         try:
-            instance = uic.loadUi(self.filename, self)
+            self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             log.critical(e)
 
     def _hal_init(self):
-        pass
+        if self.PREFS_:
+            self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_max_travel.setText(str(self.PREFS_.getpref( "ps_probe_max", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_latch_return_dist.setText(str(self.PREFS_.getpref( "ps_probe_latch", 0.5, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_probe_diam.setText(str(self.PREFS_.getpref( "ps_probe_diam", 2.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_xy_clearance.setText(str(self.PREFS_.getpref( "ps_xy_clearance", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_edge_length.setText(str(self.PREFS_.getpref( "ps_edge_length", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
 
+            self.input_adj_x.setText(str(self.PREFS_.getpref( "ps_offs_x", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_adj_y.setText(str(self.PREFS_.getpref( "ps_offs_y", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
+
+        self.read_page_data()
     #####################################################
     # button callbacks
     #####################################################
@@ -361,6 +377,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def on_xy_hole_released(self):
         print 'xy_hole_released'
+        self.read_page_data()
+        self.probe_xy_hole()
 
 ####### outside #######################
     def on_xpyp_released(self):
@@ -397,8 +415,176 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     #####################################################
     # Helper functions
     #####################################################
+    def read_page_data(self):
+        for i in (['input_z_clearance','input_xy_clearance',
+                    'input_edge_length','input_probe_diam',
+                    'input_max_travel','input_latch_return_dist',
+                    'input_search_vel','input_probe_vel',
+                    'input_adj_angle','input_adj_x',
+                    'input_adj_y','input_adj_z']):
+            print i
+            print self[i]
+            print float(self[i].text())
+            self['data_'+ i] = float(self[i].text())
 
+    def z_clearance_up(self):
+        # move Z + z_clearance
+        s="""G91
+        G1 Z%f
+        G90""" % (self.data_input_z_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return -1
+        return 0
 
+    def z_clearance_down(self):
+        # move Z - z_clearance
+        s="""G91
+        G1 Z-%f
+        G90""" % (self.data_input_z_clearance )        
+        return ACTION.CALL_MDI_WAIT(s)
+
+    def lenght_x(self):
+        res=0
+        if self.lb_probe_offset_xm.text() == "" or self.lb_probe_offset_xp.text() == "" :
+            return res
+        xm = float(self.lb_probe_offset_xm.text())
+        xp = float(self.lb_probe_offset_xp.text())
+        if xm < xp :
+            res=xp-xm
+        else:
+            res=xm-xp
+        self.lb_probe_offset_lx.setText("%.4f" % res)
+        return res
+
+    def lenght_y(self):
+        res=0
+        if self.lb_probe_offset_ym.text() == "" or self.lb_probe_offset_yp.text() == "" :
+            return res
+        ym = float(self.lb_probe_offset_ym.text())
+        yp = float(self.lb_probe_offset_yp.text())
+        if ym < yp :
+            res=yp-ym
+        else:
+            res=ym-yp
+        self.lb_probe_offset_ly.setText("%.4f" % res)
+        return res
+
+    def set_zerro(self,s="XYZ",x=0.,y=0.,z=0.):
+        if self.pbtn_probing_auto_zero.isChecked() :
+            #  Z current position
+            STATUS.stat.poll()
+            tmpz=self.stat.position[2]-self.stat.g5x_offset[2] - STATUS.stat.g92_offset[2] - STATUS.stat.tool_offset[2]
+            c = "G10 L20 P0"
+            s = s.upper()
+            if "X" in s :
+                x += self.data_input_offs_x
+                c += " X%s"%x
+            if "Y" in s :
+                y += self.data_input_offs_y
+                c += " Y%s"%y
+            if "Z" in s :
+                tmpz = tmpz-z+self.data_input_offs_z
+                c += " Z%s"%tmpz
+            ACTION.CALL_MDI_WAIT(c)
+            time.sleep(1)
+
+    #########################################################
+    # Main probe routines
+    #########################################################
+
+    # Hole Xin- Xin+ Yin- Yin+
+    def probe_xy_hole(self):
+        if self.z_clearance_down() == -1:
+            return
+        # move X - edge_lenght Y + xy_clearance
+        tmpx = self.data_input_edge_length -self.data_input_xy_clearance
+        s = """G91
+        G1 X-%f
+        G90""" % (tmpx)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start xminus.ngc
+        if ACTION.CALL_OWORD("O<xminus> call") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xmres = float(a[0])-0.5*self.data_input_probe_diam
+        self.lb_probe_offset_xm.setText( "%.4f" % xmres )
+
+        # move X +2 edge_lenght - 2 xy_clearance
+        tmpx = 2*(self.data_input_edge_length-self.data_input_xy_clearance)
+        s = """G91
+        G1 X%f
+        G90""" % (tmpx)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start xplus.ngc
+        if ACTION.CALL_OWORD("O<xplus> call") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xpres = float(a[0])+0.5*self.data_input_probe_diam
+        self.lb_probe_offset_xp.setText( "%.4f" % xpres )
+        self.lenght_x()
+        xcres = 0.5*(xmres+xpres)
+        self.lb_probe_offset_xc.setText( "%.4f" % xcres )
+
+        # move X to new center
+        s="""G1 X%f""" % (xcres)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+
+        # move Y - edge_lenght + xy_clearance
+        tmpy = self.data_input_edge_length-self.data_input_xy_clearance
+        s="""G91
+        G1 Y-%f
+        G90""" % (tmpy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yminus.ngc
+        if ACTION.CALL_OWORD("O<yminus> call") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_offset_ym.setText( "%.4f" % ymres )
+
+        # move Y +2 edge_lenght - 2 xy_clearance
+        tmpy=2*(self.data_input_edge_length-self.data_input_xy_clearance)
+        s="""G91
+        G1 Y%f
+        G90""" % (tmpy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yplus.ngc
+        if ACTION.CALL_OWORD("O<yplus> call") == -1:
+            return
+        # show Y result
+        a= STATUS.get_probed_position_with_offsets()
+        ypres = float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_offset_yp.setText( "%.4f" % ypres )
+        self.lenght_y()
+        # find, show and move to finded  point
+        ycres = 0.5*(ymres+ypres)
+        self.lb_probe_offset_yc.setText( "%.4f" % ycres )
+        diam = 0.5*((xpres-xmres)+(ypres-ymres))
+        self.lb_probe_offset_d.setText( "%.4f" % diam )
+        #self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.lenght_x(),ymres,ycres,ypres,self.lenght_y(),0,diam,0)
+        # move to center
+        s = "G1 Y%f" % ycres
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # move Z to start point
+        self.z_clearance_up()
+        self.set_zerro("XY")
+
+    ########################################
+    # required boiler code
+    ########################################
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 ####################################
 # Testing
