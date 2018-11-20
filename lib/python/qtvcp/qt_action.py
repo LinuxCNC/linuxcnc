@@ -64,8 +64,6 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.clear_last_error()
         for l in code.split("\n"):
-            if "G1" in l :
-                l+= " F#<_ini[TOOLSENSOR]RAPID_SPEED>"
             self.cmd.mdi( l )
             self.cmd.wait_complete()
             if self.check_error() == -1:
@@ -84,6 +82,7 @@ class _Lcnc_Action(object):
             self.cmd.mdi('%s'% code)
 
     def CALL_OWORD(self, code):
+        log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.clear_last_error()
         self.cmd.mdi(code)

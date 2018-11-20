@@ -23,7 +23,7 @@ import time
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action
+from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -31,6 +31,7 @@ from qtvcp import logger
 # LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
+INFO = Info()
 LOG = logger.getLogger(__name__)
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
@@ -38,13 +39,31 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
         self.setMinimumSize(600, 420)
+        # Load the widgets UI file:
         self.filename = os.path.join(DATADIR, 'versa_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            log.critical(e)
+            LOG.critical(e)
 
     def _hal_init(self):
+        # check for probing subroutine path in INI and if they exist
+        try:
+            tpath = os.path.expanduser(INFO.SUB_PATH)
+            path = os.path.join(tpath, '')
+            # look for NGC macros in path
+            for f in os.listdir(path):
+                print f
+                if f.endswith('.ngc'):
+                    # TODO check if they exist
+                    break
+        except Exception as e:
+            if INFO.SUB_PATH is None:
+                LOG.error("No 'SUBROUTINE_PATH' entry in the INI file for Versa_probe Macros")
+            else:
+                LOG.error('No Versa_probe Macros found in: {}\n{}'.format(path, e))
+            path = 'None'
+
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -59,8 +78,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_y.setText(str(self.PREFS_.getpref( "ps_offs_y", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
-
+            self.data_input_rapid_vel = self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')
         self.read_page_data()
+
     #####################################################
     # button callbacks
     #####################################################
@@ -430,8 +450,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def z_clearance_up(self):
         # move Z + z_clearance
         s="""G91
-        G1 Z%f
-        G90""" % (self.data_input_z_clearance )        
+        G1 F%s Z%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_z_clearance )        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return -1
         return 0
@@ -439,8 +459,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def z_clearance_down(self):
         # move Z - z_clearance
         s="""G91
-        G1 Z-%f
-        G90""" % (self.data_input_z_clearance )        
+        G1 F%s Z-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_z_clearance )        
         return ACTION.CALL_MDI_WAIT(s)
 
     def lenght_x(self):
@@ -499,12 +519,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # move X - edge_lenght Y + xy_clearance
         tmpx = self.data_input_edge_length -self.data_input_xy_clearance
         s = """G91
-        G1 X-%f
-        G90""" % (tmpx)        
+        G1 F%s X-%f
+        G90""" % (self.data_input_rapid_vel, tmpx)        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start xminus.ngc
-        if ACTION.CALL_OWORD("O<xminus> call") == -1:
+        if ACTION.CALL_OWORD("O<xminus> call [%s] [%s] [%s] [%s] [%s]" % (self.data_input_search_vel,
+                                                        self.data_input_max_travel,
+                                                        self.data_input_latch_return_dist,
+                                                        self.data_input_probe_vel,
+                                                        self.data_input_rapid_vel)) == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
@@ -514,12 +538,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # move X +2 edge_lenght - 2 xy_clearance
         tmpx = 2*(self.data_input_edge_length-self.data_input_xy_clearance)
         s = """G91
-        G1 X%f
-        G90""" % (tmpx)        
+        G1 F%s X%f
+        G90""" % (self.data_input_rapid_vel, tmpx)        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start xplus.ngc
-        if ACTION.CALL_OWORD("O<xplus> call") == -1:
+        if ACTION.CALL_OWORD("O<xplus> call [%s] [%s] [%s]  [%s] [%s]" % (self.data_input_search_vel,
+                                                        self.data_input_max_travel,
+                                                        self.data_input_latch_return_dist,
+                                                        self.data_input_probe_vel,
+                                                        self.data_input_rapid_vel)) == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
@@ -530,15 +558,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.lb_probe_offset_xc.setText( "%.4f" % xcres )
 
         # move X to new center
-        s="""G1 X%f""" % (xcres)        
+        s="""G1 F%s X%f""" % (self.data_input_rapid_vel, xcres)        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
 
         # move Y - edge_lenght + xy_clearance
         tmpy = self.data_input_edge_length-self.data_input_xy_clearance
         s="""G91
-        G1 Y-%f
-        G90""" % (tmpy)        
+        G1 F%s Y-%f
+        G90""" % (self.data_input_rapid_vel, tmpy)        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start yminus.ngc
@@ -552,8 +580,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # move Y +2 edge_lenght - 2 xy_clearance
         tmpy=2*(self.data_input_edge_length-self.data_input_xy_clearance)
         s="""G91
-        G1 Y%f
-        G90""" % (tmpy)        
+        G1 F%s Y%f
+        G90""" % (self.data_input_rapid_vel, tmpy)        
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start yplus.ngc
@@ -571,7 +599,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.lb_probe_offset_d.setText( "%.4f" % diam )
         #self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.lenght_x(),ymres,ycres,ypres,self.lenght_y(),0,diam,0)
         # move to center
-        s = "G1 Y%f" % ycres
+        s = "G1 F%s Y%f" % (self.data_input_rapid_vel, ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # move Z to start point
