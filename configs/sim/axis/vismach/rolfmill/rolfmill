@@ -190,7 +190,7 @@ ybase = Color([0,1,0,1], [ybase])
 # translating this would move itself alone. You want it to move X parts also.
 
 # X table is moved by Y base, so we have to make X child of Y.
-# now define collection of ybase and xbase.
+# now define collection of ybase and xassembly.
 yassembly = Collection([ybase, xassembly])
 # define its motion first before translate.
 yassembly = HalTranslate([yassembly], c, "jointY", 0, 1, 0)
