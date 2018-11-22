@@ -65,8 +65,8 @@ class _Lcnc_Action(object):
         self.clear_last_error()
         for l in code.split("\n"):
             self.cmd.mdi( l )
-            self.cmd.wait_complete()
-            if self.check_error() == -1:
+            result = self.cmd.wait_complete()
+            if result == -1 or result == linuxcnc.RCS_ERROR:
                 return -1
         return 0
 
@@ -89,13 +89,16 @@ class _Lcnc_Action(object):
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
                         STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
-            if self.check_error() == -1:
+            result = self.cmd.wait_complete()
+            if result == -1 or result == linuxcnc.RCS_ERROR:
+                log.error('MDI_COMMAND= # {}'.format(result))
                 return -1
-            self.cmd.wait_complete()
             STATUS.stat.poll()
-        self.cmd.wait_complete()
-        if self.check_error() == -1:
+        result = self.cmd.wait_complete()
+        if result == -1 or result == linuxcnc.RCS_ERROR:
+            log.error('MDI_COMMAND= # {}'.format(result))
             return -1
+        log.debug('OWORD_COMMAND returns complete : {}'.format(result))
         return 0
 
     def UPDATE_VAR_FILE(self):
@@ -272,10 +275,12 @@ class _Lcnc_Action(object):
 
     def check_error(self):
         if self._error[0] != 0:
+                log.error('MDI_COMMAND_WAIT: {}'.format(self._error[1]))
                 return -1
         return 0
 
     def record_error(self, kind, text):
+        log.error('STATUS ERROR RECEIVED:')
         self._error = [kind, text]
 
     def clear_last_error(self):
