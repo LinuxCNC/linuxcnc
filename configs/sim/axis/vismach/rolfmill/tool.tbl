@@ -1,0 +1,4 @@
+T1 P1 Z12 D30 ;big 
+T2 P2 Z50 D10 ;1/16 end mill 
+T3 P3 Z50 D5 ;#7 tap drill 
+T99999 P99999 Z0.1 ;big tool number 
