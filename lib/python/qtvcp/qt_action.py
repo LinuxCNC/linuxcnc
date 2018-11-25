@@ -60,7 +60,8 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
-    def CALL_MDI_WAIT(self, code): 
+    def CALL_MDI_WAIT(self, code):
+        log.debug('MDI_WAIT_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.clear_last_error()
         for l in code.split("\n"):

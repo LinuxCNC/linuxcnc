@@ -42,7 +42,8 @@ class Notify:
             pass
         try:
             self.show_notification(title, message, icon, timeout)
-        except Exception as e: print(e)
+        except Exception as e:
+               log.warning('show_noficication error:', exc_info=e)
 
     def show_notification(self, title, message, icon=None, timeout=4):
         n = sys_notify.Notification(title, message, icon)
@@ -70,10 +71,11 @@ class Notify:
             print num,i
 
     def show_status(self, message, timeout=4):
-        try:
-            messageid = self.statusbar.showMessage(message, timeout * 1000)
-        except Exception as e:
-            log.warning('Error adding msg to  statusbar:', exc_info=e)
+        if self.statusbar is not None:
+            try:
+                messageid = self.statusbar.showMessage(message, timeout * 1000)
+            except Exception as e:
+                log.warning('Error adding msg to  statusbar:', exc_info=e)
 
     def add_alarm_entry(self, message):
         try:
