@@ -114,35 +114,35 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def on_xpyp1_released(self):
         print 'xpyp1_released'
         self.read_page_data()
-
+        self.probe_inside_xpyp()
     def on_xpym1_released(self):
         print 'xpym1_released'
         self.read_page_data()
-
+        self.probe_inside_xpym()
     def on_ym1_released(self):
         print 'ym1_released'
         self.read_page_data()
-
+        self.probe_ym()
     def on_xp1_released(self):
         print 'xp1_released'
         self.read_page_data()
-
+        self.probe_xp()
     def on_xmym1_released(self):
         print 'xmym1_released'
         self.read_page_data()
-
+        self.probe_inside_xmym()
     def on_xm1_released(self):
         print 'xm1_released'
         self.read_page_data()
-
+        self.probe_xm()
     def on_xmyp1_released(self):
         print 'xmyp1_released'
         self.read_page_data()
-
+        self.probe_inside_xmtp()
     def on_yp1_released(self):
         print 'yp1_released'
         self.read_page_data()
-
+        self.probe_yp()
     def on_xy_hole_released(self):
         print 'xy_hole_released'
         self.read_page_data()
@@ -152,30 +152,39 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def on_xpyp_released(self):
         print 'xpyp_released'
         self.read_page_data()
+        self.probe_outside_xpyp()
     def on_xp_released(self):
         print 'xp_released'
         self.read_page_data()
-    def on_xpyp_released(self):
-        print 'xpyp_released'
+        self.probe_xp()
+    def on_xpym_released(self):
+        print 'xpym_released'
         self.read_page_data()
+        self.probe_outside_xpym()
     def on_ym_released(self):
         print 'ym_released'
         self.read_page_data()
+        self.probe_ym()
     def on_yp_released(self):
         print 'yp_released'
         self.read_page_data()
+        self.probe_yp()
     def on_xmym_released(self):
         print 'xmym_released'
         self.read_page_data()
+        self.probe_outside_xmym()
     def on_xm_released(self):
         print 'xm_released'
         self.read_page_data()
+        self.probe_xm()
     def on_xmyp_released(self):
         print 'xmyp_released'
         self.read_page_data()
+        self.probe_outside_xmyp()
     def on_xy_center_released(self):
         print 'xy_center_released'
         self.read_page_data()
+        self.probe_xy_hole()
 
     ####### straight #######################
     def on_down_released(self):
@@ -214,7 +223,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         G90""" % (self.data_input_rapid_vel, self.data_input_z_clearance )        
         return ACTION.CALL_MDI_WAIT(s)
 
-    def lenght_x(self):
+    def length_x(self):
         res=0
         if self.lb_probe_offset_xm.text() == "" or self.lb_probe_offset_xp.text() == "" :
             return res
@@ -227,7 +236,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.lb_probe_offset_lx.setText("%.4f" % res)
         return res
 
-    def lenght_y(self):
+    def length_y(self):
         res=0
         if self.lb_probe_offset_ym.text() == "" or self.lb_probe_offset_yp.text() == "" :
             return res
@@ -259,11 +268,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             time.sleep(1)
 
     def rotate_coord_system(self,a=0.):
-        if self.chk_auto_rott.isChecked() :
+        if self.pbtn_probing_auto_rotation.isChecked() :
             self.input_offs_angle.setText(a)
             self.lb_probe_a.setText( "%.3f" % a)
             s="G10 L2 P0"
-            if self.chk_set_zero.isChecked() :
+            if self.pbtn_probing_auto_zero.isChecked() :
                 s +=  " X%s"%self.input_offs_x.text()      
                 s +=  " Y%s"%self.input_offs_y.text()      
             else :
@@ -290,9 +299,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                                                         self.data_input_latch_return_dist,
                                                         self.data_input_probe_vel,
                                                         self.data_input_rapid_vel,
-                                                        self.chk_set_zero.isChecked(),
+                                                        int(self.pbtn_probing_auto_zero.isChecked()),
                                                         z_position))
-        else"
+        else:
             return ACTION.CALL_OWORD("O<%s> call [%s] [%s] [%s] [%s] [%s]" % (name,
                                                         self.data_input_search_vel,
                                                         self.data_input_max_travel,
@@ -312,8 +321,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xstart = self.get_position_status(0)
         # move Y - xy_clearance
         s="""G91
-        G1 Y-%f
-        G90""" % (self.data_input_xy_clearance )
+        G1 F%s Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -326,10 +335,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ycres=float(a[1])+0.5*self.data_input_probe_diam
         self.lb_probe_yc.setText( "%.4f" % ycres )
 
-        # move X + edge_lenght
+        # move X + edge_length
         s="""G91
-        G1 X%f
-        G90""" % (self.data_input_edge_length)
+        G1 F%s X%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_edge_length)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start yplus.ngc
@@ -340,13 +349,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ypres = float(a[1])+0.5*self.data_input_probe_diam
         self.lb_probe_yp.setText( "%.4f" % ypres )
         alfa = math.degrees(math.atan2(ypres-ycres,self.data_input_edge_length))
-        #self.add_history(gtkbutton.get_tooltip_text(),"YcYpA",0,0,0,0,0,ycres,ypres,0,0,0,alfa)
+        ###self.add_history(gtkbutton.get_tooltip_text(),"YcYpA",0,0,0,0,0,ycres,ypres,0,0,0,alfa)
 
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
         # move XY to adj start point
-        s="G1 X%f Y%f" % (xstart,ycres)
+        s="G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xstart,ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         self.rotate_coord_system(alfa)
@@ -355,8 +364,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ystart = self.get_position_status(0)
         # move Y + xy_clearance
         s="""G91
-        G1 Y%f
-        G90""" % (self.data_input_xy_clearance )
+        G1 F%s Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -368,10 +377,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         a = STATUS.get_probed_position_with_offsets()
         ycres=float(a[1])-0.5*self.data_input_probe_diam
         self.lb_probe_yc.setText( "%.4f" % ycres )
-        # move X - edge_lenght
+        # move X - edge_length
         s="""G91
-        G1 X-%f
-        G90""" % (self.data_input_edge_length)
+        G1 F%s X-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_edge_length)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start yminus.ngc
@@ -381,13 +390,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         a = STATUS.get_probed_position_with_offsets()
         ymres = float(a[1])-0.5*self.data_input_probe_diam
         self.lb_probe_ym.setText( "%.4f" % ymres )
-        alfa = math.degrees(math.atan2(ycres-ymres,self.data_input_edge_lenght))
-        #self.add_history(gtkbutton.get_tooltip_text(),"YmYcA",0,0,0,0,ymres,ycres,0,0,0,0,alfa)
+        alfa = math.degrees(math.atan2(ycres-ymres,self.data_input_edge_length))
+        ###self.add_history(gtkbutton.get_tooltip_text(),"YmYcA",0,0,0,0,ymres,ycres,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
         # move XY to adj start point
-        s="G1 X%f Y%f" % (xstart,ycres)
+        s="G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xstart,ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         self.rotate_coord_system(alfa)
@@ -396,8 +405,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ystart = self.get_position_status(1)
         # move X - xy_clearance
         s="""G91
-        G1 X-%f
-        G90""" % (self.data_input_xy_clearance )
+        G1 F%s X-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -408,12 +417,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xcres = float(a[0])+0.5*self.data_input_probe_diam
-        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        self.lb_probe_xc.setText( "%.4f" % xcres )
 
-        # move Y - edge_lenght
+        # move Y - edge_length
         s="""G91
-        G1 Y-%f
-        G90""" % (self.data_input_edge_length)
+        G1 F%s Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_edge_length)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start xplus.ngc
@@ -422,14 +431,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # show X result
         a = STATS.probed_position_with_offsets()
         xpres = float(a[0])+0.5*self.data_input_probe_diam
-        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        self.lb_probe_xp.setText( "%.4f" % xpres )
         alfa = math.degrees(math.atan2(xcres-xpres,self.data_input_edge_length))
-        #self.add_history(gtkbutton.get_tooltip_text(),"XcXpA",0,xcres,xpres,0,0,0,0,0,0,0,alfa)
+        ###self.add_history(gtkbutton.get_tooltip_text(),"XcXpA",0,xcres,xpres,0,0,0,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
         # move XY to adj start point
-        s="G1 X%f Y%f" % (xcres,ystart)
+        s="G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xcres,ystart)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         self.rotate_coord_system(alfa)
@@ -438,8 +447,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ystart = self.get_position_status(1)
         # move X + xy_clearance
         s="""G91
-        G1 X%f
-        G90""" % (self.data_inpt_xy_clearance )
+        G1 F%s X%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         if self.z_clearance_down() == -1:
@@ -452,10 +461,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xcres = float(a[0])-0.5*self.data_input_probe_diam
         self.lb_probe_xc.setText( "%.4f" % xcres )
 
-        # move Y + edge_lenght
+        # move Y + edge_length
         s="""G91
-        G1 Y%f
-        G90""" % (self.data_input_edge_length)
+        G1 F%s Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_edge_length)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # Start xminus.ngc
@@ -464,14 +473,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0])-0.5*self.data_input_probe_diam
-        self.lb_probe_xm.set_text( "%.4f" % xmres )
+        self.lb_probe_xm.setText( "%.4f" % xmres )
         alfa = math.degrees(math.atan2(xcres-xmres,self.data_input_edge_length))
-        #self.add_history(gtkbutton.get_tooltip_text(),"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
+        ###self.add_history(gtkbutton.get_tooltip_text(),"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
         # move XY to adj start point
-        s="G1 X%f Y%f" % (xcres,ystart)
+        s="G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xcres,ystart)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         self.rotate_coord_system(alfa)
@@ -486,7 +495,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def probe_xy_hole(self):
         if self.z_clearance_down() == -1:
             return
-        # move X - edge_lenght Y + xy_clearance
+        # move X - edge_length Y + xy_clearance
         tmpx = self.data_input_edge_length - self.data_input_xy_clearance
         s = """G91
         G1 F%s X-%f
@@ -501,7 +510,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xmres = float(a[0])-0.5*self.data_input_probe_diam
         self.lb_probe_offset_xm.setText( "%.4f" % xmres )
 
-        # move X +2 edge_lenght - 2 xy_clearance
+        # move X +2 edge_length - 2 xy_clearance
         tmpx = 2*(self.data_input_edge_length-self.data_input_xy_clearance)
         s = """G91
         G1 F%s X%f
@@ -515,7 +524,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0])+0.5*self.data_input_probe_diam
         self.lb_probe_offset_xp.setText( "%.4f" % xpres )
-        self.lenght_x()
+        self.length_x()
         xcres = 0.5*(xmres+xpres)
         self.lb_probe_offset_xc.setText( "%.4f" % xcres )
 
@@ -524,7 +533,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
 
-        # move Y - edge_lenght + xy_clearance
+        # move Y - edge_length + xy_clearance
         tmpy = self.data_input_edge_length-self.data_input_xy_clearance
         s="""G91
         G1 F%s Y-%f
@@ -539,7 +548,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ymres = float(a[1])-0.5*self.data_input_probe_diam
         self.lb_probe_offset_ym.setText( "%.4f" % ymres )
 
-        # move Y +2 edge_lenght - 2 xy_clearance
+        # move Y +2 edge_length - 2 xy_clearance
         tmpy = 2*(self.data_input_edge_length-self.data_input_xy_clearance)
         s="""G91
         G1 F%s Y%f
@@ -553,13 +562,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1])+0.5*self.data_input_probe_diam
         self.lb_probe_offset_yp.setText( "%.4f" % ypres )
-        self.lenght_y()
+        self.length_y()
         # find, show and move to finded  point
         ycres = 0.5*(ymres+ypres)
         self.lb_probe_offset_yc.setText( "%.4f" % ycres )
         diam = 0.5*((xpres-xmres)+(ypres-ymres))
         self.lb_probe_offset_d.setText( "%.4f" % diam )
-        #self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.lenght_x(),ymres,ycres,ypres,self.lenght_y(),0,diam,0)
+        ###self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
         # move to center
         s = "G1 F%s Y%f" % (self.data_input_rapid_vel, ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
@@ -568,11 +577,598 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.z_clearance_up()
         self.set_zerro("XY")
 
+    # Corners
+    # Move Probe manual under corner 2-3 mm
+    # X+Y+ 
+    def probe_inside_xpyp(self):
+        # move Y - edge_length X - xy_clearance
+        s="""G91
+        G1 F%s X-%f Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.probe("xplus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0])+0.5*self.data_input_probe_diam
+        self.lb_probe_xp.setText( "%.4f" % xres )
+        self.length_x()
+
+        # move X - edge_length Y - xy_clearance
+        tmpxy=self.data_input_edge_length-self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X-%f Y%f
+        G90""" % (self.data_input_rapid_vel, tmpxy,tmpxy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yplus.ngc
+        if self.probe("yplus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % yres )
+        self.length_y()
+        #self.add_history(gtkbutton.get_tooltip_text(),"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X+Y-
+    def probe_inside_xpym(self):
+        # move Y + edge_length X - xy_clearance
+        s="""G91
+        G1 F%s X-%f Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.probe("xplus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0])+0.5*self.data_input_probe_diam
+        self.lb_probe_xp.setText( "%.4f" % xres )
+        self.length_x()
+
+        # move X - edge_length Y + xy_clearance
+        tmpxy=self.data_input_edge_length-self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X-%f Y-%f
+        G90""" % (self.data_input_rapid_vel, tmpxy,tmpxy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yminus.ngc
+        if self.probe("yminus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % yres )
+        self.length_y()
+        #self.add_history(gtkbutton.get_tooltip_text(),"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X-Y+
+    def probe_inside_xmyp(self):
+        # move Y - edge_length X + xy_clearance
+        s="""G91
+        G1 F%s X%f Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe("xminus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0])-0.5*self.data_input_probe_diam
+        self.lb_probe_xm.setText( "%.4f" % xres )
+        self.length_x()
+
+        # move X + edge_length Y - xy_clearance
+        tmpxy=self.data_input_edge_length-self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X%f Y%f
+        G90""" % (self.data_input_rapid_vel, tmpxy,tmpxy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yplus.ngc
+        if self.probe("yplus") == -1:
+            return
+
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % yres )
+        self.length_y()
+        #self.add_history(gtkbutton.get_tooltip_text(),"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X-Y-
+    def probe_inside_xmym(self):
+        # move Y + edge_length X + xy_clearance
+        s="""G91
+        G1 F%s X%f Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe("xminus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0])-0.5*self.data_input_probe_diam
+        self.lb_probe_xm.setText( "%.4f" % xres )
+        self.length_x()
+
+        # move X + edge_length Y - xy_clearance
+        tmpxy=self.data_input_edge_length-self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X%f Y-%f
+        G90""" % (self.data_input_rapid_vel, tmpxy,tmpxy)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        # Start yminus.ngc
+        if self.probe("yminus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % yres )
+        self.length_y()
+        #self.add_history(gtkbutton.get_tooltip_text(),"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
 
 ###################################
 #  outside probing
 ###################################
 
+    # X+
+    def probe_xp(self):
+         # move X - xy_clearance
+        s="""G91
+        G1 F%s X-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+       # Start xplus.ngc
+        if self.probe( "xplus") == -1:
+            return
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]+0.5*self.data_input_probe_diam)
+        self.lb_probe_xp.setText( "%.4f" % xres )
+        self.length_x()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLx",0,0,xres,self.length_x(),0,0,0,0,0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f" % (self.data_input_rapid_vel, xres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("X")
+
+    # Y+
+    def probe_yp(self):
+         # move Y - xy_clearance
+        s="""G91
+        G1 F%s Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.probe( "yplus") == -1:
+            return
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % yres )
+        self.length_y()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"YpLy",0,0,0,0,0,0,yres,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s Y%f" % (self.data_input_rapid_vel, yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("Y")
+
+    # X-
+    def probe_xm(self):
+         # move X + xy_clearance
+        s="""G91
+        G1 F%s X%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe( "xminus") == -1:
+            return
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]-0.5*self.data_input_probe_diam)
+        self.lb_probe_xm.setText( "%.4f" % xres )
+        self.length_x()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLx",xres,0,0,self.length_x(),0,0,0,0,0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f" % (self.data_input_rapid_vel, xres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("X")
+
+    # Y-
+    def probe_ym(self):
+         # move Y + xy_clearance
+        s="""G91
+        G1 F%s Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yminus.ngc
+        if self.probe( "yminus") == -1:
+            return
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % yres )
+        self.length_y()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"YmLy",0,0,0,0,yres,0,0,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s Y%f" % (self.data_input_rapid_vel, yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("Y")
+
+    # Corners
+    # Move Probe manual under corner 2-3 mm
+    # X+Y+ 
+    def probe_outside_xpyp(self):
+        # move X - xy_clearance Y + edge_length
+        s="""G91
+        G1 F%s X-%f Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance, self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.probe( "xplus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]+0.5*self.data_input_probe_diam)
+        self.lb_probe_xp.setText( "%.4f" % xres )
+        self.length_x()
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move X + edge_length +xy_clearance,  Y - edge_length - xy_clearance
+        a=self.data_input_edge_length+self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X%f Y-%f
+        G90""" % (self.data_input_rapid_vel, a,a)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.probe( "yplus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % yres )
+        self.length_y()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X+Y-
+    def probe_outside_xpym(self):
+        # move X - xy_clearance Y + edge_length
+        s="""G91
+        G1 F%s X-%f Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.probe( "xplus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]+0.5*self.data_input_probe_diam)
+        self.lb_probe_xp.setText( "%.4f" % xres )
+        self.length_x()
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move X + edge_length +xy_clearance,  Y + edge_length + xy_clearance
+        a=self.data_input_edge_length+self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X%f Y%f
+        G90""" % (self.data_input_rapid_vel, a,a)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yminus.ngc
+        if self.probe( "yminus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % yres )
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X-Y+
+    def probe_outside_xmyp(self):
+        # move X + xy_clearance Y + edge_length
+        s="""G91
+        G1 F%s X%f Y%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance,self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe( "xminus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]-0.5*self.data_input_probe_diam)
+        self.lb_probe_xm.setText( "%.4f" % xres )
+        self.length_x()
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move X - edge_length - xy_clearance,  Y - edge_length - xy_clearance
+        a=self.data_input_edge_length+self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X-%f Y-%f
+        G90""" % (self.data_input_rapid_vel, a,a)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.probe( "yplus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % yres )
+        self.length_y()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # X-Y-
+    def probe_outside_xmym(self):
+        # move X + xy_clearance Y - edge_length
+        s="""G91
+        G1 F%s X%f Y-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_xy_clearance, self.data_input_edge_length )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe( "xminus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xres=float(a[0]-0.5*self.data_input_probe_diam)
+        self.lb_probe_xm.setText( "%.4f" % xres )
+        self.length_x()
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move X - edge_length - xy_clearance,  Y + edge_length + xy_clearance
+        a=self.data_input_edge_length+self.data_input_xy_clearance
+        s="""G91
+        G1 F%s X-%f Y%f
+        G90""" % (self.data_input_rapid_vel, a,a)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yminus.ngc
+        if self.probe( "yminus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        yres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % yres )
+        self.length_y()
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
+
+    # Center X+ X- Y+ Y-
+    def probe_outside_xy_center(self):
+        # move X - edge_length- xy_clearance
+        s="""G91
+        G1 F%s X-%f
+        G90""" % (self.data_input_rapid_vel, self.data_input_edge_length + self.data_input_xy_clearance )        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.probe( "xplus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.data_input_probe_diam
+        self.lb_probe_xp.setText( "%.4f" % xpres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move X + 2 edge_length + 2 xy_clearance
+        aa=2*(self.data_input_edge_length+self.data_input_xy_clearance)
+        s="""G91
+        G1 F%s X%f
+        G90""" % (self.data_input_rapid_vel, aa)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+
+        if self.probe( "xminus") == -1:
+            return
+        # show X result
+        a = STATUS.get_probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.data_input_probe_diam
+        self.lb_probe_xm.setText( "%.4f" % xmres )
+        self.length_x()
+        xcres=0.5*(xpres+xmres)
+        self.lb_probe_xc.setText( "%.4f" % xcres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # distance to the new center of X from current position
+#        self.stat.poll()
+#        to_new_xc=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0] - xcres
+        s = "G1 F%s X%f" % (self.data_input_rapid_vel, xcres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+
+
+        # move Y - edge_length- xy_clearance 
+        a=self.data_input_edge_length+self.data_input_xy_clearance
+        s="""G91
+        G1 F%s Y-%f
+        G90""" % (self.data_input_rapid_vel, a)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.probe( "yplus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.data_input_probe_diam
+        self.lb_probe_yp.setText( "%.4f" % ypres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+
+        # move Y + 2 edge_length + 2 xy_clearance
+        aa=2*(self.data_input_edge_length+self.data_input_xy_clearance)
+        s="""G91
+        G1 F%s Y%f
+        G90""" % (self.data_input_rapid_vel, aa)        
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.probe( "yminus") == -1:
+            return
+        # show Y result
+        a = STATUS.get_probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.data_input_probe_diam
+        self.lb_probe_ym.setText( "%.4f" % ymres )
+        self.length_y()
+        # find, show and move to finded  point
+        ycres=0.5*(ypres+ymres)
+        self.lb_probe_yc.setText( "%.4f" % ycres )
+        diam=0.5*((xmres-xpres)+(ymres-ypres))
+        self.lb_probe_d.setText( "%.4f" % diam )
+        ##self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 F%s Y%f" % (self.data_input_rapid_vel, ycres)
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+        self.set_zerro("XY")
 
 
 ###################################
@@ -583,9 +1179,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # Start down.ngc
         if self.probe( 'down') == -1:
             return
-        a = STATUS.probed_position_with_offsets()
+        a = STATUS.get_probed_position_with_offsets()
         self.lb_probe_z.setText( "%.4f" % float(a[2]) )
-        #self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        ###self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
         self.set_zerro("Z",0,0,a[2])
 
 ########################################

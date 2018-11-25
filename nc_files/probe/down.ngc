@@ -12,7 +12,7 @@ O<down-if> IF [#6 EQ 5]
     (cancel Z offsets)
     G92.1
     G49
-    G10 L20 P0 Z[#<_hal[axis.2.joint-pos-cmd]>]
+    G10 L20 P0 Z[#7]
 O<down-if> ENDIF 
  
 #<z>=#<_z> (save current Z position)

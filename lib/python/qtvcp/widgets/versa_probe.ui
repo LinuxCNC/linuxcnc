@@ -850,7 +850,7 @@ Zero</string>
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_lenght">
+      <widget class="QLabel" name="lb_probe_length">
        <property name="geometry">
         <rect>
          <x>332</x>
