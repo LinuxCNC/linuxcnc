@@ -120,30 +120,47 @@ proc thread_info {ay_name} {
 proc get_netlist {inpins_name outpin_name iopins_name signame} {
   # input:   signame
   # outputs:
-  #          inpins_name list of input pins for signame
-  #          iopins_name list of io pins for signame
-  #          outpin_name output pin for signame
+  #          inpins_name list of input pins for signame or ""
+  #          iopins_name list of io pins for signame    or ""
+  #          outpin_name output pin for signame         or ""
   upvar $inpins_name inpins
   upvar $iopins_name iopins
   upvar $outpin_name outpin
-  set ans [hal show sig $signame]
-  set lines [split $ans \n]
-  set header_len 3
+
+  set inpins ""
+  set iopins ""
+  set outpin ""
+
+  set header_len 2
+  set lines [split [hal show signal $signame] \n]
   set lines [lreplace $lines 0 [expr $header_len -1]]
   set lines [lreplace $lines end end]
   set ct 0
-  foreach line $lines {
-    scan [lindex $lines $ct] "%s %s" dir pinname
-    switch $dir {
-      "==>" {lappend inpins $pinname}
-      "<==" {lappend outpin $pinname}
-      "<=>" {lappend iopins $pinname}
-      default {return -code error "get_netlist: unrecognized <$line>"}
+  foreach line $lines {set l($ct) [string trim $line];incr ct}
+  set ct_max $ct
+  set ct 0
+  for {set ct 0} {$ct < $ct_max} {incr ct} {
+    set v0 [lindex $l($ct) 0]
+    set v1 [lindex $l($ct) 1]
+    set v2 [lindex $l($ct) 2]
+    switch $v0 {
+       float -
+       bit   -
+       u32   -
+       s32   {set sname  $v2} ;# set on 1st non-header line
+       "==>" {}
+       "<==" {}
+       "<=>" {}
+       *     {return -code error "get_netlist: Unexpected <$line">}
     }
-    incr ct
+    if {"$signame"=="$sname"} {
+      switch $v0 {
+         "==>" {lappend inpins $v1}
+         "<==" {lappend outpin $v1}
+         "<=>" {lappend iopins $v1}
+      }
+    }
   }
-  if {[llength $inpins] == 0} { set inpins {} }
-  if {[llength $outpin] == 0} { set outpin {} }
 } ;# get_netlist
 
 proc find_file_in_hallib_path {filename {inifile .}} {
