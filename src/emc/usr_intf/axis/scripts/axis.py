@@ -245,7 +245,6 @@ help2 = [
     ("#", _("toggle Relative/Machine")),
     (_("Ctrl-Space"), _("Clear notifications")),
     (_("Alt-F, M, V"), _("Open a Menu")),
-    (_("Ctrl-E"), _("toggle PYVCP panel visibility")),
 ]
 
 
@@ -3786,6 +3785,9 @@ if hal_present == 1 :
         vcpparse.create_vcp(f, comp)
         vcp_frame = f
         root_window.bind("<Control-e>", commands.toggle_show_pyvcppanel)
+        help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
+    else:
+        widgets.menu_view.delete(_("Show pyVCP pan_el").replace("_", ""))
     comp.ready()
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
