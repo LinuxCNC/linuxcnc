@@ -42,6 +42,8 @@ SHLIBDEPS_X += halmeter classicladder halscope
 THREADS_POSIX = --without-posix
 THREADS_RT_PREEMPT = --without-rt-preempt
 THREADS_XENOMAI = --without-xenomai
+#THREADS_XENOMAI_KERNEL = --without-xenomai-kernel
+#THREADS_RTAI_KERNEL = --without-rtai-kernel
 
 # Kernel threads need a list of configured header source directories
 # for each architecture
@@ -49,6 +51,11 @@ THREADS_XENOMAI = --without-xenomai
 # Multiples should be space-separated
 #
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+#HEADERS_XENOMAI_KERNEL_i386 = --with-xenomai-kernel-sources=""
+#HEADERS_XENOMAI_KERNEL_amd64 = --with-xenomai-kernel-sources=""
+#HEADERS_RTAI_KERNEL_amd64 = --with-rtai-kernel-sources=""
+#HEADERS_RTAI_KERNEL_i386 = --with-rtai-kernel-sources=""
 
 # Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
