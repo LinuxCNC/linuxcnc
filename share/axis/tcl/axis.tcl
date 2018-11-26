@@ -380,6 +380,12 @@ setup_menu_accel .menu.view end [_ "Large coordinate fo_nt"]
 	-command clear_live_plot
 setup_menu_accel .menu.view end [_ "_Clear live plot"]
 
+.menu.view add checkbutton \
+	-variable show_pyvcppanel \
+	-accelerator [_ "Ctrl-E"] \
+	-command toggle_show_pyvcppanel
+setup_menu_accel .menu.view end [_ "Show pyVCP pan_el"]
+
 .menu.view add separator
 
 .menu.view add radiobutton \
