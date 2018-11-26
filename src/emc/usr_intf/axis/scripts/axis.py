@@ -2544,6 +2544,17 @@ class TclCommands(nf.TclCommands):
     def clear_live_plot(*ignored):
         live_plotter.clear()
 
+    def toggle_show_pyvcppanel(*event):
+        # need to toggle variable manually for keyboard shortcut
+        if len(event) > 0:
+            vars.show_pyvcppanel.set(not vars.show_pyvcppanel.get())
+
+        if vars.show_pyvcppanel.get():
+            vcp_frame.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+        else:
+            vcp_frame.grid_remove()
+        o.tkRedraw()
+
     # The next three don't have 'manual_ok' because that's done in jog_on /
     # jog_off
     def jog_plus(incr=False):
@@ -2906,6 +2917,7 @@ vars = nf.Variables(root_window,
     ("show_machine_speed", IntVar),
     ("show_distance_to_go", IntVar),
     ("dro_large_font", IntVar),
+    ("show_pyvcppanel", IntVar),
     ("show_rapids", IntVar),
     ("feedrate", IntVar),
     ("rapidrate", IntVar),
@@ -2952,6 +2964,7 @@ vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
 vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
 vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
 vars.dro_large_font.set(ap.getpref("dro_large_font", False))
+vars.show_pyvcppanel.set(True)
 vars.block_delete.set(ap.getpref("block_delete", True))
 vars.optional_stop.set(ap.getpref("optional_stop", True))
 
@@ -3770,6 +3783,11 @@ if hal_present == 1 :
         f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
+        vcp_frame = f
+        root_window.bind("<Control-e>", commands.toggle_show_pyvcppanel)
+        help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
+    else:
+        widgets.menu_view.delete(_("Show pyVCP pan_el").replace("_", ""))
     comp.ready()
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
