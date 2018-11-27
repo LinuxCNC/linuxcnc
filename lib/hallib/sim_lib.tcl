@@ -124,8 +124,8 @@ proc core_sim {axes
      #       unlock_joint_mask=0xNN
      set module  [split [lindex $emcmot 0]]
      set modname [lindex $module 0]
-     set modparm [lindex $module 1]
-     if [catch {loadrt $modname $modparm \
+     set modparm [lreplace $module 0 0]
+     if [catch {eval loadrt $modname $modparm \
                   base_period_nsec=$base_period \
                   servo_period_nsec=$servo_period \
                   num_joints=$number_of_joints} msg
