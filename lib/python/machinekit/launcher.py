@@ -1,5 +1,6 @@
 # coding=utf-8
 import os
+import shlex
 import sys
 from time import *
 import subprocess
@@ -267,11 +268,26 @@ def set_machinekit_ini(ini):
     os.environ['MACHINEKIT_INI'] = ini
 
 
+def _check_for_non_zombie_process(program):
+    try:
+        # get process ids
+        pids = subprocess.check_output(shlex.split('pgrep {}'.format(program))).strip()
+        pids = ' '.join(pids.split('\n'))
+        # check each id if it is not zombie
+        ps_out = subprocess.check_output(
+            shlex.split('ps -p "{}" -o pid=,s='.format(pids))
+        ).strip()
+        lines = ps_out.split('\n')
+        for line in lines:
+            pid, status = line.split(' ')
+            if status != 'Z':
+                return True
+    except subprocess.CalledProcessError as e:
+        pass
+    return False
+
+
 # ensure mklauncher is running
 def ensure_mklauncher():
-    try:
-        subprocess.check_output(['pgrep', 'mklauncher'])
-        return
-    except subprocess.CalledProcessError:
-        pass
-    start_process('mklauncher .')
+    if not _check_for_non_zombie_process('mklauncher'):
+        start_process('mklauncher .')
