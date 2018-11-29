@@ -364,8 +364,8 @@ msgid ""
 "%s\n"
 "per div"
 msgstr ""
-"%s\n"
-"每分度"
+"每个分割\n"
+"%s"
 
 #: src/hal/utils/scope_horiz.c:1067
 #, c-format
@@ -1034,7 +1034,7 @@ msgstr "LinuxCNC校准"
 
 #: tcl/bin/emccalib.tcl:106
 msgid "Save To File"
-msgstr "保存到文件"
+msgstr "保存"
 
 #: tcl/bin/emccalib.tcl:122 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
 #: tcl/bin/halshow.tcl:85 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
@@ -1053,15 +1053,15 @@ msgstr "保存"
 
 #: tcl/bin/emccalib.tcl:232 tcl/bin/halconfig.tcl:628
 msgid "INI Name"
-msgstr "INI名称"
+msgstr "项目名称"
 
 #: tcl/bin/emccalib.tcl:233 tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
-msgstr "HAL 值"
+msgstr "当前值"
 
 #: tcl/bin/emccalib.tcl:235 tcl/bin/halconfig.tcl:631
 msgid "Next Value"
-msgstr "下一个值"
+msgstr "目标值"
 
 #: tcl/bin/emccalib.tcl:277 tcl/bin/halconfig.tcl:680
 #: tcl/bin/halconfig.tcl:731
@@ -1375,23 +1375,23 @@ msgstr "查看"
 
 #: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:109
 msgid "Expand Tree"
-msgstr "展开树"
+msgstr "展开"
 
 #: tcl/bin/halconfig.tcl:172 tcl/bin/halshow.tcl:111
 msgid "Collapse Tree"
-msgstr "折叠树"
+msgstr "折叠"
 
 #: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:114
 msgid "Expand Pins"
-msgstr "扩展针脚"
+msgstr "展开针脚"
 
 #: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:116
 msgid "Expand Parameters"
-msgstr "扩展参数"
+msgstr "展开参数"
 
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:118
 msgid "Expand Signals"
-msgstr "扩展信号"
+msgstr "展开信号"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:121
 msgid "Erase Watch"
@@ -1407,7 +1407,7 @@ msgstr "主页"
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr "输入 HAL 指令 :"
+msgstr "输入HAL指令 :"
 
 #: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:293
 msgid "Execute"
@@ -1433,11 +1433,11 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:344
 msgid "Select a node to show."
-msgstr "选择要显示的节点。"
+msgstr "请选择要显示的项目。"
 
 #: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:375
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "<-- 选择一叶。 点击它的名字。"
+msgstr "<-- 选择一个项目，点击它的名字。"
 
 #: tcl/bin/halconfig.tcl:1085 tcl/bin/halconfig.tcl:1095
 #: tcl/bin/halconfig.tcl:1102 tcl/bin/halconfig.tcl:1109
@@ -1481,17 +1481,25 @@ msgstr " 显示 "
 msgid " WATCH "
 msgstr " 监视 "
 
+#: tcl/bin/halshow.tcl:87
+msgid "Save Watch List"
+msgstr "保存监视列表"
+
+#: tcl/bin/halshow.tcl:88
+msgid "Save Watch List (multiline)"
+msgstr "保存监视列表（多行）"
+
 #: tcl/bin/halshow.tcl:93
 msgid "Load Watch List"
 msgstr "加载监视列表"
 
 #: tcl/bin/halshow.tcl:107
 msgid "Tree View"
-msgstr "缩放视图"
+msgstr "视图"
 
 #: tcl/bin/halshow.tcl:288
 msgid "Test HAL command :"
-msgstr "测试 HAL 指令 ："
+msgstr "测试HAL指令 ："
 
 #: tcl/bin/halshow.tcl:504
 msgid "Load a watch list"
@@ -1585,7 +1593,7 @@ msgstr "创建快捷方式"
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
-msgstr "此配置文件的快捷方式已在桌面上创建。 您可以使用它来自动启动此配置。"
+msgstr "已在桌面上创建此配置文件的快捷方式，您可以使用它来自动启动此配置。"
 
 #: tcl/bin/pickconfig.tcl:856
 msgid "Create Desktop Shortcut"
@@ -1740,11 +1748,11 @@ msgstr "编辑..."
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
-msgstr "刀具表编辑..."
+msgstr "编辑刀具表..."
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1383
 msgid "Reload Tool Table"
-msgstr "重新载入刀具表"
+msgstr "刷新刀具表"
 
 #: tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -1786,7 +1794,7 @@ msgstr "单位"
 msgid "auto"
 msgstr "自动"
 
-#: tcl/tklinuxcnc.tcl:785
+#: tcl/tklinuxcnc.tcl:785 src/emc/usr_intf/pncconf/tests.py:511
 msgid "inches"
 msgstr "英寸"
 
@@ -1797,6 +1805,7 @@ msgstr "英寸"
 #: src/emc/usr_intf/stepconf/stepconf.py:1404
 #: src/emc/usr_intf/stepconf/pages.py:785
 #: src/emc/usr_intf/stepconf/main_page.glade:240
+#: src/emc/usr_intf/pncconf/tests.py:506
 #: src/emc/usr_intf/pncconf/external.glade:1998
 #: src/emc/usr_intf/pncconf/external.glade:2213
 #: src/emc/usr_intf/pncconf/x_motor.glade:1591
@@ -1818,7 +1827,7 @@ msgstr "厘米"
 
 #: tcl/tklinuxcnc.tcl:791
 msgid "Utilities"
-msgstr "实用工具"
+msgstr "工具"
 
 #: tcl/tklinuxcnc.tcl:792
 msgid "Hal Scope"
@@ -1891,11 +1900,11 @@ msgstr "润滑 关"
 
 #: tcl/tklinuxcnc.tcl:898
 msgid "Spindle forward"
-msgstr "主轴 正转"
+msgstr "主轴正转"
 
 #: tcl/tklinuxcnc.tcl:899
 msgid "Spindle reverse"
-msgstr "主轴 反转"
+msgstr "主轴反转"
 
 #: tcl/tklinuxcnc.tcl:900
 msgid "Spindle off"
@@ -1989,7 +1998,7 @@ msgstr "直线点动速度"
 msgid "Angular Jog Speed (deg)/min:"
 msgstr "弯道点动速度 (度)/分:"
 
-#: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1505
+#: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1511
 msgid "Feed Override:"
 msgstr "进给速率:"
 
@@ -2026,7 +2035,7 @@ msgstr "恢复"
 
 #: tcl/tklinuxcnc.tcl:1550
 msgid "Step"
-msgstr "步进"
+msgstr "单步"
 
 #: tcl/tklinuxcnc.tcl:1551
 msgid "Verify"
@@ -2034,7 +2043,7 @@ msgstr "校验"
 
 #: tcl/tklinuxcnc.tcl:1552
 msgid "Optional Stop"
-msgstr "可选停止"
+msgstr "选停"
 
 #: tcl/tklinuxcnc.tcl:1885
 msgid "Error"
@@ -2061,11 +2070,11 @@ msgstr "样式"
 msgid "MANUAL"
 msgstr "手动"
 
-#: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1782
+#: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1788
 msgid "ESTOP"
 msgstr "急停"
 
-#: tcl/tklinuxcnc.tcl:2088 tcl/ngcgui.tcl:2991 share/axis/tcl/axis.tcl:1784
+#: tcl/tklinuxcnc.tcl:2088 tcl/ngcgui.tcl:2991 share/axis/tcl/axis.tcl:1790
 msgid "ON"
 msgstr "电源开"
 
@@ -2087,7 +2096,7 @@ msgstr "冷却气 关"
 
 #: tcl/tklinuxcnc.tcl:2132
 msgid "MIST ?"
-msgstr "冷却气　?"
+msgstr "冷却气 ?"
 
 #: tcl/tklinuxcnc.tcl:2136
 msgid "FLOOD ON"
@@ -2099,7 +2108,7 @@ msgstr "冷却水 关"
 
 #: tcl/tklinuxcnc.tcl:2140
 msgid "FLOOD ?"
-msgstr "冷却水　?"
+msgstr "冷却水 ?"
 
 #: tcl/tklinuxcnc.tcl:2144
 msgid "LUBE ON"
@@ -2111,7 +2120,7 @@ msgstr "润滑 关"
 
 #: tcl/tklinuxcnc.tcl:2148
 msgid "LUBE ?"
-msgstr "润滑　?"
+msgstr "润滑 ?"
 
 #: tcl/tklinuxcnc.tcl:2152
 msgid "SPINDLE FORWARD"
@@ -2135,7 +2144,7 @@ msgstr "主轴减速"
 
 #: tcl/tklinuxcnc.tcl:2162
 msgid "SPINDLE ?"
-msgstr "主轴　?"
+msgstr "主轴 ?"
 
 #: tcl/tklinuxcnc.tcl:2166
 msgid "BRAKE ON"
@@ -2147,7 +2156,7 @@ msgstr "刹车 关"
 
 #: tcl/tklinuxcnc.tcl:2170
 msgid "BRAKE ?"
-msgstr "刹车　?"
+msgstr "刹车 ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
 msgid "LinuxCNC Set Coordinate"
@@ -2158,7 +2167,7 @@ msgid "Coordinate System Control Window"
 msgstr "坐标系统控制窗口"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3500
+#: src/emc/usr_intf/axis/scripts/axis.py:3513
 msgid "Axis "
 msgstr "轴 "
 
@@ -2576,7 +2585,7 @@ msgstr "您应该将linuxcnc升级到> = linuxcnc2.5"
 msgid "pre2.4_send_file_to_axis:error"
 msgstr "pre2.4_send_file_to_axis：错误"
 
-#: tcl/ngcgui.tcl:2990 share/axis/tcl/axis.tcl:1783
+#: tcl/ngcgui.tcl:2990 share/axis/tcl/axis.tcl:1789
 msgid "OFF"
 msgstr "关"
 
@@ -2734,8 +2743,8 @@ msgstr "找到多个匹配"
 msgid "using path"
 msgstr "使用路径"
 
-#: tcl/ngcgui.tcl:3802 src/emc/usr_intf/axis/scripts/axis.py:2569
-#: src/emc/usr_intf/axis/scripts/axis.py:2594
+#: tcl/ngcgui.tcl:3802 src/emc/usr_intf/axis/scripts/axis.py:2580
+#: src/emc/usr_intf/axis/scripts/axis.py:2605
 msgid "Warning"
 msgstr "警告"
 
@@ -3024,7 +3033,7 @@ msgstr "刀具"
 
 #: tcl/tooledit.tcl:409
 msgid "poc"
-msgstr "项目"
+msgstr "刀号"
 
 #: tcl/tooledit.tcl:410
 msgid "diam"
@@ -3032,11 +3041,11 @@ msgstr "直径"
 
 #: tcl/tooledit.tcl:411
 msgid "front"
-msgstr "前进"
+msgstr "刃长"
 
 #: tcl/tooledit.tcl:412
 msgid "back"
-msgstr "后退"
+msgstr "柄长"
 
 #: tcl/tooledit.tcl:413
 msgid "orien"
@@ -3052,19 +3061,19 @@ msgstr "删除"
 
 #: tcl/tooledit.tcl:473
 msgid "ReLoadTable"
-msgstr "重载刀具表(_B)"
+msgstr "刷新"
 
 #: tcl/tooledit.tcl:478
 msgid "SaveFile"
-msgstr "保存文件"
+msgstr "保存"
 
 #: tcl/tooledit.tcl:483
 msgid "ReRead"
-msgstr "读取(_R)"
+msgstr "读取"
 
 #: tcl/tooledit.tcl:485
 msgid "AddTool"
-msgstr "添加刀具"
+msgstr "添加"
 
 #: tcl/tooledit.tcl:488 src/emc/usr_intf/gmoccapy/gmoccapy.glade:8092
 msgid "Delete"
@@ -3082,11 +3091,11 @@ msgstr "创建%s "
 
 #: tcl/tooledit.tcl:537
 msgid "File updated"
-msgstr "文件更新"
+msgstr "文件已更新"
 
 #: tcl/tooledit.tcl:538
 msgid "File modified"
-msgstr "文件修改"
+msgstr "文件已修改"
 
 #: tcl/tooledit.tcl:539
 msgid "File check errors"
@@ -3094,11 +3103,11 @@ msgstr "文件检查错误"
 
 #: tcl/tooledit.tcl:540
 msgid "File checked"
-msgstr "文件检查"
+msgstr "文件已检查"
 
 #: tcl/tooledit.tcl:541
 msgid "File items deleted"
-msgstr "删除文件项"
+msgstr "文件已删除"
 
 #: tcl/tooledit.tcl:542
 msgid "Bogus lines in file ignored"
@@ -3166,11 +3175,11 @@ msgstr "刀具<%s>多次指定"
 
 #: tcl/tooledit.tcl:902
 msgid "File Modified"
-msgstr "文件修改"
+msgstr "文件已修改"
 
 #: tcl/tooledit.tcl:903
 msgid "Save Modifications to File?"
-msgstr "保存修改文件？"
+msgstr "保存修改的文件？"
 
 #: tcl/tooledit.tcl:930
 #, tcl-format
@@ -3321,7 +3330,7 @@ msgstr "选择手动角速度"
 msgid "I, Shift-I"
 msgstr "I, Shift+I"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:188 share/axis/tcl/axis.tcl:2275
+#: src/emc/usr_intf/axis/scripts/axis.py:188 share/axis/tcl/axis.tcl:2281
 msgid "Select jog increment"
 msgstr "选择点动增量"
 
@@ -3495,7 +3504,7 @@ msgstr "Ctrl+Shift+H"
 msgid "Paste clipboard to MDI history"
 msgstr "将剪贴板粘贴到MDI历史记录"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:221 share/axis/tcl/axis.tcl:944
+#: src/emc/usr_intf/axis/scripts/axis.py:221 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:508
 msgid "Override Limits"
 msgstr "超程"
@@ -3625,7 +3634,7 @@ msgstr "打开一个菜单"
 msgid "Unknown tool %d"
 msgstr "未定义刀具 %d 号"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:891 share/axis/tcl/axis.tcl:1883
+#: src/emc/usr_intf/axis/scripts/axis.py:891 share/axis/tcl/axis.tcl:1889
 msgid "No tool"
 msgstr "无刀具"
 
@@ -3667,8 +3676,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1414
-#: src/emc/usr_intf/axis/scripts/axis.py:3132 share/axis/tcl/axis.tcl:916
-#: share/axis/tcl/axis.tcl:918 share/axis/tcl/axis.tcl:2062
+#: src/emc/usr_intf/axis/scripts/axis.py:3145 share/axis/tcl/axis.tcl:922
+#: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2068
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:896
 msgid "Continuous"
 msgstr "连续"
@@ -3824,7 +3833,7 @@ msgid "All machinable files"
 msgstr "所有可加工的文件"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2146
-#: src/emc/usr_intf/axis/scripts/axis.py:2844
+#: src/emc/usr_intf/axis/scripts/axis.py:2855
 msgid "rs274ngc files"
 msgstr "rs274ngc 文件"
 
@@ -3854,81 +3863,89 @@ msgstr ""
 msgid "Edit-readonly"
 msgstr "阅读"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2569
+#: src/emc/usr_intf/axis/scripts/axis.py:2580
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr "关节已经回零了，你确定要重新回零吗？"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2594
+#: src/emc/usr_intf/axis/scripts/axis.py:2605
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr "这个关节已经回零了，你确定要重新回零吗？"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2646
+#: src/emc/usr_intf/axis/scripts/axis.py:2657
 msgid "Touch Off (system)"
 msgstr "对刀（系统）"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2647
-#: src/emc/usr_intf/axis/scripts/axis.py:2688
+#: src/emc/usr_intf/axis/scripts/axis.py:2658
+#: src/emc/usr_intf/axis/scripts/axis.py:2699
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "输入相对于%%s的%s 坐标："
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2687
+#: src/emc/usr_intf/axis/scripts/axis.py:2698
 #, python-format
 msgid "Tool %s TouchOff"
 msgstr "刀具%s对刀"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2856
+#: src/emc/usr_intf/axis/scripts/axis.py:2867
 msgid "Error saving file"
 msgstr "保存文件时发生错误"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3417
+#: src/emc/usr_intf/axis/scripts/axis.py:3430
 msgid "Axes"
 msgstr "轴"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3419
+#: src/emc/usr_intf/axis/scripts/axis.py:3432
 msgid "Joints"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3421
+#: src/emc/usr_intf/axis/scripts/axis.py:3434
 #: src/emc/usr_intf/touchy/touchy.glade:577
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
 msgid "Home All"
 msgstr "全部回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3423
+#: src/emc/usr_intf/axis/scripts/axis.py:3436
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "回零全部%s [Ctrl+Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3426
+#: src/emc/usr_intf/axis/scripts/axis.py:3439
 #, python-format
 msgid "Home All %s"
 msgstr "回零全部%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3428
+#: src/emc/usr_intf/axis/scripts/axis.py:3441
 #, python-format
 msgid "Unhome All %s"
 msgstr "离零全部%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3517
+#: src/emc/usr_intf/axis/scripts/axis.py:3530
 msgid "Joint"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3525
+#: src/emc/usr_intf/axis/scripts/axis.py:3538
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "回零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3527
+#: src/emc/usr_intf/axis/scripts/axis.py:3540
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "离零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3720
+#: src/emc/usr_intf/axis/scripts/axis.py:3733
 msgid "Run from here"
 msgstr "从这里运行"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4036
+#: src/emc/usr_intf/axis/scripts/axis.py:3788
+msgid "toggle PYVCP panel visibility"
+msgstr "显示/隐藏PYVCP面板"
+
+#: src/emc/usr_intf/axis/scripts/axis.py:3790 share/axis/tcl/axis.tcl:387
+msgid "Show pyVCP pan_el"
+msgstr "显示pyVCP面板"
+
+#: src/emc/usr_intf/axis/scripts/axis.py:4054
 msgid "Error in ~/.axisrc"
 msgstr "~/.axisrc 错误"
 
@@ -4242,15 +4259,15 @@ msgstr "属性(_P)..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool table..."
-msgstr "编辑刀具列表(_T)..."
+msgstr "编辑刀具表(_T)..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool ta_ble"
-msgstr "重新加载刀具列表(_B)"
+msgstr "刷新刀具表(_B)"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
-msgstr "梯形图编辑器(_L)..."
+msgstr "编辑梯形图(_L)..."
 
 #: share/axis/tcl/axis.tcl:108
 msgid "Toggle _Emergency Stop"
@@ -4480,226 +4497,230 @@ msgstr "Ctrl+K"
 msgid "_Clear live plot"
 msgstr "清除走刀轨迹(_C)"
 
-#: share/axis/tcl/axis.tcl:390
+#: share/axis/tcl/axis.tcl:385
+msgid "Ctrl-E"
+msgstr "Ctrl+E"
+
+#: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
 msgstr "显示指令坐标"
 
-#: share/axis/tcl/axis.tcl:397
+#: share/axis/tcl/axis.tcl:403
 msgid "Show actual position"
 msgstr "显示实际坐标"
 
-#: share/axis/tcl/axis.tcl:406
+#: share/axis/tcl/axis.tcl:412
 msgid "Show machine position"
 msgstr "显示机床坐标"
 
-#: share/axis/tcl/axis.tcl:413
+#: share/axis/tcl/axis.tcl:419
 msgid "Show relative position"
 msgstr "显示相对坐标"
 
-#: share/axis/tcl/axis.tcl:422
+#: share/axis/tcl/axis.tcl:428
 msgid "Joint mode"
 msgstr "关节模式"
 
-#: share/axis/tcl/axis.tcl:429
+#: share/axis/tcl/axis.tcl:435
 msgid "World mode"
 msgstr "世界模式"
 
-#: share/axis/tcl/axis.tcl:437
+#: share/axis/tcl/axis.tcl:443
 msgid "_Off"
 msgstr "关"
 
-#: share/axis/tcl/axis.tcl:443
+#: share/axis/tcl/axis.tcl:449
 msgid "_Custom"
 msgstr "自定义"
 
-#: share/axis/tcl/axis.tcl:454
+#: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
 msgstr "关于(_A)"
 
-#: share/axis/tcl/axis.tcl:458
+#: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
 msgstr "快捷键(_R)"
 
-#: share/axis/tcl/axis.tcl:468
+#: share/axis/tcl/axis.tcl:474
 msgid "_Machine"
 msgstr "机床(_M)"
 
-#: share/axis/tcl/axis.tcl:472
+#: share/axis/tcl/axis.tcl:478
 msgid "_View"
 msgstr "视图(_V)"
 
-#: share/axis/tcl/axis.tcl:485
+#: share/axis/tcl/axis.tcl:491
 msgid "Toggle Emergency Stop [F1]"
 msgstr "急停 [F1]"
 
-#: share/axis/tcl/axis.tcl:494
+#: share/axis/tcl/axis.tcl:500
 msgid "Toggle Machine power [F2]"
 msgstr "电源[F2]"
 
-#: share/axis/tcl/axis.tcl:505
+#: share/axis/tcl/axis.tcl:511
 msgid "Open G-Code file [O]"
 msgstr "打开[O]"
 
-#: share/axis/tcl/axis.tcl:513
+#: share/axis/tcl/axis.tcl:519
 msgid "Reopen current file [Control-R]"
 msgstr "重新载入[Ctrl+R]"
 
-#: share/axis/tcl/axis.tcl:523
+#: share/axis/tcl/axis.tcl:529
 msgid "Begin executing current file [R]"
 msgstr "运行[R]"
 
-#: share/axis/tcl/axis.tcl:531
+#: share/axis/tcl/axis.tcl:537
 msgid "Execute next line [T]"
 msgstr "下一段[T]"
 
-#: share/axis/tcl/axis.tcl:539
+#: share/axis/tcl/axis.tcl:545
 msgid "Pause [P] / resume [S] execution"
 msgstr "暂停[P]/恢复[S]"
 
-#: share/axis/tcl/axis.tcl:554
+#: share/axis/tcl/axis.tcl:560
 msgid "Stop program execution [ESC]"
 msgstr "停止[ESC]"
 
-#: share/axis/tcl/axis.tcl:564
+#: share/axis/tcl/axis.tcl:570
 msgid "Toggle skip lines with '/' [Alt-M /]"
 msgstr "跳段 '/'[Alt+M /]"
 
-#: share/axis/tcl/axis.tcl:571
+#: share/axis/tcl/axis.tcl:577
 msgid "Toggle optional pause [Alt-M 1]"
 msgstr "停止在 M1 [Alt+M 1]"
 
-#: share/axis/tcl/axis.tcl:580 src/emc/usr_intf/gmoccapy/gmoccapy.glade:722
+#: share/axis/tcl/axis.tcl:586 src/emc/usr_intf/gmoccapy/gmoccapy.glade:722
 msgid "Zoom in"
 msgstr "放大"
 
-#: share/axis/tcl/axis.tcl:588 src/emc/usr_intf/gmoccapy/gmoccapy.glade:741
+#: share/axis/tcl/axis.tcl:594 src/emc/usr_intf/gmoccapy/gmoccapy.glade:741
 msgid "Zoom out"
 msgstr "缩小"
 
-#: share/axis/tcl/axis.tcl:596
+#: share/axis/tcl/axis.tcl:602
 msgid "Top view"
 msgstr "俯视图"
 
-#: share/axis/tcl/axis.tcl:604
+#: share/axis/tcl/axis.tcl:610
 msgid "Rotated top view"
 msgstr "旋转俯视图"
 
-#: share/axis/tcl/axis.tcl:612
+#: share/axis/tcl/axis.tcl:618
 msgid "Side view"
 msgstr "侧视图"
 
-#: share/axis/tcl/axis.tcl:620
+#: share/axis/tcl/axis.tcl:626
 msgid "Front view"
 msgstr "正视图"
 
-#: share/axis/tcl/axis.tcl:628
+#: share/axis/tcl/axis.tcl:634
 msgid "Inverted Front view"
 msgstr "倒置正视图"
 
-#: share/axis/tcl/axis.tcl:636
+#: share/axis/tcl/axis.tcl:642
 msgid "Perspective view"
 msgstr "等轴侧视图"
 
-#: share/axis/tcl/axis.tcl:644
+#: share/axis/tcl/axis.tcl:650
 msgid "Toggle between Drag and Rotate Mode [D]"
 msgstr "平移/旋转[D]"
 
-#: share/axis/tcl/axis.tcl:659
+#: share/axis/tcl/axis.tcl:665
 msgid "Clear live plot [Ctrl-K]"
 msgstr "清除走刀轨迹[Ctrl+K]"
 
-#: share/axis/tcl/axis.tcl:814
+#: share/axis/tcl/axis.tcl:820
 msgid "Manual Control [F3]"
 msgstr "手动控制[F3]"
 
-#: share/axis/tcl/axis.tcl:815
+#: share/axis/tcl/axis.tcl:821
 msgid "MDI [F5]"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:829 share/axis/tcl/axis.tcl:1934
-#: share/axis/tcl/axis.tcl:2121
+#: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1940
+#: share/axis/tcl/axis.tcl:2127
 msgid "Axis:"
 msgstr "轴："
 
-#: share/axis/tcl/axis.tcl:926 src/emc/usr_intf/gscreen/gscreen.glade:2979
+#: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 msgid "Home Axis"
 msgstr "回零"
 
-#: share/axis/tcl/axis.tcl:932
+#: share/axis/tcl/axis.tcl:938
 msgid "Touch Off"
 msgstr "对刀"
 
-#: share/axis/tcl/axis.tcl:938
+#: share/axis/tcl/axis.tcl:944
 msgid "Tool Touch Off"
 msgstr "刀具对刀"
 
-#: share/axis/tcl/axis.tcl:1015
+#: share/axis/tcl/axis.tcl:1021
 msgid "Spindle:"
 msgstr "主轴："
 
-#: share/axis/tcl/axis.tcl:1062 src/emc/usr_intf/touchy/touchy.glade:946
+#: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:946
 #: src/emc/usr_intf/gscreen/gscreen.glade:4111
 msgid "-"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1076 src/emc/usr_intf/gscreen/gscreen.glade:4100
+#: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/gscreen/gscreen.glade:4100
 msgid "+"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1081
+#: share/axis/tcl/axis.tcl:1087
 msgid "Brake"
 msgstr "刹车"
 
-#: share/axis/tcl/axis.tcl:1128
+#: share/axis/tcl/axis.tcl:1134
 msgid "Coolant:"
 msgstr "冷却:"
 
-#: share/axis/tcl/axis.tcl:1133
+#: share/axis/tcl/axis.tcl:1139
 msgid "Mist"
 msgstr "冷却气"
 
-#: share/axis/tcl/axis.tcl:1138
+#: share/axis/tcl/axis.tcl:1144
 msgid "Flood"
 msgstr "冷却水"
 
-#: share/axis/tcl/axis.tcl:1210
+#: share/axis/tcl/axis.tcl:1216
 msgid "History:"
 msgstr "历史："
 
-#: share/axis/tcl/axis.tcl:1233
+#: share/axis/tcl/axis.tcl:1239
 msgid "MDI Command:"
 msgstr "MDI 指令:"
 
-#: share/axis/tcl/axis.tcl:1242
+#: share/axis/tcl/axis.tcl:1248
 msgid "Go"
 msgstr "执行"
 
-#: share/axis/tcl/axis.tcl:1248
+#: share/axis/tcl/axis.tcl:1254
 msgid "Active G-Codes:"
 msgstr "当前插补指令集："
 
-#: share/axis/tcl/axis.tcl:1327 src/emc/usr_intf/gmoccapy/gmoccapy.glade:964
+#: share/axis/tcl/axis.tcl:1333 src/emc/usr_intf/gmoccapy/gmoccapy.glade:964
 msgid "Preview"
 msgstr "预览"
 
-#: share/axis/tcl/axis.tcl:1328
+#: share/axis/tcl/axis.tcl:1334
 msgid "DRO"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1411 share/axis/tcl/axis.tcl:1424
+#: share/axis/tcl/axis.tcl:1417 share/axis/tcl/axis.tcl:1430
 msgid "Jog Speed:"
 msgstr "点动速度:"
 
-#: share/axis/tcl/axis.tcl:1436
+#: share/axis/tcl/axis.tcl:1442
 msgid "Max Velocity:"
 msgstr "最大速度:"
 
-#: share/axis/tcl/axis.tcl:1465
+#: share/axis/tcl/axis.tcl:1471
 msgid "Spindle Override:"
 msgstr "主轴速率:"
 
-#: share/axis/tcl/axis.tcl:1467 share/axis/tcl/axis.tcl:1507
-#: share/axis/tcl/axis.tcl:1545 src/emc/usr_intf/pncconf/external.glade:2715
+#: share/axis/tcl/axis.tcl:1473 share/axis/tcl/axis.tcl:1513
+#: share/axis/tcl/axis.tcl:1551 src/emc/usr_intf/pncconf/external.glade:2715
 #: src/emc/usr_intf/pncconf/external.glade:2727
 #: src/emc/usr_intf/pncconf/external.glade:2856
 #: src/emc/usr_intf/pncconf/external.glade:2870
@@ -4753,11 +4774,11 @@ msgstr "主轴速率:"
 msgid "%"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1543
+#: share/axis/tcl/axis.tcl:1549
 msgid "Rapid Override:"
 msgstr "空程速率:"
 
-#: share/axis/tcl/axis.tcl:1585
+#: share/axis/tcl/axis.tcl:1591
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
@@ -4777,119 +4798,119 @@ msgstr ""
 "\n"
 "请浏览LinuxCNC网站："
 
-#: share/axis/tcl/axis.tcl:1613
+#: share/axis/tcl/axis.tcl:1619
 msgid "About AXIS"
 msgstr "关于AXIS"
 
-#: share/axis/tcl/axis.tcl:1642
+#: share/axis/tcl/axis.tcl:1648
 msgid "AXIS Quick Reference"
 msgstr "AXIS快速参考"
 
-#: share/axis/tcl/axis.tcl:1767
+#: share/axis/tcl/axis.tcl:1773
 msgid "AXIS $::version on $::machine"
 msgstr ""
 
-#: share/axis/tcl/axis.tcl:1769
+#: share/axis/tcl/axis.tcl:1775
 msgid "(no file)"
 msgstr "（无文件）"
 
-#: share/axis/tcl/axis.tcl:1844 share/axis/tcl/axis.tcl:1849
+#: share/axis/tcl/axis.tcl:1850 share/axis/tcl/axis.tcl:1855
 msgid "Position:"
 msgstr "坐标："
 
-#: share/axis/tcl/axis.tcl:1846 src/emc/usr_intf/gscreen/gscreen.py:4543
+#: share/axis/tcl/axis.tcl:1852 src/emc/usr_intf/gscreen/gscreen.py:4543
 msgid "Machine"
 msgstr "机床"
 
-#: share/axis/tcl/axis.tcl:1846 src/emc/usr_intf/touchy/touchy.glade:155
+#: share/axis/tcl/axis.tcl:1852 src/emc/usr_intf/touchy/touchy.glade:155
 msgid "Relative"
 msgstr "相对"
 
-#: share/axis/tcl/axis.tcl:1847 src/emc/usr_intf/touchy/touchy.glade:3329
+#: share/axis/tcl/axis.tcl:1853 src/emc/usr_intf/touchy/touchy.glade:3329
 msgid "Actual"
 msgstr "实际"
 
-#: share/axis/tcl/axis.tcl:1847 src/emc/usr_intf/touchy/touchy.glade:3318
+#: share/axis/tcl/axis.tcl:1853 src/emc/usr_intf/touchy/touchy.glade:3318
 msgid "Commanded"
 msgstr "指令"
 
-#: share/axis/tcl/axis.tcl:1921 share/axis/tcl/axis.tcl:2121
+#: share/axis/tcl/axis.tcl:1927 share/axis/tcl/axis.tcl:2127
 msgid "Joint:"
 msgstr "关节："
 
-#: share/axis/tcl/axis.tcl:2256
+#: share/axis/tcl/axis.tcl:2262
 msgid "Turn spindle counterclockwise [F10]"
 msgstr "主轴反转[F10]"
 
-#: share/axis/tcl/axis.tcl:2257
+#: share/axis/tcl/axis.tcl:2263
 msgid "Turn spindle clockwise [F9]"
 msgstr "主轴正转[F9]"
 
-#: share/axis/tcl/axis.tcl:2258
+#: share/axis/tcl/axis.tcl:2264
 msgid "Stop spindle [F9/F10]"
 msgstr "停止主轴[F9/F10]"
 
-#: share/axis/tcl/axis.tcl:2259
+#: share/axis/tcl/axis.tcl:2265
 msgid "Turn spindle Faster [F12]"
 msgstr "主轴加速[F12]"
 
-#: share/axis/tcl/axis.tcl:2260
+#: share/axis/tcl/axis.tcl:2266
 msgid "Turn spindle Slower [F11]"
 msgstr "主轴减速[F11]"
 
-#: share/axis/tcl/axis.tcl:2261
+#: share/axis/tcl/axis.tcl:2267
 msgid "Turn spindle brake on [Shift-B] or off [B]"
 msgstr "主轴制动[ shift-b ]或[ b ]"
 
-#: share/axis/tcl/axis.tcl:2262
+#: share/axis/tcl/axis.tcl:2268
 msgid "Turn flood on or off [F8]"
 msgstr "冷却水开/关[F8]"
 
-#: share/axis/tcl/axis.tcl:2263
+#: share/axis/tcl/axis.tcl:2269
 msgid "Turn mist on or off [F7]"
 msgstr "冷却气开/关[F7]"
 
-#: share/axis/tcl/axis.tcl:2264
+#: share/axis/tcl/axis.tcl:2270
 msgid "Send active axis home [Home]"
 msgstr "将激活的轴回零 [Home]"
 
-#: share/axis/tcl/axis.tcl:2265
+#: share/axis/tcl/axis.tcl:2271
 msgid "Set G54 offset for active axis [End]"
 msgstr "为激活轴设置G54偏置 [End]"
 
-#: share/axis/tcl/axis.tcl:2266
+#: share/axis/tcl/axis.tcl:2272
 msgid "Set tool offset for loaded tool [Control-End]"
 msgstr "为加载刀具设置刀具补偿[Ctrl+End]"
 
-#: share/axis/tcl/axis.tcl:2267
+#: share/axis/tcl/axis.tcl:2273
 msgid "Activate axis [X]"
 msgstr "激活X轴"
 
-#: share/axis/tcl/axis.tcl:2268
+#: share/axis/tcl/axis.tcl:2274
 msgid "Activate axis [Y]"
 msgstr "激活Y轴"
 
-#: share/axis/tcl/axis.tcl:2269
+#: share/axis/tcl/axis.tcl:2275
 msgid "Activate axis [Z]"
 msgstr "激活Z轴"
 
-#: share/axis/tcl/axis.tcl:2270
+#: share/axis/tcl/axis.tcl:2276
 msgid "Activate axis [A]"
 msgstr "激活A轴"
 
-#: share/axis/tcl/axis.tcl:2271
+#: share/axis/tcl/axis.tcl:2277
 msgid "Activate axis [4]"
 msgstr "激活第4轴"
 
-#: share/axis/tcl/axis.tcl:2272
+#: share/axis/tcl/axis.tcl:2278
 msgid "Activate axis [5]"
 msgstr "激活第5轴"
 
-#: share/axis/tcl/axis.tcl:2273 share/axis/tcl/axis.tcl:2274
+#: share/axis/tcl/axis.tcl:2279 share/axis/tcl/axis.tcl:2280
 msgid "Jog selected axis"
 msgstr "点动被激活的轴"
 
-#: share/axis/tcl/axis.tcl:2276
+#: share/axis/tcl/axis.tcl:2282
 msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "临时允许机床在极限外点动[L]"
 
@@ -6448,23 +6469,23 @@ msgstr "# 在这里添加halui MDI命令（最多64个）"
 #: src/emc/usr_intf/stepconf/build_HAL.py:284
 #: src/emc/usr_intf/pncconf/build_HAL.py:724
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr "# ****外部estop梯形图程序的设置-START****"
+msgstr "# ****设置外部急停梯形图程序-开始****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:291
 #: src/emc/usr_intf/pncconf/build_HAL.py:731
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr "# ****外部estop梯形图程序的设置-END****"
+msgstr "# ****设置外部急停梯形图程序-结束****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:311
 #: src/emc/usr_intf/pncconf/build_HAL.py:758
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
-msgstr "# 加载包含modbus主站的Classicladder（GUI必须为Modbus运行）"
+msgstr "# 加载包含modbus主站的梯形图（GUI必须为Modbus运行）"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:314
 #: src/emc/usr_intf/pncconf/build_HAL.py:763
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
-msgstr "#加载没有GUI的Classicladder（可以在AXIS GUI中重新加载LADDER GUI"
+msgstr "#加载没有GUI的梯形图（可以在AXIS GUI中重新加载LADDER GUI"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:324
 #: src/emc/usr_intf/pncconf/build_HAL.py:845
@@ -6686,15 +6707,15 @@ msgstr "机床名称："
 #: src/emc/usr_intf/stepconf/base.glade:589
 #: src/emc/usr_intf/pncconf/base.glade:140
 msgid "Configuration directory:"
-msgstr "配置目录"
+msgstr "配置目录："
 
 #: src/emc/usr_intf/stepconf/base.glade:601
 msgid "_Axis configuration:"
-msgstr "轴配置"
+msgstr "轴数配置："
 
 #: src/emc/usr_intf/stepconf/base.glade:614
 msgid "Reset Default machine _units:"
-msgstr "默认机床单位："
+msgstr "机床单位："
 
 #: src/emc/usr_intf/stepconf/base.glade:639
 msgid ""
@@ -6727,11 +6748,11 @@ msgstr "导入Mach文件"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "创建配置文件的桌面快捷方式（符号链接）。"
+msgstr "为配置文件创建桌面快捷方式（符号链接）。"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
-msgstr "创建桌面启动器以启动LinuxCNC与此配置。"
+msgstr "创建桌面快捷方式以使用此配置启动LinuxCNC。"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -6744,7 +6765,7 @@ msgid ""
 "they will be lost when you select \"Modify a configuration\""
 msgstr ""
 "如果您在此程序外部修改了此配置，则当您\n"
-"选择“修改配置”时，它们将丢失 。"
+"选择“修改以前的配置”时，它们将丢失 。"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:57
 msgid "Pin _1:"
@@ -9566,8 +9587,8 @@ msgid ""
 "or advanced limit/home control etc."
 msgstr "该程序为连接到Mesa卡的铣床和车床创建(.ini和.hal)配置文件。\n"
 "\n"
-"我们推荐先从非常基本的轴选项开始配置，让它们正常运行 "
-"然后再回来添加其他选项，如VFD主轴控制或高级限位/原点控制等。  "
+"我们推荐先从非常基本的轴选项开始配置，让它们正常运行"
+"后再回来添加其他选项，如VFD主轴控制或高级选项/限位/原点等。"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:288
 #: src/emc/usr_intf/pncconf/mesa0.glade:22155
@@ -9727,7 +9748,7 @@ msgstr "输出"
 #: src/emc/usr_intf/pncconf/help.glade:280
 #: src/emc/usr_intf/pncconf/help.glade:330
 msgid "Print Map"
-msgstr "打印接线图"
+msgstr "打印端子图"
 
 #: src/emc/usr_intf/pncconf/help.glade:312
 msgid "7i76"
@@ -9738,8 +9759,8 @@ msgid "7i77"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:381
-msgid "接线图"
-msgstr ""
+msgid "Map"
+msgstr "端子"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:74
 #: src/emc/usr_intf/pncconf/mesa1.glade:74
@@ -11013,15 +11034,15 @@ msgstr "智能串口 5"
 
 #: src/emc/usr_intf/pncconf/start.glade:25
 msgid "Create a desktop launcher to start LinuxCNC with this configuration."
-msgstr "创建桌面启动器以启动LinuxCNC与此配置。"
+msgstr "创建桌面快捷方式以使用此配置启动LinuxCNC。"
 
 #: src/emc/usr_intf/pncconf/start.glade:42
 msgid "Create a desktop shortcut (symlink) to configuration files."
-msgstr "创建配置文件的桌面快捷方式（符号链接）。"
+msgstr "为配置文件创建桌面快捷方式（符号链接）。"
 
 #: src/emc/usr_intf/pncconf/start.glade:125
 msgid "Show Advanced Option Pages"
-msgstr "显示高级选项页"
+msgstr "显示高级选项"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
@@ -11029,11 +11050,11 @@ msgstr "串行VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
-msgstr "外部按钮慢跑"
+msgstr "外部按钮点动"
 
 #: src/emc/usr_intf/pncconf/external.glade:454
 msgid "<b>External MPG Jogging</b>"
-msgstr "外部手轮慢跑"
+msgstr "外部手轮点动"
 
 #: src/emc/usr_intf/pncconf/external.glade:477
 msgid "<b>External Feed Override</b>"
@@ -11422,7 +11443,7 @@ msgstr "机床名称："
 
 #: src/emc/usr_intf/pncconf/base.glade:180
 msgid "Axis configuration:"
-msgstr "轴配置"
+msgstr "轴数配置："
 
 #: src/emc/usr_intf/pncconf/base.glade:233
 msgid "Machine units:"
@@ -11438,7 +11459,7 @@ msgstr "实际伺服周期："
 
 #: src/emc/usr_intf/pncconf/base.glade:394
 msgid "Recommend servo period:    1000000"
-msgstr "推荐伺服周期:    1000000"
+msgstr "推荐伺服周期：1000000"
 
 #: src/emc/usr_intf/pncconf/base.glade:403
 msgid ""
@@ -15694,7 +15715,7 @@ msgstr "无法执行命令(%s)在机器打开之前"
 #: src/emc/task/emctaskmain.cc:994
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "不能这样做（%s:%d）在手动模式下"
+msgstr "不能这样做(%s:%d) 在手动模式下"
 
 #: src/emc/task/emctaskmain.cc:1099
 #, c-format
@@ -15719,7 +15740,7 @@ msgstr "在解释器等待的情况下，无法在自动模式下执行此操作
 #: src/emc/task/emctaskmain.cc:1445
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "不能这样做（%s:%d）在MDI模式下"
+msgstr "不能这样做(%s:%d)在MDI模式下"
 
 #: src/emc/task/emctaskmain.cc:2107
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
