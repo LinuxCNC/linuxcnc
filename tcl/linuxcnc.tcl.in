@@ -76,7 +76,7 @@ proc hal {args} {
 # called *.msg, (e.g. en_US.msg).
 package require msgcat
 if {$linuxcnc::_langinit && [info exists env(LANG)]} {
-    msgcat::mclocale $env(LANG)
+    msgcat::mclocale
     msgcat::mcload $linuxcnc::LANG_DIR
     set linuxcnc::_langinit 0
 }

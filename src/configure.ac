@@ -702,7 +702,7 @@ else
     EMC2_ICON=linuxcncicon
     EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
+    EMC2_LANG_DIR=${prefix}/lib/tcltk/linuxcnc/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
