@@ -58,7 +58,7 @@ set tkemc 1
 # called *.msg, (e.g. en_US.msg).
 package require msgcat
 if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
+    msgcat::mclocale
     msgcat::mcload $linuxcnc::LANG_DIR
 }
 
