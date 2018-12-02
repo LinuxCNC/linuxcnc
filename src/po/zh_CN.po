@@ -135,8 +135,8 @@ msgstr "触发器"
 msgid "Vertical"
 msgstr "垂直"
 
-#: src/hal/utils/scope.c:703 src/hal/classicladder/classicladder_gtk.c:343
-#: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
+#: src/hal/utils/scope.c:703 src/hal/classicladder/classicladder_gtk.c:342
+#: src/hal/classicladder/classicladder_gtk.c:855 share/axis/tcl/axis.tcl:144
 #: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4438
 #: src/emc/usr_intf/gscreen/gscreen.py:4439
 #: src/emc/usr_intf/gscreen/gscreen.glade:2649
@@ -312,7 +312,7 @@ msgid "OK"
 msgstr "确定"
 
 #: src/hal/utils/scope_horiz.c:714 src/hal/utils/scope_horiz.c:755
-#: src/hal/classicladder/classicladder_gtk.c:899 tcl/bin/emccalib.tcl:107
+#: src/hal/classicladder/classicladder_gtk.c:898 tcl/bin/emccalib.tcl:107
 #: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
 msgid "Quit"
 msgstr "退出"
@@ -479,7 +479,7 @@ msgid "AC Coupled"
 msgstr "交流耦合"
 
 #: src/hal/utils/scope_vert.c:770 src/hal/utils/scope_vert.c:1171
-#: src/hal/utils/scope_trig.c:367 src/hal/classicladder/edit_gtk.c:375
+#: src/hal/utils/scope_trig.c:367 src/hal/classicladder/edit_gtk.c:374
 #: tcl/bin/emccalib.tcl:281 tcl/bin/genedit.tcl:294 tcl/bin/halconfig.tcl:103
 #: tcl/bin/halconfig.tcl:684 tcl/bin/halconfig.tcl:735
 #: tcl/bin/pickconfig.tcl:432 tcl/bin/pickconfig.tcl:613
@@ -1047,7 +1047,7 @@ msgid "Project loaded and running"
 msgstr "项目已加载并正在运行"
 
 #: src/hal/classicladder/classicladder.c:274
-#: src/hal/classicladder/classicladder_gtk.c:397
+#: src/hal/classicladder/classicladder_gtk.c:396
 msgid "Project failed to load..."
 msgstr "项目未能加载..."
 
@@ -1064,134 +1064,135 @@ msgstr "梯形图信息- 梯形图GUI关闭。 实时运行直到HAL关闭\n"
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
 msgstr "梯形图错误- 梯形图内存分配错误\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:136
+#: src/hal/classicladder/classicladder_gtk.c:135
 #, c-format
 msgid "!!!error loop in UpdateVScrollBar()!\n"
 msgstr "!!!UpdateVScrollBar()中的错误循环！\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:202
+#: src/hal/classicladder/classicladder_gtk.c:201
 #, c-format
 msgid ""
 "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
 msgstr "使用OffsetCurrentRungDisplayed=%d时ChoiceOfTheCurrentRung( %d )出错\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
+#: src/hal/classicladder/classicladder_gtk.c:336 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3040
 #: src/emc/usr_intf/gscreen/gscreen.glade:2660
 msgid "Run"
 msgstr "运行"
 
-#: src/hal/classicladder/classicladder_gtk.c:338
+#: src/hal/classicladder/classicladder_gtk.c:337
 msgid "Stopped ladder program - press run button to continue."
 msgstr "停止梯形图程序 - 按下运行按钮继续。"
 
-#: src/hal/classicladder/classicladder_gtk.c:344
+#: src/hal/classicladder/classicladder_gtk.c:343
 msgid "Started Ladder program - press stop to pause."
 msgstr "启动梯形图程序 - 按停止暂停。"
 
-#: src/hal/classicladder/classicladder_gtk.c:394
+#: src/hal/classicladder/classicladder_gtk.c:393
 msgid "Load Error"
 msgstr "加载错误"
 
-#: src/hal/classicladder/classicladder_gtk.c:394
+#: src/hal/classicladder/classicladder_gtk.c:393
 msgid "Failed to load the project file..."
 msgstr "无法加载项目文件..."
 
-#: src/hal/classicladder/classicladder_gtk.c:394
-#: src/hal/classicladder/classicladder_gtk.c:409
-#: src/hal/classicladder/classicladder_gtk.c:426
-#: src/hal/classicladder/classicladder_gtk.c:960
-#: src/hal/classicladder/classicladder_gtk.c:984
-#: src/hal/classicladder/config_gtk.c:505 src/hal/classicladder/edit.c:410
-#: src/hal/classicladder/edit.c:460 src/hal/classicladder/edit.c:471
-#: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit.c:1172
-#: src/hal/classicladder/edit_gtk.c:371
-#: src/hal/classicladder/edit_sequential.c:98
-#: src/hal/classicladder/edit_sequential.c:100
-#: src/hal/classicladder/edit_sequential.c:404
-#: src/hal/classicladder/edit_sequential.c:421
-#: src/hal/classicladder/edit_sequential.c:435
-#: src/hal/classicladder/edit_sequential.c:452
-#: src/hal/classicladder/edit_sequential.c:459
-#: src/hal/classicladder/edit_sequential.c:508
-#: src/hal/classicladder/edit_sequential.c:552
-#: src/hal/classicladder/edit_sequential.c:621
-#: src/hal/classicladder/edit_sequential.c:740
-#: src/hal/classicladder/edit_sequential.c:745
-#: src/hal/classicladder/edit_sequential.c:751
-#: src/hal/classicladder/edit_sequential.c:777
-#: src/hal/classicladder/edit_sequential.c:782
-#: src/hal/classicladder/edit_sequential.c:788
-#: src/hal/classicladder/edit_sequential.c:843
-#: src/hal/classicladder/edit_sequential.c:848
-#: src/hal/classicladder/edit_sequential.c:853
-#: src/hal/classicladder/manager_gtk.c:130
-#: src/hal/classicladder/manager_gtk.c:136
-#: src/hal/classicladder/manager_gtk.c:142
-#: src/hal/classicladder/manager_gtk.c:173
-#: src/hal/classicladder/manager_gtk.c:190
-#: src/hal/classicladder/manager_gtk.c:288
-#: src/hal/classicladder/spy_vars_gtk.c:377
-#: src/hal/classicladder/spy_vars_gtk.c:379
-#: src/hal/classicladder/symbols_gtk.c:122
-#: src/hal/classicladder/symbols_gtk.c:138
-#: src/hal/classicladder/symbols_gtk.c:140
+#: src/hal/classicladder/classicladder_gtk.c:393
+#: src/hal/classicladder/classicladder_gtk.c:408
+#: src/hal/classicladder/classicladder_gtk.c:425
+#: src/hal/classicladder/classicladder_gtk.c:653
+#: src/hal/classicladder/classicladder_gtk.c:959
+#: src/hal/classicladder/classicladder_gtk.c:983
+#: src/hal/classicladder/config_gtk.c:504 src/hal/classicladder/edit.c:409
+#: src/hal/classicladder/edit.c:459 src/hal/classicladder/edit.c:470
+#: src/hal/classicladder/edit.c:472 src/hal/classicladder/edit.c:1171
+#: src/hal/classicladder/edit_gtk.c:370
+#: src/hal/classicladder/edit_sequential.c:97
+#: src/hal/classicladder/edit_sequential.c:99
+#: src/hal/classicladder/edit_sequential.c:403
+#: src/hal/classicladder/edit_sequential.c:420
+#: src/hal/classicladder/edit_sequential.c:434
+#: src/hal/classicladder/edit_sequential.c:451
+#: src/hal/classicladder/edit_sequential.c:458
+#: src/hal/classicladder/edit_sequential.c:507
+#: src/hal/classicladder/edit_sequential.c:551
+#: src/hal/classicladder/edit_sequential.c:620
+#: src/hal/classicladder/edit_sequential.c:739
+#: src/hal/classicladder/edit_sequential.c:744
+#: src/hal/classicladder/edit_sequential.c:750
+#: src/hal/classicladder/edit_sequential.c:776
+#: src/hal/classicladder/edit_sequential.c:781
+#: src/hal/classicladder/edit_sequential.c:787
+#: src/hal/classicladder/edit_sequential.c:842
+#: src/hal/classicladder/edit_sequential.c:847
+#: src/hal/classicladder/edit_sequential.c:852
+#: src/hal/classicladder/manager_gtk.c:129
+#: src/hal/classicladder/manager_gtk.c:135
+#: src/hal/classicladder/manager_gtk.c:141
+#: src/hal/classicladder/manager_gtk.c:172
+#: src/hal/classicladder/manager_gtk.c:189
+#: src/hal/classicladder/manager_gtk.c:287
+#: src/hal/classicladder/spy_vars_gtk.c:376
+#: src/hal/classicladder/spy_vars_gtk.c:378
+#: src/hal/classicladder/symbols_gtk.c:121
+#: src/hal/classicladder/symbols_gtk.c:137
+#: src/hal/classicladder/symbols_gtk.c:139
 #: src/emc/usr_intf/axis/scripts/axis.py:1528
 msgid "Ok"
 msgstr "确定"
 
-#: src/hal/classicladder/classicladder_gtk.c:397
+#: src/hal/classicladder/classicladder_gtk.c:396
 msgid "Project loaded (stopped)."
 msgstr "项目已加载(停止)。"
 
-#: src/hal/classicladder/classicladder_gtk.c:409
-#: src/hal/classicladder/classicladder_gtk.c:426
+#: src/hal/classicladder/classicladder_gtk.c:408
+#: src/hal/classicladder/classicladder_gtk.c:425
 msgid "Save Error"
 msgstr "保存错误"
 
-#: src/hal/classicladder/classicladder_gtk.c:409
-#: src/hal/classicladder/classicladder_gtk.c:426
+#: src/hal/classicladder/classicladder_gtk.c:408
+#: src/hal/classicladder/classicladder_gtk.c:425
 msgid "Failed to save the project file..."
 msgstr "无法保存项目文件..."
 
-#: src/hal/classicladder/classicladder_gtk.c:434
+#: src/hal/classicladder/classicladder_gtk.c:433
 #, c-format
 msgid "SAVE %s %d\n"
 msgstr "保存 %s %d\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:443
+#: src/hal/classicladder/classicladder_gtk.c:442
 #, c-format
 msgid "LOAD %s %d\n"
 msgstr "加载 %s %d\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:488
+#: src/hal/classicladder/classicladder_gtk.c:487
 msgid "Old directories projects"
 msgstr "旧目录项目"
 
-#: src/hal/classicladder/classicladder_gtk.c:492
+#: src/hal/classicladder/classicladder_gtk.c:491
 msgid "ClassicLadder projects"
 msgstr "梯形图项目"
 
-#: src/hal/classicladder/classicladder_gtk.c:532
-#: src/hal/classicladder/classicladder_gtk.c:831
-#: src/hal/classicladder/manager_gtk.c:169 tcl/bin/genedit.tcl:78
+#: src/hal/classicladder/classicladder_gtk.c:531
+#: src/hal/classicladder/classicladder_gtk.c:830
+#: src/hal/classicladder/manager_gtk.c:168 tcl/bin/genedit.tcl:78
 msgid "New"
 msgstr "新建"
 
-#: src/hal/classicladder/classicladder_gtk.c:532
+#: src/hal/classicladder/classicladder_gtk.c:531
 msgid "Do you really want to clear all datas ?"
 msgstr "你真的想清除所有数据吗?"
 
-#: src/hal/classicladder/classicladder_gtk.c:536
+#: src/hal/classicladder/classicladder_gtk.c:535
 msgid "Please select the project to load"
 msgstr "请选择要加载的项目"
 
-#: src/hal/classicladder/classicladder_gtk.c:542
+#: src/hal/classicladder/classicladder_gtk.c:541
 msgid "Sure?"
 msgstr "当然?"
 
-#: src/hal/classicladder/classicladder_gtk.c:542
+#: src/hal/classicladder/classicladder_gtk.c:541
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
@@ -1199,17 +1200,17 @@ msgstr ""
 "你真的想加载另一个项目吗?\n"
 "如果没有保存，当前项目的所有修改都将丢失\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:549
+#: src/hal/classicladder/classicladder_gtk.c:548
 msgid "Please select the project to save"
 msgstr "请选择要保存的项目"
 
-#: src/hal/classicladder/classicladder_gtk.c:556
-#: src/hal/classicladder/classicladder_gtk.c:695
-#: src/hal/classicladder/classicladder_gtk.c:701
+#: src/hal/classicladder/classicladder_gtk.c:555
+#: src/hal/classicladder/classicladder_gtk.c:694
+#: src/hal/classicladder/classicladder_gtk.c:700
 msgid "Warning!"
 msgstr "警告!"
 
-#: src/hal/classicladder/classicladder_gtk.c:556
+#: src/hal/classicladder/classicladder_gtk.c:555
 msgid ""
 "Resetting a running program\n"
 "can cause unexpected behavior\n"
@@ -1218,26 +1219,26 @@ msgstr ""
 "重置正在运行的程序可能会导致意外发生\n"
 "你真的想重置吗?"
 
-#: src/hal/classicladder/classicladder_gtk.c:572
+#: src/hal/classicladder/classicladder_gtk.c:571
 msgid "Reset ladder data "
 msgstr "重置梯形图数据"
 
-#: src/hal/classicladder/classicladder_gtk.c:596
+#: src/hal/classicladder/classicladder_gtk.c:595
 msgid "Okay"
 msgstr "好的"
 
-#: src/hal/classicladder/classicladder_gtk.c:649 tcl/bin/pickconfig.tcl:613
+#: src/hal/classicladder/classicladder_gtk.c:648 tcl/bin/pickconfig.tcl:613
 #: src/emc/usr_intf/axis/scripts/axis.py:151
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:563
 msgid "Yes"
 msgstr "确定"
 
-#: src/hal/classicladder/classicladder_gtk.c:650
+#: src/hal/classicladder/classicladder_gtk.c:649
 #: src/emc/usr_intf/axis/scripts/axis.py:151
 msgid "No"
 msgstr "取消"
 
-#: src/hal/classicladder/classicladder_gtk.c:695
+#: src/hal/classicladder/classicladder_gtk.c:694
 msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
@@ -1245,15 +1246,15 @@ msgstr ""
 "如果没有保存，所有修改都将丢失。\n"
 "你真的想退出吗?\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:699
+#: src/hal/classicladder/classicladder_gtk.c:698
 msgid "Confirm!"
 msgstr "确认！"
 
-#: src/hal/classicladder/classicladder_gtk.c:699
+#: src/hal/classicladder/classicladder_gtk.c:698
 msgid "Do you really want to quit ?\n"
 msgstr "你真的想退出吗?            \n"
 
-#: src/hal/classicladder/classicladder_gtk.c:701
+#: src/hal/classicladder/classicladder_gtk.c:700
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
@@ -1261,246 +1262,246 @@ msgstr ""
 "如果退出，Modbus将停止。\n"
 " 你真的想退出吗?\n"
 
-#: src/hal/classicladder/classicladder_gtk.c:731
+#: src/hal/classicladder/classicladder_gtk.c:730
 msgid "Section Display"
 msgstr "部件显示"
 
-#: src/hal/classicladder/classicladder_gtk.c:752
+#: src/hal/classicladder/classicladder_gtk.c:751
 msgid "Label of the current selected rung"
 msgstr "当前所选梯级的标签"
 
-#: src/hal/classicladder/classicladder_gtk.c:759
+#: src/hal/classicladder/classicladder_gtk.c:758
 msgid "Comment of the current selected rung"
 msgstr "当前所选梯级的注释"
 
-#: src/hal/classicladder/classicladder_gtk.c:762
+#: src/hal/classicladder/classicladder_gtk.c:761
 msgid "Display symbols"
 msgstr "显示符号"
 
-#: src/hal/classicladder/classicladder_gtk.c:816
+#: src/hal/classicladder/classicladder_gtk.c:815
 msgid "Statusbar"
 msgstr "状态栏"
 
-#: src/hal/classicladder/classicladder_gtk.c:836
+#: src/hal/classicladder/classicladder_gtk.c:835
 msgid "Load"
 msgstr "载入"
 
-#: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:126
+#: src/hal/classicladder/classicladder_gtk.c:840 tcl/bin/emccalib.tcl:126
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
 #: src/emc/usr_intf/axis/scripts/axis.py:2226
 msgid "Save"
 msgstr "保存"
 
-#: src/hal/classicladder/classicladder_gtk.c:846
+#: src/hal/classicladder/classicladder_gtk.c:845
 msgid "Save As"
 msgstr "另存为"
 
-#: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
+#: src/hal/classicladder/classicladder_gtk.c:850 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
 msgstr "重置"
 
-#: src/hal/classicladder/classicladder_gtk.c:861
+#: src/hal/classicladder/classicladder_gtk.c:860
 msgid "Vars"
 msgstr "变量"
 
-#: src/hal/classicladder/classicladder_gtk.c:867
-#: src/hal/classicladder/edit_gtk.c:345
+#: src/hal/classicladder/classicladder_gtk.c:866
+#: src/hal/classicladder/edit_gtk.c:344
 #: src/emc/usr_intf/pncconf/screen.glade:710
 msgid "Editor"
 msgstr "编辑"
 
-#: src/hal/classicladder/classicladder_gtk.c:872
+#: src/hal/classicladder/classicladder_gtk.c:871
 msgid "Symbols"
 msgstr "符号"
 
-#: src/hal/classicladder/classicladder_gtk.c:877
-#: src/hal/classicladder/config_gtk.c:1023
+#: src/hal/classicladder/classicladder_gtk.c:876
+#: src/hal/classicladder/config_gtk.c:1022
 msgid "Config"
 msgstr "配置"
 
-#: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1333
+#: src/hal/classicladder/classicladder_gtk.c:882 share/axis/tcl/axis.tcl:1333
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:964
 msgid "Preview"
 msgstr "预览"
 
-#: src/hal/classicladder/classicladder_gtk.c:888
+#: src/hal/classicladder/classicladder_gtk.c:887
 msgid "Print"
 msgstr "打印"
 
-#: src/hal/classicladder/classicladder_gtk.c:894 tcl/bin/halconfig.tcl:194
+#: src/hal/classicladder/classicladder_gtk.c:893 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:257
 msgid "About"
 msgstr "关于"
 
-#: src/hal/classicladder/classicladder_gtk.c:938
+#: src/hal/classicladder/classicladder_gtk.c:937
 #, c-format
 msgid "%d us"
 msgstr "%d 微秒"
 
-#: src/hal/classicladder/classicladder_gtk.c:960
+#: src/hal/classicladder/classicladder_gtk.c:959
 msgid "Config hardware error occurred!"
 msgstr "配置硬件发生错误！"
 
-#: src/hal/classicladder/classicladder_gtk.c:984
-#: src/hal/classicladder/config_gtk.c:505 src/hal/classicladder/edit.c:410
-#: src/hal/classicladder/edit.c:460 src/hal/classicladder/edit.c:471
-#: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit.c:1172
-#: src/hal/classicladder/edit_sequential.c:98
-#: src/hal/classicladder/edit_sequential.c:100
-#: src/hal/classicladder/edit_sequential.c:404
-#: src/hal/classicladder/edit_sequential.c:421
-#: src/hal/classicladder/edit_sequential.c:435
-#: src/hal/classicladder/edit_sequential.c:452
-#: src/hal/classicladder/edit_sequential.c:459
-#: src/hal/classicladder/edit_sequential.c:508
-#: src/hal/classicladder/edit_sequential.c:552
-#: src/hal/classicladder/edit_sequential.c:621
-#: src/hal/classicladder/edit_sequential.c:740
-#: src/hal/classicladder/edit_sequential.c:745
-#: src/hal/classicladder/edit_sequential.c:751
-#: src/hal/classicladder/edit_sequential.c:777
-#: src/hal/classicladder/edit_sequential.c:782
-#: src/hal/classicladder/edit_sequential.c:788
-#: src/hal/classicladder/edit_sequential.c:843
-#: src/hal/classicladder/edit_sequential.c:848
-#: src/hal/classicladder/edit_sequential.c:853
-#: src/hal/classicladder/manager_gtk.c:130
-#: src/hal/classicladder/manager_gtk.c:136
-#: src/hal/classicladder/manager_gtk.c:142
-#: src/hal/classicladder/manager_gtk.c:173
-#: src/hal/classicladder/manager_gtk.c:190
-#: src/hal/classicladder/spy_vars_gtk.c:377
-#: src/hal/classicladder/spy_vars_gtk.c:379
-#: src/hal/classicladder/symbols_gtk.c:122
-#: src/hal/classicladder/symbols_gtk.c:138
-#: src/hal/classicladder/symbols_gtk.c:140 tcl/tklinuxcnc.tcl:1885
+#: src/hal/classicladder/classicladder_gtk.c:983
+#: src/hal/classicladder/config_gtk.c:504 src/hal/classicladder/edit.c:409
+#: src/hal/classicladder/edit.c:459 src/hal/classicladder/edit.c:470
+#: src/hal/classicladder/edit.c:472 src/hal/classicladder/edit.c:1171
+#: src/hal/classicladder/edit_sequential.c:97
+#: src/hal/classicladder/edit_sequential.c:99
+#: src/hal/classicladder/edit_sequential.c:403
+#: src/hal/classicladder/edit_sequential.c:420
+#: src/hal/classicladder/edit_sequential.c:434
+#: src/hal/classicladder/edit_sequential.c:451
+#: src/hal/classicladder/edit_sequential.c:458
+#: src/hal/classicladder/edit_sequential.c:507
+#: src/hal/classicladder/edit_sequential.c:551
+#: src/hal/classicladder/edit_sequential.c:620
+#: src/hal/classicladder/edit_sequential.c:739
+#: src/hal/classicladder/edit_sequential.c:744
+#: src/hal/classicladder/edit_sequential.c:750
+#: src/hal/classicladder/edit_sequential.c:776
+#: src/hal/classicladder/edit_sequential.c:781
+#: src/hal/classicladder/edit_sequential.c:787
+#: src/hal/classicladder/edit_sequential.c:842
+#: src/hal/classicladder/edit_sequential.c:847
+#: src/hal/classicladder/edit_sequential.c:852
+#: src/hal/classicladder/manager_gtk.c:129
+#: src/hal/classicladder/manager_gtk.c:135
+#: src/hal/classicladder/manager_gtk.c:141
+#: src/hal/classicladder/manager_gtk.c:172
+#: src/hal/classicladder/manager_gtk.c:189
+#: src/hal/classicladder/spy_vars_gtk.c:376
+#: src/hal/classicladder/spy_vars_gtk.c:378
+#: src/hal/classicladder/symbols_gtk.c:121
+#: src/hal/classicladder/symbols_gtk.c:137
+#: src/hal/classicladder/symbols_gtk.c:139 tcl/tklinuxcnc.tcl:1885
 msgid "Error"
 msgstr "错误"
 
-#: src/hal/classicladder/classicladder_gtk.c:984
+#: src/hal/classicladder/classicladder_gtk.c:983
 msgid "Failed MODBUS communications"
 msgstr "MODBUS通信失败"
 
-#: src/hal/classicladder/classicladder_gtk.c:1010
+#: src/hal/classicladder/classicladder_gtk.c:1009
 #, c-format
 msgid "Section Display of %s"
 msgstr "部件显示%s"
 
-#: src/hal/classicladder/config.c:83
+#: src/hal/classicladder/config.c:82
 #, c-format
 msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
 msgstr "梯形图信息---读取MODBUS配置文件 -%s\n"
 
-#: src/hal/classicladder/config.c:86
+#: src/hal/classicladder/config.c:85
 #, c-format
 msgid "Cannot open %s file !!!\n"
 msgstr "无法打开%s文件 !!!\n"
 
-#: src/hal/classicladder/config.c:117
+#: src/hal/classicladder/config.c:116
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
 msgstr "%s的未知配置类型: %d\n"
 
-#: src/hal/classicladder/config_gtk.c:109
+#: src/hal/classicladder/config_gtk.c:108
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
 msgstr "梯级刷新率(毫秒)           "
 
-#: src/hal/classicladder/config_gtk.c:114
+#: src/hal/classicladder/config_gtk.c:113
 #, c-format
 msgid "Number of rungs (%d%c used      "
 msgstr "梯级数量(%d%c 使用         "
 
-#: src/hal/classicladder/config_gtk.c:118
+#: src/hal/classicladder/config_gtk.c:117
 #, c-format
 msgid "Number of Bits                  "
 msgstr "位数量                     "
 
-#: src/hal/classicladder/config_gtk.c:122
+#: src/hal/classicladder/config_gtk.c:121
 #, c-format
 msgid "Number of Error Bits                  "
 msgstr "错误位数量                 "
 
-#: src/hal/classicladder/config_gtk.c:126
+#: src/hal/classicladder/config_gtk.c:125
 #, c-format
 msgid "Number of Words                 "
 msgstr "字数量                     "
 
-#: src/hal/classicladder/config_gtk.c:130
+#: src/hal/classicladder/config_gtk.c:129
 #, c-format
 msgid "Number of Counters              "
 msgstr "计数器(C)数量               "
 
-#: src/hal/classicladder/config_gtk.c:134
+#: src/hal/classicladder/config_gtk.c:133
 #, c-format
 msgid "Number of Timers IEC            "
 msgstr "IEC定时器数量               "
 
-#: src/hal/classicladder/config_gtk.c:138
+#: src/hal/classicladder/config_gtk.c:137
 #, c-format
 msgid "Number of Arithmetic Expressions "
 msgstr "表达式数量                  "
 
-#: src/hal/classicladder/config_gtk.c:143
+#: src/hal/classicladder/config_gtk.c:142
 #, c-format
 msgid "Number of Sections (%d%c used)   "
 msgstr "部件数量(%d%c 使用)         "
 
-#: src/hal/classicladder/config_gtk.c:147
+#: src/hal/classicladder/config_gtk.c:146
 #, c-format
 msgid "Number of Symbols                "
 msgstr "符号数量                    "
 
-#: src/hal/classicladder/config_gtk.c:152
+#: src/hal/classicladder/config_gtk.c:151
 #, c-format
 msgid "Number of Timers                 "
 msgstr "定时器(T)数量                "
 
-#: src/hal/classicladder/config_gtk.c:156
+#: src/hal/classicladder/config_gtk.c:155
 #, c-format
 msgid "Number of Monostables            "
 msgstr "继电器(M)数量                "
 
-#: src/hal/classicladder/config_gtk.c:161
+#: src/hal/classicladder/config_gtk.c:160
 #, c-format
 msgid "Number of BIT Inputs HAL pins           "
 msgstr "BIT输入HAL引脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:165
+#: src/hal/classicladder/config_gtk.c:164
 #, c-format
 msgid "Number of BIT Outputs HAL pins          "
 msgstr "BIT输出HAL引脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:169
+#: src/hal/classicladder/config_gtk.c:168
 #, c-format
 msgid "Number of S32in HAL pins             "
 msgstr "S32输入HAL管脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:173
+#: src/hal/classicladder/config_gtk.c:172
 #, c-format
 msgid "Number of S32out HAL pins            "
 msgstr "S32输出HAL管脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:177
+#: src/hal/classicladder/config_gtk.c:176
 #, c-format
 msgid "Number of floatin HAL pins             "
 msgstr "浮点输入HAL管脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:181
+#: src/hal/classicladder/config_gtk.c:180
 #, c-format
 msgid "Number of floatout HAL pins            "
 msgstr "浮点输出HAL管脚数量            "
 
-#: src/hal/classicladder/config_gtk.c:185
+#: src/hal/classicladder/config_gtk.c:184
 #, c-format
 msgid "Current path/filename"
 msgstr "当前路径/文件名                "
 
-#: src/hal/classicladder/config_gtk.c:383
+#: src/hal/classicladder/config_gtk.c:382
 msgid "Inverted"
 msgstr "反向"
 
-#: src/hal/classicladder/config_gtk.c:503
+#: src/hal/classicladder/config_gtk.c:502
 #, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
@@ -1509,475 +1510,474 @@ msgstr ""
 "I/O modbus conf出错:检测到I，B，Q，IQ或WQ映射溢出..."
 "ASKED=%i,MAX=%i\n"
 
-#: src/hal/classicladder/config_gtk.c:505
+#: src/hal/classicladder/config_gtk.c:504
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
 msgstr "检测到I，B，Q，IQ或WQ映射的溢出错误..."
 
-#: src/hal/classicladder/config_gtk.c:631
+#: src/hal/classicladder/config_gtk.c:630
 #, c-format
 msgid "Serial port (blank = IP mode)"
 msgstr "串口(空白= IP模式)"
 
-#: src/hal/classicladder/config_gtk.c:635
+#: src/hal/classicladder/config_gtk.c:634
 #, c-format
 msgid "Serial baud rate"
 msgstr "串口波特率"
 
-#: src/hal/classicladder/config_gtk.c:640
+#: src/hal/classicladder/config_gtk.c:639
 #, c-format
 msgid "After transmit pause - milliseconds"
 msgstr "发送暂停后 - 毫秒"
 
-#: src/hal/classicladder/config_gtk.c:645
+#: src/hal/classicladder/config_gtk.c:644
 #, c-format
 msgid "After receive pause - milliseconds"
 msgstr "接收暂停后 - 毫秒"
 
-#: src/hal/classicladder/config_gtk.c:649
+#: src/hal/classicladder/config_gtk.c:648
 #, c-format
 msgid "Request Timeout length - milliseconds"
 msgstr "请求超时长度 - 毫秒"
 
-#: src/hal/classicladder/config_gtk.c:653
+#: src/hal/classicladder/config_gtk.c:652
 #, c-format
 msgid "Use RTS to send"
 msgstr "使用RTS发送"
 
-#: src/hal/classicladder/config_gtk.c:657
+#: src/hal/classicladder/config_gtk.c:656
 #, c-format
 msgid "Modbus element offset"
 msgstr "Modbus元素偏移"
 
-#: src/hal/classicladder/config_gtk.c:661
+#: src/hal/classicladder/config_gtk.c:660
 #, c-format
 msgid "Debug level"
 msgstr "调试级别"
 
-#: src/hal/classicladder/config_gtk.c:665
+#: src/hal/classicladder/config_gtk.c:664
 #, c-format
 msgid "Read Coils/inputs map to"
 msgstr "读取线圈/输入映射到"
 
-#: src/hal/classicladder/config_gtk.c:669
+#: src/hal/classicladder/config_gtk.c:668
 #, c-format
 msgid "Write Coils map from"
 msgstr "写入线圈映射"
 
-#: src/hal/classicladder/config_gtk.c:673
+#: src/hal/classicladder/config_gtk.c:672
 #, c-format
 msgid "Read register/holding map to"
 msgstr "读取寄存器/保持映射到"
 
-#: src/hal/classicladder/config_gtk.c:677
+#: src/hal/classicladder/config_gtk.c:676
 #, c-format
 msgid "Write registers map from"
 msgstr "写入寄存器映射"
 
-#: src/hal/classicladder/config_gtk.c:731
+#: src/hal/classicladder/config_gtk.c:730
 msgid "NO"
 msgstr "取消"
 
-#: src/hal/classicladder/config_gtk.c:736
+#: src/hal/classicladder/config_gtk.c:735
 msgid "YES"
 msgstr "确定"
 
-#: src/hal/classicladder/config_gtk.c:782
+#: src/hal/classicladder/config_gtk.c:781
 msgid "QUIET"
 msgstr "安静"
 
-#: src/hal/classicladder/config_gtk.c:787
+#: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL 1"
 msgstr "1级"
 
-#: src/hal/classicladder/config_gtk.c:791
+#: src/hal/classicladder/config_gtk.c:790
 msgid "LEVEL 2"
 msgstr "2级"
 
-#: src/hal/classicladder/config_gtk.c:795
+#: src/hal/classicladder/config_gtk.c:794
 msgid "LEVEL 3"
 msgstr "3级"
 
-#: src/hal/classicladder/config_gtk.c:968
+#: src/hal/classicladder/config_gtk.c:967
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr " 要更改Modbus端口设置，请保存并重新加载梯形图GUI"
 
-#: src/hal/classicladder/config_gtk.c:971
+#: src/hal/classicladder/config_gtk.c:970
 msgid "Updated Modbus configuration"
 msgstr "更新了Modbus配置"
 
-#: src/hal/classicladder/config_gtk.c:994
+#: src/hal/classicladder/config_gtk.c:993
 msgid "Opened Configuration window. Press again to update changes and close"
 msgstr "打开配置窗口。 再按一次更新更改并关闭"
 
-#: src/hal/classicladder/config_gtk.c:1026
+#: src/hal/classicladder/config_gtk.c:1025
 msgid "Period/object info"
 msgstr "周期/对象信息"
 
-#: src/hal/classicladder/config_gtk.c:1029
+#: src/hal/classicladder/config_gtk.c:1028
 msgid "Modbus communication setup"
 msgstr "Modbus通信设置"
 
-#: src/hal/classicladder/config_gtk.c:1032
+#: src/hal/classicladder/config_gtk.c:1031
 msgid "Modbus  I/O register setup "
 msgstr "Modbus I/O寄存器设置"
 
-#: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
-#: src/hal/classicladder/symbols_gtk.c:191
+#: src/hal/classicladder/edit.c:146 src/hal/classicladder/edit_sequential.c:72
+#: src/hal/classicladder/symbols_gtk.c:190
 msgid "Variable"
 msgstr "变量"
 
-#: src/hal/classicladder/edit.c:150
+#: src/hal/classicladder/edit.c:149
 msgid "JumpToLabel"
 msgstr "跳转到标签"
 
-#: src/hal/classicladder/edit.c:154
+#: src/hal/classicladder/edit.c:153
 msgid "Sub-Routine"
 msgstr "子程序"
 
-#: src/hal/classicladder/edit.c:160 src/hal/classicladder/edit.c:186
+#: src/hal/classicladder/edit.c:159 src/hal/classicladder/edit.c:185
 msgid "TimerNbr"
 msgstr "定时器Nbr"
 
-#: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:171
-#: src/hal/classicladder/edit.c:188
-#: src/hal/classicladder/editproperties_gtk.c:46
-#: src/hal/classicladder/editproperties_gtk.c:106
+#: src/hal/classicladder/edit.c:161 src/hal/classicladder/edit.c:170
+#: src/hal/classicladder/edit.c:187
+#: src/hal/classicladder/editproperties_gtk.c:45
+#: src/hal/classicladder/editproperties_gtk.c:105
 msgid "Base"
 msgstr "基数"
 
-#: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
-#: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
+#: src/hal/classicladder/edit.c:163 src/hal/classicladder/edit.c:172
+#: src/hal/classicladder/edit.c:180 src/hal/classicladder/edit.c:189
 #: src/emc/usr_intf/stepconf/pport1.glade:953
 msgid "Preset"
 msgstr "预设"
 
-#: src/hal/classicladder/edit.c:169
+#: src/hal/classicladder/edit.c:168
 msgid "MonostNbr"
 msgstr "继电器(M)Nbr"
 
-#: src/hal/classicladder/edit.c:179
+#: src/hal/classicladder/edit.c:178
 msgid "CounterNbr"
 msgstr "计数器Nbr"
 
-#: src/hal/classicladder/edit.c:192
-#: src/hal/classicladder/editproperties_gtk.c:57
-#: src/hal/classicladder/editproperties_gtk.c:112
+#: src/hal/classicladder/edit.c:191
+#: src/hal/classicladder/editproperties_gtk.c:56
+#: src/hal/classicladder/editproperties_gtk.c:111
 msgid "TimerMode"
 msgstr "定时器模式"
 
-#: src/hal/classicladder/edit.c:197
+#: src/hal/classicladder/edit.c:196
 msgid "Expression"
 msgstr "表达式"
 
-#: src/hal/classicladder/edit.c:227
+#: src/hal/classicladder/edit.c:226
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
 msgstr "变量: %s    Hal信号: %s"
 
-#: src/hal/classicladder/edit.c:230
+#: src/hal/classicladder/edit.c:229
 #, c-format
 msgid "Label: %s"
 msgstr "标签: %s"
 
-#: src/hal/classicladder/edit.c:233
+#: src/hal/classicladder/edit.c:232
 #, c-format
 msgid "Sub-Routine: %d"
 msgstr "子程序: %d"
 
-#: src/hal/classicladder/edit.c:238
+#: src/hal/classicladder/edit.c:237
 #, c-format
 msgid "%cT%d: Preset=%d Base=%s"
 msgstr "%cT%d: 预设=%d 基数=%s"
 
-#: src/hal/classicladder/edit.c:242
+#: src/hal/classicladder/edit.c:241
 #, c-format
 msgid "%cM%d: Preset=%d Base=%s"
 msgstr "%cM%d: 预设=%d 基数=%s"
 
-#: src/hal/classicladder/edit.c:247
+#: src/hal/classicladder/edit.c:246
 #, c-format
 msgid "%cC%d: Preset=%d"
 msgstr "%cC%d: 预设=%d"
 
-#: src/hal/classicladder/edit.c:251
+#: src/hal/classicladder/edit.c:250
 #, c-format
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
 msgstr "%cTM%d: 预设=%d 基数=%s 模式=%s"
 
-#: src/hal/classicladder/edit.c:255
+#: src/hal/classicladder/edit.c:254
 #, c-format
 msgid "HAL sig: %s"
 msgstr "HAL信号: %s"
 
-#: src/hal/classicladder/edit.c:352
+#: src/hal/classicladder/edit.c:351
 msgid "Incompatible type of variable (must be an integer!)"
 msgstr "变量类型不兼容(必须是整数!)"
 
-#: src/hal/classicladder/edit.c:391
+#: src/hal/classicladder/edit.c:390
 #, c-format
 msgid "New expr=%s\n"
 msgstr "新表达式=%s\n"
 
-#: src/hal/classicladder/edit.c:393
+#: src/hal/classicladder/edit.c:392
 msgid "Expression too long"
 msgstr "表达式过长"
 
-#: src/hal/classicladder/edit.c:460
+#: src/hal/classicladder/edit.c:459
 msgid "You must select a boolean variable !"
 msgstr "必须选择布尔变量！"
 
-#: src/hal/classicladder/edit.c:473
-#: src/hal/classicladder/edit_sequential.c:100
-#: src/hal/classicladder/symbols_gtk.c:140
+#: src/hal/classicladder/edit.c:472 src/hal/classicladder/edit_sequential.c:99
+#: src/hal/classicladder/symbols_gtk.c:139
 msgid "Unknown variable..."
 msgstr "未知变量…"
 
-#: src/hal/classicladder/edit.c:1082
+#: src/hal/classicladder/edit.c:1081
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!!异常电流类型=梯级的%d...(文件%s，行%d)\n"
 
-#: src/hal/classicladder/edit.c:1172
+#: src/hal/classicladder/edit.c:1171
 msgid "No more free function block available...please delete!"
 msgstr "没有更多的免费功能块...请删除！"
 
-#: src/hal/classicladder/edit_gtk.c:129
+#: src/hal/classicladder/edit_gtk.c:128
 msgid "Current rung in edit mode..."
 msgstr "编辑模式中的当前梯级..."
 
-#: src/hal/classicladder/edit_gtk.c:129
+#: src/hal/classicladder/edit_gtk.c:128
 msgid "Edit mode..."
 msgstr "编辑模式..."
 
-#: src/hal/classicladder/edit_gtk.c:187 src/hal/classicladder/edit_gtk.c:361
+#: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
 #: tcl/tooledit.tcl:488 src/emc/usr_intf/gmoccapy/gmoccapy.glade:8092
 msgid "Delete"
 msgstr "删除"
 
-#: src/hal/classicladder/edit_gtk.c:187
+#: src/hal/classicladder/edit_gtk.c:186
 msgid "Do you really want to delete the current rung ?"
 msgstr "你真的想删除当前的梯级吗?"
 
-#: src/hal/classicladder/edit_gtk.c:351
+#: src/hal/classicladder/edit_gtk.c:350
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:8110
 msgid "Add"
 msgstr "添加"
 
-#: src/hal/classicladder/edit_gtk.c:356
+#: src/hal/classicladder/edit_gtk.c:355
 msgid "Insert"
 msgstr "插入"
 
-#: src/hal/classicladder/edit_gtk.c:366 tcl/bin/halconfig.tcl:134
+#: src/hal/classicladder/edit_gtk.c:365 tcl/bin/halconfig.tcl:134
 msgid "Modify"
 msgstr "修改"
 
-#: src/hal/classicladder/edit_sequential.c:68
+#: src/hal/classicladder/edit_sequential.c:67
 msgid "Step Nbr"
 msgstr "步骤Nbr"
 
-#: src/hal/classicladder/edit_sequential.c:76
+#: src/hal/classicladder/edit_sequential.c:75
 msgid "Comment"
 msgstr "注释"
 
-#: src/hal/classicladder/edit_sequential.c:151
+#: src/hal/classicladder/edit_sequential.c:150
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
 msgstr "步骤搜索 posiX=%d, posiY=%d ; "
 
-#: src/hal/classicladder/edit_sequential.c:161
-#: src/hal/classicladder/edit_sequential.c:179
-#: src/hal/classicladder/edit_sequential.c:197
+#: src/hal/classicladder/edit_sequential.c:160
+#: src/hal/classicladder/edit_sequential.c:178
+#: src/hal/classicladder/edit_sequential.c:196
 #, c-format
 msgid "found=%d!!!\n"
 msgstr "找到=%d!!!\n"
 
-#: src/hal/classicladder/edit_sequential.c:169
+#: src/hal/classicladder/edit_sequential.c:168
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
 msgstr "transi 搜索 posiX=%d, posiY=%d ; "
 
-#: src/hal/classicladder/edit_sequential.c:187
+#: src/hal/classicladder/edit_sequential.c:186
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "注释搜索 posiX=%d, posiY=%d ; "
 
-#: src/hal/classicladder/edit_sequential.c:216
+#: src/hal/classicladder/edit_sequential.c:215
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "发现免费step=%d!!!\n"
 
-#: src/hal/classicladder/edit_sequential.c:234
+#: src/hal/classicladder/edit_sequential.c:233
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "发现免费transi=%d!!!\n"
 
-#: src/hal/classicladder/edit_sequential.c:253
+#: src/hal/classicladder/edit_sequential.c:252
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "发现免费comment=%d!!!\n"
 
-#: src/hal/classicladder/edit_sequential.c:386
+#: src/hal/classicladder/edit_sequential.c:385
 #, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "链接: transi=%d (top=%d), step=%d\n"
 
-#: src/hal/classicladder/edit_sequential.c:404
+#: src/hal/classicladder/edit_sequential.c:403
 msgid "Not selected first and last transitions to be joined !!??"
 msgstr "没有选择要加入的第一个和最后一个转换!!??"
 
-#: src/hal/classicladder/edit_sequential.c:421
+#: src/hal/classicladder/edit_sequential.c:420
 msgid "Unknown element type for Ele1"
 msgstr "Ele1的未知元素类型"
 
-#: src/hal/classicladder/edit_sequential.c:435
+#: src/hal/classicladder/edit_sequential.c:434
 msgid "First and last steps selected are not on the same line !!??"
 msgstr "选择的第一步和最后一步不在同一行!!??"
 
-#: src/hal/classicladder/edit_sequential.c:452
+#: src/hal/classicladder/edit_sequential.c:451
 msgid "First and last transitions selected are not on the same line !!??"
 msgstr "选择的第一个和最后一个转换不在同一行!!??"
 
-#: src/hal/classicladder/edit_sequential.c:459
+#: src/hal/classicladder/edit_sequential.c:458
 msgid "Unknown element type for Ele2"
 msgstr "Ele2的未知元素类型"
 
-#: src/hal/classicladder/edit_sequential.c:478
+#: src/hal/classicladder/edit_sequential.c:477
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:508
-#: src/hal/classicladder/edit_sequential.c:552
+#: src/hal/classicladder/edit_sequential.c:507
+#: src/hal/classicladder/edit_sequential.c:551
 msgid "Error in selection or not possible..."
 msgstr "选择错误或不可能..."
 
-#: src/hal/classicladder/edit_sequential.c:516
+#: src/hal/classicladder/edit_sequential.c:515
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:536
+#: src/hal/classicladder/edit_sequential.c:535
 #, c-format
 msgid "StepActDesact++=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:593
+#: src/hal/classicladder/edit_sequential.c:592
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:596
+#: src/hal/classicladder/edit_sequential.c:595
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:612
+#: src/hal/classicladder/edit_sequential.c:611
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:621
+#: src/hal/classicladder/edit_sequential.c:620
 msgid "Not found at least 2 transitions linked..."
 msgstr "找不到至少2个转换链接..."
 
-#: src/hal/classicladder/edit_sequential.c:740
+#: src/hal/classicladder/edit_sequential.c:739
 msgid "Sequential memory full for steps"
 msgstr "顺序功能图存储器完全用于步骤"
 
-#: src/hal/classicladder/edit_sequential.c:745
-#: src/hal/classicladder/edit_sequential.c:782
+#: src/hal/classicladder/edit_sequential.c:744
+#: src/hal/classicladder/edit_sequential.c:781
 msgid "There is already an element!"
 msgstr "已有元素了！"
 
-#: src/hal/classicladder/edit_sequential.c:751
+#: src/hal/classicladder/edit_sequential.c:750
 msgid "A step can't be placed on even lines"
 msgstr "步骤不能放在偶数行上"
 
-#: src/hal/classicladder/edit_sequential.c:777
+#: src/hal/classicladder/edit_sequential.c:776
 msgid "Sequential memory full for transition"
 msgstr "顺序功能图存储器完全用于转换"
 
-#: src/hal/classicladder/edit_sequential.c:788
+#: src/hal/classicladder/edit_sequential.c:787
 msgid "A transition can't be placed on odd lines"
 msgstr "转换不能放在奇数行上"
 
-#: src/hal/classicladder/edit_sequential.c:797
+#: src/hal/classicladder/edit_sequential.c:796
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:797
-#: src/hal/classicladder/edit_sequential.c:805
+#: src/hal/classicladder/edit_sequential.c:796
+#: src/hal/classicladder/edit_sequential.c:804
 msgid "top"
 msgstr "顶部"
 
-#: src/hal/classicladder/edit_sequential.c:797
-#: src/hal/classicladder/edit_sequential.c:805
+#: src/hal/classicladder/edit_sequential.c:796
+#: src/hal/classicladder/edit_sequential.c:804
 msgid "bottom"
 msgstr "底部"
 
-#: src/hal/classicladder/edit_sequential.c:805
+#: src/hal/classicladder/edit_sequential.c:804
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:843
+#: src/hal/classicladder/edit_sequential.c:842
 msgid "Sequential memory full for comments"
 msgstr "顺序功能图存储器注释已满"
 
-#: src/hal/classicladder/edit_sequential.c:848
+#: src/hal/classicladder/edit_sequential.c:847
 msgid "There is already an element on 4 horizontal blocks required!"
 msgstr "已经有4个水平块上的元素！"
 
-#: src/hal/classicladder/edit_sequential.c:853
+#: src/hal/classicladder/edit_sequential.c:852
 msgid "Not enough room on the right here..."
 msgstr "这里没有足够的空间..."
 
-#: src/hal/classicladder/edit_sequential.c:875
+#: src/hal/classicladder/edit_sequential.c:874
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/edit_sequential.c:881
+#: src/hal/classicladder/edit_sequential.c:880
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/editproperties_gtk.c:168
+#: src/hal/classicladder/editproperties_gtk.c:167
 msgid "Properties"
 msgstr "属性"
 
-#: src/hal/classicladder/editproperties_gtk.c:180
+#: src/hal/classicladder/editproperties_gtk.c:179
 msgid "Parameter"
 msgstr "参数"
 
-#: src/hal/classicladder/editproperties_gtk.c:213
+#: src/hal/classicladder/editproperties_gtk.c:212
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:8146
 msgid "Apply"
 msgstr "应用"
 
-#: src/hal/classicladder/emc_mods.c:60
+#: src/hal/classicladder/emc_mods.c:59
 msgid "Error blank symbol name"
 msgstr "错误空白符号名称"
 
-#: src/hal/classicladder/emc_mods.c:72 src/hal/classicladder/emc_mods.c:78
-#: src/hal/classicladder/emc_mods.c:86 src/hal/classicladder/emc_mods.c:94
-#: src/hal/classicladder/emc_mods.c:100 src/hal/classicladder/emc_mods.c:108
-#: src/hal/classicladder/emc_mods.c:114 src/hal/classicladder/emc_mods.c:118
-#: src/hal/classicladder/emc_mods.c:122
+#: src/hal/classicladder/emc_mods.c:71 src/hal/classicladder/emc_mods.c:77
+#: src/hal/classicladder/emc_mods.c:85 src/hal/classicladder/emc_mods.c:93
+#: src/hal/classicladder/emc_mods.c:99 src/hal/classicladder/emc_mods.c:107
+#: src/hal/classicladder/emc_mods.c:113 src/hal/classicladder/emc_mods.c:117
+#: src/hal/classicladder/emc_mods.c:121
 msgid "out of bounds variable number"
 msgstr "不合理的变量数"
 
-#: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
+#: src/hal/classicladder/emc_mods.c:114 src/hal/classicladder/emc_mods.c:118
 msgid "None -Internal Memory"
 msgstr "无 - 内部存储器"
 
-#: src/hal/classicladder/emc_mods.c:123
+#: src/hal/classicladder/emc_mods.c:122
 msgid "None -Internal Error Status"
 msgstr "无 - 内部错误状态"
 
-#: src/hal/classicladder/emc_mods.c:128
+#: src/hal/classicladder/emc_mods.c:127
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:611
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 #: src/emc/usr_intf/touchy/emc_interface.py:432
@@ -1985,166 +1985,166 @@ msgstr "无 - 内部错误状态"
 msgid "None"
 msgstr "无"
 
-#: src/hal/classicladder/emc_mods.c:130
+#: src/hal/classicladder/emc_mods.c:129
 msgid "error"
 msgstr "错误"
 
-#: src/hal/classicladder/emc_mods.c:151
+#: src/hal/classicladder/emc_mods.c:150
 msgid "no signal connected"
 msgstr "没有信号连接"
 
-#: src/hal/classicladder/emc_mods.c:155
+#: src/hal/classicladder/emc_mods.c:154
 msgid "Conv. HAL signal ERROR"
 msgstr "Conv. HAL信号错误"
 
-#: src/hal/classicladder/emc_mods.c:177
+#: src/hal/classicladder/emc_mods.c:176
 msgid "No expression"
 msgstr "没有表达式"
 
-#: src/hal/classicladder/emc_mods.c:196
+#: src/hal/classicladder/emc_mods.c:195
 #, c-format
 msgid " %s (for %s)  Exprsn~ %s"
 msgstr ""
 
-#: src/hal/classicladder/emc_mods.c:203
+#: src/hal/classicladder/emc_mods.c:202
 msgid "first var. expression error"
 msgstr "第一个var. 表达式错误"
 
-#: src/hal/classicladder/emc_mods.c:257
+#: src/hal/classicladder/emc_mods.c:256
 msgid "Old Timer"
 msgstr "旧定时器 "
 
-#: src/hal/classicladder/emc_mods.c:262
+#: src/hal/classicladder/emc_mods.c:261
 msgid "New Timer"
 msgstr "新定时器 "
 
-#: src/hal/classicladder/emc_mods.c:267
+#: src/hal/classicladder/emc_mods.c:266
 msgid "One-shot"
 msgstr ""
 
-#: src/hal/classicladder/emc_mods.c:272
+#: src/hal/classicladder/emc_mods.c:271
 msgid "Counter"
 msgstr "计数器"
 
-#: src/hal/classicladder/emc_mods.c:277
+#: src/hal/classicladder/emc_mods.c:276
 msgid "Error Flag Bit"
 msgstr "错误标志位"
 
-#: src/hal/classicladder/emc_mods.c:280
+#: src/hal/classicladder/emc_mods.c:279
 msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr "无法自动分配符号名称 - 错误的变量名称"
 
-#: src/hal/classicladder/files.c:181
+#: src/hal/classicladder/files.c:180
 #, c-format
 msgid "Rung version not supported...\n"
 msgstr "不支持梯级版本...\n"
 
-#: src/hal/classicladder/files.c:259 src/hal/classicladder/files.c:298
+#: src/hal/classicladder/files.c:258 src/hal/classicladder/files.c:297
 #, c-format
 msgid "Loading file : %s"
 msgstr "正在加载文件: %s"
 
-#: src/hal/classicladder/files.c:276 src/hal/classicladder/files.c:302
-#: src/hal/classicladder/files.c:331
+#: src/hal/classicladder/files.c:275 src/hal/classicladder/files.c:301
+#: src/hal/classicladder/files.c:330
 msgid " - ok.\n"
 msgstr " - 确定。\n"
 
-#: src/hal/classicladder/files.c:279 src/hal/classicladder/files.c:305
+#: src/hal/classicladder/files.c:278 src/hal/classicladder/files.c:304
 msgid " - not found.\n"
 msgstr " - 没找到。\n"
 
-#: src/hal/classicladder/files.c:329
+#: src/hal/classicladder/files.c:328
 #, c-format
 msgid "Saving file : %s"
 msgstr "保存文件: %s"
 
-#: src/hal/classicladder/files.c:333
+#: src/hal/classicladder/files.c:332
 msgid " - failed.\n"
 msgstr " - 失败。\n"
 
-#: src/hal/classicladder/files.c:341
+#: src/hal/classicladder/files.c:340
 #, c-format
 msgid "Used=%d\n"
 msgstr "使用=%d\n"
 
-#: src/hal/classicladder/files.c:395
+#: src/hal/classicladder/files.c:394
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
 msgstr "!!!ConvBaseInMilliSecsToInt()出错\n"
 
-#: src/hal/classicladder/files.c:465 src/hal/classicladder/files.c:535
-#: src/hal/classicladder/files.c:659
+#: src/hal/classicladder/files.c:464 src/hal/classicladder/files.c:534
+#: src/hal/classicladder/files.c:658
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
 msgstr "!!!在%s中加载参数库时出错\n"
 
-#: src/hal/classicladder/files.c:468
+#: src/hal/classicladder/files.c:467
 #, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
 msgstr "定时器 => 基数 = %d , 预设 = %d\n"
 
-#: src/hal/classicladder/files.c:500
+#: src/hal/classicladder/files.c:499
 #, c-format
 msgid " - result=%d\n"
 msgstr " - 结果=%d\n"
 
-#: src/hal/classicladder/files.c:538
+#: src/hal/classicladder/files.c:537
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
 msgstr "继电器(M) => 基数 = %d , 预设 = %d\n"
 
-#: src/hal/classicladder/files.c:786
+#: src/hal/classicladder/files.c:785
 #, c-format
 msgid "Sections file version not supported...\n"
 msgstr "不支持部件文件版本...\n"
 
-#: src/hal/classicladder/files.c:810
+#: src/hal/classicladder/files.c:809
 #, c-format
 msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
 
-#: src/hal/classicladder/files.c:1042
+#: src/hal/classicladder/files.c:1041
 #, c-format
 msgid "Symbols file version not supported...\n"
 msgstr "不支持符号文件版本...\n"
 
-#: src/hal/classicladder/files.c:1055
+#: src/hal/classicladder/files.c:1054
 #, c-format
 msgid "Symbol: %s - %s - %s\n"
 msgstr "符号: %s - %s - %s\n"
 
-#: src/hal/classicladder/files_project.c:86
+#: src/hal/classicladder/files_project.c:85
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
 msgstr "项目的路径目录错误!!!\n"
 
-#: src/hal/classicladder/files_project.c:184
+#: src/hal/classicladder/files_project.c:183
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
 msgstr "从tmp dir=%s保存项目'%s'\n"
 
-#: src/hal/classicladder/files_sequential.c:97
+#: src/hal/classicladder/files_sequential.c:96
 #, c-format
 msgid "Sequential version not supported...\n"
 msgstr "不支持顺序功能图版本...\n"
 
-#: src/hal/classicladder/manager_gtk.c:71
-#: src/hal/classicladder/manager_gtk.c:228
+#: src/hal/classicladder/manager_gtk.c:70
+#: src/hal/classicladder/manager_gtk.c:227
 #: src/emc/usr_intf/gscreen/gscreen.glade:2373
 msgid "Ladder"
 msgstr "梯形图"
 
-#: src/hal/classicladder/manager_gtk.c:72
-#: src/hal/classicladder/manager_gtk.c:233 tcl/bin/halconfig.tcl:196
+#: src/hal/classicladder/manager_gtk.c:71
+#: src/hal/classicladder/manager_gtk.c:232 tcl/bin/halconfig.tcl:196
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade:3501
 msgid "Main"
 msgstr "主"
 
-#: src/hal/classicladder/manager_gtk.c:76
-#: src/hal/classicladder/manager_gtk.c:120
-#: src/hal/classicladder/manager_gtk.c:230
+#: src/hal/classicladder/manager_gtk.c:75
+#: src/hal/classicladder/manager_gtk.c:119
+#: src/hal/classicladder/manager_gtk.c:229
 msgid "Sequential"
 msgstr "顺序功能图"
 
@@ -2152,470 +2152,470 @@ msgstr "顺序功能图"
 msgid "---"
 msgstr ""
 
-#: src/hal/classicladder/manager_gtk.c:130
+#: src/hal/classicladder/manager_gtk.c:129
 msgid "This section name already exist or is incorrect !!!"
 msgstr "这个部件名称已存在或不正确!!!"
 
-#: src/hal/classicladder/manager_gtk.c:136
+#: src/hal/classicladder/manager_gtk.c:135
 msgid "This sub-routine number for calls is already defined !!!"
 msgstr "这个调用的子例程号码已经定义!!!"
 
-#: src/hal/classicladder/manager_gtk.c:142
+#: src/hal/classicladder/manager_gtk.c:141
 msgid "Failed to add a new section. Full?"
 msgstr "无法添加新部件。 已满?"
 
-#: src/hal/classicladder/manager_gtk.c:169
+#: src/hal/classicladder/manager_gtk.c:168
 msgid "Do you really want to delete the section ?"
 msgstr "你真的想删除这个部件吗?"
 
-#: src/hal/classicladder/manager_gtk.c:173
+#: src/hal/classicladder/manager_gtk.c:172
 msgid "You can not delete the last section..."
 msgstr "你不能删除最后一个部件..."
 
-#: src/hal/classicladder/manager_gtk.c:190
+#: src/hal/classicladder/manager_gtk.c:189
 msgid "This section is already executed the first !"
 msgstr "这个部件已经被执行了！"
 
-#: src/hal/classicladder/manager_gtk.c:240
+#: src/hal/classicladder/manager_gtk.c:239
 msgid "Add a section..."
 msgstr "添加部件..."
 
-#: src/hal/classicladder/manager_gtk.c:255
+#: src/hal/classicladder/manager_gtk.c:254
 msgid "Language"
 msgstr "语言"
 
-#: src/hal/classicladder/manager_gtk.c:256
+#: src/hal/classicladder/manager_gtk.c:255
 msgid "Main/Sub-Routine"
 msgstr "主/子程序"
 
-#: src/hal/classicladder/manager_gtk.c:257
+#: src/hal/classicladder/manager_gtk.c:256
 msgid "Name"
 msgstr "名称"
 
-#: src/hal/classicladder/manager_gtk.c:313
+#: src/hal/classicladder/manager_gtk.c:312
 msgid "Section Name   "
 msgstr "部件名称   "
 
-#: src/hal/classicladder/manager_gtk.c:313
+#: src/hal/classicladder/manager_gtk.c:312
 msgid "Language    "
 msgstr "语言    "
 
-#: src/hal/classicladder/manager_gtk.c:313
+#: src/hal/classicladder/manager_gtk.c:312
 msgid "Type   "
 msgstr "类型   "
 
-#: src/hal/classicladder/manager_gtk.c:313
+#: src/hal/classicladder/manager_gtk.c:312
 msgid "debug"
 msgstr "调试"
 
-#: src/hal/classicladder/manager_gtk.c:318
+#: src/hal/classicladder/manager_gtk.c:317
 msgid "Sections Manager"
 msgstr "部件管理"
 
-#: src/hal/classicladder/manager_gtk.c:334
+#: src/hal/classicladder/manager_gtk.c:333
 msgid "Add section"
 msgstr "添加部件"
 
-#: src/hal/classicladder/manager_gtk.c:339
+#: src/hal/classicladder/manager_gtk.c:338
 msgid "Delete section"
 msgstr "删除部件"
 
-#: src/hal/classicladder/manager_gtk.c:344
+#: src/hal/classicladder/manager_gtk.c:343
 msgid "Move Up"
 msgstr "上移"
 
-#: src/hal/classicladder/manager_gtk.c:349
+#: src/hal/classicladder/manager_gtk.c:348
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
 msgid "Move Down"
 msgstr "下移"
 
-#: src/hal/classicladder/protocol_modbus_master.c:277
+#: src/hal/classicladder/protocol_modbus_master.c:276
 #, c-format
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:283
+#: src/hal/classicladder/protocol_modbus_master.c:282
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:367
+#: src/hal/classicladder/protocol_modbus_master.c:366
 #, c-format
 msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:370
+#: src/hal/classicladder/protocol_modbus_master.c:369
 #, c-format
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:419
+#: src/hal/classicladder/protocol_modbus_master.c:418
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not reconized"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:424
+#: src/hal/classicladder/protocol_modbus_master.c:423
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:558
+#: src/hal/classicladder/protocol_modbus_master.c:557
 #, c-format
 msgid "INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:561
+#: src/hal/classicladder/protocol_modbus_master.c:560
 #, c-format
 msgid "Slave address-%X  "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:562
+#: src/hal/classicladder/protocol_modbus_master.c:561
 #, c-format
 msgid "Function code-%X  Data-"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:577
+#: src/hal/classicladder/protocol_modbus_master.c:576
 #, c-format
 msgid "INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:580
+#: src/hal/classicladder/protocol_modbus_master.c:579
 #, c-format
 msgid "(Slave address-%X - "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:581
+#: src/hal/classicladder/protocol_modbus_master.c:580
 #, c-format
 msgid "Function code-%X ) "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:609
+#: src/hal/classicladder/protocol_modbus_master.c:608
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:632
+#: src/hal/classicladder/protocol_modbus_master.c:631
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:638
+#: src/hal/classicladder/protocol_modbus_master.c:637
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:698
+#: src/hal/classicladder/protocol_modbus_master.c:697
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 msgstr ""
 
-#: src/hal/classicladder/protocol_modbus_master.c:745
+#: src/hal/classicladder/protocol_modbus_master.c:744
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "
 msgstr ""
 
-#: src/hal/classicladder/serial_linux.c:140
+#: src/hal/classicladder/serial_linux.c:139
 #, c-format
 msgid "Speed value not found for serial\n"
 msgstr "未找到串行速度值\n"
 
-#: src/hal/classicladder/serial_linux.c:145
+#: src/hal/classicladder/serial_linux.c:144
 #, c-format
 msgid "Failed to open serial port %s...\n"
 msgstr "无法打开串口%s...\n"
 
-#: src/hal/classicladder/serial_linux.c:172
+#: src/hal/classicladder/serial_linux.c:171
 #, c-format
 msgid "Set RTS=%d\n"
 msgstr "设置RTS=%d\n"
 
-#: src/hal/classicladder/serial_linux.c:186
+#: src/hal/classicladder/serial_linux.c:185
 #, c-format
 msgid "Serial writing...\n"
 msgstr "串行写入…\n"
 
-#: src/hal/classicladder/serial_linux.c:191
+#: src/hal/classicladder/serial_linux.c:190
 #, c-format
 msgid "SerialSend failed: %s!\n"
 msgstr "串口发送失败: %s!\n"
 
-#: src/hal/classicladder/serial_linux.c:198
+#: src/hal/classicladder/serial_linux.c:197
 #, c-format
 msgid "Writing done!\n"
 msgstr "写入完成!\n"
 
-#: src/hal/classicladder/serial_linux.c:216
+#: src/hal/classicladder/serial_linux.c:215
 #, c-format
 msgid "Serial config...\n"
 msgstr "串口配置...\n"
 
-#: src/hal/classicladder/serial_linux.c:237
+#: src/hal/classicladder/serial_linux.c:236
 #, c-format
 msgid "select() for serial reading...\n"
 msgstr "select()用于串行读取...\n"
 
-#: src/hal/classicladder/serial_linux.c:242
+#: src/hal/classicladder/serial_linux.c:241
 #, c-format
 msgid "Serial reading...\n"
 msgstr "串行读取…\n"
 
-#: src/hal/classicladder/serial_linux.c:245
+#: src/hal/classicladder/serial_linux.c:244
 #, c-format
 msgid "%d chars found\n"
 msgstr "找到%d个字符\n"
 
-#: src/hal/classicladder/serial_linux.c:256
+#: src/hal/classicladder/serial_linux.c:255
 #, c-format
 msgid "Serial flush all!\n"
 msgstr "刷新所有串行\n"
 
-#: src/hal/classicladder/socket_modbus_master.c:111
+#: src/hal/classicladder/socket_modbus_master.c:110
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:121
+#: src/hal/classicladder/socket_modbus_master.c:120
 #, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:124
+#: src/hal/classicladder/socket_modbus_master.c:123
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:124
+#: src/hal/classicladder/socket_modbus_master.c:123
 msgid "Serial"
 msgstr "串行"
 
-#: src/hal/classicladder/socket_modbus_master.c:124
+#: src/hal/classicladder/socket_modbus_master.c:123
 msgid "Ethernet"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:168
+#: src/hal/classicladder/socket_modbus_master.c:167
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
 msgstr "I/O模块的初始化套接字(%d)...\n"
 
-#: src/hal/classicladder/socket_modbus_master.c:172
+#: src/hal/classicladder/socket_modbus_master.c:171
 #, c-format
 msgid "Failed to open I/O socket master...\n"
 msgstr "无法打开I/O套接字主机......\n"
 
-#: src/hal/classicladder/socket_modbus_master.c:198
+#: src/hal/classicladder/socket_modbus_master.c:197
 #, c-format
 msgid "Connecting I/O module...\n"
 msgstr "连接I/O模块...\n"
 
-#: src/hal/classicladder/socket_modbus_master.c:220
+#: src/hal/classicladder/socket_modbus_master.c:219
 #, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:225
+#: src/hal/classicladder/socket_modbus_master.c:224
 #, c-format
 msgid "Failed  to connect to I/O module\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:231
+#: src/hal/classicladder/socket_modbus_master.c:230
 #, c-format
 msgid "Too much IP connections under run...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:248
+#: src/hal/classicladder/socket_modbus_master.c:247
 #, c-format
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:254
+#: src/hal/classicladder/socket_modbus_master.c:253
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:275
+#: src/hal/classicladder/socket_modbus_master.c:274
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:307
+#: src/hal/classicladder/socket_modbus_master.c:306
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:356
+#: src/hal/classicladder/socket_modbus_master.c:355
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_modbus_master.c:366
+#: src/hal/classicladder/socket_modbus_master.c:365
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:87
+#: src/hal/classicladder/socket_server.c:86
 #, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:92
+#: src/hal/classicladder/socket_server.c:91
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:104
+#: src/hal/classicladder/socket_server.c:103
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:113
+#: src/hal/classicladder/socket_server.c:112
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:131
+#: src/hal/classicladder/socket_server.c:130
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:136
+#: src/hal/classicladder/socket_server.c:135
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:175
+#: src/hal/classicladder/socket_server.c:174
 #, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:205
+#: src/hal/classicladder/socket_server.c:204
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET WAITING...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:210
+#: src/hal/classicladder/socket_server.c:209
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:216
+#: src/hal/classicladder/socket_server.c:215
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:219
+#: src/hal/classicladder/socket_server.c:218
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:233
+#: src/hal/classicladder/socket_server.c:232
 #, c-format
 msgid "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
 msgstr ""
 
-#: src/hal/classicladder/socket_server.c:263
+#: src/hal/classicladder/socket_server.c:262
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket closed!\n"
 msgstr ""
 
-#: src/hal/classicladder/spy_vars_gtk.c:181
+#: src/hal/classicladder/spy_vars_gtk.c:180
 msgid "Bit Status Window"
 msgstr "位状态窗口"
 
-#: src/hal/classicladder/spy_vars_gtk.c:202
+#: src/hal/classicladder/spy_vars_gtk.c:201
 msgid "Offset for vars displayed below (return to apply)"
 msgstr "以下显示的变量偏移(返回申请)"
 
-#: src/hal/classicladder/spy_vars_gtk.c:409
+#: src/hal/classicladder/spy_vars_gtk.c:408
 msgid "Watch Window"
 msgstr "观察窗口"
 
-#: src/hal/classicladder/spy_vars_gtk.c:484
+#: src/hal/classicladder/spy_vars_gtk.c:483
 msgid "opened BOOL (bit) variable window. press again for WORD window"
 msgstr "打开BOOL(位)变量窗口,再次按下WORD窗口"
 
-#: src/hal/classicladder/spy_vars_gtk.c:487
+#: src/hal/classicladder/spy_vars_gtk.c:486
 msgid "opened WORD (s32) variable window. press again for both windows"
 msgstr "打开WORD(s32)变量窗口,再次按下打开两个窗口"
 
-#: src/hal/classicladder/spy_vars_gtk.c:490
+#: src/hal/classicladder/spy_vars_gtk.c:489
 msgid "opened BOTH variable windows. press again to close them."
 msgstr "打开两个变量窗口，再次按下以关闭它们。"
 
-#: src/hal/classicladder/symbols_gtk.c:122
+#: src/hal/classicladder/symbols_gtk.c:121
 #, c-format
 msgid "A variable name always start with '%' character !"
 msgstr "变量名总是以'%'字符开头！"
 
-#: src/hal/classicladder/symbols_gtk.c:173
+#: src/hal/classicladder/symbols_gtk.c:172
 msgid "opened SYMBOLS window. Press again to close"
 msgstr "打开符号窗口，再次按下关闭"
 
-#: src/hal/classicladder/symbols_gtk.c:191
+#: src/hal/classicladder/symbols_gtk.c:190
 msgid "HiddenColNbr!"
 msgstr "隐藏ColNbr!"
 
-#: src/hal/classicladder/symbols_gtk.c:191
+#: src/hal/classicladder/symbols_gtk.c:190
 msgid "Symbol name"
 msgstr "符号名称"
 
-#: src/hal/classicladder/symbols_gtk.c:191
+#: src/hal/classicladder/symbols_gtk.c:190
 msgid "HAL signal/Comment"
 msgstr "HAL信号/注释"
 
-#: src/hal/classicladder/symbols_gtk.c:194
+#: src/hal/classicladder/symbols_gtk.c:193
 msgid "Symbols names"
 msgstr "符号名称"
 
-#: src/hal/classicladder/vars_names.c:120
+#: src/hal/classicladder/vars_names.c:119
 #, c-format
 msgid "infogene display symbols=&i\n"
 msgstr ""
 
-#: src/hal/classicladder/vars_names.c:178
+#: src/hal/classicladder/vars_names.c:177
 msgid "Unknown symbol for variable name"
 msgstr "变量名称的未知符号"
 
-#: src/hal/classicladder/vars_names.c:198
-#: src/hal/classicladder/vars_names.c:220
-#: src/hal/classicladder/vars_names.c:292
-#: src/hal/classicladder/vars_names.c:334
-#: src/hal/classicladder/vars_names.c:382
-#: src/hal/classicladder/vars_names.c:392
-#: src/hal/classicladder/vars_names.c:402
-#: src/hal/classicladder/vars_names.c:413
-#: src/hal/classicladder/vars_names.c:621
+#: src/hal/classicladder/vars_names.c:197
+#: src/hal/classicladder/vars_names.c:219
+#: src/hal/classicladder/vars_names.c:291
+#: src/hal/classicladder/vars_names.c:333
+#: src/hal/classicladder/vars_names.c:381
+#: src/hal/classicladder/vars_names.c:391
+#: src/hal/classicladder/vars_names.c:401
+#: src/hal/classicladder/vars_names.c:412
+#: src/hal/classicladder/vars_names.c:620
 msgid "Unknown variable (number value out of bound)"
 msgstr "未知变量(数值超出范围)"
 
-#: src/hal/classicladder/vars_names.c:229
-#: src/hal/classicladder/vars_names.c:301
-#: src/hal/classicladder/vars_names.c:343
+#: src/hal/classicladder/vars_names.c:228
+#: src/hal/classicladder/vars_names.c:300
+#: src/hal/classicladder/vars_names.c:342
 msgid "Unknown variable (missing '.' character before attribute)"
 msgstr "未知变量(属性前缺少'.'字符)"
 
-#: src/hal/classicladder/vars_names.c:244
-#: src/hal/classicladder/vars_names.c:255
-#: src/hal/classicladder/vars_names.c:266
-#: src/hal/classicladder/vars_names.c:277
-#: src/hal/classicladder/vars_names.c:319
-#: src/hal/classicladder/vars_names.c:367
-#: src/hal/classicladder/vars_names.c:429
+#: src/hal/classicladder/vars_names.c:243
+#: src/hal/classicladder/vars_names.c:254
+#: src/hal/classicladder/vars_names.c:265
+#: src/hal/classicladder/vars_names.c:276
+#: src/hal/classicladder/vars_names.c:318
+#: src/hal/classicladder/vars_names.c:366
+#: src/hal/classicladder/vars_names.c:428
 msgid "Unknown variable (unknown attribute)"
 msgstr "未知变量(未知属性)"
 
-#: src/hal/classicladder/vars_names.c:438
+#: src/hal/classicladder/vars_names.c:437
 msgid "Unknown variable (on first character following %)"
 msgstr "未知变量(在第一个字符后面跟随%)"
 
-#: src/hal/classicladder/vars_names.c:452
+#: src/hal/classicladder/vars_names.c:451
 msgid "Unknown variable (global error)"
 msgstr "未知变量(全局错误)"
 
@@ -11105,7 +11105,8 @@ msgid ""
 "It is a recommended stategy to start with very basic axes options, get them "
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
-msgstr "该程序为连接到Mesa卡的铣床和车床创建(.ini和.hal)配置文件。\n"
+msgstr ""
+"该程序为连接到Mesa卡的铣床和车床创建(.ini和.hal)配置文件。\n"
 "\n"
 "我们推荐先从非常基本的轴选项开始配置，让它们正常运行"
 "后再回来添加其他选项，如VFD主轴控制或高级选项/限位/原点等。"
@@ -18909,20 +18910,6 @@ msgstr "R在VW平面上的循环小于U"
 #: src/emc/rs274ngc/rs274ngc_return.hh:218
 msgid "R less than V in cycle in UW plane"
 msgstr "R在UW 平面上的循环小于V"
-
-msgid ""
-"        This panel is/n"
-"For SIM TESTING Only"
-msgstr ""
-"      此面板/n"
-"仅适用于SIM卡测试"
-
-msgid ""
-"Cycle/n"
-"Start"
-msgstr ""
-"循环/n"
-"开始"
 
 msgid "XZ (Lathe)"
 msgstr "XZ (车床)"
