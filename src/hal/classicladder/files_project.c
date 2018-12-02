@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -79,7 +82,7 @@ void VerifyDirectorySelected( char * NewDir )
 				}
 				else
 				{
-					printf("ERROR with path directory given for project !!!\n");
+					printf(_("ERROR with path directory given for project !!!\n"));
 					InfosGene->CurrentProjectFileName[ 0 ] = '\0';
 				}
 			}
@@ -177,7 +180,7 @@ char SaveProjectFiles( char * FileProject )
 {
 	if ( TmpDirectory[ 0 ]=='\0' )
 		InitTempDir( );
-printf("Save project '%s' from tmp dir=%s\n", FileProject, TmpDirectory);
+printf(_("Save project '%s' from tmp dir=%s\n"), FileProject, TmpDirectory);
 	SaveAllLadderDatas( TmpDirectory );
 	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )!=0 )
 		strcat( FileProject, ".clp" );

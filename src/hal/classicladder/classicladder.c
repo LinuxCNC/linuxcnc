@@ -25,6 +25,10 @@
 // it uses RTAPI realtime code and HAL code for memory allocation and input/output.
 // this adaptation was started Jan 2008 by Chris Morley  
 
+#include "../config.h"
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #ifdef MODULE
 #include <linux/string.h>
 #else
@@ -186,7 +190,7 @@ void process_options (int argc, char *argv[])
 //for EMC: do_exit
 static void do_exit(int unused) {
 		hal_exit(compId);
-		printf("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n");
+		printf(_("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"));
 		exit(0);
 }
 void DoPauseMilliSecs( int Time )
@@ -232,6 +236,10 @@ int main( int   argc, char *argv[] )
 {
 	int used=0, NumRung;
 	static int old_level ;
+         bindtextdomain("linuxcnc", EMC2_PO_DIR);
+         setlocale(LC_MESSAGES,"");
+         setlocale(LC_CTYPE,"");
+         textdomain("linuxcnc");
 	old_level = rtapi_get_msg_level();
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
@@ -243,7 +251,7 @@ int main( int   argc, char *argv[] )
 		process_options (argc, argv);
 		if (nogui==TRUE)
 		{
-			rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
+			rtapi_print(_("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n"));
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName  );
 			if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
@@ -263,7 +271,7 @@ int main( int   argc, char *argv[] )
 						UpdateAllGtkWindows();
 						if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 						UpdateWindowTitleWithProjectName( );
-						MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
+						MessageInStatusBar( ProjectLoadedOk?_("Project loaded and running"):_("Project failed to load..."));
 						if (!ProjectLoadedOk) 
 						{  
 							   ClassicLadder_InitAllDatas( );   
@@ -274,7 +282,7 @@ int main( int   argc, char *argv[] )
 							   UpdateAllGtkWindows();
 							   if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 							   UpdateWindowTitleWithProjectName( );
-							   MessageInStatusBar("GUI reloaded with existing ladder program");
+							   MessageInStatusBar(_("GUI reloaded with existing ladder program"));
 							   if (modmaster) {    PrepareModbusMaster( );    }
 							} 
 							
@@ -282,13 +290,13 @@ int main( int   argc, char *argv[] )
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
-				rtapi_print("INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n");
+				rtapi_print(_("INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"));
 				ClassicLadder_FreeAll(TRUE);
 				hal_exit(compId);
 				return 0;
 			}		
 	}
-	 rtapi_print("ERROR CLASSICLADDER-   Ladder memory allocation error\n");
+	 rtapi_print(_("ERROR CLASSICLADDER-   Ladder memory allocation error\n"));
 	ClassicLadder_FreeAll(TRUE);
 	rtapi_set_msg_level(old_level);
 	hal_exit(compId);		

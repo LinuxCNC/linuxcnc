@@ -23,7 +23,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,15 +64,15 @@ void LoadSeqElementProperties( void )
 		{
 			case ELE_SEQ_STEP:
 				sprintf( TextToWrite, "%d", EditSeqDatas.Step[ OffsetSeqEleEdited ].StepNumber );
-				SetProperty(0,"Step Nbr",TextToWrite);
+				SetProperty(0,_("Step Nbr"),TextToWrite);
 				break;
 			case ELE_SEQ_TRANSITION:
 				strcpy( TextToWrite, CreateVarName( EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarTypeCondi,
 					EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi ) );
-				SetProperty(0,"Variable",TextToWrite);
+				SetProperty(0,_("Variable"),TextToWrite);
 				break;
 			case ELE_SEQ_COMMENT:
-				SetProperty(0, "Comment", EditSeqDatas.SeqComment[ OffsetSeqEleEdited ].Comment );
+				SetProperty(0, _("Comment"), EditSeqDatas.SeqComment[ OffsetSeqEleEdited ].Comment );
 				break;
 		}
 	}
@@ -92,9 +94,9 @@ void SaveSeqElementProperties( void )
 							&EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi, NULL, FALSE/*PartialNames*/ )==FALSE )
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
+						ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
 					else
-						ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
 				}
 				break;
 			case ELE_SEQ_COMMENT:
@@ -145,7 +147,7 @@ int SearchStepElement( int PageNumber, int PositionX, int PositionY )
 	int ScanStep;
 	StrStep * pStep;
 	int Result = -1;
-printf("step search posiX=%d, posiY=%d ; ", PositionX, PositionY );
+printf(_("step search posiX=%d, posiY=%d ; "), PositionX, PositionY );
 	for( ScanStep=0; ScanStep<NBR_STEPS; ScanStep++ )
 	{
 		pStep = &EditSeqDatas.Step[ ScanStep ];
@@ -155,7 +157,7 @@ printf("step search posiX=%d, posiY=%d ; ", PositionX, PositionY );
 				Result = ScanStep;
 		}
 	}
-printf("found=%d!!!\n", Result );
+printf(_("found=%d!!!\n"), Result );
 	return Result;
 }
 int SearchTransiElement( int PageNumber, int PositionX, int PositionY )
@@ -163,7 +165,7 @@ int SearchTransiElement( int PageNumber, int PositionX, int PositionY )
 	int ScanTransi;
 	StrTransition * pTransi;
 	int Result = -1;
-printf("transi search posiX=%d, posiY=%d ; ", PositionX, PositionY );
+printf(_("transi search posiX=%d, posiY=%d ; "), PositionX, PositionY );
 	for( ScanTransi=0; ScanTransi<NBR_TRANSITIONS; ScanTransi++ )
 	{
 		pTransi = &EditSeqDatas.Transition[ ScanTransi ];
@@ -173,7 +175,7 @@ printf("transi search posiX=%d, posiY=%d ; ", PositionX, PositionY );
 				Result = ScanTransi;
 		}
 	}
-printf("found=%d!!!\n", Result );
+printf(_("found=%d!!!\n"), Result );
 	return Result;
 }
 int SearchCommentElement( int PageNumber, int PositionX, int PositionY )
@@ -181,7 +183,7 @@ int SearchCommentElement( int PageNumber, int PositionX, int PositionY )
 	int ScanComment;
 	StrSeqComment * pComment;
 	int Result = -1;
-printf("comment search posiX=%d, posiY=%d ; ", PositionX, PositionY );
+printf(_("comment search posiX=%d, posiY=%d ; "), PositionX, PositionY );
 	for( ScanComment=0; ScanComment<NBR_SEQ_COMMENTS; ScanComment++ )
 	{
 		pComment = &EditSeqDatas.SeqComment[ ScanComment ];
@@ -191,7 +193,7 @@ printf("comment search posiX=%d, posiY=%d ; ", PositionX, PositionY );
 				Result = ScanComment;
 		}
 	}
-printf("found=%d!!!\n", Result );
+printf(_("found=%d!!!\n"), Result );
 	return Result;
 }
 
@@ -210,7 +212,7 @@ int FindFreeStep( void )
 			ScanStep++;
 	}
 	while( Result==-1 && ScanStep<NBR_STEPS );
-printf("found free step=%d!!!\n", Result );
+printf(_("found free step=%d!!!\n"), Result );
 	return Result;
 }
 /* -1 if not found */
@@ -228,7 +230,7 @@ int FindFreeTransi( void )
 			ScanTransi++;
 	}
 	while( Result==-1 && ScanTransi<NBR_TRANSITIONS );
-printf("found free transi=%d!!!\n", Result );
+printf(_("found free transi=%d!!!\n"), Result );
 	return Result;
 }
 /* -1 if not found */
@@ -247,7 +249,7 @@ int FindFreeComment( void )
 			ScanComment++;
 	}
 	while( Result==-1 && ScanComment<NBR_SEQ_COMMENTS );
-printf("found free comment=%d!!!\n", Result );
+printf(_("found free comment=%d!!!\n"), Result );
 	return Result;
 }
 
@@ -380,7 +382,7 @@ int CreateComment( int page, int x, int y )
 void DoLinkTransitionAndStep( int OffsetTransi, char TopOfTransi, int OffsetStep )
 {
 	StrTransition * pTransi = &EditSeqDatas.Transition[ OffsetTransi ];
-printf("Do link : transi=%d (top=%d), step=%d\n", OffsetTransi, TopOfTransi, OffsetStep);
+printf(_("Do link : transi=%d (top=%d), step=%d\n"), OffsetTransi, TopOfTransi, OffsetStep);
 	if ( TopOfTransi )
 		pTransi->NumStepToDesactiv[ 0 ] = OffsetStep;
 	else
@@ -398,7 +400,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 	int LeftX,RightX;
 	if ( !ForManySteps && (TypeEle1==ELE_SEQ_STEP || TypeEle2==ELE_SEQ_STEP ) )
 	{
-		ShowMessageBox("Error","Not selected first and last transitions to be joined !!??","Ok");
+		ShowMessageBox(_("Error"),_("Not selected first and last transitions to be joined !!??"),_("Ok"));
 		return FALSE;
 	}
 	if ( TypeEle1==ELE_SEQ_STEP )
@@ -415,7 +417,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 	}
 	else
 	{
-		ShowMessageBox("Error","Unknown element type for Ele1","Ok");
+		ShowMessageBox(_("Error"),_("Unknown element type for Ele1"),_("Ok"));
 		return FALSE;
 	}
 	if ( TypeEle2==ELE_SEQ_STEP )
@@ -429,7 +431,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		{
 			if ( StepsBaseY!=EditSeqDatas.Step[ OffEle1 ].PosiY )
 			{
-				ShowMessageBox("Error","First and last steps selected are not on the same line !!??","Ok");
+				ShowMessageBox(_("Error"),_("First and last steps selected are not on the same line !!??"),_("Ok"));
 				return FALSE;
 			}
 		}
@@ -446,14 +448,14 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		{
 			if ( TransitionsBaseY!=EditSeqDatas.Transition[ OffEle1 ].PosiY )
 			{
-				ShowMessageBox("Error","First and last transitions selected are not on the same line !!??","Ok");
+				ShowMessageBox(_("Error"),_("First and last transitions selected are not on the same line !!??"),_("Ok"));
 				return FALSE;
 			}
 		}
 	}
 	else
 	{
-		ShowMessageBox("Error","Unknown element type for Ele2","Ok");
+		ShowMessageBox(_("Error"),_("Unknown element type for Ele2"),_("Ok"));
 		return FALSE;
 	}
 
@@ -472,7 +474,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		*pTransitionsBaseY = TransitionsBaseY;
 	*pLeftX = LeftX;
 	*pRightX = RightX;
-printf("commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n", LeftX, RightX, OffsetTransiFound, StepsBaseY, TransitionsBaseY );
+printf(_("commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"), LeftX, RightX, OffsetTransiFound, StepsBaseY, TransitionsBaseY );
 	return TRUE;
 }
 
@@ -502,7 +504,7 @@ void DoManyStepsActOrDesact( int ForPage, int FlagStart, int TypeEle1, int OffEl
 	}
 	if ( OffsetTransiFound==-1 || StepsBaseY==-1 )
 	{
-			ShowMessageBox("Error","Error in selection or not possible...","Ok");
+			ShowMessageBox(_("Error"),_("Error in selection or not possible..."),_("Ok"));
 	}
 	else
 	{
@@ -510,7 +512,7 @@ void DoManyStepsActOrDesact( int ForPage, int FlagStart, int TypeEle1, int OffEl
 		int CptStep = 0;
 		int StepSearch;
 		int ScanStep;
-printf("DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n", LeftX, RightX, StepsBaseY );
+printf(_("DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"), LeftX, RightX, StepsBaseY );
 		// init all
 		for( ScanStep=0; ScanStep<NBR_SWITCHS_MAX; ScanStep++ )
 		{
@@ -530,7 +532,7 @@ printf("DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n", LeftX, RightX, StepsBaseY );
 				else
 					EditSeqDatas.Transition[ OffsetTransiFound ].NumStepToDesactiv[ CptStep ] = StepSearch;
 				CptStep++;
-printf("StepActDesact++=%d\n", StepSearch );
+printf(_("StepActDesact++=%d\n"), StepSearch );
 			}
 		}
 	}
@@ -546,7 +548,7 @@ void DoManyTransitionsLinked( int ForPage, int FlagStart, int TypeEle1, int OffE
 
 	if ( TransisBaseY==-1 )
 	{
-			ShowMessageBox("Error","Error in selection or not possible...","Ok");
+			ShowMessageBox(_("Error"),_("Error in selection or not possible..."),_("Ok"));
 	}
 	else
 	{
@@ -587,10 +589,10 @@ void DoManyTransitionsLinked( int ForPage, int FlagStart, int TypeEle1, int OffE
 				for( ScanTransiArray2=0; ScanTransiArray2<NbrTransisLinked; ScanTransiArray2++ )
 				{
 					int NumTransi = ArrayNumTransiLinked[ ScanTransiArray2 ];
-printf("having num transi linked=%d for transi=%d\n", NumTransi, TheTransi );
+printf(_("having num transi linked=%d for transi=%d\n"), NumTransi, TheTransi );
 					if ( NumTransi!=TheTransi )
 					{
-printf("->storing num transi linked=%d for transi=%d\n", NumTransi, TheTransi );
+printf(_("->storing num transi linked=%d for transi=%d\n"), NumTransi, TheTransi );
 						if ( FlagStart )
 						{
 							pTheTransi->NumTransLinkedForStart[ ScanTransi++ ] = NumTransi;
@@ -606,7 +608,7 @@ printf("->storing num transi linked=%d for transi=%d\n", NumTransi, TheTransi );
 					}
 				}
 				// step to activate / descativate
-printf("=>step to activ=%d, step to desactiv=%d\n", StepToAct, StepToDesact );
+printf(_("=>step to activ=%d, step to desactiv=%d\n"), StepToAct, StepToDesact );
 				if ( StepToAct!=-1 )
 					pTheTransi->NumStepToActiv[ 0 ] = StepToAct;
 				if ( StepToDesact!=-1 )
@@ -615,7 +617,7 @@ printf("=>step to activ=%d, step to desactiv=%d\n", StepToAct, StepToDesact );
 		}
 		else
 		{
-			ShowMessageBox("Error","Not found at least 2 transitions linked...","Ok");
+			ShowMessageBox(_("Error"),_("Not found at least 2 transitions linked..."),_("Ok"));
 		}
 
 
@@ -734,18 +736,18 @@ void EditElementInSeqPage(double x,double y)
 								}
 								else
 								{
-									ShowMessageBox("Error","Sequential memory full for steps","Ok");
+									ShowMessageBox(_("Error"),_("Sequential memory full for steps"),_("Ok"));
 								}
 							}
 							else
 							{
-								ShowMessageBox("Error","There is already an element!","Ok");
+								ShowMessageBox(_("Error"),_("There is already an element!"),_("Ok"));
 							}
 						}
 					}
 					else
 					{
-						ShowMessageBox("Error","A step can't be placed on even lines","Ok");
+						ShowMessageBox(_("Error"),_("A step can't be placed on even lines"),_("Ok"));
 					}
 				}
 				if ( EditDatas.NumElementSelectedInToolBar==ELE_SEQ_TRANSITION
@@ -771,18 +773,18 @@ void EditElementInSeqPage(double x,double y)
 								}
 								else
 								{
-									ShowMessageBox("Error","Sequential memory full for transition","Ok");
+									ShowMessageBox(_("Error"),_("Sequential memory full for transition"),_("Ok"));
 								}
 							}
 							else
 							{
-								ShowMessageBox("Error","There is already an element!","Ok");
+								ShowMessageBox(_("Error"),_("There is already an element!"),_("Ok"));
 							}
 						}
 					}
 					else
 					{
-						ShowMessageBox("Error","A transition can't be placed on odd lines","Ok");
+						ShowMessageBox(_("Error"),_("A transition can't be placed on odd lines"),_("Ok"));
 					}
 				}
 				break;
@@ -791,7 +793,7 @@ void EditElementInSeqPage(double x,double y)
 					CptNbrClicksDone++;
 				if ( CptNbrClicksDone==1 )
 				{
-printf("nbr clicks=1!!! (posi=%s), wait next point to link...\n", (TopFound==1)?"top":"bottom" );
+printf(_("nbr clicks=1!!! (posi=%s), wait next point to link...\n"), (TopFound==1)?_("top"):_("bottom") );
 					TypeSeqEleEdited = TypeFound;
 					OffsetSeqEleEdited = OffsetFound;
 					TopSeqEleEdited = TopFound;
@@ -799,7 +801,7 @@ printf("nbr clicks=1!!! (posi=%s), wait next point to link...\n", (TopFound==1)?
 				}
 				if ( CptNbrClicksDone==2 )
 				{
-printf("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n", (TopFound==1)?"top":"bottom", TypeSeqEleEditedBak, TypeFound );
+printf(_("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"), (TopFound==1)?_("top"):_("bottom"), TypeSeqEleEditedBak, TypeFound );
 					if ( TypeSeqEleEditedBak==ELE_SEQ_TRANSITION && TypeFound==ELE_SEQ_STEP )
 						DoLinkTransitionAndStep( OffsetSeqEleEditedBak, TopSeqEleEditedBak, OffsetFound );
 					if ( TypeSeqEleEditedBak==ELE_SEQ_STEP && TypeFound==ELE_SEQ_TRANSITION )
@@ -837,17 +839,17 @@ printf("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n", (TopFound==1)?"top
 						}
 						else
 						{
-							ShowMessageBox("Error","Sequential memory full for comments","Ok");
+							ShowMessageBox(_("Error"),_("Sequential memory full for comments"),_("Ok"));
 						}
 					}
 					else
 					{
-						ShowMessageBox("Error","There is already an element on 4 horizontal blocks required!","Ok");
+						ShowMessageBox(_("Error"),_("There is already an element on 4 horizontal blocks required!"),_("Ok"));
 					}
 				}
 				else
 				{
-					ShowMessageBox("Error","Not enough room on the right here...","Ok");
+					ShowMessageBox(_("Error"),_("Not enough room on the right here..."),_("Ok"));
 				}
 				break;
 
@@ -869,13 +871,13 @@ printf("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n", (TopFound==1)?"top
 					if ( EditDatas.NumElementSelectedInToolBar==EDIT_SEQ_START_MANY_STEPS
 						|| EditDatas.NumElementSelectedInToolBar==EDIT_SEQ_END_MANY_STEPS )
 					{
-printf("DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n", TypeSeqEleEditedBak, TypeFound );
+printf(_("DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"), TypeSeqEleEditedBak, TypeFound );
 						DoManyStepsActOrDesact( CurrentSeqPage, EditDatas.NumElementSelectedInToolBar==EDIT_SEQ_START_MANY_STEPS,
 									 TypeSeqEleEditedBak, OffsetSeqEleEditedBak, TypeFound, OffsetFound );
 					}
 					else
 					{
-printf("DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n", TypeSeqEleEditedBak, TypeFound );
+printf(_("DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"), TypeSeqEleEditedBak, TypeFound );
 						DoManyTransitionsLinked( CurrentSeqPage, EditDatas.NumElementSelectedInToolBar==EDIT_SEQ_START_MANY_TRANS,
 									 TypeSeqEleEditedBak, OffsetSeqEleEditedBak, TypeFound, OffsetFound );
 					}
