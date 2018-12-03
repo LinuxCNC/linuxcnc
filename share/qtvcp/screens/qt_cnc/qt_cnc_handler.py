@@ -68,6 +68,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
+        KEYBIND.add_call('Key_F7','on_keycall_F7')
         self.w.tooloffsetdialog._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -174,6 +175,9 @@ class HandlerClass:
     def on_keycall_F6(self,event,state,shift,cntrl):
         if state:
             self.w.tooloffsetdialog.load_dialog()
+    def on_keycall_F7(self,event,state,shift,cntrl):
+        if state:
+            self.w.versaprobedialog.load_dialog()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):

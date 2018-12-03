@@ -26,6 +26,7 @@ from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
+from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -717,6 +718,86 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
 
     def calculate_placement(self):
         geometry_parsing(self,'MacroTabDialog-geometry')
+
+    # **********************
+    # Designer properties
+    # **********************
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    state = pyqtProperty(bool, getState, setState, resetState)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
+################################################################################
+# Versaprobe Dialog
+################################################################################
+class VersaProbeDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(VersaProbeDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self._state = False
+
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setMinimumSize(200, 200)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        b = buttonBox.button(QDialogButtonBox.Ok)
+        b.clicked.connect(lambda: self.close())
+        l = QVBoxLayout()
+        self._o = VersaProbe()
+        self.setLayout(l)
+        l.addWidget(self._o)
+        l.addWidget(buttonBox)
+
+    def _hal_init(self):
+        self._o.hal_init(self.HAL_GCOMP_, self.HAL_NAME_, self.QT_OBJECT_,
+                     self.QTVCP_INSTANCE_, self.PATHS_, self.PREFS_)
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('VersaProbeDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
+        self.topParent = self.QTVCP_INSTANCE_
+        STATUS.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, cmd):
+        if cmd == 'VERSAPROBE':
+            self.load_dialog()
+
+    def load_dialog(self):
+        STATUS.emit('focus-overlay-changed', True, 'VersaProbe Dialog', self._color)
+        self.calculate_placement()
+        self.show()
+        self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        record_geometry(self,'VersaProbeDialog-geometry')
+
+    def calculate_placement(self):
+        geometry_parsing(self,'VersaProbeDialog-geometry')
 
     # **********************
     # Designer properties

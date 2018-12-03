@@ -952,8 +952,8 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
         <widget class="CamViewDialog" name="camviewdialog">
          <property name="geometry">
           <rect>
-           <x>489</x>
-           <y>325</y>
+           <x>432</x>
+           <y>294</y>
            <width>700</width>
            <height>400</height>
           </rect>
@@ -2040,6 +2040,19 @@ View</string>
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="VersaProbeDialog" name="versaprobedialog">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>622</width>
+       <height>475</height>
+      </rect>
+     </property>
+     <property name="state">
+      <bool>false</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_4">
     <property name="geometry">
@@ -2982,6 +2995,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
+   <class>VersaProbeDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
    <class>MacroTabDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
@@ -3017,12 +3035,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <class>JogIncrements</class>
    <extends>QComboBox</extends>
    <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScreenOptions</class>
@@ -3062,6 +3074,12 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ToolDialog</class>

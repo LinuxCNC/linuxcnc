@@ -345,3 +345,52 @@ class ToolOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dialog_widget"
 
+###############################################################################
+# VersaProbe Dialog
+###############################################################################
+class VersaProbeDialogPlugin(QPyDesignerCustomWidgetPlugin):
+
+    def __init__(self, parent=None):
+        super(VersaProbeDialogPlugin, self).__init__(parent)
+
+        self.initialized = False
+
+    def initialize(self, core):
+        if self.initialized:
+            return
+
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return VersaProbeDialog(parent)
+
+    def name(self):
+        return "VersaProbeDialog"
+
+    def group(self):
+        return "Linuxcnc - Dialogs"
+
+    def icon(self):
+        return QIcon(QPixmap(ICON.get_path('versaprobedialog')))
+
+    def toolTip(self):
+        return "Probe Dialog Widget"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return False
+
+    # Returns an XML description of a custom widget instance that describes
+    # default values for its properties. Each custom widget created by this
+    # plugin will be configured using this description.
+    def domXml(self):
+        return '<widget class="VersaProbeDialog" name="versaprobedialog" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.dialog_widget"
+
