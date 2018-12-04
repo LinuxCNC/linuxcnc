@@ -96,6 +96,7 @@ DOC_SRCS_EN := \
 	gui/qtvcp_widgets.txt \
 	gui/qtvcp_libraries.txt \
 	gui/qtvcp_custom_widgets.txt \
+	gui/qtvcp_development.txt \
 	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \

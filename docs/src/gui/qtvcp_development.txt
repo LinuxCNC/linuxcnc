@@ -1,0 +1,70 @@
+= QTvcp Development
+
+The intention of QtVCP is to supply an infrastructure to support +
+screen and VCP panel building for linuxcnc. By supplying a diverse +
+widget set and supporting custom coding, QtVCP hopes that development +
+energy will be expended in one toolkit rather then continuous re-invention. +
+By using the same toolkit across many screens/panels users should have an easier +
+time customizing/creating and developers should find it easier to help +
+trouble shoot with less effort. +
+
+== Overview
+
+QtVCP uses a QT Designer built .ui file and a python handler file +
+to load and control a screen/panel that displays QT widgets to control +
+linuxcnc's motion controller or HAL pins. +
+There are builtin screens and panels, easily loaded by a user or +
+A user can build/modify one of their own. +
+QtVCP uses libraries and custom widgets to hide some of the complexity +
+of interfacing to linuxcnc. By using QtVCP's library rather then linuxcnc's, +
+We can mitigate minor linuxcnc code changes. +
+
+== Builtin locations
+
+Builtin screens and panels are stored in separate folders. +
+
+ * screens in share/qtvcp/screens +
+ * panels in share/qtvcp/panels +
+ * Stock images are in share/qtvcp/images +
+
+screens and panels are sorted by their folder name, which is +
+also the name used to load them. +
+Inside the folder would be the .ui file, the handler file and +
+possibly the .qss theme file. +
+
+== QtVCP initial startup
+
+QtVCP source is located in src/emc/usr_intf/qtvcp +
++
+When QtVCP first starts, it must decide if this object is a screen +
+or a panel. Then it searches for and collects information about +
+paths of required files and useful folders. +
+Next, it builds the HAL component, loads the window instance, +
+adds handler extensions and installs an event filter. +
+Now the window/widgets are instantiated, the HAL pins are built, +
+which also initiates the _init_hal() function of the widgets. +
+The handler function initialized__() is called and then the STATUS +
+library is forced to update. Hal component is set ready at this point. +
+A variety of optional switch arguments are set, including calling a +
+POSTGUI HAL file (if a screen). Terminate signals are trapped and +
+QtVCP now polls for events.+
+Finally when QtVCP is asked to shutdown, it calls shutdown functions +
+in the handler file, shuts down STATUS monitoring and kills teh HAL +
+component. +
+
+== Path information
+
+When QtVCP loads it collects Path information: +
+
+ * IMAGEDIR = Path of builtin images +
+ * SCREENDIR = Path of builtin motion controller screens + 
+ * PANELDIR = Path of builtin accessory panels +
+ * WORKINGDIR = Path of where QtVCP was launched from +
+ * CONFIGPATH = Path of the launched configuration +
+ * BASEDIR = general path, used to derive all paths +
+ * BASENAME = Generic name used to derive all paths + 
+ * LIBDIR = Path of QtVCP's python library +
+ * HANDLER = Path of handler file +
+ * XML = Path of .ui file +
+ * DOMAIN = Path of translation +
+ * IS_SCREEN = screen/panel switch +
