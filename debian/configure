@@ -43,7 +43,7 @@ do_posix() {
 do_rt-preempt() {
     cat control.rt-preempt.in >> control
     echo "debian/control:  added RT_PREEMPT threads package" >&2
-    
+
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
@@ -82,9 +82,9 @@ machinekit (${MKVERSION}) ${DISTRO_UC}; urgency=low
 
 EOF
 
-cat changelog # debug output
-cat changelog.in >> changelog
-echo "New package version number added to changelog"
+    cat changelog # debug output
+    cat changelog.in >> changelog
+    echo "New package version number added to changelog"
 }
 
 ## Create source orig tarball in format required for creation of debian tarball and .dsc file
@@ -143,9 +143,9 @@ HAVE_FLAVOR=false
 if [ "$DISTRO_CODENAME" == "stretch" ]; then
     cp control.stretch.in control
 elif [ "$DISTRO_CODENAME" == "buster" ]; then
-    cp control.buster.in control   	
+    cp control.buster.in control
 elif [ "$DISTRO_CODENAME" == "sid" ]; then
-    cp control.sid.in control   	
+    cp control.sid.in control
 else
     cp control.in control
 fi
@@ -176,4 +176,3 @@ echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured
 $HAVE_FLAVOR || usage "WARNING:  No thread flavors configured"
-
