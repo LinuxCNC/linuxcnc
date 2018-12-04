@@ -26,6 +26,11 @@ rules_enable_threads() {
     # enable thread flavors in debian/rules; e.g.
     #    THREADS_POSIX = --with-posix
     # ...unnecessary for control-only
+    if test -n "$MK_CROSS_BUILDER"; then
+        # Reduce file req'ts in mk-cross-builder
+        echo "debian/rules:  skip ${FLAVOR} config in mk-cross-builder" >&2
+        return
+    fi
     FLAVOR=$1
     FLAVOR_VAR=THREADS_$(echo $FLAVOR | tr 'a-z-' 'A-Z_')
     sed -i rules \
@@ -150,11 +155,13 @@ else
     cp control.in control
 fi
 
-echo "debian/control:  copied base template" >&2
-cp rules.in rules; chmod +x rules
-echo "debian/rules:  copied base template" >&2
-cp machinekit.install.in machinekit.install
-echo "debian/machinekit.install.in:  copied base template" >&2
+if test -z "$MK_CROSS_BUILDER"; then # Reduce file req'ts in mk-cross-builder
+    echo "debian/control:  copied base template" >&2
+    cp rules.in rules; chmod +x rules
+    echo "debian/rules:  copied base template" >&2
+    cp machinekit.install.in machinekit.install
+    echo "debian/machinekit.install.in:  copied base template" >&2
+fi
 
 # read command line options
 while getopts prxcsd?h ARG; do
