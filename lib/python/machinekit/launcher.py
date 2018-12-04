@@ -279,10 +279,10 @@ def _check_for_non_zombie_process(program):
         ).strip()
         lines = ps_out.split('\n')
         for line in lines:
-            pid, status = line.split(' ')
+            pid, status = line.strip().split(' ')
             if status != 'Z':
                 return True
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         pass
     return False
 
