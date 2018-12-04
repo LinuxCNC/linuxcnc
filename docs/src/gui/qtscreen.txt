@@ -291,8 +291,7 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.stat = linuxcnc.stat()
-        self.cmnd = linuxcnc.command()
+        self.CONFIG_PATH = paths.CONFIGPATH
         self.jog_velocity = 10.0
 
         # connect to GStat to catch linuxcnc events
@@ -306,9 +305,10 @@ class HandlerClass:
     # at this point:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
-    # you could still make arbritrary HAL pins here
+    # you could still make arbitrary HAL pins here
     def initialized__(self):
-        STATUS.forced_update()
+        if self.w.PREFS_:
+            print 'Using preference file:',self.w.PREFS_.fn
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -421,8 +421,12 @@ This is the definitions on the handler class. +
 
 === INITIALIZE section
 Like all python libraies the __init__ function is called when the library +
-is first instaniated. You can defaults and reference variables here. +
+is first instantiated. You can set defaults and reference variables here. +
 The widget references are not available at this point. +
+The variables halcomp, widgets and paths give access to qtvcp's HAL component, +
+widgets, and path info respectably. +
+This is where you would set up global variables. +
+Widgets are not actually accessible at this point. +
 
 === SPECIAL FUNCTIONS section
 There are several special functions that qtvcp looks for in the handler file. +
@@ -430,12 +434,13 @@ If qtvcp finds these it will call them, if not it will silently ignore them. +
 
 ==== initialized__(self):
 This function is called after the widgets and HAL pins are built +
-    You can manipulate the widgets and HAL pins or add more HAL pins here. +
-    Typically preferences can be checked and set, styles applied to  +
-    widgets or status of linuxcnc be connected to functions. +
+You can manipulate the widgets and HAL pins or add more HAL pins here. +
+Typically preferences can be checked and set, styles applied to  +
+widgets or status of linuxcnc be connected to functions. +
+This is also where keybindings would be added. +
     
 ==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
-This function is called to fascilitate keyboard jogging etc. +
+This function is called to facilitate keyboard jogging etc. +
 By using the keybindings library this can be used to easily add +
 functions bound to keypresses.+
 
