@@ -50,10 +50,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         # check for probing subroutine path in INI and if they exist
         try:
             tpath = os.path.expanduser(INFO.SUB_PATH)
-            path = os.path.join(tpath, '')
+            self.path = os.path.join(tpath, '')
             # look for NGC macros in path
-            for f in os.listdir(path):
-                print f
+            for f in os.listdir(self.path):
                 if f.endswith('.ngc'):
                     # TODO check if they exist
                     break
@@ -61,8 +60,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             if INFO.SUB_PATH is None:
                 LOG.error("No 'SUBROUTINE_PATH' entry in the INI file for Versa_probe Macros")
             else:
-                LOG.error('No Versa_probe Macros found in: {}\n{}'.format(path, e))
-            path = 'None'
+                LOG.error('No Versa_probe Macros found in: {}\n{}'.format(self.path, e))
+            self.path = 'None'
 
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -89,113 +88,137 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     # Y+Y+ 
     def on_angle_yp_released(self):
         print 'angle_yp_released'
-        self.read_page_data()
-        self.probe_angle_yp()
+        result = self.read_page_data()
+        if result:
+            self.probe_angle_yp()
 
     # Y-Y- 
     def on_angle_ym_released(self):
         print 'angle_ym_released'
-        self.read_page_data()
-        self.probe_angle_ym()
+        result = self.read_page_data()
+        if result:
+            self.probe_angle_ym()
 
     # X+X+ 
     def on_angle_xp_released(self):
         print 'angle_xp_released'
-        self.read_page_data()
-        self.probe_angle_xp()
+        result = self.read_page_data()
+        if result:
+            self.probe_angle_xp()
 
     # X-X- 
     def on_angle_xm_released(self):
         print 'angle_xm_released'
-        self.read_page_data()
-        self.probe_angle_xm()
+        result = self.read_page_data()
+        if result:
+            self.probe_angle_xm()
 
     ###### inside #######################
     def on_xpyp1_released(self):
         print 'xpyp1_released'
-        self.read_page_data()
-        self.probe_inside_xpyp()
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_xpyp()
     def on_xpym1_released(self):
         print 'xpym1_released'
-        self.read_page_data()
-        self.probe_inside_xpym()
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_xpym()
     def on_ym1_released(self):
         print 'ym1_released'
-        self.read_page_data()
-        self.probe_ym()
+        result = self.read_page_data()
+        if result:
+            self.probe_ym()
     def on_xp1_released(self):
         print 'xp1_released'
-        self.read_page_data()
-        self.probe_xp()
+        result = self.read_page_data()
+        if result:
+            self.probe_xp()
     def on_xmym1_released(self):
         print 'xmym1_released'
-        self.read_page_data()
-        self.probe_inside_xmym()
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_xmym()
     def on_xm1_released(self):
         print 'xm1_released'
-        self.read_page_data()
-        self.probe_xm()
+        result = self.read_page_data()
+        if result:
+            self.probe_xm()
     def on_xmyp1_released(self):
         print 'xmyp1_released'
-        self.read_page_data()
-        self.probe_inside_xmtp()
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_xmtp()
     def on_yp1_released(self):
         print 'yp1_released'
-        self.read_page_data()
-        self.probe_yp()
+        result = self.read_page_data()
+        if result:
+            self.probe_yp()
     def on_xy_hole_released(self):
         print 'xy_hole_released'
-        self.read_page_data()
-        self.probe_xy_hole()
+        result = self.read_page_data()
+        if result:
+            self.probe_xy_hole()
 
     ####### outside #######################
     def on_xpyp_released(self):
         print 'xpyp_released'
-        self.read_page_data()
-        self.probe_outside_xpyp()
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_xpyp()
     def on_xp_released(self):
         print 'xp_released'
-        self.read_page_data()
-        self.probe_xp()
+        result = self.read_page_data()
+        if result:
+            self.probe_xp()
     def on_xpym_released(self):
         print 'xpym_released'
-        self.read_page_data()
-        self.probe_outside_xpym()
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_xpym()
     def on_ym_released(self):
         print 'ym_released'
-        self.read_page_data()
-        self.probe_ym()
+        result = self.read_page_data()
+        if result:
+            self.probe_ym()
     def on_yp_released(self):
         print 'yp_released'
-        self.read_page_data()
-        self.probe_yp()
+        result = self.read_page_data()
+        if result:
+            self.probe_yp()
     def on_xmym_released(self):
         print 'xmym_released'
-        self.read_page_data()
-        self.probe_outside_xmym()
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_xmym()
     def on_xm_released(self):
         print 'xm_released'
-        self.read_page_data()
-        self.probe_xm()
+        result = self.read_page_data()
+        if result:
+            self.probe_xm()
     def on_xmyp_released(self):
         print 'xmyp_released'
-        self.read_page_data()
-        self.probe_outside_xmyp()
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_xmyp()
     def on_xy_center_released(self):
         print 'xy_center_released'
-        self.read_page_data()
-        self.probe_xy_hole()
+        result = self.read_page_data()
+        if result:
+            self.probe_xy_hole()
 
     ####### straight #######################
     def on_down_released(self):
         print 'down_released'
-        self.read_page_data()
-        self.probe_down()
+        result = self.read_page_data()
+        if result:
+            self.probe_down()
 
 #####################################################
 # Helper functions
 #####################################################
     def read_page_data(self):
+
         for i in (['input_z_clearance','input_xy_clearance',
                     'input_edge_length','input_probe_diam',
                     'input_max_travel','input_latch_return_dist',
@@ -206,6 +229,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             #print self[i]
             #print float(self[i].text())
             self['data_'+ i] = float(self[i].text())
+        # If no path to probe Owords we can't probe...
+        if self.path is not None:
+            return True
+        LOG.error("No 'SUBROUTINE_PATH' entry in the INI file for Versa_probe Macros")
 
     def z_clearance_up(self):
         # move Z + z_clearance
