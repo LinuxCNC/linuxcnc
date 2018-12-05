@@ -6,780 +6,49 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>676</width>
-    <height>487</height>
+    <width>619</width>
+    <height>421</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>619</width>
+    <height>421</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QFrame" name="frame_probing">
      <property name="frameShape">
-      <enum>QFrame::WinPanel</enum>
+      <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QStackedWidget" name="stackedWidget_6">
+     <widget class="QFrame" name="frame_settings">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>450</width>
-        <height>210</height>
-       </rect>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="probing_panel_inside_outside">
-       <widget class="QFrame" name="frame_8">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>450</width>
-          <height>182</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::WinPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <widget class="QFrame" name="frame_probing_outside_measure">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>0</y>
-           <width>154</width>
-           <height>175</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="PushButton" name="xpyp">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xpym">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xp">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="yp">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="ym">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xy_center">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/center.png</normaloff>../../../../share/qtvcp/images/probe_icons/center.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xmyp">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xmym">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xm">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_probing_outside_measure">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>154</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QLabel" name="label_outside_measure">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>154</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Outside Measurements</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-        </widget>
-        <widget class="QFrame" name="frame_probing_rotation_edge">
-         <property name="geometry">
-          <rect>
-           <x>338</x>
-           <y>0</y>
-           <width>102</width>
-           <height>123</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="PushButton" name="angle_xp">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="angle_yp">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="angle_ym">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_rotation_label">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>91</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QLabel" name="label_rotation_label">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>102</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Skew Measure</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-         <widget class="PushButton" name="angle_xm">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-        </widget>
-        <widget class="QFrame" name="frame_probing_inside_measure">
-         <property name="geometry">
-          <rect>
-           <x>174</x>
-           <y>0</y>
-           <width>154</width>
-           <height>175</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="PushButton" name="xmym1">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xmyp1">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xm1">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="ym1">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="yp1">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xy_hole">
-          <property name="geometry">
-           <rect>
-            <x>52</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xpym1">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>125</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xpyp1">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>21</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="PushButton" name="xp1">
-          <property name="geometry">
-           <rect>
-            <x>104</x>
-            <y>73</y>
-            <width>50</width>
-            <height>50</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>48</width>
-            <height>48</height>
-           </size>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_probing_inside_label">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>151</width>
-            <height>21</height>
-           </rect>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="QLabel" name="label_inside_measure">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>154</width>
-             <height>21</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Inside Measurements</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </widget>
-        </widget>
-        <widget class="PushButton" name="down">
-         <property name="geometry">
-          <rect>
-           <x>363</x>
-           <y>125</y>
-           <width>50</width>
-           <height>50</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../../../../share/qtvcp/images/probe_icons/down.png</normaloff>../../../../share/qtvcp/images/probe_icons/down.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>48</width>
-           <height>48</height>
-          </size>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-         <property name="indicator_option" stdset="0">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="probing_panel_rotation">
-       <widget class="QFrame" name="frame_probing_rotation">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>450</width>
-          <height>210</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <widget class="PushButton" name="pbtn_probing_auto_zero_3">
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>210</y>
-           <width>50</width>
-           <height>42</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Auto
-Zero</string>
-         </property>
-        </widget>
-       </widget>
-      </widget>
-     </widget>
-     <widget class="QFrame" name="frame">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>297</y>
-        <width>598</width>
+        <y>298</y>
+        <width>600</width>
         <height>102</height>
        </rect>
       </property>
@@ -789,11 +58,11 @@ Zero</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="lb_probe_z_2">
+      <widget class="QLabel" name="lab_z_2">
        <property name="geometry">
         <rect>
-         <x>464</x>
-         <y>46</y>
+         <x>479</x>
+         <y>48</y>
          <width>33</width>
          <height>21</height>
         </rect>
@@ -805,10 +74,10 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_clearances">
+      <widget class="QLabel" name="lab_clearances">
        <property name="geometry">
         <rect>
-         <x>496</x>
+         <x>512</x>
          <y>2</y>
          <width>80</width>
          <height>17</height>
@@ -834,11 +103,11 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="labprobing_xy">
+      <widget class="QLabel" name="lab_xy">
        <property name="geometry">
         <rect>
-         <x>464</x>
-         <y>22</y>
+         <x>479</x>
+         <y>24</y>
          <width>33</width>
          <height>21</height>
         </rect>
@@ -850,26 +119,26 @@ Zero</string>
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_length">
+      <widget class="QLabel" name="lab_length">
        <property name="geometry">
         <rect>
-         <x>332</x>
+         <x>306</x>
          <y>24</y>
-         <width>41</width>
+         <width>86</width>
          <height>21</height>
         </rect>
        </property>
        <property name="text">
-        <string>Length</string>
+        <string>length</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_side_edge">
+      <widget class="QLabel" name="lab_side_edge">
        <property name="geometry">
         <rect>
-         <x>380</x>
+         <x>397</x>
          <y>2</y>
          <width>74</width>
          <height>18</height>
@@ -895,12 +164,12 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_rates">
+      <widget class="QLabel" name="lab_rates">
        <property name="geometry">
         <rect>
-         <x>251</x>
+         <x>241</x>
          <y>2</y>
-         <width>74</width>
+         <width>78</width>
          <height>18</height>
         </rect>
        </property>
@@ -924,10 +193,10 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_search_vel">
+      <widget class="QLabel" name="lab_search_vel">
        <property name="geometry">
         <rect>
-         <x>188</x>
+         <x>182</x>
          <y>24</y>
          <width>58</width>
          <height>21</height>
@@ -940,11 +209,11 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_probe_vel">
+      <widget class="QLabel" name="lab_probe_vel">
        <property name="geometry">
         <rect>
-         <x>188</x>
-         <y>46</y>
+         <x>182</x>
+         <y>48</y>
          <width>58</width>
          <height>21</height>
         </rect>
@@ -956,12 +225,12 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_ball_diam">
+      <widget class="QLabel" name="lab_ball_diam">
        <property name="geometry">
         <rect>
-         <x>18</x>
+         <x>4</x>
          <y>24</y>
-         <width>83</width>
+         <width>99</width>
          <height>21</height>
         </rect>
        </property>
@@ -972,12 +241,12 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_probe">
+      <widget class="QLabel" name="lab_probe">
        <property name="geometry">
         <rect>
-         <x>106</x>
+         <x>107</x>
          <y>2</y>
-         <width>74</width>
+         <width>48</width>
          <height>18</height>
         </rect>
        </property>
@@ -1001,12 +270,12 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_latch_rtrn_dist">
+      <widget class="QLabel" name="lab_latch_rtrn_dist">
        <property name="geometry">
         <rect>
-         <x>2</x>
+         <x>4</x>
          <y>72</y>
-         <width>98</width>
+         <width>99</width>
          <height>21</height>
         </rect>
        </property>
@@ -1017,12 +286,12 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_max_travel">
+      <widget class="QLabel" name="lab_max_travel">
        <property name="geometry">
         <rect>
-         <x>18</x>
+         <x>4</x>
          <y>48</y>
-         <width>83</width>
+         <width>99</width>
          <height>21</height>
         </rect>
        </property>
@@ -1033,175 +302,10 @@ Zero</string>
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_z_clearance">
-       <property name="geometry">
-        <rect>
-         <x>498</x>
-         <y>48</y>
-         <width>74</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="inputMask">
-        <string>99.9999</string>
-       </property>
-       <property name="text">
-        <string>00.0000</string>
-       </property>
-       <property name="maxLength">
-        <number>7</number>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="input_xy_clearance">
-       <property name="geometry">
-        <rect>
-         <x>498</x>
-         <y>20</y>
-         <width>74</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="inputMask">
-        <string>99.9999</string>
-       </property>
-       <property name="text">
-        <string>00.0000</string>
-       </property>
-       <property name="maxLength">
-        <number>7</number>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="input_edge_length">
-       <property name="geometry">
-        <rect>
-         <x>380</x>
-         <y>24</y>
-         <width>74</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="inputMask">
-        <string>99.9999</string>
-       </property>
-       <property name="text">
-        <string>00.0000</string>
-       </property>
-       <property name="maxLength">
-        <number>7</number>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="input_search_vel">
-       <property name="geometry">
-        <rect>
-         <x>250</x>
-         <y>24</y>
-         <width>74</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="inputMask">
-        <string>99.9999</string>
-       </property>
-       <property name="text">
-        <string>00.0000</string>
-       </property>
-       <property name="maxLength">
-        <number>7</number>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="input_probe_vel">
-       <property name="geometry">
-        <rect>
-         <x>250</x>
-         <y>48</y>
-         <width>74</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="cursor">
-        <cursorShape>IBeamCursor</cursorShape>
-       </property>
-       <property name="inputMask">
-        <string>99.9999</string>
-       </property>
-       <property name="text">
-        <string>00.0000</string>
-       </property>
-       <property name="maxLength">
-        <number>7</number>
-       </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QLineEdit" name="input_probe_diam">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>106</x>
          <y>24</y>
          <width>74</width>
          <height>23</height>
@@ -1234,7 +338,7 @@ Zero</string>
       <widget class="QLineEdit" name="input_max_travel">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>106</x>
          <y>48</y>
          <width>74</width>
          <height>23</height>
@@ -1267,7 +371,7 @@ Zero</string>
       <widget class="QLineEdit" name="input_latch_return_dist">
        <property name="geometry">
         <rect>
-         <x>110</x>
+         <x>106</x>
          <y>72</y>
          <width>74</width>
          <height>23</height>
@@ -1297,13 +401,307 @@ Zero</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+      <widget class="QLineEdit" name="input_search_vel">
+       <property name="geometry">
+        <rect>
+         <x>241</x>
+         <y>24</y>
+         <width>78</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_probe_vel">
+       <property name="geometry">
+        <rect>
+         <x>241</x>
+         <y>48</y>
+         <width>78</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_side_edge_length">
+       <property name="geometry">
+        <rect>
+         <x>397</x>
+         <y>24</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_xy_clearances">
+       <property name="geometry">
+        <rect>
+         <x>516</x>
+         <y>24</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_z_clearance">
+       <property name="geometry">
+        <rect>
+         <x>516</x>
+         <y>48</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_panel">
+       <property name="geometry">
+        <rect>
+         <x>500</x>
+         <y>80</y>
+         <width>94</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>x1Probing  Panel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_tool_sensor_height">
+       <property name="geometry">
+        <rect>
+         <x>397</x>
+         <y>72</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_tool_sensor_height">
+       <property name="geometry">
+        <rect>
+         <x>284</x>
+         <y>72</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Tool Sensor Height</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="input_work_probe_height">
+       <property name="geometry">
+        <rect>
+         <x>397</x>
+         <y>48</y>
+         <width>74</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="cursor">
+        <cursorShape>IBeamCursor</cursorShape>
+       </property>
+       <property name="inputMask">
+        <string>99.9999</string>
+       </property>
+       <property name="text">
+        <string>00.0000</string>
+       </property>
+       <property name="maxLength">
+        <number>7</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_work_height">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>48</y>
+         <width>86</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Work Height</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="LED" name="led_probe_function_chk">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>4</y>
+         <width>15</width>
+         <height>15</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="frame_offesets">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>182</y>
-        <width>450</width>
+        <width>341</width>
         <height>116</height>
        </rect>
       </property>
@@ -1313,12 +711,12 @@ Zero</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QFrame" name="frame_5">
+      <widget class="QFrame" name="frame_zero_set">
        <property name="geometry">
         <rect>
-         <x>47</x>
+         <x>13</x>
          <y>10</y>
-         <width>81</width>
+         <width>71</width>
          <height>95</height>
         </rect>
        </property>
@@ -1328,62 +726,83 @@ Zero</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="PushButton" name="pbtn_probing_auto_rotation">
+       <widget class="PushButton" name="pbtn_allow_auto_skew">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>50</y>
-          <width>50</width>
-          <height>44</height>
+          <width>44</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="text">
          <string>Auto
-Rot</string>
+Skew</string>
+        </property>
+        <property name="shortcut">
+         <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
         </property>
        </widget>
-       <widget class="LED" name="led">
+       <widget class="LED" name="led_auto_zero_warning">
         <property name="geometry">
          <rect>
-          <x>60</x>
-          <y>17</y>
+          <x>50</x>
+          <y>14</y>
           <width>15</width>
           <height>15</height>
          </rect>
         </property>
        </widget>
-       <widget class="LED" name="led_2">
+       <widget class="LED" name="led_auto_skew_warning">
         <property name="geometry">
          <rect>
-          <x>60</x>
+          <x>50</x>
           <y>64</y>
           <width>15</width>
           <height>15</height>
          </rect>
         </property>
        </widget>
-       <widget class="PushButton" name="pbtn_probing_auto_zero">
+       <widget class="PushButton" name="pbtn_allow_auto_zero">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>50</width>
-          <height>44</height>
+          <width>44</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="text">
          <string>Auto
 Zero</string>
         </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
+        </property>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_7">
+      <widget class="QFrame" name="frame_angle_adjust">
        <property name="geometry">
         <rect>
-         <x>252</x>
-         <y>59</y>
-         <width>154</width>
-         <height>45</height>
+         <x>191</x>
+         <y>58</y>
+         <width>136</width>
+         <height>46</height>
         </rect>
        </property>
        <property name="frameShape">
@@ -1392,7 +811,7 @@ Zero</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="label_z">
+       <widget class="QLabel" name="label_adjust_angle">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -1406,20 +825,6 @@ Zero</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="PushButton" name="pbtn_probing_offsets_set_angle">
-        <property name="geometry">
-         <rect>
-          <x>80</x>
-          <y>0</y>
-          <width>50</width>
-          <height>44</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Set
-Angle</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="input_adj_angle">
@@ -1455,13 +860,36 @@ Angle</string>
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+       <widget class="PushButton" name="pbtn_set_angle">
+        <property name="geometry">
+         <rect>
+          <x>80</x>
+          <y>2</y>
+          <width>44</width>
+          <height>40</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Set
+Angle</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
+        </property>
+       </widget>
       </widget>
-      <widget class="QFrame" name="frame_probe_offsets">
+      <widget class="QFrame" name="frame_probe">
        <property name="geometry">
         <rect>
-         <x>138</x>
+         <x>87</x>
          <y>10</y>
-         <width>96</width>
+         <width>94</width>
          <height>94</height>
         </rect>
        </property>
@@ -1487,7 +915,7 @@ Angle</string>
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
-       <widget class="QLabel" name="label_offsets">
+       <widget class="QLabel" name="label_adjust">
         <property name="geometry">
          <rect>
           <x>0</x>
@@ -1510,7 +938,7 @@ Angle</string>
          <enum>QFrame::Plain</enum>
         </property>
         <property name="text">
-         <string>Adjust Offsets</string>
+         <string>Adjust offset</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1654,12 +1082,12 @@ Angle</string>
         </property>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_4">
+      <widget class="QFrame" name="frame_buttons">
        <property name="geometry">
         <rect>
-         <x>252</x>
+         <x>191</x>
          <y>10</y>
-         <width>154</width>
+         <width>136</width>
          <height>44</height>
         </rect>
        </property>
@@ -1669,46 +1097,73 @@ Angle</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="PushButton" name="pbtn_probing_offsets_set_z">
+       <widget class="PushButton" name="pbtn_set_x">
         <property name="geometry">
          <rect>
-          <x>104</x>
+          <x>0</x>
           <y>0</y>
-          <width>50</width>
-          <height>44</height>
+          <width>44</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="text">
          <string>Set
-Z</string>
+X</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
         </property>
        </widget>
-       <widget class="PushButton" name="pbtn_probing_offsets_set_y">
+       <widget class="PushButton" name="pbtn_set_y">
         <property name="geometry">
          <rect>
-          <x>52</x>
+          <x>46</x>
           <y>0</y>
-          <width>50</width>
-          <height>44</height>
+          <width>44</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="text">
          <string>Set
 Y</string>
         </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
+        </property>
        </widget>
-       <widget class="PushButton" name="pbtn_probing_offsets_set_x">
+       <widget class="PushButton" name="pbtn_set_z">
         <property name="geometry">
          <rect>
-          <x>0</x>
+          <x>92</x>
           <y>0</y>
-          <width>50</width>
-          <height>44</height>
+          <width>44</width>
+          <height>40</height>
          </rect>
         </property>
         <property name="text">
          <string>Set
-X</string>
+Z</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <property name="indicator_option" stdset="0">
+         <bool>false</bool>
         </property>
        </widget>
       </widget>
@@ -1716,9 +1171,9 @@ X</string>
      <widget class="QFrame" name="frame_6">
       <property name="geometry">
        <rect>
-        <x>450</x>
+        <x>474</x>
         <y>0</y>
-        <width>150</width>
+        <width>126</width>
         <height>298</height>
        </rect>
       </property>
@@ -1728,10 +1183,10 @@ X</string>
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <widget class="QLabel" name="lb_probe_ang">
+      <widget class="QLabel" name="lab_ang">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>266</y>
          <width>42</width>
          <height>21</height>
@@ -1744,10 +1199,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_xn">
+      <widget class="QLabel" name="lab_xn">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>8</y>
          <width>42</width>
          <height>21</height>
@@ -1760,10 +1215,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_xc">
+      <widget class="QLabel" name="lab_xc">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>30</y>
          <width>42</width>
          <height>21</height>
@@ -1776,10 +1231,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_diam">
+      <widget class="QLabel" name="lab_diam">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>244</y>
          <width>42</width>
          <height>21</height>
@@ -1792,10 +1247,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_z">
+      <widget class="QLabel" name="lab_z">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>222</y>
          <width>42</width>
          <height>21</height>
@@ -1808,10 +1263,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_ly">
+      <widget class="QLabel" name="lab_ly">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>170</y>
          <width>42</width>
          <height>21</height>
@@ -1824,10 +1279,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_yc">
+      <widget class="QLabel" name="lab_yc">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>126</y>
          <width>42</width>
          <height>21</height>
@@ -1840,10 +1295,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_xp">
+      <widget class="QLabel" name="lab_xp">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>52</y>
          <width>42</width>
          <height>21</height>
@@ -1856,10 +1311,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_yn">
+      <widget class="QLabel" name="lab_yn">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>104</y>
          <width>42</width>
          <height>21</height>
@@ -1872,10 +1327,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_lx">
+      <widget class="QLabel" name="lab_lx">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>74</y>
          <width>42</width>
          <height>21</height>
@@ -1888,10 +1343,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_yp">
+      <widget class="QLabel" name="lab_yp">
        <property name="geometry">
         <rect>
-         <x>4</x>
+         <x>3</x>
          <y>148</y>
          <width>42</width>
          <height>21</height>
@@ -1904,10 +1359,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_a">
+      <widget class="QLabel" name="status_a">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>266</y>
          <width>74</width>
          <height>21</height>
@@ -1931,10 +1386,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_xp">
+      <widget class="QLabel" name="status_xp">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>52</y>
          <width>74</width>
          <height>21</height>
@@ -1958,10 +1413,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_d">
+      <widget class="QLabel" name="status_d">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>244</y>
          <width>74</width>
          <height>21</height>
@@ -1985,10 +1440,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_xm">
+      <widget class="QLabel" name="status_xm">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>8</y>
          <width>74</width>
          <height>21</height>
@@ -2012,10 +1467,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_lx">
+      <widget class="QLabel" name="status_lx">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>74</y>
          <width>74</width>
          <height>21</height>
@@ -2039,10 +1494,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_yp">
+      <widget class="QLabel" name="status_yp">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>148</y>
          <width>74</width>
          <height>21</height>
@@ -2066,10 +1521,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_xc">
+      <widget class="QLabel" name="status_xc">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>30</y>
          <width>74</width>
          <height>21</height>
@@ -2093,10 +1548,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_z">
+      <widget class="QLabel" name="status_z">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>222</y>
          <width>74</width>
          <height>21</height>
@@ -2120,10 +1575,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_ym">
+      <widget class="QLabel" name="status_ym">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>104</y>
          <width>74</width>
          <height>21</height>
@@ -2147,10 +1602,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_yc">
+      <widget class="QLabel" name="status_yc">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>126</y>
          <width>74</width>
          <height>21</height>
@@ -2174,10 +1629,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_ly">
+      <widget class="QLabel" name="status_ly">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>170</y>
          <width>74</width>
          <height>21</height>
@@ -2201,10 +1656,10 @@ X</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="lb_probe_offset_not_used">
+      <widget class="QLabel" name="status_not_used">
        <property name="geometry">
         <rect>
-         <x>48</x>
+         <x>46</x>
          <y>200</y>
          <width>74</width>
          <height>21</height>
@@ -2229,6 +1684,1088 @@ X</string>
        </property>
       </widget>
      </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>344</x>
+        <y>0</y>
+        <width>130</width>
+        <height>130</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="PushButton" name="pbtn_skew_xp">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_skew_ym">
+       <property name="geometry">
+        <rect>
+         <x>67</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_skew_yp">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_skew_xm">
+       <property name="geometry">
+        <rect>
+         <x>67</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_skewed_label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>130</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Skew Measure</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_inside_measure">
+      <property name="geometry">
+       <rect>
+        <x>172</x>
+        <y>0</y>
+        <width>172</width>
+        <height>182</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="PushButton" name="pbtn_inside_xmym">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xmyp">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xm">
+       <property name="geometry">
+        <rect>
+         <x>6</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_ym">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_yp">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xy_hole">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xpym">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xpyp">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_xp">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QFrame" name="frame_inside_label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>151</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QLabel" name="label_inside_measure">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>172</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Inside Measurements</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_outside_measure">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>172</width>
+        <height>182</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="PushButton" name="pbtn_outside_xpyp">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+Y+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xpym">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+Y-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xp">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_yp">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/Y+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_ym">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/Y-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_center">
+       <property name="geometry">
+        <rect>
+         <x>62</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/xy_center.png</normaloff>../../../../share/qtvcp/images/probe_icons/xy_center.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xmyp">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>125</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-Y+.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xmym">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>21</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-Y-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xm">
+       <property name="geometry">
+        <rect>
+         <x>114</x>
+         <y>73</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/X-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QFrame" name="frame_outside_label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>154</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QLabel" name="label_outside_measure">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>172</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Outside Measurements</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_xpym_3">
+       <property name="geometry">
+        <rect>
+         <x>424</x>
+         <y>19</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../configs/sim/x1Mill/x1Probing/x1Probe_icons/outside_1.png</normaloff>../../../../configs/sim/x1Mill/x1Probing/x1Probe_icons/outside_1.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame">
+      <property name="geometry">
+       <rect>
+        <x>344</x>
+        <y>130</y>
+        <width>130</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="PushButton" name="pbtn_measure_diam">
+       <property name="geometry">
+        <rect>
+         <x>67</x>
+         <y>112</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/tool_dia.png</normaloff>../../../../share/qtvcp/images/probe_icons/tool_dia.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_down">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>112</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/down.png</normaloff>../../../../share/qtvcp/images/probe_icons/down.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_length_x">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>4</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inside_xl.png</normaloff>../../../../share/qtvcp/images/probe_icons/inside_xl.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_inside_length_y">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>56</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/inside_yl.png</normaloff>../../../../share/qtvcp/images/probe_icons/inside_yl.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_length_y">
+       <property name="geometry">
+        <rect>
+         <x>67</x>
+         <y>56</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/outside_yl.png</normaloff>../../../../share/qtvcp/images/probe_icons/outside_yl.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_outside_length_x">
+       <property name="geometry">
+        <rect>
+         <x>67</x>
+         <y>4</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../../../../share/qtvcp/images/probe_icons/outside_xl.png</normaloff>../../../../share/qtvcp/images/probe_icons/outside_xl.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <property name="indicator_option" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -2246,31 +2783,580 @@ X</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pbtn_skew_xp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_skew_xp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>382</x>
+     <y>54</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>368</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_skew_ym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_skew_ym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>442</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>437</x>
+     <y>-13</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_skew_yp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_skew_yp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>373</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>389</x>
+     <y>-3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_skew_xm</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_skew_xm_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>436</x>
+     <y>95</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>352</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xmyp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xmyp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>184</x>
+     <y>37</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>175</x>
+     <y>-3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xmym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xmym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>220</x>
+     <y>131</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>207</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xpyp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xpyp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>289</x>
+     <y>-5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xpym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xpym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>332</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>331</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>312</x>
+     <y>89</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>-5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xm</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xm_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_yp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_yp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>250</x>
+     <y>46</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_xy_hole</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_xy_hole_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_ym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_ym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>5</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xpym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xpym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>18</x>
+     <y>32</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-9</x>
+     <y>35</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_ym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_ym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-3</x>
+     <y>30</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xmym</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xmym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>57</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>60</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>88</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_center</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_center_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>84</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>116</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xm</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xm_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>141</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xpyp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xpym_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>165</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>169</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_yp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_yp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>155</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_xmyp</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_xmyp_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-3</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_length_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_length_x_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>380</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>3</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_length_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_length_x_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>434</x>
+     <y>159</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>32</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_inside_length_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_inside_length_y_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>398</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_outside_length_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_outside_length_y_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>226</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>620</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_down</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_down_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>391</x>
+     <y>274</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>620</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_measure_diam</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_measure_diam_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>444</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>147</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_set_x</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_set_x_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>227</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_set_y</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_set_y_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>252</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>621</x>
+     <y>205</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_set_z</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_set_z_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>319</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>619</x>
+     <y>235</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_set_angle</sender>
+   <signal>released()</signal>
+   <receiver>Form</receiver>
+   <slot>pbtn_set_angle_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>255</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>620</x>
+     <y>267</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
-  <slot>skew_y_neg_released()</slot>
-  <slot>on_angle_xp_released()</slot>
-  <slot>on_angle_yp_released()</slot>
-  <slot>on_angle_ym_released()</slot>
-  <slot>on_angle_xm_released()</slot>
-  <slot>on_xy_hole_released()</slot>
-  <slot>on_down_released()</slot>
-  <slot>on_btn1_set_angle_released()</slot>
-  <slot>on_btn1_set_z_released()</slot>
-  <slot>on_btn1_set_y_released()</slot>
-  <slot>on_btn1_set_x_released()</slot>
-  <slot>on_xmyp1_released()</slot>
-  <slot>on_yp_released()</slot>
-  <slot>on_xpyp1_released()</slot>
-  <slot>on_xp_released()</slot>
-  <slot>on_xm_released()</slot>
-  <slot>on_xmym1_released()</slot>
-  <slot>on_ym_released()</slot>
-  <slot>on_xpym1_released()</slot>
-  <slot>on_xy_center_released()</slot>
-  <slot>on_xmym_released()</slot>
-  <slot>on_xpym_released()</slot>
-  <slot>on_xpyp_released()</slot>
-  <slot>on_xmyp_released()</slot>
+  <slot>pbtn_outside_xpym_released()</slot>
+  <slot>pbtn_outside_ym_released()</slot>
+  <slot>pbtn_outside_xmym_released()</slot>
+  <slot>pbtn_outside_xp_released()</slot>
+  <slot>pbtn_outside_center_released()</slot>
+  <slot>pbtn_outside_xm_released()</slot>
+  <slot>pbtn_outside_xpyp_released()</slot>
+  <slot>pbtn_outside_yp_released()</slot>
+  <slot>pbtn_outside_xmyp_released()</slot>
+  <slot>pbtn_inside_xmyp_released()</slot>
+  <slot>pbtn_inside_xpyp_released()</slot>
+  <slot>pbtn_inside_xy_hole_released()</slot>
+  <slot>pbtn_inside_xmym_released()</slot>
+  <slot>pbtn_inside_xpym_released()</slot>
+  <slot>pbtn_inside_xm_released()</slot>
+  <slot>pbtn_inside_xp_released()</slot>
+  <slot>pbtn_inside_ym_released()</slot>
+  <slot>pbtn_inside_yp_released()</slot>
+  <slot>pbtn_skew_xp_released()</slot>
+  <slot>pbtn_skew_ym_released()</slot>
+  <slot>pbtn_skew_yp_released()</slot>
+  <slot>pbtn_skew_xm_released()</slot>
+  <slot>pbtn_down_released()</slot>
+  <slot>pbtn_inside_length_x_released()</slot>
+  <slot>pbtn_outside_length_x_released()</slot>
+  <slot>pbtn_inside_length_y_released()</slot>
+  <slot>pbtn_outside_length_y_released()</slot>
+  <slot>pbtn_measure_diam_released()</slot>
+  <slot>pbtn_allow_auto_zero_toggle()</slot>
+  <slot>pbtn_allow_auto_skew_toggle()</slot>
+  <slot>pbtn_set_x_released()</slot>
+  <slot>pbtn_set_y_released()</slot>
+  <slot>pbtn_set_z_released()</slot>
+  <slot>pbtn_set_angle_released()</slot>
+  <slot>input_adj_x_enter()</slot>
+  <slot>input_adj_y_enter()</slot>
+  <slot>input_adj_z_enter()</slot>
+  <slot>input_adj_angle_enter()</slot>
+  <slot>input_probe_diam_enter()</slot>
+  <slot>input_max_travel_enter()</slot>
+  <slot>input_latch_return_dist_enter()</slot>
+  <slot>input_search_vel_enter()</slot>
+  <slot>input_probe_vel_enter()</slot>
+  <slot>input_side_edge_length_enter()</slot>
+  <slot>input_xy_clearances_enter()</slot>
+  <slot>input_z_clearance_enter()</slot>
+  <slot>input_tool_sensor_height_enter()</slot>
+  <slot>input_work_probe_height_enter()</slot>
+  <slot>status_z_setText()</slot>
+  <slot>status_not_used_setText()</slot>
+  <slot>status_yc_setText()</slot>
+  <slot>status_a_setText()</slot>
+  <slot>status_yp_setText()</slot>
+  <slot>status_xm_setText()</slot>
+  <slot>status_xc_setText()</slot>
+  <slot>status_lx_setText()</slot>
+  <slot>status_ly_setText()</slot>
+  <slot>status_d_setText()</slot>
+  <slot>status_ym_setText()</slot>
+  <slot>status_xp_setText()</slot>
  </slots>
 </ui>
