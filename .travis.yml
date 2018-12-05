@@ -48,7 +48,7 @@ services:
   - docker
 
 before_install:
-  - .travis/check_sftp.sh 
+  - .travis/check_sftp.sh
 
 env:
   global:

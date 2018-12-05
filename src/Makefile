@@ -371,7 +371,8 @@ DEBUG := -g -Wall -funwind-tables
 PROFILE_CFLAGS :=
 PROFILE_LDFLAGS :=
 
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(PROFILE_CFLAGS) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(DPKG_CFLAGS) $(PROFILE_CFLAGS) \
+	-DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
 
 # enable runtime comparison of GIT_CONFIG_SHA (config.h) and GIT_BUILD_SHA
 CFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
@@ -392,7 +393,7 @@ BASE_CXXFLAGS:= $(INCLUDE) $(CXXFLAGS) \
 		$(ARCH_CFLAGS)
 
 CXXFLAGS :=   $(BASE_CXXFLAGS) -DULAPI
-RT_CXXFLAGS :=   $(BASE_CXXFLAGS) 
+RT_CXXFLAGS :=   $(BASE_CXXFLAGS)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS += -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -1672,7 +1673,8 @@ $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $(threads) $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DPKG_CFLAGS) $(DEBUG) \
+	    $(EXTRA_CFLAGS) $< -o $@
 
 # Rules to make .o (object) files from .cc
 $(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
