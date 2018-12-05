@@ -1,0 +1,3 @@
+#!/bin/bash
+# This test doesn't work reliably, especially on Travis CI.
+exit 1
