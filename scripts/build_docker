@@ -125,7 +125,7 @@ case $CMD in
 	)
 	;;
     "test") # RIP build and regression tests
-	if "$TEST_DEBUG" = true; then
+	if test "$TEST_DEBUG" = true; then
 	    DOCKER_EXTRA_OPTS=( -e MSGD_OPTS=-s -e DEBUG=5 )
 	fi
 	TEST_ARGS="${TEST_ARGS:-tests}"
