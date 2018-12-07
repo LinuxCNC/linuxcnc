@@ -89,7 +89,8 @@ TARGETS += ../lib/python/machinekit/shmcommon.so
 	$(Q)$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
 
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
-	$(CYTHON) -o $@ $<
+	$(ECHO) Cython compiling $<
+	$(Q)$(CYTHON) -o $@ $<
 
 clean: cython-clean
 cython-clean:

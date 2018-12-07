@@ -818,9 +818,11 @@ endif
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
 ../include/%.h: %.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
 	$(Q)-cp $^ $@
 ../include/%.hh: %.hh
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
 	$(Q)-cp $^ $@
 
@@ -1665,7 +1667,7 @@ $(RTLIBDIR)/%.so:
 
 $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 	@mkdir -p $(dir $@)
-	$(ECHO) Depending $<
+	$(ECHO) Depending realtime $(threads) $<
 	$(Q)$(call DEP,$(CC),$@ \
 		$(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) \
 		$(DEBUG) $(CPPFLAGS) $(EXTRA_CFLAGS) $<)

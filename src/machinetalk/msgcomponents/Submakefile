@@ -40,7 +40,8 @@ endif
 
 
 ../include/%.h: ./$(MSGCOMP_DIR)/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 # ifeq ($(BUILD_EXAMPLES),yes)
 

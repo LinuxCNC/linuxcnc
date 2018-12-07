@@ -65,8 +65,7 @@ halcomp-srcs/%.c: %.icomp ../bin/instcomp
 	$(Q)../bin/instcomp --require-license -o $@ $<
 
 halcomp-srcs/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
-	$(ECHO) "Creating $(notdir $@)"
-	$(ECHO) "Creating $@"
+	$(ECHO) "Generating icomp build rules for $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
 	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp

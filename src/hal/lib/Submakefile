@@ -5,7 +5,8 @@ INCLUDES += $(PBDIR)
 LIBS := ../lib
 
 ../include/%.h: ./hal/lib/%.h
-	cp $< $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $< $@
 
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \

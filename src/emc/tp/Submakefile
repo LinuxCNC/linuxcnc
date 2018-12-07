@@ -3,9 +3,11 @@ INCLUDES += $(TP_DIR)
 
 
 ../include/%.h: ./$(TP_DIR)/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./$(TP_DIR)/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 
 # obj-m += tp.o

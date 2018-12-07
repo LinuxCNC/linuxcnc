@@ -146,7 +146,7 @@ install_cpp: $(PROTO_CXX_INCS)
 install: install_proto install_cpp
 
 $(OBJDIR)/%.d: $(SRCDIR)/%.proto
-	$(ECHO) "protoc create dependencies for $<"
+	$(ECHO) "protoc compile dependencies for $<"
 	@mkdir -p $(OBJDIR)/
 	$(Q)$(PROTOC) \
 		--plugin=protoc-gen-depends=scripts/protoc-gen-depends \
@@ -160,7 +160,7 @@ $(OBJDIR)/%.d: $(SRCDIR)/%.proto
 # generate .cc/.h from proto files
 # for command.proto, generated files are: command.pb.cc	command.pb.h
 $(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: $(SRCDIR)/%.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile C++ $<"
 	@mkdir -p $(CXXGEN)
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
 	--proto_path=$(SRCDIR)/ \
@@ -175,7 +175,7 @@ $(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: $(SRCDIR)/%.proto
 #
 # generate Python modules from proto files
 $(PYGEN)/%_pb2.py: $(SRCDIR)/%.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile python $<"
 	@mkdir -p $(PYGEN)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 		--proto_path=$(SRCDIR)/ \
@@ -192,7 +192,7 @@ $(PYGEN)/%/__init__.py:
 # generate Java packages from proto files
 define java_from_proto
 $(call uppercase_file,$(1:$(SRCDIR)/%.proto=$(JAVAGEN)/%.java)): $1
-	$(ECHO) "protoc create $$@ from $$<"
+	$(ECHO) "protoc compile java $$<"
 	@mkdir -p $(JAVAGEN)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 		--proto_path=$(SRCDIR)/ \
@@ -210,7 +210,7 @@ $(foreach PROTO,$(PROTO_SPECS),$(eval $(call java_from_proto,$(PROTO))))
 # generate $(DOCFORMAT) files from proto files
 $(DOC_TARGET): $(wildcard $(SRCDIR)/*.proto)
 #doc_base:
-	$(ECHO) "protoc create $@ from *.proto"
+	$(ECHO) "protoc compile doc *.proto"
 	@mkdir -p $(DOCGEN)
 	$(Q)cd $(SRCDIR); \
 	$(PROTOC) $(PROTOC_FLAGS) \

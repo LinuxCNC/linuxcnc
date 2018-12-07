@@ -12,6 +12,8 @@ TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
 	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
 ../include/%.h: ./libnml/posemath/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./libnml/posemath/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@

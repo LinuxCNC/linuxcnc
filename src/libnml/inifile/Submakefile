@@ -1,9 +1,11 @@
 INCLUDES += libnml/inifile
 
 ../include/%.h: ./libnml/inifile/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./libnml/inifile/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 LIBINISRCS := libnml/inifile/inifile.cc
 $(call TOOBJSDEPS, $(LIBINISRCS)) : EXTRAFLAGS=-fPIC

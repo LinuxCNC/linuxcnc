@@ -58,10 +58,12 @@ TARGETS += ../bin/webtalk
 
 
 ../include/%.h: ./$(WEBTALK_DIR)/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(WEBTALK_DIR)/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 
 EXAMPLE_PLUGIN_SRCS := $(addprefix $(WEBTALK_DIR)/, \
@@ -83,7 +85,7 @@ TARGETS += ../lib/webtalk/plugins/example.o
 ifeq ($(BUILD_DEV),yes)
 
 $(WEBTALK_DIR)/zws.pb.cc $(WEBTALK_DIR)/zws.pb.h:  $(WEBTALK_DIR)/zws.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile C++ $<"
 	@mkdir -p $(PBGEN)
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
 	--proto_path=$(WEBTALK_DIR)/ \
@@ -93,7 +95,7 @@ $(WEBTALK_DIR)/zws.pb.cc $(WEBTALK_DIR)/zws.pb.h:  $(WEBTALK_DIR)/zws.proto
 # generate Python modules from proto files
 # useful for testing client with a Python client
 ../lib/python/zws_pb2.py: $(WEBTALK_DIR)/zws.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile python $<"
 	@mkdir -p ../lib/python
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--proto_path=$(WEBTALK_DIR)/ \
