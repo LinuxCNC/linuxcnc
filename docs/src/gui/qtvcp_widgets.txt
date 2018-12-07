@@ -92,10 +92,21 @@ It is used for widgets that should control HAL pins. +
 
 This is used to switch the view of a multi-widget layout to  show just one widget. +
 This might be used to flip between a large view of a widget or a smaller multi widget view. +
-You must right click the widget in designer to create an initial page. +
+In Designer, you must right click the widget to create an initial page. +
 Then populate it with widgets/layouts you wish to see in a default form. +
-Then specify up to two widgets names for singular view. +
- 
+Then in the property 'widget list' specify widgets names that will be +
+displayed in their own singular view. +
+There are function calls to display specific widgets: +
+
+ * [WidgetSwitcherName].show_id_widget(number)
+ * [WidgetSwitcherName].show_named_widget(widget_name)
+ * [WidgetSwitcherName].show_default()
+ * [WidgetSwitcherName].show_next()
+
+By calling one of these functions, you control what widget +
+is currently displayed. A default layout shows the combined +
+layout, initially built in Designer.+
+
 It is based on the QStack widget. +
 
 == Machine Controller Widgets
