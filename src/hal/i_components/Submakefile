@@ -79,6 +79,8 @@ modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
 	$(ICOMPS))
 endif # BUILD_ALL_FLAVORS == yes
 
+# Regenerate conv_*.icomp when below rules are touched
+$(addprefix hal/i_components/, $(CONVERTERS)): hal/i_components/Submakefile
 
 hal/i_components/conv_float_s32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
