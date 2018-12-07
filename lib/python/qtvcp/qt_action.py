@@ -113,7 +113,7 @@ class _Lcnc_Action(object):
             self.cmd.program_open(str(fname))
         else:
             self.open_filter_program(str(fname), flt)
-        STATUS.emit('reload-display')
+        self.RELOAD_DISPLAY()
 
     def SET_AXIS_ORIGIN(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
@@ -121,7 +121,7 @@ class _Lcnc_Action(object):
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
-        STATUS.emit('reload-display')
+        self.RELOAD_DISPLAY()
 
     def RUN(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -175,10 +175,10 @@ class _Lcnc_Action(object):
             
     def ZERO_G92_OFFSET(self):
         self.CALL_MDI("G92.1")
-        STATUS.emit('reload-display')
+        self.RELOAD_DISPLAY()
     def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
-        STATUS.emit('reload-display')
+        self.RELOAD_DISPLAY()
 
     def RECORD_CURRENT_MODE(self):
         mode = STATUS.get_current_mode()
@@ -243,6 +243,9 @@ class _Lcnc_Action(object):
         self.cmd.set_block_delete(True)
     def SET_BLOCK_DELETE_OFF(self):
         self.cmd.set_block_delete(False)
+
+    def RELOAD_DISPLAY(self):
+        STATUS.emit('reload-display')
 
     ######################################
     # Action Helper functions
