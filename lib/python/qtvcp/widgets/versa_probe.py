@@ -167,6 +167,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         result = self.read_page_data()
         if result:
             self.probe_xy_hole()
+
     def pbtn_inside_length_x_released():
         pass
     def pbtn_inside_length_y_released():
@@ -218,6 +219,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         result = self.read_page_data()
         if result:
             self.probe_xy_hole()
+
     def pbtn_outside_length_x_released(self):
         pass
     def pbtn_outside_length_y_released(self):
@@ -233,15 +235,24 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def pbtn_measure_diam_released(self):
         pass
 
-    ###### set origin ######################
+    ###### set origin offset ######################
     def pbtn_set_x_released(self):
-        pass
+        result = self.read_page_data()
+        if result:
+            self.set_x_offset()
     def pbtn_set_y_released(self):
-        pass
+        result = self.read_page_data()
+        if result:
+            self.set_y_offset()
     def pbtn_set_z_released(self):
-        pass
+        result = self.read_page_data()
+        if result:
+            self.set_z_offset()
     def pbtn_set_angle_released(self):
-        pass
+        result = self.read_page_data()
+        if result:
+            self.set_angle_offset()
+
 #####################################################
 # Helper functions
 #####################################################
@@ -305,7 +316,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_ly.setText("%.4f" % res)
         return res
 
-    def set_zerro(self,s="XYZ",x=0.,y=0.,z=0.):
+    def set_zero(self,s="XYZ",x=0.,y=0.,z=0.):
         if self.pbtn_allow_auto_zero.isChecked() :
             #  Z current position
             tmpz = self.get_position_status(2)
@@ -321,7 +332,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 tmpz = tmpz-z+self.data_input_offs_z
                 c += " Z%s"%tmpz
             ACTION.CALL_MDI_WAIT(c)
-            time.sleep(1)
+            ACTION.RELOAD_DISPLAY()
 
     def rotate_coord_system(self,a=0.):
         if self.pbtn_allow_auto_skew.isChecked() :
@@ -339,16 +350,64 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 s +=  " Y%s"%y      
             s +=  " R%s"%a 
             ACTION.CALL_MDI_WAIT(s)
-            time.sleep(1)
+            ACTION.RELOAD_DISPLAY()
 
     def get_position_status(self, index):
         STATUS.stat.poll()
         return STATUS.stat.position[index]-STATUS.stat.g5x_offset[index] - \
                 STATUS.stat.g92_offset[index] - STATUS.stat.tool_offset[index]
 
+
+    def set_x_offset(self):
+        ACTION.SET_AXIS_ORIGIN('X'.float(self.input_adj_x.text()))
+    def set_y_offset(self):
+        ACTION.SET_AXIS_ORIGIN('Y'.float(self.input_adj_x.text()))
+    def set_z_offset(self):
+        ACTION.SET_AXIS_ORIGIN('Z'.float(self.input_adj_x.text()))
+    def set_angle_offset(self):
+        self.status_a.setText( "%.3f" % float(self.w.input_adj_angle.text()) )
+        s="G10 L2 P0"
+        if self.pbtn_allow_auto_zero.isChecked():
+            s +=  " X%.4f"% float(self.data_input_adj_x)      
+            s +=  " Y%.4f"% float(self.data_input_adj_y)    
+        else :
+            a = STATUS.get_probed_position_with_offsets()
+            s +=  " X%.4f"%a[0]
+            s +=  " Y%.4f"%a[1]
+        s +=  " R%.4f"% float(self.data_input_adj_angle)
+        print "s=",s
+        if ACTION.CALL_MDI_WAIT(s) == -1:
+            return
+
+    def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
+        c = text
+        if "Xm" in s : 
+            c += "X-=%.4f "%xm
+        if "Xc" in s : 
+            c += "Xc=%.4f "%xc
+        if "Xp" in s : 
+            c += "X+=%.4f "%xp
+        if "Lx" in s : 
+            c += "Lx=%.4f "%lx
+        if "Ym" in s : 
+            c += "Y-=%.4f "%ym
+        if "Yc" in s : 
+            c += "Yc=%.4f "%yc
+        if "Yp" in s : 
+            c += "Y+=%.4f "%yp
+        if "Ly" in s : 
+            c += "Ly=%.4f "%ly
+        if "Z" in s : 
+            c += "Z=%.4f "%z
+        if "D" in s : 
+            c += "D=%.4f"%d
+        if "A" in s : 
+            c += "Angle=%.3f"%a
+        STATUS.emit('update-machine-log', c, 'TIME')
+
     def probe(self, name):
         if name == 'down':
-            z_position = None# FIXME find z position ie axis.2.joint-pos-cmd
+            z_position = STATUS.get_probed_position_with_offsets()[2]# z position
             return ACTION.CALL_OWORD("O<%s> call [%s] [%s] [%s] [%s] [%s] [%s] [%s]" % (name,
                                                         self.data_input_search_vel,
                                                         self.data_input_max_travel,
@@ -405,7 +464,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ypres = float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % ypres )
         alfa = math.degrees(math.atan2(ypres-ycres,self.data_input_side_edge_length))
-        ###self.add_history(gtkbutton.get_tooltip_text(),"YcYpA",0,0,0,0,0,ycres,ypres,0,0,0,alfa)
+        self.add_history('Rotation YP ',"YcYpA",0,0,0,0,0,ycres,ypres,0,0,0,alfa)
 
         # move Z to start point
         if self.z_clearance_up() == -1:
@@ -447,7 +506,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ymres = float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % ymres )
         alfa = math.degrees(math.atan2(ycres-ymres,self.data_input_side_edge_length))
-        ###self.add_history(gtkbutton.get_tooltip_text(),"YmYcA",0,0,0,0,ymres,ycres,0,0,0,0,alfa)
+        self.add_history('Rotation YM ',"YmYcA",0,0,0,0,ymres,ycres,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -489,7 +548,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xpres = float(a[0])+0.5*self.data_input_probe_diam
         self.status_xp.setText( "%.4f" % xpres )
         alfa = math.degrees(math.atan2(xcres-xpres,self.data_input_side_edge_length))
-        ###self.add_history(gtkbutton.get_tooltip_text(),"XcXpA",0,xcres,xpres,0,0,0,0,0,0,0,alfa)
+        self.add_history('Rotation XP',"XcXpA",0,xcres,xpres,0,0,0,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -531,7 +590,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xmres = float(a[0])-0.5*self.data_input_probe_diam
         self.status_xm.setText( "%.4f" % xmres )
         alfa = math.degrees(math.atan2(xcres-xmres,self.data_input_side_edge_length))
-        ###self.add_history(gtkbutton.get_tooltip_text(),"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
+        self.add_history('ROTATION XM ',"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -624,14 +683,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_yc.setText( "%.4f" % ycres )
         diam = 0.5*((xpres-xmres)+(ypres-ymres))
         self.status_d.setText( "%.4f" % diam )
-        ###self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
+        self.add_history('INSIDE HOLE ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
         # move to center
         s = "G1 F%s Y%f" % (self.data_input_rapid_vel, ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
         # move Z to start point
         self.z_clearance_up()
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # Corners
     # Move Probe manual under corner 2-3 mm
@@ -669,7 +728,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % yres )
         self.length_y()
-        #self.add_history(gtkbutton.get_tooltip_text(),"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        self.add_history('Inside_XPYP ',"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -677,7 +736,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X+Y-
     def probe_inside_xpym(self):
@@ -713,7 +772,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % yres )
         self.length_y()
-        #self.add_history(gtkbutton.get_tooltip_text(),"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        self.add_history('Inside_XPYM ',"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -721,7 +780,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X-Y+
     def probe_inside_xmyp(self):
@@ -758,7 +817,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % yres )
         self.length_y()
-        #self.add_history(gtkbutton.get_tooltip_text(),"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        self.add_history('Inside_XMYP',"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -766,7 +825,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X-Y-
     def probe_inside_xmym(self):
@@ -802,7 +861,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % yres )
         self.length_y()
-        #self.add_history(gtkbutton.get_tooltip_text(),"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        self.add_history('Inside_XMYM',"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
@@ -810,7 +869,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
 
 ###################################
@@ -834,7 +893,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xres=float(a[0]+0.5*self.data_input_probe_diam)
         self.status_xp.setText( "%.4f" % xres )
         self.length_x()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLx",0,0,xres,self.length_x(),0,0,0,0,0,0,0)
+        self.add_history('Outside XP ',"XpLx",0,0,xres,self.length_x(),0,0,0,0,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -842,7 +901,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f" % (self.data_input_rapid_vel, xres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("X")
+        self.set_zero("X")
 
     # Y+
     def probe_yp(self):
@@ -861,7 +920,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % yres )
         self.length_y()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"YpLy",0,0,0,0,0,0,yres,self.length_y(),0,0,0)
+        self.add_history('Outside YP ',"YpLy",0,0,0,0,0,0,yres,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -869,7 +928,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s Y%f" % (self.data_input_rapid_vel, yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("Y")
+        self.set_zero("Y")
 
     # X-
     def probe_xm(self):
@@ -888,7 +947,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         xres=float(a[0]-0.5*self.data_input_probe_diam)
         self.status_xm.setText( "%.4f" % xres )
         self.length_x()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLx",xres,0,0,self.length_x(),0,0,0,0,0,0,0)
+        self.add_history('Outside XM ',"XmLx",xres,0,0,self.length_x(),0,0,0,0,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -896,7 +955,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f" % (self.data_input_rapid_vel, xres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("X")
+        self.set_zero("X")
 
     # Y-
     def probe_ym(self):
@@ -915,7 +974,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % yres )
         self.length_y()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"YmLy",0,0,0,0,yres,0,0,self.length_y(),0,0,0)
+        self.add_history('Outside YM ',"YmLy",0,0,0,0,yres,0,0,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -923,7 +982,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s Y%f" % (self.data_input_rapid_vel, yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("Y")
+        self.set_zero("Y")
 
     # Corners
     # Move Probe manual under corner 2-3 mm
@@ -966,7 +1025,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % yres )
         self.length_y()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        self.add_history('Outside XPYP ',"XpLxYpLy",0,0,xres,self.length_x(),0,0,yres,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -974,7 +1033,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X+Y-
     def probe_outside_xpym(self):
@@ -1014,7 +1073,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % yres )
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        self.add_history('Outside XPYM ',"XpLxYmLy",0,0,xres,self.length_x(),yres,0,0,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -1022,7 +1081,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X-Y+
     def probe_outside_xmyp(self):
@@ -1063,7 +1122,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])+0.5*self.data_input_probe_diam
         self.status_yp.setText( "%.4f" % yres )
         self.length_y()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
+        self.add_history('Outside XMYP ',"XmLxYpLy",xres,0,0,self.length_x(),0,0,yres,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -1071,7 +1130,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # X-Y-
     def probe_outside_xmym(self):
@@ -1112,7 +1171,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         yres=float(a[1])-0.5*self.data_input_probe_diam
         self.status_ym.setText( "%.4f" % yres )
         self.length_y()
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
+        self.add_history('Outside XMYM ',"XmLxYmLy",xres,0,0,self.length_x(),yres,0,0,self.length_y(),0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -1120,7 +1179,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s X%f Y%f" % (self.data_input_rapid_vel, xres,yres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
     # Center X+ X- Y+ Y-
     def probe_outside_xy_center(self):
@@ -1216,7 +1275,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_yc.setText( "%.4f" % ycres )
         diam=0.5*((xmres-xpres)+(ymres-ypres))
         self.status_d.setText( "%.4f" % diam )
-        ##self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
+        self.add_history('Outside Hole ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,self.length_x(),ymres,ycres,ypres,self.length_y(),0,diam,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -1224,7 +1283,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s = "G1 F%s Y%f" % (self.data_input_rapid_vel, ycres)
         if ACTION.CALL_MDI_WAIT(s) == -1:
             return
-        self.set_zerro("XY")
+        self.set_zero("XY")
 
 
 ###################################
@@ -1237,8 +1296,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         a = STATUS.get_probed_position_with_offsets()
         self.status_z.setText( "%.4f" % float(a[2]) )
-        ###self.add_history(gtkbutton.get_tooltip_text(),"Z",0,0,0,0,0,0,0,0,a[2],0,0)
-        self.set_zerro("Z",0,0,a[2])
+        self.add_history('Straight Down ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        self.set_zero("Z",0,0,a[2])
 
 ########################################
 # required boiler code

@@ -3296,6 +3296,38 @@ Z</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pbtn_allow_auto_skew</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>led_auto_skew_warning</receiver>
+   <slot>setState(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>266</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>68</x>
+     <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_allow_auto_zero</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>led_auto_zero_warning</receiver>
+   <slot>setState(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>35</x>
+     <y>210</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>69</x>
+     <y>212</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>pbtn_outside_xpym_released()</slot>
@@ -3326,8 +3358,8 @@ Z</string>
   <slot>pbtn_inside_length_y_released()</slot>
   <slot>pbtn_outside_length_y_released()</slot>
   <slot>pbtn_measure_diam_released()</slot>
-  <slot>pbtn_allow_auto_zero_toggle()</slot>
-  <slot>pbtn_allow_auto_skew_toggle()</slot>
+  <slot>pbtn_allow_auto_zero_toggle(bool)</slot>
+  <slot>pbtn_allow_auto_skew_toggle(bool)</slot>
   <slot>pbtn_set_x_released()</slot>
   <slot>pbtn_set_y_released()</slot>
   <slot>pbtn_set_z_released()</slot>
