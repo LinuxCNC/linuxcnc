@@ -506,6 +506,127 @@ influences, the hardware buttons will activate different functions, and you
 don't have to take care about switching functions around in hal, because that
 is done completely by gmoccapy!
 
+for a 3 axis XYZ machine the hal pin will react as follows:
+
+in manual mode:
+
+* gmoccapy.h-button.button-0 == open homing button
+* gmoccapy.h-button.button-1 == open touch off stuff
+* gmoccapy.h-button.button-2 ==
+* gmoccapy.h-button.button-3 == open tool dialogs
+* gmoccapy.h-button.button-4 ==
+* gmoccapy.h-button.button-5 ==
+* gmoccapy.h-button.button-6 ==
+* gmoccapy.h-button.button-7 ==
+* gmoccapy.h-button.button-8 == full-size preview
+* gmoccapy.h-button.button-9 == exit if machine is off, otherwise no reaction
+
+in mdi mode:
+
+* gmoccapy.h-button.button-0 == macro_0 or nothing
+* gmoccapy.h-button.button-1 == macro_1 or nothing
+* gmoccapy.h-button.button-2 == macro_2 or nothing
+* gmoccapy.h-button.button-3 == macro_3 or nothing
+* gmoccapy.h-button.button-4 == macro_4 or nothing
+* gmoccapy.h-button.button-5 == macro_5 or nothing
+* gmoccapy.h-button.button-6 == macro_6 or nothing
+* gmoccapy.h-button.button-7 == macro_7 or nothing
+* gmoccapy.h-button.button-8 == macro_8 or nothing
+* gmoccapy.h-button.button-9 == open keyboard or abort if macro is running
+
+in auto mode
+
+* gmoccapy.h-button.button-0 == open file
+* gmoccapy.h-button.button-1 == run
+* gmoccapy.h-button.button-2 == stop
+* gmoccapy.h-button.button-3 == pause
+* gmoccapy.h-button.button-4 == step by step
+* gmoccapy.h-button.button-5 == run from line if enabled in settings, otherwise Nothing
+* gmoccapy.h-button.button-6 == optional blocks
+* gmoccapy.h-button.button-7 == optional stops M1
+* gmoccapy.h-button.button-8 == full-size preview
+* gmoccapy.h-button.button-9 == edit code
+
+in settings mode:
+
+* gmoccapy.h-button.button-0 == delete MDI history
+* gmoccapy.h-button.button-1 ==
+* gmoccapy.h-button.button-2 ==
+* gmoccapy.h-button.button-3 ==
+* gmoccapy.h-button.button-4 == open classic ladder
+* gmoccapy.h-button.button-5 == open hal scope
+* gmoccapy.h-button.button-6 == open hal status
+* gmoccapy.h-button.button-7 == open hal meter
+* gmoccapy.h-button.button-8 == open hal calibration
+* gmoccapy.h-button.button-9 == open hal show
+
+in homing mode:
+
+* gmoccapy.h-button.button-0 ==
+* gmoccapy.h-button.button-1 == home all
+* gmoccapy.h-button.button-2 ==
+* gmoccapy.h-button.button-3 == home x
+* gmoccapy.h-button.button-4 == home y
+* gmoccapy.h-button.button-5 == home z
+* gmoccapy.h-button.button-6 ==
+* gmoccapy.h-button.button-7 ==
+* gmoccapy.h-button.button-8 == unhome all
+* gmoccapy.h-button.button-9 == back
+
+in touch off mode:
+
+* gmoccapy.h-button.button-0 == edit offsets
+* gmoccapy.h-button.button-1 == touch X
+* gmoccapy.h-button.button-2 == touch Y
+* gmoccapy.h-button.button-3 == touch Z
+* gmoccapy.h-button.button-4 ==
+* gmoccapy.h-button.button-5 ==
+* gmoccapy.h-button.button-6 == zero G92
+* gmoccapy.h-button.button-7 ==
+* gmoccapy.h-button.button-8 == set selected
+* gmoccapy.h-button.button-9 == back
+
+in tool mode:
+
+* gmoccapy.h-button.button-0 == delete tool(s)
+* gmoccapy.h-button.button-1 == new tool
+* gmoccapy.h-button.button-2 == reload tool table
+* gmoccapy.h-button.button-3 == apply changes
+* gmoccapy.h-button.button-4 == change tool by number T? M6
+* gmoccapy.h-button.button-5 == set tool by number without change M61 Q?
+* gmoccapy.h-button.button-6 == change tool to the selected one
+* gmoccapy.h-button.button-7 ==
+* gmoccapy.h-button.button-8 == touch of tool in Z
+* gmoccapy.h-button.button-9 == back
+
+in edit mode:
+
+* gmoccapy.h-button.button-0 == reload file
+* gmoccapy.h-button.button-1 ==
+* gmoccapy.h-button.button-2 == save
+* gmoccapy.h-button.button-3 == save as
+* gmoccapy.h-button.button-4 ==
+* gmoccapy.h-button.button-5 ==
+* gmoccapy.h-button.button-6 == new file
+* gmoccapy.h-button.button-7 ==
+* gmoccapy.h-button.button-8 == show keyboard
+* gmoccapy.h-button.button-9 == back
+
+in select file mode:
+
+* gmoccapy.h-button.button-0 == go to home directory
+* gmoccapy.h-button.button-1 == one directory level up
+* gmoccapy.h-button.button-2 ==
+* gmoccapy.h-button.button-3 == move selection left
+* gmoccapy.h-button.button-4 == move selection right
+* gmoccapy.h-button.button-5 == jump to directory as set in settings
+* gmoccapy.h-button.button-6 ==
+* gmoccapy.h-button.button-7 == select / ENTER
+* gmoccapy.h-button.button-8 ==
+* gmoccapy.h-button.button-9 == back
+
+*So we have 67 reactions with only 10 hal pin!*
+
 These pins are made available to be able to use the screen without an touch
 panel, or protect it from excessive use by placing hardware buttons around
 the panel.
