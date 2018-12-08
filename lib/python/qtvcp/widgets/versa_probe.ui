@@ -587,7 +587,7 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLineEdit" name="input_tool_sensor_height">
+      <widget class="QLineEdit" name="input_tool_block_height">
        <property name="geometry">
         <rect>
          <x>397</x>
@@ -620,23 +620,7 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="label_tool_sensor_height">
-       <property name="geometry">
-        <rect>
-         <x>284</x>
-         <y>72</y>
-         <width>111</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Tool Sensor Height</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="input_work_probe_height">
+      <widget class="QLineEdit" name="input_tool_probe_height">
        <property name="geometry">
         <rect>
          <x>397</x>
@@ -667,22 +651,6 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_work_height">
-       <property name="geometry">
-        <rect>
-         <x>310</x>
-         <y>48</y>
-         <width>86</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Work Height</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="LED" name="led_probe_function_chk">
@@ -693,6 +661,87 @@
          <width>15</width>
          <height>15</height>
         </rect>
+       </property>
+       <property name="color">
+        <color>
+         <red>0</red>
+         <green>255</green>
+         <blue>0</blue>
+        </color>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_use_tool_measurement">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>70</y>
+         <width>78</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>MEAS TOOL</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_tool_block_height">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>50</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Tool Probe H</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="PushButton" name="pbtn_probe_history">
+       <property name="geometry">
+        <rect>
+         <x>4</x>
+         <y>4</y>
+         <width>30</width>
+         <height>23</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Hist</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_tool_block_height_2">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>73</y>
+         <width>74</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Tool Block H</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </widget>
@@ -761,6 +810,13 @@ Skew</string>
           <height>15</height>
          </rect>
         </property>
+        <property name="color">
+         <color>
+          <red>228</red>
+          <green>228</green>
+          <blue>0</blue>
+         </color>
+        </property>
        </widget>
        <widget class="LED" name="led_auto_skew_warning">
         <property name="geometry">
@@ -770,6 +826,13 @@ Skew</string>
           <width>15</width>
           <height>15</height>
          </rect>
+        </property>
+        <property name="color">
+         <color>
+          <red>228</red>
+          <green>228</green>
+          <blue>0</blue>
+         </color>
         </property>
        </widget>
        <widget class="PushButton" name="pbtn_allow_auto_zero">
@@ -863,7 +926,7 @@ Zero</string>
        <widget class="PushButton" name="pbtn_set_angle">
         <property name="geometry">
          <rect>
-          <x>80</x>
+          <x>90</x>
           <y>2</y>
           <width>44</width>
           <height>40</height>

@@ -19,6 +19,7 @@ import sys
 import os
 import math
 import time
+import hal
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
 
@@ -55,6 +56,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('periodic', lambda w: self.check_probe())
 
         # check for probing subroutine path in INI and if they exist
         try:
@@ -167,11 +169,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         result = self.read_page_data()
         if result:
             self.probe_xy_hole()
-
-    def pbtn_inside_length_x_released():
-        pass
-    def pbtn_inside_length_y_released():
-        pass
+    def pbtn_inside_length_x_released(self):
+        print ' Inside inside_length_x_released'
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_length_x()
+    def pbtn_inside_length_y_released(self):
+        print ' Inside inside_length_y_released'
+        result = self.read_page_data()
+        if result:
+            self.probe_inside_length_y()
 
     ####### outside #######################
     def pbtn_outside_xpyp_released(self):
@@ -219,11 +226,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         result = self.read_page_data()
         if result:
             self.probe_xy_hole()
-
     def pbtn_outside_length_x_released(self):
-        pass
+        print ' Outside length X_released'
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_length_x()
     def pbtn_outside_length_y_released(self):
-        pass
+        print ' Outside_length_Y_released'
+        result = self.read_page_data()
+        if result:
+            self.probe_outside_length_y()
 
     ####### straight #######################
     def pbtn_down_released(self):
@@ -233,7 +245,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.probe_down()
 
     def pbtn_measure_diam_released(self):
-        pass
+        print 'Mesaure diameter'
+        result = self.read_page_data()
+        if result:
+            self.probe_measure_diam()
 
     ###### set origin offset ######################
     def pbtn_set_x_released(self):
@@ -259,8 +274,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def read_page_data(self):
 
         for i in (['input_z_clearance','input_xy_clearances',
-                    'input_side_edge_length', 'input_work_probe_height',
-                    'input_tool_sensor_height','input_probe_diam',
+                    'input_side_edge_length', 'input_tool_probe_height',
+                    'input_tool_block_height','input_probe_diam',
                     'input_max_travel','input_latch_return_dist',
                     'input_search_vel','input_probe_vel',
                     'input_adj_angle','input_adj_x',
@@ -404,6 +419,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         if "A" in s : 
             c += "Angle=%.3f"%a
         STATUS.emit('update-machine-log', c, 'TIME')
+
+    def check_probe(self):
+            self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def probe(self, name):
         if name == 'down':
@@ -1298,6 +1316,346 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_z.setText( "%.4f" % float(a[2]) )
         self.add_history('Straight Down ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
         self.set_zero("Z",0,0,a[2])
+
+###################################
+# Length
+###################################
+# Lx OUT
+    def probe_outside_length_x(self):
+        return
+        self.command.mode( linuxcnc.MODE_MDI )
+        self.command.wait_complete()
+        # move X - edge_lenght- xy_clearance
+        s="""G91
+        G1 X-%f
+        G90""" % (self.spbtn1_edge_lenght.get_value() + self.spbtn1_xy_clearance.get_value())
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.ocode ("O<xplus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point X
+        s = "G1 X%f" % xpres
+        if self.gcode(s) == -1:
+            return
+
+        # move X + 2 edge_lenght +  xy_clearance
+        aa=2*self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 X%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+
+        if self.ocode ("O<xminus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_xm.set_text( "%.4f" % xmres )
+        self.lenght_x()
+        xcres=0.5*(xpres+xmres)
+        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLx",xmres,xcres,xpres,self.lenght_x(),0,0,0,0,0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # go to the new center of X
+        s = "G1 X%f" % xcres
+        if self.gcode(s) == -1:
+            return
+        self.set_zerro("XY")
+
+
+    # Ly OUT
+    def probe_outside_length_y(self):
+        return
+        self.command.mode( linuxcnc.MODE_MDI )
+        self.command.wait_complete()
+        # move Y - edge_lenght- xy_clearance
+        a=self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y-%f
+        G90""" % a
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.ocode ("O<yplus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_yp.set_text( "%.4f" % ypres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point Y
+        s = "G1 Y%f" % ypres
+        if self.gcode(s) == -1:
+            return
+
+        # move Y + 2 edge_lenght +  xy_clearance
+        aa=2*self.spbtn1_edge_lenght.get_value()+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.ocode ("O<yminus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_ym.set_text( "%.4f" % ymres )
+        self.lenght_y()
+        # find, show and move to finded  point
+        ycres=0.5*(ypres+ymres)
+        self.lb_probe_yc.set_text( "%.4f" % ycres )
+        self.add_history(gtkbutton.get_tooltip_text(),"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,self.lenght_y(),0,0,0)
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point
+        s = "G1 Y%f" % ycres
+        if self.gcode(s) == -1:
+            return
+        self.set_zerro("XY")
+
+
+    # Lx IN
+    def probe_inside_length_x(self):
+        return
+        self.command.mode( linuxcnc.MODE_MDI )
+        self.command.wait_complete()
+        if self.z_clearance_down() == -1:
+            return
+        # move X - edge_lenght Y + xy_clearance
+        tmpx=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 X-%f
+        G90""" % (tmpx)
+        if self.gcode(s) == -1:
+            return
+        # Start xminus.ngc
+        if self.ocode ("O<xminus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_xm.set_text( "%.4f" % xmres )
+
+        # move X +2 edge_lenght - 2 xy_clearance
+        tmpx=2*(self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value())
+        s="""G91
+        G1 X%f
+        G90""" % (tmpx)
+        if self.gcode(s) == -1:
+            return
+        # Start xplus.ngc
+        if self.ocode ("O<xplus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        self.lenght_x()
+        xcres=0.5*(xmres+xpres)
+        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        self.add_history(gtkbutton.get_tooltip_text(),"XmXcXpLx",xmres,xcres,xpres,self.lenght_x(),0,0,0,0,0,0,0)
+        # move X to new center
+        s = """G1 X%f""" % (xcres)
+        if self.gcode(s) == -1:
+            return
+        # move Z to start point
+        self.z_clearance_up()
+        self.set_zerro("XY")
+
+
+    # Ly IN
+    def probe_inside_length_y(self):
+        return
+        self.command.mode( linuxcnc.MODE_MDI )
+        self.command.wait_complete()
+        if self.z_clearance_down() == -1:
+            return
+        # move Y - edge_lenght + xy_clearance
+        tmpy=self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y-%f
+        G90""" % (tmpy)
+        if self.gcode(s) == -1:
+            return
+        # Start yminus.ngc
+        if self.ocode ("O<yminus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_ym.set_text( "%.4f" % ymres )
+
+        # move Y +2 edge_lenght - 2 xy_clearance
+        tmpy=2*(self.spbtn1_edge_lenght.get_value()-self.spbtn1_xy_clearance.get_value())
+        s="""G91
+        G1 Y%f
+        G90""" % (tmpy)
+        if self.gcode(s) == -1:
+            return
+        # Start yplus.ngc
+        if self.ocode ("O<yplus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
+        self.lb_probe_yp.set_text( "%.4f" % ypres )
+        self.lenght_y()
+        # find, show and move to finded  point
+        ycres=0.5*(ymres+ypres)
+        self.lb_probe_yc.set_text( "%.4f" % ycres )
+        self.add_history(gtkbutton.get_tooltip_text(),"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,self.lenght_y(),0,0,0)
+        # move to center
+        s = "G1 Y%f" % ycres
+        if self.gcode(s) == -1:
+            return
+        # move Z to start point
+        self.z_clearance_up()
+        self.set_zerro("XY")
+
+
+    # TOOL DIA
+    def probe_measure_diam(self):
+        return
+        self.command.mode( linuxcnc.MODE_MDI )
+        self.command.wait_complete()
+        # move XY to Tool Setter point
+        # Start gotots.ngc
+        if self.ocode ("O<gotots> call") == -1:
+            return
+        # move X - edge_lenght- xy_clearance
+        s="""G91
+        G1 X-%f
+        G90""" % (0.5 * self.tsdiam + self.spbtn1_xy_clearance.get_value())
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xplus.ngc
+        if self.ocode ("O<xplus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xpres=float(a[0])+0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_xp.set_text( "%.4f" % xpres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point X
+        s = "G1 X%f" % xpres
+        if self.gcode(s) == -1:
+            return
+
+        # move X + tsdiam +  xy_clearance
+        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 X%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+
+        if self.ocode ("O<xminus> call") == -1:
+            return
+        # show X result
+        a=self.probed_position_with_offsets()
+        xmres=float(a[0])-0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_xm.set_text( "%.4f" % xmres )
+        self.lenght_x()
+        xcres=0.5*(xpres+xmres)
+        self.lb_probe_xc.set_text( "%.4f" % xcres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # go to the new center of X
+        s = "G1 X%f" % xcres
+        if self.gcode(s) == -1:
+            return
+
+
+        # move Y - tsdiam/2 - xy_clearance
+        a=0.5*self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y-%f
+        G90""" % a
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start yplus.ngc
+        if self.ocode ("O<yplus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_yp.set_text( "%.4f" % ypres )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        # move to finded  point Y
+        s = "G1 Y%f" % ypres
+        if self.gcode(s) == -1:
+            return
+
+        # move Y + tsdiam +  xy_clearance
+        aa=self.tsdiam+self.spbtn1_xy_clearance.get_value()
+        s="""G91
+        G1 Y%f
+        G90""" % (aa)
+        if self.gcode(s) == -1:
+            return
+        if self.z_clearance_down() == -1:
+            return
+        # Start xminus.ngc
+        if self.ocode ("O<yminus> call") == -1:
+            return
+        # show Y result
+        a=self.probed_position_with_offsets()
+        ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
+#        self.lb_probe_ym.set_text( "%.4f" % ymres )
+        self.lenght_y()
+        # find, show and move to finded  point
+        ycres=0.5*(ypres+ymres)
+        self.lb_probe_yc.set_text( "%.4f" % ycres )
+        diam=self.spbtn1_probe_diam.get_value() + (ymres-ypres-self.tsdiam)
+
+        self.lb_probe_d.set_text( "%.4f" % diam )
+        # move Z to start point up
+        if self.z_clearance_up() == -1:
+            return
+        self.stat.poll()
+        tmpz=self.stat.position[2] - 4
+        self.add_history(gtkbutton.get_tooltip_text(),"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
+        # move to finded  point
+        s = "G1 Y%f" % ycres
+        if self.gcode(s) == -1:
+            return
 
 ########################################
 # required boiler code
