@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Rolf Redford, Nov 2018
+
 #import libraries
 from vismach import *
 import hal
@@ -21,7 +23,7 @@ s.poll()
 # tooldiameter isn't really used but if you are using 2.8 you can make couple changes
 # in this file, and uncomment last line in HAL file.
 # add joints. Mill has 3.
-c = hal.component("rolfmill")
+c = hal.component("3axis-tutorial")
 c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
