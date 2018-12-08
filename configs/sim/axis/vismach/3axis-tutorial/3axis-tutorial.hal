@@ -52,17 +52,17 @@ net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
 net tool-number  iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
-# start rolfmill vismach addition
-loadusr -W  ./rolfmill
+# start 3axis-tutorial vismach addition
+loadusr -W  ./3axis-tutorial
 
 # "wire" linuxcnc pins to joints defined in vismach file
-net j0 joint.0.pos-fb => rolfmill.jointX
-net j1 joint.1.pos-fb => rolfmill.jointY
-net j2 joint.2.pos-fb => rolfmill.jointZ
+net j0 joint.0.pos-fb => 3axis-tutorial.jointX
+net j1 joint.1.pos-fb => 3axis-tutorial.jointY
+net j2 joint.2.pos-fb => 3axis-tutorial.jointZ
 
 #tool sinput
-net tool_len rolfmill.toollength <= motion.tooloffset.z
-#net tool_rad halui.tool.diameter rolfmill.tooldiameter # Only in 2.8 or later
+net tool_len 3axis-tutorial.toollength <= motion.tooloffset.z
+net tool_rad halui.tool.diameter 3axis-tutorial.tooldiameter # Only in 2.8 or later
 
 
 
