@@ -17,8 +17,6 @@ class _Lcnc_Action(object):
     def __init__(self):
         self.cmd = linuxcnc.command()
         self.tmp = None
-        STATUS.connect('error', lambda w, kind, text: self.record_error(kind, text))
-        self.clear_last_error()
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -63,11 +61,15 @@ class _Lcnc_Action(object):
     def CALL_MDI_WAIT(self, code):
         log.debug('MDI_WAIT_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
-        self.clear_last_error()
         for l in code.split("\n"):
             self.cmd.mdi( l )
             result = self.cmd.wait_complete()
             if result == -1 or result == linuxcnc.RCS_ERROR:
+                return -1
+            result = linuxcnc.error_channel().poll()
+            if result:
+                STATUS.emit('error',result[0],result[1])
+                log.error('MDI_COMMAND_WAIT Error: {}'.format(result[1]))
                 return -1
         return 0
 
@@ -85,19 +87,28 @@ class _Lcnc_Action(object):
     def CALL_OWORD(self, code):
         log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
-        self.clear_last_error()
         self.cmd.mdi(code)
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
                         STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
             result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR:
-                log.error('MDI_COMMAND= # {}'.format(result))
+            if result == -1 or result == linuxcnc.RCS_ERROR :
+                log.error('Oword RCS Error = # {}'.format(result))
+                return -1
+            result = linuxcnc.error_channel().poll()
+            if result:
+                STATUS.emit('error',result[0],result[1])
+                log.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
         result = self.cmd.wait_complete()
-        if result == -1 or result == linuxcnc.RCS_ERROR:
-            log.error('MDI_COMMAND= # {}'.format(result))
+        if result == -1 or result == linuxcnc.RCS_ERROR or linuxcnc.error_channel().poll():
+            log.error('Oword RCS Error = # {}'.format(result))
+            return -1
+        result = linuxcnc.error_channel().poll()
+        if result:
+            STATUS.emit('error',result[0],result[1])
+            log.error('Oword Error: {}'.format(result[1]))
             return -1
         log.debug('OWORD_COMMAND returns complete : {}'.format(result))
         return 0
@@ -276,19 +287,6 @@ class _Lcnc_Action(object):
             return
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
-
-    def check_error(self):
-        if self._error[0] != 0:
-                log.error('MDI_COMMAND_WAIT: {}'.format(self._error[1]))
-                return -1
-        return 0
-
-    def record_error(self, kind, text):
-        log.error('STATUS ERROR RECEIVED:')
-        self._error = [kind, text]
-
-    def clear_last_error(self):
-        self._error = [0, '']
 
 #############################
 ###########################################

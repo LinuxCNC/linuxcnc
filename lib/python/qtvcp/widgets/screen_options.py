@@ -107,6 +107,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         # connect to STATUS to catch linuxcnc events
         if self.catch_errors:
             STATUS.connect('periodic', self.on_periodic)
+            STATUS.connect('error', self.process_error)
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         if self.play_sounds:
@@ -150,6 +151,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         e = self.error.poll()
         if e:
             kind, text = e
+            STATUS.emit('error',kind,text)
+
+    def process_error(self, w, kind, text):
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 if self.desktop_notify:
                     NOTE.notify('ERROR', text, None, 0, 4)
@@ -164,7 +168,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.mchnMsg_speak_errors:
                     STATUS.emit('play-alert', 'SPEAK %s ' % text)
             STATUS.emit('update-machine-log', text, 'TIME')
-            STATUS.emit('error',kind,text)
+
 
     def closeEvent(self, event):
         if self.close_event:
