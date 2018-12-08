@@ -33,6 +33,7 @@ Requires: gtk2 tcl tcl-tclreadline tk readline libXaw python2-tkinter mesa-libGL
 Requires: python2-simplejson python2-numpy python2-xlib pygtkglext python2-configobj python-avahi
 Requires: pygtk2-libglade gnome-python2 python2-protobuf >= 2.4.1
 Requires: python2-Cython python2-pyftpdlib boost-python2 python-xdot python2-pydot
+Requires: libtirpc
 
 BuildRequires: libstdc++-devel gcc gcc-c++
 BuildRequires: pkgconf bwidget redhat-lsb autoconf automake
@@ -42,6 +43,7 @@ BuildRequires: uriparser-devel openssl-devel libuuid-devel avahi-devel libmodbus
 BuildRequires: gtk2-devel tcl-devel tk-devel readline-devel libXaw-devel boost-devel mesa-libGLU-devel
 BuildRequires: python2-zmq python2-pyftpdlib python2-protobuf python2-devel python2-tkinter
 BuildRequires: python2-simplejson
+BuildRequires: libtirpc-devel
 
 %if 0%{?fedora} >= 29
 BuildRequires: python3-Cython boost-python2-devel
