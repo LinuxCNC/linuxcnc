@@ -146,15 +146,20 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.entry.grab_focus()
 
         add_to_file = True
-        actual = self.tv.get_cursor()[0]
-        iter = self.model.get_iter(actual)
-        old_cmd = self.model.get_value(iter,0)
+        # we need to put this in a try, because if the hal mdi history file is
+        # empty, the model is empty and we will get an None iter!
+        try:
+            actual = self.tv.get_cursor()[0]
+            iter = self.model.get_iter(actual)
+            old_cmd = self.model.get_value(iter,0)
 
-        lastiter = self._get_iter_last(self.model)
-        len = int(self.model.get_string_from_iter(lastiter))
+            lastiter = self._get_iter_last(self.model)
+            len = int(self.model.get_string_from_iter(lastiter))
 
-        if actual[0] == len and old_cmd == cmd:
-            add_to_file = False
+            if actual[0] == len and old_cmd == cmd:
+                add_to_file = False
+        except:
+            pass
 
         if add_to_file:
             try:
