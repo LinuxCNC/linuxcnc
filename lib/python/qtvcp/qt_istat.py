@@ -8,8 +8,11 @@ log = logger.getLogger(__name__)
 log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class _IStat(object):
-
     def __init__(self):
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
 
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.inifile = linuxcnc.ini(INIPATH)
@@ -117,16 +120,16 @@ class _IStat(object):
         else:
             self.TRAJ_COORDINATES = None
         self.JOINT_COUNT = int(self.inifile.find("KINS","JOINTS")or 0)
-        self.DEFAULT_LINEAR_JOG_VEL = float(self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY") or 1) * 60
-        self.MIN_LINEAR_JOG_VEL = float(self.inifile.find("DISPLAY","MIN_LINEAR_VELOCITY") or 1) * 60
-        self.MAX_LINEAR_JOG_VEL = float(self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY") or 5) * 60
-        self.DEFAULT_ANGULAR_JOG_VEL = float(self.inifile.find("DISPLAY","DEFAULT_ANGULAR_VELOCITY") or 6) * 60
-        self.MIN_ANGULAR_JOG_VEL = float(self.inifile.find("DISPLAY","MIN_ABGULAR_VELOCITY") or 1) * 60
-        self.MAX_ANGULAR_JOG_VEL = float(self.inifile.find("DISPLAY","MAX_ANGULAR_VELOCITY") or 60) * 60
-        self.DEFAULT_SPINDLE_SPEED = int(self.inifile.find("DISPLAY","MAX_SPINDLE_SPEED") or 200)
-        self.MAX_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE") or 1) * 100
-        self.MIN_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE") or 0.5) * 100
-        self.MAX_FEED_OVERRIDE = float(self.inifile.find("DISPLAY","MAX_FEED_OVERRIDE") or 1.5) * 100
+        self.DEFAULT_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","DEFAULT_LINEAR_VELOCITY", 1)) * 60
+        self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_LINEAR_VELOCITY",1)) * 60
+        self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_LINEAR_VELOCITY",5)) * 60
+        self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","DEFAULT_ANGULAR_VELOCITY",6)) * 60
+        self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ABGULAR_VELOCITY",1)) * 60
+        self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
+        self.DEFAULT_SPINDLE_SPEED = int(self.get_error_safe_setting("DISPLAY","DEFAULT_SPINDLE_SPEED",200))
+        self.MAX_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_OVERRIDE",1)) * 100
+        self.MIN_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_OVERRIDE",0.5)) * 100
+        self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_FEED_OVERRIDE",1.5)) * 100
 
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
@@ -156,6 +159,15 @@ class _IStat(object):
     ###################
     # helper functions
     ###################
+
+    def get_error_safe_setting(self, heading, detail, default=None):
+        result = self.inifile.find(heading, detail)
+        if result:
+            return result
+        else:
+            log.error('INI Parcing Error, No Entry: {}, Using: {}'.format(detail, default))
+            return default
+
     def convert_metric_to_machine(self, data):
         if self.MACHINE_IS_METRIC:
             return data
@@ -212,9 +224,4 @@ class _IStat(object):
         except:
             return all_extensions[0]
 
-class IStat(_IStat):
-    _instance = None
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _IStat.__new__(cls, *args, **kwargs)
-        return cls._instance
+

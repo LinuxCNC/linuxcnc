@@ -7,7 +7,7 @@ import gobject
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import _GStat as GladeVcpStat
-from qtvcp.qt_istat import _IStat as IStat_Parent
+from qtvcp.qt_istat import _IStat as IStatParent
 
 # Set up logging
 import logger
@@ -80,15 +80,12 @@ class QComponent:
 ################################################################
 # IStat class
 ################################################################
-class _IStat(IStat_Parent):
-    def __init__(self):
-        super(_IStat, self).__init__()
-
-class Info(_IStat):
+class Info(IStatParent):
     _instance = None
+    _instanceNum = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = _IStat.__new__(cls, *args, **kwargs)
+            cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
 # Now that the class is defined create a reference to it for the other classes
