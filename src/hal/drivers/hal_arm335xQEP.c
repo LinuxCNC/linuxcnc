@@ -219,7 +219,7 @@ static void update(void *arg, long period)
 
         /* check for phase errors */
         if( iflg & PHE ) {
-            *(eqep->phase_error_count)++;
+            (*(eqep->phase_error_count))++;
         }
         /* clear interrupt flags */
         eqep->eqep_reg->QCLR = iflg;

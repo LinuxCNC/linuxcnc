@@ -51,10 +51,12 @@ NPBPROTODIR :=  $(NANOPB)/generator/proto
 # them present in the PWD in the source tree or have an INCLUDE_PATH set.
 
 ../include/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp  $^ $@
 
 ../include/%.h: ./$(NANOPB)/%.h
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp  $^ $@
 
 
 # Javascript support
@@ -207,7 +209,7 @@ PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
 #objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
 objects/$(PROTODIR)/%.d: %.proto
-	$(ECHO) "protoc create dependencies for $<"
+	$(ECHO) "protoc compile dependencies for $<"
 	@mkdir -p objects/$(PROTODIR)/
 	$(Q)$(PROTOC) \
 	--plugin=protoc-gen-depends=$(GENDEP) \
@@ -221,14 +223,14 @@ objects/$(PROTODIR)/%.d: %.proto
 ifneq ($(shell diff -q $(BASEPWD)/$(PROTODIR)/nanopb.proto $(BASEPWD)/$(NPBPROTODIR)/nanopb.proto),)
     $(error $(PROTODIR)/nanopb.proto and  $(NPBPROTODIR)/nanopb.proto do not match; \
      the machinetalk/proto subtree might be out of sync)
-endif 
+endif
 
 #---------- C++ rules -----------
 #
 # generate .cc/.h from proto files
 # for command.proto, generated files are: command.pb.cc	command.pb.h
 $(PBGEN)/$(NAMESPACEDIR)/%.pb.cc $(PBGEN)/$(NAMESPACEDIR)/%.pb.h: %.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile C++ $<"
 	@mkdir -p $(PBGEN)
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
 	--proto_path=$(PROTOSRCDIR)/ \
@@ -240,7 +242,7 @@ $(PBGEN)/$(NAMESPACEDIR)/%.pb.cc $(PBGEN)/$(NAMESPACEDIR)/%.pb.h: %.proto
 # Nanopb: generate *.npb.{c,h} from proto files
 # these depend on npb options
 $(PBGEN)/$(NAMESPACEDIR)/%.npb.c $(PBGEN)/$(NAMESPACEDIR)/%.npb.h: %.proto $(NANOPB_SUPPORT)
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile nanopb C $<"
 	@mkdir -p $(PBGEN)/$(NAMESPACEDIR)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--plugin=protoc-gen-nanopb=../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb \
@@ -256,7 +258,7 @@ $(PBGEN)/$(NAMESPACEDIR)/%.npb.c $(PBGEN)/$(NAMESPACEDIR)/%.npb.h: %.proto $(NAN
 #
 # generate Python modules from proto files
 ../lib/python/$(NAMESPACEDIR)/%_pb2.py: %.proto
-	$(ECHO) "protoc create $@ from $<"
+	$(ECHO) "protoc compile python $<"
 	@mkdir -p ../lib/python/$(NAMESPACEDIR)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--proto_path=$(PROTOSRCDIR)/ \
@@ -270,7 +272,7 @@ $(PBGEN)/$(NAMESPACEDIR)/%.npb.c $(PBGEN)/$(NAMESPACEDIR)/%.npb.h: %.proto $(NAN
 #
 # generate Javascript modules from proto files
 $(JSGEN)/%.js: %.proto
-	$(ECHO) $(PROTO2JS)" create $@ from $<"
+	$(ECHO) $(PROTO2JS)" compile js $<"
 	@mkdir -p $(JSGEN)
 	$(Q)$(PROTO2JS) 	$< \
 	$(PROTOBUFJS_OPT)$(JSNAMESPACE) \
@@ -329,37 +331,45 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 
 # protoc generated headers are exported to ../include
 ../include/%.h: ./$(NAMESPACEDIR)/$(PBGEN)/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(NAMESPACEDIR)/$(PBGEN)/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 # This path is backwards isnt it?
 # protoc generated headers are exported to ../include
 ../include/$(NAMESPACEDIR)/%.h: ./$(PBGEN)/$(NAMESPACEDIR)/%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/$(NAMESPACEDIR)/%.hh: ./$(PBGEN)/$(NAMESPACEDIR)/%.hh
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 # as are the nanop library headers
 ../include/$(MACHINETALK)/%.h: ./$(NANOPB)/%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/%.h: ./%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(MACHINETALK)/include/%.hh
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 # those will be compiled
 USERSRCS +=  $(NANOPB_C_SRCS) \

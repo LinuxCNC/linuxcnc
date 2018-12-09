@@ -495,7 +495,7 @@ static int hm2_soc_munmap(hm2_soc_t *brd) {
 }
 
 
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const int argc, char* const *argv)
 {
     int r = 0, x;
     size_t nread = 0;

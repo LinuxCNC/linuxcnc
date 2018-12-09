@@ -309,13 +309,13 @@ int rtapi_app_main(void)
 {
     // zynq and FPGA code revision
     int rev, zrev;
-    // save messaging level 
-    static int msg_level;
+    // save messaging level
+    /* static int msg_level; */
     int n, retval = 0;
-    
-    // save message level on entering 
-    msg_level = rtapi_get_msg_level();
-    
+
+    // save message level on entering
+    /* msg_level = rtapi_get_msg_level(); */
+
     /* force messaging level in:
     RTAPI_MSG_NONE,
     RTAPI_MSG_ERR,
