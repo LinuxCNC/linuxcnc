@@ -64,6 +64,16 @@ case ${TAG} in
 	;;
 esac
 
+# Distro specific warnings level
+case ${TAG} in
+    *_8|*_9)
+	WERROR_FLAG="-Werror"
+	;;
+    *)
+	WERROR_FLAG=""    # Buster and above have many as yet unresolved warnings
+	;;
+esac
+
 # DH_VERBOSE turn on verbose package debuilds
 ! ${MK_PACKAGE_VERBOSE:-false} || export DH_VERBOSE=1
 
@@ -109,7 +119,7 @@ case $CMD in
 	    -e TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST
 	    -e TRAVIS_REPO=$TRAVIS_REPO
 	    -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG
-            -e DPKG_CFLAGS="${DPKG_CFLAGS} -Werror"
+            -e DPKG_CFLAGS="${DPKG_CFLAGS} ${WERROR_FLAG}"
 	)
 
 	BUILD_CL=( bash -xec "
