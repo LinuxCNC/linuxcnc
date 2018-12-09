@@ -98,6 +98,10 @@ INI = Info()
 # by subclassing it
 class _GStat(GladeVcpStat):
     def __init__(self):
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
         super(_GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
@@ -115,6 +119,7 @@ class _GStat(GladeVcpStat):
 # it's own instance of _gstat
 class Status(_GStat):
     _instance = None
+    _instanceNum = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _GStat.__new__(cls, *args, **kwargs)
@@ -123,29 +128,24 @@ class Status(_GStat):
 ################################################################
 # Lcnc_Action class
 ################################################################
-from qtvcp.qt_action import _Lcnc_Action as Action_Parent
-class _Lcnc_Action(Action_Parent):
-    def __init__(self):
-        super(_Lcnc_Action, self).__init__()
-
-class Action(_Lcnc_Action):
+from qtvcp.qt_action import _Lcnc_Action as _ActionParent
+class Action(_ActionParent):
     _instance = None
+    _instanceNum = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = _Lcnc_Action.__new__(cls, *args, **kwargs)
+            cls._instance = _ActionParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
 ################################################################
 # TStat class
 ################################################################
-from qtvcp.qt_tstat import _TStat as TStat_Parent
-class _TStat(TStat_Parent):
-    def __init__(self):
-        super(_TStat, self).__init__()
+from qtvcp.qt_tstat import _TStat as _TStatParent
 
-class Tool(_TStat):
+class Tool(_TStatParent):
     _instance = None
+    _instanceNum = 0
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
-            cls._instance = _TStat.__new__(cls, *args, **kwargs)
+            cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
         return cls._instance

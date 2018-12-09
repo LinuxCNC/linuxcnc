@@ -34,6 +34,11 @@ KEYWORDS = ['T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J'
 class _TStat(object):
 
     def __init__(self):
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
+
         self.NUM = 0
         self.POCKET = 1
         self.X = 2

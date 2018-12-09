@@ -15,6 +15,10 @@ STATUS = Status()
 ################################################################
 class _Lcnc_Action(object):
     def __init__(self):
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
         self.cmd = linuxcnc.command()
         self.tmp = None
 
