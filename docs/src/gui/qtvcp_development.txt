@@ -88,8 +88,14 @@ signals.
 Linuxcnc has no internal record of jog rate - you must specify it at the +
 time of jogging. +
 QtVCP uses the STATUS library to keep track of the latest linear and +
-angular jog rate. It is always specified in machine units, so must be +
+angular jog rate. It is always specified in machine units per minute, so must be +
 converted when in non-machine units mode. +
+So if your machine is imperial based but you are in metric mode +
+changes to jog rate sent to ACTION functions must be converted to imperial. +
+at the same time if the machine is metric based and you are in imperial mode, +
+ changes to jog rate must be sent to ACTION functions in metric units. +
+Angular jog rates the units don't change in metric/imperial +
+mode so you can send them to ACTION functions without conversion. +
 While you are free to ignore this jogging record while building screens, +
 Anyone modifying your screen and using the builtin jog rate widgets would +
 not get the desired results. The ACTION library's 'DO_JOG' function, gets +
