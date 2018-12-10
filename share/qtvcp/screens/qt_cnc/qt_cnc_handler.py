@@ -3,7 +3,7 @@
 ############################
 
 from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QDialog
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
@@ -11,7 +11,6 @@ from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.lib.notify import Notify
 
 from qtvcp.core import Status, Action
 
@@ -47,9 +46,6 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.stat = linuxcnc.stat()
-        self.cmnd = linuxcnc.command()
-        self.error = linuxcnc.error_channel()
         self.PATH = paths.CONFIGPATH
         self.IMAGE_PATH = paths.IMAGEDIR
         self._big_view = -1
@@ -61,8 +57,6 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        if self.w.PREFS_:
-            print 'Using preference file:',self.w.PREFS_.fn
         STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
@@ -88,7 +82,7 @@ class HandlerClass:
                     receiver.keyPressEvent(event)
                     event.accept()
                 return True
-            elif isinstance(receiver,QtWidgets.QDialog):
+            elif isinstance(receiver,QDialog):
                 print 'dialog'
                 return True
 
@@ -135,6 +129,8 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
+    # called from 'machine on' button's python command in designer
+    # to test that function
     def test_function(self, text=None):
         print text
 
@@ -160,7 +156,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                self.ACTION.ABORT()
 
     # dialogs
     def on_keycall_F3(self,event,state,shift,cntrl):
