@@ -659,7 +659,7 @@ HEADERS := \
     rtapi/shmdrv/shmdrv.h
 
 
-    
+
 ## the "headers" target installs all the header files in ../include
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -1679,7 +1679,7 @@ $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime $(threads) $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DPKG_CFLAGS) $(DEBUG) \
+	$(Q)$(CC) -c $(OPT) $(DPKG_CFLAGS) $(DEBUG) $(CPPFLAGS) \
 	    $(EXTRA_CFLAGS) $< -o $@
 
 # Rules to make .o (object) files from .cc
@@ -1687,7 +1687,8 @@ $(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
 	$(ECHO) Compiling realtime++ $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(RT_CXXFLAGS) $(EXTRA_CFLAGS) $< -o $@
+	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(RT_CXXFLAGS) $(CPPFLAGS) \
+	    $(EXTRA_CFLAGS) $< -o $@
 
 endif # end BUILD_SYS=user-dso
 

@@ -98,7 +98,7 @@ export TAG
 declare -a BUILD_CL DOCKER_EXTRA_OPTS
 case $CMD in
     "shell"|"") # Interactive shell (default)
-	DOCKER_EXTRA_OPTS=( --privileged --interactive --tty )
+	DOCKER_EXTRA_OPTS=( --privileged --interactive )
 	if test -z "$*"; then
 	    BUILD_CL=( bash -i )
 	else
@@ -197,6 +197,7 @@ set -x  # Show user the command
 # hide --it
 exec docker run \
     --rm \
+    --tty \
     "${DOCKER_EXTRA_OPTS[@]}" \
     -u ${UID_GID} -e USER=${USER} \
     -v ${HOME}:${HOME} -e HOME=${HOME} \
