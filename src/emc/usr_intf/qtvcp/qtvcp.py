@@ -23,8 +23,6 @@ log = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 #   to ensure we get a logger with the correct hierarchy.
 #   Ex: log = logger.getLogger(__name__)
 
-from qtvcp import qt_makepins, qt_makegui
-
 STATUS = Status()
 INFO = Info()
 
@@ -159,6 +157,11 @@ class QTVCP:
 
         # initialize QApp so we can pop up dialogs now. 
         self.app = QtWidgets.QApplication(sys.argv)
+
+        # we import here so that the QApp is initialized before
+        # the Notify library is loaded because it uses DBusQtMainLoop
+        # DBusQtMainLoop must be initialized after to work properly
+        from qtvcp import qt_makepins, qt_makegui
 
         # ToDo: pass specific log levels as an argument, or use an INI setting
         if not opts.debug:
