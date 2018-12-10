@@ -165,7 +165,7 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.error('INI Parcing Error, No Entry: {}, Using: {}'.format(detail, default))
+            log.warning('INI Parcing Error, No Entry: {}, Using: {}'.format(detail, default))
             return default
 
     def convert_metric_to_machine(self, data):
