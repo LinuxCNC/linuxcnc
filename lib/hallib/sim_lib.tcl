@@ -268,6 +268,8 @@ proc use_hal_manualtoolchange {} {
   # disconnect if previously connected:
   unlinkp iocontrol.0.tool-change
   unlinkp iocontrol.0.tool-changed
+  # remove signal with no connections:
+  delsig tool:change-loop
 
   net tool:change <= iocontrol.0.tool-change
   net tool:change => hal_manualtoolchange.change
