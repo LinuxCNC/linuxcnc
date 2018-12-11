@@ -45,6 +45,8 @@ import signal
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
 from gladevcp import xembed
+from hal_glib import GStat
+GSTAT = GStat()
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -288,7 +290,7 @@ def main():
 
     # User components are set up so report that we are ready
     halcomp.ready()
-
+    GSTAT.forced_update()
     if handlers.has_key(signal_func):
         dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
