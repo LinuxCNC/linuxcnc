@@ -1,64 +1,101 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkTable" id="table1">
         <property name="width_request">300</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="n_rows">2</property>
         <property name="n_columns">2</property>
         <child>
           <object class="HAL_Meter" id="hal_meter1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="bg_color">#ffffffffffff</property>
-            <property name="minorscale">100</property>
-            <property name="z0_color">#0000ffff0000</property>
             <property name="label">RPM</property>
-            <property name="z1_color">#ffffffff0000</property>
-            <property name="z2_color">#ffff00000000</property>
             <property name="majorscale">500</property>
             <property name="max">3000</property>
+            <property name="minorscale">100</property>
+            <property name="z0_color">#0000ffff0000</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="z2_color">#ffff00000000</property>
           </object>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="HAL_LED" id="hal_led1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="led_blink_rate">0</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="HAL_LED" id="hal_led3">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="led_blink_rate">0</property>
                 <property name="pick_color_off">#f6e0ebe201e9</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
               <object class="HAL_LED" id="hal_led2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="led_blink_rate">0</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="State_Label" id="state_label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">label</property>
+            <property name="false_text">Imperial</property>
+            <property name="true_text">Metric</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="Status_Label" id="status_label1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">label</property>
+            <property name="text_template">User System = G%s</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
             <property name="top_attach">1</property>
             <property name="bottom_attach">2</property>
           </packing>
