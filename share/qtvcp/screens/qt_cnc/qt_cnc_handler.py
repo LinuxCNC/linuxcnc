@@ -156,7 +156,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.ACTION.ABORT()
+                ACTION.ABORT()
 
     # dialogs
     def on_keycall_F3(self,event,state,shift,cntrl):
