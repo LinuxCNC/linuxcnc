@@ -50,6 +50,13 @@ LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
 HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
 
+# put ~.local/bin in PATH if missing. See:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=839155
+if [[ "$PATH" != *".local/bin"* ]]; then
+	PATH=$HOME/.local/bin:$PATH
+fi
+
+
 #put the LINUXCNC_BIN_DIR in PATH
 PATH=$LINUXCNC_BIN_DIR:$PATH
 #ditto scripts if not RIP
