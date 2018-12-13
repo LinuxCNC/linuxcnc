@@ -831,14 +831,11 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <height>201</height>
      </rect>
     </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
-       <x>489</x>
-       <y>323</y>
+       <x>501</x>
+       <y>361</y>
        <width>700</width>
        <height>400</height>
       </rect>
@@ -1114,11 +1111,11 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="manual_action" stdset="0">
      <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="ActionButton" name="actionbutton_10">
@@ -1142,13 +1139,13 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="mdi_action" stdset="0">
      <bool>true</bool>
     </property>
     <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
     </property>
    </widget>
@@ -1173,13 +1170,13 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
     <property name="indicator_option" stdset="0">
      <bool>true</bool>
     </property>
-    <property name="HAL_pin_option" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="auto_action" stdset="0">
      <bool>true</bool>
     </property>
     <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
     </property>
    </widget>
@@ -2437,9 +2434,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2451,6 +2445,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="incr_angular_number" stdset="0">
       <double>60.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_7">
@@ -2468,9 +2465,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2482,6 +2476,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="incr_angular_number" stdset="0">
       <double>10.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_30">
@@ -2499,9 +2496,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2513,6 +2507,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="incr_angular_number" stdset="0">
       <double>120.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_31">
@@ -2530,9 +2527,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="HAL_pin_option" stdset="0">
-      <bool>false</bool>
-     </property>
      <property name="jog_incr_action" stdset="0">
       <bool>true</bool>
      </property>
@@ -2544,6 +2538,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="incr_angular_number" stdset="0">
       <double>0.000000000000000</double>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -3190,11 +3187,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusAdjustmentBar</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.adjustment_bar</header>
-  </customwidget>
-  <customwidget>
    <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
@@ -3209,6 +3201,11 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <class>LED</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>MacroTabDialog</class>
@@ -3253,21 +3250,15 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
   <customwidget>
-   <class>FileDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ScreenOptions</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.screen_options</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
    <class>StatusLabel</class>
@@ -3282,7 +3273,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
-   <extends>QFrame</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
@@ -3290,6 +3281,12 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ToolDialog</class>
