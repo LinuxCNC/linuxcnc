@@ -98,8 +98,8 @@ class VideoServer(threading.Thread):
             arguments = ' ' + video_device.arguments
 
         command = [
-            'mjpg_streamer -i \"{libpath}input_uvc.so -n -f {framerate} -r {resolution} -q {quality} -d {device}" '
-            '-o \" {libpath}output_zmqserver.so --address {uri} --buffer_size {buffer_size}\"{args}'.format(
+            'mjpg_streamer -i "{libpath}input_uvc.so -n -f {framerate} -r {resolution} -q {quality} -d {device}" '
+            '-o " {libpath}output_zmqserver.so --address {uri} --buffer_size {buffer_size}"{args}'.format(
                 libpath=libpath,
                 framerate=video_device.framerate,
                 resolution=video_device.resolution,
