@@ -32,14 +32,14 @@ from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
-# NOTE is for desktop popup notification
+# NOTICE is for desktop popup notification
 # MSG is for user-defined dialog popup messages
 # INFO is INI file details
 # MLOG is for machine error/message logging to file
 # LOG is for running code logging
 # SOUND is for playing alert sounds
 STATUS = Status()
-NOTE = Notify()
+NOTICE = Notify()
 MSG = Message()
 INFO = Info()
 TOOL = Tool()
@@ -118,7 +118,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.warning('Sound Option turned off due to error registering')
         if self.user_messages:
             MSG.message_setup(self.HAL_GCOMP_)
-            MSG.message_option('NOTIFY', NOTE)
+            MSG.message_option('NOTIFY', NOTICE)
             if self.play_sounds:
                 MSG.message_option('play_sounds', self.usrMsg_play_sound)
             else:
@@ -127,12 +127,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             MSG.message_option('use_focus_overlay', self.usrMsg_use_FocusOverlay)
         # If there is a widget named statusBar give a reference to desktop notify
         try:
-            NOTE.statusbar = self.QTVCP_INSTANCE_.statusbar
+            NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
         except Exception as e:
             LOG.info('Exception adding status to notify:', exc_info=e)
         if self.desktop_notify:
-            NOTE.notify(self.notify_start_title, self.notify_start_detail, None,
+            NOTICE.notify(self.notify_start_title, self.notify_start_detail, None,
                         self.notify_start_timeout, self. notify_start_timeout)
+            self.desktop_dialog = NOTICE.new_critical(None)
+
         # clear and add an intial machine log message
         STATUS.emit('update-machine-log', '', 'DELETE')
         STATUS.emit('update-machine-log', '', 'INITIAL')
@@ -159,13 +161,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def process_error(self, w, kind, text):
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 if self.desktop_notify:
-                    NOTE.notify('ERROR', text, None, 0, 4)
+                    NOTICE.update(self.desktop_dialog, title='ERROR:', message=text)
             elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
                 if self.desktop_notify:
-                    NOTE.notify('OP MESSAGE', text, None, 0, 4)
+                    NOTICE.update(self.desktop_dialog, title='OPERATOR TEXT:', message=text)
             elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
                 if self.desktop_notify:
-                    NOTE.notify('DISPLAY', text, None, 0, 4)
+                    NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-alert', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:

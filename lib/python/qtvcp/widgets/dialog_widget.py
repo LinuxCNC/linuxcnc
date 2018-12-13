@@ -28,6 +28,7 @@ from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
+from qtvcp.lib.notify import Notify
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -39,6 +40,7 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+NOTICE = Notify()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
@@ -147,6 +149,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         self.setText('<b>Manual Tool Change Request</b>')
         self.setInformativeText('Please Insert Tool 0')
         self.setStandardButtons(QMessageBox.Ok)
+        self.useDesktopDialog = False
 
     # We want the tool change HAL pins the same as whats used in AXIS so it is
     # easier for users to connect to.
@@ -204,6 +207,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         else:
             self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             self.setDefaultButton(QMessageBox.Ok)
+
         self.show()
         self.calculate_placement()
         retval = self.exec_()
@@ -215,28 +219,35 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
 
     def tool_change(self, change):
         if change:
-                answer = self.do_message(change)
-                if answer:
-                    self.changed.set(True)
-                else:
-                    # TODO add abort command
-                    LOG.debug('cancelled should abort')
-        elif not change:
-            self.changed.set(False)
-
-    def do_message(self, change):
-        if change and not self.changed.get():
             MORE = 'Please Insert Tool %d' % self.tool_number.get()
             MESS = 'Manual Tool Change Request'
             DETAILS = ' Tool Info:'
+
             STATUS.emit('focus-overlay-changed', True, MESS, self._color)
             if self.speak:
                 STATUS.emit('play-alert', 'speak %s' % MORE)
             if self.play_sound:
                 STATUS.emit('play-alert', self.sound_type)
-            result = self.showtooldialog(MESS, MORE, DETAILS)
+
+            # desktop notify dialog
+            if self.useDesktopDialog:
+                NOTICE.notify_ok(MESS, MORE, None, 0, self._pin_change)
+                return
+            # Qt dialog
+            answer = self.showtooldialog(MESS, MORE, DETAILS)
             STATUS.emit('focus-overlay-changed', False, None, None)
-            return result
+            self._pin_change(answer)
+        elif not change:
+            self.changed.set(False)
+
+    # this also is called from Destop Dialog
+    def _pin_change(self,answer):
+                if answer:
+                    self.changed.set(True)
+                else:
+                    ACTION.ABORT()
+                    STATUS.emit('update-machine-log', 'tool change Aorted', 'TIME')
+                STATUS.emit('focus-overlay-changed', False, None, None)
 
     def calculate_placement(self):
         geometry_parsing(self,'ToolChangeDialog-geometry')
