@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -174,7 +177,7 @@ char LoadRung(char * FileName,StrRung * BufRung)
                         {
                             if (atoi(&Line[5])>2)
                             {
-                                printf("Rung version not supported...\n");
+                                printf(_("Rung version not supported...\n"));
                                 LineOk = FALSE;
                             }
                         }
@@ -252,7 +255,7 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-        dbg_printf("Loading file : %s",RungFile);
+        dbg_printf(_("Loading file : %s"),RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             if (*TheFirst==-1)
@@ -269,10 +272,10 @@ void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLas
             *TheLast = NumRung;
             PrevNumRung = NumRung;
             PrevRung = Rungs;
-            dbg_printf(" - ok.\n");
+            dbg_printf(_(" - ok.\n"));
         }
         else
-            dbg_printf(" - not found.\n");
+            dbg_printf(_(" - not found.\n"));
         //DumpRung(Rungs);
         Rungs++;
     }
@@ -291,14 +294,14 @@ void LoadAllRungs(char * BaseName,StrRung * Rungs)
     {
         char RungFile[400];
         sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-        dbg_printf("Loading file : %s",RungFile);
+        dbg_printf(_("Loading file : %s"),RungFile);
         if (LoadRung(RungFile,Rungs))
         {
             Rungs->Used = TRUE;
-            dbg_printf(" - ok.\n");
+            dbg_printf(_(" - ok.\n"));
         }
         else
-            dbg_printf(" - not found.\n");
+            dbg_printf(_(" - not found.\n"));
         //DumpRung(Rungs);
         Rungs++;
     }
@@ -322,11 +325,11 @@ void SaveAllRungs(char * BaseName)
         if ( RungArray[ NumRung ].Used )
         {
             sprintf(RungFile,"%s%d.csv",BaseName,NumRung);
-            dbg_printf("Saving file : %s",RungFile);
+            dbg_printf(_("Saving file : %s"),RungFile);
             if (SaveRung(RungFile,&RungArray[NumRung]))
-                dbg_printf(" - ok.\n");
+                dbg_printf(_(" - ok.\n"));
             else
-                dbg_printf(" - failed.\n");
+                dbg_printf(_(" - failed.\n"));
         }
     }
 }
@@ -334,7 +337,7 @@ void SaveAllRungs(char * BaseName)
 void DumpRung(StrRung * TheRung)
 {
     int x,y;
-    printf("Used=%d\n",TheRung->Used);
+    printf(_("Used=%d\n"),TheRung->Used);
     for (y=0;y<RUNG_HEIGHT;y++)
     {
         for(x=0;x<RUNG_WIDTH;x++)
@@ -388,7 +391,7 @@ int ConvBaseInMilliSecsToId(int NbrMilliSecs)
 		case TIME_BASE_100MS:
 		return BASE_100MS;
 		default:
-		printf("!!!Error in ConvBaseInMilliSecsToInt()\n");
+		printf(_("!!!Error in ConvBaseInMilliSecsToInt()\n"));
 		return BASE_SECS;
 	}
 }
@@ -458,10 +461,10 @@ char LoadTimersParams(char * FileName,StrTimer * BufTimers)
                             BufTimers->Base = 1;
                             BufTimers->Preset = 10;
                             strcpy(BufTimers->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            printf(_("!!! Error loading parameter base in %s\n"),FileName);
                             break;
                     }
-dbg_printf("Timer => Base = %d , Preset = %d\n",BufTimers->Base,BufTimers->Preset);
+dbg_printf(_("Timer => Base = %d , Preset = %d\n"),BufTimers->Base,BufTimers->Preset);
                     BufTimers++;
                 }
             }
@@ -493,7 +496,7 @@ char SaveTimersParams(char * FileName,StrTimer * BufTimers)
         fclose(File);
         Okay = TRUE;
     }
-printf( " - result=%d\n", Okay );
+printf( _(" - result=%d\n"), Okay );
     return (Okay);
 }
 
@@ -528,10 +531,10 @@ char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables)
                             BufMonostables->Base = 1;
                             BufMonostables->Preset = 10;
                             strcpy(BufMonostables->DisplayFormat,"%f?");
-                            printf("!!! Error loading parameter base in %s\n",FileName);
+                            printf(_("!!! Error loading parameter base in %s\n"),FileName);
                             break;
                     }
-dbg_printf("Monostable => Base = %d , Preset = %d\n",BufMonostables->Base,BufMonostables->Preset);
+dbg_printf(_("Monostable => Base = %d , Preset = %d\n"),BufMonostables->Base,BufMonostables->Preset);
                     BufMonostables++;
                 }
             }
@@ -652,7 +655,7 @@ char LoadNewTimersParams(char * FileName)
 							TimerIEC->Base = 1;
 							WriteVar( VAR_TIMER_IEC_PRESET, ScanTimerIEC, 10 );
 							strcpy(TimerIEC->DisplayFormat,"%f?");
-							printf("!!! Error loading parameter base in %s\n",FileName);
+							printf(_("!!! Error loading parameter base in %s\n"),FileName);
 							break;
 					}
 					TimerIEC->TimerMode = (char)Params[2];
@@ -779,7 +782,7 @@ char LoadSectionsParams(char * FileName)
                         {
                             if (atoi(&Line[5])>1)
                             {
-                                printf("Sections file version not supported...\n");
+                                printf(_("Sections file version not supported...\n"));
                                 LineOk = FALSE;
                             }
                         }
@@ -803,7 +806,7 @@ char LoadSectionsParams(char * FileName)
                         pSection->FirstRung = Params[ 3 ];
                         pSection->LastRung = Params[ 4 ];
                         pSection->SequentialPage = Params[ 5 ];
-dbg_printf("Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, SequentialPage=%d\n", NumSection,
+dbg_printf(_("Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, SequentialPage=%d\n"), NumSection,
 pSection->Name, pSection->Language, pSection->SubRoutineNumber, pSection->FirstRung, pSection->LastRung, pSection->SequentialPage);
                         break;
                 }
@@ -1035,7 +1038,7 @@ char LoadSymbols(char * FileName)
 						{
 							if (atoi(&Line[5])>1)
 							{
-								printf("Symbols file version not supported...\n");
+								printf(_("Symbols file version not supported...\n"));
 								LineOk = FALSE;
 							}
 						}
@@ -1048,7 +1051,7 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
 						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
 //						RemoveEndLine( pSymbol->Comment );
-						dbg_printf("Symbol: %s - %s - %s\n", pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
+						dbg_printf(_("Symbol: %s - %s - %s\n"), pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
 						break;
 				}

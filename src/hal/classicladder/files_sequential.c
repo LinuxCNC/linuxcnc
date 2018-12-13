@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -90,7 +93,7 @@ char LoadSequential(char * FileName)
 						{
 							if (atoi(&Line[5])>1)
 							{
-								printf("Sequential version not supported...\n");
+								printf(_("Sequential version not supported...\n"));
 								LineOk = FALSE;
 							}
 						}
