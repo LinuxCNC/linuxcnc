@@ -139,7 +139,7 @@ class OffsetPage(gtk.VBox):
             if units == None:
                 units = self.inifile.find("AXIS_X", "UNITS")
         except:
-            print "**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"
+            print _("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section")
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -339,7 +339,7 @@ class OffsetPage(gtk.VBox):
         try:
             self.store[row][col] = locale.format("%10.4f", locale.atof(new_text))
         except:
-            print "offsetpage widget error: unrecognized float input"
+            print _("offsetpage widget error: unrecognized float input")
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
             if not self.display_units_mm == self.program_units and not row == 2:
@@ -376,7 +376,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
         except:
-            print "offsetpage widget error: MDI call error"
+            print _("offsetpage widget error: MDI call error")
             self.reload_offsets()
 
 
@@ -395,7 +395,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print "MDI error in offsetpage widget -zero G92"
+                print _("MDI error in offsetpage widget -zero G92")
 
     # callback to zero rotational offset when button pressed
     def zero_rot(self, widget):
@@ -412,7 +412,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print "MDI error in offsetpage widget-zero rotational offset"
+                print _("MDI error in offsetpage widget-zero rotational offset")
 
     # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
     # if in editing mode don't update else you can't actually edit
@@ -483,7 +483,7 @@ class OffsetPage(gtk.VBox):
             if len(pathlist) == 1:
                 self.selection.select_path(pathlist[0])
         except:
-            print "offsetpage_widget error: cannot select coordinate system", system
+            print _("offsetpage_widget error: cannot select coordinate system"), system
 
     # Get the selected row the user clicked
     def get_selected(self):

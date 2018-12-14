@@ -1515,10 +1515,10 @@ class App:
                         try:
                             execfile(rcfile)
                         except:
-                            print "**** PNCCONF ERROR:    custom firmware loading error"
+                            print _("**** PNCCONF ERROR:    custom firmware loading error")
                             self._p.EXTRA_MESA_FIRMWAREDATA = []
                     if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
-                        print "**** PNCCONF INFO:    Found extra firmware in file"
+                        print _("**** PNCCONF INFO:    Found extra firmware in file")
         # these are set from the hidden preference file
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
@@ -1576,7 +1576,7 @@ class App:
     def splash_screen(self):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
-        self.window.set_title("Pncconf setup")
+        self.window.set_title(_("Pncconf setup"))
         self.window.set_border_width(10)
 
         vbox = gtk.VBox(False, 5)
@@ -1588,7 +1588,7 @@ class App:
         align.show()
 
         self.pbar = gtk.ProgressBar()
-        self.pbar.set_text("Pncconf is setting up")
+        self.pbar.set_text(_("Pncconf is setting up"))
         self.pbar.set_fraction(.1)
 
         align.add(self.pbar)
@@ -1602,7 +1602,7 @@ class App:
             if "all" in hint or mtype in hint:
                 print(message)
                 if "step" in _DEBUGSTRING:
-                    c = raw_input("\n**** Debug Pause! ****")
+                    c = raw_input(_("\n**** Debug Pause! ****"))
                 return
 
     def query_dialog(self,title, message):
