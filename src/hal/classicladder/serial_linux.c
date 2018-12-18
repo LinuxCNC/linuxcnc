@@ -21,6 +21,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <termios.h>
 #include <stdio.h>
 #include <string.h>
@@ -133,12 +136,12 @@ switch (ModbusSerialDataBits)
 		}
 		else
 		{
-			printf("Speed value not found for serial\n");
+			printf(_("Speed value not found for serial\n"));
 		}
 	}
 	else
 	{
-		printf( "Failed to open serial port %s...\n", SerialPortName );
+		printf( _("Failed to open serial port %s...\n"), SerialPortName );
 	}
 	return PortIsOpened;
 }
@@ -165,7 +168,7 @@ void SerialSetRTS( int State )
 		else
 			status &= ~TIOCM_RTS;
 		if ( ModbusDebugLevel>=3 )
-			printf( "Set RTS=%d\n", State );
+			printf( _("Set RTS=%d\n"), State );
 		ioctl(fd, TIOCMSET, &status);
 	}
 }
@@ -179,19 +182,19 @@ void SerialSend( char *Buff, int BuffLength )
 			SerialSetRTS( 1 );
 		}
 		if ( ModbusDebugLevel>=2 )
-			printf("Serial writing...\n");
+			printf(_("Serial writing...\n"));
 		while(BuffLength > 0) {
 			int r = write(fd,Buff,BuffLength);
 			if(r < 0) {
 				if ( ModbusDebugLevel>=1 )
-					printf("SerialSend failed: %s!\n", strerror(errno));
+					printf(_("SerialSend failed: %s!\n"), strerror(errno));
 				break;
 			}
 			Buff += r;
 			BuffLength -= r;
 		}
 		if ( ModbusDebugLevel>=2 )
-			printf("Writing done!\n");
+			printf(_("Writing done!\n"));
 		// wait until everything has been transmitted
 		tcdrain( fd );
 		if ( ModbusSerialUseRtsToSend )
@@ -209,7 +212,7 @@ void SerialSetResponseSize( int Size, int TimeOutResp )
 		newtio.c_cc[VTIME] = 1;
 //		tcflush(fd, TCIFLUSH);
 		if ( ModbusDebugLevel>=2 )
-			printf("Serial config...\n");
+			printf(_("Serial config...\n"));
 		tcsetattr(fd,TCSANOW,&newtio);
 	}
 }
@@ -230,15 +233,15 @@ int SerialReceive( char * Buff, int MaxBuffLength, int TimeOutResp )
                 tv.tv_sec = TimeOutResp / 1000; //seconds
                 tv.tv_usec = (TimeOutResp % 1000) * 1000; //micro-seconds
                 if ( ModbusDebugLevel>=3 )
-                        printf("select() for serial reading...\n");
+                        printf(_("select() for serial reading...\n"));
                 recep_descrip = select( 16, &myset, NULL, NULL, &tv );
                 if ( recep_descrip>0 )
                 {
                         if ( ModbusDebugLevel>=2 )
-                                printf("Serial reading...\n");
+                                printf(_("Serial reading...\n"));
                         NbrCarsReceived = read(fd,Buff,MaxBuffLength);
                         if ( ModbusDebugLevel>=2 )
-                                printf("%d chars found\n", NbrCarsReceived);
+                                printf(_("%d chars found\n"), NbrCarsReceived);
                 }
 	}
 	return NbrCarsReceived;
@@ -249,7 +252,7 @@ void SerialFlush( void )
 	if ( PortIsOpened )
 	{
 		if ( ModbusDebugLevel>=2 )
-			printf("Serial flush all!\n");
+			printf(_("Serial flush all!\n"));
 		tcflush( fd, TCIOFLUSH );
 		usleep( 250*1000 );
 		tcflush( fd, TCIOFLUSH );

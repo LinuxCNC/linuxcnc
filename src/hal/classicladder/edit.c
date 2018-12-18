@@ -23,7 +23,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,57 +143,57 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
 				strcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
-				SetProperty(0,"Variable",TextToWrite);
+				SetProperty(0,_("Variable"),TextToWrite);
 				break;
 			case ELE_OUTPUT_JUMP:
-				SetProperty(0,"JumpToLabel",RungArray[Element->VarNum].Label);
+				SetProperty(0,_("JumpToLabel"),RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
 				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,"Sub-Routine",TextToWrite);
+				SetProperty(0,_("Sub-Routine"),TextToWrite);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,"TimerNbr",TextToWrite);
+				SetProperty(0,_("TimerNbr"),TextToWrite);
 				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
-				SetProperty(1,"Base",TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite);
 				sprintf(TextToWrite,"%d",Timer->Preset/Timer->Base);
-				SetProperty(2,"Preset",TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,"MonostNbr",TextToWrite);
+				SetProperty(0,_("MonostNbr"),TextToWrite);
 				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
-				SetProperty(1,"Base",TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite);
 				sprintf(TextToWrite,"%d",Monostable->Preset/Monostable->Base);
-				SetProperty(2,"Preset",TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,"CounterNbr",TextToWrite);
+				SetProperty(0,_("CounterNbr"),TextToWrite);
 				sprintf(TextToWrite,"%d",Counter->Preset);
-				SetProperty(1,"Preset",TextToWrite);
+				SetProperty(1,_("Preset"),TextToWrite);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
 				sprintf(TextToWrite,"%d",Element->VarNum);
-				SetProperty(0,"TimerNbr",TextToWrite);
+				SetProperty(0,_("TimerNbr"),TextToWrite);
 				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
-				SetProperty(1,"Base",TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite);
 				sprintf(TextToWrite,"%d",TimerIEC->Preset);
-				SetProperty(2,"Preset",TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite);
 				sprintf(TextToWrite,"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
-				SetProperty(3,"TimerMode",TextToWrite);
+				SetProperty(3,_("TimerMode"),TextToWrite);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
 				strcpy(TextToWrite,DisplayArithmExpr(EditArithmExpr[Element->VarNum].Expr,0));
-				SetProperty(0,"Expression",TextToWrite);
+				SetProperty(0,_("Expression"),TextToWrite);
 				break;
 		}
 	}
@@ -221,35 +223,35 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:				
-				sprintf(PropertiesText, "Variable: %s    Hal sig: %s",CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+				sprintf(PropertiesText, _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
 				break;
 			case ELE_OUTPUT_JUMP:
-				sprintf(PropertiesText, "Label: %s", RungArray[Element->VarNum].Label);
+				sprintf(PropertiesText, _("Label: %s"), RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf(PropertiesText, "Sub-Routine: %d", Element->VarNum);
+				sprintf(PropertiesText, _("Sub-Routine: %d"), Element->VarNum);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
-				sprintf(PropertiesText, "%cT%d: Preset=%d Base=%s", '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				sprintf(PropertiesText, _("%cT%d: Preset=%d Base=%s"), '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
-				sprintf(PropertiesText, "%cM%d: Preset=%d Base=%s", '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				sprintf(PropertiesText, _("%cM%d: Preset=%d Base=%s"), '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
-				sprintf(PropertiesText, "%cC%d: Preset=%d", '%', Element->VarNum, Counter->Preset);
+				sprintf(PropertiesText, _("%cC%d: Preset=%d"), '%', Element->VarNum, Counter->Preset);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
-				sprintf(PropertiesText, "%cTM%d: Preset=%d Base=%s Mode=%s", '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				sprintf(PropertiesText, _("%cTM%d: Preset=%d Base=%s Mode=%s"), '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				sprintf(PropertiesText,"HAL sig: %s",FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+				sprintf(PropertiesText,_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
 							
 				break;
 		}
@@ -346,7 +348,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 
 				{
 					ItIsOk = FALSE;
-					ErrorMessageVarParser = "Incompatible type of variable (must be an integer!)";
+					ErrorMessageVarParser = _("Incompatible type of variable (must be an integer!)");
 				}
 			}
 			else
@@ -385,9 +387,9 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		if (strlen(NewExpr)>=ARITHM_EXPR_SIZE-1)
 		{
 			NewExpr[ ARITHM_EXPR_SIZE-1 ] = '\0';
-			printf("New expr=%s\n", NewExpr );
+			printf(_("New expr=%s\n"), NewExpr );
 			ItIsOk = FALSE;
-			ErrorMessageVarParser = "Expression too long";
+			ErrorMessageVarParser = _("Expression too long");
 		}
 	}
 //printf("Parser Arithm ; ItIsOk=%d ; OriExpr=%s ; NewExpr=%s\n",ItIsOk, text, NewExpr);
@@ -404,7 +406,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 	/* Error Message */
 	if (ErrorMessageVarParser)
 	{
-		ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
+		ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
 	}
 	/* Give result */
 	if (ItIsOk)
@@ -454,7 +456,7 @@ void SaveElementProperties()
 					if ( !TEST_VAR_IS_A_BOOL( VarTypeEntered,VarNumEntered ) )
 
 					{
-						ShowMessageBox("Error","You must select a boolean variable !","Ok");
+						ShowMessageBox(_("Error"),_("You must select a boolean variable !"),_("Ok"));
 					}
 					else
 					{
@@ -465,9 +467,9 @@ void SaveElementProperties()
 				else
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox("Error",ErrorMessageVarParser,"Ok");
+						ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
 					else
-						ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
 				}
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
@@ -1076,7 +1078,7 @@ void GetSizesOfAnElement(short int NumEle,int * pSizeX, int * pSizeY)
 	}
 	if ( NumEle>=EDIT_CNX_WITH_TOP )
 	{
-		printf("!!!Abnormal current type=%d in rung...(file %s,line %d)\n", NumEle, __FILE__, __LINE__ );
+		printf(_("!!!Abnormal current type=%d in rung...(file %s,line %d)\n"), NumEle, __FILE__, __LINE__ );
 		*pSizeX = 0;
 		*pSizeY = 0;
 	}
@@ -1166,7 +1168,7 @@ void EditElementInRung(double x,double y)
 						//TODO: better error handling here (not creating element after...)
 						if ( EditDatas.Rung.Element[RungX][RungY].VarNum==-1 )
 						{
-							ShowMessageBox( "Error", "No more free function block available...please delete!", "Ok" );
+							ShowMessageBox( _("Error"), _("No more free function block available...please delete!"), _("Ok") );
 							EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
 						}
 						SetUsedStateFunctionBlock( NumElement, EditDatas.Rung.Element[RungX][RungY].VarNum, TRUE );

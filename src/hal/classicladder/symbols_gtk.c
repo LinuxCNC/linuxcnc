@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -115,7 +118,7 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 		case VAR_NAME:
 			if ( new_text[ 0 ]!='%' )
 			{
-				ShowMessageBox("Error","A variable name always start with '%' character !","Ok");
+				ShowMessageBox(_("Error"),_("A variable name always start with '%' character !"),_("Ok"));
 			}
 			else
 			{
@@ -131,9 +134,9 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 				else
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox( "Error", ErrorMessageVarParser, "Ok" );
+						ShowMessageBox( _("Error"), ErrorMessageVarParser, _("Ok") );
 					else
-						ShowMessageBox( "Error", "Unknown variable...", "Ok" );
+						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
 				}
 			}
 			break;
@@ -166,7 +169,7 @@ void OpenSymbolsWindow( void )
 	if ( !GTK_WIDGET_VISIBLE( SymbolsWindow ) )
 	{ DisplaySymbols();
 		gtk_widget_show (SymbolsWindow);
-		MessageInStatusBar("opened SYMBOLS window. Press again to close");
+		MessageInStatusBar(_("opened SYMBOLS window. Press again to close"));
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(SymbolsWindow) );
 #endif
@@ -184,10 +187,10 @@ void SymbolsInitGtk()
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
 	long ScanCol;
-	char * ColName[] = { "HiddenColNbr!", "Variable", "Symbol name", "HAL signal/Comment" };
+	char * ColName[] = { _("HiddenColNbr!"), _("Variable"), _("Symbol name"), _("HAL signal/Comment") };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
-	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), "Symbols names" );
+	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), _("Symbols names") );
 	gtk_signal_connect( GTK_OBJECT( SymbolsWindow ), "delete_event",
 		(GtkSignalFunc)SymbolsWindowDeleteEvent, 0 );
 
