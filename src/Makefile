@@ -228,6 +228,7 @@ SUBDIRS := \
 	hal/user_comps/vfs11_vfd \
 	hal/user_comps/vfdb_vfd \
 	hal/user_comps/huanyang-vfd \
+	hal/user_comps/xhc-whb04b-6 \
 	hal/classicladder \
 	hal/utils \
 	hal \
