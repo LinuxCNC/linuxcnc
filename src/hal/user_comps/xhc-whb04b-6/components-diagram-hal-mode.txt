@@ -1,0 +1,26 @@
+@startuml
+agent WHB04B_6
+
+frame HAL_Components {
+ component ComponentN
+ component Component2
+ component Component1
+ component WhbComponent
+
+ cloud SHM {
+   interface inputs
+   interface outputs
+ }
+
+ WhbComponent <-- inputs : r
+ WhbComponent --> outputs : w
+
+ ComponentN <--> SHM : r/w
+ Component2 <--> SHM : r/w
+ Component1 <--> SHM : r/w
+ WHB04B_6 <-->WhbComponent: USB i/o
+}
+
+caption Fig1: Components diagram in HAL mode usecase.
+
+@enduml
