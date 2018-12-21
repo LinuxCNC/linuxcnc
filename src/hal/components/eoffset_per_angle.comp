@@ -15,14 +15,14 @@ input (\\fBk\\fR) -- its reciprocal value is presented on an output pin
 (\\fBkreciprocal\\fR) for connection to \\fBaxis.L.eoffset-scale\\fR.
 The default value for \\fBk\\fR should be suitable for most uses.
 
-The built-in functions use pins \\fBfmul\\fR and \\fBrfraction\\fR
+The built-in functions use pins \\fBfmult\\fR and \\fBrfraction\\fR
 to control the output frequency (or number of polygon sides)
 and amplitude respectively.  The  \\fBrfraction\\fR pin controls
 the offset amplitude as a fraction of the \\fBradius-ref\\fR pin.
 
 One of the four built-in functions is specified by the \\fBfnum\\fR pin:
-  \\fB0\\fR: f0 inside  polygon  (requires \\fBfmul\\fR == nsides >= 3)
-  \\fB1\\fR: f1 outside polygon  (requires \\fBfmul\\fR == nsides >= 3)
+  \\fB0\\fR: f0 inside  polygon  (requires \\fBfmult\\fR == nsides >= 3)
+  \\fB1\\fR: f1 outside polygon  (requires \\fBfmult\\fR == nsides >= 3)
   \\fB2\\fR: f2 sinusoid
   \\fB3\\fR: f3 square wave
 
@@ -70,7 +70,7 @@ pin  in float angle       = 0     "Input angle (in degrees)";
 pin  in float start_angle = 0     "Start angle (in degrees)";
 pin  in   s32 fnum        = 0     "Function selector (default 0)";
 pin  in float rfraction   = 0.1   "Offset amplitude (+/- fraction of radius_ref)";
-pin  in float fmul        = 6     "Offset frequency multiplier";
+pin  in float fmult       = 6     "Offset frequency multiplier";
 pin  in   u32 k           = 10000 "Scaling Factor (if 0, use 10000)";
 
 pin out   bit is_off      "invert is_on (for convenience)";
@@ -256,7 +256,7 @@ FUNCTION(_) {
     dptr->astart      = start_angle;
     dptr->r_ref       = radius_ref;
     dptr->r_frac      = rfraction;
-    dptr->fmultiplier = fmul;
+    dptr->fmultiplier = fmult;
 
     if (thefunc(dptr) ) {
         // thefunc returned nonzero (problem)
