@@ -160,8 +160,8 @@ class _Lcnc_Action(object):
         self.cmd.rapidrate(rate/100.0)
     def SET_FEED_RATE(self, rate):
         self.cmd.feedrate(rate/100.0)
-    def SET_SPINDLE_RATE(self, rate):
-        self.cmd.spindleoverride(rate/100.0)
+    def SET_SPINDLE_RATE(self, rate, number = 0):
+        self.cmd.spindleoverride(rate/100.0, number)
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
@@ -171,14 +171,14 @@ class _Lcnc_Action(object):
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100):
-        self.cmd.spindle(direction,rpm)
-    def SET_SPINDLE_FASTER(self):
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE)
-    def SET_SPINDLE_SLOWER(self):
-        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE)
-    def SET_SPINDLE_STOP(self):
-        self.cmd.spindle(linuxcnc.SPINDLE_OFF)
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+        self.cmd.spindle(direction, rpm, number)
+    def SET_SPINDLE_FASTER(self, number = 0):
+        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+    def SET_SPINDLE_SLOWER(self, number = 0):
+        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
+    def SET_SPINDLE_STOP(self, number = 0):
+        self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 
     def SET_USER_SYSTEM(self, system):
         systemnum = str(system).strip('gG')
