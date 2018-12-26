@@ -621,12 +621,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* set the emcmotDebug->coordinating flag to defer transition to
 	       controller cycle */
 
-#if 0   // disallow in task,rs274ngc not here
-	    if (emcmotStatus->external_offsets_applied) {
-	        reportError("Cannot begin COORD motion with external offsets");
-	        break;
-	    }
-#endif
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
