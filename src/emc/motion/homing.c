@@ -184,14 +184,9 @@ void do_homing_sequence(void)
                 joint_in_sequence[i] = 1;
                 // unspecified joints have an unrealizable home_sequence:
                 if (joint->home_sequence >100) {
-#if 1
                    // docs: 'If HOME_SEQUENCE is not specified then this joint
                    //        will not be homed by the HOME ALL sequence'
                    joint_in_sequence[i] = 0;  // per docs
-#else
-                   // legacy behavior
-                   joint->home_sequence = 0;  // per rtest
-#endif
                 }
             }
             sequence_is_set = 1;
