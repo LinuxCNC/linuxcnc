@@ -35,6 +35,15 @@ EOF
 exit 1
 }
 
+git_commit () {
+  dir=$(dirname $0)
+  if [ "${dir}" = "/usr/bin" ] ; then
+    echo NA
+  else
+    echo $(cd $dir; git rev-parse --short HEAD 2>/dev/null)
+  fi
+}
+
 # try to find a visual editor to show created file
 # use list with existing preference first, then other common editors
 editors="$VISUAL gedit mousepad geany nedit gvim abiword"
@@ -141,7 +150,8 @@ echo
 echo "Versions:"
 show "             gcc" $(gcc --version|head -1)
 show "          python" $(python --version 2>&1)
-show "             git" $(git --version)
+show "             git" $(tryversion git)
+show "      git commit" $(git_commit)
 show "             tcl" $(echo "puts $::tcl_version"|tclsh)
 show "              tk" $(echo "puts $::tk_version;destroy ."|wish)
 show "           glade" $(tryversion glade)
