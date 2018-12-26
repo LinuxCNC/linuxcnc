@@ -1397,7 +1397,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
 	    break;
-/*! \todo FIXME - need to replace the ext function */
 	case EMCMOT_JOINT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
@@ -1406,10 +1405,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-/*! \todo Another #if 0 */
-#if 0
-	    extAmpEnable(joint_num, 1);
-#endif
 	    break;
 
 	case EMCMOT_JOINT_DISABLE_AMPLIFIER:
@@ -1421,10 +1416,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-/*! \todo Another #if 0 */
-#if 0
-	    extAmpEnable(joint_num, 0);
-#endif
 	    break;
 
 	case EMCMOT_JOINT_HOME:
