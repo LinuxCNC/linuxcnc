@@ -1755,7 +1755,7 @@ static void check_hal_changes()
 		counts = new_halui_data.so_counts[spindle];
 		if (counts != old_halui_data.so_counts[spindle]) {
 			if (new_halui_data.so_count_enable[spindle]) {
-				if (new_halui_data.so_direct_value) {
+				if (new_halui_data.so_direct_value[spindle]) {
 					sendSpindleOverride(spindle, counts * new_halui_data.so_scale[spindle]);
 				} else {
 					sendSpindleOverride(spindle, new_halui_data.so_value[spindle] + (counts - old_halui_data.so_counts[spindle]) *

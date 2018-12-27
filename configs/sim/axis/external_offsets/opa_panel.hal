@@ -21,7 +21,7 @@ net E:enable-in      => pyvcp.waveon
 
 net E:fnum           <= pyvcp.fnum-i
 net E:rfraction      <= pyvcp.rfraction
-net E:fmul           <= pyvcp.fmul
+net E:fmult          <= pyvcp.fmult
 net E:start-angle    <= pyvcp.start-angle
 
 net E:is-off         => ff1.reset

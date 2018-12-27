@@ -930,10 +930,6 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 	// for
 	// all
 
-/*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - per-joint Vscale temporarily? removed */
-	stat[joint_num].scale = emcmotStatus.axVscale[joint_num];
-#endif
 #ifdef WATCH_FLAGS
 	if (old_joint_flag[joint_num] != joint->flag) {
 	    printf("joint %d flag: %04X -> %04X\n", joint_num,

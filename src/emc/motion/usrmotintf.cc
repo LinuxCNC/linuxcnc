@@ -510,15 +510,6 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 /*! \todo Another #if 0 */
 #if 0				/*! \todo FIXME - change to work with joint
 				   structures */
-	printf("vscales:      \tQ: %.2f", s->qVscale);
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%d: %.2f", t, s->axVscale[t]);
-	}
-	printf("\n");
-#endif
-/*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
-				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%d", s->axisFlag[0] & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);

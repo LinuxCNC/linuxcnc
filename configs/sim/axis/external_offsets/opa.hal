@@ -43,5 +43,5 @@ net E:is-off         <= xo.is-off
 net E:enable-in      => xo.enable-in
 net E:fnum           => xo.fnum
 net E:rfraction      => xo.rfraction
-net E:fmul           => xo.fmul
+net E:fmult          => xo.fmult
 net E:start-angle    => xo.start-angle

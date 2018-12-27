@@ -68,18 +68,6 @@
 #include "tp_debug.h"
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
-/*
-* External offsets behavior for teleop jogging with non-zero eoffset:
-*   Default behavior will not allow teleop jogs to reach soft limits
-*   (in direction opposite to applied offset) if external offsets are
-*   applied.
-*
-*   ALT_EOFFSET_BEHAVIOR:
-*   Alternate behavior allows teleop jogging to soft limits
-*   when non-zero external offsets are applied
-*/
-#undef  ALT_EOFFSET_BEHAVIOR
-#define ALT_EOFFSET_BEHAVIOR
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -621,12 +609,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    /* set the emcmotDebug->coordinating flag to defer transition to
 	       controller cycle */
 
-#if 0   // disallow in task,rs274ngc not here
-	    if (emcmotStatus->external_offsets_applied) {
-	        reportError("Cannot begin COORD motion with external offsets");
-	        break;
-	    }
-#endif
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
 	    emcmotDebug->coordinating = 1;
 	    emcmotDebug->teleoperating = 0;
@@ -861,14 +843,7 @@ void emcmotCommandHandler(void *arg, long period)
             } else {
                 // TELEOP  JOG_CONT
                 if (GET_MOTION_ERROR_FLAG()) { break; }
-#ifndef ALT_EOFFSET_BEHAVIOR
-                if (emcmotCommand->vel > 0.0) {
-                    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
-                } else {
-                    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
-                }
-#else
-{               axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
+                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
                 if (   axis->ext_offset_tp.enable
                     && (fabs(*(axis_data->external_offset)) > EOFFSET_EPSILON)) {
                     /* here: set pos_cmd to a big number so that with combined
@@ -879,7 +854,7 @@ void emcmotCommandHandler(void *arg, long period)
                     *  criterion in control.c
                     */
                     if (emcmotCommand->vel > 0.0) {
-                        axis->teleop_tp.pos_cmd =  1e12;
+                        axis->teleop_tp.pos_cmd =  1e12; // 1T halscope limit
                     } else {
                         axis->teleop_tp.pos_cmd = -1e12; // 1T halscope limit
                     }
@@ -890,8 +865,7 @@ void emcmotCommandHandler(void *arg, long period)
                         axis->teleop_tp.pos_cmd = axis->min_pos_limit;
                     }
                 }
-}
-#endif
+
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
 	        axis->teleop_tp.max_acc = axis->acc_limit;
 	        axis->kb_ajog_active = 1;
@@ -978,12 +952,7 @@ void emcmotCommandHandler(void *arg, long period)
 	        } else {
 		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
 	        }
-#ifndef ALT_EOFFSET_BEHAVIOR
-                /* don't jog past limits */
-                if (tmp1 > axis->max_pos_limit) { break; }
-                if (tmp1 < axis->min_pos_limit) { break; }
-#else
-{               axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
+                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
                 // a fixed epsilon is used here for convenience
                 // it is not the same as the epsilon used as a stopping 
                 // criterion in control.c
@@ -994,8 +963,6 @@ void emcmotCommandHandler(void *arg, long period)
                     if (tmp1 > axis->max_pos_limit) { break; }
                     if (tmp1 < axis->min_pos_limit) { break; }
                 }
-}
-#endif
 
 	        axis->teleop_tp.pos_cmd = tmp1;
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
@@ -1444,7 +1411,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
 	    break;
-/*! \todo FIXME - need to replace the ext function */
 	case EMCMOT_JOINT_ENABLE_AMPLIFIER:
 	    /* enable the amplifier directly, but don't enable calculations */
 	    /* can be done at any time */
@@ -1453,10 +1419,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-/*! \todo Another #if 0 */
-#if 0
-	    extAmpEnable(joint_num, 1);
-#endif
 	    break;
 
 	case EMCMOT_JOINT_DISABLE_AMPLIFIER:
@@ -1468,10 +1430,6 @@ void emcmotCommandHandler(void *arg, long period)
 	    if (joint == 0) {
 		break;
 	    }
-/*! \todo Another #if 0 */
-#if 0
-	    extAmpEnable(joint_num, 0);
-#endif
 	    break;
 
 	case EMCMOT_JOINT_HOME:

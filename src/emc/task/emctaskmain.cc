@@ -2155,15 +2155,6 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// now queue up command to resynch interpreter
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 	    }
-#if 0
-//provisional
-            if  (   GET_EXTERNAL_OFFSET_APPLIED()
-                 && (   (mode_msg->mode == EMC_TASK_MODE_AUTO)
-                     || (mode_msg->mode == EMC_TASK_MODE_MDI) ) ) {
-                 fprintf(stderr,"Starting with EXTERNAL OFFSETS applied\n");
-            }
-#endif
-
 	    retval = emcTaskSetMode(mode_msg->mode);
 	}
 	break;

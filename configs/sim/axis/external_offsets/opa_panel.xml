@@ -172,7 +172,7 @@
 
       <hbox>
         <spinbox>
-          <halpin>"fmul"</halpin>
+          <halpin>"fmult"</halpin>
           <min_>1.0</min_>
           <max_>20.0</max_>
           <width>4</width>
@@ -183,7 +183,7 @@
         </spinbox>
         <label>
           <anchor>"w"</anchor>
-          <text>"fmul"</text>
+          <text>"fmult"</text>
           <font>"bold"</font>
         </label>
       </hbox>
