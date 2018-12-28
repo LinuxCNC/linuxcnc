@@ -101,18 +101,18 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << endl
         << "EXAMPLES" << endl
         << programName << " -ue" << endl
-        << "    Prints incoming USB data transfer and generated key pressed/released events." << endl
+        << "    Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events." << endl
         << endl
         << programName << " -p" << endl
-        << "    Prints hal pin names and events distributed to HAL memory." << endl
+        << "    Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory." << endl
         << endl
-        << programName << " -Ha" << endl
+        << programName << " -Hn" << endl
         << "    Start in HAL mode and avoid output, except of errors." << endl
         << endl
         << "AUTHORS" << endl
-        << "    This component was started by Raoul Rubien (github.com/rubienr) based on predecessor "
-            "device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors "
-            "gives you a more complete list of contributors."
+        << "    This component was started by Raoul Rubien based on predecessor "
+           "device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors "
+           "gives you a more complete list of contributors."
         << endl;
 
     if (isError)
@@ -172,6 +172,7 @@ int main(int argc, char** argv)
                 WhbComponent->setWaitWithTimeout(3);
                 break;
             case 'e':
+                WhbComponent->enableVerbosePendant(true);
                 WhbComponent->setEnableVerboseKeyEvents(true);
                 break;
             case 'u':
@@ -189,6 +190,7 @@ int main(int argc, char** argv)
                 break;
             case 'a':
                 WhbComponent->enableVerboseInit(true);
+                WhbComponent->enableVerbosePendant(true);
                 WhbComponent->setEnableVerboseKeyEvents(true);
                 WhbComponent->enableVerboseRx(true);
                 WhbComponent->enableVerboseTx(true);
