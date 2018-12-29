@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.4"
+_RELEASE = " 2.3.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1873,6 +1873,12 @@ class gmoccapy(object):
 
     def on_hal_status_mode_mdi(self, widget):
         print ("MDI Mode", self.tool_change)
+
+        # if the edit offsets button is active, we do not want to change
+        # pages, as the user may want to edit several axis values
+        if self.widgets.tbtn_edit_offsets.get_active():
+            return
+
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1882,6 +1888,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_jog.set_current_page(0)
             return
+
         # if MDI button is not sensitive, we are not ready for MDI commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
@@ -3496,8 +3503,10 @@ class gmoccapy(object):
         self.widgets.offsetpage1.edit_button.set_active(state)
         widgetlist = ["btn_set_value_x", "btn_set_value_y", "btn_set_value_z", 
                       "btn_set_selected", "ntb_jog", "btn_set_selected", 
-                      "btn_zero_g92"
+                      "btn_zero_g92","rbt_mdi","rbt_auto","tbtn_setup"
                       ]
+        if self.widgets.tbtn_user_tabs.get_sensitive():
+            widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets(widgetlist, not state)
 
         if state:
