@@ -1,3 +1,11 @@
+ver. 1.5.11
+- Leon82 mentioned, that offset page did close after editing a column and leaving
+  the edited cell. This was caused due to a hidden mode change to MDI because
+  leaving the cell would apply the change using MDI commands from 
+  offset page_widget.py. Gmoccapy now checks the state of the "EDIT OFFSETS" 
+  toggle button and does not react to MDI Mode switch if that button is active.
+  at the same time, the mode buttons etc. are disabled!
+
 ver. 1.5.10
 - fixed a misbehavior of the turtle button
   If machine and system units was not identical, the turtle button destroyed
@@ -6,7 +14,6 @@ ver. 1.5.10
 - while moving the max vel slider and units of machine and system not being 
   identical, results in a jumping slider, as the factor has not been taken in 
   account on the halui pin checking
-
 
 ver. 1.5.9
 - fixed a bug on import gst, leading to an exception if gst is not installed

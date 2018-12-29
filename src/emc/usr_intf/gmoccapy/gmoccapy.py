@@ -68,26 +68,10 @@ def excepthook( exc_type, exc_obj, exc_tb ):
 
 sys.excepthook = excepthook
 
-debug = False
-
-if debug:
-    pydevdir = '/home/emcmesa/Aptana_Studio_3/plugins/org.python.pydev_2.7.0.2013032300/pysrc'
-
-    if os.path.isdir( pydevdir ):  # and  'emctask' in sys.builtin_module_names:
-        sys.path.append( pydevdir )
-        sys.path.insert( 0, pydevdir )
-        try:
-            import pydevd
-
-            print( "pydevd imported, connecting to Eclipse debug server..." )
-            pydevd.settrace()
-        except:
-            print( "no pydevd module found" )
-            pass
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 1.5.10"
+_RELEASE = " 1.5.11"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 _TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
@@ -1716,6 +1700,11 @@ class gmoccapy( object ):
         self._check_limits()
 
     def on_hal_status_mode_mdi( self, widget ):
+        # if the edit offsets button is active, we do not want to change
+        # pages, as the user may want to edit several axis values
+        if self.widgets.tbtn_edit_offsets.get_active():
+            return
+
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -3130,8 +3119,12 @@ class gmoccapy( object ):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active( state )
         widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92"
+                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92",
+                      "rbt_mdi","rbt_auto","tbtn_setup"
         ]
+
+        if self.widgets.tbtn_user_tabs.get_sensitive():
+            widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
 
         if state:
