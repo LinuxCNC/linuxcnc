@@ -203,10 +203,13 @@ public:
         //! to be connected to \ref axis.5.jog-vel-mode
         hal_bit_t* axisCSetVelocityMode{nullptr};
 
-        hal_bit_t* feedValueSelected0_001{nullptr};
-        hal_bit_t* feedValueSelected0_01{nullptr};
-        hal_bit_t* feedValueSelected0_1{nullptr};
-        hal_bit_t* feedValueSelected1_0{nullptr};
+        hal_bit_t* feedValueSelected_0_001{nullptr};
+        hal_bit_t* feedValueSelected_0_01{nullptr};
+        hal_bit_t* feedValueSelected_0_1{nullptr};
+        hal_bit_t* feedValueSelected_1_0{nullptr};
+        hal_bit_t* feedValueSelected_60{nullptr};
+        hal_bit_t* feedValueSelected_100{nullptr};
+        hal_bit_t* feedValueSelected_lead{nullptr};
 
         //! to be connected to \ref  \ref halui.feed-override.scale
         hal_float_t* feedOverrideScale{nullptr};
@@ -221,6 +224,8 @@ public:
         //! to be connected to \ref halui.feed-override.increase
         hal_bit_t  * feedOverrideIncrease{nullptr};
 
+        //! to be connected to \ref halui.spindle.start
+        hal_bit_t* spindleStart{nullptr};
         //! to be connected to \ref halui.spindle.stop
         hal_bit_t* spindleStop{nullptr};
         //! to be connected to \ref halui.spindle.forward
@@ -235,9 +240,6 @@ public:
         hal_bit_t* spindleOverrideDoDecrease{nullptr};
         //! to be connected to halui.spindle-override.increase
         hal_bit_t* spindleOverrideDoIncrease{nullptr};
-
-        //! to be connected to \ref halui.jog-speed
-        hal_float_t* jogSpeedValue{nullptr};
 
         //! to be connected to \ref halui.home-all
         hal_bit_t* homeAll{nullptr};
@@ -321,7 +323,7 @@ public:
     const char* getHalComponentName() const;
     //! Enables verbose hal output.
     //! \param enable true to enable hal messages, disable otherwise
-    void setEnableVerbose(bool enable);
+    void enableVerbose(bool enable);
     //! If set indicates that no other axis is active.
     //! \param enabled true if no axis is active, false otherwise
     void setNoAxisActive(bool enabled);
@@ -405,21 +407,36 @@ public:
     hal_float_t getFeedUps() const;
 
     //! Propagates the feed value 0.001 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_001
+    //! \sa Hal::Out::feedValueSelected_0_001
     //! \param selected true if 0.001 is selected, false otherwise
     void setFeedValueSelected0_001(bool selected);
     //! Propagates the feed value 0.01 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_01
+    //! \sa Hal::Out::feedValueSelected_0_01
     //! \param selected true if 0.01 is selected, false otherwise
     void setFeedValueSelected0_01(bool selected);
     //! Propagates the feed value 0.1 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_1
+    //! \sa Hal::Out::feedValueSelected_0_1
     //! \param selected true if 0.1 is selected, false otherwise
     void setFeedValueSelected0_1(bool selected);
     //! Propagates the feed value 1.0 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected1_0
+    //! \sa Hal::Out::feedValueSelected_1_0
     //! \param selected true if 1.0 is selected, false otherwise
     void setFeedValueSelected1_0(bool selected);
+
+    //! Propagates the feed value 60% selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_60
+    //! \param selected true if 60% is selected, false otherwise
+    void setFeedValueSelected60(bool selected);
+
+    //! Propagates the feed value 100% selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_100
+    //! \param selected true if 100% is selected, false otherwise
+    void setFeedValueSelected100(bool selected);
+
+    //! Propagates the feed value Lead selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_lead
+    //! \param selected true if Lead is selected, false otherwise
+    void setFeedValueSelectedLead(bool selected);
 
     //! Returns the spindle speed.
     //! \return the spindle speed in rounds per second

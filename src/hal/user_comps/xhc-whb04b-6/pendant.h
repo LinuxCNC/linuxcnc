@@ -24,6 +24,7 @@
 
 // system includes
 #include <type_traits>
+#include <ostream>
 #include <stdint.h>
 #include <list>
 
@@ -452,6 +453,7 @@ class Handwheel
 public:
     Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* listener = nullptr);
     ~Handwheel();
+    void enableVerbose(bool enable);
     void setMode(HandWheelCounters::CounterNameToIndex mode);
     void count(int8_t delta);
     const HandWheelCounters& counters() const;
@@ -465,6 +467,7 @@ private:
     bool              mIsEnabled{false};
     const FeedRotaryButton& mFeedButton;
     KeyEventListener      * mEventListener;
+    std::ostream          mDevNull{nullptr};
     std::ostream          * mWheelCout;
     const char            * mPrefix;
 };
@@ -575,6 +578,7 @@ public:
     void updateDisplayData();
     void clearDisplayData();
 
+    void enableVerbose(bool enable);
     const ButtonsState& currentButtonsState() const;
     const ButtonsState& previousButtonsState() const;
     const Handwheel& handWheel() const;
@@ -599,6 +603,7 @@ private:
     float mMaxVelocity;
 
     const char  * mPrefix;
+    std::ostream  mDevNull{nullptr};
     std::ostream* mPendantCout;
 
     void shiftButtonState();

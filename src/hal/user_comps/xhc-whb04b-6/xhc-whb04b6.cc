@@ -309,18 +309,20 @@ XhcWhb04b6Component::XhcWhb04b6Component() :
                  MetaButtonCodes(mKeyCodes.Buttons.undefined, mKeyCodes.Buttons.undefined)
     },
     mUsb(mName, *this, mHal),
-    mTxCout(&mDevNull),
+    //mTxCout(&mDevNull),
     mRxCout(&mDevNull),
-    mKeyEventCout(&mDevNull),
-    mHalInitCout(&mDevNull),
+    //mKeyEventCout(&mDevNull),
+    //mHalInitCout(&mDevNull),
     mInitCout(&mDevNull),
     packageReceivedEventReceiver(*this),
     mPendant(mHal, mUsb.getOutputPackageData())
 {
     setSimulationMode(true);
+    enableVerbosePendant(false);
     enableVerboseRx(false);
     enableVerboseTx(false);
     enableVerboseInit(false);
+    setEnableVerboseKeyEvents(false);
     enableVerboseHal(false);
 }
 
@@ -595,6 +597,13 @@ void XhcWhb04b6Component::teardownUsb()
 
 // ----------------------------------------------------------------------
 
+void XhcWhb04b6Component::enableVerbosePendant(bool enable)
+{
+    mPendant.enableVerbose(enable);
+}
+
+// ----------------------------------------------------------------------
+
 void XhcWhb04b6Component::enableVerboseRx(bool enable)
 {
     mUsb.enableVerboseRx(enable);
@@ -613,30 +622,29 @@ void XhcWhb04b6Component::enableVerboseRx(bool enable)
 void XhcWhb04b6Component::enableVerboseTx(bool enable)
 {
     mUsb.enableVerboseTx(enable);
-    if (enable)
+    /*if (enable)
     {
         mTxCout = &std::cout;
     }
     else
     {
         mTxCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------
 
 void XhcWhb04b6Component::enableVerboseHal(bool enable)
 {
-    mHal.setEnableVerbose(enable);
-
-    if (enable)
+    mHal.enableVerbose(enable);
+    /*if (enable)
     {
         mHalInitCout = &std::cout;
     }
     else
     {
         mHalInitCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------
@@ -701,14 +709,14 @@ bool XhcWhb04b6Component::isSimulationModeEnabled() const
 void XhcWhb04b6Component::setEnableVerboseKeyEvents(bool enable)
 {
     mUsb.enableVerboseRx(enable);
-    if (enable)
+    /*if (enable)
     {
         mKeyEventCout = &std::cout;
     }
     else
     {
         mKeyEventCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------

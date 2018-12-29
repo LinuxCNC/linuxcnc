@@ -67,6 +67,7 @@ public:
     bool isSimulationModeEnabled() const;
     void setSimulationMode(bool enableSimulationMode);
     void setEnableVerboseKeyEvents(bool enable);
+    void enableVerbosePendant(bool enable);
     void enableVerboseRx(bool enable);
     void enableVerboseTx(bool enable);
     void enableVerboseHal(bool enable);
@@ -85,10 +86,10 @@ private:
     bool                  mIsRunning{false};
     bool                  mIsSimulationMode{false};
     std::ostream          mDevNull{nullptr};
-    std::ostream             * mTxCout;
+    //std::ostream             * mTxCout;
     std::ostream             * mRxCout;
-    std::ostream             * mKeyEventCout;
-    std::ostream             * mHalInitCout;
+    //std::ostream             * mKeyEventCout;
+    //std::ostream             * mHalInitCout;
     std::ostream             * mInitCout;
     OnUsbInputPackageListener& packageReceivedEventReceiver;
     bool    mIsCrcDebuggingEnabled{false};

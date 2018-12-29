@@ -182,10 +182,13 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.axisBSetVelocityMode));
     freeSimulatedPin((void**)(&memory->out.axisCSetVelocityMode));
 
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected0_001));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected0_01));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected0_1));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected1_0));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_001));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_01));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_1));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_1_0));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_60));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_100));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_lead));
 
     freeSimulatedPin((void**)(&memory->out.feedOverrideScale));
     freeSimulatedPin((void**)(&memory->out.feedOverrideCountEnable));
@@ -194,6 +197,7 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.feedOverrideDecrease));
     freeSimulatedPin((void**)(&memory->out.feedOverrideIncrease));
 
+    freeSimulatedPin((void**)(&memory->out.spindleStart));
     freeSimulatedPin((void**)(&memory->out.spindleStop));
     freeSimulatedPin((void**)(&memory->out.spindleDoRunForward));
     freeSimulatedPin((void**)(&memory->out.spindleDoRunReverse));
@@ -201,8 +205,6 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.spindleDoIncrease));
     freeSimulatedPin((void**)(&memory->out.spindleOverrideDoDecrease));
     freeSimulatedPin((void**)(&memory->out.spindleOverrideDoIncrease));
-
-    freeSimulatedPin((void**)(&memory->out.jogSpeedValue));
 
     freeSimulatedPin((void**)(&memory->out.homeAll));
 
@@ -508,29 +510,6 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalFloat(HAL_OUT, &(memory->out.axisCJogScale), mHalCompId, "%s.axis.5.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisCSetVelocityMode), mHalCompId, "%s.axis.5.jog-vel-mode", mComponentPrefix);
 
-    newHalBit(HAL_OUT, &(memory->out.isPendantSleeping), mHalCompId, "%s.pendant.is-sleeping", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.isPendantConnected), mHalCompId, "%s.pendant.is-connected", mComponentPrefix);
-
-    newHalFloat(HAL_IN, &(memory->in.axisXPosition), mHalCompId, "%s.halui.axis.0.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisYPosition), mHalCompId, "%s.halui.axis.1.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisZPosition), mHalCompId, "%s.halui.axis.2.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisAPosition), mHalCompId, "%s.halui.axis.3.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisBPosition), mHalCompId, "%s.halui.axis.4.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisCPosition), mHalCompId, "%s.halui.axis.5.pos-feedback", mComponentPrefix);
-
-    newHalFloat(HAL_IN, &(memory->in.axisXPositionRelative), mHalCompId, "%s.halui.axis.0.pos-relative",
-                mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisYPositionRelative), mHalCompId, "%s.halui.axis.1.pos-relative",
-                mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisZPositionRelative), mHalCompId, "%s.halui.axis.2.pos-relative",
-                mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisAPositionRelative), mHalCompId, "%s.halui.axis.3.pos-relative",
-                mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisBPositionRelative), mHalCompId, "%s.halui.axis.4.pos-relative",
-                mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisCPositionRelative), mHalCompId, "%s.halui.axis.5.pos-relative",
-                mComponentPrefix);
-
     newHalFloat(HAL_IN, &(memory->in.stepgenXMaxVelocity), mHalCompId, "%s.stepgen.00.maxvel", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.stepgenXPositionScale), mHalCompId, "%s.stepgen.00.position-scale",
                 mComponentPrefix);
@@ -555,12 +534,43 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalFloat(HAL_IN, &(memory->in.stepgenCPositionScale), mHalCompId, "%s.stepgen.05.position-scale",
                 mComponentPrefix);
 
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected0_001), mHalCompId, "%s.halui.feed.selected-0.001",
+    newHalBit(HAL_OUT, &(memory->out.isPendantSleeping), mHalCompId, "%s.pendant.is-sleeping", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.isPendantConnected), mHalCompId, "%s.pendant.is-connected", mComponentPrefix);
+
+    newHalFloat(HAL_IN, &(memory->in.axisXPosition), mHalCompId, "%s.halui.axis.0.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisYPosition), mHalCompId, "%s.halui.axis.1.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisZPosition), mHalCompId, "%s.halui.axis.2.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisAPosition), mHalCompId, "%s.halui.axis.3.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisBPosition), mHalCompId, "%s.halui.axis.4.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisCPosition), mHalCompId, "%s.halui.axis.5.pos-feedback", mComponentPrefix);
+
+    newHalFloat(HAL_IN, &(memory->in.axisXPositionRelative), mHalCompId, "%s.halui.axis.0.pos-relative",
+                mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisYPositionRelative), mHalCompId, "%s.halui.axis.1.pos-relative",
+                mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisZPositionRelative), mHalCompId, "%s.halui.axis.2.pos-relative",
+                mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisAPositionRelative), mHalCompId, "%s.halui.axis.3.pos-relative",
+                mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisBPositionRelative), mHalCompId, "%s.halui.axis.4.pos-relative",
+                mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisCPositionRelative), mHalCompId, "%s.halui.axis.5.pos-relative",
+                mComponentPrefix);
+
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_001), mHalCompId, "%s.halui.feed.selected-0.001",
               mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected0_01), mHalCompId, "%s.halui.feed.selected-0.01",
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_01), mHalCompId, "%s.halui.feed.selected-0.01",
               mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected0_1), mHalCompId, "%s.halui.feed.selected-0.1", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected1_0), mHalCompId, "%s.halui.feed.selected-1.0", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_1), mHalCompId, "%s.halui.feed.selected-0.1",
+              mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_1_0), mHalCompId, "%s.halui.feed.selected-1.0",
+              mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_60), mHalCompId, "%s.halui.feed.selected-60",
+              mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_100), mHalCompId, "%s.halui.feed.selected-100",
+              mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_lead), mHalCompId, "%s.halui.feed.selected-lead",
+              mComponentPrefix);
 
     newHalFloat(HAL_OUT, &(memory->out.feedOverrideScale), mHalCompId, "%s.halui.feed-override.scale",
                 mComponentPrefix);
@@ -591,6 +601,7 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleOverrideDoDecrease), mHalCompId, "%s.halui.spindle-override.decrease",
               mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.spindleStart), mHalCompId, "%s.halui.spindle.start", mComponentPrefix);
     newHalBit(HAL_IN, &(memory->in.spindleIsOn), mHalCompId, "%s.halui.spindle.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleStop), mHalCompId, "%s.halui.spindle.stop", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleDoRunForward), mHalCompId, "%s.halui.spindle.forward", mComponentPrefix);
@@ -627,8 +638,6 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.jointASelect), mHalCompId, "%s.halui.joint.a.select", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.jointBSelect), mHalCompId, "%s.halui.joint.b.select", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.jointCSelect), mHalCompId, "%s.halui.joint.c.select", mComponentPrefix);
-
-    newHalFloat(HAL_OUT, &(memory->out.jogSpeedValue), mHalCompId, "%s.halui.jog-speed", mComponentPrefix);
 
     newHalBit(HAL_OUT, &(memory->out.homeAll), mHalCompId, "%s.halui.home-all", mComponentPrefix);
     mIsInitialized = true;
@@ -710,7 +719,7 @@ hal_float_t Hal::getAxisCPosition(bool absolute) const
 
 // ----------------------------------------------------------------------
 
-void Hal::setEnableVerbose(bool enable)
+void Hal::enableVerbose(bool enable)
 {
     if (enable)
     {
@@ -986,28 +995,49 @@ void Hal::setFeedOverrideCounts(hal_s32_t counts)
 
 void Hal::setFeedValueSelected0_001(bool selected)
 {
-    *memory->out.feedValueSelected0_001 = selected;
+    *memory->out.feedValueSelected_0_001 = selected;
 }
 
 // ----------------------------------------------------------------------
 
 void Hal::setFeedValueSelected0_01(bool selected)
 {
-    *memory->out.feedValueSelected0_01 = selected;
+    *memory->out.feedValueSelected_0_01 = selected;
 }
 
 // ----------------------------------------------------------------------
 
 void Hal::setFeedValueSelected0_1(bool selected)
 {
-    *memory->out.feedValueSelected0_1 = selected;
+    *memory->out.feedValueSelected_0_1 = selected;
 }
 
 // ----------------------------------------------------------------------
 
 void Hal::setFeedValueSelected1_0(bool selected)
 {
-    *memory->out.feedValueSelected1_0 = selected;
+    *memory->out.feedValueSelected_1_0 = selected;
+}
+
+// ----------------------------------------------------------------------
+
+void Hal::setFeedValueSelected60(bool selected)
+{
+    *memory->out.feedValueSelected_60 = selected;
+}
+
+// ----------------------------------------------------------------------
+
+void Hal::setFeedValueSelected100(bool selected)
+{
+    *memory->out.feedValueSelected_100 = selected;
+}
+
+// ----------------------------------------------------------------------
+
+void Hal::setFeedValueSelectedLead(bool selected)
+{
+    *memory->out.feedValueSelected_lead = selected;
 }
 
 // ----------------------------------------------------------------------
@@ -1139,11 +1169,13 @@ void Hal::toggleSpindleOnOff(bool isButtonPressed)
             {
                 *memory->out.spindleDoRunReverse = true;
             }
+            *memory->out.spindleStart = true;
         }
     }
     else
     {
         // on button released
+        *memory->out.spindleStart        = false;
         *memory->out.spindleStop         = false;
         *memory->out.spindleDoRunForward = false;
         *memory->out.spindleDoRunReverse = false;

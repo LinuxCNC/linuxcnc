@@ -700,7 +700,7 @@ void FeedRotaryButton::update()
     {
         auto enumValue = mContinuousKeycodeLut.find(mKey);
         assert(enumValue != mContinuousKeycodeLut.end());
-        auto second = enumValue->second;
+        auto second  = enumValue->second;
         mStepSize    = mContinuousSizeMapper.getStepSize(second);
         mIsPermitted = mContinuousSizeMapper.isPermitted(second);
     }
@@ -708,7 +708,7 @@ void FeedRotaryButton::update()
     {
         auto enumValue = mStepKeycodeLut.find(mKey);
         assert(enumValue != mStepKeycodeLut.end());
-        auto second = enumValue->second;
+        auto second  = enumValue->second;
         mStepSize    = mStepStepSizeMapper.getStepSize(second);
         mIsPermitted = mStepStepSizeMapper.isPermitted(second);
     }
@@ -797,9 +797,8 @@ std::ostream& operator<<(std::ostream& os, const Handwheel& data)
 
 const HandWheelCounters& Handwheel::counters() const
 {
-    return static_cast<const HandWheelCounters& >(
-        static_cast<Handwheel>(*this).counters()
-    );
+    Handwheel* self = const_cast<Handwheel*>(this);
+    return static_cast<const HandWheelCounters&>(self->counters());
 }
 
 // ----------------------------------------------------------------------
@@ -813,6 +812,20 @@ void Handwheel::setEnabled(bool enabled)
 HandWheelCounters& Handwheel::counters()
 {
     return mCounters;
+}
+
+// ----------------------------------------------------------------------
+
+void Handwheel::enableVerbose(bool enable)
+{
+    if (enable)
+    {
+        mWheelCout = &std::cout;
+    }
+    else
+    {
+        mWheelCout = &mDevNull;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1081,6 +1094,21 @@ void Pendant::shiftButtonState()
 {
     mPreviousButtonsState = mCurrentButtonsState;
     mCurrentButtonsState.clearPressedButtons();
+}
+
+// ----------------------------------------------------------------------
+
+void Pendant::enableVerbose(bool enable)
+{
+    mHandWheel.enableVerbose(enable);
+    if (enable)
+    {
+        mPendantCout = &std::cout;
+    }
+    else
+    {
+        mPendantCout = &mDevNull;
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1507,6 +1535,18 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected1_0(isActive);
     }
+    else if (feed.code == KeyCodes::Feed.percent_60.code)
+    {
+        mHal.setFeedValueSelected60(isActive);
+    }
+    else if (feed.code == KeyCodes::Feed.percent_100.code)
+    {
+        mHal.setFeedValueSelected100(isActive);
+    }
+    else if (feed.code == KeyCodes::Feed.lead.code)
+    {
+        mHal.setFeedValueSelectedLead(isActive);
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -1846,4 +1886,3 @@ void Display::clearData()
     mDisplayData.row3Coordinate.clear();
 }
 }
-
