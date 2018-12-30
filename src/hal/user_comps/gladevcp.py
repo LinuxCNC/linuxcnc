@@ -115,7 +115,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
             mod = __import__(basename)
         except ImportError,msg:
             print "module '%s' skipped - import error: %s" %(basename,msg)
-	    continue
+            continue
         dbg("module '%s' imported OK" % mod.__name__)
         try:
             # look for 'get_handlers' function
