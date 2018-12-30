@@ -285,6 +285,14 @@ class gmoccapy(object):
         self._make_jog_button()
         self._make_macro_button()
 
+        # if we have a lathe, we need to rearrange some stuff
+        # we will do that in a separate function
+        if self.lathe_mode:
+            self._make_lathe()
+        
+        self._arrange_dro()
+        self._arrange_jog_button()
+
 #        self._get_axis_list()
 
 #        self._init_jog_increments()
@@ -688,6 +696,87 @@ class gmoccapy(object):
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
+    def _arrange_dro(self):
+        # if we have less than 4 axis, we can resize the table, as we have 
+        # enough space to display each one in it's own line
+
+        if len(self.dro_dic) < 4:
+            self._place_in_table(len(self.dro_dic),1, self.dro_size)
+
+        # having 4 DRO we need to reduce the size, to fit the available space
+        elif len(self.dro_dic) == 4:
+            self._place_in_table(len(self.dro_dic),1, self.dro_size * 0.75)
+
+        # having 5 axis we will display 3 in an one line and two DRO share 
+        # the last line, the size of the DRO must be reduced also
+        # this is a special case so we do not use _place_in_table
+        elif len(self.dro_dic) == 5:
+            self.widgets.tbl_DRO.resize(4,2)
+            for dro, axis in enumerate(self.axis_list):
+                dro_name = "Combi_DRO_{0}".format(dro)
+                if dro < 3:
+                    size = self.dro_size * 0.75
+                    self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
+                else:
+                    size = self.dro_size * 0.65
+                    if dro == 3:
+                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
+                    else:
+                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
+                self.dro_dic[dro_name].set_property("font_size", size)
+
+        else:
+            print("**** GMOCCAPY build_GUI INFO ****")
+            print("**** more than 5 axis ")
+            # check if amount of axis is an even number, adapt the needed lines
+            if len(self.dro_dic) % 2 == 0:
+                rows = len(self.dro_dic) / 2
+            else:
+                rows = (len(self.dro_dic) + 1) / 2
+            self._place_in_table(rows, 2, self.dro_size * 0.65)
+
+        # set values to dro size adjustments
+        self.widgets.adj_dro_size.set_value(self.dro_size)
+
+    def _place_in_table(self, rows, cols, dro_size):
+        print("gmoccapy build_gui INFO")
+        print ("we are in place in table")
+
+        self.widgets.tbl_DRO.resize(rows, cols)
+        col = 0
+        row = 0
+
+        # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
+        if "Combi_DRO_9" in self.dro_dic.keys():
+            children = self.widgets.tbl_DRO.get_children()
+            print (children)
+            dro_order = ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
+                         "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]
+        else:
+            dro_order = sorted(self.dro_dic.keys())
+
+        for dro, dro_name in enumerate(dro_order):
+            # as a lathe might not have all Axis, we check if the key is in directory
+            if dro_name not in self.dro_dic.keys():
+                continue
+            self.dro_dic[dro_name].set_property("font_size", dro_size)
+
+            self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
+                                        col, col+1, row, row + 1, ypadding = 0)
+            if cols > 1:
+                # calculate if we have to place in the first or the second column
+                if (dro % 2 == 1):
+                    col = 0
+                    row +=1
+                else:
+                    col += 1
+            else:
+                row += 1
+
+
     def _make_ref_button(self):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make ref button")
@@ -713,6 +802,7 @@ class gmoccapy(object):
     
         file = "ref_all.png"
         filepath = os.path.join(IMAGEDIR, file)
+        print("Filepath = ", filepath)
         btn = self._get_button_with_image("ref_all", filepath, None)
         btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
         btn.connect("clicked", self._on_btn_home_clicked)
@@ -737,6 +827,7 @@ class gmoccapy(object):
 
             file = "ref_{0}.png".format(elem)
             filepath = os.path.join(IMAGEDIR, file)
+            print("Filepath = ", filepath)
 
             name = "home_{0}_{1}".format(name_prefix, elem)
             btn = self._get_button_with_image(name, filepath, None)
@@ -765,6 +856,7 @@ class gmoccapy(object):
  
         file = "unhome.png"
         filepath = os.path.join(IMAGEDIR, file)
+        print("Filepath = ", filepath)
         name = "unref_all"
         btn = self._get_button_with_image(name, filepath, None)
         btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
@@ -806,8 +898,6 @@ class gmoccapy(object):
         btn.set_property("name", name)
         btn.show_all()
         return btn
-
-
 
     def _make_touch_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -2359,10 +2449,18 @@ class gmoccapy(object):
             self._sensitize_widgets(widgetlist, True)
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
+
         if self.onboard:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
+            file = "keyboard.png"
+            filepath = os.path.join(IMAGEDIR, file)
         else:
-            self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
+            file = "stop.png"
+            filepath = os.path.join(IMAGEDIR, file)
+        image = self.macro_dic["keyboard"].get_image()
+        image.set_from_file(filepath)
+        self.macro_dic["keyboard"].show_all()
+        print ("new image = ",image)
+
         self.widgets.btn_run.set_sensitive(True)
 
         if self.tool_change:
@@ -2386,8 +2484,8 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
 
-        self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
-        self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
+        self.macro_dic["keyboard"].set_image(self.widgets.img_brake_macro)
+        self.macro_dic["keyboard"].set_property("tooltip-text", _("interrupt running macro"))
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         # need to save the tool in spindle as preference, to be able to reload it on startup
