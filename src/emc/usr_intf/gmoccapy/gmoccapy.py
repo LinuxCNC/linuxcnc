@@ -176,7 +176,7 @@ class gmoccapy(object):
         self.builder.connect_signals(self)
 
         self.widgets = widgets.Widgets(self.builder)
-
+        
         self.initialized = False  # will be set True after the window has been shown and all
                                   # basic settings has been finished, so we avoid some actions
                                   # because we cause click or toggle events when initializing
@@ -285,10 +285,9 @@ class gmoccapy(object):
         self._make_jog_button()
         self._make_macro_button()
 
-        self._get_axis_list()
-        # self._init_extra_axes() # will be called from _get_axis_list
+#        self._get_axis_list()
 
-        self._init_jog_increments()
+#        self._init_jog_increments()
 
         self._init_hal_pins()
 
@@ -347,19 +346,6 @@ class gmoccapy(object):
         self.widgets.fontbutton_popup.set_font_name(self.prefs.getpref("message_font", "sans 10", str))
         self.widgets.chk_use_frames.set_active(self.prefs.getpref("use_frames", True, bool))
 
-        # Only used if the DRO buttons will remain in gmoccapy
-        self.widgets.chk_show_dro_btn.set_active(self.prefs.getpref("show_dro_btn", False, bool))
-        self.widgets.chk_auto_units.set_active(self.prefs.getpref("use_auto_units", True, bool))
-        self.on_chk_show_dro_btn_toggled(None)
-        self.on_chk_auto_units_toggled(None)
-        if self.widgets.Combi_DRO_x.machine_units == 0:
-            self.widgets.tbtn_units.set_active(True)
-
-        self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        # end of the button usage
-
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
         self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -386,40 +372,39 @@ class gmoccapy(object):
         self.widgets.tbtn_user_tabs.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_edit_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_switch_mode.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
-        # tool measurement probe settings
-        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
-        if not xpos or not ypos or not zpos or not maxprobe:
-            self.widgets.chk_use_tool_measurement.set_active(False)
-            self.widgets.chk_use_tool_measurement.set_sensitive(False)
-            self.widgets.btn_block_height.set_sensitive(False)
-            self.widgets.lbl_tool_measurement.show()
-            self.widgets.btn_zero_g92.show()
-            self.widgets.btn_block_height.hide()
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** no valid probe config in INI File ****"))
-            print(_("**** disabled tool measurement ****"))
-        else:
-            self.widgets.lbl_tool_measurement.hide()
-            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
-            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
-            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
-            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
-            # to set the hal pin with correct values we emit a toogled
-            self.widgets.lbl_x_probe.set_label(str(xpos))
-            self.widgets.lbl_y_probe.set_label(str(ypos))
-            self.widgets.lbl_z_probe.set_label(str(zpos))
-            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
-            self.widgets.btn_block_height.set_sensitive(True)
-            self.widgets.btn_zero_g92.hide()
-            self.widgets.btn_block_height.show()
-            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** found valid probe config in INI File ****"))
-            print(_("**** will use auto tool measurement ****"))
-        self.widgets.chk_use_tool_measurement.emit("toggled")
+#        # tool measurement probe settings
+#        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
+#        if not xpos or not ypos or not zpos or not maxprobe:
+#            self.widgets.chk_use_tool_measurement.set_active(False)
+#            self.widgets.chk_use_tool_measurement.set_sensitive(False)
+#            self.widgets.btn_block_height.set_sensitive(False)
+#            self.widgets.lbl_tool_measurement.show()
+#            self.widgets.btn_zero_g92.show()
+#            self.widgets.btn_block_height.hide()
+#            print(_("**** GMOCCAPY INFO ****"))
+#            print(_("**** no valid probe config in INI File ****"))
+#            print(_("**** disabled tool measurement ****"))
+#        else:
+#            self.widgets.lbl_tool_measurement.hide()
+#            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
+#            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
+#            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
+#            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
+#            # to set the hal pin with correct values we emit a toogled
+#            self.widgets.lbl_x_probe.set_label(str(xpos))
+#            self.widgets.lbl_y_probe.set_label(str(ypos))
+#            self.widgets.lbl_z_probe.set_label(str(zpos))
+#            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
+#            self.widgets.btn_block_height.set_sensitive(True)
+#            self.widgets.btn_zero_g92.hide()
+#            self.widgets.btn_block_height.show()
+#            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
+#            print(_("**** GMOCCAPY INFO ****"))
+#            print(_("**** found valid probe config in INI File ****"))
+#            print(_("**** will use auto tool measurement ****"))
+#        self.widgets.chk_use_tool_measurement.emit("toggled")
 
 
         # should the tool in spindle be reloaded on startup?
@@ -507,17 +492,17 @@ class gmoccapy(object):
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
 
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("actual", self.dro_actual)
+#        for axis in self.axis_list:
+#            if axis == self.axisletter_four:
+#                axis = 4
+#            if axis == self.axisletter_five:
+#                axis = 5
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("actual", self.dro_actual)
 
         self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
@@ -672,7 +657,7 @@ class gmoccapy(object):
 ###############################################################################    
 
     def _make_DRO(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** Entering make_DRO")
         print("axis_list = {0}".format(self.axis_list))
         
@@ -681,7 +666,7 @@ class gmoccapy(object):
         for pos, axis in enumerate(self.axis_list):
             joint = self._get_joint_from_joint_axis_dic(axis)
             dro = Combi_DRO()
-            dro.set_joint(joint)
+            dro.set_joint_no(joint)
             dro.set_axis(axis)
             dro.change_axisletter(axis.upper())
             dro.show()
@@ -703,9 +688,8 @@ class gmoccapy(object):
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
-
     def _make_ref_button(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** Entering make ref button")
 
         # check if we need axis or joint homing button
@@ -798,8 +782,35 @@ class gmoccapy(object):
         for child in children:
             self.ref_button_dic[child.name] = child
 
+    def _get_space_label(self, name):
+        lbl = gtk.Label("")
+        lbl.set_property("name", name)
+        lbl.set_size_request(85,56)
+        lbl.show()
+        return lbl
+
+    def _get_button_with_image(self, name, filepath, stock):
+        image = gtk.Image()
+        image.set_size_request(48,48)
+        btn = self._get_button(name, image)
+        if filepath:
+            image.set_from_file(filepath)
+        else:
+            image.set_from_stock(stock, 48)
+        return btn
+
+    def _get_button(self, name, image):
+        btn = gtk.Button()
+        btn.set_size_request(85,56)
+        btn.add(image)
+        btn.set_property("name", name)
+        btn.show_all()
+        return btn
+
+
+
     def _make_touch_button(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** Entering make touch button")
 
         dic = self.axis_list
@@ -894,8 +905,36 @@ class gmoccapy(object):
         for child in children:
             self.touch_button_dic[child.name] = child
 
+    def _check_toolmeasurement(self):
+        # tool measurement probe settings
+        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
+        if not xpos or not ypos or not zpos or not maxprobe:
+            self.widgets.chk_use_tool_measurement.set_active(False)
+            self.widgets.chk_use_tool_measurement.set_sensitive(False)
+            self.widgets.lbl_tool_measurement.show()
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** no valid probe config in INI File ****"))
+            print(_("**** disabled tool measurement ****"))
+            return False
+        else:
+            self.widgets.lbl_tool_measurement.hide()
+            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
+            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
+            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
+            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
+            # to set the hal pin with correct values we emit a toogled
+            self.widgets.lbl_x_probe.set_label(str(xpos))
+            self.widgets.lbl_y_probe.set_label(str(ypos))
+            self.widgets.lbl_z_probe.set_label(str(zpos))
+            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** found valid probe config in INI File ****"))
+            print(_("**** will use auto tool measurement ****"))
+            return True
+
+
     def _make_jog_increments(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog increments")
         # Now we will build the option buttons to select the Jog-rates
         # We do this dynamically, because users are able to set them in INI File
@@ -942,7 +981,26 @@ class gmoccapy(object):
         rbt0.set_active(True)
         self.active_increment = rbt0
 
+    def _jog_increment_changed(self, widget, increment):
+        print("widget = ", widget.name)
+        print("jog_incr_dic = ", self.incr_dic)
+        print("increment = ", increment)
+#        self.emit("jog_incr_changed", increment)
+
+    def _on_btn_jog_pressed(self, widget, axis, direction):
+        print(widget, axis, direction)
+        print ("Axis pressed = {0}".format(widget.get_property("name")))
+#        self.emit("jog_btn_pressed", axis, direction)
+
+    def _on_btn_jog_released(self, widget, axis, direction):
+        print(widget, axis, direction)
+        print ("Axis released = {0}".format(widget.get_property("name")))
+#        self.emit("jog_btn_released", axis, direction)
+
+
     def _make_jog_button(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** Entering make jog button")
         self.jog_button_dic = {}
 
         print ("Trivial kinematics = ", self.trivial_kinematics)
@@ -965,9 +1023,71 @@ class gmoccapy(object):
 
                 self.jog_button_dic[name] = btn
 
+    # check if macros are in the INI file and add them to MDI Button List
+    def _make_macro_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make macro button")
+
+        macros = self.get_ini_info.get_macros()
+
+        # if no macros at all are found, we receive a NONE, so we have to check:
+        if not macros:
+            num_macros = 0
+            # no return here, otherwise we will not get filling labels
+        else:
+            num_macros = len(macros)
+
+        if num_macros > 9:
+            message = _("**** GMOCCAPY INFO ****\n")
+            message += _("**** found more than 9 macros, only the first 9 will be used ****")
+            print(message)
+            num_macros = 9
+
+        for pos in range(0, num_macros):
+            name = macros[pos]
+            lbl = name.split()[0]
+            # shorten / break line of the name if it is to long
+            if len(lbl) > 11:
+                lbl = lbl[0:10] + "\n" + lbl[11:20]
+            btn = gtk.Button(lbl, None, False)
+            btn.set_property("name","macro_{0}".format(pos))
+            btn.connect("pressed", self._on_btn_macro_pressed, name)
+            btn.position = pos
+            btn.show()
+            self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
+
+        # if there is still place, we fill it with empty labels, to be sure the button will not be on different
+        # places if the amount of macros change.
+        if num_macros < 9:
+            for pos in range(num_macros, 9):
+                lbl = gtk.Label()
+                lbl.set_property("name","lbl_space_{0}".format(pos))
+                lbl.set_text("")
+                self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
+                lbl.show()
+
+#        self.widgets.hbtb_MDI.non_homogeneous = False
+
+        file = "keyboard.png"
+        filepath = os.path.join(IMAGEDIR, file)
+
+        name = "keyboard"
+        btn = self._get_button_with_image(name, filepath, None)
+        btn.set_property("tooltip-text", _("Press to display the virtual keyboard"))
+        btn.connect("clicked", self.on_btn_show_kbd_clicked)
+        btn.set_property("name", name)
+        self.widgets.hbtb_MDI.pack_start(btn)
+
+        self.macro_dic = {}
+        
+        children = self.widgets.hbtb_MDI.get_children()
+        for child in children:
+            self.macro_dic[child.name] = child
+
+
     # if this is a lathe we need to rearrange some button and add a additional DRO
     def _make_lathe(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** we have a lathe here")
 
         # if we have a lathe, we will need an additional DRO to display
@@ -1011,6 +1131,8 @@ class gmoccapy(object):
 
 
     def _arrange_dro(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** arrange DRO")
         # if we have less than 4 axis, we can resize the table, as we have 
         # enough space to display each one in it's own line
 
@@ -1056,8 +1178,8 @@ class gmoccapy(object):
         self.widgets.adj_dro_size.set_value(self.dro_size)
 
     def _place_in_table(self, rows, cols, dro_size):
-        print("gmoccapy build_gui INFO")
-        print ("we are in place in table")
+        print("**** GMOCCAPY INFO ****")
+        print("**** Place in table")
 
         self.widgets.tbl_DRO.resize(rows, cols)
         col = 0
@@ -1091,6 +1213,8 @@ class gmoccapy(object):
                 row += 1
 
     def _arrange_jog_button(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** arrange JOG button")
         num_axis = len(self.jog_button_dic)
         print("length of button dictionary = {0}".format(num_axis))
 
@@ -1203,149 +1327,38 @@ class gmoccapy(object):
         self.command.teleop_enable(state)
         self.command.wait_complete()
 
-    def _get_axis_list(self):
-        # begin with an empty axis list
-        self.axis_list = self.get_ini_info.get_axis_list()
-        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
+#    def _get_axis_list(self):
+#        # begin with an empty axis list
+#        self.axis_list = self.get_ini_info.get_axis_list()
+#        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
+#
+#        # if we receive a None, that means we do not have a trivial kinematics
+#        # like a scara or robot
+#        if self.joint_axis_dic == None:
+#            self._init_extra_axes()
+#            return
+#
+#        self._init_extra_axes()
+#
+#        for axis in self.joint_axis_dic:
+#            if len(axis) > 1:
+#                # means we do have double letters in coordinates, i.e. gantry
+#                # will return (x,y0,y1,z)
+#                # we only take the first axis, as we aspect the second one to be the slave
+#                if "0" in axis:
+#                    pass
+#                else:
+#                    continue
+#            if axis == self.axisletter_four:
+#                print("Combi_DRO_4 = joint {0}".format(self.joint_axis_dic[axis]))
+#                self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
+#            elif axis == self.axisletter_five:
+#                print("Combi_DRO_5 = joint {0}".format(self.joint_axis_dic[axis]))
+#                self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
+#            else:
+#                print("Combi_DRO_{0} = joint {1}".format(axis[0], self.joint_axis_dic[axis]))
+#                self.widgets["Combi_DRO_{0}".format(axis[0])].set_joint(self.joint_axis_dic[axis])
 
-        # if we receive a None, that means we do not have a trivial kinematics
-        # like a scara or robot
-        if self.joint_axis_dic == None:
-            self._init_extra_axes()
-            return
-
-        self._init_extra_axes()
-
-        for axis in self.joint_axis_dic:
-            if len(axis) > 1:
-                # means we do have double letters in coordinates, i.e. gantry
-                # will return (x,y0,y1,z)
-                # we only take the first axis, as we aspect the second one to be the slave
-                if "0" in axis:
-                    pass
-                else:
-                    continue
-            if axis == self.axisletter_four:
-                print("Combi_DRO_4 = joint {0}".format(self.joint_axis_dic[axis]))
-                self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
-            elif axis == self.axisletter_five:
-                print("Combi_DRO_5 = joint {0}".format(self.joint_axis_dic[axis]))
-                self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
-            else:
-                print("Combi_DRO_{0} = joint {1}".format(axis[0], self.joint_axis_dic[axis]))
-                self.widgets["Combi_DRO_{0}".format(axis[0])].set_joint(self.joint_axis_dic[axis])
-
-    def _init_extra_axes(self):
-        # to much axes given, can only handle 5
-        if len(self.axis_list) > 5:
-            message = _("**** GMOCCAPY INFO : ****")
-            message += _("**** gmoccapy can only handle 5 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(self.axis_list))
-            message += _("**** gmoccapy will not start ****\n\n")
-            print(message)
-            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
-            sys.exit()
-
-        # XYZ machine or lathe, lathe will be handled in _init_preferences
-        if len(self.axis_list) < 4:
-            self.widgets.Combi_DRO_4.hide()
-            self.widgets.Combi_DRO_5.hide()
-            self.widgets.btn_home_4.hide()
-            self.widgets.btn_home_5.hide()
-            return
-
-        # find first 5_th axis
-        if len(self.axis_list) == 5:
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.lbl_replace_5.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_set_value_5.hide()
-            self.axisletter_five = self.axis_list[-1]
-            self.axisnumber_five = "xyzabcuvw".index(self.axisletter_five)
-            self.widgets.Combi_DRO_5.set_property("joint_number", self.axisnumber_five)
-            self.widgets.Combi_DRO_5.change_axisletter(self.axisletter_five.upper())
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-
-            if self.axisletter_five in "abc":
-                self.widgets.Combi_DRO_5.set_property("mm_text_template", "%11.2f")
-                self.widgets.Combi_DRO_5.set_property("imperial_text_template", "%11.2f")
-
-            image = self.widgets["img_home_{0}".format(self.axisletter_five)]
-            self.widgets.btn_home_5.set_image(image)
-            self.widgets.btn_home_5.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_five.upper()))
-            self.widgets.btn_home_5.show()
-
-            self.widgets.btn_5_plus.set_label("{0}+".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_plus.show()
-            self.widgets.btn_5_minus.set_label("{0}-".format(self.axisletter_five.upper()))
-            self.widgets.btn_5_minus.show()
-
-            image = self.widgets["img_touch_off_{0}".format(self.axisletter_five)]
-            self.widgets.btn_set_value_5.set_image(image)
-            self.widgets.btn_set_value_5.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_five.upper()))
-            self.widgets.btn_set_value_5.show()
-
-        if self.axisletter_five:
-            axis_four = list(set(self.axis_list) - set(("x", "y", "z")) - set(self.axisletter_five))
-        else:
-            self.widgets.lbl_replace_set_value_y.hide()
-            self.widgets.lbl_replace_set_value_4.hide()
-            self.widgets.lbl_replace_4.hide()
-            self.widgets.Combi_DRO_5.hide()
-            self.widgets.btn_home_5.hide()
-            axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
-        self.axisletter_four = axis_four[0]
-        self.axisnumber_four = "xyzabcuvw".index(self.axisletter_four)
-        self.widgets.Combi_DRO_4.set_property("joint_number", self.axisnumber_four)
-        self.widgets.Combi_DRO_4.change_axisletter(self.axisletter_four.upper())
-
-        image = self.widgets["img_home_{0}".format(self.axisletter_four)]
-        self.widgets.btn_home_4.set_image(image)
-        self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis {0}").format(self.axisletter_four.upper()))
-        self.widgets.btn_home_4.show()
-
-        self.widgets.btn_4_plus.set_label("{0}+".format(self.axisletter_four.upper()))
-        self.widgets.btn_4_plus.show()
-        self.widgets.btn_4_minus.set_label("{0}-".format(self.axisletter_four.upper()))
-        self.widgets.btn_4_minus.show()
-
-        image = self.widgets["img_touch_off_{0}".format(self.axisletter_four)]
-        self.widgets.btn_set_value_4.set_image(image)
-        self.widgets.btn_set_value_4.set_property("tooltip-text", _("Set axis {0} value to").format(self.axisletter_four.upper()))
-        self.widgets.btn_set_value_4.show()
-
-        if self.axisletter_four in "abc":
-            self.widgets.Combi_DRO_4.set_property("mm_text_template", "%11.2f")
-            self.widgets.Combi_DRO_4.set_property("imperial_text_template", "%11.2f")
-
-        # We have to change the size of the DRO, to make them fit the space
-        
-        # XYZ machine or lathe, no need to change the size
-        if len(self.axis_list) < 4:
-            return
-        # if we have 4 axis, we split the size of all DRO
-        elif len(self.axis_list) < 5:
-            size = int(self.dro_size * 0.75)
-            for axis in self.axis_list:
-                if axis == self.axisletter_four:
-                    axis = 4
-                    self.widgets.tbl_DRO_45.set_homogeneous(False)
-                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
-
-        # if we have 5 axes, we will need some extra space:
-        else:
-            for axis in self.axis_list:
-                size = self.dro_size
-                if axis == self.axisletter_four:
-                    axis = 4
-                    size = int(size * 0.65) # This factor is just testing to ensure the DRO is able to fit with number 9999.999
-                if axis == self.axisletter_five:
-                    axis = 5
-                    size = int(size * 0.65)
-                self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -1375,9 +1388,9 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
         # set the slider limits
-        self.widgets.spc_jog_vel.set_property("min", 0)
-        self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max)
-        self.widgets.spc_jog_vel.set_value(default_jog_vel)
+        self.widgets.spc_lin_jog_vel.set_property("min", 0)
+        self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max)
+        self.widgets.spc_lin_jog_vel.set_value(default_jog_vel)
 
         self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
         self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
@@ -1422,11 +1435,11 @@ class gmoccapy(object):
 
         # and according to machine units the digits to display
         if self.stat.linear_units == _MM:
-            self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(0)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("mm/min"))
         else:
-            self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
+            self.widgets.spc_lin_jog_vel.set_digits(2)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("inch/min"))
 
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
@@ -2091,7 +2104,8 @@ class gmoccapy(object):
                 system_name = "system_name_{0}".format(system)
                 self.prefs.putpref(system_name, name)
             page.hide()
-            self.widgets.tbtn_edit_offsets.set_active(False)
+            
+            self.touch_button_dic["edit_offsets"].set_active(False)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
             if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
@@ -3231,31 +3245,29 @@ class gmoccapy(object):
                 axis = 5
             self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
 
-    def on_Combi_DRO_clicked(self, widget, joint_number, order):
-        if not self.toggle_readout:
-            return
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_order(order)
-        if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_order(order)
-        self._offset_changed(None, None)
-# from here only needed, if the DRO button will remain in gmoccapy
-        if order[0] == "Abs" and self.widgets.tbtn_rel.get_label() != "Abs":
-            self.widgets.tbtn_rel.set_active(False)
-        if order[0] == "Rel" and self.widgets.tbtn_rel.get_label() != self.widgets.Combi_DRO_x.system:
-            self.widgets.tbtn_rel.set_active(True)
-        if order[0] == "DTG":
-            self.widgets.tbtn_dtg.set_active(True)
-        else:
-            self.widgets.tbtn_dtg.set_active(False)
-# to here only needed, if the DRO button will remain in gmoccapy
+    def _on_DRO_clicked(self, widget, joint, order):
+        for dro in self.dro_dic:
+            self.dro_dic[dro].set_order(order)
+        return
 
     def _offset_changed(self, pin, tooloffset):
-        if self.widgets.Combi_DRO_x.machine_units == _MM:
+        joint = None
+        for axis in ("x", "z"):
+            if axis in self.axis_list:
+                joint = self._get_joint_from_joint_axis_dic(axis)
+                break
+            else:
+                continue
+
+        # no X or Z axis in config, so we can not apply offsets
+        if joint is None:
+            self.widgets.lbl_tool_offset_z.hide()
+            self.widgets.lbl_tool_offset_x.hide()
+            return
+
+        dro = self.dro_dic["Combi_DRO_{0}".format(joint)]
+
+        if dro.machine_units == _MM:
             self.widgets.lbl_tool_offset_z.set_text("{0:.3f}".format(self.halcomp["tooloffset-z"]))
             self.widgets.lbl_tool_offset_x.set_text("{0:.3f}".format(self.halcomp["tooloffset-x"]))
         else:
@@ -3267,122 +3279,6 @@ class gmoccapy(object):
             self.widgets.btn_set_selected.set_sensitive(False)
         else:
             self.widgets.btn_set_selected.set_sensitive(True)
-
-# =========================================================
-# from here only needed, if the DRO button will remain in gmoccapy
-
-    def on_Combi_DRO_system_changed(self, widget, system):
-        if self.widgets.tbtn_rel.get_active():
-            self.widgets.tbtn_rel.set_label(system)
-        else:
-            self.widgets.tbtn_rel.set_label("Abs")
-
-    def on_Combi_DRO_units_changed(self, widget, metric_units):
-        # if the user do not wish to use auto units, we leave here
-        if not self.widgets.chk_auto_units.get_active():
-            return
-
-        # set gremlin_units
-        self.widgets.gremlin.set_property("metric_units", metric_units)
-
-        widgetlist = ["spc_jog_vel"]
-
-        # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
-        # display units not equal machine units
-        if metric_units != int(self.stat.linear_units):
-            # machine units = metric
-            if self.stat.linear_units == _MM:
-                self.faktor = (1.0 / 25.4)
-            # machine units = imperial
-            else:
-                self.faktor = 25.4
-            self.turtle_jog = self.turtle_jog * self.faktor
-            self.rabbit_jog = self.rabbit_jog * self.faktor
-            self._update_slider( widgetlist )
-
-        else:
-            # display units equal machine units would be factor = 1,
-            # but if factor not equal 1.0 than we have to reconvert from previous first
-            self.turtle_jog = self.turtle_jog / self.faktor
-            self.rabbit_jog = self.rabbit_jog / self.faktor
-            if self.faktor != 1.0:
-                self.faktor = 1 / self.faktor
-                self._update_slider(widgetlist)
-                self.faktor = 1.0
-                self._update_slider(widgetlist)
-
-        if metric_units:
-            self.widgets.spc_jog_vel.set_digits(0)
-            self.widgets.spc_jog_vel.set_property("unit", _("mm/min"))
-        else:
-            self.widgets.spc_jog_vel.set_digits(2)
-            self.widgets.spc_jog_vel.set_property("unit", _("inch/min"))
-            
-    def on_tbtn_rel_toggled(self, widget, data=None):
-        if self.widgets.tbtn_dtg.get_active():
-            self.widgets.tbtn_dtg.set_active(False)
-        if widget.get_active():
-            widget.set_label(self.widgets.Combi_DRO_x.system)
-            order = ["Rel", "Abs", "DTG"]
-        else:
-            widget.set_label("Abs")
-            order = ["Abs", "DTG", "Rel"]
-        self.on_Combi_DRO_clicked(None, None, order)
-
-    def on_tbtn_dtg_toggled(self, widget, data=None):
-        if widget.get_active():
-            widget.set_label("GTD")
-            order = ["DTG", "Rel", "Abs"]
-        else:
-            widget.set_label("DTG")
-            if self.widgets.tbtn_rel.get_active():
-                order = ["Rel", "Abs", "DTG"]
-            else:
-                order = ["Abs", "DTG", "Rel"]
-        self.on_Combi_DRO_clicked(None, None, order)
-
-    def on_tbtn_units_toggled(self, widget, data=None):
-        if widget.get_active():
-            widget.set_label(_("inch"))
-            metric_units = False
-        else:
-            widget.set_label(_("mm"))
-            metric_units = True
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_to_inch(not metric_units)
-        if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_to_inch(not metric_units)
-        # set gremlin_units
-        self.widgets.gremlin.set_property("metric_units", metric_units)
-
-    def on_chk_auto_units_toggled(self, widget, data=None):
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_auto_units(self.widgets.chk_auto_units.get_active())
-        if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_auto_units(self.widgets.chk_auto_units.get_active())
-        self.prefs.putpref("use_auto_units", self.widgets.chk_auto_units.get_active())
-
-    def on_chk_show_dro_btn_toggled(self, widget, data=None):
-        if self.widgets.chk_show_dro_btn.get_active():
-            self.widgets.tbl_dro_button.show()
-            self.widgets.chk_auto_units.set_active(False)
-            self.widgets.chk_auto_units.set_sensitive(False)
-        else:
-            self.widgets.tbl_dro_button.hide()
-            self.widgets.chk_auto_units.set_active(True)
-            self.widgets.chk_auto_units.set_sensitive(True)
-        self.prefs.putpref("show_dro_btn", self.widgets.chk_show_dro_btn.get_active())
-
-# to here only needed, if the DRO button will remain in gmoccapy
-# =========================================================
 
     def on_adj_x_pos_popup_value_changed(self, widget, data=None):
         if not self.initialized:
@@ -3443,28 +3339,28 @@ class gmoccapy(object):
         self.prefs.putpref("turtle_jog_factor", self.turtle_jog_factor, int)
         self.turtle_jog = self.rabbit_jog / self.turtle_jog_factor
         if self.widgets.tbtn_turtle_jog.get_active():
-            self.widgets.spc_jog_vel.set_property("min", 0)
-            self.widgets.spc_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", 0)
+            self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max / self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
 
     def on_tbtn_turtle_jog_toggled( self, widget, data = None ):
         # due to imperial and metric options we have to get first the values of the widget
-        max = self.widgets.spc_jog_vel.max
-        min = self.widgets.spc_jog_vel.min
-        value = self.widgets.spc_jog_vel.get_value()
+        max = self.widgets.spc_lin_jog_vel.max
+        min = self.widgets.spc_lin_jog_vel.min
+        value = self.widgets.spc_lin_jog_vel.get_value()
         
         if widget.get_active():
             self.rabbit_jog = value
             widget.set_image( self.widgets.img_turtle_jog )
-            self.widgets.spc_jog_vel.set_property("min", min)
-            self.widgets.spc_jog_vel.set_property("max", max / self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.turtle_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("max", max / self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.turtle_jog)
         else:
             self.turtle_jog = value
             widget.set_image( self.widgets.img_rabbit_jog )
-            self.widgets.spc_jog_vel.set_property("min", min)
-            self.widgets.spc_jog_vel.set_property("max", max * self.turtle_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.rabbit_jog)
+            self.widgets.spc_lin_jog_vel.set_property("min", min)
+            self.widgets.spc_lin_jog_vel.set_property("max", max * self.turtle_jog_factor)
+            self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 
     def _on_turtle_jog_enable(self, pin):
         self.widgets.tbtn_turtle_jog.set_active(pin.get())
@@ -3495,7 +3391,7 @@ class gmoccapy(object):
         if data:
             value = self.stat.max_velocity
         else:
-            value = self.widgets.spc_jog_vel.get_value() / 60
+            value = self.widgets.spc_lin_jog_vel.get_value() / 60
 
         velocity = value * (1 / self.faktor)
 
@@ -3659,11 +3555,34 @@ class gmoccapy(object):
         # home -1 means all
         self.command.home(-1)
 
+    def _on_btn_unhome_clicked(self, widget):
+        pass #self.emit("unhome_clicked", -1)
+
+    def _on_btn_home_back_clicked(self, widget):
+        self.widgets.ntb_button.set_current_page(_BB_MANUAL)
+        self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_preview.set_current_page(0)
+
     def on_btn_unhome_all_clicked(self, widget, data=None):
         self.set_motion_mode(0)
         self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
+
+    def _on_btn_home_clicked(self, widget):
+        # home axis or joint?
+        print("on button home clicker = ", widget.name)
+        if "axis" in widget.name:
+            value = widget.name[-1]
+            # now get the joint from directory by the value
+            joint_or_axis = self._get_joint_from_joint_axis_dic(value)
+        elif "joint" in widget.name:
+            joint_or_axis = int(widget.name[-1])
+        elif "all" in widget.name:
+            joint_or_axis = -1
+
+        #self.emit("home_clicked", joint_or_axis)
+
 
     def on_btn_home_selected_clicked(self, widget, data=None):
         if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
@@ -4909,7 +4828,7 @@ class gmoccapy(object):
                 self.so_counts = counts
                 self._check_counts(counts)
         if self.halcomp["jog.jog-velocity.count-enable"]:
-            if widget == "spc_jog_vel":
+            if widget == "spc_lin_jog_vel":
                 difference = (counts - self.jv_counts) * self.scale_jog_vel
                 if self.widgets.tbtn_turtle_jog.get_active():
                     difference = difference / self.turtle_jog_factor
@@ -4969,7 +4888,7 @@ class gmoccapy(object):
                 self.widgets.btn_feed_100.hide()
             else:
                 self.widgets.btn_feed_100.show()
-        # widget can also be spc_jog_vel and spc_rapid
+        # widget can also be spc_lin_jog_vel and spc_rapid
         self.widgets[widget].hide_button(pin.get())
         
         if pin.get():
@@ -4979,12 +4898,12 @@ class gmoccapy(object):
                 value = self.rabbit_jog = self.jog_rate_max * self.halcomp["jog.jog-velocity.direct-value"]
             elif not self.widgets.tbtn_turtle_jog.get_active():
                 value = self.turtle_jog = self.jog_rate_max / self.turtle_jog_factor * self.halcomp["jog.jog-velocity.direct-value"]
-            self.widgets.spc_jog_vel.set_value(value)
+            self.widgets.spc_lin_jog_vel.set_value(value)
 
     def _on_analog_value_changed(self, pin, widget):
         if not self.initialized:
             return
-        if widget == "spc_jog_vel" and not self.halcomp["jog.jog-velocity.analog-enable"]:
+        if widget == "spc_lin_jog_vel" and not self.halcomp["jog.jog-velocity.analog-enable"]:
             return
         if widget == "spc_feed" and not self.halcomp["feed.feed-override.analog-enable"]:
             return
@@ -5071,19 +4990,19 @@ class gmoccapy(object):
                 self._show_error((13, message))
                 return
 
-        if axis not in "xyz":
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-        if direction == 1:
-            widget = self.widgets["btn_{0}_plus".format(axis)]
-        else:
-            widget = self.widgets["btn_{0}_minus".format(axis)]
-        if pin.get():
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+#        if axis not in "xyz":
+#            if axis == self.axisletter_four:
+#                axis = 4
+#            if axis == self.axisletter_five:
+#                axis = 5
+#        if direction == 1:
+#            widget = self.widgets["btn_{0}_plus".format(axis)]
+#        else:
+#            widget = self.widgets["btn_{0}_minus".format(axis)]
+#        if pin.get():
+#            self.on_btn_jog_pressed(widget)
+#        else:
+#            self.on_btn_jog_released(widget)
 
     def _on_pin_jog_joint_changed(self, pin, joint, direction):
         if self.stat.motion_mode != 1 and pin.get():
@@ -5092,14 +5011,14 @@ class gmoccapy(object):
             self._show_error((13, message))
             return
 
-        if direction == 1:
-            widget = self.widgets["btn_j{0}_plus".format(str(joint))]
-        else:
-            widget = self.widgets["btn_j{0}_minus".format(str(joint))]
-        if pin.get():
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+#        if direction == 1:
+#            widget = self.widgets["btn_j{0}_plus".format(str(joint))]
+#        else:
+#            widget = self.widgets["btn_j{0}_minus".format(str(joint))]
+#        if pin.get():
+#            self.on_btn_jog_pressed(widget)
+#        else:
+#            self.on_btn_jog_released(widget)
 
     def _reset_overide(self, pin, type):
         if pin.get():
@@ -5233,7 +5152,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.counts", hal.HAL_S32, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.counts", hal.HAL_S32, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_counts_changed, "spc_rapid")
         self.halcomp.newpin("feed.feed-override.count-enable", hal.HAL_BIT, hal.HAL_IN)
@@ -5247,7 +5166,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.analog-enable", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.analog-enable", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_enable_changed, "spc_rapid")
         pin = self.halcomp.newpin("feed.feed-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
@@ -5255,7 +5174,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("spindle.spindle-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_spindle")
         pin = self.halcomp.newpin("jog.jog-velocity.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_jog_vel")
+        hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_lin_jog_vel")
         pin = self.halcomp.newpin("rapid.rapid-override.direct-value", hal.HAL_FLOAT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._on_analog_value_changed, "spc_rapid")
 
