@@ -45,6 +45,8 @@ import gettext             # to extract the strings to be translated
 
 from gladevcp.gladebuilder import GladeBuilder
 
+from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
+
 from time import strftime  # needed for the clock in the GUI
 from gtk._gtk import main_quit
 
@@ -270,8 +272,18 @@ class gmoccapy(object):
         # Our own clas to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
+        self._get_ini_data()
 
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
+        self._get_pref_data()
+
+        # make all widgets we create dynamically
+        self._make_DRO()
+        self._make_ref_button()
+        self._make_touch_button()
+        self._make_jog_increments()
+        self._make_jog_button()
+        self._make_macro_button()
 
         self._get_axis_list()
         # self._init_extra_axes() # will be called from _get_axis_list
@@ -610,6 +622,581 @@ class gmoccapy(object):
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
         gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
+
+
+    def _get_ini_data(self):
+        # get the axis list from INI
+        self.axis_list = self.get_ini_info.get_axis_list()
+        # get the joint axis relation from INI
+        self.joint_axis_dic, self.double_axis_letter = self.get_ini_info.get_joint_axis_relation()
+        # if it's a lathe config, set the tool editor style
+        self.lathe_mode = self.get_ini_info.get_lathe()
+        if self.lathe_mode:
+            # we do need to know also if we have a backtool lathe
+            self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
+        # check if the user want actual or commanded for the DRO
+        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
+        # the given Jog Increments
+        self.jog_increments = self.get_ini_info.get_increments()
+        # check if NO_FORCE_HOMING is used in ini
+        self.no_force_homing = self.get_ini_info.get_no_force_homing()
+        # do we use a identity kinematics or do we have to distingish 
+        # JOINT and Axis modes?
+        self.trivial_kinematics = self.get_ini_info.get_trivial_kinematics()
+        units = self.get_ini_info.get_machine_units()
+        if units == "mm" or units == "cm":
+            self.metric = True
+        else:
+            self.metric = False
+
+    def _get_pref_data(self):
+        # the size of the DRO
+        self.dro_size = self.prefs.getpref("dro_size", 28, int)
+        # the colors of the DRO
+        self.abs_color = self.prefs.getpref("abs_color", "#0000FF", str)         # blue
+        self.rel_color = self.prefs.getpref("rel_color", "#000000", str)         # black
+        self.dtg_color = self.prefs.getpref("dtg_color", "#FFFF00", str)         # yellow
+        self.homed_color = self.prefs.getpref("homed_color", "#00FF00", str)     # green
+        self.unhomed_color = self.prefs.getpref("unhomed_color", "#FF0000", str) # red
+        
+        # the velocity settings
+        self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
+        self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
+        
+        self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
+
+
+
+###############################################################################
+##                     create widgets dynamically                            ##
+###############################################################################    
+
+    def _make_DRO(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make_DRO")
+        print("axis_list = {0}".format(self.axis_list))
+        
+        # we build one DRO for each axis
+        self.dro_dic = {} 
+        for pos, axis in enumerate(self.axis_list):
+            joint = self._get_joint_from_joint_axis_dic(axis)
+            dro = Combi_DRO()
+            dro.set_joint(joint)
+            dro.set_axis(axis)
+            dro.change_axisletter(axis.upper())
+            dro.show()
+            dro.set_property("name", "Combi_DRO_{0}".format(pos))
+            dro.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            dro.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            dro.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            dro.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+            dro.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+            dro.set_property("actual", self.dro_actual)
+            dro.connect("clicked", self._on_DRO_clicked)
+            self.dro_dic[dro.name] = dro
+            print dro.name
+
+    def _get_joint_from_joint_axis_dic(self, value):
+        # if the selected axis is a double axis we will get the joint from the
+        # master axis, witch should end with 0 
+        if value in self.double_axis_letter:
+            value = value + "0"
+        return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
+
+
+    def _make_ref_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make ref button")
+
+        # check if we need axis or joint homing button
+        if self.trivial_kinematics:
+            # lets find out, how many axis we got
+            dic = self.axis_list
+            name_prefix = "axis"
+        else:
+            # lets find out, how many joints we got
+            dic = self.joint_axis_dic
+            name_prefix = "joint"
+        num_elements = len(dic)
+        
+        # as long as the number of axis is less 6 we can use the standard layout
+        # we can display 6 axis without the second space label
+        # and 7 axis if we do not display the first space label either
+        # if we have more than 7 axis, we need arrows to switch the visible ones
+        if num_elements < 7:
+            lbl = self._get_space_label("lbl_space_0")
+            self.widgets.hbtb_ref.pack_start(lbl)
+    
+        file = "ref_all.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        btn = self._get_button_with_image("ref_all", filepath, None)
+        btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
+        btn.connect("clicked", self._on_btn_home_clicked)
+        # we use pack_start, so the widgets will be moved from right to left
+        # and are displayed the way we want
+        self.widgets.hbtb_ref.pack_start(btn)
+
+        if num_elements > 7:
+            # show the previous arrow to switch visible homing button)
+            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn.set_sensitive(False)
+            btn.set_property("tooltip-text", _("Press to display previous homing button"))
+            btn.connect("clicked", self._on_btn_previous_clicked)
+            self.widgets.hbtb_ref.pack_start(btn)
+
+        # do not use this label, to allow one more axis
+        if num_elements < 6:
+            lbl = self._get_space_label("lbl_space_2")
+            self.widgets.hbtb_ref.pack_start(lbl)
+
+        for pos, elem in enumerate(dic):
+
+            file = "ref_{0}.png".format(elem)
+            filepath = os.path.join(IMAGEDIR, file)
+
+            name = "home_{0}_{1}".format(name_prefix, elem)
+            btn = self._get_button_with_image(name, filepath, None)
+            btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
+            btn.connect("clicked", self._on_btn_home_clicked)
+
+            self.widgets.hbtb_ref.pack_start(btn)
+
+            # if we have more than 7 axis we need to hide some button
+            if num_elements > 7:
+                if pos > 4:
+                    btn.hide()
+
+        if num_elements > 7:
+            # show the next arrow to switch visible homing button)
+            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn.set_property("tooltip-text", _("Press to display next homing button"))
+            btn.connect("clicked", self._on_btn_next_clicked)
+            self.widgets.hbtb_ref.pack_start(btn)
+
+        # if there is space left, fill it with space labels
+        start = self.widgets.hbtb_ref.child_get_property(btn,"position")
+        for count in range(start + 1 , 8):
+            lbl = self._get_space_label("lbl_space_{0}".format(count))
+            self.widgets.hbtb_ref.pack_start(lbl)
+ 
+        file = "unhome.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        name = "unref_all"
+        btn = self._get_button_with_image(name, filepath, None)
+        btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
+        btn.connect("clicked", self._on_btn_unhome_clicked)
+        self.widgets.hbtb_ref.pack_start(btn)
+        
+        name = "home_back"
+        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn.set_property("tooltip-text", _("Press to return to main button list"))
+        btn.connect("clicked", self._on_btn_home_back_clicked)
+        self.widgets.hbtb_ref.pack_start(btn)
+        
+        self.ref_button_dic = {}
+        children = self.widgets.hbtb_ref.get_children()
+        for child in children:
+            self.ref_button_dic[child.name] = child
+
+    def _make_touch_button(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make touch button")
+
+        dic = self.axis_list
+        num_elements = len(dic)
+        end = 7
+
+        if self._check_toolmeasurement():
+            # we will have 3 buttons on the right side
+            end -= 1
+
+        btn = gtk.ToggleButton(_("  edit\noffsets"))
+        btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
+        btn.set_property("tooltip-text", _("Press to edit the offsets"))
+        btn.set_property("name", "edit_offsets")
+        btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        if num_elements > 6:
+            # show the previous arrow to switch visible touch button)
+            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn.set_property("tooltip-text", _("Press to display previous homing button"))
+            btn.connect("clicked", self._on_btn_previous_touch_clicked)
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            end -= 1
+            btn.hide()
+        
+        for pos, elem in enumerate(dic):
+            file = "touch_{0}.png".format(elem)
+            filepath = os.path.join(IMAGEDIR, file)
+
+            name = "touch_{0}".format(elem)
+            btn = self._get_button_with_image(name, filepath, None)
+            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
+            #btn.connect("clicked", self._on_btn_t)
+
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            
+            if pos > end - 2:
+                btn.hide()
+
+        if num_elements > (end - 1):
+            # show the next arrow to switch visible homing button)
+            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn.set_property("tooltip-text", _("Press to display next homing button"))
+            btn.connect("clicked", self._on_btn_next_touch_clicked)
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            btn.show()
+            end -= 1
+
+        # if there is space left, fill it with space labels
+        start = self.widgets.hbtb_touch_off.child_get_property(btn,"position")
+        for count in range(start + 1 , end):
+            print("Count = ", count)
+            lbl = self._get_space_label("lbl_space_{0}".format(count))
+            self.widgets.hbtb_touch_off.pack_start(lbl)
+            lbl.show()
+
+        btn = gtk.Button(_("zero\n G92"))
+#        btn.connect(self.on_btn_zero_g92_clicked)
+        btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
+        btn.set_property("name", "zero_offsets")
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        if self._check_toolmeasurement():
+            btn = gtk.Button(_(" Block\nHeight"))
+#            btn.connect(self.on_btn_block_height_clicked)
+            btn.set_property("tooltip-text", _("Press to enter new value for block height"))
+            btn.set_property("name", "block_height")
+            self.widgets.hbtb_touch_off.pack_start(btn)
+            btn.show()
+
+        print("tool measurement OK = ",self._check_toolmeasurement())
+
+        btn = gtk.Button(_("    set\nselected"))
+        #btn.connect(self._on_btn_set_selected_clicked)
+        btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
+        btn.set_property("name", "set_active")
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+
+        name = "touch_back"
+        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn.set_property("tooltip-text", _("Press to return to main button list"))
+        btn.connect("clicked", self._on_btn_home_back_clicked)
+        self.widgets.hbtb_touch_off.pack_start(btn)
+        btn.show()
+        
+        self.touch_button_dic = {}
+        children = self.widgets.hbtb_touch_off.get_children()
+        for child in children:
+            self.touch_button_dic[child.name] = child
+
+    def _make_jog_increments(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** Entering make jog increments")
+        # Now we will build the option buttons to select the Jog-rates
+        # We do this dynamically, because users are able to set them in INI File
+        # because of space on the screen only 10 items are allowed
+        # jogging increments
+
+        self.incr_rbt_list = []
+
+        # We get the increments from INI File
+        if len(self.jog_increments) > 10:
+            print(_("**** GMOCCAPY build_GUI INFO ****"))
+            print(_("**** To many increments given in INI File for this screen ****"))
+            print(_("**** Only the first 10 will be reachable through this screen ****"))
+            # we shorten the increment list to 10 (first is default = 0)
+            self.jog_increments = self.jog_increments[0:11]
+
+        # The first radio button is created to get a radio button group
+        # The group is called according the name off  the first button
+        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
+        # One from the released button and one from the pressed button
+        # we make a list of the buttons to later add the hardware pins to them
+        label = _("Continuous")
+        rbt0 = gtk.RadioButton(None, label)
+        rbt0.set_property("name","rbt_0")
+        rbt0.connect("pressed", self._jog_increment_changed, 0)
+        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
+        rbt0.set_property("draw_indicator", False)
+        rbt0.show()
+        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.incr_rbt_list.append(rbt0)
+        # the rest of the buttons are now added to the group
+        # self.no_increments is set while setting the hal pins with self._check_len_increments
+        for item in range(1, len(self.jog_increments)):
+            print self.jog_increments[item]
+            name = "rbt_{0}".format(item)
+            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+            rbt.set_property("name",name)
+            rbt.connect("pressed", self._jog_increment_changed, self.jog_increments[item])
+            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
+            rbt.set_property("draw_indicator", False)
+            rbt.show()
+            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+            self.incr_rbt_list.append(rbt)
+        rbt0.set_active(True)
+        self.active_increment = rbt0
+
+    def _make_jog_button(self):
+        self.jog_button_dic = {}
+
+        print ("Trivial kinematics = ", self.trivial_kinematics)
+        #ToDo : we have to check for non trivial kinematics, as in that case we need also Joint joggin button
+        if not self.trivial_kinematics:
+            # we need joint jogging button
+            print ("Trivial kinematics = ", self.trivial_kinematics)
+
+        self.jog_button_dic = {}
+        
+        for axis in self.axis_list:
+            for direction in ["+","-"]:
+                name = "{0}{1}".format(str(axis), direction)
+                btn = gtk.Button(name.upper())
+                btn.set_property("name", name)
+                btn.connect("pressed", self._on_btn_jog_pressed, axis, direction)
+                btn.connect("released", self._on_btn_jog_released, axis, direction)
+                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
+                btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+
+                self.jog_button_dic[name] = btn
+
+    # if this is a lathe we need to rearrange some button and add a additional DRO
+    def _make_lathe(self):
+        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** we have a lathe here")
+
+        # if we have a lathe, we will need an additional DRO to display
+        # diameter and radius simultaneous, we will call that one Combi_DRO_9, as that value
+        # should never be used due to the limit in axis from 0 to 8
+        dro = Combi_DRO()
+        dro.set_property("name", "Combi_DRO_9")
+        dro.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+        dro.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+        dro.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+        dro.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
+        dro.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
+        dro.set_property("actual", self.dro_actual)
+
+        joint = self._get_joint_from_joint_axis_dic("x")
+        dro.set_joint_no(joint)
+        dro.set_axis("x")
+        dro.change_axisletter("D")
+        dro.set_property("diameter", True)
+        dro.show()
+
+        dro.connect("clicked", self._on_DRO_clicked)
+        self.dro_dic[dro.name] = dro
+
+        self.dro_dic["Combi_DRO_0"].change_axisletter("R")
+
+        # For gremlin we don"t need the following button
+        if self.backtool_lathe:
+            self.widgets.rbt_view_y2.set_active(True)
+            self.widgets.gremlin.set_property("view", "y2")
+            self.prefs.putpref("gremlin_view", "rbt_view_y2")
+        else:
+            self.widgets.rbt_view_y.set_active(True)
+            self.widgets.gremlin.set_property("view", "y")
+            self.prefs.putpref("gremlin_view", "rbt_view_y")
+
+        self.widgets.rbt_view_p.hide()
+        self.widgets.rbt_view_x.hide()
+        self.widgets.rbt_view_z.hide()
+        self.widgets.rbt_view_y2.show()
+
+
+    def _arrange_dro(self):
+        # if we have less than 4 axis, we can resize the table, as we have 
+        # enough space to display each one in it's own line
+
+        if len(self.dro_dic) < 4:
+            self._place_in_table(len(self.dro_dic),1, self.dro_size)
+
+        # having 4 DRO we need to reduce the size, to fit the available space
+        elif len(self.dro_dic) == 4:
+            self._place_in_table(len(self.dro_dic),1, self.dro_size * 0.75)
+
+        # having 5 axis we will display 3 in an one line and two DRO share 
+        # the last line, the size of the DRO must be reduced also
+        # this is a special case so we do not use _place_in_table
+        elif len(self.dro_dic) == 5:
+            self.widgets.tbl_DRO.resize(4,2)
+            for dro, axis in enumerate(self.axis_list):
+                dro_name = "Combi_DRO_{0}".format(dro)
+                if dro < 3:
+                    size = self.dro_size * 0.75
+                    self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
+                else:
+                    size = self.dro_size * 0.65
+                    if dro == 3:
+                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
+                    else:
+                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
+                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
+                self.dro_dic[dro_name].set_property("font_size", size)
+
+        else:
+            print("**** GMOCCAPY build_GUI INFO ****")
+            print("**** more than 5 axis ")
+            # check if amount of axis is an even number, adapt the needed lines
+            if len(self.dro_dic) % 2 == 0:
+                rows = len(self.dro_dic) / 2
+            else:
+                rows = (len(self.dro_dic) + 1) / 2
+            self._place_in_table(rows, 2, self.dro_size * 0.65)
+
+        # set values to dro size adjustments
+        self.widgets.adj_dro_size.set_value(self.dro_size)
+
+    def _place_in_table(self, rows, cols, dro_size):
+        print("gmoccapy build_gui INFO")
+        print ("we are in place in table")
+
+        self.widgets.tbl_DRO.resize(rows, cols)
+        col = 0
+        row = 0
+
+        # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
+        if "Combi_DRO_9" in self.dro_dic.keys():
+            children = self.widgets.tbl_DRO.get_children()
+            print (children)
+            dro_order = ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
+                         "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]
+        else:
+            dro_order = sorted(self.dro_dic.keys())
+
+        for dro, dro_name in enumerate(dro_order):
+            # as a lathe might not have all Axis, we check if the key is in directory
+            if dro_name not in self.dro_dic.keys():
+                continue
+            self.dro_dic[dro_name].set_property("font_size", dro_size)
+
+            self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
+                                        col, col+1, row, row + 1, ypadding = 0)
+            if cols > 1:
+                # calculate if we have to place in the first or the second column
+                if (dro % 2 == 1):
+                    col = 0
+                    row +=1
+                else:
+                    col += 1
+            else:
+                row += 1
+
+    def _arrange_jog_button(self):
+        num_axis = len(self.jog_button_dic)
+        print("length of button dictionary = {0}".format(num_axis))
+
+        if num_axis <= 3:
+            # we can resize the jog_btn_table
+            self.widgets.tbl_jog_btn_axes.resize(3, 3)
+            # This is probably a lathe, but we will better check that
+
+        for btn in self.jog_button_dic:
+
+            name = btn
+            if name == "x+":
+                col = 2
+                row = 1
+            if name =="x-":
+                col = 0
+                row = 1
+            if name == "y+":
+                col = 1
+                row = 0
+            if name =="y-":
+                col = 1
+                row = 2
+            if name == "z+":
+                col = 2
+                row = 0
+            if name =="z-":
+                col = 0
+                row = 2
+            if name == "a+":
+                col = 4
+                row = 3
+            if name =="a-":
+                col = 3
+                row = 3
+            if name == "b+":
+                col = 2
+                row = 3
+            if name =="b-":
+                col = 0
+                row = 3
+            if name == "c+":
+                col = 2
+                row = 2
+            if name =="c-":
+                col = 0
+                row = 0
+            if name == "u+":
+                col = 4
+                row = 0
+            if name =="u-":
+                col = 3
+                row = 0
+            if name == "v+":
+                col = 4
+                row = 1
+            if name =="v-":
+                col = 3
+                row = 1
+            if name == "w+":
+                col = 4
+                row = 2
+            if name =="w-":
+                col = 3
+                row = 2
+                
+                
+            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[name], col, col + 1, row, row + 1)
+            self.jog_button_dic[name].show()
+
+            print("Jog Button = {0}".format(name))
+            print("Position = {0},{1}".format(col,row))
+            
+#        if self.lathe_mode:
+#            # OK this is a lathe, lets see if it is a backtool_lathe
+#            if self.backtool_lathe:
+#                # Now we are sure we have a backtool lathe
+#                # as we only expect X an Z, lets place them in the table
+#                for btn in btnlst:
+#                    name = btn.get_property("name")
+#                    if name == "x+":
+#                        col = 1
+#                        row = 0
+#                    if name == "x-":
+#                        col = 1
+#                        row = 2
+#                    if name == "y+":
+#                        col = 2
+#                        row = 0
+#                    if name == "y-":
+#                        col = 0
+#                        row = 2
+#                    if name == "z+":
+#                        col = 0
+#                        row = 1
+#                    if name == "z-":
+#                        col = 2
+#                        row = 1
+
+
+
+
+
+
+
+
 
     def set_motion_mode(self, state):
         # 1:teleop, 0: joint
