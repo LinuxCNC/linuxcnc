@@ -5156,79 +5156,82 @@ class gmoccapy(object):
 
 # =========================================================
 # The actions of the buttons
-    def _on_h_button_changed(self, pin):
+    def _button_pin_changed(self, pin):
         # we check if the button is pressed ore release,
         # otherwise a signal will be emitted, if the button is released and
         # the signal drob down to zero
         if not pin.get():
             return
-        # lets see on witch button_box we are
-        page = self.widgets.ntb_button.get_current_page()
-        # witch button has been pressed
-        btn = str(pin.name)
-        # from the list we declared under __init__ we get the button number
-        nr = int(btn[-1])
-        tab = self.h_tabs[page]  # see in the __init__ section for the declaration of self.tabs
-        button = None
-        # we check if there is a button or the user pressed a hardware button under
-        # a non existing software button
-        for index in tab:
-            if int(index[0]) == nr:
-                # this is the name of the button
-                button = index[1]
-        if button:
-            # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interrupted
-            if not self.widgets[button].get_sensitive():
-                print("{0} not_sensitive".format(button))
-                return
-            self.widgets[button].emit("clicked")
-            print("Button {0} has been clicked".format(button))
-        else:
-            # as we are generating the macro buttons dynamically, we can"t use the same
-            # method as above, here is how we do it
-            if page == 1:  # macro page
-                # does the user press a valid hardware button?
-                if nr < len(self.macrobuttons):
-                    button = self.macrobuttons[nr]  # This list is generated in add_macros_buttons(self)
-                    # is the button sensitive?
-                    if not button.get_sensitive():
-                        print("{0} not_sensitive".format(button))
-                        return
-                    button.emit("pressed")
-                else:
-                    print("No function on this button")
-            else:
-                print("No function on this button")
 
-    def _on_v_button_changed(self, pin):
-        if not pin.get():
-            return
-        btn = str(pin.name)
-        nr = int(btn[-1])
-        tab = self.v_tabs  # see in the __init__ section for the declaration of self.tabs
-        button = None
-        for index in tab:
-            if int(index[0]) == nr:
-                # this is the name of the button
-                button = index[1]
-        if button:
-            # only emit a signal if the button is sensitive, otherwise
-            # running actions may be interrupted
-            if self.widgets[button].get_sensitive() == False:
-                print("{0} not_sensitive".format(button))
-                return
-            button_pressed_list = ("rbt_manual", "rbt_mdi", "rbt_auto")
-            button_toggled_list = ("tbtn_setup")
-            if button in button_pressed_list:
-                self.widgets[button].set_active(True)
-                self.widgets[button].emit("pressed")
-            elif button in button_toggled_list:
-                self.widgets[button].set_active(not self.widgets[button].get_active())
-            else:
-                self.widgets[button].emit("clicked")
+        if "h-button" in pin.name:
+            location = "bottom"
+        elif "v-button" in pin.name:
+            location = "right"
         else:
-            print("No button found in v_tabs from {0}".format(pin.name))
+            print(_("Recieved a not clasified signal from pin {0}".format(pin.name)))
+            return
+
+        number = int(pin.name[-1])
+        if number is not number:
+            print(_("Could not translate {0} to number".format(pin.name)))
+            return
+            
+        button = self._get_child_button(location, number)
+        if not button:
+            print(_("no button here"))
+            return
+        elif button == -1:
+            print(_("the button is not sensitive"))
+            return
+ 
+        if type(button[0]) == gtk.ToggleButton:
+            button[0].set_active(not button[0].get_active())
+            print(_("Button {0} has been toggled".format(button[1])))
+        elif type(button[0]) == gtk.RadioButton:
+            button[0].set_active(True)
+            button[0].emit("pressed")        
+            print(_("Button {0} has been pressed".format(button[1])))
+        else:
+            button[0].emit("clicked")
+            print(_("Button {0} has been clicked".format(button[1])))
+
+    # this handles the relation between hardware button and the software button    
+    def _get_child_button(self, location, number = None):
+        # get the position of each button to be able to connect to hardware button
+        self.child_button_dic = {}
+        
+        if location == "bottom":
+            page = self.widgets.ntb_button.get_current_page()
+            container = self.widgets.ntb_button.get_children()[page]
+        elif location == "right":
+            container = self.widgets.vbtb_main
+        else:
+            print(_("got wrong location to locate the childs"))
+            
+        children = container.get_children()
+        hidden = 0
+        for child in children:
+            if not child.get_visible():
+                hidden +=1
+            else:
+                if type(child) != gtk.Label:
+                    pos = container.child_get_property(child, "position")
+                    name = child.name
+                    if name == None:
+                        name = gtk.Buildable.get_name(child)
+                    self.child_button_dic[pos - hidden] = (child, name)
+        
+        if number is not None:
+            try:
+                if self.child_button_dic[number][0].get_sensitive():
+                    return self.child_button_dic[number]
+                else:
+                    return -1
+            except:
+                return None
+        else:
+            return self.child_button_dic
+
 
 # We need extra HAL pins here is where we do it.
 # we make pins for the hardware buttons witch can be placed around the
@@ -5237,12 +5240,12 @@ class gmoccapy(object):
         # generate the horizontal button pins
         for h_button in range(0, 10):
             pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_h_button_changed)
+            hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # generate the vertical button pins
         for v_button in range(0, 7):
             pin = self.halcomp.newpin("v-button.button-{0}".format(v_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_v_button_changed)
+            hal_glib.GPin(pin).connect("value_changed", self._button_pin_changed)
 
         # buttons for jogging the axis
         for jog_button in self.axis_list:
