@@ -2808,22 +2808,23 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, state)
 
     def _switch_to_g7(self, state):
-        return
+        # we do this only if we have a lathe, the check for lathe is done in gmoccapy
+        print state
         if state:
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
             self.diameter_mode = True
         else:
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+            self.dro_dic["Combi_DRO_9"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_9"].set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+            self.dro_dic["Combi_DRO_0"].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+            self.dro_dic["Combi_DRO_0"].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+            self.dro_dic["Combi_DRO_0"].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
             self.diameter_mode = False
 
     def on_key_event(self, widget, event, signal):
@@ -3796,10 +3797,11 @@ class gmoccapy(object):
                 speed = self.stat.settings[2]
             else:
                 speed = self.stat.spindle[0]['speed']
+
             if not self.lathe_mode:
                 diameter = self.halcomp["tool-diameter"]
             else:
-                diameter = int(self.widgets.Combi_DRO_x.get_position()[1] * 2)
+                diameter = int(self.dro_dic["Combi_DRO_0"].get_position()[1] * 2)
             vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
         else:
             vc = 0
