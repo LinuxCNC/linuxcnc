@@ -501,18 +501,6 @@ class gmoccapy(object):
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
 
-#        for axis in self.axis_list:
-#            if axis == self.axisletter_four:
-#                axis = 4
-#            if axis == self.axisletter_five:
-#                axis = 5
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-#            self.widgets["Combi_DRO_{0}".format(axis)].set_property("actual", self.dro_actual)
-
         self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
 
@@ -533,76 +521,13 @@ class gmoccapy(object):
         ]
         self._sensitize_widgets(widgetlist, False)
 
-        # Do we control a lathe?
-        if self.lathe_mode:
-            # is this a backtool lathe?
-            self.backtool_lathe = self.get_ini_info.get_backtool_lathe()
-
-            # we first hide the Y button to home and touch off
-            self.widgets.btn_home_y.hide()
-            self.widgets.btn_set_value_y.hide()
-            self.widgets.lbl_replace_y.show()
-            self.widgets.lbl_replace_set_value_y.show()
-            self.widgets.btn_tool_touchoff_x.show()
-            self.widgets.lbl_hide_tto_x.hide()
-
-            # we have to re-arrange the jog buttons, so first remove all button
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_y_plus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_x_plus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_minus)
-            self.widgets.tbl_jog_btn_axes.remove(self.widgets.btn_z_plus)
-
-            # now we place them in a different order
-            if self.backtool_lathe:
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-            else:
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_plus, 1, 2, 2, 3, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_x_minus, 1, 2, 0, 1, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_plus, 2, 3, 1, 2, gtk.SHRINK, gtk.SHRINK)
-            self.widgets.tbl_jog_btn_axes.attach(self.widgets.btn_z_minus, 0, 1, 1, 2, gtk.SHRINK, gtk.SHRINK)
-
-            # The Y DRO we make to a second X DRO to indicate the diameter
-            self.widgets.Combi_DRO_y.set_to_diameter(True)
-            self.widgets.Combi_DRO_y.set_property("joint_number", 0)
-
-            # we change the axis letters of the DRO's
-            self.widgets.Combi_DRO_x.change_axisletter("R")
-            self.widgets.Combi_DRO_y.change_axisletter("D")
-
-            # and we will have to change the colors of the Y DRO according to the settings
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.widgets.Combi_DRO_y.set_property("homed_color", gtk.gdk.color_parse(self.homed_color))
-            self.widgets.Combi_DRO_y.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
-            self.widgets.Combi_DRO_y.set_property("actual", self.dro_actual)
-
-            # For gremlin we don"t need the following button
-            if self.backtool_lathe:
-                self.widgets.rbt_view_y2.set_active(True)
-            else:
-                self.widgets.rbt_view_y.set_active(True)
-            self.widgets.rbt_view_p.hide()
-            self.widgets.rbt_view_x.hide()
-            self.widgets.rbt_view_z.hide()
-
-            # check if G7 or G8 is active
-            if "70" in self.stat.gcodes:
-                self._switch_to_g7(True)
-            else:
-                self._switch_to_g7(False)
-
+        # check if G7 or G8 is active
+        if "70" in self.stat.gcodes:
+            self.diameter_mode = True
+            self._switch_to_g7(True)
         else:
-            # the Y2 view is not needed on a mill
-            self.widgets.rbt_view_y2.hide()
-            # X Offset is not necessary on a mill
-            self.widgets.lbl_tool_offset_x.hide()
-            self.widgets.lbl_offset_x.hide()
-            self.widgets.btn_tool_touchoff_x.hide()
-            self.widgets.lbl_hide_tto_x.show()
+            self._switch_to_g7(False)
+            self.diameter_mode = False
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -2883,6 +2808,7 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, state)
 
     def _switch_to_g7(self, state):
+        return
         if state:
             self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))

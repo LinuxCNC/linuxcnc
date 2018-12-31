@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkHBox" id="hbx_main">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkFrame" id="frm_tools">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_tools">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="top_padding">5</property>
+                <property name="bottom_padding">5</property>
+                <property name="left_padding">5</property>
+                <property name="right_padding">5</property>
+                <child>
+                  <object class="GtkTable" id="tbl_tools">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="n_rows">12</property>
+                    <property name="n_columns">2</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="lbl_frm_tools">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Tools&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frm_changer">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0.5</property>
+            <child>
+              <object class="GtkAlignment" id="ali_changer">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="top_padding">5</property>
+                <property name="bottom_padding">5</property>
+                <property name="left_padding">5</property>
+                <property name="right_padding">5</property>
+                <child>
+                  <object class="GtkTable" id="tbl_changer">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="n_rows">3</property>
+                    <child>
+                      <object class="HAL_RadioButton" id="rbt_changer_front">
+                        <property name="label" translatable="yes">front</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="yalign">0.4699999988079071</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">rbt_changer_back</property>
+                      </object>
+                      <packing>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_RadioButton" id="rbt_changer_back">
+                        <property name="label" translatable="yes">back</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">False</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkFrame" id="frame_changer_pos">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label_xalign">0.5</property>
+                        <child>
+                          <object class="GtkAlignment" id="ali_changer_pos">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="top_padding">5</property>
+                            <property name="bottom_padding">5</property>
+                            <property name="left_padding">5</property>
+                            <property name="right_padding">5</property>
+                            <child>
+                              <object class="GtkVBox" id="vbx_changer_pos">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkFrame" id="frm_changer_front">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_changer_front">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="HAL_LED" id="led_changer_front">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="led_blink_rate">0</property>
+                                            <property name="led_shiny">True</property>
+                                            <property name="pick_color_off">#9e9e9e9e9e9e</property>
+                                            <property name="pick_color_on">#0000ffff0000</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_frm_changer_front">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Front&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFrame" id="frm_changer_back">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_changer_back">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="HAL_LED" id="led_changer_back">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="led_blink_rate">0</property>
+                                            <property name="led_shiny">True</property>
+                                            <property name="pick_color_off">#9e9e9e9e9e9e</property>
+                                            <property name="pick_color_on">#0000ffff0000</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_frm_changer_back">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Closed
+&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="lbl_changer_pos">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Changer
+Position&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="lbl_frm_changer_pos">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Changer&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

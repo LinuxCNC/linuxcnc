@@ -1,0 +1,29 @@
+; Testfile I am Lost
+; will just jog a litle bit around
+
+O<jog_around> sub
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+G91 G0 X 25
+Y-25
+Z-25
+Y25
+X-25
+Z25
+F250
+G2 I 25
+
+(MSG, It is done!)
+
+O<jog_around> endsub
+
+M2
+

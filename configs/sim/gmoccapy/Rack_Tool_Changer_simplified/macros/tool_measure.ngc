@@ -1,0 +1,72 @@
+%
+o<tool_measure> sub
+
+#<tool_to_measure> = #1
+(debug, tool to measure = #<tool_to_measure>)
+
+; =======================================================================================================
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+o100 if [#<_task> EQ 0]
+        (debug, Task ist Null)
+o100     return [999]
+o100 endif
+
+; =======================================================================================================
+; we check if there is a tool in the spindle, if not we will not need to drop any
+o<check_tool> if [ #<_current_tool> NE #<tool_to_measure> ]
+    (DEBUG, Tool in spindle = #<_current_tool>, need to change to tool #<tool_to_measure>)
+    T#<tool_to_measure> M6
+o<check_tool> endif
+
+; =======================================================================================================
+; cancel tool offset
+G49
+(DEBUG, canceled tool offset)
+
+; =======================================================================================================
+;first go up
+G53 G0 Z[#<_ini[TOOLCHANGER]OVER_TOOL_Z>]
+
+#<X_Pos> = #<_ini[TOOLSENSOR]X>
+#<Y_Pos> = #<_ini[TOOLSENSOR]Y>
+
+(DEBUG, go to tool measurement position #<X_Pos> #<Y_Pos>)
+
+; then move to tool sensor position
+G53 G0 X[#<X_Pos>] Y[#<Y_Pos>]
+G53 G0 Z[#<_ini[TOOLSENSOR]Z>]
+
+; =======================================================================================================
+F #<_ini[TOOLSENSOR]SEARCHVEL>
+G91
+G38.2 Z #<_ini[TOOLSENSOR]MAXPROBE>
+G0 Z2
+
+F #<_ini[TOOLSENSOR]PROBEVEL>
+G38.2 Z-4
+
+O500 if [#5070 EQ 0]
+    G90
+    O500 return [-3] ; indicate probe contact failure to epilog
+O500 endif
+
+G90
+G53 G0 Z0
+
+#<touch_result> = #5063
+
+(DEBUG, Touch result = #<touch_result>)
+
+; #<_ini[TOOLSENSOR]Z> must be measured once from the spindle nose,
+; so every tool will have an offset! none is the master tool
+; this works only perfect, if you do your touch of of the workpiece with G43 set
+
+G10 L1 P#<tool_to_measure> Z[#<touch_result> - #<_ini[TOOLSENSOR]Z>]
+G43
+
+; signal success be returning a value > 0:
+o<tool_measure> endsub [1]
+
+%

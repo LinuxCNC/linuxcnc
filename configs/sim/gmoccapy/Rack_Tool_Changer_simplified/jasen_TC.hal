@@ -1,0 +1,31 @@
+# Hal file to be able to simulate Jasens Tool Changer
+
+# connect here the switches of the front and back positions
+net changer_front     jasen_TC.led_changer_front
+net changer_back      jasen_TC.led_changer_back
+
+# connect here the valves to move the changer
+net move2front        jasen_TC.rbt_changer_front
+net move2back         jasen_TC.rbt_changer_back
+
+# connect here the switches to show if a pocket is poppulated or not
+# net pocket_01         jasen_TC.pocket_01   <=   from_your_hardware_switch
+net pocket_01         jasen_TC.pocket_01
+net pocket_02         jasen_TC.pocket_02
+net pocket_03         jasen_TC.pocket_03
+net pocket_04         jasen_TC.pocket_04
+net pocket_05         jasen_TC.pocket_05
+net pocket_06         jasen_TC.pocket_06
+net pocket_07         jasen_TC.pocket_07
+net pocket_08         jasen_TC.pocket_08
+net pocket_09         jasen_TC.pocket_09
+net pocket_10         jasen_TC.pocket_10
+net pocket_11         jasen_TC.pocket_11
+net pocket_12         jasen_TC.pocket_12
+
+
+# OK, for testing we set some signals to True
+sets pocket_02 1
+sets pocket_06 1
+sets pocket_07 1
+sets pocket_11 1

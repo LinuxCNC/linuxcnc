@@ -1,0 +1,4 @@
+net tool_sensor tool_sensor.btn_tool_sensor_sim 
+net tool_sensor motion.probe-input 
+net tool_sensor tool_sensor.led_tool_sensor
+

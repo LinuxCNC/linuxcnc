@@ -1,0 +1,248 @@
+; This is for a rack tool changer where the changer itself move to change position
+; Jasen did ddesign such a changer
+
+; needed connections
+; in your hal file you will need to set num_dio=6
+; connections in your hal file
+; motion.digital-in-00 <= halui.mode.is-auto
+; motion.digital-in-01 <= spindle amplifiere, signal that spindle has stoped
+; motion.digital-in-02 <= switch activated when changer is in front position
+; motion.digital-in-03 <= switch indicating, that the spindle has released the tool
+; motion.digital-in-04 <= switch indicating, that the spindle has greped the tool
+; motion.digital-in-05 <= switch activated when changer is in back position
+
+; motion.digital-out-00 => valvle to move the changer to the front position
+; motion.digital-out-01 => valvle to move the changer to the back position
+; motion.digital-out-02 => valvle to release the tool
+
+; The following errors can be thrown:
+; return [-101]    ; -101 = wrong pocket number
+; return [-102]    ; -102 = spindle did not stop
+; return [-103]    ; -103 = changer has not reached the front position
+; return [-104]    ; -104 = changer has not realeased the tool
+; return [-105]    ; -105 = changer has not greped the tool
+; return [-106]    ; -106 = changer has not reached the back position
+
+%
+o<change> sub
+
+; =======================================================================================================
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+o100 if [#<_task> EQ 0]
+        (debug, Task is null)
+o100     return [999]
+o100 endif
+
+; =======================================================================================================
+;(DEBUG, current tool = #<_current_tool>)
+;(DEBUG, current pocket = #<_curr_pocket>)
+;(DEBUG, selected tool = #<_selected_tool>)
+;(DEBUG, selected pocket = #<_selected_pocket>)
+
+; we have the following settings in our INI file
+;[TOOLCHANGER]
+;FIRST_TOOL_X = 25.012
+;FIRST_TOOL_Y = 2.123
+;DIFF_RACK = 35.000
+;OVER_TOOL_Z = -53.123
+;PICK_Z = -73.123
+
+
+; =======================================================================================================
+; First of all we have to check wether the code is called from mdi mode or auto mode,
+; because an M2 from MDI mode will cause an error.
+; the mode can be connected like net mode halui.mode_is_auto => motion.digital-in-00
+M66 P0 L0
+(DEBUG, Mode Status = #5399)
+o<m_code_mode> if [ #5399 GT 0 ]
+    #<mode_auto> = 1
+o<m_code_mode> else
+    #<mode_auto> = 0
+o<m_code_mode> endif
+
+; =======================================================================================================
+; As pockets aren actualy not handled correctly from LinuxCNC we need to check if the tool and pocketnumbers do match
+o<check_pocket_number> if [ [ #<_selected_pocket> LT 0 ] OR [ #<_selected_pocket> GT 12 ] ]
+    (DEBUG,  selected pocket = #<_selected_pocket> is not between 0 und 12)
+    o<check_mode_1> if [ #<mode_auto> GT 0 ]
+        M2                    ; no return, because then a program will continue and 
+                              ; a crash will hapen for sure
+    o<check_mode_1> else
+        o<check_pocket_number> return [-101]    ; -101 = wrong pocket number
+    o<check_mode_1> endif
+o<check_pocket_number> endif
+
+
+; =======================================================================================================
+; we check if there is a tool in the spindle, if not we will not need to drop any
+#<tool in spindle> = 1
+o<check_tool_number> if [ #<_current_tool> LT 0 ]
+    (DEBUG, Tool Nummer = #<_current_tool>)
+    #<tool in spindle> = 0
+o<check_tool_number> endif
+
+; =======================================================================================================
+; Check if the old tool number = the new tool number
+; in that case a change is not needed
+o<old_new> if [[#<_current_tool>] EQ [#<_selected_tool>]]
+    (MSG, No tool change needed, same tool)
+o<old_new> return [1]
+o<old_new> endif
+
+; =======================================================================================================
+; stop spindle
+M5
+(DEBUG, Spindle stoped with M5)
+
+; =======================================================================================================
+; Spindle amplifier gives a signal when spindle-rev = 0
+; it must be connected to motion.digital-in.01
+;M66 P1 L3 Q5
+(DEBUG, Spindle state = #5399)
+;o<spindle_state> if [ #5399 LT 0 ]
+;    (MSG, spindle did not stop)
+;    o<check_mode_2> if [ #<mode_auto> GT 0 ]
+;        M2                    ; no return, because then a program will continue and
+;                              ; a crash will hapen for sure
+;    o<check_mode_2> else
+;        o<spindle_state> return [-102]    ; -102 = spindle did not stop
+;    o<check_mode_2> endif
+;o<spindle_state> endif
+
+; =======================================================================================================
+; Remember if coolant was on, and switch off for tool change
+; coolant-flood is connected to motion.digital.in.02
+M66 P2 L0
+#<coolant_was_on> = 0
+o<check_coolant> if [ #5399 NE 0 ]
+    #<coolant_was_on> = 1
+    M9
+    (DEBUG, coolant has been switched off)
+o<check_coolant> endif
+
+; =======================================================================================================
+; if there is a tool in the spindle we need to drop that one first
+o<check_tool_in_spindle> if [ #<tool in spindle> EQ 1 ]
+    ; we need to calculate the drop position
+    #<X_Pos> = [[#<_ini[TOOLCHANGER]FIRST_TOOL_X>] + [#<_current_pocket>] * [#<_ini[TOOLCHANGER]DIFF_RACK_X>] ]
+    #<Y_Pos> = [[#<_ini[TOOLCHANGER]FIRST_TOOL_Y>] + [#<_current_pocket>] * [#<_ini[TOOLCHANGER]DIFF_RACK_Y>] ]
+
+    ; move most up so we should be save to move all ober the workpiece
+    G53 G0 Z0
+
+    (debug, move to #<X_Pos>, #<Y_Pos> to drop old tool)
+
+    ; now move to the tool change position
+    G53 G0 X #<X_Pos> Y #<Y_Pos>
+
+    ; Now we move the spindle to tool change position
+    G53 G0 Z [#<_ini[TOOLCHANGER]PICK_Z>]
+
+    ; now the changer need to move to the front
+    ; The changer valvles should be connected to motion.digital-out-00 and motion.digital-out-01
+    M65 P1       ; switch off back valvle
+    M64 P0       ; switch on front valvle
+
+    ; check if the changer has realy moved to its front position
+    ; the position switch should be connected to motion.digital-in-02
+;    M66 P2 L3 Q5 ; this long time is only for debugging
+
+;    o<check_front_pos> if [#5399 NE 1]
+;        ; The changer rack has not moved to front position
+;        o<check_mode_3> if [ #<mode_auto> GT 0 ]
+;            M2                ; no return, because then a program will continue and 
+;                              ; a crash will hapen for sure
+;        o<check_mode_3> else
+;            o<check_front_pos> return [-103]    ; -103 = changer has not reached the front position
+;        o<check_mode_3> endif
+;    o<check_front_pos> endif
+
+    ; The spindle now needs to release the tool
+    ; the release valvle should be connected to motion.digital-out-02
+    M64 P2
+
+    ; check if the changer has realy released the tool
+    ; the release switch should be connected to motion.digital-in-03
+;    M66 P3 L3 Q5 ; this long time is only for debugging
+
+;    o<check_release_pos> if [#5399 NE 1]
+;        ; The changer rack has not moved to front position
+;        o<check_mode_4> if [ #<mode_auto> GT 0 ]
+;            M2                ; no return, because then a program will continue and 
+;                              ; a crash will hapen for sure
+;        o<check_mode_4> else
+;            o<check_release_pos> return [-104]    ; -104 = changer has not realeased the tool
+;        o<check_mode_4> endif
+;    o<check_release_pos> endif
+
+    ; Now the spindle will move up and the tool will stay in its pocket
+    G53 G0 Z [#<_ini[TOOLCHANGER]OVER_TOOL_Z >]
+
+o<check_tool_in_spindle> endif
+
+; =======================================================================================================
+; OK, now we calculate the position of the new tool
+#<X_Pos> = [[#<_ini[TOOLCHANGER]FIRST_TOOL_X>] + [#<_selected_pocket>] * [#<_ini[TOOLCHANGER]DIFF_RACK_X>] ]
+#<Y_Pos> = [[#<_ini[TOOLCHANGER]FIRST_TOOL_Y>] + [#<_selected_pocket>] * [#<_ini[TOOLCHANGER]DIFF_RACK_Y>] ]
+
+(debug, move to #<X_Pos>, #<Y_Pos> to pick new tool)
+
+; move to that position
+G53 G0 X #<X_Pos> Y #<Y_Pos>
+
+; Go to tool pick position
+G53 G0 Z [#<_ini[TOOLCHANGER]PICK_Z>]
+
+; The spindle now needs to grep the tool
+; the release valvle should be connected to motion.digital-out-02
+; we reset that value to null to grep the tool
+M65 P2
+
+; check if the changer has realy greped the tool
+; the release switch should be connected to motion.digital-in-04
+;M66 P4 L3 Q5 ; this long time is only for debugging
+
+;o<check_grep_tool_pos> if [#5399 NE 1]
+;    ; The changer rack has not moved to front position
+;    o<check_mode_5> if [ #<mode_auto> GT 0 ]
+;        M2                ; no return, because then a program will continue and 
+;                          ; a crash will hapen for sure
+;    o<check_mode_5> else
+;        o<check_grep_tool_pos> return [-105]    ; -105 = changer has not greped the tool
+;    o<check_mode_5> endif
+;o<check_grep_tool_pos> endif
+
+; now the changer need to move to the back position
+; The changer valvles should be connected to motion.digital-out-00 and motion.digital-out-01
+M65 P0       ; switch off front valvle
+M64 P1       ; switch on back valvle
+
+; check if the changer has realy moved to its front position
+; the position switch should be connected to motion.digital-in-05
+;M66 P5 L3 Q5 ; this long time is only for debugging
+
+;o<check_back_pos> if [#5399 NE 1]
+;    ; The changer rack has not moved to front position
+;    o<check_mode_6> if [ #<mode_auto> GT 0 ]
+;        M2                ; no return, because then a program will continue and 
+;                          ; a crash will hapen for sure
+;    o<check_mode_6> else
+;        o<check_back_pos> return [-106]    ; -106 = changer has not reached the back position
+;    o<check_mode_6> endif
+;o<check_back_pos> endif
+
+; =======================================================================================================
+; If collant was on, we will switch it on again.
+; This may be replaced with an M73 command
+O<coolant_was_on> if[ #<coolant_was_on> EQ 1 ]
+    M8
+    (DEBUG, Kühlung wieder eingeschaltet)
+O<coolant_was_on> endif
+
+; =======================================================================================================
+; signal success be returning a value > 0:
+o<change> endsub [1]
+
+%

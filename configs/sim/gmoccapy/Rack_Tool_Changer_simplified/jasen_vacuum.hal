@@ -1,0 +1,33 @@
+# Hal file to be able to simulate Jasens vacuum table
+
+# you need to connect the different vaccum areas like this
+# net area_01_01  jasen_vacuum.vacuum_01_01   =>   your_hardware_pin
+
+net area_01_01  jasen_vacuum.vacuum_01_01
+net area_01_02  jasen_vacuum.vacuum_01_02
+net area_01_03  jasen_vacuum.vacuum_01_03
+net area_01_04  jasen_vacuum.vacuum_01_04
+net area_01_05  jasen_vacuum.vacuum_01_05
+net area_01_06  jasen_vacuum.vacuum_01_06
+net area_01_07  jasen_vacuum.vacuum_01_07
+net area_01_08  jasen_vacuum.vacuum_01_08
+net area_01_09  jasen_vacuum.vacuum_01_09
+net area_01_10  jasen_vacuum.vacuum_01_10
+net area_01_11  jasen_vacuum.vacuum_01_11
+net area_01_12  jasen_vacuum.vacuum_01_12
+net area_01_13  jasen_vacuum.vacuum_01_13
+
+net area_02_01  jasen_vacuum.vacuum_02_01
+net area_02_02  jasen_vacuum.vacuum_02_02
+net area_02_03  jasen_vacuum.vacuum_02_03
+net area_02_04  jasen_vacuum.vacuum_02_04
+net area_02_05  jasen_vacuum.vacuum_02_05
+net area_02_06  jasen_vacuum.vacuum_02_06
+net area_02_07  jasen_vacuum.vacuum_02_07
+net area_02_08  jasen_vacuum.vacuum_02_08
+net area_02_09  jasen_vacuum.vacuum_02_09
+net area_02_10  jasen_vacuum.vacuum_02_10
+net area_02_11  jasen_vacuum.vacuum_02_11
+net area_02_12  jasen_vacuum.vacuum_02_12
+net area_02_13  jasen_vacuum.vacuum_02_13
+
