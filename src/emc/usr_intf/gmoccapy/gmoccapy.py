@@ -2514,12 +2514,14 @@ class gmoccapy(object):
     def on_hal_status_interp_idle(self, widget):
         if self.load_tool:
             return
+
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks"
         ]
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append("tbtn_setup")
+
         if self.all_homed or self.no_force_homing:
             widgetlist.append("rbt_mdi")
             widgetlist.append("rbt_auto")
@@ -2529,25 +2531,20 @@ class gmoccapy(object):
             widgetlist.append("btn_tool_touchoff_x")
             widgetlist.append("btn_tool_touchoff_z")
             widgetlist.append("btn_touch")
+
         # This happen because hal_glib does emmit the signals in the order that idle is emited later that estop
         if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
             self._sensitize_widgets(widgetlist, False)
         else:
             self._sensitize_widgets(widgetlist, True)
+
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
 
         if self.onboard:
-            file = "keyboard.png"
-            filepath = os.path.join(IMAGEDIR, file)
+            self._change_kbd_image("keyboard")
         else:
-            file = "stop.png"
-            filepath = os.path.join(IMAGEDIR, file)
-
-        image = self.macro_dic["keyboard"].get_image()
-        image.set_from_file(filepath)
-        self.macro_dic["keyboard"].show_all()
-        print ("new image = ",image)
+            self._change_kbd_image("stop")
 
         self.widgets.btn_run.set_sensitive(True)
 
@@ -2572,13 +2569,7 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
 
-        file = "stop.png"
-        filepath = os.path.join(IMAGEDIR, file)
-        image = self.macro_dic["keyboard"].get_image()
-        image.set_from_file(filepath)
-        self.macro_dic["keyboard"].show_all()
-        print ("new image = ",image)
-        self.macro_dic["keyboard"].set_property("tooltip-text", _("interrupt running macro"))
+        self._change_kbd_image("stop")
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         # need to save the tool in spindle as preference, to be able to reload it on startup
@@ -2862,21 +2853,25 @@ class gmoccapy(object):
         self.command.mdi(command)
         for btn in self.macrobuttons:
             btn.set_sensitive(False)
-        # we change the widget_image and use the button to interrupt running macros
+        # we change the widget_image (doen by hal status)
+        # and use the button to interrupt running macros
         if not self.onboard:
             self.widgets.btn_show_kbd.set_sensitive(True)
-#        print("should have new image")
-#        
-#        file = "stop.png"
-#        filepath = os.path.join(IMAGEDIR, file)
-#        image = self.macro_dic["keyboard"].get_image()
-#        image.set_from_file(filepath)
-#        self.macro_dic["keyboard"].show_all()
-#        self.macro_dic["keyboard"].set_property("tooltip-text", _("interrupt running macro"))
         self.widgets.ntb_info.set_current_page(0)
 
 # helpers functions start
 # =========================================================
+
+    def _change_kbd_image(self, image):
+        if image == "stop":
+            file = "stop.png"
+        else:
+            file = "keyboard.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        image = self.macro_dic["keyboard"].get_children()[0]
+        image.set_from_file(filepath)
+        self.macro_dic["keyboard"].set_property("tooltip-text", _("This button will show or hide the keyboard"))
+        self.macro_dic["keyboard"].show_all()
 
     def _update_widgets(self, state):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
@@ -4089,24 +4084,19 @@ class gmoccapy(object):
 
     def on_btn_show_kbd_clicked(self, widget):
         print("show Keyboard clicked")
+        print(widget)
+        print(widget.name)
+        print(widget.get_children()[0])
+        print(widget.get_children()[0].get_property("file"))
 
-        file = "keyboard.png"
-        filepath = os.path.join(IMAGEDIR, file)
-        image = self.macro_dic["keyboard"].get_image()
-        image.set_from_file(filepath)
-        self.macro_dic["keyboard"].show_all()
-        self.macro_dic["keyboard"].set_property("tooltip-text", _("interrupt running macro"))
-        
-        # if the image is img_brake macro, we want to interrupt the running macro
-        if self.macro_dic["keyboard"].get_image() == self.widgets.img_brake_macro:
+        # special case if we are in mdi mode
+        if self.widgets.ntb_button.get_current_page() == _BB_MDI and self.stat.interp_state != linuxcnc.INTERP_IDLE:
             self.command.abort()
             self.command.wait_complete()
             for pos in self.macro_dic:
                 self.macro_dic[pos].set_sensitive(True)
             if self.onboard:
-                
-                self.macro_dic["keyboard"].set_image(self.widgets.img_keyboard)
-                self.macro_dic["keyboard"].set_property("tooltip-text", _("This button will show or hide the keyboard"))
+                self._change_kbd_image("keyboard")
             else:
                 self.macro_dic["keyboard"].set_sensitive(False)
         elif self.widgets.ntb_info.get_current_page() == 1:
