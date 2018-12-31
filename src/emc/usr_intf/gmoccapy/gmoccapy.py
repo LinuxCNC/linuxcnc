@@ -229,6 +229,7 @@ class gmoccapy(object):
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
 
         self.lathe_mode = None # we need this to check if we have a lathe config
+        self.diameter_mode = False
 
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
@@ -521,13 +522,13 @@ class gmoccapy(object):
         ]
         self._sensitize_widgets(widgetlist, False)
 
-        # check if G7 or G8 is active
-        if "70" in self.stat.gcodes:
-            self.diameter_mode = True
-            self._switch_to_g7(True)
-        else:
-            self._switch_to_g7(False)
-            self.diameter_mode = False
+#        # check if G7 or G8 is active
+#        if "70" in self.stat.gcodes:
+#            self.diameter_mode = True
+#            self._switch_to_g7(True)
+#        else:
+#            self._switch_to_g7(False)
+#            self.diameter_mode = False
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -1231,6 +1232,7 @@ class gmoccapy(object):
         self.widgets.rbt_view_z.hide()
         self.widgets.rbt_view_y2.show()
 
+        self._switch_to_g7(False)
 
     def _arrange_dro(self):
         print("**** GMOCCAPY INFO ****")
