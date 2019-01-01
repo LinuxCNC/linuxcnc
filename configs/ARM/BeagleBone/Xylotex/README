@@ -12,7 +12,7 @@ Current axis settings:
 
 max vel   =   1.0 in/s
 max accel =  15.0 in/s/s
-scale     = 32000 steps/in
+scale     =  2000 steps/in
 
 Adjust as required for your machine.  Make scale negative to invert any
 axis that is moving 'backwards'.
