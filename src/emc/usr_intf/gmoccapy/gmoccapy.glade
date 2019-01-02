@@ -162,10 +162,10 @@
     <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
     <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
-    <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
-    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
-    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
     <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
+    <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
+    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
+    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
     <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
     <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
     <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
@@ -1303,332 +1303,52 @@
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j0_minus">
-                                                            <property name="label">0-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j1_minus">
-                                                            <property name="label">1-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j2_plus">
-                                                            <property name="label">2+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j4_plus">
-                                                            <property name="label">4+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j4_minus">
-                                                            <property name="label">4-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j1_plus">
-                                                            <property name="label">1+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j0_plus">
-                                                            <property name="label">0+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j2_minus">
-                                                            <property name="label">2-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j5_minus">
-                                                            <property name="label">5-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j5_plus">
-                                                            <property name="label">5+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j3_minus">
-                                                            <property name="label">3-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j3_plus">
-                                                            <property name="label">3+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j6_minus">
-                                                            <property name="label">6-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j6_plus">
-                                                            <property name="label">6+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j7_minus">
-                                                            <property name="label">7-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j7_plus">
-                                                            <property name="label">7+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="_on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="_on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             </object>
                                                             <packing>
