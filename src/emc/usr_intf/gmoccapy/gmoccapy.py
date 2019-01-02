@@ -295,7 +295,7 @@ class gmoccapy(object):
         self._arrange_dro()
         self._arrange_jog_button()
 
-        self._init_hal_pins()
+        self._make_hal_pins()
 
         self._init_user_messages()
 
@@ -988,11 +988,16 @@ class gmoccapy(object):
         self.active_increment = rbt0.name
 
     def _jog_increment_changed(self, widget, increment):
+        if increment == 0:
+            self.distance = 0
+        else:
+            self.distance = self._parse_increment(increment)
+        self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
 
     def _on_btn_jog_pressed(self, widget, joint_or_axis, direction, shift=False):
-        print(widget, joint_or_axis, direction)
-        print ("Axis pressed = {0}".format(widget.get_property("name")))
+        print(joint_or_axis, direction)
+        print ("Axis pressed = {0}".format(widget.name))
 
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
@@ -2893,7 +2898,7 @@ class gmoccapy(object):
             scale = self._from_internal_linear_unit(.001)
         else:
             scale = 1
-        jogincr = jogincr.rstrip(" inchmuil")
+        jogincr = jogincr.rstrip(" inchmuil°degr")
         if "/" in jogincr:
             p, q = jogincr.split("/")
             jogincr = float(p) / float(q)
@@ -4854,7 +4859,7 @@ class gmoccapy(object):
         self._jog_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
-    def _on_pin_jog_axis_changed(self, pin, axis, direction):
+    def _on_pin_jog_axis_changed(self, pin, button_name):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             if self.stat.motion_mode == 1 and pin.get():
                 message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
@@ -4862,35 +4867,22 @@ class gmoccapy(object):
                 self._show_error((13, message))
                 return
 
-#        if axis not in "xyz":
-#            if axis == self.axisletter_four:
-#                axis = 4
-#            if axis == self.axisletter_five:
-#                axis = 5
-#        if direction == 1:
-#            widget = self.widgets["btn_{0}_plus".format(axis)]
-#        else:
-#            widget = self.widgets["btn_{0}_minus".format(axis)]
-#        if pin.get():
-#            self.on_btn_jog_pressed(widget)
-#        else:
-#            self.on_btn_jog_released(widget)
+        if pin.get():
+            self.on_btn_jog_pressed(self.jog_button_dic[button_name])
+        else:
+            self.on_btn_jog_released(self.jog_button_dic[button_name])
 
-    def _on_pin_jog_joint_changed(self, pin, joint, direction):
+    def _on_pin_jog_joint_changed(self, pin, button_name):
         if self.stat.motion_mode != 1 and pin.get():
             message = _("Joint jogging is only allowed in joint mode, but you are in world mode!")
             print(message)
             self._show_error((13, message))
             return
 
-#        if direction == 1:
-#            widget = self.widgets["btn_j{0}_plus".format(str(joint))]
-#        else:
-#            widget = self.widgets["btn_j{0}_minus".format(str(joint))]
-#        if pin.get():
-#            self.on_btn_jog_pressed(widget)
-#        else:
-#            self.on_btn_jog_released(widget)
+        if pin.get():
+            self.on_btn_jog_pressed(self.joint_button_dic[button_name])
+        else:
+            self.on_btn_jog_released(self.joint_button_dic[button_name])
 
     def _reset_overide(self, pin, type):
         if pin.get():
@@ -4984,7 +4976,7 @@ class gmoccapy(object):
 # We need extra HAL pins here is where we do it.
 # we make pins for the hardware buttons witch can be placed around the
 # screen to activate the corresponding buttons on the GUI
-    def _init_hal_pins(self):
+    def _make_hal_pins(self):
         # generate the horizontal button pins
         for h_button in range(0, 10):
             pin = self.halcomp.newpin("h-button.button-{0}".format(h_button), hal.HAL_BIT, hal.HAL_IN)
@@ -4998,16 +4990,16 @@ class gmoccapy(object):
         # buttons for jogging the axis
         for jog_button in self.axis_list:
             pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, jog_button, 1)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, "{0}+".format(jog_button))
             pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, jog_button, -1)
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, "{0}-".format(jog_button))
 
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             for joint_button in range(0, self.stat.joints):
                 pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
-                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, joint_button, 1)
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, "{0}+".format(joint_button))
                 pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
-                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, joint_button, -1)
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, "{0}+".format(joint_button))
 
         # jog_increment out pin
         self.halcomp.newpin("jog.jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
