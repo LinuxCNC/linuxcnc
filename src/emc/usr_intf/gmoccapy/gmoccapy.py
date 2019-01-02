@@ -285,6 +285,10 @@ class gmoccapy(object):
         self._make_touch_button()
         self._make_jog_increments()
         self._make_jog_button()
+#ToDo : we have to check for non trivial kinematics, as in that case we need also Joint joggin button
+        if not self.trivial_kinematics:
+            # we need joint jogging button
+            self._make_joints_button()
         self._make_macro_button()
 
         # if we have a lathe, we need to rearrange some stuff
@@ -995,28 +999,16 @@ class gmoccapy(object):
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
 
-    def _on_btn_jog_pressed(self, widget, joint_or_axis, direction, shift=False):
-        print(joint_or_axis, direction)
-        print ("Axis pressed = {0}".format(widget.name))
+    def _on_btn_jog_pressed(self, button_name, shift=False):
+        print ("Jog Button pressed = {0}".format(button_name))
 
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
-        joint_btn = False
-        if not joint_or_axis.lower() in "xyzabcuvw":
-            # OK, it seems to be a Joints button
-            if joint_or_axis in "012345678":
-                joint_btn = True
-            else:
-                print ("unknown joint or axis {0}".format(joint_or_axis))
-                return
-
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
-        else:
-            joint_axis_number = "01234567".index(joint_or_axis)
+        joint_axis_number = self._get_joint_axis_number(button_name)
+        if joint_axis_number is None:
+            return
 
         # if shift = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
@@ -1027,7 +1019,7 @@ class gmoccapy(object):
 
         velocity = value * (1 / self.faktor)
 
-        if direction == "+":
+        if button_name[1] == "+":
             dir = 1
         else:
             dir = -1
@@ -1048,28 +1040,15 @@ class gmoccapy(object):
         else:  # continuous jogging
             self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, dir * velocity)
 
-    def _on_btn_jog_released(self, widget, joint_or_axis, direction, shift=False):
-        print(widget, joint_or_axis, direction)
-        print ("Axis released = {0}".format(widget.get_property("name")))
+    def _on_btn_jog_released(self, button_name, shift=False):
+        print ("Jog Button released = {0}".format(button_name))
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
-        joint_btn = False
-        if not joint_or_axis.lower() in "xyzabcuvw":
-            # OK, it may be a Joints button
-            if joint_or_axis in "01234567":
-                joint_btn = True
-            else:
-                print ("unknown axis {0}".format(joint_or_axis))
-                return
-
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvw".index(joint_or_axis.lower())
-            print joint_axis_number
-        else:
-            joint_axis_number = "01234567".index(joint_or_axis)
+        joint_axis_number = self._get_joint_axis_number(button_name)
+        if joint_axis_number is None:
+            return
 
         if self.stat.motion_mode == 1:
             if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
@@ -1088,17 +1067,29 @@ class gmoccapy(object):
         else:
             self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
 
+    def _get_joint_axis_number(self, button_name):
+        joint_btn = False
+        if not button_name[0] in "xyzabcuvw":
+            # OK, it may be a Joints button
+            if button_name[0] in "01234567":
+                joint_btn = True
+            else:
+                print(_("**** GMOCCAPY INFO ****"))
+                print (_("unknown jog command {0}".format(button_name)))
+                return None
+
+        if not joint_btn:
+            # get the axisnumber
+            joint_axis_number = "xyzabcuvw".index(button_name[0])
+            print joint_axis_number
+        else:
+            joint_axis_number = "01234567".index(button_name[0])
+
+        return joint_axis_number
 
     def _make_jog_button(self):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog button")
-        self.jog_button_dic = {}
-
-        print ("Trivial kinematics = ", self.trivial_kinematics)
-        #ToDo : we have to check for non trivial kinematics, as in that case we need also Joint joggin button
-        if not self.trivial_kinematics:
-            # we need joint jogging button
-            print ("Trivial kinematics = ", self.trivial_kinematics)
 
         self.jog_button_dic = {}
         
@@ -1107,12 +1098,30 @@ class gmoccapy(object):
                 name = "{0}{1}".format(str(axis), direction)
                 btn = gtk.Button(name.upper())
                 btn.set_property("name", name)
-                btn.connect("pressed", self._on_btn_jog_pressed, axis, direction)
-                btn.connect("released", self._on_btn_jog_released, axis, direction)
+                btn.connect("pressed", self._on_btn_jog_pressed, name)
+                btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
                 self.jog_button_dic[name] = btn
+
+    def _make_joints_button(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** Entering make jog button")
+
+        self.joints_button_dic = {}
+        
+        for joint in range(0, self.stat.joints):
+            for direction in ["+","-"]:
+                name = "{0}{1}".format(str(joint), direction)
+                btn = gtk.Button(name.upper())
+                btn.set_property("name", name)
+                btn.connect("pressed", self._on_btn_jog_pressed, name)
+                btn.connect("released", self._on_btn_jog_released, name)
+                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(joint)))
+                btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+
+                self.joints_button_dic[name] = btn
 
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
@@ -2787,57 +2796,57 @@ class gmoccapy(object):
         if keyname == "Up" or keyname == "KP_Up":
             if self.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.jog_button_dic["x+"]
+                    button_name = "x+"
                 else:
-                    widget = self.jog_button_dic["x-"]
+                    button_name = "x-"
             else:
-                widget = self.jog_button_dic["y+"]
+                button_name = "y+"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "Down" or keyname == "KP_Down":
             if self.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.jog_button_dic["x-"]
+                    button_name = "x-"
                 else:
-                    widget = self.jog_button_dic["x+"]
+                    button_name = "x+"
             else:
-                widget = self.jog_button_dic["y-"]
+                button_name = "y-"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "Left" or keyname == "KP_Left":
             if self.lathe_mode:
-                widget = self.jog_button_dic["z-"]
+                button_name = "z-"
             else:
-                widget = self.jog_button_dic["x-"]
+                button_name = "x-"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "Right" or keyname == "KP_Right":
             if self.lathe_mode:
-                widget = self.jog_button_dic["z+"]
+                button_name = "z+"
             else:
-                widget = self.jog_button_dic["x+"]
+                button_name = "x+"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "Page_Up" or keyname == "KP_Page_Up":
-            widget = self.jog_button_dic["z+"]
+            button_name = "z+"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "Page_Down" or keyname == "KP_Page_Down":
-            widget = self.jog_button_dic["z-"]
+            button_name = "z-"
             if signal:
-                self.on_btn_jog_pressed(widget, fast)
+                self._on_btn_jog_pressed(button_name, fast)
             else:
-                self.on_btn_jog_released(widget)
+                self._on_btn_jog_released(button_name)
         elif keyname == "I" or keyname == "i":
             if signal:
                 if self.stat.state != 1:  # still moving
@@ -3270,96 +3279,6 @@ class gmoccapy(object):
 
     def _on_turtle_jog_enable(self, pin):
         self.widgets.tbtn_turtle_jog.set_active(pin.get())
-
-    def on_btn_jog_pressed(self, widget, data=None):
-        # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            return
-
-        joint_btn = False
-        joint_or_axis = widget.get_label()[0]
-        if not joint_or_axis.lower() in "xyzabcuvw":
-            # OK, it may be a Joints button
-            if joint_or_axis in "01234567":
-                joint_btn = True
-            else:
-                print ("unknown joint or axis {0}".format(joint_or_axis))
-                return
-
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
-        else:
-            joint_axis_number = "01234567".index(joint_or_axis)
-
-        # if data = True, then the user pressed SHIFT for Jogging and
-        # want's to jog at full speed
-        if data:
-            value = self.stat.max_velocity
-        else:
-            value = self.widgets.spc_lin_jog_vel.get_value() / 60
-
-        velocity = value * (1 / self.faktor)
-
-        dir = widget.get_label()[1]
-        if dir == "+":
-            direction = 1
-        else:
-            direction = -1
-
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
-        
-        if self.distance <> 0:  # incremental jogging
-            self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, direction * velocity, self.distance)
-        else:  # continuous jogging
-            self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, direction * velocity)
-
-    def on_btn_jog_released(self, widget, data=None):
-        # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            return
-
-        joint_btn = False
-        joint_axis = widget.get_label()[0]
-        if not joint_axis.lower() in "xyzabcuvw":
-            # OK, it may be a Joints button
-            if joint_axis in "01234567":
-                joint_btn = True
-            else:
-                print ("unknown axis {0}".format(joint_axis))
-                return
-
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvw".index(joint_axis.lower())
-        else:
-            joint_axis_number = "01234567".index(joint_axis)
-
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
-
-        # Otherwise the movement would stop before the desired distance was moved
-        if self.distance <> 0:
-            pass
-        else:
-            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked(self, widget, data=None):
@@ -4859,7 +4778,7 @@ class gmoccapy(object):
         self._jog_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
-    def _on_pin_jog_axis_changed(self, pin, button_name):
+    def _on_pin_jog_changed(self, pin, button_name):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             if self.stat.motion_mode == 1 and pin.get():
                 message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
@@ -4868,21 +4787,9 @@ class gmoccapy(object):
                 return
 
         if pin.get():
-            self.on_btn_jog_pressed(self.jog_button_dic[button_name])
+            self._on_btn_jog_pressed(button_name)
         else:
-            self.on_btn_jog_released(self.jog_button_dic[button_name])
-
-    def _on_pin_jog_joint_changed(self, pin, button_name):
-        if self.stat.motion_mode != 1 and pin.get():
-            message = _("Joint jogging is only allowed in joint mode, but you are in world mode!")
-            print(message)
-            self._show_error((13, message))
-            return
-
-        if pin.get():
-            self.on_btn_jog_pressed(self.joint_button_dic[button_name])
-        else:
-            self.on_btn_jog_released(self.joint_button_dic[button_name])
+            self._on_btn_jog_released(button_name)
 
     def _reset_overide(self, pin, type):
         if pin.get():
@@ -4990,16 +4897,16 @@ class gmoccapy(object):
         # buttons for jogging the axis
         for jog_button in self.axis_list:
             pin = self.halcomp.newpin("jog.axis.jog-{0}-plus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, "{0}+".format(jog_button))
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(jog_button))
             pin = self.halcomp.newpin("jog.axis.jog-{0}-minus".format(jog_button), hal.HAL_BIT, hal.HAL_IN)
-            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_axis_changed, "{0}-".format(jog_button))
+            hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}-".format(jog_button))
 
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             for joint_button in range(0, self.stat.joints):
                 pin = self.halcomp.newpin("jog.joint.jog-{0}-plus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
-                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, "{0}+".format(joint_button))
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
                 pin = self.halcomp.newpin("jog.joint.jog-{0}-minus".format(joint_button), hal.HAL_BIT, hal.HAL_IN)
-                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_joint_changed, "{0}+".format(joint_button))
+                hal_glib.GPin(pin).connect("value_changed", self._on_pin_jog_changed, "{0}+".format(joint_button))
 
         # jog_increment out pin
         self.halcomp.newpin("jog.jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
