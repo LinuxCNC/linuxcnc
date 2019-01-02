@@ -37,7 +37,6 @@ static int hm2_waitirq(void *void_hm2, const hal_funct_args_t *fa);
 
 int hm2_irq_setup(hostmot2_t *hm2, long period) {
     int r;
-    char name[HAL_NAME_LEN + 1];
 
     // Fake the module count - if it gets promoted this will be populated
     // by the module descriptor parse function

@@ -169,12 +169,14 @@ static u64 timebase;		/* master timestamp */
 void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
     u16 reg_count;
     s32 reg_count_diff;
+    s32 prev_rawcounts;
 
     hpg_encoder_instance_t *inst;
     hpg_encoder_channel_instance_t *e;
 
     inst = &hpg->encoder.instance[instance];
     e    = &hpg->encoder.instance[instance].chan[channel];
+    prev_rawcounts = *e->hal.pin.rawcounts;
 
     // sanity check
     if (*(e->hal.pin.scale) == 0.0) {
@@ -201,8 +203,19 @@ void hpg_encoder_read_chan(hal_pru_generic_t *hpg, int instance, int channel) {
 
     *(e->hal.pin.rawcounts) += reg_count_diff;
 
-    e->zero_offset =  (s32)e->pru.hdr.count - (s32)e->pru.hdr.Z_capture;
-    if (e->zero_offset < 0) e->zero_offset += 65536;
+
+    // Check index
+    if ( *(e->hal.pin.index_enable) && (e->pru.hdr.Z_count != e->prev_Z_count)) {
+        reg_count_diff = (s32)e->pru.hdr.Z_capture - (s32)e->prev_reg_count;
+        if (reg_count_diff > 32768) reg_count_diff -= 65536;
+        if (reg_count_diff < -32768) reg_count_diff += 65536;
+
+        e->zero_offset = prev_rawcounts + reg_count_diff;
+        *e->hal.pin.index_enable = 0;
+    }
+    // the pru increments Z_count each time it sees an index pulse, we need
+    // to track these even when we are not looking for index events
+    e->prev_Z_count = e->pru.hdr.Z_count;
 
     *(e->hal.pin.count) = *(e->hal.pin.rawcounts) - e->zero_offset;
 
@@ -453,6 +466,7 @@ int export_encoder(hal_pru_generic_t *hpg, int i)
         *hpg->encoder.instance[i].chan[j].hal.pin.quadrature_error = 0;
 
         hpg->encoder.instance[i].chan[j].zero_offset = 0;
+        hpg->encoder.instance[i].chan[j].prev_Z_count = 0;
         hpg->encoder.instance[i].chan[j].timestamp = timebase;
         hpg->encoder.instance[i].chan[j].pulse_count = 0;
         hpg->encoder.instance[i].chan[j].poll_count = 0;

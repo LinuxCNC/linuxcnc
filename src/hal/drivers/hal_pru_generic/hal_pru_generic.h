@@ -258,6 +258,8 @@ typedef struct {
 
     } hal;
 
+    u8 prev_Z_count; // detect index events
+
     s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
 
     u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts

@@ -1,0 +1,60 @@
+Source: machinekit
+Section: misc
+Priority: extra
+Maintainer: John Morris <john@dovetail-automata.com>
+Build-Depends: debhelper (>= 6),
+    autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
+    libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0), libudev-dev,
+    libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
+    libxmu-headers, python (>= 2.6.6), python-dev (>= 2.6.6),
+    cython (>= 0.19), dh-python,
+    pkg-config, psmisc, python-tk, libxaw7-dev, libboost-serialization-dev,
+    libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson-dev (>= 2.5),
+    libwebsockets-dev (>= 1.2.2),
+    python-zmq (>= 14.0.1), procps,
+    liburiparser-dev, libssl-dev, python-setuptools,
+    uuid-dev, uuid-runtime, libavahi-client-dev,
+    libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
+    python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
+    python-simplejson, libtk-img, libboost-thread-dev,
+    python-pyftpdlib, tcl8.6-dev, tk8.6-dev @BUILD_DEPS@
+Standards-Version: 2.1.0
+
+#########################################################################
+## not built any more, components of it are in flavour packages
+##
+#Package: machinekit-dev
+#Architecture: any
+#Depends: make, g++, tcl8.6, tk8.6,
+#    ${shlibs:Depends}, ${misc:Depends},
+#    machinekit (= ${binary:Version}),
+#    yapps2-runtime
+#Section: libs
+#Description: PC based motion controller for real-time Linux
+# Machinekit is the next-generation Enhanced Machine Controller which
+# provides motion control for CNC machine tools and robotic
+# applications (milling, cutting, routing, etc.).
+# .
+# This package includes files needed to build new realtime components and
+# alternate front-ends for machinekit
+#########################################################################
+
+Package: machinekit
+Breaks: linuxcnc
+Replaces: linuxcnc
+Architecture: any
+Depends: ${shlibs:Depends}, machinekit-rt-threads, tcl8.6, tk8.6,
+    bwidget (>= 1.7), libtk-img (>=1.13),
+    ${python:Depends}, ${misc:Depends},
+    python-tk, python-pil, python-pil.imagetk,
+    python-gnome2, python-glade2,
+    python-numpy,
+    python-vte, python-xlib, python-gtkglext1, python-configobj,
+    python-zmq, python-protobuf (>= 2.4.1),
+    python-avahi, python-simplejson, python-pyftpdlib,
+    python-pydot, xdot, python-gst-1.0, python-gtksourceview2,
+    tclreadline, bc, procps, psmisc
+Description: PC based motion controller for real-time Linux
+ Machinekit is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).

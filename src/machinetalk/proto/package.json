@@ -1,11 +1,11 @@
 {
   "name": "machinetalk-protobuf",
-  "version": "1.0.1",
+  "version": "1.1.01",
   "description": "Protobuf definitions to communicate with Machinetalk",
   "main": "js/index.js",
   "scripts": {
-      "prepublish": "js/scripts/install.js",
-      "bundle": "js/scripts/bundle.js"
+    "prepublish": "js/scripts/install.js",
+    "bundle": "js/scripts/bundle.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/machinekit/machinetalk-protobuf#readme",
   "dependencies": {
     "mkdirp": "0.5.1",
-    "protobufjs": "5.0.0"
+    "protobufjs": "5.0.3"
   },
   "devDependencies": {
     "browserify": "^13.0.0",

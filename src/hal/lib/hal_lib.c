@@ -448,13 +448,14 @@ EXPORT_SYMBOL(hal_shmem_base);
 
 // ------------ private API:  ------------
 //  found in their respective source files:
-/* EXPORT_SYMBOL(halpr_find_comp_by_name); */
-/* EXPORT_SYMBOL(halpr_find_pin_by_name); */
-/* EXPORT_SYMBOL(halpr_find_sig_by_name); */
-/* EXPORT_SYMBOL(halpr_find_param_by_name); */
-/* EXPORT_SYMBOL(halpr_find_thread_by_name); */
-/* EXPORT_SYMBOL(halpr_find_funct_by_name); */
-/* EXPORT_SYMBOL(halpr_find_inst_by_name); */
+EXPORT_SYMBOL(halpr_find_comp_by_name); 
+EXPORT_SYMBOL(halpr_find_pin_by_name); 
+EXPORT_SYMBOL(halpr_find_sig_by_name); 
+EXPORT_SYMBOL(halpr_find_param_by_name); 
+EXPORT_SYMBOL(halpr_find_thread_by_name); 
+EXPORT_SYMBOL(halpr_find_funct_by_name); 
+EXPORT_SYMBOL(halpr_find_inst_by_name); 
+EXPORT_SYMBOL(hal_data);
 
 // hal_comp.c:
 EXPORT_SYMBOL(halpr_find_owning_comp);

@@ -8,23 +8,25 @@
 
 # Launch the setup script to make sure hardware setup looks good
 loadusr -w ./setup.bridge.sh
+#loadusr -w config-pin -f ./BeBoPr-Bridge.bbio
 
 
 # ###################################
 # Core EMC/HAL Loads
 # ###################################
-
 # kinematics
 loadrt trivkins
 
-# motion controller, get name and thread periods from ini file
 # trajectory planner
 loadrt tp
+
+# motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
 
 
 # load low-level drivers
-loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
+#loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
+loadrt hal_bb_gpio output_pins=807,826,917,918,924,926 input_pins=808,809,810,814,817,818
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG) halname=hpg
 loadrt pid count=2
 loadrt limit1 count=2
@@ -38,7 +40,7 @@ loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 # ################################################
 # THREADS
 # ################################################
-
+# hpg = [PRUCONF](DRIVER)
 addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
@@ -54,12 +56,9 @@ addf bb_gpio.write                        servo-thread
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
-
-
 # ################
 # X [0] Axis
 # ################
-
 # axis enable chain
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
@@ -90,9 +89,9 @@ setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.00.step_type       0
 # P8.43 PRU1.out2
-setp hpg.stepgen.00.steppin         0x4C
+setp hpg.stepgen.00.steppin         843
 # P8.44 PRU1.out4
-setp hpg.stepgen.00.dirpin          0x4D
+setp hpg.stepgen.00.dirpin          844
 
 
 # ################
@@ -129,9 +128,9 @@ setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.01.step_type       0
 # P8.42 PRU1.out5
-setp hpg.stepgen.01.steppin         0x4E
+setp hpg.stepgen.01.steppin         842
 # P8.39 PRU1.out6
-setp hpg.stepgen.01.dirpin          0x4F
+setp hpg.stepgen.01.dirpin          839
 
 
 # ################
@@ -168,9 +167,9 @@ setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.02.step_type       0
 # P8.27 PRU1.out8
-setp hpg.stepgen.02.steppin         0x50
+setp hpg.stepgen.02.steppin         827
 # P8.29 PRU1.out9
-setp hpg.stepgen.02.dirpin          0x51
+setp hpg.stepgen.02.dirpin          829
 
 
 # ################
@@ -207,9 +206,9 @@ setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.03.step_type       0
 # P8.30 GPIO2.25
-setp hpg.stepgen.03.steppin         0x22
+setp hpg.stepgen.03.steppin         830
 # P8.21 GPIO1.30
-setp hpg.stepgen.03.dirpin          0x23
+setp hpg.stepgen.03.dirpin          821
 
 
 # ##################################################
@@ -254,17 +253,17 @@ newsig bed.temp.meas float
 setp hpg.pwmgen.00.pwm_period       10000000
 
 # J2 E0 Heater PRU1.out1
-setp hpg.pwmgen.00.out.00.pin       0x37
+setp hpg.pwmgen.00.out.00.pin       813
 setp hpg.pwmgen.00.out.00.enable    1
 setp hpg.pwmgen.00.out.00.value     0.0
 
 # J3 E1 Heater PRU1.out0
-setp hpg.pwmgen.00.out.01.pin       0x36
+setp hpg.pwmgen.00.out.01.pin       819
 setp hpg.pwmgen.00.out.01.enable    1
 setp hpg.pwmgen.00.out.01.value     0.0
 
 # J4 Bed Heater GPIO2.16
-setp hpg.pwmgen.00.out.02.pin       0x52
+setp hpg.pwmgen.00.out.02.pin       914
 setp hpg.pwmgen.00.out.02.enable    1
 setp hpg.pwmgen.00.out.02.value     0.0
 
@@ -288,7 +287,7 @@ setp limit1.0.min 0
 net bed.temp.meas    <= Therm.temp1
 net bed.temp.meas    => pid.1.feedback
 
-sets bed.temp.set  0
+sets bed.temp.set    0
 net bed.temp.set     => pid.1.command
 
 net bed.heater  <= pid.1.output

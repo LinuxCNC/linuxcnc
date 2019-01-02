@@ -1,6 +1,8 @@
 INCLUDES += libnml/nml
 
 ../include/%.h: ./libnml/nml/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./libnml/nml/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@

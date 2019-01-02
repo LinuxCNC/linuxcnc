@@ -31,6 +31,9 @@ extern const int iniFindInt(FILE *fp, const char *tag, const char *section, int 
 extern const int iniFindDouble(FILE *fp, const char *tag, const char *section, double *result);
 extern int TildeExpansion(const char *file, char *path, size_t size);
 
+// string table - to get rid of strdup/free
+extern const char *strstore(const char *s);
+
 #ifdef __cplusplus
 }
 #endif

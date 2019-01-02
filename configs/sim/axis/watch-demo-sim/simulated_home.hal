@@ -1,0 +1,32 @@
+loadrt or2 names=or2_0
+loadrt comp names=comp_x,comp_y,comp_z
+
+net Xhomeswpos => comp_x.in0
+net Yhomeswpos => comp_y.in0
+net Zhomeswpos => comp_z.in0
+
+sets Xhomeswpos 1
+sets Yhomeswpos .5
+sets Zhomeswpos 2
+
+net Xpos => comp_x.in1
+net Ypos => comp_y.in1
+net Zpos => comp_z.in1
+
+setp comp_x.hyst .02
+setp comp_y.hyst .02
+setp comp_z.hyst .02
+
+net Xhomesw <= comp_x.out
+net Yhomesw <= comp_y.out => axis.1.home-sw-in
+net Zhomesw <= comp_z.out
+
+net Xhomesw => or2_0.in0
+net Zhomesw => or2_0.in1
+net XZhomesw or2_0.out => axis.0.home-sw-in axis.2.home-sw-in
+
+addf comp_x servo-thread
+addf comp_y servo-thread
+addf comp_z servo-thread
+
+addf or2_0 servo-thread

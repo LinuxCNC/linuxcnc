@@ -23,14 +23,14 @@
 static int
 comp_report_cb(const int phase,
            const  hal_compiled_comp_t *cc,
-           const hal_pin_t *pin,
+           hal_pin_t *pin,
            const hal_data_u *vp,
            void *cb_data);
 
 static int
 add_pins_to_items(const int phase,
           const hal_compiled_comp_t *cc,
-          const hal_pin_t *pin,
+          hal_pin_t *pin,
           const hal_data_u *vp,
           void *cb_data);
 
@@ -286,7 +286,7 @@ int release_comps(htself_t *self)
 static int
 comp_report_cb(const int phase,
            const  hal_compiled_comp_t *cc,
-           const hal_pin_t *pin,
+           hal_pin_t *pin,
            const hal_data_u *vp,
            void *cb_data)
 {
@@ -323,7 +323,7 @@ comp_report_cb(const int phase,
 static int
 add_pins_to_items(const int phase,
           const hal_compiled_comp_t *cc,
-          const hal_pin_t *pin,
+          hal_pin_t *pin,
           const hal_data_u *vp,
           void *cb_data)
 {

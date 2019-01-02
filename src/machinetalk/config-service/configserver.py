@@ -8,8 +8,8 @@ import threading
 import signal
 import time
 import argparse
+from six.moves import configparser
 
-import ConfigParser
 from machinekit import service
 from machinekit import config
 
@@ -20,39 +20,48 @@ import machinetalk.protobuf.types_pb2 as pb
 
 
 class ConfigServer(object):
-    def __init__(self, context, appDirs=None, topdir=".",
-                 host='', svcUuid=None, debug=False, name=None,
-                 hostInName=True, loopback=False):
-        if appDirs is None:
-            appDirs = []
+    def __init__(
+        self,
+        context,
+        app_dirs=None,
+        topdir=".",
+        host='',
+        svc_uuid=None,
+        debug=False,
+        name=None,
+        host_in_name=True,
+        loopback=False,
+    ):
+        if app_dirs is None:
+            app_dirs = []
 
-        self.appDirs = appDirs
+        self.appDirs = app_dirs
         self.host = host
         self.loopback = loopback
         self.name = name
         self.debug = debug
         self.shutdown = threading.Event()
         self.running = False
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = configparser.ConfigParser()
 
         for rootdir in self.appDirs:
             for root, _, files in os.walk(rootdir):
                 if 'description.ini' in files:
                     inifile = os.path.join(root, 'description.ini')
-                    cfg = ConfigParser.ConfigParser()
+                    cfg = configparser.ConfigParser()
                     cfg.read(inifile)
-                    appName = cfg.get('Default', 'name')
+                    app_name = cfg.get('Default', 'name')
                     description = cfg.get('Default', 'description')
-                    appType = cfg.get('Default', 'type')
-                    self.cfg.add_section(appName)
-                    self.cfg.set(appName, 'description', description)
-                    self.cfg.set(appName, 'type', appType)
-                    self.cfg.set(appName, 'files', root)
+                    app_type = cfg.get('Default', 'type')
+                    self.cfg.add_section(app_name)
+                    self.cfg.set(app_name, 'description', description)
+                    self.cfg.set(app_name, 'type', app_type)
+                    self.cfg.set(app_name, 'files', root)
                     if self.debug:
-                        print(("name: " + cfg.get('Default', 'name')))
-                        print(("description: " + cfg.get('Default', 'description')))
-                        print(("type: " + cfg.get('Default', 'type')))
-                        print(("files: " + root))
+                        print("name: " + cfg.get('Default', 'name'))
+                        print("description: " + cfg.get('Default', 'description'))
+                        print("type: " + cfg.get('Default', 'type'))
+                        print("files: " + root)
 
         self.rx = Container()
         self.tx = Container()
@@ -70,16 +79,18 @@ class ConfigServer(object):
 
         if self.name is None:
             self.name = "Machinekit"
-        if hostInName:
+        if host_in_name:
             self.name += ' on ' + self.host
-        self.service = service.Service(type='config',
-                                       svcUuid=svcUuid,
-                                       dsn=self.dsname,
-                                       port=self.port,
-                                       host=self.host,
-                                       name=self.name,
-                                       loopback=self.loopback,
-                                       debug=self.debug)
+        self.service = service.Service(
+            type_='config',
+            svc_uuid=svc_uuid,
+            dsn=self.dsname,
+            port=self.port,
+            host=self.host,
+            name=self.name,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
 
         self.publish()
 
@@ -102,7 +113,7 @@ class ConfigServer(object):
         try:
             self.service.publish()
         except Exception as e:
-            print(('cannot register DNS service' + str(e)))
+            print('cannot register DNS service' + str(e))
             sys.exit(1)
 
     def unpublish(self):
@@ -111,60 +122,60 @@ class ConfigServer(object):
     def stop(self):
         self.shutdown.set()
 
-    def typeToPb(self, type):
-        if type == 'QT5_QML':
+    @staticmethod
+    def type_to_pb(type_):
+        if type_ == 'QT5_QML':
             return QT5_QML
-        elif type == 'GLADEVCP':
+        elif type_ == 'GLADEVCP':
             return GLADEVCP
-        elif type == 'JAVASCRIPT':
+        elif type_ == 'JAVASCRIPT':
             return JAVASCRIPT
         else:
-            raise TypeError('Unsupported type %s' % type)
+            raise TypeError('Unsupported type %s' % type_)
 
-    def send_msg(self, dest, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
+    def send_msg(self, dest, type_):
+        self.tx.type = type_
+        tx_buffer = self.tx.SerializeToString()
         if self.debug:
-            print(("send_msg " + str(self.tx)))
+            print("send_msg " + str(self.tx))
         self.tx.Clear()
-        self.socket.send_multipart(dest + [txBuffer], zmq.NOBLOCK)
+        self.socket.send_multipart(dest + [tx_buffer], zmq.NOBLOCK)
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
             app = self.tx.app.add()
             app.name = name
             app.description = self.cfg.get(name, 'description')
-            app.type = self.typeToPb(self.cfg.get(name, 'type'))
+            app.type = self.type_to_pb(self.cfg.get(name, 'type'))
         self.send_msg(origin, pb.MT_DESCRIBE_APPLICATION)
 
-    def add_files(self, basePath, path, app):
+    def add_files(self, base_path, path, app):
         if self.debug:
-            print(("add files " + path))
+            print("add files " + path)
         for f in os.listdir(path):
             pathname = os.path.join(path, f)
             mode = os.stat(pathname).st_mode
             if S_ISREG(mode):
-                filename = os.path.join(os.path.relpath(path, basePath), f)
+                filename = os.path.join(os.path.relpath(path, base_path), f)
                 if self.debug:
-                    print(("add " + pathname))
-                    print(("name " + filename))
-                fileBuffer = open(pathname, 'rb').read()
-                appFile = app.file.add()
-                appFile.name = filename
-                appFile.encoding = CLEARTEXT
-                appFile.blob = fileBuffer
+                    print("add " + pathname)
+                    print("name " + filename)
+                file_buffer = open(pathname, 'rb').read()
+                app_file = app.file.add()
+                app_file.name = filename
+                app_file.encoding = CLEARTEXT
+                app_file.blob = file_buffer
             elif S_ISDIR(mode):
-                self.add_files(basePath, pathname, app)
+                self.add_files(base_path, pathname, app)
 
     def retrieve_app(self, origin, name):
         if self.debug:
-            print(("retrieve app " + name))
+            print("retrieve app " + name)
         app = self.tx.app.add()
         app.name = name
         app.description = self.cfg.get(name, 'description')
-        app.type = self.typeToPb(self.cfg.get(name, 'type'))
-        self.add_files(self.cfg.get(name, 'files'),
-                       self.cfg.get(name, 'files'), app)
+        app.type = self.type_to_pb(self.cfg.get(name, 'type'))
+        self.add_files(self.cfg.get(name, 'files'), self.cfg.get(name, 'files'), app)
 
         self.send_msg(origin, pb.MT_APPLICATION_DETAIL)
 
@@ -195,7 +206,7 @@ class ConfigServer(object):
             self.send_msg(identity, pb.MT_PING_ACKNOWLEDGE)
 
         else:
-            note = "unsupported request type %d" % (self.rx.type)
+            note = "unsupported request type %d" % self.rx.type
             self.tx.note.append(note)
             self.send_msg(identity, pb.MT_ERROR)
 
@@ -203,7 +214,7 @@ class ConfigServer(object):
 shutdown = False
 
 
-def _exitHandler(signum, frame):
+def _exit_handler(signum, frame):
     del signum  # ignored
     del frame  # ignored
     global shutdown
@@ -212,8 +223,8 @@ def _exitHandler(signum, frame):
 
 # register exit signal handlers
 def register_exit_handler():
-    signal.signal(signal.SIGINT, _exitHandler)
-    signal.signal(signal.SIGTERM, _exitHandler)
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
 
 
 def check_exit():
@@ -222,11 +233,24 @@ def check_exit():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Configserver is the entry point for Machinetalk based user interfaces')
-    parser.add_argument('-n', '--name', help='Name of the machine', default="Machinekit")
-    parser.add_argument('-s', '--suppress_ip', help='Do not show ip of machine in service name', action='store_false')
+    parser = argparse.ArgumentParser(
+        description='Configserver is the entry point for Machinetalk based user interfaces'
+    )
+    parser.add_argument(
+        '-n', '--name', help='Name of the machine', default="Machinekit"
+    )
+    parser.add_argument(
+        '-s',
+        '--suppress_ip',
+        help='Do not show ip of machine in service name',
+        action='store_false',
+    )
     parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
-    parser.add_argument('dirs', nargs='*', help="List of directories to scan for user interface configurations")
+    parser.add_argument(
+        'dirs',
+        nargs='*',
+        help="List of directories to scan for user interface configurations",
+    )
 
     args = parser.parse_args()
 
@@ -240,49 +264,51 @@ def main():
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
-    mki = ConfigParser.ConfigParser()
+    mki = configparser.ConfigParser()
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
 
     if remote == 0:
-        print("Remote communication is deactivated, configserver will use the loopback interfaces")
-        print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
+        print(
+            "Remote communication is deactivated, configserver will use the loopback interfaces"
+        )
+        print("set REMOTE in " + mkini + " to 1 to enable remote communication")
 
     if debug:
-        print(("announcing configserver"))
+        print("announcing configserver")
 
     context = zmq.Context()
     context.linger = 0
 
     register_exit_handler()
 
-    configService = None
+    config_service = None
 
     try:
         hostname = '%(fqdn)s'  # replaced by service announcement
-        configService = ConfigServer(context,
-                                     svcUuid=uuid,
-                                     topdir=".",
-                                     host=hostname,
-                                     appDirs=args.dirs,
-                                     name=args.name,
-                                     hostInName=bool(args.suppress_ip),
-                                     loopback=(not remote),
-                                     debug=debug)
+        config_service = ConfigServer(
+            context,
+            svc_uuid=uuid,
+            topdir=".",
+            host=hostname,
+            app_dirs=args.dirs,
+            name=args.name,
+            host_in_name=bool(args.suppress_ip),
+            loopback=(not remote),
+            debug=debug,
+        )
 
-        while configService.running and not check_exit():
+        while config_service.running and not check_exit():
             time.sleep(1)
     except Exception as e:
         print("exception")
         print(e)
-    except:
-        print("other exception")
 
     if debug:
         print("stopping threads")
-    if configService is not None:
-        configService.stop()
+    if config_service is not None:
+        config_service.stop()
 
     # wait for all threads to terminate
     while threading.active_count() > 1:

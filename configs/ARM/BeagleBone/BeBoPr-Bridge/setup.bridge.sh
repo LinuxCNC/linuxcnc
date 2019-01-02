@@ -31,92 +31,94 @@ dir_err () {
 	exit 1
 }
 
-SLOTS=/sys/devices/bone_capemgr.*/slots
+PRU=/sys/class/uio/uio0
+echo -n "Waiting for $PRU "
 
-# Export GPIO pins
-export_gpio () {
-	while read PIN DIR JUNK ; do
-	        case "$PIN" in
-	        ""|\#*)	
-			continue ;;
-	        *)
-			[ -r /sys/class/gpio/gpio$PIN ] && continue
-	                sudo -A su -c "echo $PIN > /sys/class/gpio/export" || pin_err
-			sudo -A su -c "echo $DIR > /sys/class/gpio/gpio$PIN/direction" || dir_err
-	                ;;
-	        esac
+while [ ! -r $PRU ]
+do
+    echo -n "."
+    sleep 1
+done
+echo OK
 
-	done
-}
-
-# Identify if a particular cape or overlay is actually loaded
-# $1 = cape to look for
-cape_loaded() {
-	grep ,$1\$ $SLOTS | { 
-		# Default to cape not loaded
-		RET=1 
-
-		# Check for cape
-		while read SLOT STATUS CAPE JUNK ; do
-			case $STATUS in
-			*L )	RET=0 ; break ;;	# Cape is loaded
-			*- )	RET=2 ;;		# Cape is present, but not loaded
-			* )	RET=3 ;;		# Unknown status
-			esac
-		done
-
-		return $RET
-	}
-}
-
-# Load a cape
-# $1 = cape to load
-# $2 = revision (optional)
-load_cape () {
-	echo Loading $1 overlay
-	sudo -A bash -c "echo $1${2:+:$2} > $SLOTS" || dtbo_err
-	sleep 1
-}
-
-# Make sure required device tree overlay(s) are loaded
-DTBO=cape-bebopr-brdg
-REV=R2
-if cape_loaded $DTBO ; then
-	echo $DTBO overlay found
-else
-	load_cape $DTBO $REV
-fi
-
-if [ ! -r /sys/bus/iio/devices/iio:device0/in_voltage5_raw ] ; then
-	echo "Analog input files not found in /sys/bus/iio/devices/iio:device0/" >&2
-	exit 1;
-fi
-
-if [ ! -r /sys/class/uio/uio0 ] ; then
-	echo PRU control files not found in /sys/class/uio/uio0 >&2
+if [ ! -r $PRU ] ; then
+	echo PRU control files not found in $PRU >&2
 	exit 1;
 fi
 
 # Using Official overlay, setup pin muxing to match what the HAL file expects
 
 # Setup PWM outputs to use GPIO pins
-for FILE in /sys/devices/ocp.*/bebopr_pwm_J[234]_pinmux.*/state ; do
-	if [ -f $FILE ] ; then
-		sudo -A su -c "echo gpio > $FILE" || bebopr_err pwm: $FILE
-	fi
-done
+#for FILE in /sys/devices/ocp.*/bebopr_pwm_J[934]_pinmux.*/state ; do
+#	if [ -f $FILE ] ; then
+#		sudo -A su -c "echo gpio > $FILE" || bebopr_err pwm: $FILE
+#	fi
+#done
 
 # Setup LED with no trigger, so we can drive it with the GPIO pin
 # Change this if you want the LED tied to something else (like heartbeat)
-FILE=/sys/devices/ocp.*/bebopr_leds.*/leds/bebopr\:status_led/trigger
-if [ -f $FILE ] ; then
-	sudo -A su -c "echo none > $FILE" || bebopr_err led: $FILE
-fi
+#FILE=/sys/devices/ocp.*/bebopr_leds.*/leds/bebopr\:status_led/trigger
+#if [ -f $FILE ] ; then
+#	sudo -A su -c "echo none > $FILE" || bebopr_err led: $FILE
+#fi
 
-# Export PWM GPIO pins which are not exported by the overlay
-export_gpio <<- EOF
-	23	low	# P8.13		gpio0.23	PWM0
-	22	low	# P8.19		gpio0.22	PWM1
-	50	low	# p9.14		gpio1.18	PWM2
+# Export GPIO pins:
+# One pin needs to be exported to enable the low-level clocks for the GPIO
+# modules (there is probably a better way to do this)
+# 
+# Any GPIO pins driven by the PRU need to have their direction set properly
+# here.  The PRU does not do any setup of the GPIO, it just yanks on the
+# pins and assumes you have the output enables configured already
+# 
+# Direct PRU inputs and outputs do not need to be configured here, the pin
+# mux setup (which is handled by the device tree overlay) should be all
+# the setup needed.
+# 
+# Any GPIO pins driven by the hal_bb_gpio driver do not need to be
+# configured here.  The hal_bb_gpio module handles setting the output
+# enable bits properly.  These pins _can_ however be set here without
+# causing problems.  You may wish to do this for documentation or to make
+# sure the pin starts with a known value as soon as possible.
+
+sudo $(which config-pin) -f - <<- EOF
+
+	P8.03	low		# gpio1.06	Enable
+	P8.05	high	# gpio1.02	Enable_n
+	P8.07	high	# gpio2.02	Enable_n (ECO location)
+	P8.08	high	# gpio2.03	
+	P8.09	in		# gpio2.05	
+	P8.10	in		# gpio2.04	
+	P8.13	low		# gpio0.23	J2.PWM0-Heater
+	P8.14	in		# gpio0.26	
+	P8.17	in		# gpio0.27	
+	P8.18	in		# gpio2.01	
+	P8.19	low		# gpio0.22	J3.PWM1-Heater
+	P8.20	out		# gpio1.31	E_ENA
+	P8.21	out		# gpio1.30	E_DIR
+	P8.25	out		# gpio1.00	STATUS_LED
+	P8.27	out		# gpio2.22	Z_Step
+	P8.28	out 	# gpio2.24	Z_Ena
+	P8.29	out 	# gpio2.23	Z_Dir
+	P8.29	out 	# gpio2.23	Z_Dir
+	P8.30	out		# gpio0.10	E_Step
+	P8.31	in		# gpio0.10	X_Min
+	P8.32	in		# gpio0.11	X_Max
+	P8.33	in		# gpio0.09	Y_Max
+	P8.35	in		# gpio0.08	Y_Min
+	P8.36	out		# gpio2.16	J4.PWM
+	P8.37	in		# gpio2.14	Z_Max
+	P8.38	in		# gpio2.15	Z_Min
+	P8.39	out		# gpio2.12	Z_Min
+	P8.40	out		# gpio2.13	Y_Ena
+	P8.41	out		# gpio2.10	X_Ena
+	P8.42	out		# gpio2.11	Y_Step
+	P8.43	out		# gpio2.08	X_Step
+	P8.44	out		# gpio2.09	X_Dir
+	P8.45	low		# gpio2.06	PWM1
+	P8.46	low		# gpio2.07	PWM0
+	P9.14	low		# gpio1.18	J4.PWM2-Heater
+#	P9.36	in		# THRM2
+#	P9.38	in		# THRM1
+#
 EOF
 

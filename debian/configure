@@ -26,10 +26,15 @@ rules_enable_threads() {
     # enable thread flavors in debian/rules; e.g.
     #    THREADS_POSIX = --with-posix
     # ...unnecessary for control-only
+    if test -n "$MK_CROSS_BUILDER"; then
+        # Reduce file req'ts in mk-cross-builder
+        echo "debian/rules:  skip ${FLAVOR} config in mk-cross-builder" >&2
+        return
+    fi
     FLAVOR=$1
     FLAVOR_VAR=THREADS_$(echo $FLAVOR | tr 'a-z-' 'A-Z_')
     sed -i rules \
-	-e "s/^${FLAVOR_VAR}[^_].*/${FLAVOR_VAR} = --with-${FLAVOR}/"
+    -e "s/^${FLAVOR_VAR}[^_].*/${FLAVOR_VAR} = --with-${FLAVOR}/"
     echo "debian/rules:  enabled ${FLAVOR} threads" >&2
 }
 
@@ -43,7 +48,7 @@ do_posix() {
 do_rt-preempt() {
     cat control.rt-preempt.in >> control
     echo "debian/control:  added RT_PREEMPT threads package" >&2
-    
+
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
@@ -55,7 +60,7 @@ do_xenomai() {
     # Be sure the -dev files only appear once
     BUILD_DEPS+=", libxenomai-dev"
     echo "debian/control:  added Xenomai (userland) threads package" \
-	"with Build-Depends:" >&2
+    "with Build-Depends:" >&2
     echo "    libxenomai-dev" >&2
     rules_enable_threads xenomai
     HAVE_FLAVOR=true
@@ -82,9 +87,9 @@ machinekit (${MKVERSION}) ${DISTRO_UC}; urgency=low
 
 EOF
 
-cat changelog # debug output
-cat changelog.in >> changelog
-echo "New package version number added to changelog"
+    cat changelog # debug output
+    cat changelog.in >> changelog
+    echo "New package version number added to changelog"
 }
 
 ## Create source orig tarball in format required for creation of debian tarball and .dsc file
@@ -103,14 +108,14 @@ cd $OWD
 
 usage() {
     {
-	test -z "$1" || echo "$1"
-	echo "Usage:  $0 [ arg ... ]"
-	echo "   arg:		function:"
-	echo "   -p		build POSIX threads"
-	echo "   -r		build RT_PREEMPT threads"
-	echo "   -x		build Xenomai threads"
-	echo "   -c		rewrite changelog to set package version from git commit"
-	echo "	 -s		create source tarball for non binary package builds"
+    test -z "$1" || echo "$1"
+    echo "Usage:  $0 [ arg ... ]"
+    echo "   arg:		function:"
+    echo "   -p		build POSIX threads"
+    echo "   -r		build RT_PREEMPT threads"
+    echo "   -x		build Xenomai threads"
+    echo "   -c		rewrite changelog to set package version from git commit"
+    echo "   -s		create source tarball for non binary package builds"
     } >&2
     exit 1
 }
@@ -129,32 +134,45 @@ test "$1" != --help || usage
 BUILD_DEPS=  # List of Build-Depends
 HAVE_FLAVOR=false
 
-# copy base templates into place
-## need python-gst0.10 for Jessie, none for Stretch, no python-gtksourceview2 for Buster
+## copy base templates into place
+
+## situation at 20092018
+## python-gst1.0 backported to Jessie + Stretch
+## python-gtksourceview2 not available for Buster but is for Sid, meaning gladevcp widgets keep working.
+## python-pil and python-pil.imagegtk active for Sid replacing python-imaging and python-imaging-tk
+## however selecting python-imaging and python-imaging-tk in Stretch actually
+## results in python-pil and python-pil.imagegtk being installed, so will probably completely backport soon.
+
+## Keep individual control files, so they can easily be amended as things change
+
 if [ "$DISTRO_CODENAME" == "stretch" ]; then
     cp control.stretch.in control
 elif [ "$DISTRO_CODENAME" == "buster" ]; then
-    cp control.buster.in control   	
+    cp control.buster.in control
+elif [ "$DISTRO_CODENAME" == "sid" ]; then
+    cp control.sid.in control
 else
     cp control.in control
 fi
 
-echo "debian/control:  copied base template" >&2
-cp rules.in rules; chmod +x rules
-echo "debian/rules:  copied base template" >&2
-cp machinekit.install.in machinekit.install
-echo "debian/machinekit.install.in:  copied base template" >&2
+if test -z "$MK_CROSS_BUILDER"; then # Reduce file req'ts in mk-cross-builder
+    echo "debian/control:  copied base template" >&2
+    cp rules.in rules; chmod +x rules
+    echo "debian/rules:  copied base template" >&2
+    cp machinekit.install.in machinekit.install
+    echo "debian/machinekit.install.in:  copied base template" >&2
+fi
 
 # read command line options
 while getopts prxcsd?h ARG; do
     case $ARG in
-	p) do_posix ;;
-	r) do_rt-preempt ;;
-	x) do_xenomai ;;
-	c) do_changelog ;;  # set new changelog with package versions from git
-	s) do_source_tarball ;; # create tarball for non binary builds
-	?|h) usage ;;
-	*) usage "Unknown arg: '-$ARG'" ;;
+    p) do_posix ;;
+    r) do_rt-preempt ;;
+    x) do_xenomai ;;
+    c) do_changelog ;;  # set new changelog with package versions from git
+    s) do_source_tarball ;; # create tarball for non binary builds
+    ?|h) usage ;;
+    *) usage "Unknown arg: '-$ARG'" ;;
     esac
 done
 
@@ -165,4 +183,3 @@ echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured
 $HAVE_FLAVOR || usage "WARNING:  No thread flavors configured"
-

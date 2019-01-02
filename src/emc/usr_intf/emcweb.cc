@@ -119,7 +119,9 @@ class WebPage
 public:
 	virtual void Init() {};
 	virtual void Exit() {};
-	virtual bool HandleReq(mongoose::web_response &response, mongoose::web_request &request);
+	virtual bool HandleReq(mongoose::web_response &response,
+			       mongoose::web_request &request);
+	virtual ~WebPage(){};
 };
 
 
@@ -355,7 +357,11 @@ void GenerateJson(const char *filename)
 		 */
 		int fd = open(filename, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 0666);
 		if (fd >= 0) {
-			write(fd, buff, strlen(buff));
+			if (write(fd, buff, strlen(buff)) <
+			    (ssize_t)strlen(buff))
+				fprintf(stderr,
+					"unable to write DYNAMIC_JSON buffer "
+					"to file");
 			fsync(fd);
 			close(fd);
 		} else {

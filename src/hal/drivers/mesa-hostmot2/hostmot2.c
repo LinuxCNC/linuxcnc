@@ -80,10 +80,10 @@ static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
     long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return -1;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return -1;
 
     hm2_tram_read(hm2);
-    if ((*hm2->llio->io_error) != 0) return -1;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return -1;
     hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, &hm2->encoder, period);
@@ -109,7 +109,7 @@ static int hm2_write(void *void_hm2, const hal_funct_args_t *fa) {
     long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return -1;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return -1;
 
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
@@ -144,7 +144,7 @@ static int hm2_read_gpio(void *void_hm2, const hal_funct_args_t *fa) {
     hostmot2_t *hm2 = void_hm2;
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return -1;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return -1;
 
     hm2_ioport_gpio_read(hm2);
     return 0;
@@ -156,7 +156,7 @@ static int hm2_write_gpio(void *void_hm2, const hal_funct_args_t *fa) {
     long period = fa_current_period(fa);
 
     // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return -1;
+    if ((*hm2->llio->hal->pin.io_error) != 0) return -1;
 
     hm2_ioport_gpio_write(hm2);
     hm2_watchdog_write(hm2, period);
@@ -891,7 +891,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 
         md_accepted = hm2_ioport_parse_md(hm2, md_index);
 
-        if ((*hm2->llio->io_error) != 0) {
+        if ((*hm2->llio->hal->pin.io_error) != 0) {
             HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
             return -EIO;
         }
@@ -1013,7 +1013,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
 
         }
 
-        if ((*hm2->llio->io_error) != 0) {
+        if ((*hm2->llio->hal->pin.io_error) != 0) {
             HM2_ERR("IO error while parsing Module Descriptor %d\n", md_index);
             return -EIO;
         }
@@ -1338,25 +1338,24 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-        int r;
-        char name[HAL_NAME_LEN + 1];
-
-        llio->io_error = (hal_bit_t *)hal_malloc(sizeof(hal_bit_t));
-        if (llio->io_error == NULL) {
+        llio->hal = (hm2_low_level_io_global_t *)hal_malloc(sizeof(hm2_low_level_io_global_t));
+        if (llio->hal == NULL) {
             HM2_ERR("out of memory!\n");
-            r = -ENOMEM;
-            goto fail0;
+            return -ENOMEM;
         }
-
-        (*llio->io_error) = 0;
-
-        rtapi_snprintf(name, sizeof(name), "%s.io_error", llio->name);
-        r = hal_param_bit_new(name, HAL_RW, llio->io_error, llio->comp_id);
+        r = hal_pin_bit_newf(
+                HAL_IO,
+                &(llio->hal->pin.io_error),
+                llio->comp_id,
+                "%s.io_error",
+                llio->name
+        );
         if (r < 0) {
-            HM2_ERR("error adding param '%s', aborting\n", name);
+            HM2_ERR("error %d adding pin io_error pin, aborting\n", r);
             r = -EINVAL;
             goto fail0;
         }
+        *llio->hal->pin.io_error = 0;
     }
 
 
@@ -1614,7 +1613,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     // final check for comm errors
     //
 
-    if ((*hm2->llio->io_error) != 0) {
+    if ((*hm2->llio->hal->pin.io_error) != 0) {
         HM2_ERR("comm errors while initializing firmware!\n");
         goto fail1;
     }
@@ -1651,7 +1650,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     {
-	int r;
 
 	hal_export_xfunct_args_t read_args = {
 	    .type = FS_XTHREADFUNC,
@@ -1692,7 +1690,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     //
 
     if (hm2->llio->threadsafe) {
-	int r;
 
 	hal_export_xfunct_args_t read_gpio_args = {
 	    .type = FS_XTHREADFUNC,
@@ -1760,7 +1757,7 @@ void hm2_unregister(hm2_lowlevel_io_t *llio) {
         // if there's a watchdog, set it to safe the board right away
         if (hm2->watchdog.num_instances > 0) {
             hm2->watchdog.instance[0].enable = 1;
-            hm2->watchdog.instance[0].hal.param.timeout_ns = 1;
+            (*hm2->watchdog.instance[0].hal.pin.timeout_ns) = 1;
             hm2_watchdog_force_write(hm2);
         }
 

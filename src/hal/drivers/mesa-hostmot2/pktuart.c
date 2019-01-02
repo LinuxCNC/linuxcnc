@@ -230,7 +230,7 @@ int hm2_pktuart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode, int txc
         buff = ((u32)rx_mode) & 0x3fc0ffff; // 0011 1111 1100 0000 1111 1111 1111 1111
         // the expert user is allowed to pass his own FilterReg value,
         // otherwise it will be calculated as floor( 0.5*bittime*ClockLow -1 )
-        if ( (buff >> 22) & 0xff == 0x0) {
+        if ( (buff >> 22) & (0xff == 0x0)) {
             u32 filter_reg = rtapi_floor(0.5*inst->clock_freq/inst->bitrate - 1.0) ;
             if (filter_reg > 255)
                 filter_reg = 255;
@@ -400,7 +400,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], u8 *num_frames, u16 *max_
     r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_mode_addr,
                         &buff, sizeof(u32));
     if (r < 0) {
-        HM2_ERR("%s read: hm2->llio->write failure %s\n", name);
+        HM2_ERR("%s read: hm2->llio->write failure\n", name);
                 return -1; // make the error message more detailed
     }
     countp = (buff >> 16)  & 0x1f; 

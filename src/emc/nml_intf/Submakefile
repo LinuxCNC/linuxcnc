@@ -27,6 +27,8 @@ TARGETS += ../lib/liblinuxcnc.a
 	@$(AR) $(ARFLAGS) $@ $^
 
 ../include/%.h: ./emc/nml_intf/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./emc/nml_intf/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@

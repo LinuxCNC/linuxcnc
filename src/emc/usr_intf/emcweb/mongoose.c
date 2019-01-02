@@ -461,13 +461,13 @@ struct mg_connection {
 
 void *_calloc (size_t __nmemb, size_t __size)
 {
-    fprintf(stderr, "Try to calloc %d blocks of %d bytes\n", __nmemb, __size );
+    fprintf(stderr, "Try to calloc %zu blocks of %zu bytes\n", __nmemb, __size );
     return calloc( __nmemb, __size );
 }
 
 void *_realloc (void *__ptr, size_t __size)
 {
-    fprintf(stderr, "Try to re-alloc ptr %p to size %d bytes\n", __ptr, __size );
+    fprintf(stderr, "Try to re-alloc ptr %p to size %zu bytes\n", __ptr, __size );
     return realloc( __ptr, __size );
 }
 
@@ -3697,10 +3697,8 @@ static void close_connection(struct mg_connection *conn) {
 }
 
 static void discard_current_request_from_buffer(struct mg_connection *conn) {
-  char *buffered;
   int buffered_len, body_len;
 
-  buffered = conn->buf + conn->request_len;
   buffered_len = conn->data_len - conn->request_len;
   assert(buffered_len >= 0);
 
@@ -3887,7 +3885,8 @@ static void worker_thread(struct mg_context *ctx) {
   conn = _calloc(1, sizeof(*conn) + buf_size);
   if( !conn )
   {
-      fprintf(stderr, "%s: error when allocating memory of size %d\n", __func__, sizeof(*conn) + buf_size );
+      fprintf(stderr, "%s: error when allocating memory of size %zu\n",
+              __func__, sizeof(*conn) + buf_size );
       exit(1);
   }
   conn->buf_size = buf_size;

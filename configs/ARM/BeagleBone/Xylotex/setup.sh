@@ -45,4 +45,3 @@ if [ ! -r $PRU ] ; then
 	echo PRU control files not found in $PRU >&2
 	exit 1;
 fi
-

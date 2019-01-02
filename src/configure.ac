@@ -2887,7 +2887,7 @@ fi
 if test "x$HAVE_XAW" = "xno"; then
     AC_MSG_WARN([Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev'])
 else
-    XAW_LIBS="$X_PRE_LIBS $X_LIBS -lX11 -lXaw -lXt"
+    XAW_LIBS="-lX11 -lXaw -lXt"
 fi
 AC_SUBST([HAVE_XAW])
 AC_SUBST([XAW_LIBS])
@@ -3099,7 +3099,6 @@ AC_SUBST([SITEPY])
 
 if test "$BUILD_EMCWEB" = yes; then
    # these are needed for the emcweb interface only
-   AX_BOOST_SERIALIZATION()
    AX_BOOST_THREAD()
    AX_BOOST_SYSTEM()
 fi

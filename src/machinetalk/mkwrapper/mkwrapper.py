@@ -9,13 +9,13 @@ import math
 import socket
 import signal
 import argparse
-from urlparse import urlparse
 import shutil
 import tempfile
 import subprocess
 import re
 import codecs
-import ConfigParser
+from six.moves import configparser
+from six.moves.urllib import parse
 import linuxcnc
 from machinekit import service, hal
 from machinekit import config
@@ -33,11 +33,11 @@ from machinetalk.protobuf.motcmds_pb2 import *
 from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
 
-def printError(msg):
+def print_error(msg):
     sys.stderr.write('ERROR: ' + msg + '\n')
 
 
-def getFreePort():
+def get_free_port():
     sock = socket.socket()
     sock.bind(('', 0))
     port = sock.getsockname()[1]
@@ -47,20 +47,19 @@ def getFreePort():
 
 # noinspection PyClassicStyleClass
 class CustomFTPHandler(FTPHandler):
-
-    def on_file_received(self, file):
+    def on_file_received(self, file_):
         # do something when a file has been received
         pass  # TODO inform client about new file
 
-    def on_incomplete_file_received(self, file):
+    def on_incomplete_file_received(self, file_):
         # remove partially uploaded files
-        os.remove(file)
+        os.remove(file_)
 
 
 class FileService(threading.Thread):
-
-    def __init__(self, iniFile=None, host='', svcUuid=None,
-                loopback=False, debug=False):
+    def __init__(
+        self, ini_file=None, host='', svc_uuid=None, loopback=False, debug=False
+    ):
         self.debug = debug
         self.host = host
         self.loopback = loopback
@@ -69,26 +68,28 @@ class FileService(threading.Thread):
 
         # Linuxcnc
         try:
-            iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
-            self.ini = linuxcnc.ini(iniFile)
+            ini_file = ini_file or os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.ini = linuxcnc.ini(ini_file)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.expanduser(self.directory)
         except linuxcnc.error as detail:
-            printError(str(detail))
+            print_error(str(detail))
             sys.exit(1)
 
-        self.filePort = getFreePort()
-        self.fileDsname = "ftp://" + self.host + ":" + str(self.filePort)
+        self.file_port = get_free_port()
+        self.file_dsname = "ftp://" + self.host + ":" + str(self.file_port)
 
-        self.fileService = service.Service(type='file',
-                                   svcUuid=svcUuid,
-                                   dsn=self.fileDsname,
-                                   port=self.filePort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
+        self.fileService = service.Service(
+            type_='file',
+            svc_uuid=svc_uuid,
+            dsn=self.file_dsname,
+            port=self.file_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
 
-        #FTP
+        # FTP
         # Instantiate a dummy authorizer for managing 'virtual' users
         self.authorizer = DummyAuthorizer()
 
@@ -103,7 +104,7 @@ class FileService(threading.Thread):
         self.handler.banner = "welcome to the GCode file service"
 
         # Instantiate FTP server class and listen on some address
-        self.address = ('', self.filePort)
+        self.address = ('', self.file_port)
         self.server = FTPServer(self.address, self.handler)
 
         # set a limit for connections
@@ -114,7 +115,7 @@ class FileService(threading.Thread):
         try:
             self.fileService.publish()
         except Exception as e:
-            printError('cannot register DNS service' + str(e))
+            print_error('cannot register DNS service' + str(e))
             sys.exit(1)
 
         threading.Thread.__init__(self)
@@ -139,12 +140,12 @@ class FileService(threading.Thread):
 class PreviewCanonData(object):
     def __init__(self):
         self.tools = []
-        self.randomToolchanger = False
-        self.parameterFile = ""
-        self.axisMask = 0x0
-        self.blockDelete = False
-        self.angularUnits = 1.0
-        self.linearUnits = 1.0
+        self.random_toolchanger = False
+        self.parameter_file = ""
+        self.axis_mask = 0x0
+        self.block_delete = False
+        self.angular_units = 1.0
+        self.linear_units = 1.0
 
 
 class PreviewCanon(object):
@@ -158,56 +159,81 @@ class PreviewCanon(object):
         return False
 
     def change_tool(self, pocket):
-        if self.c.randomToolchanger:
-            self.c.tools[0], self.c.tools[pocket] = self.c.tools[pocket], self.c.tools[0]
+        if self.c.random_toolchanger:
+            self.c.tools[0], self.c.tools[pocket] = (
+                self.c.tools[pocket],
+                self.c.tools[0],
+            )
         elif pocket == 0:
-            self.c.tools[0] = (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+            self.c.tools[0] = (
+                -1,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0,
+            )
         else:
             self.c.tools[0] = self.c.tools[pocket]
 
     def get_tool(self, pocket):
-        if pocket >= 0 and pocket < len(self.c.tools):
+        if 0 <= pocket < len(self.c.tools):
             return self.c.tools[pocket]
-        return (-1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
+        return -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
 
     def get_external_angular_units(self):
-        return self.c.angularUnits or 1.0
+        return self.c.angular_units or 1.0
 
     def get_external_length_units(self):
-        return self.c.linearUnits or 1.0
+        return self.c.linear_units or 1.0
 
     def get_axis_mask(self):
-        return self.c.axisMask
+        return self.c.axis_mask
 
     def get_block_delete(self):
-        return self.c.blockDelete
+        return self.c.block_delete
 
 
 # Preview class works concurrently using multiprocessing
 # Queues are used for communication
 class Preview(object):
-    def __init__(self, stat, randomToolchanger=False, parameterFile="", initcode="", debug=False):
+    def __init__(
+        self,
+        stat,
+        random_toolchanger=False,
+        parameter_file="",
+        initcode="",
+        debug=False,
+    ):
         self.debug = debug
         self.filename = ""
         self.unitcode = ""
         self.initcode = initcode
         self.stat = stat
-        self.parameterFile = parameterFile
-        self.randomToolchanger = randomToolchanger
+        self.parameter_file = parameter_file
+        self.random_toolchanger = random_toolchanger
         self.canon = None
         self.preview = None
-        self.errorCallback = None
+        self.error_callback = None
 
         # multiprocessing tools
-        self.bindEvent = multiprocessing.Event()
-        self.bindCompletedEvent = multiprocessing.Event()
-        self.previewEvent = multiprocessing.Event()
-        self.previewCompleteEvent = multiprocessing.Event()
-        self.shutdownEvent = multiprocessing.Event()
-        self.errorEvent = multiprocessing.Event()
-        self.isStarted = multiprocessing.Value('b', False, lock=False)
-        self.isBound = multiprocessing.Value('b', False, lock=False)
-        self.isRunning = multiprocessing.Value('b', False, lock=False)
+        self.bind_event = multiprocessing.Event()
+        self.bind_completed_event = multiprocessing.Event()
+        self.preview_event = multiprocessing.Event()
+        self.preview_completed_event = multiprocessing.Event()
+        self.shutdown_event = multiprocessing.Event()
+        self.error_event = multiprocessing.Event()
+        self.is_started = multiprocessing.Value('b', False, lock=False)
+        self.is_bound = multiprocessing.Value('b', False, lock=False)
+        self.is_running = multiprocessing.Value('b', False, lock=False)
         self.aborted = multiprocessing.Value('b', False, lock=False)
         self.inqueue = multiprocessing.Queue()  # used to send data to the process
         self.outqueue = multiprocessing.Queue()  # used to get data from the process
@@ -215,12 +241,12 @@ class Preview(object):
         self.process.start()
 
     def register_error_callback(self, callback):
-        self.errorCallback = callback
+        self.error_callback = callback
 
-    def bind(self, previewUri, statusUri):
-        self.inqueue.put((previewUri, statusUri))
-        self.bindEvent.set()
-        self.bindCompletedEvent.wait()
+    def bind(self, preview_uri, status_uri):
+        self.inqueue.put((preview_uri, status_uri))
+        self.bind_event.set()
+        self.bind_completed_event.wait()
         return self.outqueue.get()
 
     def abort(self):
@@ -233,7 +259,7 @@ class Preview(object):
             raise Exception("file does not exist " + filename)
 
     def start(self):
-        if self.isRunning.value is True:
+        if self.is_running.value is True:
             raise Exception("Preview already running")
 
         # start the monitoring daemon
@@ -242,15 +268,15 @@ class Preview(object):
         thread.start()
 
     def stop(self):
-        self.shutdownEvent.set()
-        self.previewCompleteEvent.set()  # in case we are monitoring
+        self.shutdown_event.set()
+        self.preview_completed_event.set()  # in case we are monitoring
         self.process.join()  # make sure to have one process at exit
 
     def monitoring_thread(self):
-        if not self.isBound.value:
+        if not self.is_bound.value:
             raise Exception('Preview is not bound')
 
-        self.isRunning.value = True
+        self.is_running.value = True
 
         # create temp dir
         tempdir = tempfile.mkdtemp()
@@ -261,15 +287,15 @@ class Preview(object):
         for entry in self.stat.tool_table:
             tools.append(tuple(entry))
         canon.tools = tools
-        temp_parameter = os.path.join(tempdir, os.path.basename(self.parameterFile))
-        if os.path.exists(self.parameterFile):
-            shutil.copy(self.parameterFile, temp_parameter)
-        canon.parameterFile = temp_parameter
-        canon.randomToolchanger = self.randomToolchanger
-        canon.axisMask = self.stat.axis_mask
-        canon.blockDelete = self.stat.block_delete
-        canon.angularUnits = self.stat.angular_units
-        canon.linearUnits = self.stat.linear_units
+        temp_parameter = os.path.join(tempdir, os.path.basename(self.parameter_file))
+        if os.path.exists(self.parameter_file):
+            shutil.copy(self.parameter_file, temp_parameter)
+        canon.parameter_file = temp_parameter
+        canon.random_toolchanger = self.random_toolchanger
+        canon.axis_mask = self.stat.axis_mask
+        canon.block_delete = self.stat.block_delete
+        canon.angular_units = self.stat.angular_units
+        canon.linear_units = self.stat.linear_units
 
         self.unitcode = "G%d" % (20 + (self.stat.linear_units == 1))
         # put everything on the process queue
@@ -277,98 +303,98 @@ class Preview(object):
             self.inqueue.get_nowait()
         self.inqueue.put((self.filename, self.unitcode, self.initcode, canon))
         # release the dragon
-        self.previewCompleteEvent.clear()
-        self.previewEvent.set()
-        self.previewCompleteEvent.wait()
+        self.preview_completed_event.clear()
+        self.preview_event.set()
+        self.preview_completed_event.wait()
         # handle error events
-        if self.errorEvent.wait(0.1):
+        if self.error_event.wait(0.1):
             (error, line) = self.outqueue.get()
-            if self.errorCallback is not None:
-                self.errorCallback(error, line)
-            self.errorEvent.clear()
+            if self.error_callback is not None:
+                self.error_callback(error, line)
+            self.error_event.clear()
 
         # cleanup temp dir
         shutil.rmtree(tempdir)
 
-        self.isRunning.value = False
+        self.is_running.value = False
 
     def run(self):
         import preview  # must be imported in new process to work properly
+
         self.preview = preview
 
-        self.isStarted.value = True
+        self.is_started.value = True
 
         # waiting for a bind event
-        while not self.bindEvent.wait(timeout=0.1):
-            if self.shutdownEvent.is_set():  # in case someone shuts down when we are not bound
-                self.isStarted.value = False
+        while not self.bind_event.wait(timeout=0.1):
+            if (
+                self.shutdown_event.is_set()
+            ):  # in case someone shuts down when we are not bound
+                self.is_started.value = False
 
         # bind the socket here
-        (previewUri, statusUri) = self.inqueue.get()
-        (previewUri, statusUri) = self.preview.bind(previewUri, statusUri)
-        self.outqueue.put((previewUri, statusUri))
-        self.isBound.value = True
-        self.bindCompletedEvent.set()
+        (preview_uri, status_uri) = self.inqueue.get()
+        (preview_uri, status_uri) = self.preview.bind(preview_uri, status_uri)
+        self.outqueue.put((preview_uri, status_uri))
+        self.is_bound.value = True
+        self.bind_completed_event.set()
         if self.debug:
             print('Preview socket bound')
 
         # wait for preview request or shutdown
         # event handshaking is used to synchronize the monitoring thread
         # and the process
-        while not self.shutdownEvent.is_set():
-            if self.previewEvent.wait(timeout=0.1):
+        while not self.shutdown_event.is_set():
+            if self.preview_event.wait(timeout=0.1):
                 self.do_preview()
-                self.previewCompleteEvent.set()
-                self.previewEvent.clear()
+                self.preview_completed_event.set()
+                self.preview_event.clear()
 
         if self.debug:
             print('Preview process exited')
-        self.isStarted.value = False
+        self.is_started.value = False
 
     def do_preview(self):
         # get all stuff that is modified at runtime
-        (filename, unitcode, initcode, canonData) = self.inqueue.get()
+        (filename, unitcode, initcode, canon_data) = self.inqueue.get()
         # make abort possible
-        canon = PreviewCanon(canonData, self.debug)
+        canon = PreviewCanon(canon_data, self.debug)
         self.aborted.value = False
-        canon.check_abort = lambda : self.aborted.value
+        canon.check_abort = lambda: self.aborted.value
         if self.debug:
             print("Preview starting")
-            print("Filename: " + filename)
-            print("Unitcode: " + unitcode)
-            print("Initcode: " + initcode)
+            print("Filename: {}".format(filename))
+            print("Unitcode: {}".format(unitcode))
+            print("Initcode: {}".format(initcode))
         try:
             # here we do all the actual work...
             (result, last_sequence_number) = self.preview.parse(
-                filename,
-                canon,
-                unitcode,
-                initcode)
+                filename, canon, unitcode, initcode
+            )
 
             # check if we encountered a error during execution
             if result > self.preview.MIN_ERROR:
                 error = " gcode error: %s " % (self.preview.strerror(result))
                 line = last_sequence_number - 1
                 if self.debug:
-                    printError("preview: " + filename)
-                    printError(error + " on line " + str(line))
+                    print_error("preview: " + filename)
+                    print_error(error + " on line " + str(line))
                 # pass error through queue
                 self.outqueue.put((error, str(line)))
-                self.errorEvent.set()
+                self.error_event.set()
 
         except Exception as e:
             error = "preview error: " + str(e)
             if self.debug:
-                printError(error)
+                print_error(error)
             self.outqueue.put((error, "0"))
-            self.errorEvent.set()
+            self.error_event.set()
 
         if self.debug:
             print("Preview exiting")
 
 
 class StatusValues(object):
-
     def __init__(self):
         self.io = EmcStatusIo()
         self.config = EmcStatusConfig()
@@ -387,56 +413,63 @@ class StatusValues(object):
 
 
 class LinuxCNCWrapper(object):
-
-    def __init__(self, context, host='', loopback=False,
-                iniFile=None, svcUuid=None,
-                pollInterval=None, pingInterval=2, debug=False):
+    def __init__(
+        self,
+        context,
+        host='',
+        loopback=False,
+        ini_file=None,
+        svc_uuid=None,
+        poll_interval_s=None,
+        ping_interval=2,
+        debug=False,
+    ):
         self.debug = debug
         self.host = host
         self.loopback = loopback
-        self.pingInterval = pingInterval
+        self.ping_interval = ping_interval
         self.shutdown = threading.Event()
         self.running = False
 
         # synchronization locks
-        self.commandLock = threading.Lock()
-        self.statusLock = threading.Lock()
-        self.errorLock = threading.Lock()
-        self.errorNoteLock = threading.Lock()
+        self.command_lock = threading.Lock()
+        self.status_lock = threading.Lock()
+        self.error_lock = threading.Lock()
+        self.error_note_lock = threading.Lock()
 
         # status
         self.status = StatusValues()
-        self.statusTx = StatusValues()
-        self.motionSubscribed = False
-        self.motionFullUpdate = False
-        self.motionFirstrun = True
-        self.ioSubscribed = False
-        self.ioFullUpdate = False
-        self.ioFirstrun = True
-        self.ioToolTableCount = 0
-        self.ioToolTableLoaded = False
-        self.taskSubscribed = False
-        self.taskFullUpdate = False
-        self.taskFirstrun = True
-        self.configSubscribed = False
-        self.configFullUpdate = False
-        self.configFirstrun = True
-        self.interpSubscribed = False
-        self.interpFullUpdate = False
-        self.interpFirstrun = True
-        self.uiSubscribed = False
-        self.uiFullUpdate = False
-        self.uiFirstrun = True
-        self.statusServiceSubscribed = False
+        self.status_tx = StatusValues()
+        self.motion_subscribed = False
+        self.motion_full_update = False
+        self.motion_first_run = True
+        self.io_subscribed = False
+        self.io_full_update = False
+        self.io_first_run = True
+        self.io_tool_table_count = 0
+        self.io_tool_table_loaded = False
+        self.task_subscribed = False
+        self.task_full_update = False
+        self.task_first_run = True
+        self.config_subscribed = False
+        self.config_full_update = False
+        self.config_first_run = True
+        self.interp_subscribed = False
+        self.interp_full_update = False
+        self.interp_first_run = True
+        self.ui_subscribed = False
+        self.ui_full_update = False
+        self.ui_first_run = True
+        self.status_service_subscribed = False
 
-        self.textSubscribed = False
-        self.displaySubscribed = False
-        self.errorSubscribed = False
-        self.errorServiceSubscribed = False
-        self.newErrorSubscription = False
+        self.text_subscribed = False
+        self.display_subscribed = False
+        self.error_subscribed = False
+        self.error_service_subscribed = False
+        self.new_error_subscription = False
 
-        self.linuxcncErrors = []
-        self.programExtensions = {}
+        self.linuxcnc_errors = []
+        self.program_extensions = {}
 
         # Linuxcnc
         try:
@@ -444,134 +477,169 @@ class LinuxCNCWrapper(object):
             self.command = linuxcnc.command()
             self.error = linuxcnc.error_channel()
 
-            iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
-            self.ini = linuxcnc.ini(iniFile)
+            ini_file = ini_file or os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.ini = linuxcnc.ini(ini_file)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.abspath(os.path.expanduser(self.directory))
-            self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
-            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
-            self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
-            self.interpInitcode = self.ini.find("EMC", "RS274NGC_STARTUP_CODE") or ""
-            if self.interpInitcode == "":
-                self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-            self.interpInitcode = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
-            self.randomToolChanger = self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
+            self.poll_interval_s = float(
+                poll_interval_s or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1
+            )
+            self.interp_parameter_file = (
+                self.ini.find('RS274NGC', 'PARAMETER_FILE') or "linuxcnc.var"
+            )
+            self.interp_parameter_file = os.path.abspath(
+                os.path.expanduser(self.interp_parameter_file)
+            )
+            self.interp_init_code = self.ini.find("EMC", "RS274NGC_STARTUP_CODE") or ""
+            if self.interp_init_code == "":
+                self.interp_init_code = (
+                    self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+                )
+            self.interp_init_code = (
+                self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            )
+            self.random_tool_changer = (
+                self.ini.find("EMCIO", "RANDOM_TOOL_CHANGER") or 0
+            )
 
             # setup program extensions
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
             for line in extensions:
-                splitted = line.split(' ')
-                splitted = splitted[0].split(',')
-                for extension in splitted:
+                split_line = line.split(' ')
+                split_line = split_line[0].split(',')
+                for extension in split_line:
                     if extension[0] == '.':
                         extension = extension[1:]
                     program = self.ini.find("FILTER", extension) or ""
                     if program is not "":
-                        self.programExtensions[extension] = program
+                        self.program_extensions[extension] = program
 
             # initialize total line count
-            self.totalLines = 0
+            self.total_lines = 0
             # initialize tool table path
-            self.toolTablePath = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
-            if self.toolTablePath is not '':
-                self.toolTablePath = os.path.abspath(os.path.expanduser(self.toolTablePath))
+            self.tool_table_path = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
+            if self.tool_table_path is not '':
+                self.tool_table_path = os.path.abspath(
+                    os.path.expanduser(self.tool_table_path)
+                )
             # If specified in the ini, try to open the  default file
-            openFile = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
-            openFile = openFile.strip('"')  # quote signs are allowed
-            if openFile != "":
-                openFile = os.path.abspath(os.path.expanduser(openFile))
-                fileName = os.path.basename(openFile)
-                filePath = os.path.join(self.directory, fileName)
-                shutil.copy(openFile, filePath)
+            open_file = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
+            open_file = open_file.strip('"')  # quote signs are allowed
+            if open_file != "":
+                open_file = os.path.abspath(os.path.expanduser(open_file))
+                file_name = os.path.basename(open_file)
+                file_path = os.path.join(self.directory, file_name)
+                shutil.copy(open_file, file_path)
                 if self.debug:
-                    print(str("loading default file " + openFile))
-                filePath = self.preprocess_program(filePath)
+                    print("loading default file {}".format(open_file))
+                file_path = self.preprocess_program(file_path)
                 self.command.mode(linuxcnc.MODE_AUTO)
                 self.command.wait_complete()
-                self.command.program_open(filePath)
+                self.command.program_open(file_path)
 
         except linuxcnc.error as detail:
-            printError(str(detail))
+            print_error(str(detail))
             sys.exit(1)
 
-        if self.pingInterval > 0:
-            self.pingRatio = math.floor(self.pingInterval / self.pollInterval)
+        if self.ping_interval > 0:
+            self.ping_ratio = math.floor(self.ping_interval / self.poll_interval_s)
         else:
-            self.pingRatio = -1
-        self.pingCount = 0
+            self.ping_ratio = -1
+        self.ping_count = 0
 
-        self.rx = Container()          # Used by the command socket
-        self.txStatus = Container()    # Status socket - PUB-SUB
-        self.txCommand = Container()   # Command socket - ROUTER-DEALER
-        self.txError = Container()     # Error socket - PUB-SUB
+        self.rx = Container()  # Used by the command socket
+        self.tx_status = Container()  # Status socket - PUB-SUB
+        self.tx_command = Container()  # Command socket - ROUTER-DEALER
+        self.tx_error = Container()  # Error socket - PUB-SUB
         self.context = context
-        self.baseUri = "tcp://"
+        self.base_uri = "tcp://"
         if self.loopback:
-            self.baseUri += '127.0.0.1'
+            self.base_uri += '127.0.0.1'
         else:
-            self.baseUri += '*'
-        self.statusSocket = context.socket(zmq.XPUB)
-        self.statusSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
-        self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
-        self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.statusDsname = self.statusDsname.replace('0.0.0.0', self.host)
-        self.errorSocket = context.socket(zmq.XPUB)
-        self.errorSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
-        self.errorPort = self.errorSocket.bind_to_random_port(self.baseUri)
-        self.errorDsname = self.errorSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.errorDsname = self.errorDsname.replace('0.0.0.0', self.host)
-        self.commandSocket = context.socket(zmq.ROUTER)
-        self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
-        self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
-        self.commandDsname = self.commandDsname.replace('0.0.0.0', self.host)
-        self.preview = Preview(stat=self.stat,
-                               randomToolchanger=self.randomToolChanger,
-                               parameterFile=self.interpParameterFile,
-                               initcode=self.interpInitcode,
-                               debug=self.debug)
-        (self.previewDsname, self.previewstatusDsname) = \
-            self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
-        self.previewDsname = self.previewDsname.replace('0.0.0.0', self.host)
-        self.previewstatusDsname = self.previewstatusDsname.replace('0.0.0.0', self.host)
+            self.base_uri += '*'
+        self.status_socket = context.socket(zmq.XPUB)
+        self.status_socket.setsockopt(zmq.XPUB_VERBOSE, 1)
+        self.status_port = self.status_socket.bind_to_random_port(self.base_uri)
+        self.status_dsname = self.status_socket.get_string(
+            zmq.LAST_ENDPOINT, encoding='utf-8'
+        )
+        self.status_dsname = self.status_dsname.replace('0.0.0.0', self.host)
+        self.error_socket = context.socket(zmq.XPUB)
+        self.error_socket.setsockopt(zmq.XPUB_VERBOSE, 1)
+        self.error_port = self.error_socket.bind_to_random_port(self.base_uri)
+        self.error_dsname = self.error_socket.get_string(
+            zmq.LAST_ENDPOINT, encoding='utf-8'
+        )
+        self.error_dsname = self.error_dsname.replace('0.0.0.0', self.host)
+        self.command_socket = context.socket(zmq.ROUTER)
+        self.command_port = self.command_socket.bind_to_random_port(self.base_uri)
+        self.command_dsname = self.command_socket.get_string(
+            zmq.LAST_ENDPOINT, encoding='utf-8'
+        )
+        self.command_dsname = self.command_dsname.replace('0.0.0.0', self.host)
+        self.preview = Preview(
+            stat=self.stat,
+            random_toolchanger=self.random_tool_changer,
+            parameter_file=self.interp_parameter_file,
+            initcode=self.interp_init_code,
+            debug=self.debug,
+        )
+        (self.preview_dsname, self.previewstatus_dsname) = self.preview.bind(
+            self.base_uri + ':*', self.base_uri + ':*'
+        )
+        self.preview_dsname = self.preview_dsname.replace('0.0.0.0', self.host)
+        self.previewstatus_dsname = self.previewstatus_dsname.replace(
+            '0.0.0.0', self.host
+        )
         self.preview.register_error_callback(self.preview_error)
-        self.previewPort = urlparse(self.previewDsname).port
-        self.previewstatusPort = urlparse(self.previewstatusDsname).port
+        self.preview_port = parse.urlparse(self.preview_dsname).port
+        self.previewstatus_port = parse.urlparse(self.previewstatus_dsname).port
 
-        self.statusService = service.Service(type='status',
-                                   svcUuid=svcUuid,
-                                   dsn=self.statusDsname,
-                                   port=self.statusPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
-        self.errorService = service.Service(type='error',
-                                   svcUuid=svcUuid,
-                                   dsn=self.errorDsname,
-                                   port=self.errorPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
-        self.commandService = service.Service(type='command',
-                                   svcUuid=svcUuid,
-                                   dsn=self.commandDsname,
-                                   port=self.commandPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
-        self.previewService = service.Service(type='preview',
-                                   svcUuid=svcUuid,
-                                   dsn=self.previewDsname,
-                                   port=self.previewPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
-        self.previewstatusService = service.Service(type='previewstatus',
-                                   svcUuid=svcUuid,
-                                   dsn=self.previewstatusDsname,
-                                   port=self.previewstatusPort,
-                                   host=self.host,
-                                   loopback=self.loopback,
-                                   debug=self.debug)
+        self.status_service = service.Service(
+            type_='status',
+            svc_uuid=svc_uuid,
+            dsn=self.status_dsname,
+            port=self.status_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
+        self.error_service = service.Service(
+            type_='error',
+            svc_uuid=svc_uuid,
+            dsn=self.error_dsname,
+            port=self.error_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
+        self.command_service = service.Service(
+            type_='command',
+            svc_uuid=svc_uuid,
+            dsn=self.command_dsname,
+            port=self.command_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
+        self.preview_service = service.Service(
+            type_='preview',
+            svc_uuid=svc_uuid,
+            dsn=self.preview_dsname,
+            port=self.preview_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
+        self.previewstatus_service = service.Service(
+            type_='previewstatus',
+            svc_uuid=svc_uuid,
+            dsn=self.previewstatus_dsname,
+            port=self.previewstatus_port,
+            host=self.host,
+            loopback=self.loopback,
+            debug=self.debug,
+        )
 
         self.publish()
 
@@ -580,47 +648,47 @@ class LinuxCNCWrapper(object):
 
     def process_sockets(self):
         poll = zmq.Poller()
-        poll.register(self.statusSocket, zmq.POLLIN)
-        poll.register(self.errorSocket, zmq.POLLIN)
-        poll.register(self.commandSocket, zmq.POLLIN)
+        poll.register(self.status_socket, zmq.POLLIN)
+        poll.register(self.error_socket, zmq.POLLIN)
+        poll.register(self.command_socket, zmq.POLLIN)
 
-        next_poll = time.time() + self.pollInterval
-        polldelay = (self.pollInterval) * 1000 # convert to ms
+        next_poll = time.time() + self.poll_interval_s
+        poll_delay = self.poll_interval_s * 1000  # convert to ms
         while not self.shutdown.is_set():
-            s = dict(poll.poll(polldelay))
-            if self.statusSocket in s and s[self.statusSocket] == zmq.POLLIN:
-                self.process_status(self.statusSocket)
-            if self.errorSocket in s and s[self.errorSocket] == zmq.POLLIN:
-                self.process_error(self.errorSocket)
-            if self.commandSocket in s and s[self.commandSocket] == zmq.POLLIN:
-                self.process_command(self.commandSocket)
+            s = dict(poll.poll(poll_delay))
+            if self.status_socket in s and s[self.status_socket] == zmq.POLLIN:
+                self.process_status(self.status_socket)
+            if self.error_socket in s and s[self.error_socket] == zmq.POLLIN:
+                self.process_error(self.error_socket)
+            if self.command_socket in s and s[self.command_socket] == zmq.POLLIN:
+                self.process_command(self.command_socket)
 
-            polldelay = (next_poll - time.time()) * 1000 # convert to ms
-            if (polldelay > 0):
+            poll_delay = (next_poll - time.time()) * 1000  # convert to ms
+            if poll_delay > 0:
                 continue
 
-            next_poll = time.time() + self.pollInterval
-            polldelay = (self.pollInterval) * 1000 # convert to ms
+            next_poll = time.time() + self.poll_interval_s
+            poll_delay = self.poll_interval_s * 1000  # convert to ms
 
             try:
-                if (self.statusServiceSubscribed):
+                if self.status_service_subscribed:
                     self.stat.poll()
                     self.update_status(self.stat)
-                    if (self.pingCount == self.pingRatio):
+                    if self.ping_count == self.ping_ratio:
                         self.ping_status()
-                if (self.errorServiceSubscribed):
+                if self.error_service_subscribed:
                     error = self.error.poll()
                     self.update_error(error)
-                    if (self.pingCount == self.pingRatio):
+                    if self.ping_count == self.ping_ratio:
                         self.ping_error()
             except linuxcnc.error as detail:
-                printError(str(detail))
+                print_error(str(detail))
                 self.stop()
 
-            if (self.pingCount == self.pingRatio):
-                self.pingCount = 0
+            if self.ping_count == self.ping_ratio:
+                self.ping_count = 0
             else:
-                self.pingCount += 1
+                self.ping_count += 1
 
         self.unpublish()
         self.running = False
@@ -629,43 +697,43 @@ class LinuxCNCWrapper(object):
     def publish(self):
         # Zeroconf
         try:
-            self.statusService.publish()
-            self.errorService.publish()
-            self.commandService.publish()
-            self.previewService.publish()
-            self.previewstatusService.publish()
+            self.status_service.publish()
+            self.error_service.publish()
+            self.command_service.publish()
+            self.preview_service.publish()
+            self.previewstatus_service.publish()
         except Exception as e:
-            printError('cannot register DNS service' + str(e))
+            print_error('cannot register DNS service' + str(e))
             sys.exit(1)
 
     def unpublish(self):
-        self.statusService.unpublish()
-        self.errorService.unpublish()
-        self.commandService.unpublish()
-        self.previewService.unpublish()
-        self.previewstatusService.unpublish()
+        self.status_service.unpublish()
+        self.error_service.unpublish()
+        self.command_service.unpublish()
+        self.preview_service.unpublish()
+        self.previewstatus_service.unpublish()
 
     def stop(self):
         self.shutdown.set()
         self.preview.stop()
 
     # handle program extensions
-    def preprocess_program(self, filePath):
-        fileName, extension = os.path.splitext(filePath)
+    def preprocess_program(self, file_path):
+        file_name, extension = os.path.splitext(file_path)
         extension = extension[1:]  # remove dot
-        if extension in self.programExtensions:
-            program = self.programExtensions[extension]
-            newFileName = fileName + '.ngc'
+        if extension in self.program_extensions:
+            program = self.program_extensions[extension]
+            new_file_name = file_name + '.ngc'
             try:
-                outFile = open(newFileName, 'w')
-                process = subprocess.Popen([program, filePath], stdout=outFile)
-                #subprocess.check_output([program, filePath],
+                out_file = open(new_file_name, 'w')
+                process = subprocess.Popen([program, file_path], stdout=out_file)
+                # subprocess.check_output([program, filePath],
                 unused_out, err = process.communicate()
                 retcode = process.poll()
                 if retcode:
                     raise subprocess.CalledProcessError(retcode, '', output=err)
-                outFile.close()
-                filePath = newFileName
+                out_file.close()
+                file_path = new_file_name
             except IOError as e:
                 self.add_error(str(e))
                 return ''
@@ -673,65 +741,83 @@ class LinuxCNCWrapper(object):
                 self.add_error('%s failed: %s' % (program, str(e)))
                 return ''
         # get number of lines
-        with open(filePath) as f:
-            self.totalLines = sum(1 for line in f)
-        return filePath
+        with open(file_path) as f:
+            self.total_lines = sum(1 for _ in f)
+        return file_path
 
-    def load_tool_table(self, io, txIo):
-        if self.toolTablePath is '':
+    def load_tool_table(self, io, tx_io):
+        if self.tool_table_path is '':
             return
 
-        lines = []
-        with codecs.open(self.toolTablePath, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+        with codecs.open(self.tool_table_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
 
         # parsing pocket number and comment, not emc status object
-        toolMap = {}
+        tool_map = {}
         regex = re.compile(r'(?:.*?T(\d+))(?:.*?P(\d+))?(?:.*;(.*))?', re.IGNORECASE)
         for line in lines:
             match = regex.match(line)
             if match:
-                id = int(match.group(1))
+                id_ = int(match.group(1))
                 pocket = match.group(2)
                 comment = match.group(3)
                 if pocket == '':
                     pocket = 0
-                toolMap[id] = {'pocket': int(pocket), 'comment': comment}
+                tool_map[id_] = {'pocket': int(pocket), 'comment': comment}
 
-        for i, toolResult in enumerate(io.tool_table):
-            txToolResult = None
-            for result in txIo.tool_table:
-                if result.index == toolResult.index:
-                    txToolResult = result
-            if not txToolResult:
-                txToolResult = txIo.tool_table.add()
-                txToolResult.CopyFrom(toolResult)
-            id = toolResult.id
-            if id in toolMap:
-                toolResult.pocket = toolMap[id]['pocket'] or 0
-                toolResult.comment = toolMap[id]['comment'] or ''
-                txToolResult.pocket = toolMap[id]['pocket'] or 0
-                txToolResult.comment = toolMap[id]['comment'] or ''
+        for i, tool_result in enumerate(io.tool_table):
+            tx_tool_result = None
+            for result in tx_io.tool_table:
+                if result.index == tool_result.index:
+                    tx_tool_result = result
+            if not tx_tool_result:
+                tx_tool_result = tx_io.tool_table.add()
+                tx_tool_result.CopyFrom(tool_result)
+            id_ = tool_result.id
+            if id_ in tool_map:
+                tool_result.pocket = tool_map[id_]['pocket'] or 0
+                tool_result.comment = tool_map[id_]['comment'] or ''
+                tx_tool_result.pocket = tool_map[id_]['pocket'] or 0
+                tx_tool_result.comment = tool_map[id_]['comment'] or ''
 
-    def update_tool_table(self, toolTable):
-        if self.toolTablePath is '':
+    def update_tool_table(self, tool_table):
+        if self.tool_table_path is '':
             return False
 
-        with codecs.open(self.toolTablePath, 'w', encoding='utf-8') as file:
-            for tool in toolTable:
-                line = 'T%d P%d D%f X%+f Y%+f Z%+f A%+f B%+f C%+f U%+f V%+f W%+f I%+f J%+f Q%d ;%s\n' \
-                % (tool.id, tool.pocket, tool.diameter, tool.offset.x, tool.offset.y, tool.offset.z,
-                   tool.offset.a, tool.offset.b, tool.offset.c, tool.offset.u, tool.offset.v, tool.offset.w,
-                   tool.frontangle, tool.backangle, tool.orientation, tool.comment)
-                file.write(line)
+        with codecs.open(self.tool_table_path, 'w', encoding='utf-8') as f:
+            for tool in tool_table:
+                line = (
+                    'T%d P%d D%f X%+f Y%+f Z%+f A%+f B%+f C%+f U%+f V%+f W%+f I%+f J%+f Q%d ;%s\n'
+                    % (
+                        tool.id,
+                        tool.pocket,
+                        tool.diameter,
+                        tool.offset.x,
+                        tool.offset.y,
+                        tool.offset.z,
+                        tool.offset.a,
+                        tool.offset.b,
+                        tool.offset.c,
+                        tool.offset.u,
+                        tool.offset.v,
+                        tool.offset.w,
+                        tool.frontangle,
+                        tool.backangle,
+                        tool.orientation,
+                        tool.comment,
+                    )
+                )
+                f.write(line)
 
         return True
 
-    def notEqual(self, a, b):
+    @staticmethod
+    def not_equal(a, b):
         threshold = 0.0001
         return abs(a - b) > threshold
 
-    def zero_position(self):
+    @staticmethod
+    def zero_position():
         position = Position()
         position.x = 0.0
         position.y = 0.0
@@ -744,116 +830,137 @@ class LinuxCNCWrapper(object):
         position.w = 0.0
         return position
 
-    def check_position(self, oldPosition, newPosition):
+    @staticmethod
+    def check_position(old_position, new_position):
         modified = False
-        txPosition = Position()
+        tx_position = Position()
 
-        if self.notEqual(oldPosition.x, newPosition[0]):
-            txPosition.x = newPosition[0]
+        if LinuxCNCWrapper.not_equal(old_position.x, new_position[0]):
+            tx_position.x = new_position[0]
             modified = True
-        if self.notEqual(oldPosition.y, newPosition[1]):
-            txPosition.y = newPosition[1]
+        if LinuxCNCWrapper.not_equal(old_position.y, new_position[1]):
+            tx_position.y = new_position[1]
             modified = True
-        if self.notEqual(oldPosition.z, newPosition[2]):
-            txPosition.z = newPosition[2]
+        if LinuxCNCWrapper.not_equal(old_position.z, new_position[2]):
+            tx_position.z = new_position[2]
             modified = True
-        if self.notEqual(oldPosition.a, newPosition[3]):
-            txPosition.a = newPosition[3]
+        if LinuxCNCWrapper.not_equal(old_position.a, new_position[3]):
+            tx_position.a = new_position[3]
             modified = True
-        if self.notEqual(oldPosition.b, newPosition[4]):
-            txPosition.b = newPosition[4]
+        if LinuxCNCWrapper.not_equal(old_position.b, new_position[4]):
+            tx_position.b = new_position[4]
             modified = True
-        if self.notEqual(oldPosition.c, newPosition[5]):
-            txPosition.c = newPosition[5]
+        if LinuxCNCWrapper.not_equal(old_position.c, new_position[5]):
+            tx_position.c = new_position[5]
             modified = True
-        if self.notEqual(oldPosition.u, newPosition[6]):
-            txPosition.u = newPosition[6]
+        if LinuxCNCWrapper.not_equal(old_position.u, new_position[6]):
+            tx_position.u = new_position[6]
             modified = True
-        if self.notEqual(oldPosition.v, newPosition[7]):
-            txPosition.v = newPosition[7]
+        if LinuxCNCWrapper.not_equal(old_position.v, new_position[7]):
+            tx_position.v = new_position[7]
             modified = True
-        if self.notEqual(oldPosition.w, newPosition[8]):
-            txPosition.w = newPosition[8]
+        if LinuxCNCWrapper.not_equal(old_position.w, new_position[8]):
+            tx_position.w = new_position[8]
             modified = True
 
         if modified:
-            return True, txPosition
+            return True, tx_position
         else:
-            del txPosition
+            del tx_position
             return False, None
 
-    def update_proto_value(self, obj, txObj, prop, value):
+    @staticmethod
+    def update_proto_value(obj, tx_obj, prop, value):
         if getattr(obj, prop) != value:
             setattr(obj, prop, value)
-            setattr(txObj, prop, value)
+            setattr(tx_obj, prop, value)
             return True
         return False
 
-    def update_proto_float(self, obj, txObj, prop, value):
-        if self.notEqual(getattr(obj, prop), value):
+    @staticmethod
+    def update_proto_float(obj, tx_obj, prop, value):
+        if LinuxCNCWrapper.not_equal(getattr(obj, prop), value):
             setattr(obj, prop, value)
-            setattr(txObj, prop, value)
+            setattr(tx_obj, prop, value)
             return True
         return False
 
-    def update_proto_list(self, obj, txObj, txObjItem, prop, values, default):
+    @staticmethod
+    def update_proto_list(obj, tx_obj, tx_obj_item, prop, values, default):
         modified = False
         for index, value in enumerate(values):
-            txObjItem.Clear()
-            objModified = False
+            tx_obj_item.Clear()
+            obj_modified = False
 
             if len(obj) == index:
                 obj.add()
                 obj[index].index = index
                 setattr(obj[index], prop, default)
 
-            objItem = obj[index]
-            objModified |= self.update_proto_value(objItem, txObjItem, prop, value)
+            obj_item = obj[index]
+            obj_modified |= LinuxCNCWrapper.update_proto_value(
+                obj_item, tx_obj_item, prop, value
+            )
 
-            if objModified:
-                txObjItem.index = index
-                txObj.add().CopyFrom(txObjItem)
+            if obj_modified:
+                tx_obj_item.index = index
+                tx_obj.add().CopyFrom(tx_obj_item)
                 modified = True
 
         return modified
 
-    def update_proto_position(self, obj, txObj, prop, value):
-        modified, txPosition = self.check_position(getattr(obj, prop), value)
+    @staticmethod
+    def update_proto_position(obj, tx_obj, prop, value):
+        modified, tx_position = LinuxCNCWrapper.check_position(
+            getattr(obj, prop), value
+        )
         if modified:
-            getattr(obj, prop).MergeFrom(txPosition)
-            getattr(txObj, prop).CopyFrom(txPosition)
+            getattr(obj, prop).MergeFrom(tx_position)
+            getattr(tx_obj, prop).CopyFrom(tx_position)
 
-        del txPosition
+        del tx_position
         return modified
 
     def update_config_value(self, prop, value):
-        return self.update_proto_value(self.status.config, self.statusTx.config, prop, value)
+        return self.update_proto_value(
+            self.status.config, self.status_tx.config, prop, value
+        )
 
     def update_config_float(self, prop, value):
-        return self.update_proto_float(self.status.config, self.statusTx.config, prop, value)
+        return self.update_proto_float(
+            self.status.config, self.status_tx.config, prop, value
+        )
 
     def update_io_value(self, prop, value):
-        return self.update_proto_value(self.status.io, self.statusTx.io, prop, value)
+        return self.update_proto_value(self.status.io, self.status_tx.io, prop, value)
 
     def update_task_value(self, prop, value):
-        return self.update_proto_value(self.status.task, self.statusTx.task, prop, value)
+        return self.update_proto_value(
+            self.status.task, self.status_tx.task, prop, value
+        )
 
     def update_interp_value(self, prop, value):
-        return self.update_proto_value(self.status.interp, self.statusTx.interp, prop, value)
+        return self.update_proto_value(
+            self.status.interp, self.status_tx.interp, prop, value
+        )
 
     def update_motion_value(self, prop, value):
-        return self.update_proto_value(self.status.motion, self.statusTx.motion, prop, value)
+        return self.update_proto_value(
+            self.status.motion, self.status_tx.motion, prop, value
+        )
 
     def update_motion_float(self, prop, value):
-        return self.update_proto_float(self.status.motion, self.statusTx.motion, prop, value)
+        return self.update_proto_float(
+            self.status.motion, self.status_tx.motion, prop, value
+        )
 
     def update_ui_value(self, prop, value):
-        return self.update_proto_value(self.status.ui, self.statusTx.ui, prop, value)
+        return self.update_proto_value(self.status.ui, self.status_tx.ui, prop, value)
 
     def update_config(self, stat):
         modified = False
 
-        if self.configFirstrun:
+        if self.config_first_run:
             self.status.config.default_acceleration = 0.0
             self.status.config.angular_units = ANGULAR_UNITS_DEGREES
             self.status.config.axes = 0
@@ -888,37 +995,41 @@ class LinuxCNCWrapper(object):
             self.status.config.remote_path = ""
             self.status.config.time_units = TIME_UNITS_MINUTE
             self.status.config.name = ""
-            self.configFirstrun = False
+            self.config_first_run = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
-            txObjItem = EmcProgramExtension()
+            tx_obj_item = EmcProgramExtension()
             obj = self.status.config.program_extension
-            txObj = self.statusTx.config.program_extension
-            modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                               'extension', extensions, '')
-            del txObjItem
+            tx_obj = self.status_tx.config.program_extension
+            modified |= self.update_proto_list(
+                obj, tx_obj, tx_obj_item, 'extension', extensions, ''
+            )
+            del tx_obj_item
 
             commands = self.ini.findall("DISPLAY", "USER_COMMAND")
-            txObjItem = EmcStatusUserCommand()
+            tx_obj_item = EmcStatusUserCommand()
             obj = self.status.config.user_command
-            txObj = self.statusTx.config.user_command
-            modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                               'command', commands, '')
-            del txObjItem
+            tx_obj = self.status_tx.config.user_command
+            modified |= self.update_proto_list(
+                obj, tx_obj, tx_obj_item, 'command', commands, ''
+            )
+            del tx_obj_item
 
-            positionOffset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
-            if positionOffset == 'MACHINE':
-                positionOffset = EMC_CONFIG_MACHINE_OFFSET
+            position_offset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
+            if position_offset == 'MACHINE':
+                position_offset = EMC_CONFIG_MACHINE_OFFSET
             else:
-                positionOffset = EMC_CONFIG_RELATIVE_OFFSET
-            modified |= self.update_config_value('position_offset', positionOffset)
+                position_offset = EMC_CONFIG_RELATIVE_OFFSET
+            modified |= self.update_config_value('position_offset', position_offset)
 
-            positionFeedback = self.ini.find('DISPLAY', 'POSITION_FEEDBACK') or 'ACTUAL'
-            if positionFeedback == 'COMMANDED':
-                positionFeedback = EMC_CONFIG_COMMANDED_FEEDBACK
+            position_feedback = (
+                self.ini.find('DISPLAY', 'POSITION_FEEDBACK') or 'ACTUAL'
+            )
+            if position_feedback == 'COMMANDED':
+                position_feedback = EMC_CONFIG_COMMANDED_FEEDBACK
             else:
-                positionFeedback = EMC_CONFIG_ACTUAL_FEEDBACK
-            modified |= self.update_config_value('position_feedback', positionFeedback)
+                position_feedback = EMC_CONFIG_ACTUAL_FEEDBACK
+            modified |= self.update_config_value('position_feedback', position_feedback)
 
             value = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
             modified |= self.update_config_value('max_feed_override', value)
@@ -980,36 +1091,38 @@ class LinuxCNCWrapper(object):
             value = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
             modified |= self.update_config_value('max_acceleration', value)
 
-            timeUnits = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
-            if (timeUnits in ['min', 'minute']):
-                timeUnitsConverted = TIME_UNITS_MINUTE
-            elif (timeUnits in ['s', 'second']):
-                timeUnitsConverted = TIME_UNITS_SECOND
+            time_units = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
+            if time_units in ['min', 'minute']:
+                time_units_converted = TIME_UNITS_MINUTE
+            elif time_units in ['s', 'second']:
+                time_units_converted = TIME_UNITS_SECOND
             else:
-                timeUnitsConverted = TIME_UNITS_MINUTE
-            modified |= self.update_config_value('time_units', timeUnitsConverted)
+                time_units_converted = TIME_UNITS_MINUTE
+            modified |= self.update_config_value('time_units', time_units_converted)
 
-            linearUnits = str(self.ini.find('TRAJ', 'LINEAR_UNITS') or 'mm')
-            if linearUnits in ['mm', 'metric']:
-                linearUnitsConverted = LINEAR_UNITS_MM
-            elif linearUnits in ['in', 'inch', 'imperial']:
-                linearUnitsConverted = LINEAR_UNITS_INCH
-            elif linearUnits in ['cm']:
-                linearUnitsConverted = LINEAR_UNITS_CM
+            linear_units = str(self.ini.find('TRAJ', 'LINEAR_UNITS') or 'mm')
+            if linear_units in ['mm', 'metric']:
+                linear_units_converted = LINEAR_UNITS_MM
+            elif linear_units in ['in', 'inch', 'imperial']:
+                linear_units_converted = LINEAR_UNITS_INCH
+            elif linear_units in ['cm']:
+                linear_units_converted = LINEAR_UNITS_CM
             else:
-                linearUnitsConverted = LINEAR_UNITS_MM
-            modified |= self.update_config_value('linear_units', linearUnitsConverted)
+                linear_units_converted = LINEAR_UNITS_MM
+            modified |= self.update_config_value('linear_units', linear_units_converted)
 
-            angularUnits = str(self.ini.find('TRAJ', 'ANGULAR_UNITS') or 'deg')
-            if angularUnits in ['deg', 'degree']:
-                angularUnitsConverted = ANGULAR_UNITS_DEGREES
-            elif angularUnits in ['rad', 'radian']:
-                angularUnitsConverted = ANGULAR_UNITS_RADIAN
-            elif angularUnits in ['grad', 'gon']:
-                angularUnitsConverted = ANGULAR_UNITS_GRAD
+            angular_units = str(self.ini.find('TRAJ', 'ANGULAR_UNITS') or 'deg')
+            if angular_units in ['deg', 'degree']:
+                angular_units_converted = ANGULAR_UNITS_DEGREES
+            elif angular_units in ['rad', 'radian']:
+                angular_units_converted = ANGULAR_UNITS_RADIAN
+            elif angular_units in ['grad', 'gon']:
+                angular_units_converted = ANGULAR_UNITS_GRAD
             else:
-                angularUnitsConverted = ANGULAR_UNITS_DEGREES
-            modified |= self.update_config_value('angular_units', angularUnitsConverted)
+                angular_units_converted = ANGULAR_UNITS_DEGREES
+            modified |= self.update_config_value(
+                'angular_units', angular_units_converted
+            )
 
             modified |= self.update_config_value('remote_path', self.directory)
 
@@ -1025,10 +1138,10 @@ class LinuxCNCWrapper(object):
         modified |= self.update_config_float('default_acceleration', stat.acceleration)
         modified |= self.update_config_float('default_velocity', stat.velocity)
 
-        txAxis = EmcStatusConfigAxis()
-        for index, statAxis in enumerate(stat.axis):
-            txAxis.Clear()
-            axisModified = False
+        tx_axis = EmcStatusConfigAxis()
+        for index, stat_axis in enumerate(stat.axis):
+            tx_axis.Clear()
+            axis_modified = False
 
             if index == stat.axes:
                 break
@@ -1048,48 +1161,61 @@ class LinuxCNCWrapper(object):
                 self.status.config.axis[index].increments = ""
 
                 axis = self.status.config.axis[index]
-                axisName = 'AXIS_%i' % index
-                value = int(self.ini.find(axisName, 'HOME_SEQUENCE') or -1)
-                axisModified |= self.update_proto_value(axis, txAxis,
-                                                        'home_sequence', value)
+                axis_name = 'AXIS_%i' % index
+                value = int(self.ini.find(axis_name, 'HOME_SEQUENCE') or -1)
+                axis_modified |= self.update_proto_value(
+                    axis, tx_axis, 'home_sequence', value
+                )
 
-                value = float(self.ini.find(axisName, 'MAX_VELOCITY') or 0.0)
-                axisModified |= self.update_proto_value(axis, txAxis,
-                                                        'max_velocity', value)
+                value = float(self.ini.find(axis_name, 'MAX_VELOCITY') or 0.0)
+                axis_modified |= self.update_proto_value(
+                    axis, tx_axis, 'max_velocity', value
+                )
 
-                value = float(self.ini.find(axisName, 'MAX_ACCELERATION') or 0.0)
-                axisModified |= self.update_proto_value(axis, txAxis,
-                                                        'max_acceleration', value)
+                value = float(self.ini.find(axis_name, 'MAX_ACCELERATION') or 0.0)
+                axis_modified |= self.update_proto_value(
+                    axis, tx_axis, 'max_acceleration', value
+                )
 
-                value = self.ini.find(axisName, 'INCREMENTS') or ''
-                axisModified |= self.update_proto_value(axis, txAxis,
-                                                        'increments', value)
+                value = self.ini.find(axis_name, 'INCREMENTS') or ''
+                axis_modified |= self.update_proto_value(
+                    axis, tx_axis, 'increments', value
+                )
 
             axis = self.status.config.axis[index]
-            axisModified |= self.update_proto_value(axis, txAxis, 'axis_type', statAxis['axisType'])
+            axis_modified |= self.update_proto_value(
+                axis, tx_axis, 'axis_type', stat_axis['axisType']
+            )
 
-            for name in ['backlash', 'max_ferror', 'max_position_limit',
-                         'min_ferror', 'min_position_limit']:
-                axisModified |= self.update_proto_float(axis, txAxis, name, statAxis[name])
+            for name in [
+                'backlash',
+                'max_ferror',
+                'max_position_limit',
+                'min_ferror',
+                'min_position_limit',
+            ]:
+                axis_modified |= self.update_proto_float(
+                    axis, tx_axis, name, stat_axis[name]
+                )
 
-            if axisModified:
-                txAxis.index = index
-                self.statusTx.config.axis.add().CopyFrom(txAxis)
+            if axis_modified:
+                tx_axis.index = index
+                self.status_tx.config.axis.add().CopyFrom(tx_axis)
                 modified = True
 
-        del txAxis
+        del tx_axis
 
-        if self.configFullUpdate:
+        if self.config_full_update:
             self.add_pparams()
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
-            self.configFullUpdate = False
+            self.config_full_update = False
         elif modified:
-            self.send_config(self.statusTx.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_config(self.status_tx.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_io(self, stat):
         modified = False
 
-        if self.ioFirstrun:
+        if self.io_first_run:
             self.status.io.estop = 0
             self.status.io.flood = 0
             self.status.io.lube = 0
@@ -1098,32 +1224,40 @@ class LinuxCNCWrapper(object):
             self.status.io.pocket_prepped = 0
             self.status.io.tool_in_spindle = 0
             self.status.io.tool_offset.MergeFrom(self.zero_position())
-            self.ioFirstrun = False
+            self.io_first_run = False
 
-        for name in ['estop', 'flood', 'lube', 'lube_level', 'mist',
-                     'pocket_prepped', 'tool_in_spindle']:
+        for name in [
+            'estop',
+            'flood',
+            'lube',
+            'lube_level',
+            'mist',
+            'pocket_prepped',
+            'tool_in_spindle',
+        ]:
             modified |= self.update_io_value(name, getattr(stat, name))
 
-        modified |= self.update_proto_position(self.status.io, self.statusTx.io,
-                                               'tool_offset', stat.tool_offset)
+        modified |= self.update_proto_position(
+            self.status.io, self.status_tx.io, 'tool_offset', stat.tool_offset
+        )
 
-        txToolResult = EmcToolData()
-        toolTableChanged = False
-        tableIndex = 0
-        for index, statToolResult in enumerate(stat.tool_table):
-            txToolResult.Clear()
-            resultModified = False
-            newItem = False
+        tx_tool_result = EmcToolData()
+        tool_table_changed = False
+        table_index = 0
+        for index, stat_tool_result in enumerate(stat.tool_table):
+            tx_tool_result.Clear()
+            result_modified = False
+            new_item = False
 
-            if (index == 0 and not self.randomToolChanger):
+            if index == 0 and not self.random_tool_changer:
                 continue
 
-            if (statToolResult.id == -1 and not self.randomToolChanger):
+            if stat_tool_result.id == -1 and not self.random_tool_changer:
                 break  # last tool in table, except index = 0 (spindle !)
 
-            if len(self.status.io.tool_table) == tableIndex:  # item added
+            if len(self.status.io.tool_table) == table_index:  # item added
                 item = self.status.io.tool_table.add()
-                item.index = tableIndex
+                item.index = table_index
                 item.id = 0
                 item.offset.MergeFrom(self.zero_position())
                 item.diameter = 0.0
@@ -1132,69 +1266,74 @@ class LinuxCNCWrapper(object):
                 item.orientation = 0
                 item.comment = ""
                 item.pocket = 0
-                newItem = True
+                new_item = True
 
-            toolResult = self.status.io.tool_table[tableIndex]
+            tool_result = self.status.io.tool_table[table_index]
 
             for name in ['id', 'orientation']:
-                value = getattr(statToolResult, name)
-                resultModified |= self.update_proto_value(toolResult, txToolResult,
-                                                          name, value)
+                value = getattr(stat_tool_result, name)
+                result_modified |= self.update_proto_value(
+                    tool_result, tx_tool_result, name, value
+                )
             for name in ['diameter', 'frontangle', 'backangle']:
-                value = getattr(statToolResult, name)
-                resultModified |= self.update_proto_float(toolResult, txToolResult,
-                                                          name, value)
+                value = getattr(stat_tool_result, name)
+                result_modified |= self.update_proto_float(
+                    tool_result, tx_tool_result, name, value
+                )
 
             position = range(0, 9)
             for i, axis in enumerate(['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']):
-                value = getattr(statToolResult, axis + 'offset')
+                value = getattr(stat_tool_result, axis + 'offset')
                 position[i] = value
-            resultModified |= self.update_proto_position(toolResult, txToolResult,
-                                                         'offset', position)
+            result_modified |= self.update_proto_position(
+                tool_result, tx_tool_result, 'offset', position
+            )
 
-            if resultModified:
-                txToolResult.index = tableIndex
-                if newItem:
-                    self.statusTx.io.tool_table.add().CopyFrom(toolResult)  # make sure to send update
+            if result_modified:
+                tx_tool_result.index = table_index
+                if new_item:
+                    self.status_tx.io.tool_table.add().CopyFrom(
+                        tool_result
+                    )  # make sure to send update
                 else:
-                    self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
+                    self.status_tx.io.tool_table.add().CopyFrom(tx_tool_result)
                 modified = True
-                toolTableChanged = True
+                tool_table_changed = True
 
-            tableIndex += 1
+            table_index += 1
 
         # cleanup dead entries
-        while tableIndex < len(self.status.io.tool_table):
+        while table_index < len(self.status.io.tool_table):
             del self.status.io.tool_table[-1]
 
         # check if new tool table is smaller
         # if so we need to send empty messages (only index) to the subscribers
-        if tableIndex < self.ioToolTableCount:
-            for i in range(tableIndex, self.ioToolTableCount):
-                txToolResult.Clear()
-                txToolResult.index = i
-                self.statusTx.io.tool_table.add().CopyFrom(txToolResult)
-            toolTableChanged = True
-        self.ioToolTableCount = tableIndex
+        if table_index < self.io_tool_table_count:
+            for i in range(table_index, self.io_tool_table_count):
+                tx_tool_result.Clear()
+                tx_tool_result.index = i
+                self.status_tx.io.tool_table.add().CopyFrom(tx_tool_result)
+            tool_table_changed = True
+        self.io_tool_table_count = table_index
 
-        if toolTableChanged or self.ioToolTableLoaded:
+        if tool_table_changed or self.io_tool_table_loaded:
             # update pocket and comment from tool table file
-            self.load_tool_table(self.status.io, self.statusTx.io)
-            self.ioToolTableLoaded = False
+            self.load_tool_table(self.status.io, self.status_tx.io)
+            self.io_tool_table_loaded = False
             modified = True
-        del txToolResult
+        del tx_tool_result
 
-        if self.ioFullUpdate:
+        if self.io_full_update:
             self.add_pparams()
             self.send_io(self.status.io, MT_EMCSTAT_FULL_UPDATE)
-            self.ioFullUpdate = False
+            self.io_full_update = False
         elif modified:
-            self.send_io(self.statusTx.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_io(self.status_tx.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_task(self, stat):
         modified = False
 
-        if self.taskFirstrun:
+        if self.task_first_run:
             self.status.task.echo_serial_number = 0
             self.status.task.exec_state = EMC_TASK_EXEC_ERROR
             self.status.task.file = ""
@@ -1205,67 +1344,78 @@ class LinuxCNCWrapper(object):
             self.status.task.task_paused = 0
             self.status.task.task_state = EMC_TASK_STATE_ESTOP
             self.status.task.total_lines = 0
-            self.taskFirstrun = False
+            self.task_first_run = False
 
-        for name in ['echo_serial_number', 'exec_state', 'file',
-                     'input_timeout', 'optional_stop', 'read_line',
-                     'task_mode', 'task_paused', 'task_state']:
+        for name in [
+            'echo_serial_number',
+            'exec_state',
+            'file',
+            'input_timeout',
+            'optional_stop',
+            'read_line',
+            'task_mode',
+            'task_paused',
+            'task_state',
+        ]:
             modified |= self.update_task_value(name, getattr(stat, name))
 
-        modified |= self.update_task_value('total_lines', self.totalLines)
+        modified |= self.update_task_value('total_lines', self.total_lines)
 
-        if self.taskFullUpdate:
+        if self.task_full_update:
             self.add_pparams()
             self.send_task(self.status.task, MT_EMCSTAT_FULL_UPDATE)
-            self.taskFullUpdate = False
+            self.task_full_update = False
         elif modified:
-            self.send_task(self.statusTx.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_task(self.status_tx.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_interp(self, stat):
         modified = False
 
-        if self.interpFirstrun:
+        if self.interp_first_run:
             self.status.interp.command = ""
             self.status.interp.interp_state = EMC_TASK_INTERP_IDLE
             self.status.interp.interpreter_errcode = 0
             self.status.interp.program_units = CANON_UNITS_INCH
-            self.interpFirstrun = False
+            self.interp_first_run = False
 
         for name in ['command', 'interp_state', 'interpreter_errcode', 'program_units']:
             modified |= self.update_interp_value(name, getattr(stat, name))
 
-        txObjItem = EmcStatusGCode()
+        tx_obj_item = EmcStatusGCode()
         obj = self.status.interp.gcodes
-        txObj = self.statusTx.interp.gcodes
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.gcodes, 0)
-        del txObjItem
+        tx_obj = self.status_tx.interp.gcodes
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.gcodes, 0
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusMCode()
+        tx_obj_item = EmcStatusMCode()
         obj = self.status.interp.mcodes
-        txObj = self.statusTx.interp.mcodes
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.mcodes, 0)
-        del txObjItem
+        tx_obj = self.status_tx.interp.mcodes
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.mcodes, 0
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusSetting()
+        tx_obj_item = EmcStatusSetting()
         obj = self.status.interp.settings
-        txObj = self.statusTx.interp.settings
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.settings, 0.0)
-        del txObjItem
+        tx_obj = self.status_tx.interp.settings
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.settings, 0.0
+        )
+        del tx_obj_item
 
-        if self.interpFullUpdate:
+        if self.interp_full_update:
             self.add_pparams()
             self.send_interp(self.status.interp, MT_EMCSTAT_FULL_UPDATE)
-            self.interpFullUpdate = False
+            self.interp_full_update = False
         elif modified:
-            self.send_interp(self.statusTx.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_interp(self.status_tx.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_motion(self, stat):
         modified = False
 
-        if self.motionFirstrun:
+        if self.motion_first_run:
             self.status.motion.active_queue = 0
             self.status.motion.actual_position.MergeFrom(self.zero_position())
             self.status.motion.adaptive_feed_enabled = False
@@ -1309,69 +1459,109 @@ class LinuxCNCWrapper(object):
             self.status.motion.state = UNINITIALIZED_STATUS
             self.status.motion.max_velocity = 0.0
             self.status.motion.max_acceleration = 0.0
-            self.motionFirstrun = False
+            self.motion_first_run = False
 
-        for name in ['active_queue', 'adaptive_feed_enabled', 'block_delete',
-                     'current_line', 'enabled', 'feed_hold_enabled',
-                     'feed_override_enabled', 'g5x_index', 'id', 'inpos',
-                     'motion_line', 'motion_type', 'motion_mode', 'paused',
-                     'probe_tripped', 'probe_val', 'probing', 'queue',
-                     'queue_full', 'spindle_brake', 'spindle_direction',
-                     'spindle_enabled', 'spindle_increasing',
-                     'spindle_override_enabled', 'state']:
+        for name in [
+            'active_queue',
+            'adaptive_feed_enabled',
+            'block_delete',
+            'current_line',
+            'enabled',
+            'feed_hold_enabled',
+            'feed_override_enabled',
+            'g5x_index',
+            'id',
+            'inpos',
+            'motion_line',
+            'motion_type',
+            'motion_mode',
+            'paused',
+            'probe_tripped',
+            'probe_val',
+            'probing',
+            'queue',
+            'queue_full',
+            'spindle_brake',
+            'spindle_direction',
+            'spindle_enabled',
+            'spindle_increasing',
+            'spindle_override_enabled',
+            'state',
+        ]:
             modified |= self.update_motion_value(name, getattr(stat, name))
 
-        for name in ['current_vel', 'delay_left', 'distance_to_go',
-                     'feedrate',  'rapidrate', 'rotation_xy', 'spindle_speed',
-                     'spindlerate', 'max_acceleration', 'max_velocity']:
+        for name in [
+            'current_vel',
+            'delay_left',
+            'distance_to_go',
+            'feedrate',
+            'rapidrate',
+            'rotation_xy',
+            'spindle_speed',
+            'spindlerate',
+            'max_acceleration',
+            'max_velocity',
+        ]:
             modified |= self.update_motion_float(name, getattr(stat, name))
 
-        for name in ['actual_position', 'dtg', 'g5x_offset', 'g92_offset',
-                     'joint_actual_position', 'joint_position', 'position',
-                     'probed_position']:
-            modified |= self.update_proto_position(self.status.motion,
-                                                   self.statusTx.motion,
-                                                   name, getattr(stat, name))
+        for name in [
+            'actual_position',
+            'dtg',
+            'g5x_offset',
+            'g92_offset',
+            'joint_actual_position',
+            'joint_position',
+            'position',
+            'probed_position',
+        ]:
+            modified |= self.update_proto_position(
+                self.status.motion, self.status_tx.motion, name, getattr(stat, name)
+            )
 
-        txObjItem = EmcStatusAnalogIO()
+        tx_obj_item = EmcStatusAnalogIO()
         obj = self.status.motion.ain
-        txObj = self.statusTx.motion.ain
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.ain, 0.0)
-        del txObjItem
+        tx_obj = self.status_tx.motion.ain
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.ain, 0.0
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusAnalogIO()
+        tx_obj_item = EmcStatusAnalogIO()
         obj = self.status.motion.aout
-        txObj = self.statusTx.motion.aout
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.aout, 0.0)
-        del txObjItem
+        tx_obj = self.status_tx.motion.aout
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.aout, 0.0
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusDigitalIO()
+        tx_obj_item = EmcStatusDigitalIO()
         obj = self.status.motion.din
-        txObj = self.statusTx.motion.din
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.din, False)
-        del txObjItem
+        tx_obj = self.status_tx.motion.din
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.din, False
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusDigitalIO()
+        tx_obj_item = EmcStatusDigitalIO()
         obj = self.status.motion.dout
-        txObj = self.statusTx.motion.dout
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.dout, False)
-        del txObjItem
+        tx_obj = self.status_tx.motion.dout
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.dout, False
+        )
+        del tx_obj_item
 
-        txObjItem = EmcStatusLimit()
+        tx_obj_item = EmcStatusLimit()
         obj = self.status.motion.limit
-        txObj = self.statusTx.motion.limit
-        modified |= self.update_proto_list(obj, txObj, txObjItem,
-                                           'value', stat.limit, False)
-        del txObjItem
+        tx_obj = self.status_tx.motion.limit
+        modified |= self.update_proto_list(
+            obj, tx_obj, tx_obj_item, 'value', stat.limit, False
+        )
+        del tx_obj_item
 
-        txAxis = EmcStatusMotionAxis()
-        for index, statAxis in enumerate(stat.axis):
-            txAxis.Clear()
-            axisModified = False
+        tx_axis = EmcStatusMotionAxis()
+        for index, stat_axis in enumerate(stat.axis):
+            tx_axis.Clear()
+            axis_modified = False
 
             if index == stat.axes:
                 break
@@ -1396,35 +1586,50 @@ class LinuxCNCWrapper(object):
                 self.status.motion.axis[index].velocity = 0.0
 
             axis = self.status.motion.axis[index]
-            for name in ['enabled', 'fault', 'homed', 'homing',
-                         'inpos', 'max_hard_limit', 'max_soft_limit',
-                         'min_hard_limit', 'min_soft_limit',
-                         'override_limits']:
-                axisModified |= self.update_proto_value(axis, txAxis,
-                                                        name, statAxis[name])
+            for name in [
+                'enabled',
+                'fault',
+                'homed',
+                'homing',
+                'inpos',
+                'max_hard_limit',
+                'max_soft_limit',
+                'min_hard_limit',
+                'min_soft_limit',
+                'override_limits',
+            ]:
+                axis_modified |= self.update_proto_value(
+                    axis, tx_axis, name, stat_axis[name]
+                )
 
-            for name in ['ferror_current', 'ferror_highmark', 'input',
-                         'output', 'velocity']:
-                axisModified |= self.update_proto_float(axis, txAxis,
-                                                        name, statAxis[name])
+            for name in [
+                'ferror_current',
+                'ferror_highmark',
+                'input',
+                'output',
+                'velocity',
+            ]:
+                axis_modified |= self.update_proto_float(
+                    axis, tx_axis, name, stat_axis[name]
+                )
 
-            if axisModified:
-                txAxis.index = index
-                self.statusTx.motion.axis.add().CopyFrom(txAxis)
+            if axis_modified:
+                tx_axis.index = index
+                self.status_tx.motion.axis.add().CopyFrom(tx_axis)
                 modified = True
-        del txAxis
+        del tx_axis
 
-        if self.motionFullUpdate:
+        if self.motion_full_update:
             self.add_pparams()
             self.send_motion(self.status.motion, MT_EMCSTAT_FULL_UPDATE)
-            self.motionFullUpdate = False
+            self.motion_full_update = False
         elif modified:
-            self.send_motion(self.statusTx.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_motion(self.status_tx.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_ui(self, _stat):
         modified = False
 
-        if self.uiFirstrun:
+        if self.ui_first_run:
             self.status.ui.spindle_brake_visible = False
             self.status.ui.spindle_cw_visible = False
             self.status.ui.spindle_ccw_visible = False
@@ -1435,47 +1640,85 @@ class LinuxCNCWrapper(object):
             self.status.ui.coolant_flood_visible = False
             self.status.ui.coolant_mist_visible = False
 
-            modified |= self.update_ui_value('spindle_brake_visible', self.get_ui_element_visible(
-                "motion.spindle-brake"
-            ))
-            modified |= self.update_ui_value('spindle_cw_visible', self.get_ui_element_visible(
-                "motion.spindle-forward", "motion.spindle-on", "motion.spindle-speed-out",
-                "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('spindle_ccw_visible', self.get_ui_element_visible(
-                "motion.spindle-reverse", "motion.spindle-speed-out", "motion.spindle-speed-out-abs",
-                "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('spindle_stop_visible', self.get_ui_element_visible(
-                "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on",
-                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
-                "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('spindle_plus_visible', self.get_ui_element_visible(
-                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
-                "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('spindle_minus_visible', self.get_ui_element_visible(
-                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
-                "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('spindle_override_visible', self.get_ui_element_visible(
-                "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps",
-                "motion.spindle-speed-out-rps-abs"
-            ))
-            modified |= self.update_ui_value('coolant_flood_visible', self.get_ui_element_visible(
-                "iocontrol.0.coolant-flood"
-            ))
-            modified |= self.update_ui_value('coolant_mist_visible', self.get_ui_element_visible(
-                "iocontrol.0.coolant-mist"
-            ))
+            modified |= self.update_ui_value(
+                'spindle_brake_visible',
+                self.get_ui_element_visible("motion.spindle-brake"),
+            )
+            modified |= self.update_ui_value(
+                'spindle_cw_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-forward",
+                    "motion.spindle-on",
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'spindle_ccw_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-reverse",
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'spindle_stop_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-forward",
+                    "motion.spindle-reverse",
+                    "motion.spindle-on",
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'spindle_plus_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'spindle_minus_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'spindle_override_visible',
+                self.get_ui_element_visible(
+                    "motion.spindle-speed-out",
+                    "motion.spindle-speed-out-abs",
+                    "motion.spindle-speed-out-rps",
+                    "motion.spindle-speed-out-rps-abs",
+                ),
+            )
+            modified |= self.update_ui_value(
+                'coolant_flood_visible',
+                self.get_ui_element_visible("iocontrol.0.coolant-flood"),
+            )
+            modified |= self.update_ui_value(
+                'coolant_mist_visible',
+                self.get_ui_element_visible("iocontrol.0.coolant-mist"),
+            )
 
-        if self.uiFullUpdate:
+        if self.ui_full_update:
             self.add_pparams()
             self.send_ui(self.status.ui, MT_EMCSTAT_FULL_UPDATE)
-            self.uiFullUpdate = False
+            self.ui_full_update = False
         elif modified:
-            self.send_ui(self.statusTx.ui, MT_EMCSTAT_INCREMENTAL_UPDATE)
+            self.send_ui(self.status_tx.ui, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     @staticmethod
     def get_ui_element_visible(*hal_pins):
@@ -1485,236 +1728,242 @@ class LinuxCNCWrapper(object):
         return False
 
     def update_status(self, stat):
-        self.statusTx.clear()
-        if (self.ioSubscribed):
+        self.status_tx.clear()
+        if self.io_subscribed:
             self.update_io(stat)
-        if (self.taskSubscribed):
+        if self.task_subscribed:
             self.update_task(stat)
-        if (self.interpSubscribed):
+        if self.interp_subscribed:
             self.update_interp(stat)
-        if (self.motionSubscribed):
+        if self.motion_subscribed:
             self.update_motion(stat)
-        if (self.configSubscribed):
+        if self.config_subscribed:
             self.update_config(stat)
-        if self.uiSubscribed:
+        if self.ui_subscribed:
             self.update_ui(stat)
 
     def update_error(self, error):
-        with self.errorNoteLock:
-            for linuxcncError in self.linuxcncErrors:
-                self.txError.note.append(linuxcncError)
+        with self.error_note_lock:
+            for linuxcnc_error in self.linuxcnc_errors:
+                self.tx_error.note.append(linuxcnc_error)
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
-            self.linuxcncErrors = []
+            self.linuxcnc_errors = []
 
         if not error:
             return
 
         kind, text = error
         text = text.encode('utf-8')
-        self.txError.note.append(text)
+        self.tx_error.note.append(text)
 
-        if (kind == linuxcnc.NML_ERROR):
-            if self.errorSubscribed:
+        if kind == linuxcnc.NML_ERROR:
+            if self.error_subscribed:
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
-        elif (kind == linuxcnc.OPERATOR_ERROR):
-            if self.errorSubscribed:
+        elif kind == linuxcnc.OPERATOR_ERROR:
+            if self.error_subscribed:
                 self.send_error_msg('error', MT_EMC_OPERATOR_ERROR)
-        elif (kind == linuxcnc.NML_TEXT):
-            if self.textSubscribed:
+        elif kind == linuxcnc.NML_TEXT:
+            if self.text_subscribed:
                 self.send_error_msg('text', MT_EMC_NML_TEXT)
-        elif (kind == linuxcnc.OPERATOR_TEXT):
-            if self.textSubscribed:
+        elif kind == linuxcnc.OPERATOR_TEXT:
+            if self.text_subscribed:
                 self.send_error_msg('text', MT_EMC_OPERATOR_TEXT)
-        elif (kind == linuxcnc.NML_DISPLAY):
-            if self.displaySubscribed:
+        elif kind == linuxcnc.NML_DISPLAY:
+            if self.display_subscribed:
                 self.send_error_msg('display', MT_EMC_NML_DISPLAY)
-        elif (kind == linuxcnc.OPERATOR_DISPLAY):
-            if self.displaySubscribed:
+        elif kind == linuxcnc.OPERATOR_DISPLAY:
+            if self.display_subscribed:
                 self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
 
     def add_error(self, note):
-        with self.errorNoteLock:
-            self.linuxcncErrors.append(note)
+        with self.error_note_lock:
+            self.linuxcnc_errors.append(note)
 
     def preview_error(self, error, line):
         self.add_error("%s\non line %s" % (error, str(line)))
 
     def send_config(self, data, type_):
-        self.txStatus.emc_status_config.MergeFrom(data)
+        self.tx_status.emc_status_config.MergeFrom(data)
         if self.debug:
             print("sending config message")
         self.send_status_msg('config', type_)
 
     def send_io(self, data, type_):
-        self.txStatus.emc_status_io.MergeFrom(data)
+        self.tx_status.emc_status_io.MergeFrom(data)
         if self.debug:
             print("sending io message")
         self.send_status_msg('io', type_)
 
     def send_task(self, data, type_):
-        self.txStatus.emc_status_task.MergeFrom(data)
+        self.tx_status.emc_status_task.MergeFrom(data)
         if self.debug:
             print("sending task message")
         self.send_status_msg('task', type_)
 
     def send_motion(self, data, type_):
-        self.txStatus.emc_status_motion.MergeFrom(data)
+        self.tx_status.emc_status_motion.MergeFrom(data)
         if self.debug:
             print("sending motion message")
         self.send_status_msg('motion', type_)
 
     def send_interp(self, data, type_):
-        self.txStatus.emc_status_interp.MergeFrom(data)
+        self.tx_status.emc_status_interp.MergeFrom(data)
         if self.debug:
             print("sending interp message")
         self.send_status_msg('interp', type_)
 
     def send_ui(self, data, type_):
-        self.txStatus.emc_status_ui.MergeFrom(data)
+        self.tx_status.emc_status_ui.MergeFrom(data)
         if self.debug:
             print("sending ui message")
         self.send_status_msg('ui', type_)
 
     def send_status_msg(self, topic, type_):
-        with self.statusLock:
-            self.txStatus.type = type_
-            txBuffer = self.txStatus.SerializeToString()
-            self.statusSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
-            self.txStatus.Clear()
+        with self.status_lock:
+            self.tx_status.type = type_
+            tx_buffer = self.tx_status.SerializeToString()
+            self.status_socket.send_multipart([topic, tx_buffer], zmq.NOBLOCK)
+            self.tx_status.Clear()
 
     def send_error_msg(self, topic, type_):
-        with self.errorLock:
-            self.txError.type = type_
-            txBuffer = self.txError.SerializeToString()
-            self.errorSocket.send_multipart([topic, txBuffer], zmq.NOBLOCK)
-            self.txError.Clear()
+        with self.error_lock:
+            self.tx_error.type = type_
+            tx_buffer = self.tx_error.SerializeToString()
+            self.error_socket.send_multipart([topic, tx_buffer], zmq.NOBLOCK)
+            self.tx_error.Clear()
 
     def send_command_msg(self, identity, type_):
-        with self.commandLock:
-            self.txCommand.type = type_
-            txBuffer = self.txCommand.SerializeToString()
-            self.commandSocket.send_multipart(identity + [txBuffer], zmq.NOBLOCK)
-            self.txCommand.Clear()
+        with self.command_lock:
+            self.tx_command.type = type_
+            tx_buffer = self.tx_command.SerializeToString()
+            self.command_socket.send_multipart(identity + [tx_buffer], zmq.NOBLOCK)
+            self.tx_command.Clear()
 
     def add_pparams(self):
         parameters = ProtocolParameters()
-        parameters.keepalive_timer = int(self.pingInterval * 1000.0)
-        self.txStatus.pparams.MergeFrom(parameters)
+        parameters.keepalive_timer = int(self.ping_interval * 1000.0)
+        self.tx_status.pparams.MergeFrom(parameters)
 
     def ping_status(self):
-        if (self.ioSubscribed):
+        if self.io_subscribed:
             self.send_status_msg('io', MT_PING)
-        if (self.taskSubscribed):
+        if self.task_subscribed:
             self.send_status_msg('task', MT_PING)
-        if (self.interpSubscribed):
+        if self.interp_subscribed:
             self.send_status_msg('interp', MT_PING)
-        if (self.motionSubscribed):
+        if self.motion_subscribed:
             self.send_status_msg('motion', MT_PING)
-        if (self.configSubscribed):
+        if self.config_subscribed:
             self.send_status_msg('config', MT_PING)
-        if self.uiSubscribed:
+        if self.ui_subscribed:
             self.send_status_msg('ui', MT_PING)
 
     def ping_error(self):
-        if self.newErrorSubscription:        # not very clear
+        if self.new_error_subscription:  # not very clear
             self.add_pparams()
-            self.newErrorSubscription = False
+            self.new_error_subscription = False
 
-        if (self.errorSubscribed):
+        if self.error_subscribed:
             self.send_error_msg('error', MT_PING)
-        if (self.textSubscribed):
+        if self.text_subscribed:
             self.send_error_msg('text', MT_PING)
-        if (self.displaySubscribed):
+        if self.display_subscribed:
             self.send_error_msg('display', MT_PING)
 
-    def process_status(self, socket):
+    def process_status(self, zmq_socket):
         try:
-            with self.statusLock:
-                rc = socket.recv()
+            with self.status_lock:
+                rc = zmq_socket.recv()
             subscription = rc[1:]
-            status = (rc[0] == "\x01")
+            status = rc[0] == "\x01"
 
             if subscription == 'motion':
-                self.motionSubscribed = status
-                self.motionFullUpdate = status
+                self.motion_subscribed = status
+                self.motion_full_update = status
             elif subscription == 'task':
-                self.taskSubscribed = status
-                self.taskFullUpdate = status
+                self.task_subscribed = status
+                self.task_full_update = status
             elif subscription == 'io':
-                self.ioSubscribed = status
-                self.ioFullUpdate = status
+                self.io_subscribed = status
+                self.io_full_update = status
             elif subscription == 'config':
-                self.configSubscribed = status
-                self.configFullUpdate = status
+                self.config_subscribed = status
+                self.config_full_update = status
             elif subscription == 'interp':
-                self.interpSubscribed = status
-                self.interpFullUpdate = status
+                self.interp_subscribed = status
+                self.interp_full_update = status
             elif subscription == 'ui':
-                self.uiSubscribed = status
-                self.uiFullUpdate = status
+                self.ui_subscribed = status
+                self.ui_full_update = status
 
-            self.statusServiceSubscribed = (
-                    self.motionSubscribed
-                    or self.taskSubscribed
-                    or self.ioSubscribed
-                    or self.configSubscribed
-                    or self.interpSubscribed
-                    or self.uiSubscribed
+            self.status_service_subscribed = (
+                self.motion_subscribed
+                or self.task_subscribed
+                or self.io_subscribed
+                or self.config_subscribed
+                or self.interp_subscribed
+                or self.ui_subscribed
+            )
+
+            if self.debug:
+                print("process status called {} {}".format(subscription, status))
+                print(
+                    "status service subscribed: {}".format(
+                        self.status_service_subscribed
+                    )
                 )
 
-            if self.debug:
-                print(("process status called " + subscription + ' ' + str(status)))
-                print(("status service subscribed: " + str(self.statusServiceSubscribed)))
-
         except zmq.ZMQError as e:
-            printError('ZMQ error: ' + str(e))
+            print_error('ZMQ error: {}'.format(e))
 
-    def process_error(self, socket):
+    def process_error(self, zmq_socket):
         try:
-            with self.errorLock:
-                rc = socket.recv()
+            with self.error_lock:
+                rc = zmq_socket.recv()
             subscription = rc[1:]
-            status = (rc[0] == "\x01")
+            status = rc[0] == "\x01"
 
             if subscription == 'error':
-                self.newErrorSubscription = status
-                self.errorSubscribed = status
+                self.new_error_subscription = status
+                self.error_subscribed = status
             elif subscription == 'text':
-                self.newErrorSubscription = status
-                self.textSubscribed = status
+                self.new_error_subscription = status
+                self.text_subscribed = status
             elif subscription == 'display':
-                self.newErrorSubscription = status
-                self.displaySubscribed = status
+                self.new_error_subscription = status
+                self.display_subscribed = status
 
-            self.errorServiceSubscribed = self.errorSubscribed \
-            or self.textSubscribed \
-            or self.displaySubscribed
+            self.error_service_subscribed = (
+                self.error_subscribed or self.text_subscribed or self.display_subscribed
+            )
 
             if self.debug:
-                print(("process error called " + subscription + ' ' + str(status)))
-                print(("error service subscribed: " + str(self.errorServiceSubscribed)))
+                print("process error called {} {}".format(subscription, status))
+                print(
+                    "error service subscribed: {}".format(self.error_service_subscribed)
+                )
 
         except zmq.ZMQError as e:
-            printError('ZMQ error: ' + str(e))
+            print_error('ZMQ error: {}'.format(e))
 
     def get_active_gcodes(self):
-        rawGcodes = self.stat.gcodes
+        raw_gcodes = self.stat.gcodes
         gcodes = []
-        for rawGCode in rawGcodes:
+        for rawGCode in raw_gcodes:
             if rawGCode > -1:
                 gcodes.append('G' + str(rawGCode / 10.0))
         return ' '.join(gcodes)
 
     def send_command_wrong_params(self, identity, note="wrong parameters"):
-        self.txCommand.note.append(note)
+        self.tx_command.note.append(note)
         self.send_command_msg(identity, MT_ERROR)
 
     def send_command_completed(self, identity, ticket):
-        self.txCommand.reply_ticket = ticket
+        self.tx_command.reply_ticket = ticket
         self.send_command_msg(identity, MT_EMCCMD_COMPLETED)
 
     def send_command_executed(self, identity, ticket):
-        self.txCommand.reply_ticket = ticket
+        self.tx_command.reply_ticket = ticket
         self.send_command_msg(identity, MT_EMCCMD_EXECUTED)
 
     def command_completion_process(self, event):
@@ -1724,38 +1973,42 @@ class LinuxCNCWrapper(object):
     def command_completion_thread(self, identity, ticket):
         event = multiprocessing.Event()
         # wait in separate process to prevent GIL from causing problems
-        multiprocessing.Process(target=self.command_completion_process,
-                                args=(event,)).start()
+        multiprocessing.Process(
+            target=self.command_completion_process, args=(event,)
+        ).start()
         # wait until the command is completed
         event.wait()
         self.send_command_completed(identity, ticket)
 
         if self.debug:
-            print('command #%i from %s completed' % (ticket, identity))
+            print('command #{} from {} completed'.format(ticket, identity))
 
     def wait_complete(self, identity, ticket):
         self.send_command_executed(identity, ticket)
 
         if self.debug:
-            print('waiting for command #%ifrom %s to complete' % (ticket, identity))
+            print(
+                'waiting for command #{} from {} to complete'.format(ticket, identity)
+            )
 
         # kick off the monitoring thread
-        threading.Thread(target=self.command_completion_thread,
-                         args=(identity, ticket, )).start()
+        threading.Thread(
+            target=self.command_completion_thread, args=(identity, ticket)
+        ).start()
 
-    def process_command(self, socket):
-        with self.commandLock:
-            frames = socket.recv_multipart()
+    def process_command(self, zmq_socket):
+        with self.command_lock:
+            frames = zmq_socket.recv_multipart()
             identity = frames[:-1]  # multipart id
             message = frames[-1]  # last frame
 
         if self.debug:
-            print("process command called, id: %s" % identity)
+            print("process command called, id: {}".format(identity))
 
         try:
             self.rx.ParseFromString(message)
         except DecodeError as e:
-            note = 'Protobuf Decode Error: ' + str(e)
+            note = 'Protobuf Decode Error: {}'.format(e)
             self.send_command_wrong_params(identity, note=note)
             return
 
@@ -1806,12 +2059,14 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_RUN:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('line_number') \
-                and self.rx.HasField('interp_name'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('line_number')
+                    and self.rx.HasField('interp_name')
+                ):
                     if self.rx.interp_name == 'execute':
-                        lineNumber = self.rx.emc_command_params.line_number
-                        self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
+                        line_number = self.rx.emc_command_params.line_number
+                        self.command.auto(linuxcnc.AUTO_RUN, line_number)
                         if self.rx.HasField('ticket'):
                             self.wait_complete(identity, self.rx.ticket)
                     elif self.rx.interp_name == 'preview':
@@ -1830,18 +2085,20 @@ class LinuxCNCWrapper(object):
                     self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_SET_DEBUG:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('debug_level'):
-                    debugLevel = self.rx.emc_command_params.debug_level
-                    self.command.debug(debugLevel)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('debug_level'):
+                    debug_level = self.rx.emc_command_params.debug_level
+                    self.command.debug(debug_level)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SCALE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('scale'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('scale'):
                     feedrate = self.rx.emc_command_params.scale
                     self.command.feedrate(feedrate)
                     if self.rx.HasField('ticket'):
@@ -1850,8 +2107,9 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_RAPID_SCALE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('scale'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('scale'):
                     rapidrate = self.rx.emc_command_params.scale
                     self.command.rapidrate(rapidrate)
                     if self.rx.HasField('ticket'):
@@ -1870,8 +2128,9 @@ class LinuxCNCWrapper(object):
                     self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_AXIS_HOME:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.home(axis)
                     if self.rx.HasField('ticket'):
@@ -1880,8 +2139,9 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_ABORT:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.jog(linuxcnc.JOG_STOP, axis)
                     if self.rx.HasField('ticket'):
@@ -1890,9 +2150,11 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_JOG:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('velocity'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('velocity')
+                ):
                     axis = self.rx.emc_command_params.index
                     velocity = self.rx.emc_command_params.velocity
                     self.command.jog(linuxcnc.JOG_CONTINUOUS, axis, velocity)
@@ -1902,10 +2164,12 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_INCR_JOG:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('velocity') \
-                and self.rx.emc_command_params.HasField('distance'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('velocity')
+                    and self.rx.emc_command_params.HasField('distance')
+                ):
                     axis = self.rx.emc_command_params.index
                     velocity = self.rx.emc_command_params.velocity
                     distance = self.rx.emc_command_params.distance
@@ -1916,8 +2180,9 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('velocity'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('velocity'):
                     velocity = self.rx.emc_command_params.velocity
                     self.command.maxvel(velocity)
                     if self.rx.HasField('ticket'):
@@ -1926,9 +2191,11 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_EXECUTE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('command') \
-                and self.rx.HasField('interp_name'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('command')
+                    and self.rx.HasField('interp_name')
+                ):
                     if self.rx.interp_name == 'execute':
                         command = self.rx.emc_command_params.command
                         self.command.mdi(command)
@@ -1948,9 +2215,11 @@ class LinuxCNCWrapper(object):
                     self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_SET_MODE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('task_mode') \
-                and self.rx.HasField('interp_name'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('task_mode')
+                    and self.rx.HasField('interp_name')
+                ):
                     if self.rx.interp_name == 'execute':
                         self.command.mode(self.rx.emc_command_params.task_mode)
                         if self.rx.HasField('ticket'):
@@ -1964,20 +2233,22 @@ class LinuxCNCWrapper(object):
                     self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('path') \
-                and self.rx.HasField('interp_name'):
-                    fileName = self.rx.emc_command_params.path
-                    fileName = self.preprocess_program(fileName)
-                    if fileName is not '':
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('path')
+                    and self.rx.HasField('interp_name')
+                ):
+                    file_name = self.rx.emc_command_params.path
+                    file_name = self.preprocess_program(file_name)
+                    if file_name is not '':
                         if self.rx.interp_name == 'execute':
-                            self.command.program_open(fileName)
+                            self.command.program_open(file_name)
                             if self.rx.HasField('ticket'):
                                 self.wait_complete(identity, self.rx.ticket)
                         elif self.rx.interp_name == 'preview':
                             if self.rx.HasField('ticket'):
                                 self.send_command_executed(identity, self.rx.ticket)
-                            self.preview.program_open(fileName)
+                            self.preview.program_open(file_name)
                             if self.rx.HasField('ticket'):
                                 self.send_command_completed(identity, self.rx.ticket)
                 else:
@@ -1993,19 +2264,22 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    adaptiveFeed = self.rx.emc_command_params.enable
-                    self.command.set_adaptive_feed(adaptiveFeed)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    adaptive_feed = self.rx.emc_command_params.enable
+                    self.command.set_adaptive_feed(adaptive_feed)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_SET_AOUT:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('value'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('value')
+                ):
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_analog_output(axis, value)
@@ -2015,19 +2289,22 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_SET_BLOCK_DELETE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    blockDelete = self.rx.emc_command_params.enable
-                    self.command.set_block_delete(blockDelete)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    block_delete = self.rx.emc_command_params.enable
+                    self.command.set_block_delete(block_delete)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_MOTION_SET_DOUT:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('enable'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('enable')
+                ):
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.enable
                     self.command.set_digital_output(axis, value)
@@ -2037,29 +2314,33 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_FH_ENABLE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    feedHold = self.rx.emc_command_params.enable
-                    self.command.set_feed_hold(feedHold)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    feed_hold = self.rx.emc_command_params.enable
+                    self.command.set_feed_hold(feed_hold)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_FO_ENABLE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    feedOverride = self.rx.emc_command_params.enable
-                    self.command.set_feed_override(feedOverride)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    feed_override = self.rx.emc_command_params.enable
+                    self.command.set_feed_override(feed_override)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_SET_MAX_POSITION_LIMIT:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('value'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('value')
+                ):
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_max_limit(axis, value)
@@ -2069,9 +2350,11 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_SET_MIN_POSITION_LIMIT:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index') \
-                and self.rx.emc_command_params.HasField('value'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('index')
+                    and self.rx.emc_command_params.HasField('value')
+                ):
                     axis = self.rx.emc_command_params.index
                     value = self.rx.emc_command_params.value
                     self.command.set_min_limit(axis, value)
@@ -2081,30 +2364,35 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_PLAN_SET_OPTIONAL_STOP:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    optionalStop = self.rx.emc_command_params.enable
-                    self.command.set_optional_stop(optionalStop)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    optional_stop = self.rx.emc_command_params.enable
+                    self.command.set_optional_stop(optional_stop)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SO_ENABLE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    spindleOverride = self.rx.emc_command_params.enable
-                    self.command.set_spindle_override(spindleOverride)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    spindle_override = self.rx.emc_command_params.enable
+                    self.command.set_spindle_override(spindle_override)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_SPINDLE_ON:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('velocity'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('velocity'):
                     speed = self.rx.emc_command_params.velocity
-                    direction = linuxcnc.SPINDLE_FORWARD    # always forwward, speed can be signed
+                    direction = (
+                        linuxcnc.SPINDLE_FORWARD
+                    )  # always forward, speed can be signed
                     self.command.spindle(direction, speed)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
@@ -2132,8 +2420,9 @@ class LinuxCNCWrapper(object):
                     self.wait_complete(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_SPINDLE_SCALE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('scale'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('scale'):
                     scale = self.rx.emc_command_params.scale
                     self.command.spindleoverride(scale)
                     if self.rx.HasField('ticket'):
@@ -2142,9 +2431,11 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TASK_SET_STATE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('task_state') \
-                and self.rx.HasField('interp_name'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('task_state')
+                    and self.rx.HasField('interp_name')
+                ):
                     if self.rx.interp_name == 'execute':
                         self.command.state(self.rx.emc_command_params.task_state)
                         if self.rx.HasField('ticket'):
@@ -2153,21 +2444,24 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_ENABLE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('enable'):
-                    teleopEnable = self.rx.emc_command_params.enable
-                    self.command.teleop_enable(teleopEnable)
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('enable'):
+                    teleop_enable = self.rx.emc_command_params.enable
+                    self.command.teleop_enable(teleop_enable)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_VECTOR:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('pose') \
-                and self.rx.emc_command_params.pose.HasField('a') \
-                and self.rx.emc_command_params.pose.HasField('b') \
-                and self.rx.emc_command_params.pose.HasField('c'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('pose')
+                    and self.rx.emc_command_params.pose.HasField('a')
+                    and self.rx.emc_command_params.pose.HasField('b')
+                    and self.rx.emc_command_params.pose.HasField('c')
+                ):
                     a = self.rx.emc_command_params.pose.a
                     b = self.rx.emc_command_params.pose.b
                     c = self.rx.emc_command_params.pose.c
@@ -2193,21 +2487,23 @@ class LinuxCNCWrapper(object):
             elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
                 self.command.load_tool_table()
                 self.command.wait_complete()  # we need to wait for stat to be updated
-                self.ioToolTableLoaded = True
+                self.io_tool_table_loaded = True
                 if self.rx.HasField('ticket'):
                     self.send_command_completed(identity, self.rx.ticket)
 
             elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('tool_data') \
-                and self.rx.emc_command_params.tool_data.HasField('offset') \
-                and self.rx.emc_command_params.tool_data.HasField('index') \
-                and self.rx.emc_command_params.tool_data.offset.HasField('z') \
-                and self.rx.emc_command_params.tool_data.offset.HasField('x') \
-                and self.rx.emc_command_params.tool_data.HasField('diameter') \
-                and self.rx.emc_command_params.tool_data.HasField('frontangle') \
-                and self.rx.emc_command_params.tool_data.HasField('backangle') \
-                and self.rx.emc_command_params.tool_data.HasField('orientation'):
+                if (
+                    self.rx.HasField('emc_command_params')
+                    and self.rx.emc_command_params.HasField('tool_data')
+                    and self.rx.emc_command_params.tool_data.HasField('offset')
+                    and self.rx.emc_command_params.tool_data.HasField('index')
+                    and self.rx.emc_command_params.tool_data.offset.HasField('z')
+                    and self.rx.emc_command_params.tool_data.offset.HasField('x')
+                    and self.rx.emc_command_params.tool_data.HasField('diameter')
+                    and self.rx.emc_command_params.tool_data.HasField('frontangle')
+                    and self.rx.emc_command_params.tool_data.HasField('backangle')
+                    and self.rx.emc_command_params.tool_data.HasField('orientation')
+                ):
                     toolno = self.rx.emc_command_params.tool_data.index
                     z_offset = self.rx.emc_command_params.tool_data.offset.z
                     x_offset = self.rx.emc_command_params.tool_data.offset.x
@@ -2215,8 +2511,15 @@ class LinuxCNCWrapper(object):
                     frontangle = self.rx.emc_command_params.tool_data.frontangle
                     backangle = self.rx.emc_command_params.tool_data.backangle
                     orientation = self.rx.emc_command_params.tool_data.orientation
-                    self.command.tool_offset(toolno, z_offset, x_offset, diameter,
-                        frontangle, backangle, orientation)
+                    self.command.tool_offset(
+                        toolno,
+                        z_offset,
+                        x_offset,
+                        diameter,
+                        frontangle,
+                        backangle,
+                        orientation,
+                    )
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
                 else:
@@ -2226,7 +2529,9 @@ class LinuxCNCWrapper(object):
                 if self.rx.HasField('emc_command_params'):
                     if self.rx.HasField('ticket'):
                         self.send_command_executed(identity, self.rx.ticket)
-                    if not self.update_tool_table(self.rx.emc_command_params.tool_table):
+                    if not self.update_tool_table(
+                        self.rx.emc_command_params.tool_table
+                    ):
                         self.add_error('Cannot update tool table')
                     if self.rx.HasField('ticket'):
                         self.send_command_completed(identity, self.rx.ticket)
@@ -2234,8 +2539,9 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_TRAJ_SET_MODE:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('traj_mode'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('traj_mode'):
                     self.command.traj_mode(self.rx.emc_command_params.traj_mode)
                     if self.rx.HasField('ticket'):
                         self.wait_complete(identity, self.rx.ticket)
@@ -2243,8 +2549,9 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             elif self.rx.type == MT_EMC_AXIS_UNHOME:
-                if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('index'):
+                if self.rx.HasField(
+                    'emc_command_params'
+                ) and self.rx.emc_command_params.HasField('index'):
                     axis = self.rx.emc_command_params.index
                     self.command.unhome(axis)
                     if self.rx.HasField('ticket'):
@@ -2253,7 +2560,7 @@ class LinuxCNCWrapper(object):
                     self.send_command_wrong_params(identity)
 
             else:
-                self.txCommand.note.append("unknown command")
+                self.tx_command.note.append("unknown command")
                 self.send_command_msg(identity, MT_ERROR)
 
         except linuxcnc.error as detail:
@@ -2261,14 +2568,14 @@ class LinuxCNCWrapper(object):
         except UnicodeEncodeError:
             self.add_error("Please use only ASCII characters")
         except Exception as e:
-            printError('uncaught exception ' + str(e))
+            print_error('uncaught exception ' + str(e))
             self.add_error(str(e))
 
 
 shutdown = False
 
 
-def _exitHandler(signum, frame):
+def _exit_handler(signum, frame):
     del signum
     del frame
     global shutdown
@@ -2277,8 +2584,8 @@ def _exitHandler(signum, frame):
 
 # register exit signal handlers
 def register_exit_handler():
-    signal.signal(signal.SIGINT, _exitHandler)
-    signal.signal(signal.SIGTERM, _exitHandler)
+    signal.signal(signal.SIGINT, _exit_handler)
+    signal.signal(signal.SIGTERM, _exit_handler)
 
 
 def check_exit():
@@ -2287,14 +2594,17 @@ def check_exit():
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Mkwrapper is wrapper around the linuxcnc python module as temporary workaround for Machinetalk based user interfaces')
+    parser = argparse.ArgumentParser(
+        description='Mkwrapper is wrapper around the linuxcnc python module'
+        'as temporary workaround for Machinetalk based user interfaces'
+    )
     parser.add_argument('-ini', help='INI file', default=None)
     parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
 
     args = parser.parse_args()
 
     debug = args.debug
-    iniFile = args.ini
+    ini_file = args.ini
 
     mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
@@ -2304,14 +2614,16 @@ def main():
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
 
-    mki = ConfigParser.ConfigParser()
+    mki = configparser.ConfigParser()
     mki.read(mkini)
-    mkUuid = mki.get("MACHINEKIT", "MKUUID")
+    mk_uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
 
     if remote == 0:
-        print("Remote communication is deactivated, mkwrapper will use the loopback interfaces")
-        print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
+        print(
+            "Remote communication is deactivated, mkwrapper will use the loopback interfaces"
+        )
+        print("set REMOTE in " + mkini + " to 1 to enable remote communication")
 
     if debug:
         print("announcing mkwrapper")
@@ -2321,33 +2633,37 @@ def main():
 
     register_exit_handler()
 
-    fileService = None
+    file_service = None
     mkwrapper = None
     try:
         hostname = '%(fqdn)s'  # replaced by service announcement
-        fileService = FileService(iniFile=iniFile,
-                                  svcUuid=mkUuid,
-                                  host=hostname,
-                                  loopback=(not remote),
-                                  debug=debug)
-        fileService.start()
+        file_service = FileService(
+            ini_file=ini_file,
+            svc_uuid=mk_uuid,
+            host=hostname,
+            loopback=(not remote),
+            debug=debug,
+        )
+        file_service.start()
 
-        mkwrapper = LinuxCNCWrapper(context,
-                                    host=hostname,
-                                    loopback=(not remote),
-                                    iniFile=iniFile,
-                                    svcUuid=mkUuid,
-                                    debug=debug)
+        mkwrapper = LinuxCNCWrapper(
+            context,
+            host=hostname,
+            loopback=(not remote),
+            ini_file=ini_file,
+            svc_uuid=mk_uuid,
+            debug=debug,
+        )
 
-        while fileService.running and mkwrapper.running and not check_exit():
+        while file_service.running and mkwrapper.running and not check_exit():
             time.sleep(1)
     except Exception as e:
-        printError("uncaught exception: " + str(e))
+        print_error("uncaught exception: " + str(e))
 
     if debug:
         print("stopping threads")
-    if fileService is not None:
-        fileService.stop()
+    if file_service is not None:
+        file_service.stop()
     if mkwrapper is not None:
         mkwrapper.stop()
 

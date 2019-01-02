@@ -798,6 +798,7 @@ static int vti_dac_write(int axis, short value)
       }
 
     junk = dac->mode;         // Read from mode to trigger update dac immediately
+    junk++;		      // Silence compiler '-Wunused-value' warnings
     dac->dac[axis] = value;   // Write dac value
     
      return 0;

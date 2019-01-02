@@ -88,24 +88,6 @@ RTLIBDIR := $(EMC2_RTLIB_DIR)
 LIBDIR := $(libdir)
 endif
 
-ifeq ($(BUILD_SYS),kbuild)
-EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)  
-
-modules:
-	$(MAKE) \
-	    -C $(KERNELDIR) \
-	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" \
-	    SUBDIRS=`pwd` \
-	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-
-clean:
-	rm *.ko *.mod.c *.o
-
-install:
-	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/
-endif
-
-ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS +=  -fPIC -g -funwind-tables
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
@@ -125,11 +107,10 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 
 .PHONY: %.so
 %.so:
-	$(ECHO) Linking $@
+	$(ECHO) Linking $(notdir $@)
 	$(Q)$(LD) -d -r -o $*.tmp $^
 	$(Q)objcopy -j .rtapi_export -O binary $*.tmp $*.exported
 
 	$(Q)(echo '{ global : '; tr -s '\0' <$*.exported | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > $*.ver
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ $(EXTRA_LDFLAGS)
 	$(Q)ld -d -r -o $*.tmp $^
-endif

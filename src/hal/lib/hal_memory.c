@@ -218,7 +218,7 @@ int halg_free_single_str(char *s)
 
 char **halg_dupargv(const bool use_hal_mutex,
 		    const int argc,
-		    const char **argv)
+		    char * const *argv)
 {
     int i;
     if (argc > MAX_ARGC)

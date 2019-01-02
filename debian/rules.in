@@ -22,12 +22,26 @@ endif
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# dpkg-shlibdeps warning exclusions
+SHLIBDEPS_X :=  # add patterns here
+#
+# The name 'libtk8.6.so' can't be parsed by dpkg-shlibdeps, it seems:
+#     "can't extract name and version from library name 'libtk8.6.so'
+SHLIBDEPS_X += linuxcnc.so _togl.so
+#
+# libcanterp.so.0 and librs274.so.0: hack for now:  see
+# https://github.com/machinekit/machinekit/issues/324
+#     "symbol ... used by ... found in none of the libraries"
+SHLIBDEPS_X += libcanterp.so.0 librs274.so.0
+#
+# halmeter classicladder halscope link to $(GTK_LIBS), which includes
+# several libs that aren't used (but several that are needed)
+SHLIBDEPS_X += halmeter classicladder halscope
+
 # Enable/disable thread flavors; all flavors disabled by default
 THREADS_POSIX = --without-posix
 THREADS_RT_PREEMPT = --without-rt-preempt
 THREADS_XENOMAI = --without-xenomai
-#THREADS_XENOMAI_KERNEL = --without-xenomai-kernel
-#THREADS_RTAI_KERNEL = --without-rtai-kernel
 
 # Kernel threads need a list of configured header source directories
 # for each architecture
@@ -35,11 +49,6 @@ THREADS_XENOMAI = --without-xenomai
 # Multiples should be space-separated
 #
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
-
-#HEADERS_XENOMAI_KERNEL_i386 = --with-xenomai-kernel-sources=""
-#HEADERS_XENOMAI_KERNEL_amd64 = --with-xenomai-kernel-sources=""
-#HEADERS_RTAI_KERNEL_amd64 = --with-rtai-kernel-sources=""
-#HEADERS_RTAI_KERNEL_i386 = --with-rtai-kernel-sources=""
 
 # Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -230,10 +239,11 @@ binary-arch: build install
 
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
-	#enable buster builds to work with problematic shlib deps in current packages
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit/usr/lib
+        #enable buster builds to work with problematic shlib deps in current packages
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info \
+            $(foreach p, $(SHLIBDEPS_X), -X $(p))
 	dh_gencontrol
-	
+
 	dh_md5sums
 	dh_builddeb
 

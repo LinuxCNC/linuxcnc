@@ -109,29 +109,29 @@ int hm2_capsense_parse_md(hostmot2_t *hm2, int md_index) {
         // parameters
 /*
         // these hal parameters affect all capsense instances
-        r = hal_param_u32_newf(
-            HAL_RW,
-            &(hm2->capsense.hal->param.capsense_hysteresis),
+        r = hal_pin_u32_newf(
+            HAL_IO,
+            &(hm2->capsense.hal->pin.capsense_hysteresis),
             hm2->llio->comp_id,
             "%s.capsense.capsense_hysteresis",
             hm2->llio->name
         );
         if (r < 0) {
-            HM2_ERR("error adding capsense.capsense_hysteresis param, aborting\n");
+            HM2_ERR("error adding capsense.capsense_hysteresis pin, aborting\n");
             goto fail1;
         }
-        hm2->capsense.hal->param.capsense_hysteresis = 0x33333333;
+        hm2->capsense.hal->pin.capsense_hysteresis = 0x33333333;
 //        hm2->capsense.written_capsense_hysteresis_reg = 0;
 */
 
         rtapi_snprintf(name, sizeof(name), "%s.capsense.%02d.hysteresis", hm2->llio->name, 0);
-        r = hal_pin_u32_new(name, HAL_IN, &(hm2->capsense.hal->param.capsense_hysteresis), hm2->llio->comp_id);
+        r = hal_pin_u32_new(name, HAL_IN, &(hm2->capsense.hal->pin.capsense_hysteresis), hm2->llio->comp_id);
         if (r < 0) {
             HM2_ERR("error adding capsense.hysteresis pin, aborting\n");
             goto fail1;
         }
 
-        *hm2->capsense.hal->param.capsense_hysteresis = 0x33333333;
+        *hm2->capsense.hal->pin.capsense_hysteresis = 0x33333333;
  
        for (i = 0; i < hm2->capsense.num_instances; i ++) {
             // pins

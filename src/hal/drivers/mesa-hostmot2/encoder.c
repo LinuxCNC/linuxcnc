@@ -85,31 +85,31 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2,
 
         do_flag(
             &encoder->control_reg[i],
-            e->hal.param.index_invert,
+            *e->hal.pin.index_invert,
             HM2_ENCODER_INDEX_POLARITY
         );
 
         do_flag(
             &encoder->control_reg[i],
-            e->hal.param.index_mask,
+            *e->hal.pin.index_mask,
             HM2_ENCODER_INDEX_MASK
         );
 
         do_flag(
             &encoder->control_reg[i],
-            e->hal.param.index_mask_invert,
+            *e->hal.pin.index_mask_invert,
             HM2_ENCODER_INDEX_MASK_POLARITY
         );
 
         do_flag(
             &encoder->control_reg[i],
-            e->hal.param.counter_mode,
+            *e->hal.pin.counter_mode,
             HM2_ENCODER_COUNTER_MODE
         );
 
         do_flag(
             &encoder->control_reg[i],
-            e->hal.param.filter,
+            *e->hal.pin.filter,
             HM2_ENCODER_FILTER
         );
     }
@@ -498,51 +498,51 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
 
             // parameters
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.scale", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_float_new(name, HAL_RW, &(encoder->instance[i].hal.param.scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(encoder->instance[i].hal.pin.scale), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-invert", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.index_invert), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(encoder->instance[i].hal.pin.index_invert), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.index_mask), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(encoder->instance[i].hal.pin.index_mask), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-mask-invert", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.index_mask_invert), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(encoder->instance[i].hal.pin.index_mask_invert), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.counter-mode", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.counter_mode), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(encoder->instance[i].hal.pin.counter_mode), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.filter", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.filter), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(encoder->instance[i].hal.pin.filter), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.vel-timeout", hm2->llio->name, i + hm2->encoder_base);
-            r = hal_param_float_new(name, HAL_RW, &(encoder->instance[i].hal.param.vel_timeout), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(encoder->instance[i].hal.pin.vel_timeout), hm2->llio->comp_id);
             if (r < 0) {
-                HM2_ERR("error adding param '%s', aborting\n", name);
+                HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
 
@@ -555,13 +555,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
             *encoder->instance[i].hal.pin.reset = 0;
             *encoder->instance[i].hal.pin.index_enable = 0;
 
-            encoder->instance[i].hal.param.scale = 1.0;
-            encoder->instance[i].hal.param.index_invert = 0;
-            encoder->instance[i].hal.param.index_mask = 0;
-            encoder->instance[i].hal.param.index_mask_invert = 0;
-            encoder->instance[i].hal.param.counter_mode = 0;
-            encoder->instance[i].hal.param.filter = 1;
-            encoder->instance[i].hal.param.vel_timeout = 0.5;
+            *encoder->instance[i].hal.pin.scale = 1.0;
+            *encoder->instance[i].hal.pin.index_invert = 0;
+            *encoder->instance[i].hal.pin.index_mask = 0;
+            *encoder->instance[i].hal.pin.index_mask_invert = 0;
+            *encoder->instance[i].hal.pin.counter_mode = 0;
+            *encoder->instance[i].hal.pin.filter = 1;
+            *encoder->instance[i].hal.pin.vel_timeout = 0.5;
 
             encoder->instance[i].state = HM2_ENCODER_STOPPED;
 
@@ -830,8 +830,8 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2,
     // the scaled position.
     //
 
-    *e->hal.pin.position = *e->hal.pin.count / e->hal.param.scale;
-    *e->hal.pin.position_latch = *e->hal.pin.count_latch / e->hal.param.scale;
+    *e->hal.pin.position = *e->hal.pin.count / *e->hal.pin.scale;
+    *e->hal.pin.position_latch = *e->hal.pin.count_latch / *e->hal.pin.scale;
 }
 
 
@@ -848,9 +848,9 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2,
     hm2_encoder_instance_t *e = &encoder->instance[instance];
 
     // sanity check
-    if (e->hal.param.scale == 0.0) {
+    if (*e->hal.pin.scale == 0.0) {
         HM2_ERR("encoder.%02d.scale == 0.0, bogus, setting to 1.0\n", instance);
-        e->hal.param.scale = 1.0;
+        *e->hal.pin.scale = 1.0;
     }
 
     hm2_encoder_read_control_register(hm2, encoder);
@@ -920,19 +920,19 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2,
                 dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                 dT_s = (double)dT_clocks * encoder->seconds_per_tsdiv_clock;
 
-                if (dT_s >= e->hal.param.vel_timeout) {
+                if (dT_s >= *e->hal.pin.vel_timeout) {
                     *e->hal.pin.velocity = 0.0;
                     e->state = HM2_ENCODER_STOPPED;
                     break;
                 }
 
-                if ((*e->hal.pin.velocity * e->hal.param.scale) > 0.0) {
+                if ((*e->hal.pin.velocity * *e->hal.pin.scale) > 0.0) {
                     dS_counts = 1;
                 } else {
                     dS_counts = -1;
                 }
 
-                dS_pos_units = dS_counts / e->hal.param.scale;
+                dS_pos_units = dS_counts / *e->hal.pin.scale;
 
                 // we can calculate velocity only if timestamp changed along with counts
                 if (dT_clocks > 0) {
@@ -984,7 +984,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2,
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * encoder->seconds_per_tsdiv_clock;
 
-                    dS_pos_units = dS_counts / e->hal.param.scale;
+                    dS_pos_units = dS_counts / *e->hal.pin.scale;
 
                     // we can calculate velocity only if timestamp changed along with counts
                     if (dT_clocks > 0) {

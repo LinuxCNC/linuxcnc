@@ -78,12 +78,14 @@ $(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(PBEX)/%.hh
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 
 
@@ -101,12 +103,14 @@ $(call TOOBJSDEPS, $(UNIONREAD_SRCS)) : EXTRAFLAGS += $(UNIONREAD_CCFLAGS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
 
 ../include/%.h: ./$(PBEX)/%.h
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(PBEX)/%.hh
+	$(ECHO) Copying header file $@
 	@mkdir -p $(dir $@)
-	cp $^ $@
+	$(Q)cp $^ $@
 
 $(call TOOBJSDEPS, $(PBEX)/sizes.c) : EXTRAFLAGS +=
 

@@ -24,8 +24,6 @@
     } while (0)
 
 
-extern const char *strstore(const char *s);
-
 int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 {
     reload();
@@ -383,4 +381,3 @@ PythonPlugin *PythonPlugin::instantiate(struct _inittab *inittab)
     }
     return (python_plugin->usable()) ? python_plugin : NULL;
 }
-
