@@ -174,7 +174,7 @@ class gmoccapy(object):
         # translation of the glade file will be done with
         self.builder.set_translation_domain("gmoccapy")
         self.builder.add_from_file(XMLNAME)
-        self.builder.connect_signals(self)
+#        self.builder.connect_signals(self)
 
         self.widgets = widgets.Widgets(self.builder)
         
@@ -311,6 +311,9 @@ class gmoccapy(object):
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
 
         self.halcomp.ready()
+
+        self.builder.connect_signals(self)
+
 
         # this are settings to be done before window show
         self._init_preferences()
@@ -832,9 +835,6 @@ class gmoccapy(object):
         for pos, elem in enumerate(dic):
             file = "touch_{0}.png".format(elem)
             filepath = os.path.join(IMAGEDIR, file)
-
-            print("Touch Button file = ", filepath)
-
             name = "touch_{0}".format(elem)
             btn = self._get_button_with_image(name, filepath, None)
             btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
@@ -871,7 +871,7 @@ class gmoccapy(object):
 
         if self._check_toolmeasurement():
             btn = gtk.Button(_(" Block\nHeight"))
-            btn.connect(self.on_btn_block_height_clicked)
+            btn.connect("clicked", self.on_btn_block_height_clicked)
             btn.set_property("tooltip-text", _("Press to enter new value for block height"))
             btn.set_property("name", "block_height")
             self.widgets.hbtb_touch_off.pack_start(btn)
@@ -2564,6 +2564,43 @@ class gmoccapy(object):
         if self.stat.task_state != linuxcnc.STATE_ON:
             state = False
         self._sensitize_widgets(widgetlist, state)
+
+    def on_hal_status_metric_mode_changed(self, widget, metric_units):
+        # set gremlin_units
+        self.widgets.gremlin.set_property("metric_units", metric_units)
+
+        widgetlist = ["spc_lin_jog_vel"]
+
+        # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
+        # display units not equal machine units
+        if metric_units != int(self.stat.linear_units):
+            # machine units = metric
+            if self.stat.linear_units == _MM:
+                self.faktor = (1.0 / 25.4)
+            # machine units = imperial
+            else:
+                self.faktor = 25.4
+            self.turtle_jog = self.turtle_jog * self.faktor
+            self.rabbit_jog = self.rabbit_jog * self.faktor
+            self._update_slider( widgetlist )
+
+        else:
+            # display units equal machine units would be factor = 1,
+            # but if factor not equal 1.0 than we have to reconvert from previous first
+            self.turtle_jog = self.turtle_jog / self.faktor
+            self.rabbit_jog = self.rabbit_jog / self.faktor
+            if self.faktor != 1.0:
+                self.faktor = 1 / self.faktor
+                self._update_slider(widgetlist)
+                self.faktor = 1.0
+                self._update_slider(widgetlist)
+
+        if metric_units:
+            self.widgets.spc_lin_jog_vel.set_digits(0)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("mm/min"))
+        else:
+            self.widgets.spc_lin_jog_vel.set_digits(2)
+            self.widgets.spc_lin_jog_vel.set_property("unit", _("inch/min"))
             
 # hal status End
 # =========================================================
