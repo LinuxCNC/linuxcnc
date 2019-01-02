@@ -282,8 +282,6 @@ class gmoccapy(object):
         # make all widgets we create dynamically
         self._make_DRO()
         self._make_ref_axis_button()
-#        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-#            self._make_ref_joints_button()
         self._make_touch_button()
         self._make_jog_increments()
         self._make_jog_button()
@@ -323,7 +321,6 @@ class gmoccapy(object):
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
-#        self._init_hardware_button_order()
         self._init_kinematics_type()
         self._init_hide_cursor()
         self._init_offsetpage()
@@ -519,14 +516,6 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
         self._sensitize_widgets(widgetlist, False)
-
-#        # check if G7 or G8 is active
-#        if "70" in self.stat.gcodes:
-#            self.diameter_mode = True
-#            self._switch_to_g7(True)
-#        else:
-#            self._switch_to_g7(False)
-#            self.diameter_mode = False
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -824,104 +813,6 @@ class gmoccapy(object):
         return btn
 
 
-    def _make_ref_joints_button(self):
-        print("**** GMOCCAPY INFO ****")
-        print("**** Entering make ref joints button")
-
-        # check if we need axis or joint homing button
-        if self.trivial_kinematics:
-            # lets find out, how many axis we got
-            dic = self.axis_list
-            name_prefix = "axis"
-        else:
-            # lets find out, how many joints we got
-            dic = self.joint_axis_dic
-            name_prefix = "joint"
-        num_elements = len(dic)
-        
-        # as long as the number of axis is less 6 we can use the standard layout
-        # we can display 6 axis without the second space label
-        # and 7 axis if we do not display the first space label either
-        # if we have more than 7 axis, we need arrows to switch the visible ones
-        if num_elements < 7:
-            lbl = self._get_space_label("lbl_space_0")
-            self.widgets.hbtb_ref.pack_start(lbl)
-    
-        file = "ref_all.png"
-        filepath = os.path.join(IMAGEDIR, file)
-        print("Filepath = ", filepath)
-        btn = self._get_button_with_image("ref_all", filepath, None)
-        btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
-        btn.connect("clicked", self._on_btn_home_clicked)
-        # we use pack_start, so the widgets will be moved from right to left
-        # and are displayed the way we want
-        self.widgets.hbtb_ref.pack_start(btn)
-
-        if num_elements > 7:
-            # show the previous arrow to switch visible homing button)
-            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
-            btn.set_sensitive(False)
-            btn.set_property("tooltip-text", _("Press to display previous homing button"))
-            btn.connect("clicked", self._on_btn_previous_clicked)
-            self.widgets.hbtb_ref.pack_start(btn)
-
-        # do not use this label, to allow one more axis
-        if num_elements < 6:
-            lbl = self._get_space_label("lbl_space_2")
-            self.widgets.hbtb_ref.pack_start(lbl)
-
-        for pos, elem in enumerate(dic):
-
-            file = "ref_{0}.png".format(elem)
-            filepath = os.path.join(IMAGEDIR, file)
-            print("Filepath = ", filepath)
-
-            name = "home_{0}_{1}".format(name_prefix, elem)
-            btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
-            btn.connect("clicked", self._on_btn_home_clicked)
-
-            self.widgets.hbtb_ref.pack_start(btn)
-
-            # if we have more than 7 axis we need to hide some button
-            if num_elements > 7:
-                if pos > 4:
-                    btn.hide()
-
-        if num_elements > 7:
-            # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
-            btn.set_property("tooltip-text", _("Press to display next homing button"))
-            btn.connect("clicked", self._on_btn_next_clicked)
-            self.widgets.hbtb_ref.pack_start(btn)
-
-        # if there is space left, fill it with space labels
-        start = self.widgets.hbtb_ref.child_get_property(btn,"position")
-        for count in range(start + 1 , 8):
-            lbl = self._get_space_label("lbl_space_{0}".format(count))
-            self.widgets.hbtb_ref.pack_start(lbl)
- 
-        file = "unhome.png"
-        filepath = os.path.join(IMAGEDIR, file)
-        print("Filepath = ", filepath)
-        name = "unref_all"
-        btn = self._get_button_with_image(name, filepath, None)
-        btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
-        btn.connect("clicked", self._on_btn_unhome_clicked)
-        self.widgets.hbtb_ref.pack_start(btn)
-        
-        name = "home_back"
-        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
-        btn.set_property("tooltip-text", _("Press to return to main button list"))
-        btn.connect("clicked", self._on_btn_home_back_clicked)
-        self.widgets.hbtb_ref.pack_start(btn)
-        
-        self.ref_button_dic = {}
-        children = self.widgets.hbtb_ref.get_children()
-        for child in children:
-            self.ref_button_dic[child.name] = child
-
-
 
     def _make_touch_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1084,7 +975,6 @@ class gmoccapy(object):
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
-            print self.jog_increments[item]
             name = "rbt_{0}".format(item)
             rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
             rbt.set_property("name",name)
@@ -1095,13 +985,10 @@ class gmoccapy(object):
             rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
             self.incr_rbt_list.append(rbt)
         rbt0.set_active(True)
-        self.active_increment = rbt0
+        self.active_increment = rbt0.name
 
     def _jog_increment_changed(self, widget, increment):
-        print("widget = ", widget.name)
-        print("jog_incr_dic = ", self.incr_dic)
-        print("increment = ", increment)
-#        self.emit("jog_incr_changed", increment)
+        self.active_increment = widget.name
 
     def _on_btn_jog_pressed(self, widget, joint_or_axis, direction, shift=False):
         print(widget, joint_or_axis, direction)
@@ -2785,11 +2672,11 @@ class gmoccapy(object):
         if keyname == "Escape":
             self.command.abort()
             return True
-# ToDo:
-# Check if homed, otherwise do not allow to change mode
 
         # change between teleop and world mode
         if keyname == "F12" or keyname == "$":
+            if self.stat.task_mode != linuxcnc.MODE_MANUAL:
+                return True
             # only change mode pressing the key, not releasing it
             if signal:
                 # No mode switch to joints on Identity kinematics
@@ -2895,11 +2782,11 @@ class gmoccapy(object):
         if keyname == "Up" or keyname == "KP_Up":
             if self.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.widgets.btn_x_plus
+                    widget = self.jog_button_dic["x+"]
                 else:
-                    widget = self.widgets.btn_x_minus
+                    widget = self.jog_button_dic["x-"]
             else:
-                widget = self.widgets.btn_y_plus
+                widget = self.jog_button_dic["y+"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
@@ -2907,41 +2794,41 @@ class gmoccapy(object):
         elif keyname == "Down" or keyname == "KP_Down":
             if self.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.widgets.btn_x_minus
+                    widget = self.jog_button_dic["x-"]
                 else:
-                    widget = self.widgets.btn_x_plus
+                    widget = self.jog_button_dic["x+"]
             else:
-                widget = self.widgets.btn_y_minus
+                widget = self.jog_button_dic["y-"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Left" or keyname == "KP_Left":
             if self.lathe_mode:
-                widget = self.widgets.btn_z_minus
+                widget = self.jog_button_dic["z-"]
             else:
-                widget = self.widgets.btn_x_minus
+                widget = self.jog_button_dic["x-"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Right" or keyname == "KP_Right":
             if self.lathe_mode:
-                widget = self.widgets.btn_z_plus
+                widget = self.jog_button_dic["z+"]
             else:
-                widget = self.widgets.btn_x_plus
+                widget = self.jog_button_dic["x+"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Up" or keyname == "KP_Page_Up":
-            widget = self.widgets.btn_z_plus
+            widget = self.jog_button_dic["z+"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Down" or keyname == "KP_Page_Down":
-            widget = self.widgets.btn_z_minus
+            widget = self.jog_button_dic["z-"]
             if signal:
                 self.on_btn_jog_pressed(widget, fast)
             else:
@@ -2966,7 +2853,7 @@ class gmoccapy(object):
                 # we set the corresponding button active
                 self.incr_rbt_list[rbt].set_active(True)
                 # and we have to update all pin and variables
-                self.on_increment_changed(self.incr_rbt_list[rbt], self.jog_increments[rbt])
+                self._jog_increment_changed(self.incr_rbt_list[rbt], self.jog_increments[rbt])
         else:
             print("This key has not been implemented yet")
             print "Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event
@@ -2986,18 +2873,6 @@ class gmoccapy(object):
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
         self.notification.set_property('icon_size', 48)
         self.notification.set_property('top_to_bottom', True)
-
-    # This is the jogging part
-    def on_increment_changed(self, widget=None, data=None):
-        if self.stat.interp_state != linuxcnc.INTERP_IDLE:
-            return
-
-        if data == 0:
-            self.distance = 0
-        else:
-            self.distance = self._parse_increment(data)
-        self.halcomp["jog.jog-increment"] = self.distance
-        self.active_increment = widget.__name__
 
     def _from_internal_linear_unit(self, v, unit=None):
         if unit is None:
@@ -4976,7 +4851,7 @@ class gmoccapy(object):
         if not pin.get():
             return
         data = self.jog_increments[int(buttonnumber)]
-        self.on_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
+        self._jog_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
     def _on_pin_jog_axis_changed(self, pin, axis, direction):
