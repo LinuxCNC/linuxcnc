@@ -1445,8 +1445,8 @@ class gmoccapy(object):
             self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[name], col, col + 1, row, row + 1)
             self.jog_button_dic[name].show()
 
-            print("Jog Button = {0}".format(name))
-            print("Position = {0},{1}".format(col,row))
+#            print("Jog Button = {0}".format(name))
+#            print("Position = {0},{1}".format(col,row))
             
 #        if self.lathe_mode:
 #            # OK this is a lathe, lets see if it is a backtool_lathe
@@ -1481,78 +1481,19 @@ class gmoccapy(object):
         num_joints = len(self.joints_button_dic)
         print("Found {0} Joints Button".format(num_joints))
 
-        if num_joints <= 6:
+        if num_joints <= 9:
             # we can resize the jog_btn_table
             self.widgets.tbl_jog_btn_axes.resize(3, 3)
-            # This is probably a lathe, but we will better check that
 
-        for btn in self.joints_button_dic:
-
-            name = btn
-            if name == "0+":
-                col = 2
-                row = 1
-            if name =="0-":
+        for name in self.joints_button_dic:
+            if name[1] == "-":
                 col = 0
-                row = 1
-            if name == "1+":
+            else:
                 col = 1
-                row = 0
-            if name =="1-":
-                col = 1
-                row = 2
-            if name == "2+":
-                col = 2
-                row = 0
-            if name =="2-":
-                col = 0
-                row = 2
-            if name == "3+":
-                col = 4
-                row = 3
-            if name =="3-":
-                col = 3
-                row = 3
-            if name == "4+":
-                col = 2
-                row = 3
-            if name =="4-":
-                col = 0
-                row = 3
-            if name == "5+":
-                col = 2
-                row = 2
-            if name =="5-":
-                col = 0
-                row = 0
-            if name == "6+":
-                col = 4
-                row = 0
-            if name =="6-":
-                col = 3
-                row = 0
-            if name == "7+":
-                col = 4
-                row = 1
-            if name =="7-":
-                col = 3
-                row = 1
-            if name == "8+":
-                col = 4
-                row = 2
-            if name =="8-":
-                col = 3
-                row = 2
-                
+            row = int(name[0])
                 
             self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[name], col, col + 1, row, row + 1)
             self.joints_button_dic[name].show()
-
-            print("Joint Button = {0}".format(name))
-            print("Position = {0},{1}".format(col,row))
-
-
-
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
