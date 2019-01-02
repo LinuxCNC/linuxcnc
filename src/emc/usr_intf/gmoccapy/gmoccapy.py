@@ -317,9 +317,6 @@ class gmoccapy(object):
         # finally show the window
         self.widgets.window1.show()
 
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            self._init_joints_btn()
-
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_themes()
@@ -1479,17 +1476,6 @@ class gmoccapy(object):
 
 
 
-
-
-
-
-
-
-    def set_motion_mode(self, state):
-        # 1:teleop, 0: joint
-        self.command.teleop_enable(state)
-        self.command.wait_complete()
-
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
@@ -1574,35 +1560,6 @@ class gmoccapy(object):
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
         self.widgets.adj_dro_size.set_value(self.dro_size)
-
-    def _init_joints_btn(self):
-        # if we have identity kinematics, we do not need to check for the joints button
-        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-            return
-#        # how many joints do we have
-#        joints_count = self.stat.joints
-#        # hide all unneeded button, we do allow 8 joints (0 to 7)
-#        for joint in range(joints_count, 8):
-#            self.widgets["btn_j{0}_minus".format(joint)].hide()
-#            self.widgets["btn_j{0}_plus".format(joint)].hide()
-#
-#            # and now the joint homing button
-#            # but only 6 joints are shown, so we leave here
-#            if joint == 7:
-#                continue
-#            self.widgets["btn_home_j{0}".format(joint)].hide()
-#            self.widgets["lbl_space_j{0}".format(joint)].show()
-#        if joints_count < 7:
-#            self.widgets.btn_sel_prev_joints.hide()
-#            self.widgets.btn_sel_next_joints.hide()
-#            self.widgets.lbl_space_j7.hide()
-#        if joints_count < 6:
-#            self.widgets.lbl_space_jall.show()
-#            self.widgets.lbl_space_j6.hide()
-#            self.widgets.lbl_space_sel_prev_joints.show()
-#            self.widgets.lbl_space_j5.hide()
-#        # if there are less joints, the above done should work correct
-
 
     def _check_screen2(self):
         # second screen
@@ -2295,7 +2252,7 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sensitize_widgets(widgetlist, True)
-        self.set_motion_mode(1)
+        self._set_motion_mode(1)
         if self.widgets.chk_reload_tool.get_active():
             # if there is already a tool in spindle, the user 
             # homed the second time, unfortunately we will then
@@ -2315,7 +2272,7 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "tbtn_switch_mode"
         ]
         self._sensitize_widgets(widgetlist, False)
-        self.set_motion_mode(0)
+        self._set_motion_mode(0)
         
     def on_hal_status_file_loaded(self, widget, filename):
         widgetlist = ["btn_use_current" ]
@@ -2759,9 +2716,9 @@ class gmoccapy(object):
                 if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                     # Mode 1 = joint ; Mode 3 = teleop
                     if self.stat.motion_mode != 1:
-                        self.set_motion_mode(0) # set joint mode
+                        self._set_motion_mode(0) # set joint mode
                     else:
-                        self.set_motion_mode(1) # set teleop mode
+                        self._set_motion_mode(1) # set teleop mode
             return True
 
         # This will avoid executing the key press event several times caused by keyboard auto repeat
@@ -3438,12 +3395,12 @@ class gmoccapy(object):
 
     def on_btn_home_all_clicked(self, widget, data=None):
         if self.stat.motion_mode != 1:
-            self.set_motion_mode(0)
+            self._set_motion_mode(0)
         # home -1 means all
         self.command.home(-1)
 
     def _on_btn_unhome_clicked(self, widget):
-        self.set_motion_mode(0)
+        self._set_motion_mode(0)
         self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
@@ -4657,10 +4614,10 @@ class gmoccapy(object):
             self.widgets.tbtn_switch_mode.set_label(_(" Joint\nmode"))
             # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
             # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
-            self.set_motion_mode(0)
+            self._set_motion_mode(0)
         else:
             self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
-            self.set_motion_mode(1)
+            self._set_motion_mode(1)
 
 # =========================================================
 # Hal Pin Handling Start
