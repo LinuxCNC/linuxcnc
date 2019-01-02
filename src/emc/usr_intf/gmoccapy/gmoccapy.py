@@ -281,7 +281,9 @@ class gmoccapy(object):
 
         # make all widgets we create dynamically
         self._make_DRO()
-        self._make_ref_button()
+        self._make_ref_axis_button()
+#        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+#            self._make_ref_joints_button()
         self._make_touch_button()
         self._make_jog_increments()
         self._make_jog_button()
@@ -294,10 +296,6 @@ class gmoccapy(object):
         
         self._arrange_dro()
         self._arrange_jog_button()
-
-#        self._get_axis_list()
-
-#        self._init_jog_increments()
 
         self._init_hal_pins()
 
@@ -325,7 +323,7 @@ class gmoccapy(object):
         self._init_themes()
         self._init_audio()
         self._init_gremlin()
-        self._init_hardware_button_order()
+#        self._init_hardware_button_order()
         self._init_kinematics_type()
         self._init_hide_cursor()
         self._init_offsetpage()
@@ -703,9 +701,9 @@ class gmoccapy(object):
                 row += 1
 
 
-    def _make_ref_button(self):
+    def _make_ref_axis_button(self):
         print("**** GMOCCAPY INFO ****")
-        print("**** Entering make ref button")
+        print("**** Entering make ref axis button")
 
         # check if we need axis or joint homing button
         if self.trivial_kinematics:
@@ -825,8 +823,106 @@ class gmoccapy(object):
         btn.show_all()
         return btn
 
-#ToDo : What if we have non trivial kinematics?
-#       We will need an other notebook tab for that
+
+    def _make_ref_joints_button(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** Entering make ref joints button")
+
+        # check if we need axis or joint homing button
+        if self.trivial_kinematics:
+            # lets find out, how many axis we got
+            dic = self.axis_list
+            name_prefix = "axis"
+        else:
+            # lets find out, how many joints we got
+            dic = self.joint_axis_dic
+            name_prefix = "joint"
+        num_elements = len(dic)
+        
+        # as long as the number of axis is less 6 we can use the standard layout
+        # we can display 6 axis without the second space label
+        # and 7 axis if we do not display the first space label either
+        # if we have more than 7 axis, we need arrows to switch the visible ones
+        if num_elements < 7:
+            lbl = self._get_space_label("lbl_space_0")
+            self.widgets.hbtb_ref.pack_start(lbl)
+    
+        file = "ref_all.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        print("Filepath = ", filepath)
+        btn = self._get_button_with_image("ref_all", filepath, None)
+        btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
+        btn.connect("clicked", self._on_btn_home_clicked)
+        # we use pack_start, so the widgets will be moved from right to left
+        # and are displayed the way we want
+        self.widgets.hbtb_ref.pack_start(btn)
+
+        if num_elements > 7:
+            # show the previous arrow to switch visible homing button)
+            btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+            btn.set_sensitive(False)
+            btn.set_property("tooltip-text", _("Press to display previous homing button"))
+            btn.connect("clicked", self._on_btn_previous_clicked)
+            self.widgets.hbtb_ref.pack_start(btn)
+
+        # do not use this label, to allow one more axis
+        if num_elements < 6:
+            lbl = self._get_space_label("lbl_space_2")
+            self.widgets.hbtb_ref.pack_start(lbl)
+
+        for pos, elem in enumerate(dic):
+
+            file = "ref_{0}.png".format(elem)
+            filepath = os.path.join(IMAGEDIR, file)
+            print("Filepath = ", filepath)
+
+            name = "home_{0}_{1}".format(name_prefix, elem)
+            btn = self._get_button_with_image(name, filepath, None)
+            btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
+            btn.connect("clicked", self._on_btn_home_clicked)
+
+            self.widgets.hbtb_ref.pack_start(btn)
+
+            # if we have more than 7 axis we need to hide some button
+            if num_elements > 7:
+                if pos > 4:
+                    btn.hide()
+
+        if num_elements > 7:
+            # show the next arrow to switch visible homing button)
+            btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+            btn.set_property("tooltip-text", _("Press to display next homing button"))
+            btn.connect("clicked", self._on_btn_next_clicked)
+            self.widgets.hbtb_ref.pack_start(btn)
+
+        # if there is space left, fill it with space labels
+        start = self.widgets.hbtb_ref.child_get_property(btn,"position")
+        for count in range(start + 1 , 8):
+            lbl = self._get_space_label("lbl_space_{0}".format(count))
+            self.widgets.hbtb_ref.pack_start(lbl)
+ 
+        file = "unhome.png"
+        filepath = os.path.join(IMAGEDIR, file)
+        print("Filepath = ", filepath)
+        name = "unref_all"
+        btn = self._get_button_with_image(name, filepath, None)
+        btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
+        btn.connect("clicked", self._on_btn_unhome_clicked)
+        self.widgets.hbtb_ref.pack_start(btn)
+        
+        name = "home_back"
+        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn.set_property("tooltip-text", _("Press to return to main button list"))
+        btn.connect("clicked", self._on_btn_home_back_clicked)
+        self.widgets.hbtb_ref.pack_start(btn)
+        
+        self.ref_button_dic = {}
+        children = self.widgets.hbtb_ref.get_children()
+        for child in children:
+            self.ref_button_dic[child.name] = child
+
+
+
     def _make_touch_button(self):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make touch button")
@@ -1431,39 +1527,6 @@ class gmoccapy(object):
         self.command.teleop_enable(state)
         self.command.wait_complete()
 
-#    def _get_axis_list(self):
-#        # begin with an empty axis list
-#        self.axis_list = self.get_ini_info.get_axis_list()
-#        self.joint_axis_dic = self.get_ini_info.get_joint_axis_relation()
-#
-#        # if we receive a None, that means we do not have a trivial kinematics
-#        # like a scara or robot
-#        if self.joint_axis_dic == None:
-#            self._init_extra_axes()
-#            return
-#
-#        self._init_extra_axes()
-#
-#        for axis in self.joint_axis_dic:
-#            if len(axis) > 1:
-#                # means we do have double letters in coordinates, i.e. gantry
-#                # will return (x,y0,y1,z)
-#                # we only take the first axis, as we aspect the second one to be the slave
-#                if "0" in axis:
-#                    pass
-#                else:
-#                    continue
-#            if axis == self.axisletter_four:
-#                print("Combi_DRO_4 = joint {0}".format(self.joint_axis_dic[axis]))
-#                self.widgets.Combi_DRO_4.set_joint(self.joint_axis_dic[axis])
-#            elif axis == self.axisletter_five:
-#                print("Combi_DRO_5 = joint {0}".format(self.joint_axis_dic[axis]))
-#                self.widgets.Combi_DRO_5.set_joint(self.joint_axis_dic[axis])
-#            else:
-#                print("Combi_DRO_{0} = joint {1}".format(axis[0], self.joint_axis_dic[axis]))
-#                self.widgets["Combi_DRO_{0}".format(axis[0])].set_joint(self.joint_axis_dic[axis])
-
-
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
@@ -1553,72 +1616,30 @@ class gmoccapy(object):
         # if we have identity kinematics, we do not need to check for the joints button
         if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             return
-        # how many joints do we have
-        joints_count = self.stat.joints
-        # hide all unneeded button, we do allow 8 joints (0 to 7)
-        for joint in range(joints_count, 8):
-            self.widgets["btn_j{0}_minus".format(joint)].hide()
-            self.widgets["btn_j{0}_plus".format(joint)].hide()
+#        # how many joints do we have
+#        joints_count = self.stat.joints
+#        # hide all unneeded button, we do allow 8 joints (0 to 7)
+#        for joint in range(joints_count, 8):
+#            self.widgets["btn_j{0}_minus".format(joint)].hide()
+#            self.widgets["btn_j{0}_plus".format(joint)].hide()
+#
+#            # and now the joint homing button
+#            # but only 6 joints are shown, so we leave here
+#            if joint == 7:
+#                continue
+#            self.widgets["btn_home_j{0}".format(joint)].hide()
+#            self.widgets["lbl_space_j{0}".format(joint)].show()
+#        if joints_count < 7:
+#            self.widgets.btn_sel_prev_joints.hide()
+#            self.widgets.btn_sel_next_joints.hide()
+#            self.widgets.lbl_space_j7.hide()
+#        if joints_count < 6:
+#            self.widgets.lbl_space_jall.show()
+#            self.widgets.lbl_space_j6.hide()
+#            self.widgets.lbl_space_sel_prev_joints.show()
+#            self.widgets.lbl_space_j5.hide()
+#        # if there are less joints, the above done should work correct
 
-            # and now the joint homing button
-            # but only 6 joints are shown, so we leave here
-            if joint == 7:
-                continue
-            self.widgets["btn_home_j{0}".format(joint)].hide()
-            self.widgets["lbl_space_j{0}".format(joint)].show()
-        if joints_count < 7:
-            self.widgets.btn_sel_prev_joints.hide()
-            self.widgets.btn_sel_next_joints.hide()
-            self.widgets.lbl_space_j7.hide()
-        if joints_count < 6:
-            self.widgets.lbl_space_jall.show()
-            self.widgets.lbl_space_j6.hide()
-            self.widgets.lbl_space_sel_prev_joints.show()
-            self.widgets.lbl_space_j5.hide()
-        # if there are less joints, the above done should work correct
-
-    def _init_jog_increments(self):
-        # Now we will build the option buttons to select the Jog-rates
-        # We do this dynamically, because users are able to set them in INI File
-        # because of space on the screen only 10 items are allowed
-        # jogging increments
-
-        # We get the increments from INI File
-        self.jog_increments = self.get_ini_info.get_increments()
-        if len(self.jog_increments) > 10:
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** To many increments given in INI File for this screen ****"))
-            print(_("**** Only the first 10 will be reachable through this screen ****"))
-            # we shorten the incrementlist to 10 (first is default = 0)
-            self.jog_increments = self.jog_increments[0:11]
-
-        # The first radio button is created to get a radio button group
-        # The group is called according the name off  the first button
-        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
-        # One from the released button and one from the pressed button
-        # we make a list of the buttons to later add the hardware pins to them
-        label = _("Continuous")
-        rbt0 = gtk.RadioButton(None, label)
-        rbt0.connect("pressed", self.on_increment_changed, 0)
-        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
-        rbt0.set_property("draw_indicator", False)
-        rbt0.show()
-        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        rbt0.__name__ = "rbt0"
-        self.incr_rbt_list.append(rbt0)
-        # the rest of the buttons are now added to the group
-        # self.no_increments is set while setting the hal pins with self._check_len_increments
-        for item in range(1, len(self.jog_increments)):
-            rbt = "rbt{0}".format(item)
-            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
-            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
-            self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
-            rbt.set_property("draw_indicator", False)
-            rbt.show()
-            rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            rbt.__name__ = "rbt{0}".format(item)
-            self.incr_rbt_list.append(rbt)
-        self.active_increment = "rbt0"
 
     def _check_screen2(self):
         # second screen
@@ -1843,84 +1864,6 @@ class gmoccapy(object):
         self.widgets.eb_program_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
         self.widgets.eb_blockheight_label.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(0, 0, 0))
 
-    # init the preview
-    def _init_hardware_button_order( self ):
-        # This is needed only because we connect all the horizontal button
-        # to hal pins, so the user can connect them to hardware buttons
-        self.h_tabs = []
-        tab_main = [(0, "btn_homing"), (1, "btn_touch"), (3, "btn_tool"),
-                    (8, "tbtn_fullsize_preview"), (9, "btn_exit")
-        ]
-        self.h_tabs.append(tab_main)
-
-        tab_mdi = [(9, "btn_show_kbd")]
-        self.h_tabs.append(tab_mdi)
-
-        tab_auto = [(0, "btn_load"), (1, "btn_run"), (2, "btn_stop"), (3, "tbtn_pause"),
-                    (4, "btn_step"), (5, "btn_from_line"), (6, "tbtn_optional_blocks"),
-                    (7, "tbtn_optional_stops"), (8, "tbtn_fullsize_preview1"), (9, "btn_edit")
-        ]
-        self.h_tabs.append(tab_auto)
-
-        tab_ref = [(1, "btn_home_all"), (3, "btn_home_x"),
-                   (5, "btn_home_z"), (8, "btn_unhome_all"), (9, "btn_back_ref")
-        ]
-        if not self.lathe_mode:
-            tab_ref.append((4, "btn_home_y"))
-        if len(self.axis_list) == 4:
-            tab_ref.append((6, "btn_home_4"))
-        if len(self.axis_list) == 5:
-            tab_ref.append((6, "btn_home_4"))
-            tab_ref.append((7, "btn_home_5"))
-        self.h_tabs.append(tab_ref)
-
-        tab_touch = [(0, "tbtn_edit_offsets"), (1, "btn_set_value_x"), (3, "btn_set_value_z"), (6, "btn_zero_g92"),
-                     (8, "btn_set_selected"), (9, "btn_back_zero")
-        ]
-        if not self.lathe_mode:
-            tab_touch.append((2, "btn_set_value_y"))
-
-        if len(self.axis_list) == 4:
-            tab_touch.append((4, "btn_set_value_4"))
-        if len(self.axis_list) == 5:
-            tab_touch.append((4, "btn_set_value_4"))
-            tab_touch.append((5, "btn_set_value_5"))
-
-        self.h_tabs.append(tab_touch)
-        
-        tab_setup = [(0, "btn_delete"), (4, "btn_classicladder"), (5, "btn_hal_scope"), (6, "btn_status"),
-                     (7, "btn_hal_meter"), (8, "btn_calibration"), (9, "btn_show_hal")
-        ]
-        self.h_tabs.append(tab_setup)
-
-        tab_edit = [(0, "btn_open_edit"), (2, "btn_save"), (3, "btn_save_as"), (4, "btn_save_and_run"),
-                    (6, "btn_new"), (8, "btn_keyb"), (9, "btn_back_edit")
-        ]
-        self.h_tabs.append(tab_edit)
-
-        tab_tool = [(0, "btn_delete_tool"), (1, "btn_add_tool"), (2, "btn_reload_tooltable"),
-                    (3, "btn_apply_tool_changes"), (4, "btn_select_tool_by_no"), (5, "btn_index_tool"),
-                    (6, "btn_change_tool"), (8, "btn_tool_touchoff_z"), (9, "btn_back_tool")
-        ]
-        if self.lathe_mode:
-            tab_tool.append((7, "btn_tool_touchoff_x"))
-        self.h_tabs.append(tab_tool)
-
-        tab_file = [(0, "btn_home"), (1, "btn_dir_up"), (3, "btn_sel_prev"), (4, "btn_sel_next"),
-                    (5, "btn_jump_to"), (7, "btn_select"), (9, "btn_back_file_load")
-        ]
-        self.h_tabs.append(tab_file)
-        
-        tab_ref_joints = [(0, "btn_home_j_all"), (1, "btn_home_j0"), (2, "btn_home_j1"), (3, "btn_home_j2"), (4, "btn_home_j3"),
-                   (5, "btn_home_j4"), (6, "btn_home_j5"), (7, "btn_sel_next_joints"), (8, "btn_unhome_j_all"), (9, "btn_back_joints")
-        ]
-        self.h_tabs.append(tab_ref_joints)
-        
-
-        self.v_tabs = [(0, "tbtn_estop"), (1, "tbtn_on"), (2, "rbt_manual"), (3, "rbt_mdi"),
-                       (4, "rbt_auto"), (5, "tbtn_setup"), (6, "tbtn_user_tabs")
-        ]
-
     def _init_kinematics_type (self):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property( "enable_dro", True )
@@ -1931,12 +1874,12 @@ class gmoccapy(object):
             self.widgets.tbtn_switch_mode.set_active(True)
             self.widgets.lbl_replace_mode_btn.hide()
             self.widgets.ntb_jog_JA.set_page(1)
-            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
-            page9 = self.widgets.ntb_button.get_nth_page(9)
-            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
-            page4 = self.widgets.ntb_button.get_nth_page(4)
-            self.widgets.ntb_button.reorder_child(page4, -1)
-            self._reset_joint_button_order_to_default()        
+#            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
+#            page9 = self.widgets.ntb_button.get_nth_page(9)
+#            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
+#            page4 = self.widgets.ntb_button.get_nth_page(4)
+#            self.widgets.ntb_button.reorder_child(page4, -1)
+#            self._reset_joint_button_order_to_default()        
         else:
             self.widgets.gremlin.set_property( "enable_dro", False )
             self.widgets.gremlin.use_joints_mode = False
