@@ -613,51 +613,6 @@ class gmoccapy(object):
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
 
-    def _arrange_dro(self):
-        # if we have less than 4 axis, we can resize the table, as we have 
-        # enough space to display each one in it's own line
-
-        if len(self.dro_dic) < 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size)
-
-        # having 4 DRO we need to reduce the size, to fit the available space
-        elif len(self.dro_dic) == 4:
-            self._place_in_table(len(self.dro_dic),1, self.dro_size * 0.75)
-
-        # having 5 axis we will display 3 in an one line and two DRO share 
-        # the last line, the size of the DRO must be reduced also
-        # this is a special case so we do not use _place_in_table
-        elif len(self.dro_dic) == 5:
-            self.widgets.tbl_DRO.resize(4,2)
-            for dro, axis in enumerate(self.axis_list):
-                dro_name = "Combi_DRO_{0}".format(dro)
-                if dro < 3:
-                    size = self.dro_size * 0.75
-                    self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
-                                                0, 2, int(dro), int(dro + 1), ypadding = 0)
-                else:
-                    size = self.dro_size * 0.65
-                    if dro == 3:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
-                                                    0, 1, int(dro), int(dro + 1), ypadding = 0)
-                    else:
-                        self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
-                                                    1, 2, int(dro-1), int(dro), ypadding = 0)
-                self.dro_dic[dro_name].set_property("font_size", size)
-
-        else:
-            print("**** GMOCCAPY build_GUI INFO ****")
-            print("**** more than 5 axis ")
-            # check if amount of axis is an even number, adapt the needed lines
-            if len(self.dro_dic) % 2 == 0:
-                rows = len(self.dro_dic) / 2
-            else:
-                rows = (len(self.dro_dic) + 1) / 2
-            self._place_in_table(rows, 2, self.dro_size * 0.65)
-
-        # set values to dro size adjustments
-        self.widgets.adj_dro_size.set_value(self.dro_size)
-
     def _place_in_table(self, rows, cols, dro_size):
         print("gmoccapy build_gui INFO")
         print ("we are in place in table")
@@ -816,6 +771,35 @@ class gmoccapy(object):
         btn.show_all()
         return btn
 
+# ToDo Start : must fit also the joints button
+    def _on_btn_previous_clicked(self, widget):
+        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
+        self._put_home_all_and_previous()
+        self._put_button(0 , 5,
+                         self.ref_button_dic, self.widgets.hbtb_ref)
+        self._put_unref_and_back()
+        self._hide_button(5,len(self.axis_list),
+                          self.ref_button_dic, self.widgets.hbtb_ref)
+        
+        self.ref_button_dic["previous_button"].set_sensitive(False)
+        self.ref_button_dic["next_button"].set_sensitive(True)
+
+    def _on_btn_next_clicked(self, widget):
+        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
+        self._put_home_all_and_previous()
+        self._put_button(len(self.axis_list) - 5 , len(self.axis_list),
+                             self.ref_button_dic, self.widgets.hbtb_ref)
+        self._put_unref_and_back()
+        self._hide_button(0,len(self.axis_list) - 5,
+                                self.ref_button_dic, self.widgets.hbtb_ref)
+        
+        self.ref_button_dic["previous_button"].set_sensitive(True)
+        self.ref_button_dic["next_button"].set_sensitive(False)
+
+    def _put_home_all_and_previous(self):
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["previous_button"])
+
 
 
     def _make_touch_button(self):
@@ -943,6 +927,84 @@ class gmoccapy(object):
             print(_("**** will use auto tool measurement ****"))
             return True
 
+    def _on_btn_next_touch_clicked(self, widget):
+        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["previous_button"])
+        self.touch_button_dic["previous_button"].show()
+
+        self._put_button(len(self.axis_list) - 6 , len(self.axis_list),
+                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+        self._put_set_active_and_back()
+
+        self._hide_button(0,len(self.axis_list) - 6,
+                          self.touch_button_dic, self.widgets.hbtb_touch_off)
+        
+
+    def _on_btn_previous_touch_clicked(self, widget):
+        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+        if self._check_toolmeasurement():
+            correct = 1
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
+
+        if self._check_toolmeasurement():
+            end = 4
+        else:
+            end = 5
+            
+        self._put_button(0 , end,
+                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["next_button"])
+        self.touch_button_dic["next_button"].show()
+
+        if self._check_toolmeasurement():
+            self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["block_height"])
+
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"])
+        self._put_set_active_and_back()
+
+        self._hide_button(end,len(self.axis_list),
+                          self.touch_button_dic, self.widgets.hbtb_touch_off)
+
+    def _remove_button(self, dic, box):
+        for child in dic:
+            box.remove(dic[child])
+
+    def _put_button(self, start, end, dic, box):
+        if dic == self.ref_button_dic:
+            prefix = "home_axis"
+        elif dic == self.touch_button_dic:
+            prefix = "touch"
+        for axis in self.axis_list[start : end]:
+            name = prefix + "_{0}".format(axis.lower())
+            dic[name].show()
+            box.pack_start(dic[name])
+
+    def _put_set_active_and_back(self):
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["set_active"])
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["touch_back"])
+
+    def _put_unref_and_back(self):
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["next_button"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["unref_all"])
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["home_back"])
+
+    def _hide_button(self, start, end, dic, box):
+        if dic == self.ref_button_dic:
+            prefix = "home_axis"
+        elif dic == self.touch_button_dic:
+            prefix = "touch"
+         
+        for axis in self.axis_list[start:end]:
+            name = prefix + "_{0}".format(axis.lower())
+            dic[name].hide()
+            box.pack_start(dic[name])
+
+
 
     def _make_jog_increments(self):
         print("**** GMOCCAPY INFO ****")
@@ -999,7 +1061,7 @@ class gmoccapy(object):
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
 
-    def _on_btn_jog_pressed(self, button_name, shift=False):
+    def _on_btn_jog_pressed(self, widget, button_name, shift=False):
         print ("Jog Button pressed = {0}".format(button_name))
 
         # only in manual mode we will allow jogging the axis at this development state
@@ -1040,7 +1102,7 @@ class gmoccapy(object):
         else:  # continuous jogging
             self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, dir * velocity)
 
-    def _on_btn_jog_released(self, button_name, shift=False):
+    def _on_btn_jog_released(self, widget, button_name, shift=False):
         print ("Jog Button released = {0}".format(button_name))
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
@@ -1107,7 +1169,7 @@ class gmoccapy(object):
 
     def _make_joints_button(self):
         print("**** GMOCCAPY INFO ****")
-        print("**** Entering make jog button")
+        print("**** Entering make joints button")
 
         self.joints_button_dic = {}
         
@@ -1122,7 +1184,7 @@ class gmoccapy(object):
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
                 self.joints_button_dic[name] = btn
-
+                
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
         print("**** GMOCCAPY build_GUI INFO ****")
@@ -2802,9 +2864,9 @@ class gmoccapy(object):
             else:
                 button_name = "y+"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "Down" or keyname == "KP_Down":
             if self.lathe_mode:
                 if self.backtool_lathe:
@@ -2814,39 +2876,39 @@ class gmoccapy(object):
             else:
                 button_name = "y-"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "Left" or keyname == "KP_Left":
             if self.lathe_mode:
                 button_name = "z-"
             else:
                 button_name = "x-"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "Right" or keyname == "KP_Right":
             if self.lathe_mode:
                 button_name = "z+"
             else:
                 button_name = "x+"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "Page_Up" or keyname == "KP_Page_Up":
             button_name = "z+"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "Page_Down" or keyname == "KP_Page_Down":
             button_name = "z-"
             if signal:
-                self._on_btn_jog_pressed(button_name, fast)
+                self._on_btn_jog_pressed(None, button_name, fast)
             else:
-                self._on_btn_jog_released(button_name)
+                self._on_btn_jog_released(None, button_name)
         elif keyname == "I" or keyname == "i":
             if signal:
                 if self.stat.state != 1:  # still moving
@@ -4787,9 +4849,9 @@ class gmoccapy(object):
                 return
 
         if pin.get():
-            self._on_btn_jog_pressed(button_name)
+            self._on_btn_jog_pressed(None, button_name)
         else:
-            self._on_btn_jog_released(button_name)
+            self._on_btn_jog_released(None, button_name)
 
     def _reset_overide(self, pin, type):
         if pin.get():
