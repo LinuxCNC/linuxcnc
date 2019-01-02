@@ -173,18 +173,22 @@ A request to rehome the joint is silently ignored.
 
 === HOME_SEQUENCE (((HOME SEQUENCE)))
 
-Used to define a multi-joint homing sequence HOME ALL and enforce
+Used to define a multi-joint homing sequence *HOME ALL* and enforce
 homing order (e.g., Z may not be homed if X is not yet homed). A joint
 may be homed after all joints with a lower (absolute value)
 HOME_SEQUENCE have already been homed and are at the HOME_OFFSET. If
 two joints have the same HOME_SEQUENCE, they may be homed at the same
-time. If HOME_SEQUENCE is not specified then this joint will not be
-homed by the HOME ALL sequence.
+time.
+
+[NOTE]
+If HOME_SEQUENCE is not specified then the joint will not be
+homed by the *HOME ALL* sequence (but may be homed by individual
+joint-specific homing commands).
 
 The initial HOME_SEQUENCE number may be 0, 1 (or -1).  The
 absolute value of sequence numbers must increment by one --
 skipping sequence numbers is not supported.  If a sequence number
-is omitted, "Home All" homing will stop upon conmpletion of the
+is omitted, *HOME ALL* homing will stop upon completion of the
 last valid sequence number.
 
 *Negative* HOME_SEQUENCE values indicate that joints in the sequence
@@ -273,8 +277,15 @@ Axis gui, then the following ini entries for that joint are needed.
 . HOME_SEARCH_VEL = 0
 . HOME_LATCH_VEL = 0
 . HOME_USE_INDEX = NO
-. HOME_SEQUENCE = 0
 . HOME equals to HOME_OFFSET
+. HOME_SEQUENCE = 0 (or other valid sequence number)
+
+[NOTE]
+The default values for unspecified HOME_SEARCH_VEL, HOME_LATCH_VEL,
+HOME_USE_INDEX, HOME, and HOME_OFFSET are *zero*, so they may be
+omitted when requesting immediate homing.  A valid HOME_SEQUENCE
+number should usually be included since omitting a HOME_SEQUENCE
+eliminates the joint from *HOME ALL* behavior as noted above.
 
 === Inhibiting Homing (((Inhibiting Homing)))
 

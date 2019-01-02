@@ -1,3 +1,13 @@
+ver 2.3.4
+- Leon82 mentioned, that offset page did close after editing a column and leaving
+  the edited cell. This was caused due to a hidden mode change to MDI because
+  leaving the cell would apply the change using MDI commands from 
+  offset page_widget.py. Gmoccapy now checks the state of the "EDIT OFFSETS" 
+  toggle button and does not react to MDI Mode switch if that button is active.
+  at the same time, the mode buttons etc. are disabled!
+  
+  Same changes as with gmoccapy 1.5.11
+
 ver 2.3.3.4
 - a merge of 2.7 to master resulted in a call of a widget, that does not longer
   exist in master (adj_max_velocity) causing an exception on halui pin changes.
@@ -404,6 +414,14 @@ ver. 2.0.1
 
 ver. 2.0.0
 - initial push of beta gmoccapy with 5 axis
+
+ver. 1.5.11
+- Leon82 mentioned, that offset page did close after editing a column and leaving
+  the edited cell. This was caused due to a hidden mode change to MDI because
+  leaving the cell would apply the change using MDI commands from 
+  offset page_widget.py. Gmoccapy now checks the state of the "EDIT OFFSETS" 
+  toggle button and does not react to MDI Mode switch if that button is active.
+  at the same time, the mode buttons etc. are disabled!
 
 ver. 1.5.10
 - fixed a misbehavior of the turtle button
