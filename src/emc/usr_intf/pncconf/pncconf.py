@@ -5319,6 +5319,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
+            d[axis+"homesequence"] = (get_value(w[axis+"homesequence"]))
             get_active("searchdir")
             get_active("latchdir")
             get_active("usehomeindex")
