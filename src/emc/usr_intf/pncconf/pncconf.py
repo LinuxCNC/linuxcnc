@@ -1098,9 +1098,15 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
                 if self.axisforcemax:
                     #print "Setting AXIS forcemax option"
+                    print >>f1,"""# Find the largest size possible and set AXIS to it"""
                     print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
-                    print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+                    print >>f1,"""try:"""
+                    print >>f1,"""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+                    print >>f1,"""except:"""
+                    print >>f1,"""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])"""
                     print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
+                    print >>f1,"""# Uncomment for fullscreen"""
+                    print >>f1,"""#root_window.attributes('-fullscreen', True)"""
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
