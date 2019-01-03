@@ -422,6 +422,7 @@ class Pages:
         self.w.position_feedback.set_active(self.d.position_feedback)
         self.w.geometry.set_text(self.d.geometry)
         self.a.read_touchy_preferences()
+        self.w.axisforcemax.set_active(self.d.axisforcemax)
 
         for i in ("touchy","axis"):
             self.w[i+"size"].set_active(self.d[i+"size"][0])
@@ -457,6 +458,7 @@ class Pages:
 
         self.d.touchytheme = self.w.touchytheme.get_active_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
+        self.d.axisforcemax = self.w.axisforcemax.get_active()
 
         for i in ("touchy","axis"):
             self.d[i+"size"][0] = self.w[i+"size"].get_active()
@@ -568,7 +570,7 @@ class Pages:
         self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
         for i in ("gladevcp","gladesample","gladeexists","spindlespeedbar","spindleatspeed","gladevcpforcemax",
                 "zerox","zeroy","zeroz","zeroa","autotouchz","centerembededgvcp","sideembededgvcp","standalonegvcp",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax"):
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize"):
             self.w[i].set_active(self.d[i])
         for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
                     "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
@@ -597,14 +599,9 @@ class Pages:
               self.d.pyvcphaltype = 1
            if self.w.pyvcpexist.get_active() == True:
               self.d.pyvcpname = "pyvcp-panel.xml"
-        for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
-            if not self.w[i].get_active():
-                self.d[i] = "default"
-            else:
-                self.d[i] = str(self.w[i+"button"].get_color())
         for i in ("gladevcp","gladesample","spindlespeedbar","spindleatspeed","gladevcpforcemax",
                 "centerembededgvcp","sideembededgvcp","standalonegvcp","gladeexists",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax","autotouchz"):
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","autotouchz"):
             self.d[i] = self.w[i].get_active()
         # set HALUI commands ( on advanced page) based on the user requested glade buttons
         i =  self.d.gladevcphaluicmds = 0
