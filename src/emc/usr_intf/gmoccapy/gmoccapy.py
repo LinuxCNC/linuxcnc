@@ -3117,19 +3117,22 @@ class gmoccapy(object):
 
     def _update_slider(self, widgetlist):
         # update scales and sliders, this must happen if sliders shows units
-        # like papid_vel and jog_vel
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
             min = self.widgets[widget].get_property("min")
             max = self.widgets[widget].get_property("max")
+
             self.widgets[widget].set_property("min", min * self.faktor)
             self.widgets[widget].set_property("max", max * self.faktor)
             self.widgets[widget].set_value(value * self.faktor)
 
         self.scale_jog_vel = self.scale_jog_vel * self.faktor
         
-        self.rabbit_jog = self.rabbit_jog * self.faktor
-        self.turtle_jog = self.turtle_jog * self.faktor            
+        if "spc_lin_jog_vel" in widgetlist:
+            if self.widgets.tbtn_turtle_jog.get_active():
+                self.turtle_jog = self.turtle_jog * self.faktor            
+            else:
+                self.rabbit_jog = self.rabbit_jog * self.faktor
 
     def _change_dro_color(self, property, color):
         for axis in self.axis_list:
@@ -3352,7 +3355,7 @@ class gmoccapy(object):
             self.widgets.spc_lin_jog_vel.set_property("max", max * self.turtle_jog_factor)
             self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 
-    def _on_turtle_jog_enable(self, pin):
+    def _on_pin_turtle_jog(self, pin):
         self.widgets.tbtn_turtle_jog.set_active(pin.get())
 
     # use the current loaded file to be loaded on start up
@@ -5029,7 +5032,7 @@ class gmoccapy(object):
 
         # make a pin to set turtle jog vel
         pin = self.halcomp.newpin("jog.turtle-jog", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._on_turtle_jog_enable)
+        hal_glib.GPin(pin).connect("value_changed", self._on_pin_turtle_jog)
 
         # make the pins for tool measurement
         self.halcomp.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
