@@ -229,6 +229,7 @@ class gmoccapy(object):
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
 
         self.lathe_mode = None # we need this to check if we have a lathe config
+        self.backtool_lathe = False
         self.diameter_mode = False
 
         # the default theme = System Theme we store here to be able to go back to that one later
@@ -1162,6 +1163,7 @@ class gmoccapy(object):
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+                btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
 
@@ -1170,7 +1172,7 @@ class gmoccapy(object):
         print("**** Entering make joints button")
 
         self.joints_button_dic = {}
-        
+
         for joint in range(0, self.stat.joints):
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(joint), direction)
@@ -1182,7 +1184,7 @@ class gmoccapy(object):
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
                 self.joints_button_dic[name] = btn
-                
+
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
         print("**** GMOCCAPY build_GUI INFO ****")
@@ -1378,101 +1380,99 @@ class gmoccapy(object):
         print("**** arrange JOG button")
         num_axis = len(self.jog_button_dic)
         print("length of button dictionary = {0}".format(num_axis))
+        print("Meaning we have {0} axis {1}".format(len(self.axis_list), self.axis_list))
 
-        if num_axis <= 3:
+        if len(self.axis_list) < 3:
+            print("Less than 3 axis")
             # we can resize the jog_btn_table
             self.widgets.tbl_jog_btn_axes.resize(3, 3)
 
-        for btn in self.jog_button_dic:
+        if len(self.axis_list) < 6:
+            print("less than 6 axis")
+            # we can resize the jog_btn_table
+            self.widgets.tbl_jog_btn_axes.resize(3, 4)
 
-            name = btn
-            if name == "x+":
+        for btn_name in self.jog_button_dic:
+            if btn_name == "x+":
                 col = 2
                 row = 1
-            if name =="x-":
+                if self.lathe_mode:
+                    col = 1
+                    row = 2
+                if self.backtool_lathe:
+                    row = 0
+            if btn_name == "x-":
                 col = 0
                 row = 1
-            if name == "y+":
+                if self.lathe_mode:
+                    col = 1
+                    row = 0
+                if self.backtool_lathe:
+                    row = 2
+            if btn_name == "y+":
                 col = 1
                 row = 0
-            if name =="y-":
+            if btn_name =="y-":
                 col = 1
                 row = 2
-            if name == "z+":
-                col = 2
-                row = 0
-            if name =="z-":
-                col = 0
-                row = 2
-            if name == "a+":
-                col = 4
-                row = 3
-            if name =="a-":
-                col = 3
-                row = 3
-            if name == "b+":
-                col = 2
-                row = 3
-            if name =="b-":
-                col = 0
-                row = 3
-            if name == "c+":
-                col = 2
-                row = 2
-            if name =="c-":
-                col = 0
-                row = 0
-            if name == "u+":
-                col = 4
-                row = 0
-            if name =="u-":
+            if btn_name == "z+":
                 col = 3
                 row = 0
-            if name == "v+":
+                if self.lathe_mode:
+                    col = 2
+                    row = 1
+                else:
+                    col = 3
+                    row = 0
+            if btn_name == "z-":
+                col = 3
+                row = 2
+                if self.lathe_mode:
+                    col = 0
+                    row = 1
+                else:
+                    col = 3
+                    row = 2
+            if btn_name == "a+":
+                col = 4
+                row = 3
+            if btn_name =="a-":
+                col = 3
+                row = 3
+            if btn_name == "b+":
+                col = 2
+                row = 3
+            if btn_name =="b-":
+                col = 0
+                row = 3
+            if btn_name == "c+":
+                col = 2
+                row = 2
+            if btn_name =="c-":
+                col = 0
+                row = 0
+            if btn_name == "u+":
+                col = 4
+                row = 0
+            if btn_name =="u-":
+                col = 3
+                row = 0
+            if btn_name == "v+":
                 col = 4
                 row = 1
-            if name =="v-":
+            if btn_name =="v-":
                 col = 3
                 row = 1
-            if name == "w+":
+            if btn_name == "w+":
                 col = 4
                 row = 2
-            if name =="w-":
+            if btn_name =="w-":
                 col = 3
                 row = 2
-                
-                
-            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[name], col, col + 1, row, row + 1)
-            self.jog_button_dic[name].show()
 
-#            print("Jog Button = {0}".format(name))
-#            print("Position = {0},{1}".format(col,row))
-            
-#        if self.lathe_mode:
-#            # OK this is a lathe, lets see if it is a backtool_lathe
-#            if self.backtool_lathe:
-#                # Now we are sure we have a backtool lathe
-#                # as we only expect X an Z, lets place them in the table
-#                for btn in btnlst:
-#                    name = btn.get_property("name")
-#                    if name == "x+":
-#                        col = 1
-#                        row = 0
-#                    if name == "x-":
-#                        col = 1
-#                        row = 2
-#                    if name == "y+":
-#                        col = 2
-#                        row = 0
-#                    if name == "y-":
-#                        col = 0
-#                        row = 2
-#                    if name == "z+":
-#                        col = 0
-#                        row = 1
-#                    if name == "z-":
-#                        col = 2
-#                        row = 1
+            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
+            self.jog_button_dic[btn_name].show()
+
 
 
     def _arrange_joint_button(self):
