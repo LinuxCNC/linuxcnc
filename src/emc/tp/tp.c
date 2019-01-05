@@ -867,7 +867,7 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
     // down the next and previous blends as well. We model this loss by scaling
     // the blend velocity down to find an "equivalent" velocity.
     double perf_parabolic = estimateParabolicBlendPerformance(tp, prev_tc, tc) / 2.0;
-    double perf_tangent = tc->kink_vel;
+    double perf_tangent = prev_tc->kink_vel;
     double perf_arc_blend = blend_tc ? blend_tc->maxvel : 0.0;
 
     tp_debug_print("Blend performance: parabolic %f, tangent %f, arc_blend %f, ",
@@ -882,7 +882,7 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
     switch (best_blend) {
         case PARABOLIC_BLEND: // parabolic
             tp_debug_print("using parabolic blend\n");
-            tc->kink_vel = -1.0;
+            prev_tc->kink_vel = -1.0;
             tcSetTermCond(prev_tc, TC_TERM_COND_PARABOLIC);
             tcCheckLastParabolic(tc, prev_tc);
             break;
@@ -1882,20 +1882,20 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-        tc->kink_vel = v_max;
+        prev_tc->kink_vel = v_max;
         tpAdjustAccelForTangent(tc, acc_scale_max);
         tpAdjustAccelForTangent(prev_tc, acc_scale_max);
 
         return TP_ERR_OK;
     } else {
-        tc->kink_vel = v_max * kink_ratio / acc_scale_max;
+        prev_tc->kink_vel = v_max * kink_ratio / acc_scale_max;
         tp_debug_print("Kink acceleration scale %f above %f, kink vel = %f, blend arc may be faster\n",
                 acc_scale_max,
                 kink_ratio,
-                tc->kink_vel);
+                prev_tc->kink_vel);
+        // NOTE: acceleration will be reduced later if tangent blend is used
         return TP_ERR_NO_ACTION;
     }
-
 }
 
 static bool tpCreateBlendIfPossible(
