@@ -52,6 +52,35 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
     return fmin(v_max_target, tc->maxvel);
 }
 
+double tcGetMaxAccel(const TC_STRUCT *tc)
+{
+    return tc->maxaccel * (1.0 - fmax(tc->kink_accel_reduce, tc->kink_accel_reduce_prev));
+}
+
+int tcSetKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc, double kink_vel, double accel_reduction)
+{
+  prev_tc->kink_vel = kink_vel;
+  //
+  prev_tc->kink_accel_reduce = fmax(accel_reduction, prev_tc->kink_accel_reduce);
+  tc->kink_accel_reduce_prev = fmax(accel_reduction, tc->kink_accel_reduce_prev);
+
+  return 0;
+}
+
+int tcInitKinkProperties(TC_STRUCT *tc)
+{
+    tc->kink_vel = -1.0;
+    tc->kink_accel_reduce = 0.0;
+    tc->kink_accel_reduce_prev = 0.0;
+}
+
+int tcRemoveKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc)
+{
+    prev_tc->kink_vel = -1.0;
+    prev_tc->kink_accel_reduce = 0.0;
+    tc->kink_accel_reduce_prev = 0.0;
+}
+
 
 int tcCircleStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
 {
@@ -69,7 +98,7 @@ int tcCircleStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const
     pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
     pmCartUnitEq(&perp);
 
-    pmCartScalMult(&tan, tc->maxaccel, &tan);
+    pmCartScalMult(&tan, tcGetMaxAccel(tc), &tan);
     pmCartScalMultEq(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius);
     pmCartCartAdd(&tan, &perp, out);
     pmCartUnitEq(out);
@@ -574,8 +603,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
     tc->reqvel = vel;
     // Initial guess at target velocity is just the requested velocity
     tc->target_vel = vel;
-    // TO be filled in by tangent calculation, negative = invalid (KLUDGE)
-    tc->kink_vel = -1.0;
+    // To be filled in by tangent calculation, negative = invalid (KLUDGE)
+    tcInitKinkProperties(tc);
 
     return TP_ERR_OK;
 }
@@ -680,7 +709,7 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
 
     if (tc->motion_type == TC_CIRCULAR) {
-        tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, &tc->acc_ratio_tan, tc->maxvel, tc->maxaccel, parabolic);
+        tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, &tc->acc_ratio_tan, tc->maxvel, tcGetMaxAccel(tc), parabolic);
     }
 
     tcClampVelocityByLength(tc);

@@ -75,15 +75,11 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
 
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc);
 
-STATIC int tpAdjustAccelForTangent(
-        TC_STRUCT * const tc,
-        double normal_acc_scale);
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
  * Hopefully this makes changes easier to track as much of the churn will be on small functions.
  */
-
 
 /**
  * Check if the tail of the queue has a parabolic blend condition and update tc appropriately.
@@ -319,7 +315,7 @@ STATIC inline double planMaxSegmentAccel(
         TC_STRUCT const * const tc,
         tc_term_cond_t term_cond)
 {
-    double a_scale = tc->maxaccel;
+    double a_scale = tcGetMaxAccel(tc);
     /* Parabolic blending conditions: If the next segment or previous segment
      * has a parabolic blend with this one, acceleration is scaled down by 1/2
      * so that the sum of the two does not exceed the maximum.
@@ -814,11 +810,6 @@ static void forceTangentSegments(TC_STRUCT *prev_tc, TC_STRUCT *tc)
 {
     // Fall back to tangent, using kink_vel as final velocity
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-
-    // Finally, reduce acceleration proportionally to prevent violations during "kink"
-    const double kink_ratio = tpGetTangentKinkRatio();
-    tpAdjustAccelForTangent(tc, kink_ratio);
-    tpAdjustAccelForTangent(prev_tc, kink_ratio);
 }
 
 static inline int find_max_element(double arr[], int sz)
@@ -882,17 +873,19 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
     switch (best_blend) {
         case PARABOLIC_BLEND: // parabolic
             tp_debug_print("using parabolic blend\n");
-            prev_tc->kink_vel = -1.0;
+            tcRemoveKinkProperties(prev_tc, tc);
             tcSetTermCond(prev_tc, TC_TERM_COND_PARABOLIC);
             tcCheckLastParabolic(tc, prev_tc);
             break;
         case TANGENT_SEGMENTS_BLEND: // tangent
             tp_debug_print("using approximate tangent blend\n");
-            forceTangentSegments(prev_tc, tc);
+            // NOTE: acceleration / velocity reduction is done dynamically in functions that access TC_STRUCT properties
+            tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
             break;
         case ARC_BLEND: // arc blend
             tp_debug_print("using blend arc\n");
-            tc->kink_vel = -1.0;
+            tcRemoveKinkProperties(prev_tc, tc);
+
             break;
         case NO_BLEND:
             break;
@@ -1776,19 +1769,6 @@ STATIC double pmCartAbsMax(PmCartesian const * const v)
     return fmax(fmax(fabs(v->x),fabs(v->y)),fabs(v->z));
 }
 
-STATIC int tpAdjustAccelForTangent(
-        TC_STRUCT * const tc,
-        double normal_acc_scale)
-{
-        if (normal_acc_scale >= 1.0) {
-            rtapi_print_msg(RTAPI_MSG_ERR,"Can't have acceleration scale %f > 1.0\n",normal_acc_scale);
-            return TP_ERR_FAIL;
-        }
-        double a_reduction_ratio = 1.0 - normal_acc_scale;
-        tp_debug_print(" acceleration reduction ratio is %f\n", a_reduction_ratio);
-        tc->maxaccel *= a_reduction_ratio;
-        return TP_ERR_OK;
-}
 
 /**
  * Check for tangency between the current segment and previous segment.
@@ -1850,7 +1830,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double v_max = fmin(v_max1, v_max2);
     tp_debug_print("tangent v_max = %f\n",v_max);
 
-    double a_inst = v_max / tp->cycleTime;
+    // Account for acceleration past final velocity during a split cycle
+    // (e.g. next segment starts accelerating again so the average velocity is higher at the end of the split cycle)
+    double a_inst = v_max / tp->cycleTime + tc->maxaccel;
     // Set up worst-case final velocity
     // Compute the actual magnitude of acceleration required given the tangent directions
     // Do this by assuming that we decelerate to a stop on the previous segment,
@@ -1885,16 +1867,14 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     // Controls the tradeoff between reduction of final velocity, and reduction of allowed segment acceleration
     // TODO: this should ideally depend on some function of segment length and acceleration for better optimization
     const double kink_ratio = tpGetTangentKinkRatio();
+
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-        prev_tc->kink_vel = v_max;
-        tpAdjustAccelForTangent(tc, acc_scale_max);
-        tpAdjustAccelForTangent(prev_tc, acc_scale_max);
-
+        tcSetKinkProperties(prev_tc, tc, v_max, acc_scale_max);
         return TP_ERR_OK;
     } else {
-        prev_tc->kink_vel = v_max * kink_ratio / acc_scale_max;
+        tcSetKinkProperties(prev_tc, tc, v_max * kink_ratio / acc_scale_max, kink_ratio);
         tp_debug_print("Kink acceleration scale %f above %f, kink vel = %f, blend arc may be faster\n",
                 acc_scale_max,
                 kink_ratio,
