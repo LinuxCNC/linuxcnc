@@ -799,19 +799,6 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 }
 
 
-/**
- * Force two segments to be treated as tangent based on the computed kink velocity.
- *
- * @warning for segments that are not close to tangent, the maximum
- * acceleration will be drastically reduced to ensure that the transition is
- * within velocity / acceleration limits.
- */
-static void forceTangentSegments(TC_STRUCT *prev_tc, TC_STRUCT *tc)
-{
-    // Fall back to tangent, using kink_vel as final velocity
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-}
-
 static inline int find_max_element(double arr[], int sz)
 {
     if (sz < 1) {
