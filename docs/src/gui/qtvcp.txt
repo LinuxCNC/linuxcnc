@@ -1,4 +1,4 @@
-[[cha:qtscreen]]
+[[cha:qtvcp]]
 
 = Qtvcp
 
@@ -149,11 +149,12 @@ repositories. You can compile it your self or there are precompiled versions +
 available for common systems. +
 in 'lib/python/qtvcp/designer' there are folders based on system architectures +
 and then QT version. +
-You must pick the cpu architecture folder then pick the series; 5.5 or 5.7 of Qt. +
-currently Debian stretch uses 5.7, Mint 12 uses 5.5 +
+You must pick the cpu architecture folder then pick the series; 5.5, 5.7, or 5.9 of Qt. +
+currently Debian stretch uses 5.7, Mint 12 uses 5.5, Mint 19 uses 5.9 +
 if in doubt check the version of QT5 on the system. +
 
-You must copy that proper version of 'libpyqt5_py2.so' to this folder: +
+You must decompress the file and then copy that proper version of +
+'libpyqt5_py2.so' to this folder: +
 '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer' +
 (x86_64-linux-gnu might be called something slightly different +
 on different systems) +
@@ -250,7 +251,7 @@ pins are available. +
 In our example there are no HAl pins to connect. +
 
 == Handler file in detail
-handler files are used to create custom controls using python.+
+handler files are used to create custom controls using python. +
 
 === Overview
 Here is a sample handler file. +
