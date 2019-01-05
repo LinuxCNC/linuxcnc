@@ -1813,7 +1813,13 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         if (!tc->finalized) {
             tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
             // use worst-case final velocity that allows for up to 1/2 of a segment to be consumed.
+
             prev1_tc->finalvel = fmin(prev1_tc->maxvel, tpCalculateOptimizationInitialVel(tp,tc));
+
+            // Fixes acceleration violations when last segment is not finalized, and previous segment is tangent.
+            if (prev1_tc->kink_vel >=0  && prev1_tc->term_cond == TC_TERM_COND_TANGENT) {
+              prev1_tc->finalvel = fmin(prev1_tc->finalvel, prev1_tc->kink_vel);
+            }
             tc->finalvel = 0.0;
         } else {
             tpComputeOptimalVelocity(tp, tc, prev1_tc);
