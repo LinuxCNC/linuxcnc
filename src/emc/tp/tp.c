@@ -887,7 +887,7 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
             tcCheckLastParabolic(tc, prev_tc);
             break;
         case TANGENT_SEGMENTS_BLEND: // tangent
-            tp_debug_print("using parabolic blending\n");
+            tp_debug_print("using approximate tangent blend\n");
             forceTangentSegments(prev_tc, tc);
             break;
         case ARC_BLEND: // arc blend
@@ -1846,6 +1846,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     double a_inst = v_max / tp->cycleTime;
     // Set up worst-case final velocity
+    // Compute the actual magnitude of acceleration required given the tangent directions
+    // Do this by assuming that we decelerate to a stop on the previous segment,
+    // and simultaneously accelerate up to the maximum speed on the next one.
     PmCartesian acc1, acc2, acc_diff;
     pmCartScalMult(&prev_tan, a_inst, &acc1);
     pmCartScalMult(&this_tan, a_inst, &acc2);
@@ -1873,6 +1876,8 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         acc_scale_max /= BLEND_ACC_RATIO_TANGENTIAL;
     }
 
+    // Controls the tradeoff between reduction of final velocity, and reduction of allowed segment acceleration
+    // TODO: this should ideally depend on some function of segment length and acceleration for better optimization
     const double kink_ratio = tpGetTangentKinkRatio();
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
