@@ -28,7 +28,7 @@ addf vel_xyz servo-thread
 net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt_x.in
 net Zpos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt_z.in
 net Cpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
-
+net Wpos joint.3.motor-pos-cmd => joint.3.motor-pos-fb
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals

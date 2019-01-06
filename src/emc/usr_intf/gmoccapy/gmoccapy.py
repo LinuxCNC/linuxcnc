@@ -286,7 +286,6 @@ class gmoccapy(object):
         self._make_touch_button()
         self._make_jog_increments()
         self._make_jog_button()
-#ToDo : we have to check for non trivial kinematics, as in that case we need also Joint joggin button
         if not self.trivial_kinematics:
             # we need joint jogging button
             self._make_joints_button()
@@ -442,8 +441,8 @@ class gmoccapy(object):
 
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True, bool))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True, bool))
-        view = self.prefs.getpref("gremlin_view", "rbt_view_p", str)
-        self.widgets[view].set_active(True)
+        view = view = self.prefs.getpref("view", "p", str)
+        self.widgets["rbt_view_{0}".format(view)].set_active(True)
 
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
@@ -1153,7 +1152,7 @@ class gmoccapy(object):
         print("**** Entering make jog button")
 
         self.jog_button_dic = {}
-        
+
         for axis in self.axis_list:
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(axis), direction)
@@ -1166,6 +1165,8 @@ class gmoccapy(object):
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
+
+        print self.jog_button_dic
 
     def _make_joints_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1180,8 +1181,9 @@ class gmoccapy(object):
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
-                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(joint)))
+                btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+                btn.set_size_request(48,48)
 
                 self.joints_button_dic[name] = btn
 
@@ -1277,25 +1279,84 @@ class gmoccapy(object):
         self.dro_dic["Combi_DRO_0"].change_axisletter("R")
 
         # For gremlin we don"t need the following button
-        if self.backtool_lathe:
-            self.widgets.rbt_view_y2.set_active(True)
-            self.widgets.gremlin.set_property("view", "y2")
-            self.prefs.putpref("gremlin_view", "rbt_view_y2")
-        else:
-            self.widgets.rbt_view_y.set_active(True)
-            self.widgets.gremlin.set_property("view", "y")
-            self.prefs.putpref("gremlin_view", "rbt_view_y")
-
         self.widgets.rbt_view_p.hide()
         self.widgets.rbt_view_x.hide()
         self.widgets.rbt_view_z.hide()
+
+        # but we have to show this one
         self.widgets.rbt_view_y2.show()
 
+        # we check the preferences, on purpose with the default p value
+        # if we recieve a p, that mean first start, otherwise we get y or Y2
+        view = self.prefs.getpref("view", "p", str)
+
+        if view == "p":
+            if self.backtool_lathe:
+                view = "y2"
+            else:
+                view = "y"
+            self.prefs.putpref("view", view)
+
+        self.widgets.gremlin.set_property("view", view)
+        self.widgets["rbt_view_{0}".format(view)].set_active(True)
+
         self._switch_to_g7(False)
+
+        # we need to arrange the jog button,
+        # a lathe should have at least X and Z axis
+        if not "x" in self.axis_list or not "z" in self.axis_list:
+            message = _("*****  GMOCCAPY ERROR  *****")
+            message += _("this is not a lathe, as a lathe must have at least\n")
+            message += _("an X and an Z axis\n")
+            message += _("Wrong lathe configuration, we will leave here")
+            self.dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            sys.exit()
+        else:
+            if len(self.axis_list) == 2:
+                self.widgets.tbl_jog_btn_axes.resize(3,3)
+            elif len(self.axis_list) < 6:
+                self.widgets.tbl_jog_btn_axes.resize(3,4)
+            else:
+                self._arrange_jog_button_by_axis()
+                return
+            count = 0
+            for btn_name in self.jog_button_dic:
+                if btn_name == "x+":
+                    col = 1
+                    row = 2
+                    if self.backtool_lathe:
+                        row = 0
+                elif btn_name == "x-":
+                    col = 1
+                    row = 0
+                    if self.backtool_lathe:
+                        row = 2
+                elif btn_name == "z+":
+                    col = 2
+                    row = 1
+                elif btn_name == "z-":
+                    col = 0
+                    row = 1
+                else:
+                    if count < 2:
+                        col = 3
+                    elif count < 4:
+                        col = 2
+                    else:
+                        col = 0
+                    if "+" in btn_name:
+                        row = 0
+                    else:
+                        row = 2
+                    count +=1
+
+                self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
+                self.jog_button_dic[btn_name].show()
 
     def _arrange_dro(self):
         print("**** GMOCCAPY INFO ****")
         print("**** arrange DRO")
+        print(len(self.dro_dic))
         # if we have less than 4 axis, we can resize the table, as we have 
         # enough space to display each one in it's own line
 
@@ -1311,8 +1372,10 @@ class gmoccapy(object):
         # this is a special case so we do not use _place_in_table
         elif len(self.dro_dic) == 5:
             self.widgets.tbl_DRO.resize(4,2)
-            for dro, axis in enumerate(self.axis_list):
-                dro_name = "Combi_DRO_{0}".format(dro)
+            dro_order = self._get_DRO_order()
+
+            for dro, dro_name in enumerate(dro_order):
+                # as a lathe might not have all Axis, we check if the key is in directory
                 if dro < 3:
                     size = self.dro_size * 0.75
                     self.widgets.tbl_DRO.attach(self.dro_dic[dro_name], 
@@ -1348,14 +1411,7 @@ class gmoccapy(object):
         col = 0
         row = 0
 
-        # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
-        if "Combi_DRO_9" in self.dro_dic.keys():
-            children = self.widgets.tbl_DRO.get_children()
-            print (children)
-            dro_order = ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
-                         "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]
-        else:
-            dro_order = sorted(self.dro_dic.keys())
+        dro_order = self._get_DRO_order()
 
         for dro, dro_name in enumerate(dro_order):
             # as a lathe might not have all Axis, we check if the key is in directory
@@ -1375,125 +1431,156 @@ class gmoccapy(object):
             else:
                 row += 1
 
+    def _get_DRO_order(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** get DRO order")
+        dro_order = []
+        # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
+        if "Combi_DRO_9" in self.dro_dic.keys():
+            for dro_name in ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
+                             "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]:
+                if dro_name in self.dro_dic.keys():
+                    dro_order.append(dro_name)
+        else:
+            dro_order = sorted(self.dro_dic.keys())
+        return dro_order
+
     def _arrange_jog_button(self):
         print("**** GMOCCAPY INFO ****")
         print("**** arrange JOG button")
-        num_axis = len(self.jog_button_dic)
-        print("length of button dictionary = {0}".format(num_axis))
-        print("Meaning we have {0} axis {1}".format(len(self.axis_list), self.axis_list))
+
+        # if we have a lathe, we have done the arrangement in _make_lathe
+        # but if the lathe has more than 5 axis we will use standard
+        if self.lathe_mode:
+            return
+
+        if len(self.axis_list) > 5:
+            self._arrange_jog_button_by_axis()
+            return
+
+        if not "x" in self.axis_list or not "y" in self.axis_list or not "z" in self.axis_list:
+            message = _("*****  GMOCCAPY INFO  *****")
+            message += _("this is not a usual config\n")
+            message += _("we miss one of X , Y or Z axis\n")
+            message += _("We will use by axisletter ordered jog button")
+            print(message)
+            self._arrange_jog_button_by_axis()
+            return
 
         if len(self.axis_list) < 3:
             print("Less than 3 axis")
             # we can resize the jog_btn_table
             self.widgets.tbl_jog_btn_axes.resize(3, 3)
-
-        if len(self.axis_list) < 6:
+        else:
             print("less than 6 axis")
             # we can resize the jog_btn_table
             self.widgets.tbl_jog_btn_axes.resize(3, 4)
 
+        count = 0
         for btn_name in self.jog_button_dic:
             if btn_name == "x+":
                 col = 2
                 row = 1
-                if self.lathe_mode:
-                    col = 1
-                    row = 2
-                if self.backtool_lathe:
-                    row = 0
-            if btn_name == "x-":
+            elif btn_name == "x-":
                 col = 0
                 row = 1
-                if self.lathe_mode:
-                    col = 1
-                    row = 0
-                if self.backtool_lathe:
-                    row = 2
-            if btn_name == "y+":
+            elif btn_name == "y+":
                 col = 1
                 row = 0
-            if btn_name =="y-":
+            elif btn_name =="y-":
                 col = 1
                 row = 2
-            if btn_name == "z+":
+            elif btn_name == "z+":
                 col = 3
                 row = 0
-                if self.lathe_mode:
+            elif btn_name == "z-":
+                col = 3
+                row = 2
+            else:
+                if count < 2:
                     col = 2
-                    row = 1
                 else:
-                    col = 3
-                    row = 0
-            if btn_name == "z-":
-                col = 3
-                row = 2
-                if self.lathe_mode:
                     col = 0
-                    row = 1
+                if "+" in btn_name:
+                    row = 0
                 else:
-                    col = 3
                     row = 2
-            if btn_name == "a+":
-                col = 4
-                row = 3
-            if btn_name =="a-":
-                col = 3
-                row = 3
-            if btn_name == "b+":
-                col = 2
-                row = 3
-            if btn_name =="b-":
-                col = 0
-                row = 3
-            if btn_name == "c+":
-                col = 2
-                row = 2
-            if btn_name =="c-":
-                col = 0
-                row = 0
-            if btn_name == "u+":
-                col = 4
-                row = 0
-            if btn_name =="u-":
-                col = 3
-                row = 0
-            if btn_name == "v+":
-                col = 4
-                row = 1
-            if btn_name =="v-":
-                col = 3
-                row = 1
-            if btn_name == "w+":
-                col = 4
-                row = 2
-            if btn_name =="w-":
-                col = 3
-                row = 2
-
+                count +=1
             self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name], col, col + 1, row, row + 1)
-            self.jog_button_dic[btn_name].show()
+        self.widgets.tbl_jog_btn_axes.show_all()
 
+    def _arrange_jog_button_by_axis(self):
+        print("**** GMOCCAPY INFO ****")
+        print("**** arrange JOG button by axis")
+        print sorted(self.jog_button_dic.keys())
+        # check if amount of axis is an even number, adapt the needed lines
+        cols = 4
+        if len(self.dro_dic) % 2 == 0:
+            rows = len(self.dro_dic) / 2
+        else:
+            rows = (len(self.dro_dic) + 1) / 2
+
+        self.widgets.tbl_jog_btn_axes.resize(rows, cols)
+        print (cols,rows)
+
+        col = 0
+        row = 0
+
+        for pos, btn in enumerate("xyzabcuvw"):
+            btn_name = "{0}-".format(btn)
+            if btn_name not in self.jog_button_dic.keys():
+                continue
+
+            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col, col+1, row, row + 1, ypadding = 0)
+            btn_name = "{0}+".format(btn)
+            self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
+                                        col+1, col+2, row, row + 1, ypadding = 0)
+
+            row +=1
+
+            # calculate if we have to place in the first or the second column
+            if row >= rows:
+                col = 2
+                row = 0
+        self.widgets.tbl_jog_btn_axes.show_all()
 
 
     def _arrange_joint_button(self):
         print("**** GMOCCAPY INFO ****")
         print("**** arrange JOINTS button")
-        num_joints = len(self.joints_button_dic)
-        print("Found {0} Joints Button".format(num_joints))
+        print("Found {0} Joints Button".format(len(self.joints_button_dic)))
 
-        if num_joints <= 9:
-            # we can resize the jog_btn_table
-            self.widgets.tbl_jog_btn_axes.resize(3, 3)
+        cols = 4
+        if self.stat.joints % 2 == 0:
+            rows = self.stat.joints / 2
+        else:
+            rows = (self.stat.joints + 1) / 2
 
-        for name in self.joints_button_dic:
-            if name[1] == "-":
-                col = 0
-            else:
-                col = 1
-            row = int(name[0])
+        self.widgets.tbl_jog_btn_joints.resize(rows, cols)
+
+        col = 0
+        row = 0
+
+        for joint in range(0, self.stat.joints):
+            print(joint)
+
+            joint_name = "{0}-".format(joint)
+            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col, col+1, row, row + 1, ypadding = 0)
+
+            joint_name = "{0}+".format(joint)
+            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
+                                    col+1, col+2, row, row + 1, ypadding = 0)
+
+            row +=1
+
+            # calculate if we have to place in the first or the second column
+            if row >= rows:
+                col = 2
+                row = 0
                 
-            self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[name], col, col + 1, row, row + 1)
-            self.joints_button_dic[name].show()
+        self.widgets.tbl_jog_btn_joints.show_all()
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
@@ -1792,10 +1879,13 @@ class gmoccapy(object):
 
     # init the preview
     def _init_gremlin( self ):
+        print (_("**** GMOCCAPY INFO ****"))
+        print (_("**** Entering init gremlin ****"))
+
         grid_size = self.prefs.getpref( 'grid_size', 1.0, float )
         self.widgets.grid_size.set_value( grid_size )
         self.widgets.gremlin.grid_size = grid_size
-        view = self.prefs.getpref( 'view', "p", str )
+        view = view = self.prefs.getpref("view", "p", str )
         self.widgets.gremlin.set_property( "view", view )
         self.widgets.gremlin.set_property( "metric_units", int( self.stat.linear_units ) )
         self.widgets.gremlin.set_property( "mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
@@ -3135,14 +3225,9 @@ class gmoccapy(object):
                 self.rabbit_jog = self.rabbit_jog * self.faktor
 
     def _change_dro_color(self, property, color):
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property(property, color)
+        for dro in self.dro_dic:
+            self.dro_dic[dro].set_property(property, color)
         if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_property(property, color)
             # check if G7 or G8 is active
             # this is set on purpose wrong, because we want the periodic
             # to update the state correctly
@@ -3215,28 +3300,16 @@ class gmoccapy(object):
             format_string_inch = "%" + str(13 - self.dro_digits) + "." + str(self.dro_digits) + "f"
             format_string_mm = "%" + str(13 - self.dro_digits + 1) + "." + str(self.dro_digits - 1) + "f"
 
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("mm_text_template", format_string_mm)
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("imperial_text_template", format_string_inch)
-
-        if self.lathe_mode:
-            self.widgets.Combi_DRO_y.set_property("mm_text_template", format_string_mm)
-            self.widgets.Combi_DRO_y.set_property("imperial_text_template", format_string_inch)
+        for dro in self.dro_dic:
+            self.dro_dic[dro].set_property("mm_text_template", format_string_mm)
+            self.dro_dic[dro].set_property("imperial_text_template", format_string_inch)
 
     def on_chk_toggle_readout_toggled(self, widget, data=None):
         state = widget.get_active()
         self.prefs.putpref("toggle_readout", state)
         self.toggle_readout = state
-        for axis in self.axis_list:
-            if axis == self.axisletter_four:
-                axis = 4
-            if axis == self.axisletter_five:
-                axis = 5
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("toggle_readout", state)
+        for dro in self.dro_dic:
+            self.dro_dic[dro].set_property("toggle_readout", state)
 
     def _on_DRO_clicked(self, widget, joint, order):
         for dro in self.dro_dic:
@@ -4177,17 +4250,9 @@ class gmoccapy(object):
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value
 
-        for axis in self.axis_list:
+        for dro in self.dro_dic:
             size = self.dro_size
-            if axis == self.axisletter_four:
-                axis = 4
-                size = int(size * 0.75)
-            if axis == self.axisletter_five:
-                axis = 5
-                size = int(size * 0.75)
-            self.widgets["Combi_DRO_{0}".format(axis)].set_property("font_size", size)
-            if self.lathe_mode:
-                self.widgets.Combi_DRO_y.set_property("font_size", size)
+            self.dro_dic[dro].set_property("font_size", size)
 
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         self.prefs.putpref("hide_cursor", widget.get_active())
@@ -4446,27 +4511,27 @@ class gmoccapy(object):
     def on_rbt_view_p_toggled(self, widget, data=None):
         if self.widgets.rbt_view_p.get_active():
             self.widgets.gremlin.set_property("view", "p")
-        self.prefs.putpref("gremlin_view", "rbt_view_p")
+            self.prefs.putpref("view", "p")
 
     def on_rbt_view_x_toggled(self, widget, data=None):
         if self.widgets.rbt_view_x.get_active():
             self.widgets.gremlin.set_property("view", "x")
-        self.prefs.putpref("gremlin_view", "rbt_view_x")
+            self.prefs.putpref("view", "x")
 
     def on_rbt_view_y_toggled(self, widget, data=None):
         if self.widgets.rbt_view_y.get_active():
             self.widgets.gremlin.set_property("view", "y")
-        self.prefs.putpref("gremlin_view", "rbt_view_y")
+            self.prefs.putpref("view", "y")
 
     def on_rbt_view_z_toggled(self, widget, data=None):
         if self.widgets.rbt_view_z.get_active():
             self.widgets.gremlin.set_property("view", "z")
-        self.prefs.putpref("gremlin_view", "rbt_view_z")
+            self.prefs.putpref("view", "z")
 
     def on_rbt_view_y2_toggled(self, widget, data=None):
         if self.widgets.rbt_view_y2.get_active():
             self.widgets.gremlin.set_property("view", "y2")
-        self.prefs.putpref("gremlin_view", "rbt_view_y2")
+            self.prefs.putpref("view", "y2")
 
     def on_btn_zoom_in_clicked(self, widget, data=None):
         self.widgets.gremlin.zoom_in()
