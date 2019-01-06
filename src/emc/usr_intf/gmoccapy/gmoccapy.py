@@ -174,7 +174,6 @@ class gmoccapy(object):
         # translation of the glade file will be done with
         self.builder.set_translation_domain("gmoccapy")
         self.builder.add_from_file(XMLNAME)
-#        self.builder.connect_signals(self)
 
         self.widgets = widgets.Widgets(self.builder)
         
@@ -272,7 +271,7 @@ class gmoccapy(object):
             page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
             self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
-        # Our own clas to get information from ini the file we use this way, to be sure
+        # Our own class to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
         self._get_ini_data()
@@ -391,39 +390,6 @@ class gmoccapy(object):
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_switch_mode.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-
-#        # tool measurement probe settings
-#        xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
-#        if not xpos or not ypos or not zpos or not maxprobe:
-#            self.widgets.chk_use_tool_measurement.set_active(False)
-#            self.widgets.chk_use_tool_measurement.set_sensitive(False)
-#            self.widgets.btn_block_height.set_sensitive(False)
-#            self.widgets.lbl_tool_measurement.show()
-#            self.widgets.btn_zero_g92.show()
-#            self.widgets.btn_block_height.hide()
-#            print(_("**** GMOCCAPY INFO ****"))
-#            print(_("**** no valid probe config in INI File ****"))
-#            print(_("**** disabled tool measurement ****"))
-#        else:
-#            self.widgets.lbl_tool_measurement.hide()
-#            self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
-#            self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
-#            self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
-#            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
-#            # to set the hal pin with correct values we emit a toogled
-#            self.widgets.lbl_x_probe.set_label(str(xpos))
-#            self.widgets.lbl_y_probe.set_label(str(ypos))
-#            self.widgets.lbl_z_probe.set_label(str(zpos))
-#            self.widgets.lbl_maxprobe.set_label(str(maxprobe))
-#            self.widgets.btn_block_height.set_sensitive(True)
-#            self.widgets.btn_zero_g92.hide()
-#            self.widgets.btn_block_height.show()
-#            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
-#            print(_("**** GMOCCAPY INFO ****"))
-#            print(_("**** found valid probe config in INI File ****"))
-#            print(_("**** will use auto tool measurement ****"))
-#        self.widgets.chk_use_tool_measurement.emit("toggled")
-
 
         # should the tool in spindle be reloaded on startup?
         self.widgets.chk_reload_tool.set_active(self.prefs.getpref("reload_tool", True, bool))
@@ -808,8 +774,6 @@ class gmoccapy(object):
     def _put_home_all_and_previous(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["previous_button"])
-
-
 
     def _make_touch_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1238,8 +1202,6 @@ class gmoccapy(object):
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
 
-#        self.widgets.hbtb_MDI.non_homogeneous = False
-
         file = "keyboard.png"
         filepath = os.path.join(IMAGEDIR, file)
 
@@ -1553,7 +1515,6 @@ class gmoccapy(object):
                 col = 2
                 row = 0
         self.widgets.tbl_jog_btn_axes.show_all()
-
 
     def _arrange_joint_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1912,12 +1873,6 @@ class gmoccapy(object):
             self.widgets.tbtn_switch_mode.set_active(True)
             self.widgets.lbl_replace_mode_btn.hide()
             self.widgets.ntb_jog_JA.set_page(1)
-#            self.h_tabs[_BB_MANUAL].append((6, "btn_tool"))
-#            page9 = self.widgets.ntb_button.get_nth_page(9)
-#            self.widgets.ntb_button.reorder_child(page9, _BB_HOME)
-#            page4 = self.widgets.ntb_button.get_nth_page(4)
-#            self.widgets.ntb_button.reorder_child(page4, -1)
-#            self._reset_joint_button_order_to_default()        
         else:
             self.widgets.gremlin.set_property( "enable_dro", False )
             self.widgets.gremlin.use_joints_mode = False
@@ -3576,39 +3531,6 @@ class gmoccapy(object):
         # 1:teleop, 0: joint
         self.command.teleop_enable(state)
         self.command.wait_complete()
-
-        
-    def on_btn_sel_next_joints_clicked(self, widget, data=None):
-        widget.hide()
-        for item in range(0, 3):
-            self.widgets["btn_home_j{0}".format(item)].hide()
-        for item in range(5, 8):
-            self.widgets["btn_home_j{0}".format(item)].show()
-        self.widgets.btn_sel_prev_joints.show()
-
-        #reorder the hardware button handling list
-        self._replace_list_item(9, "btn_home_j0", "btn_sel_prev_joints")
-        self._replace_list_item(9, "btn_home_j5", "btn_sel_next_joints")
-        self._replace_list_item(9, "btn_home_j4", "btn_home_j6")
-        self._replace_list_item(9, "btn_home_j3", "btn_home_j5")
-        self._replace_list_item(9, "btn_home_j2", "btn_home_j4")
-        self._replace_list_item(9, "btn_home_j1", "btn_home_j3")
-
-    def on_btn_sel_prev_joints_clicked(self, widget, data=None):
-        widget.hide()
-        for item in range(0,3):
-            self.widgets["btn_home_j{0}".format(item)].show()
-        for item in range(5,8):
-            self.widgets["btn_home_j{0}".format(item)].hide()
-        self.widgets.btn_sel_next_joints.show()
-        self._reset_joint_button_order_to_default()
-        
-    def _reset_joint_button_order_to_default(self):
-        if self.stat.joints < 6:
-            return
-        self.h_tabs[_BB_HOME] = [(0, "btn_home_j_all"), (1, "btn_home_j0"), (2, "btn_home_j1"), (3, "btn_home_j2"), (4, "btn_home_j3"),
-                   (5, "btn_home_j4"), (6, "btn_home_j5"), (7, "btn_sel_next_joints"), (8, "btn_unhome_j_all"), (9, "btn_back_joints")
-        ]
 
 # The homing functions
 # =========================================================

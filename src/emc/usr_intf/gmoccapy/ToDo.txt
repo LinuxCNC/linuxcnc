@@ -1,0 +1,12 @@
+ - ToDo:
+
+* more than 7 Joints will need arrow keys!
+
+* Macro button with arrow next previous
+* Macro button with images
+
+* time capture
+    # machine on
+    # machine running
+    # spindle running
+    # hal pin for times
