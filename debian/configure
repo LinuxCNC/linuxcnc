@@ -26,6 +26,11 @@ rules_enable_threads() {
     # enable thread flavors in debian/rules; e.g.
     #    THREADS_POSIX = --with-posix
     # ...unnecessary for control-only
+    if test -n "$MK_CROSS_BUILDER"; then
+        # Reduce file req'ts in mk-cross-builder
+        echo "debian/rules:  skip ${FLAVOR} config in mk-cross-builder" >&2
+        return
+    fi
     FLAVOR=$1
     FLAVOR_VAR=THREADS_$(echo $FLAVOR | tr 'a-z-' 'A-Z_')
     sed -i rules \
@@ -43,7 +48,7 @@ do_posix() {
 do_rt-preempt() {
     cat control.rt-preempt.in >> control
     echo "debian/control:  added RT_PREEMPT threads package" >&2
-    
+
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
@@ -82,9 +87,9 @@ machinekit (${MKVERSION}) ${DISTRO_UC}; urgency=low
 
 EOF
 
-cat changelog # debug output
-cat changelog.in >> changelog
-echo "New package version number added to changelog"
+    cat changelog # debug output
+    cat changelog.in >> changelog
+    echo "New package version number added to changelog"
 }
 
 ## Create source orig tarball in format required for creation of debian tarball and .dsc file
@@ -143,18 +148,20 @@ HAVE_FLAVOR=false
 if [ "$DISTRO_CODENAME" == "stretch" ]; then
     cp control.stretch.in control
 elif [ "$DISTRO_CODENAME" == "buster" ]; then
-    cp control.buster.in control   	
+    cp control.buster.in control
 elif [ "$DISTRO_CODENAME" == "sid" ]; then
-    cp control.sid.in control   	
+    cp control.sid.in control
 else
     cp control.in control
 fi
 
-echo "debian/control:  copied base template" >&2
-cp rules.in rules; chmod +x rules
-echo "debian/rules:  copied base template" >&2
-cp machinekit.install.in machinekit.install
-echo "debian/machinekit.install.in:  copied base template" >&2
+if test -z "$MK_CROSS_BUILDER"; then # Reduce file req'ts in mk-cross-builder
+    echo "debian/control:  copied base template" >&2
+    cp rules.in rules; chmod +x rules
+    echo "debian/rules:  copied base template" >&2
+    cp machinekit.install.in machinekit.install
+    echo "debian/machinekit.install.in:  copied base template" >&2
+fi
 
 # read command line options
 while getopts prxcsd?h ARG; do
@@ -176,4 +183,3 @@ echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured
 $HAVE_FLAVOR || usage "WARNING:  No thread flavors configured"
-

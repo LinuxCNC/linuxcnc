@@ -2288,7 +2288,6 @@ static void print_sig_info(int type, char **patterns)
 
 static void print_script_sig_info(int type, char **patterns)
 {
-#warning fixme
 #if 0
     int next;
     hal_sig_t *sig;

@@ -379,7 +379,7 @@ int _rtapi_wait_hook(const int flags) {
 			    "rt_task_wait_hook: BUG - task_id out of range: %d\n",
 			    task_id);
 	    // maybe should call a BUG exception here
-	    return;
+	    return 0;
 	}
 
 	// inquire, fill in
@@ -443,6 +443,7 @@ int _rtapi_wait_hook(const int flags) {
 	if (rt_exception_handler)
 	    rt_exception_handler(type, &detail, ts);
     }  // else: ok - no overruns;
+    return 0;
 }
 
 int _rtapi_task_self_hook(void) {

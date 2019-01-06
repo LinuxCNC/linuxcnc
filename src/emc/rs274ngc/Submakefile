@@ -50,9 +50,11 @@ TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 	    -lstdc++ -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) -ldl
 
 ../include/%.h: ./emc/rs274ngc/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./emc/rs274ngc/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
 PYSRCS += $(GCODEMODULESRCS)

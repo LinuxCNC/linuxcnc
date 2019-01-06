@@ -63,10 +63,12 @@ TARGETS += ../lib/libmtalk.so ../lib/libmtalk.so.0
 	$(PB2JSONLIB_LDFLAGS)  $(LIBBACKTRACE)
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 ../include/%.hh: ./$(MACHINETALK)/include/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 
 ifeq ($(BUILD_DEV),yes)
 

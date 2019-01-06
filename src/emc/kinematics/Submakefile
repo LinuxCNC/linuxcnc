@@ -37,6 +37,8 @@ TARGETS += ../bin/drawbotkins
 
 
 ../include/%.h: ./emc/kinematics/%.h
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@
 ../include/%.hh: ./emc/kinematics/%.hh
-	cp $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp $^ $@

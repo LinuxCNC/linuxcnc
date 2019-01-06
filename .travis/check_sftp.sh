@@ -23,7 +23,7 @@ fi
 # test conection
 FILE="${TRAVIS_REPO_SLUG//\//.}_${TRAVIS_BRANCH}_${TRAVIS_JOB_NUMBER}"
 
-cat >${TRAVIS_BUILD_DIR}/../${FILE} << EOF 
+cat >${TRAVIS_BUILD_DIR}/../${FILE} << EOF
 TRAVIS_BRANCH=${TRAVIS_BRANCH}
 TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}
 TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID}
@@ -50,3 +50,5 @@ sshpass -p ${SFTP_PASSWD} sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no \
 if [ $err -ne 0 ]; then
     die "Error connecting with sftp. Exit code: ${err}"
 fi
+
+echo "Successfully configured sftp"

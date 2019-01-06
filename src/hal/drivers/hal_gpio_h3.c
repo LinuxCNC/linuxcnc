@@ -12,7 +12,7 @@
 #include "hal.h"            /* HAL public API decls */
 #include <fcntl.h>
 #include <sys/mman.h>
-
+#include <unistd.h>
 
 
 
@@ -72,7 +72,7 @@ struct _GPIO_PORT_t
 
 
 
-static const uint8_t * comp_name = "hal_gpio_h3";
+static const char * comp_name = "hal_gpio_h3";
 
 static struct _GPIO_PORT_REG_t * _GPIO[GPIO_PORT_COUNT] = {0};
 
@@ -173,12 +173,12 @@ long long port_write_time = 0;
 
 static uint8_t input_pins_list[H3_PINS_COUNT] = {0};
 static uint8_t input_pins_count = 0;
-static int8_t *input_pins;
+static char *input_pins;
 RTAPI_MP_STRING(input_pins, "input pins, comma separated");
 
 static uint8_t output_pins_list[H3_PINS_COUNT] = {0};
 static uint8_t output_pins_count = 0;
-static int8_t *output_pins;
+static char *output_pins;
 RTAPI_MP_STRING(output_pins, "output pins, comma separated");
 
 static unsigned long ns2tsc_factor;
@@ -217,9 +217,9 @@ int32_t rtapi_app_main(void)
     uint32_t    vrt_offset = 0;
     off_t       phy_block_addr = 0;
     int32_t     n, retval, p;
-    int8_t      *data, *token;
+    char        *data, *token;
     uint8_t     pin;
-    int8_t      name[HAL_NAME_LEN + 1];
+    char        name[HAL_NAME_LEN + 1];
 
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
@@ -367,7 +367,7 @@ int32_t rtapi_app_main(void)
                     if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
-                        pin = (uint8_t) strtol(&token[2], NULL, 10);
+                        pin = (uint8_t) simple_strtol(&token[2], NULL, 10);
 
                         // if a correct pin number wasn't found
                         if ( pin >= _GPIO_port_info[p].pins_count )
@@ -411,7 +411,7 @@ int32_t rtapi_app_main(void)
             else if ( token[0] >= '0' && token[0] <= '9' && len <= 2 )
             {
                 // trying to find a correct pin number
-                pin = (uint8_t) strtol(token, NULL, 10);
+                pin = (uint8_t) simple_strtol(token, NULL, 10);
 
                 // if a correct pin number wasn't found
                 if ( pin < 1 || pin >= OPI_PINS_COUNT || !_OPI_pins[pin].valid )
@@ -484,7 +484,7 @@ int32_t rtapi_app_main(void)
                     if ( token[1] == _GPIO_port_info[p].name )
                     {
                         // trying to find a correct pin number
-                        pin = (uint8_t) strtol(&token[2], NULL, 10);
+                        pin = (uint8_t) simple_strtol(&token[2], NULL, 10);
 
                         // if a correct pin number wasn't found
                         if ( pin >= _GPIO_port_info[p].pins_count )
@@ -546,7 +546,7 @@ int32_t rtapi_app_main(void)
             else if ( token[0] >= '0' && token[0] <= '9' && len <= 2 )
             {
                 // trying to find a correct pin number
-                pin = (uint8_t) strtol(token, NULL, 10);
+                pin = (uint8_t) simple_strtol(token, NULL, 10);
 
                 // if a correct pin number wasn't found
                 if ( pin < 1 || pin >= OPI_PINS_COUNT ||

@@ -2,14 +2,17 @@ INCLUDES += rtapi rtapi_export
 
 # this covers the userpci and shmdrv directories too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp  $^ $@
 
 ../include/%.hh: ./rtapi/%.hh
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp  $^ $@
 
 ../include/%.h: ./rtapi/shmdrv/%.h
-	mkdir -p ../include/shmdrv
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	@mkdir -p ../include/shmdrv
+	$(Q)cp  $^ $@
 
 ##########################################
 # Separate sources hack

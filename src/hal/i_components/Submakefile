@@ -65,8 +65,7 @@ halcomp-srcs/%.c: %.icomp ../bin/instcomp
 	$(Q)../bin/instcomp --require-license -o $@ $<
 
 halcomp-srcs/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
-	$(ECHO) "Creating $(notdir $@)"
-	$(ECHO) "Creating $@"
+	$(ECHO) "Generating icomp build rules for $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
 	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
@@ -80,6 +79,8 @@ modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
 	$(ICOMPS))
 endif # BUILD_ALL_FLAVORS == yes
 
+# Regenerate conv_*.icomp when below rules are touched
+$(addprefix hal/i_components/, $(CONVERTERS)): hal/i_components/Submakefile
 
 hal/i_components/conv_float_s32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
@@ -122,19 +123,19 @@ hal/i_components/conv_u32_s32.icomp: hal/i_components/conv.icomp.in hal/i_compon
 	$(Q)sh hal/i_components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@
 
 ############ added u64 s64
-    
+
 hal/i_components/conv_float_s64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/i_components/mkconv.sh float s64 "" -9223372036854775807-1 9223372036854775807 < $< > $@
-    
+
 hal/i_components/conv_float_u64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/i_components/mkconv.sh float u64 "" 0 18446744073709551615UL < $< > $@
-    
+
 hal/i_components/conv_bit_s64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/i_components/mkconv.sh bit s64 // < $< > $@
-    
+
 hal/i_components/conv_bit_u64.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/i_components/mkconv.sh bit u64 // < $< > $@
@@ -173,8 +174,8 @@ hal/i_components/conv_s64_s32.icomp: hal/i_components/conv.icomp.in hal/i_compon
 
 hal/i_components/conv_u64_u32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/i_components/mkconv.sh u64 u32 "" 0 4294967295 < $< > $@
+	$(Q)sh hal/i_components/mkconv.sh u64 u32 "" 0 4294967295UL < $< > $@
 
 hal/i_components/conv_s64_u32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/i_components/mkconv.sh s64 u32 "" 0 4294967295 < $< > $@
+	$(Q)sh hal/i_components/mkconv.sh s64 u32 "" 0 4294967295UL < $< > $@
