@@ -10,7 +10,7 @@ Vendor: MachineKit
 Packager: MachineKit <support@machinekit.io>
 Name:         machinekit
 Version:      0.1.1
-Release:      1
+Release:      2%{?dist}
 Epoch:        0
 License: GNU
 Group: Machine Control/Daemons
