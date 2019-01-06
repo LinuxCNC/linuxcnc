@@ -296,6 +296,14 @@ class gmoccapy(object):
         # we will do that in a separate function
         if self.lathe_mode:
             self._make_lathe()
+        else:
+            self.widgets.rbt_view_y2.hide()
+            # X Offset is not necessary on a mill
+            self.widgets.lbl_tool_offset_x.hide()
+            self.widgets.lbl_offset_x.hide()
+            self.widgets.btn_tool_touchoff_x.hide()
+            self.widgets.lbl_hide_tto_x.show()
+
         
         self._arrange_dro()
         self._arrange_jog_button()
@@ -1278,10 +1286,11 @@ class gmoccapy(object):
 
         self.dro_dic["Combi_DRO_0"].change_axisletter("R")
 
-        # For gremlin we don"t need the following button
+        # For a lathe we don"t need the following button
         self.widgets.rbt_view_p.hide()
         self.widgets.rbt_view_x.hide()
         self.widgets.rbt_view_z.hide()
+        self.widgets.lbl_hide_tto_x.hide()
 
         # but we have to show this one
         self.widgets.rbt_view_y2.show()
