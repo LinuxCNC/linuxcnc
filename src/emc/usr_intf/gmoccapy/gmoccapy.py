@@ -1027,7 +1027,8 @@ class gmoccapy(object):
         self.active_increment = widget.name
 
     def _on_btn_jog_pressed(self, widget, button_name, shift=False):
-        print ("Jog Button pressed = {0}".format(button_name))
+        print("Jog Button pressed = {0}".format(button_name))
+        print(button_name[0] in "abc")
 
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
@@ -1042,7 +1043,10 @@ class gmoccapy(object):
         if shift:
             value = self.stat.max_velocity
         else:
-            value = self.widgets.spc_lin_jog_vel.get_value() / 60
+            if button_name[0] in "abc":
+                value = self.widgets.spc_ang_jog_vel.get_value() / 60
+            else:
+                value = self.widgets.spc_lin_jog_vel.get_value() / 60
 
         velocity = value * (1 / self.faktor)
 
@@ -4849,6 +4853,7 @@ class gmoccapy(object):
         self.incr_rbt_dic[btn_name].set_active(True)
 
     def _on_pin_jog_changed(self, pin, button_name):
+        print("Jog Pin Changed")
         print(button_name)
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             if self.stat.motion_mode == 1 and pin.get():
