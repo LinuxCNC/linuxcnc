@@ -273,10 +273,8 @@ class gmoccapy(object):
 
         # Our own class to get information from ini the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
-        self.get_ini_info = getiniinfo.GetIniInfo()
         self._get_ini_data()
 
-        self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
         self._get_pref_data()
 
         # make all widgets we create dynamically
@@ -348,8 +346,6 @@ class gmoccapy(object):
         self._show_iconview_tab(False)
 
         # the velocity settings
-        self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
-        self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
         self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
         self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
@@ -434,7 +430,6 @@ class gmoccapy(object):
         # if Hal pin should be used, only set the button active, if the pin is high
         if unlock == "hal" and not self.halcomp["unlock-settings"]:
             self.widgets.tbtn_setup.set_sensitive(False)
-        self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
 
         # check if the user want to display preview window instead of offsetpage widget
         state = self.prefs.getpref("show_preview_on_offset", False, bool)
@@ -457,26 +452,15 @@ class gmoccapy(object):
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
-        self.abs_color = self.prefs.getpref("abs_color", "#0000FF", str)         # blue
-        self.rel_color = self.prefs.getpref("rel_color", "#000000", str)         # black
-        self.dtg_color = self.prefs.getpref("dtg_color", "#FFFF00", str)         # yellow
-        self.homed_color = self.prefs.getpref("homed_color", "#00FF00", str)     # green
-        self.unhomed_color = self.prefs.getpref("unhomed_color", "#FF0000", str) # red
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.abs_color))
         self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.rel_color))
         self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.dtg_color))
         self.widgets.homed_colorbtn.set_color(gtk.gdk.color_parse(self.homed_color))
         self.widgets.unhomed_colorbtn.set_color(gtk.gdk.color_parse(self.unhomed_color))
 
-        # set default values according to the machine units
-        digits = 3
-        if self.stat.linear_units != _MM:
-            digits = 4
-        self.dro_digits = self.prefs.getpref("dro_digits", digits, int)
         self.widgets.adj_dro_digits.set_value(self.dro_digits)
         # the adjustment change signal will set the dro_digits correct, so no extra need here.
 
-        self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
 
         self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
@@ -510,6 +494,7 @@ class gmoccapy(object):
 
 
     def _get_ini_data(self):
+        self.get_ini_info = getiniinfo.GetIniInfo()
         # get the axis list from INI
         self.axis_list = self.get_ini_info.get_axis_list()
         # get the joint axis relation from INI
@@ -533,10 +518,29 @@ class gmoccapy(object):
             self.metric = True
         else:
             self.metric = False
+        self.no_force_homing = self.get_ini_info.get_no_force_homing()
+
+        # get the values for the sliders
+        self.rabbit_jog = self.get_ini_info.get_jog_vel()
+        self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
+        self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
+        self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
+        self.feed_override_max = self.get_ini_info.get_max_feed_override()
+        self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
+        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
+
+
 
     def _get_pref_data(self):
-        # the size of the DRO
+        self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
+        # the size and digits of the DRO
+        # set default values according to the machine units
+        digits = 3
+        if self.stat.linear_units != _MM:
+            digits = 4
+        self.dro_digits = self.prefs.getpref("dro_digits", digits, int)
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
+
         # the colors of the DRO
         self.abs_color = self.prefs.getpref("abs_color", "#0000FF", str)         # blue
         self.rel_color = self.prefs.getpref("rel_color", "#000000", str)         # black
@@ -550,7 +554,7 @@ class gmoccapy(object):
         
         self.unlock_code = self.prefs.getpref("unlock_code", "123", str)  # get unlock code
 
-
+        self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -622,7 +626,6 @@ class gmoccapy(object):
                     col += 1
             else:
                 row += 1
-
 
     def _make_ref_axis_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1553,7 +1556,6 @@ class gmoccapy(object):
 
     def _init_preferences(self):
         # check if NO_FORCE_HOMING is used in ini
-        self.no_force_homing = self.get_ini_info.get_no_force_homing()
 
         # disable reload tool on start up, if True
         if self.no_force_homing:
@@ -1566,22 +1568,10 @@ class gmoccapy(object):
         default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
 
-        # if it's a lathe config, set the tooleditor style
-        self.lathe_mode = self.get_ini_info.get_lathe()
-
-        # get the values for the sliders
-        default_jog_vel = self.get_ini_info.get_jog_vel()
-        self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
-        self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
-        self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
-        self.feed_override_max = self.get_ini_info.get_max_feed_override()
-        self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
-        self.dro_actual = self.get_ini_info.get_position_feedback_actual()
-
         # set the slider limits
         self.widgets.spc_lin_jog_vel.set_property("min", 0)
         self.widgets.spc_lin_jog_vel.set_property("max", self.jog_rate_max)
-        self.widgets.spc_lin_jog_vel.set_value(default_jog_vel)
+        self.widgets.spc_lin_jog_vel.set_value(self.rabbit_jog)
 
         self.widgets.spc_spindle.set_property("min", self.spindle_override_min * 100)
         self.widgets.spc_spindle.set_property("max", self.spindle_override_max * 100)
@@ -1613,7 +1603,6 @@ class gmoccapy(object):
         # set and get all information for turtle jogging
         # self.rabbit_jog will be used in future to store the last value
         # so it can be recovered after jog_vel_mode switch
-        self.rabbit_jog = default_jog_vel
         hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
         self.widgets.chk_turtle_jog.set_active(hide_turtle_jog_button)
         self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
