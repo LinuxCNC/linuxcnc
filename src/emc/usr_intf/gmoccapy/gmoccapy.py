@@ -974,8 +974,6 @@ class gmoccapy(object):
             dic[name].hide()
             box.pack_start(dic[name])
 
-
-
     def _make_jog_increments(self):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog increments")
@@ -984,7 +982,7 @@ class gmoccapy(object):
         # because of space on the screen only 10 items are allowed
         # jogging increments
 
-        self.incr_rbt_list = []
+        self.incr_rbt_dic = {}
 
         # We get the increments from INI File
         if len(self.jog_increments) > 10:
@@ -1000,34 +998,31 @@ class gmoccapy(object):
         # One from the released button and one from the pressed button
         # we make a list of the buttons to later add the hardware pins to them
         label = _("Continuous")
-        rbt0 = gtk.RadioButton(None, label)
-        rbt0.set_property("name","rbt_0")
-        rbt0.connect("pressed", self._jog_increment_changed, 0)
-        self.widgets.vbtb_jog_incr.pack_start(rbt0, True, True, 0)
-        rbt0.set_property("draw_indicator", False)
-        rbt0.show()
-        rbt0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.incr_rbt_list.append(rbt0)
+        rbt = gtk.RadioButton(None, label)
+        rbt.set_property("name","rbt_0")
+        rbt.connect("pressed", self._jog_increment_changed)
+        self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
+        rbt.set_property("draw_indicator", False)
+        rbt.show()
+        rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.incr_rbt_dic[rbt.name] = rbt
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
         for item in range(1, len(self.jog_increments)):
             name = "rbt_{0}".format(item)
-            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+            rbt = gtk.RadioButton(self.incr_rbt_dic["rbt_0"], self.jog_increments[item])
             rbt.set_property("name",name)
-            rbt.connect("pressed", self._jog_increment_changed, self.jog_increments[item])
+            rbt.connect("pressed", self._jog_increment_changed)
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
             rbt.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-            self.incr_rbt_list.append(rbt)
-        rbt0.set_active(True)
-        self.active_increment = rbt0.name
+            self.incr_rbt_dic[rbt.name] = rbt
+        self.incr_rbt_dic["rbt_0"].set_active(True)
+        self.active_increment = "rbt_0" 
 
-    def _jog_increment_changed(self, widget, increment):
-        if increment == 0:
-            self.distance = 0
-        else:
-            self.distance = self._parse_increment(increment)
+    def _jog_increment_changed(self, widget,):
+        self.distance = self._parse_increment(widget.name)
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name
 
@@ -2981,22 +2976,24 @@ class gmoccapy(object):
                 if self.stat.state != 1:  # still moving
                     return
                 # The active button name is hold in self.active_increment
+                print(self.active_increment)
+                rbt = int(self.active_increment.split("_")[1])
                 if keyname == "I":
                     # so lets increment it by one
-                    rbt = int(self.active_increment[-1]) + 1
+                    rbt += 1
                     # we check if we are still in the allowed limit
                     if rbt > len(self.jog_increments) - 1:  # beginning from zero
                         rbt = 0
                 else:  # must be "i"
                     # so lets reduce it by one
-                    rbt = int(self.active_increment[-1]) - 1
+                    rbt -= 1
                     # we check if we are still in the allowed limit
                     if rbt < 0:
                         rbt = len(self.jog_increments) - 1  # beginning from zero
                 # we set the corresponding button active
-                self.incr_rbt_list[rbt].set_active(True)
+                self.incr_rbt_dic["rbt_{0}".format(rbt)].set_active(True)
                 # and we have to update all pin and variables
-                self._jog_increment_changed(self.incr_rbt_list[rbt], self.jog_increments[rbt])
+                self._jog_increment_changed(self.incr_rbt_dic["rbt_{0}".format(rbt)])
         else:
             print("This key has not been implemented yet")
             print "Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event
@@ -3023,7 +3020,13 @@ class gmoccapy(object):
         lu = (unit or 1) * 25.4
         return v * lu
 
-    def _parse_increment(self, jogincr):
+    def _parse_increment(self, btn_name):
+        print("parse_jogincrement")
+        if self.incr_rbt_dic[btn_name] == self.incr_rbt_dic["rbt_0"]:
+            jogincr = "0"
+        else:
+            jogincr = self.incr_rbt_dic[btn_name].get_label()
+
         if jogincr.endswith("mm"):
             scale = self._from_internal_linear_unit(1 / 25.4)
         elif jogincr.endswith("cm"):
@@ -3043,17 +3046,6 @@ class gmoccapy(object):
         else:
             jogincr = float(jogincr)
         return jogincr * scale
-
-    def _replace_list_item(self, int_tab, old_value, new_value):
-        list = self.h_tabs[int_tab]
-        self.h_tabs[int_tab] = []
-        for item in list:
-            if item[1] == old_value:
-                new_tupple = (item[0], new_value)
-                item = new_tupple
-                print(_("**** GMOCCAPY INFO ****"))
-                print(_("**** replaced {0} to {1} ****").format(old_value, new_value))
-            self.h_tabs[int_tab].append(item)
 
     def show_try_errors(self):
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -4848,11 +4840,12 @@ class gmoccapy(object):
             self.command.wait_complete()
         if not pin.get():
             return
-        data = self.jog_increments[int(buttonnumber)]
-        self._jog_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
-        self.incr_rbt_list[int(buttonnumber)].set_active(True)
+        btn_name = "rbt_{0}".format(buttonnumber)
+        self._jog_increment_changed(self.incr_rbt_dic[btn_name])
+        self.incr_rbt_dic[btn_name].set_active(True)
 
     def _on_pin_jog_changed(self, pin, button_name):
+        print(button_name)
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             if self.stat.motion_mode == 1 and pin.get():
                 message = _("Axis jogging is only allowed in world mode, but you are in joint mode!")
