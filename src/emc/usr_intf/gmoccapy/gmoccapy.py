@@ -1631,6 +1631,10 @@ class gmoccapy(object):
         # the size of the DRO
         self.dro_size = self.prefs.getpref("dro_size", 28, int)
         self.widgets.adj_dro_size.set_value(self.dro_size)
+        
+        # hide the angular jog vel if no angular joint is used
+        if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
+            self.widgets.spc_ang_jog_vel.hide()
 
     def _check_screen2(self):
         # second screen

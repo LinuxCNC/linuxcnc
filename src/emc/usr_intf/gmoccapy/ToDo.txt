@@ -1,6 +1,5 @@
  - ToDo:
 
-* hide angular jog vel if no rotary axis is used
 * angular jog vels are not taken in aspect
 
 * more than 7 Joints will need arrow keys!
