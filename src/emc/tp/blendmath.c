@@ -1630,12 +1630,8 @@ int blendPoints3Print(BlendPoints3 const * const points)
 double pmCircleActualMaxVel(PmCircle * const circle,
         double * const acc_ratio_tangential,
         double v_max,
-        double a_max,
-        int parabolic)
+        double a_max)
 {
-    if (parabolic) {
-        a_max /= 2.0;
-    }
     double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
     double eff_radius = pmCircleEffectiveMinRadius(circle);
     double v_max_acc = pmSqrt(a_n_max * eff_radius);

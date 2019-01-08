@@ -85,25 +85,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc);
  */
 
 /**
- * Check if the tail of the queue has a parabolic blend condition and update tc appropriately.
- * This sets flags so that accelerations are correct due to the current segment
- * having to blend with the previous.
- */
-STATIC int tcCheckLastParabolic(TC_STRUCT * const tc,
-        TC_STRUCT const * const prev_tc) {
-    if (!tc) {return TP_ERR_FAIL;}
-
-    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("Found parabolic blend between %d and %d, flagging blend_prev\n",
-                       prev_tc->id, tc->id);
-        tc->blend_prev = 1;
-    } else {
-        tc->blend_prev = 0;
-    }
-    return TP_ERR_OK;
-}
-
-/**
  * Returns true if there is motion along ABC or UVW axes, false otherwise.
  */
 STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
@@ -325,45 +306,13 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     return finalvel;
 }
 
-/**
- * Compute maximum acceleration a segment can have for a given terminal condition.
- * Used (for example) to check if a different terminal condition would improve allowed acceleration.
- */
-STATIC inline double planMaxSegmentAccel(
-        TC_STRUCT const * const tc,
-        tc_term_cond_t term_cond)
-{
-    double a_scale = tcGetMaxAccel(tc);
-    /* Parabolic blending conditions: If the next segment or previous segment
-     * has a parabolic blend with this one, acceleration is scaled down by 1/2
-     * so that the sum of the two does not exceed the maximum.
-     */
-    if (term_cond == TC_TERM_COND_PARABOLIC) {
-        a_scale *= 0.5;
-    }
-    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= tc->acc_ratio_tan;
-    }
-    return a_scale;
-}
-
-
-/**
+/** 
  * Set up a spindle origin based on the current spindle COMMANDED direction and the given position.
  *
  * Convert the 2-part spindle position and sign to a signed double.
- * The direction is stored as part of the origin to prevent discontinuous
+ * Get acceleration for a tc based on the trajectory planner state.
  * changes in displacement due to sign flips
  */
-STATIC inline double tpGetScaledAccel(
-        TC_STRUCT const * const tc)
-{
-    // Backend to the planning function, but use the actual terminal condition.
-    return planMaxSegmentAccel(tc, (tc_term_cond_t)tc->term_cond);
-}
-
-
 STATIC inline void resetSpindleOrigin(spindle_origin_t *origin)
 {
     if (!origin) {
@@ -723,13 +672,13 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 
 /**
- * Find the "peak" velocity a segment can acheive if its velocity profile is triangular.
+ * Find the "peak" velocity a segment can achieve if its velocity profile is triangular.
  * This is used to estimate blend velocity, though by itself is not enough
  * (since requested velocity and max velocity could be lower).
  */
 STATIC double tpCalculateTriangleVel(TC_STRUCT const *tc) {
     //Compute peak velocity for blend calculations
-    double acc_scaled = tpGetScaledAccel(tc);
+    double acc_scaled = tcGetTangentialMaxAccel(tc);
     double length = tc->target;
     if (!tc->finalized) {
         // blending may remove up to 1/2 of the segment
@@ -752,7 +701,7 @@ STATIC double tpCalculateTriangleVel(TC_STRUCT const *tc) {
  */
 STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 {
-    double acc_scaled = tpGetScaledAccel(tc);
+    double acc_scaled = tcGetTangentialMaxAccel(tc);
     //FIXME this is defined in two places!
     double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
     double max_vel = tpGetMaxTargetVel(tp, tc);
@@ -894,7 +843,6 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
             tp_debug_print("using parabolic blend\n");
             tcRemoveKinkProperties(prev_tc, tc);
             tcSetTermCond(prev_tc, tc, TC_TERM_COND_PARABOLIC);
-            tcCheckLastParabolic(tc, prev_tc);
             break;
         case TANGENT_SEGMENTS_BLEND: // tangent
             tp_debug_print("using approximate tangent blend\n");
@@ -1578,7 +1526,6 @@ STATIC int tpFinalizeAndEnqueue(TP_STRUCT * const tp, TC_STRUCT * const tc)
     tcFlagEarlyStop(prev_tc, tc);
     // KLUDGE order is important here, the parabolic blend check has to
     // happen after all other steps that affect the terminal condition
-    tcCheckLastParabolic(tc, prev_tc);
     tcFinalizeLength(prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, tc, true);
@@ -1692,7 +1639,7 @@ STATIC blend_type_t tpCheckBlendArcType(
 STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc) {
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
-    double acc_this = tpGetScaledAccel(tc);
+    double acc_this = tcGetTangentialMaxAccel(tc);
 
     // Find the reachable velocity of tc, moving backwards in time
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
@@ -1989,8 +1936,6 @@ static bool tpCreateBlendIfPossible(
             break;
     }
 
-    // Can always do this (blend_tc may not be used, in which case it has no effect)
-    tcCheckLastParabolic(blend_tc, prev_tc);
     return res_create == TP_ERR_OK;
 }
 
@@ -2175,7 +2120,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     //Reduce max velocity to match sample rate
     tcClampVelocityByLength(&tc);
 
-    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, &tc.acc_ratio_tan, ini_maxvel, acc, false);
+    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, &tc.acc_ratio_tan, ini_maxvel, acc);
     tp_debug_print("tc.acc_ratio_tan = %f\n",tc.acc_ratio_tan);
 
     // Copy in motion parameters
@@ -2211,8 +2156,8 @@ STATIC int tpComputeBlendVelocity(
         return TP_ERR_FAIL;
     }
 
-    double acc_this = tpGetScaledAccel(tc);
-    double acc_next = tpGetScaledAccel(nexttc);
+    double acc_this = tcGetTangentialMaxAccel(tc);
+    double acc_next = tcGetTangentialMaxAccel(nexttc);
 
     double v_reachable_this = fmin(tpCalculateTriangleVel(tc), target_vel_this);
     double v_reachable_next = fmin(tpCalculateTriangleVel(nexttc), target_vel_next);
@@ -2387,7 +2332,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 
     /* Calculations for desired velocity based on trapezoidal profile */
     double dx = tc->target - tc->progress;
-    double maxaccel = tpGetScaledAccel(tc);
+    double maxaccel = tcGetTangentialMaxAccel(tc);
 
     double maxnewvel = findTrapezoidalDesiredVel(maxaccel, dx, tc_finalvel, tc->currentvel, tc->cycle_time);
 
@@ -2442,7 +2387,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     double acc_final = dv / dt;
 
     // Saturate estimated acceleration against maximum allowed by segment
-    double acc_max = tpGetScaledAccel(tc);
+    double acc_max = tcGetTangentialMaxAccel(tc);
 
     // Output acceleration and velocity for position update
     *acc = saturate(acc_final, acc_max);
@@ -2981,7 +2926,6 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         // track position (minimize pos_error).
         // This is the velocity we should be at when the position error is c0
         double v_final = spindle_vel * tc->uu_per_rev;
-
         /*
          * Correct for position errors when tracking spindle motion.
          * This approach assumes that if position error is 0, the correct
@@ -3008,7 +2952,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
          * 2) "final" velocity = v_0
          * 3) max velocity / acceleration from motion segment
          */
-        double a_max = tpGetScaledAccel(tc) * emcmotStatus->spindle_tracking_gain;
+        double a_max = tcGetTangentialMaxAccel(tc) * emcmotStatus->spindle_tracking_gain;
         double v_max = tc->maxvel;
 
         switch(emcmotStatus->pos_tracking_mode) {
@@ -3239,7 +3183,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
-    double a_max = tpGetScaledAccel(tc);
+    double a_max = tcGetTangentialMaxAccel(tc);
 
     //If we exceed the maximum acceleration, then the dt estimate is too small.
     double a = a_f;

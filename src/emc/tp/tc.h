@@ -25,7 +25,8 @@
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
         double max_scale);
 
-double tcGetMaxAccel(TC_STRUCT const * tc);
+double tcGetOverallMaxAccel(TC_STRUCT const * tc);
+double tcGetTangentialMaxAccel(TC_STRUCT const * const tc);
 
 int tcSetKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc, double kink_vel, double accel_reduction);
 int tcInitKinkProperties(TC_STRUCT *tc);

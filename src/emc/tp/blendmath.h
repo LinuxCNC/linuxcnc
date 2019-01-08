@@ -238,8 +238,7 @@ int blendPoints3Print(BlendPoints3 const * const points);
 double pmCircleActualMaxVel(PmCircle * const circle,
         double * const acc_ratio,
         double v_max,
-        double a_max,
-        int parabolic);
+        double a_max);
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
 int pmCircleAngleFromProgress(PmCircle const * const circle,
