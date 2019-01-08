@@ -749,7 +749,6 @@ class gmoccapy(object):
         btn.show_all()
         return btn
 
-# ToDo Start : must fit also the joints button
     def _on_btn_previous_clicked(self, widget):
         self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
         self._put_home_all_and_previous()
@@ -758,7 +757,7 @@ class gmoccapy(object):
         self._put_unref_and_back()
         self._hide_button(5,len(self.axis_list),
                           self.ref_button_dic, self.widgets.hbtb_ref)
-        
+
         self.ref_button_dic["previous_button"].set_sensitive(False)
         self.ref_button_dic["next_button"].set_sensitive(True)
 
@@ -770,9 +769,30 @@ class gmoccapy(object):
         self._put_unref_and_back()
         self._hide_button(0,len(self.axis_list) - 5,
                                 self.ref_button_dic, self.widgets.hbtb_ref)
-        
+
         self.ref_button_dic["previous_button"].set_sensitive(True)
         self.ref_button_dic["next_button"].set_sensitive(False)
+
+    def _on_btn_previous_macro_clicked(self, widget):
+        self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
+        self._put_button(0 , 8,
+                         self.macro_dic, self.widgets.hbtb_MDI)
+        self._hide_macro_button(8,len(self.macro_dic),
+                          self.macro_dic, self.widgets.hbtb_MDI)
+
+        self.macro_dic["previous_button"].set_sensitive(False)
+        self.macro_dic["next_button"].set_sensitive(True)
+
+    def _on_btn_next_macro_clicked(self, widget):
+        self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
+        self._put_button(len(self.macro_dic) - 8 , len(self.macro_dic),
+                             self.macro_dic, self.widgets.hbtb_MDI)
+        self._hide_macro_button(0,len(self.macro_dic) - 8,
+                                self.macro_dic, self.widgets.hbtb_MDI)
+
+        self.macro_dic["previous_button"].set_sensitive(True)
+        self.macro_dic["next_button"].set_sensitive(False)
+
 
     def _put_home_all_and_previous(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
@@ -977,6 +997,20 @@ class gmoccapy(object):
             dic[name].hide()
             box.pack_start(dic[name])
 
+    def _hide_macro_button(self, start, end, dic, box):
+        prefix = "macro"
+        for pos in range(start, end):
+            name = prefix + "_{0}".format(pos)
+            dic[name].hide()
+            box.pack_start(dic[name])
+
+    def _put_macro_button(self, start, end, dic, box):
+        prefix = "macro"
+        for pos in range(start, end):
+            name = prefix + "_{0}".format(pos)
+            dic[name].show()
+            box.pack_start(dic[name])
+
     def _make_jog_increments(self):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make jog increments")
@@ -1068,7 +1102,7 @@ class gmoccapy(object):
                 JOGMODE = 1
         else :
             JOGMODE = 0
-        
+
         if self.distance <> 0:  # incremental jogging
             self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, dir * velocity, self.distance)
         else:  # continuous jogging
@@ -1175,11 +1209,18 @@ class gmoccapy(object):
         else:
             num_macros = len(macros)
 
-        if num_macros > 9:
+        if num_macros > 14:
             message = _("**** GMOCCAPY INFO ****\n")
-            message += _("**** found more than 9 macros, only the first 9 will be used ****")
+            message += _("**** found more than 14 macros, will use only the first 14 ****")
             print(message)
-            num_macros = 9
+
+            num_macros = 14
+
+        btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
+        btn.hide()
+        btn.set_property("tooltip-text", _("Press to display previous button"))
+        btn.connect("clicked", self._on_btn_previous_macro_clicked)
+        self.widgets.hbtb_MDI.pack_start(btn)
 
         for pos in range(0, num_macros):
             name = macros[pos]
@@ -1194,13 +1235,19 @@ class gmoccapy(object):
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
 
+        btn = self._get_button_with_image("next_button", None, gtk.STOCK_GO_FORWARD)
+        btn.set_property("tooltip-text", _("Press to display next button"))
+        btn.connect("clicked", self._on_btn_next_macro_clicked)
+        btn.hide()
+        self.widgets.hbtb_MDI.pack_start(btn)
+
         # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
         if num_macros < 9:
             for pos in range(num_macros, 9):
                 lbl = gtk.Label()
                 lbl.set_property("name","lbl_space_{0}".format(pos))
-                lbl.set_text("")
+                lbl.set_text("{0}".format(pos))
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
 
@@ -1215,10 +1262,15 @@ class gmoccapy(object):
         self.widgets.hbtb_MDI.pack_start(btn)
 
         self.macro_dic = {}
-        
+
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
             self.macro_dic[child.name] = child
+
+        if num_macros >= 10:
+            self.macro_dic["next_button"].show()
+            for pos in range(8, num_macros):
+                self.macro_dic["macro_{0}".format(pos)].hide()
 
 
     # if this is a lathe we need to rearrange some button and add a additional DRO

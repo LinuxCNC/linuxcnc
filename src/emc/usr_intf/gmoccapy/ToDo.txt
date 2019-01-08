@@ -1,7 +1,5 @@
  - ToDo:
 
-* more than 7 Joints will need arrow keys!
-
 * Macro button with arrow next previous
 * Macro button with images
 
