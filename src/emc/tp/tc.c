@@ -72,6 +72,7 @@ int tcInitKinkProperties(TC_STRUCT *tc)
     tc->kink_vel = -1.0;
     tc->kink_accel_reduce = 0.0;
     tc->kink_accel_reduce_prev = 0.0;
+    return 0;
 }
 
 int tcRemoveKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc)
@@ -79,6 +80,7 @@ int tcRemoveKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc)
     prev_tc->kink_vel = -1.0;
     prev_tc->kink_accel_reduce = 0.0;
     tc->kink_accel_reduce_prev = 0.0;
+    return 0;
 }
 
 
