@@ -25,7 +25,7 @@ gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), uni
 
 try:
     from PIL import Image
-except:
+except ImportError:
     import Image
 
 import numpy.core
@@ -495,7 +495,12 @@ class ArcEntryCut:
 
 def ui(im, nim, im_name):
     import Tkinter
-    import ImageTk
+    
+    try:
+        from PIL import ImageTk
+    except ImportError:    
+        import ImageTk
+
     import pickle
     import nf
 
