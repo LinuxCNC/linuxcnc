@@ -154,7 +154,7 @@ PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
 TCLTK_VERSION=8.6
 
 case $DISTRIB_NAME in
-Debian-9.*|Raspbian-9.*|Debian-testing) # Stretch
+Debian-9.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*) # Stretch
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         ;;
