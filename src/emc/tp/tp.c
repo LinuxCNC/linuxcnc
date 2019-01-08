@@ -342,7 +342,14 @@ STATIC inline double tpGetScaledAccel(
         TC_STRUCT const * const tc)
 {
     // Backend to the planning function, but use the actual terminal condition.
-    return planMaxSegmentAccel(tc, (tc_term_cond_t)tc->term_cond);
+    tc_term_cond_t term_cond = (tc_term_cond_t)tc->term_cond;
+
+    // KLUDGE treat this as "parabolic" if the last blend was parabolic too.
+    if (tc->blend_prev) {
+        term_cond = TC_TERM_COND_PARABOLIC;
+    }
+
+    return planMaxSegmentAccel(tc, term_cond);
 }
 
 /**
