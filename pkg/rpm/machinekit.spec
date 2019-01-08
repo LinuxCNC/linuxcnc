@@ -31,7 +31,7 @@ Requires: bwidget tkimg
 Requires: uriparser openssl libuuid libmodbus libusb glib2
 Requires: gtk2 tcl tcl-tclreadline tk readline libXaw python2-tkinter mesa-libGLU
 Requires: python2-simplejson python2-numpy python2-xlib pygtkglext python2-configobj python-avahi
-Requires: pygtk2-libglade gnome-python2 python2-protobuf >= 2.4.1
+Requires: pygtk2-libglade gnome-python2 gnome-python2-gnome python2-protobuf >= 2.4.1
 Requires: python2-Cython python2-pyftpdlib boost-python2 python-xdot python2-pydot
 Requires: libtirpc
 
