@@ -200,41 +200,40 @@ AUX_PRGM = Aux_program_loader()
 ----
 
 === HALmeter
-
+Halmeter is used to display one HAL pin data.
+load a halmeter with:
 ----
-    Halmeter is used to display one HAL pin data.
-    load a halmeter with:
 AUX_PRGM.load_halmeter()
 ----
 
 === classicladder user program
-
-Todo
-
+----
+AUX_PRGM.load_ladder()
+----
 === linuxcnc status program
-
-Todo
-
+----
+AUX_PRGM.load_status()
+----
 === HALshow configure display program
-
-Todo
-
+----
+AUX_PRGM.load_halshow()
+----
 ==== HALscope program
-
-Todo
-
+----
+AUX_PRGM.load_halscope()
+----
 === tooledit program
-
-Todo
-
+----
+AUX_PRGM.load_tooledit(TOOLEFILE_PATH)
+----
 === calibration
-
-Todo
-
+----
+AUX_PRGM.load_calibration(INI_PATH)
+----
 === onboard/matchbox keyboard
-
-Todo
-
+----
+AUX_PRGM.keyboard_onboard(ARGS)
+----
 == Keybindings
 
 This module is used to allow each keypress to control a behavior such as jogging. +
@@ -297,11 +296,12 @@ Ubuntu/Mint does not follow the standard - you can't set how long the message st
 I suggest fixing this with a PPA off the net +
  https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid +
 
-you can set the title, message, icon, and timeout.+
+you can set the title, message, icon, and timeout. +
 Notify keeps a list of all the alarm messages since starting in self.alarmpage. +
 If you click 'show all messages' in the notify popup, it will print then to the terminal. +
  +
 The screenoptions widget can automatically set up the notify system. +
+Typically STATUS messages are used to sent notify messages. +
 
 == preferences
 
@@ -318,11 +318,11 @@ The screenoptions widget can automatically set up the preference file. +
 
 == audio player
 
-This module allows playing sounds using gstreamer, beep and espeak+
+This module allows playing sounds using gstreamer, beep and espeak +
 It can play sounds/music files using 'gstreamer' (non blocking) +
 It can play sounds using the 'beep' library (currently blocks while beeping) +
 It can speak using the 'espeak' library (non blocks while speaking) +
-There are default alert sounds using Mint or freedesktop default sounds.+
+There are default alert sounds using Mint or freedesktop default sounds. +
 You can play arbitrary sounds or even songs by specifying the path. +
 STATUS has messages to control this module. +
 The screenoptions widget can automatically set up the audio system. +
