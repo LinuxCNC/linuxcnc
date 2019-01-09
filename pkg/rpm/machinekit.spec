@@ -4,21 +4,22 @@
 %bcond_with xenomai
 
 %global commit master
-%global gittag GIT-TAG
-%global shortcommit master
 
 Summary: Machine Kit
 Vendor: MachineKit
 Packager: MachineKit <support@machinekit.io>
 Name:         machinekit
-Version:      0.1.0
-Release:      2
+Version:      0.1.1
+Release:      2%{?dist}
 Epoch:        0
 License: GNU
 Group: Machine Control/Daemons
 URL: http://www.machinekit.io
 
-Source0: https://github.com/machinekit/%{name}/archive/%{commit}/%{name}-%{shortcommit}.tar.gz#/%{name}-%{version}.tar.gz
+Source0: https://github.com/machinekit/%{name}/archive/%{commit}/%{name}-%{commit}.tar.gz
+Source1: https://github.com/machinekit/%{name}/raw/%{commit}/pkg/rpm/machinekit_src_patch_0.1.1.patch
+
+Patch1: machinekit_src_patch_0.1.1.patch
 
 Conflicts: linuxcnc
 
@@ -30,8 +31,9 @@ Requires: bwidget tkimg
 Requires: uriparser openssl libuuid libmodbus libusb glib2
 Requires: gtk2 tcl tcl-tclreadline tk readline libXaw python2-tkinter mesa-libGLU
 Requires: python2-simplejson python2-numpy python2-xlib pygtkglext python2-configobj python-avahi
-Requires: pygtk2-libglade gnome-python2 python2-protobuf >= 2.4.1
-Requires: python2-Cython python2-pyftpdlib boost-python python-xdot python2-pydot
+Requires: pygtk2-libglade gnome-python2 gnome-python2-gnome python2-protobuf >= 2.4.1
+Requires: python2-Cython python2-pyftpdlib boost-python2 python-xdot python2-pydot
+Requires: libtirpc
 
 BuildRequires: libstdc++-devel gcc gcc-c++
 BuildRequires: pkgconf bwidget redhat-lsb autoconf automake
@@ -39,8 +41,15 @@ BuildRequires: libudev-devel protobuf-compiler protobuf-devel
 BuildRequires: czmq-devel zeromq-devel jansson-devel libwebsockets-devel
 BuildRequires: uriparser-devel openssl-devel libuuid-devel avahi-devel libmodbus-devel libusb-devel glib2-devel
 BuildRequires: gtk2-devel tcl-devel tk-devel readline-devel libXaw-devel boost-devel mesa-libGLU-devel
-BuildRequires: python2-zmq python2-Cython python2-pyftpdlib python2-protobuf python2-devel python2-tkinter
+BuildRequires: python2-zmq python2-pyftpdlib python2-protobuf python2-devel python2-tkinter
 BuildRequires: python2-simplejson
+BuildRequires: libtirpc-devel
+
+%if 0%{?fedora} >= 29
+BuildRequires: python3-Cython boost-python2-devel
+%else
+BuildRequires: python2-Cython
+%endif
 
 AutoReq: no
 
@@ -97,7 +106,7 @@ Requires: %{name} = %{version}-%{release}
  developing software that uses MachineKit.
 
 %prep
-%autosetup -n %{name}-%{commit}
+%autosetup -n %{name}-%{commit} -p1
 
 %build
 cd src

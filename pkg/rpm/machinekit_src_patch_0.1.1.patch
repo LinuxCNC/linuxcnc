@@ -1,0 +1,139 @@
+diff -ru machinekit/src/emc/iotask/Submakefile machinekit-rpm/src/emc/iotask/Submakefile
+--- machinekit/src/emc/iotask/Submakefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/emc/iotask/Submakefile	2018-12-07 21:00:18.196045777 +0300
+@@ -4,11 +4,11 @@
+ 
+ ../bin/io: $(call TOOBJS, $(IOSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	@$(CXX) $(LDFLAGS) -o $@ $^ 
++	@$(CXX) $(LDFLAGS) -o $@ $^ -ltirpc
+ 
+ ../bin/iov2: $(call TOOBJS, $(IOV2SRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	@$(CXX) $(LDFLAGS) -o $@ $^
++	@$(CXX) $(LDFLAGS) -o $@ $^ -ltirpc
+ 
+ TARGETS += ../bin/io ../bin/iov2
+ 
+diff -ru machinekit/src/emc/sai/Submakefile machinekit-rpm/src/emc/sai/Submakefile
+--- machinekit/src/emc/sai/Submakefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/emc/sai/Submakefile	2018-12-07 21:04:47.973137108 +0300
+@@ -25,4 +25,4 @@
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+ 	$(Q)$(CXX) $(LDFLAGS) $(PROFILE_LDFLAGS) \
+-	-o $@ $^ $(ULFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(LIBREADLINE)
++	-o $@ $^ $(ULFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(LIBREADLINE) -ltirpc
+diff -ru machinekit/src/emc/task/Submakefile machinekit-rpm/src/emc/task/Submakefile
+--- machinekit/src/emc/task/Submakefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/emc/task/Submakefile	2018-12-07 20:58:41.643011419 +0300
+@@ -9,7 +9,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	@$(CXX) $(LDFLAGS) -o $@ $^ 
++	@$(CXX) $(LDFLAGS) -o $@ $^ -ltirpc
+ TARGETS += ../bin/linuxcncsvr
+ 
+ # disabled:	emc/task/iotaskintf.cc
+@@ -42,5 +42,5 @@
+ 	../lib/libpyplugin.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS)
++	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) -l$(BOOST_PYTHON_LIB) $(PYTHON_LIBS) -ltirpc
+ TARGETS += ../bin/milltask
+diff -ru machinekit/src/emc/usr_intf/Submakefile machinekit-rpm/src/emc/usr_intf/Submakefile
+--- machinekit/src/emc/usr_intf/Submakefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/emc/usr_intf/Submakefile	2018-12-07 18:09:02.679113318 +0300
+@@ -60,7 +60,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread -ltirpc
+ TARGETS += ../bin/linuxcncrsh
+ 
+ ../bin/schedrmt: $(call TOOBJS, $(EMCSCHEDSRCS)) \
+@@ -69,7 +69,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lpthread -ltirpc
+ TARGETS += ../bin/schedrmt
+ 
+ ../bin/linuxcnclcd: $(call TOOBJS, $(EMCLCDSRCS)) \
+@@ -78,7 +78,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -ltirpc
+ TARGETS += ../bin/linuxcnclcd
+ 
+ 
+@@ -89,7 +89,7 @@
+ 	../lib/liblinuxcnchal.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -ltirpc
+ TARGETS += ../bin/halui
+ 
+ ifeq "$(HAVE_NCURSES)" "yes"
+@@ -99,7 +99,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(KEYSTICKLIBS)
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(KEYSTICKLIBS) -ltirpc
+ TARGETS += ../bin/keystick
+ endif
+ 
+@@ -111,7 +111,7 @@
+ 	../lib/liblinuxcncini.so.0 \
+ 	../lib/librtapi_math.so.0
+ 	$(ECHO) Linking $(notdir $@)
+-	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(XLIBS)
++	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(XLIBS) -ltirpc
+ TARGETS += ../bin/xlinuxcnc
+ endif
+ 
+@@ -124,6 +124,6 @@
+ 	$(ECHO) Linking $(notdir $@)
+ 	$(Q)$(CXX) $(LDFLAGS) $(BOOST_LDFLAGS) -o $@ $(ULFLAGS) $^ \
+ 	    $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB) \
+-	    -lpthread -ldl	
++	    -lpthread -ldl -ltirpc
+ TARGETS += ../bin/emcweb
+ endif
+diff -ru machinekit/src/libnml/cms/Submakefile machinekit-rpm/src/libnml/cms/Submakefile
+--- machinekit/src/libnml/cms/Submakefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/libnml/cms/Submakefile	2018-12-07 17:46:52.779723011 +0300
+@@ -1,4 +1,4 @@
+-INCLUDES += libnml/cms
++INCLUDES += libnml/cms /usr/include/tirpc
+ 
+ ../include/%.h: ./libnml/cms/%.h
+ 	$(ECHO) Copying header file $@
+diff -ru machinekit/src/Makefile machinekit-rpm/src/Makefile
+--- machinekit/src/Makefile	2018-12-04 23:01:20.000000000 +0300
++++ machinekit-rpm/src/Makefile	2018-12-07 16:33:12.354877734 +0300
+@@ -824,12 +824,12 @@
+ 	$(Q)-cp $^ $@
+ 
+ 
+-DIR=install -d -m 0755 -o root
+-FILE=install -m 0644 -o root
++DIR=install -d -m 0755
++FILE=install -m 0644
+ TREE=cp -dR
+ CONFIGFILE=install -m 0644
+-EXE=install -m 0755 -o root
+-SETUID=install -m 4755 -o root
++EXE=install -m 0755
++SETUID=install -m 4755
+ GLOB=$(wildcard $(1))
+ 
+ ifeq ($(RUN_IN_PLACE),yes)
