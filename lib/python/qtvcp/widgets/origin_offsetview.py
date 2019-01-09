@@ -319,11 +319,12 @@ class MyTableModel(QAbstractTableModel):
         return 0
 
     def data(self, index, role):
-        if not index.isValid():
-            return QVariant()
-        elif role != Qt.DisplayRole:
-            return QVariant()
-        return QVariant(self.arraydata[index.row()][index.column()])
+        if role == Qt.EditRole:
+            return self.arraydata[index.row()][index.column()]
+        if role == Qt.DisplayRole:
+            return QVariant(self.arraydata[index.row()][index.column()])
+        return QVariant()
+
 
     def flags(self, index):
         if not index.isValid():

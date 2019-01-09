@@ -216,11 +216,12 @@ class MyTableModel(QAbstractTableModel):
 
     # Returns the data stored under the given role for the item referred to by the index.
     def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return QVariant()
-        elif role != Qt.DisplayRole:
-            return QVariant()
-        return self.arraydata[index.row()][index.column()]
+        if role == Qt.EditRole:
+            return self.arraydata[index.row()][index.column()]
+        if role == Qt.DisplayRole:
+            return self.arraydata[index.row()][index.column()]
+        return QVariant()
+
 
     # Returns the item flags for the given index.
     def flags(self, index):
