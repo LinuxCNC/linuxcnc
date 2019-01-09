@@ -1,6 +1,7 @@
  - ToDo:
 
-* Macro button with arrow next previous
+* code rework for previous and next button of touch and home
+
 * Macro button with images
 
 * time capture
