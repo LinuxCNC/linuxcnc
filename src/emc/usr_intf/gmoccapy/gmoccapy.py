@@ -774,25 +774,35 @@ class gmoccapy(object):
         self.ref_button_dic["next_button"].set_sensitive(False)
 
     def _on_btn_previous_macro_clicked(self, widget):
+        # remove all buttons from container
         self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
-        self._put_button(0 , 8,
-                         self.macro_dic, self.widgets.hbtb_MDI)
-        self._hide_macro_button(8,len(self.macro_dic),
-                          self.macro_dic, self.widgets.hbtb_MDI)
 
-        self.macro_dic["previous_button"].set_sensitive(False)
-        self.macro_dic["next_button"].set_sensitive(True)
+        start = 0
+        end = 8
+        
+        self._put_macro_button(start , end, self.macro_dic, self.widgets.hbtb_MDI)
+
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["next_button"])
+        self.macro_dic["next_button"].show()
+
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
+        self.macro_dic["keyboard"].show()
 
     def _on_btn_next_macro_clicked(self, widget):
+        # remove all buttons from container
         self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
-        self._put_button(len(self.macro_dic) - 8 , len(self.macro_dic),
-                             self.macro_dic, self.widgets.hbtb_MDI)
-        self._hide_macro_button(0,len(self.macro_dic) - 8,
-                                self.macro_dic, self.widgets.hbtb_MDI)
+        
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["previous_button"])
+        self.macro_dic["previous_button"].show()
 
-        self.macro_dic["previous_button"].set_sensitive(True)
-        self.macro_dic["next_button"].set_sensitive(False)
+        end = len(self.macro_dic) - 3 # reduced by next, previous and keyboard
+        start = end - 8
 
+        # now put the needed widgets in the container
+        self._put_macro_button(start , end, self.macro_dic, self.widgets.hbtb_MDI)
+        
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
+        self.macro_dic["keyboard"].show()
 
     def _put_home_all_and_previous(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"])
@@ -1006,10 +1016,12 @@ class gmoccapy(object):
 
     def _put_macro_button(self, start, end, dic, box):
         prefix = "macro"
+        
         for pos in range(start, end):
             name = prefix + "_{0}".format(pos)
+            box.pack_start(dic[name], True, True, 0)
             dic[name].show()
-            box.pack_start(dic[name])
+
 
     def _make_jog_increments(self):
         print("**** GMOCCAPY INFO ****")
@@ -1208,13 +1220,15 @@ class gmoccapy(object):
             # no return here, otherwise we will not get filling labels
         else:
             num_macros = len(macros)
+            
+        print("found {0} Macros".format(num_macros))
 
-        if num_macros > 14:
+        if num_macros > 16:
             message = _("**** GMOCCAPY INFO ****\n")
             message += _("**** found more than 14 macros, will use only the first 14 ****")
             print(message)
 
-            num_macros = 14
+            num_macros = 16
 
         btn = self._get_button_with_image("previous_button", None, gtk.STOCK_GO_BACK)
         btn.hide()
@@ -1241,18 +1255,18 @@ class gmoccapy(object):
         btn.hide()
         self.widgets.hbtb_MDI.pack_start(btn)
 
+        file = "keyboard.png"
+        filepath = os.path.join(IMAGEDIR, file)
+
         # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
         if num_macros < 9:
             for pos in range(num_macros, 9):
                 lbl = gtk.Label()
                 lbl.set_property("name","lbl_space_{0}".format(pos))
-                lbl.set_text("{0}".format(pos))
+                lbl.set_text("")
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
-
-        file = "keyboard.png"
-        filepath = os.path.join(IMAGEDIR, file)
 
         name = "keyboard"
         btn = self._get_button_with_image(name, filepath, None)
@@ -1265,9 +1279,10 @@ class gmoccapy(object):
 
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
+            print(child.name)
             self.macro_dic[child.name] = child
 
-        if num_macros >= 10:
+        if num_macros >= 9:
             self.macro_dic["next_button"].show()
             for pos in range(8, num_macros):
                 self.macro_dic["macro_{0}".format(pos)].hide()
