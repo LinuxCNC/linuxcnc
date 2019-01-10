@@ -476,13 +476,13 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     pmCartMag(&planar_z, &z_scale);
 
     double x_extent=0, y_extent=0, z_extent=0;
-    if (bounds->x != 0) {
+    if (bounds->x > 0) {
         x_extent = bounds->x / x_scale;
     }
-    if (bounds->y != 0) {
+    if (bounds->y > 0) {
         y_extent = bounds->y / y_scale;
     }
-    if (bounds->z != 0) {
+    if (bounds->z > 0) {
         z_extent = bounds->z / z_scale;
     }
 
@@ -490,13 +490,13 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     *diameter = fmax(fmax(x_extent, y_extent),z_extent);
 
     // Only for active axes, find the minimum extent
-    if (bounds->x != 0) {
+    if (bounds->x > 0) {
         *diameter = fmin(*diameter, x_extent);
     }
-    if (bounds->y != 0) {
+    if (bounds->y > 0) {
         *diameter = fmin(*diameter, y_extent);
     }
-    if (bounds->z != 0) {
+    if (bounds->z > 0) {
         *diameter = fmin(*diameter, z_extent);
     }
 

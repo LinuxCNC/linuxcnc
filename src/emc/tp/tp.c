@@ -1959,11 +1959,11 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
     // 1 timestep's worth of distance in prev_tc
     if ( !prev_tc) {
         tp_debug_print(" queue empty\n");
-        return TP_ERR_FAIL;
+        return NO_BLEND;
     }
     if (prev_tc->progress > prev_tc->target / 2.0) {
         tp_debug_print(" prev_tc progress (%f) is too large, aborting blend arc\n", prev_tc->progress);
-        return TP_ERR_FAIL;
+        return NO_BLEND;
     }
 
     // Check for tangency between segments and handle any errors
@@ -3471,7 +3471,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 }
 
 int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
-    if(sync) {
+    // WARNING assumes positive sync
+    if(sync > 0) {
         if (mode) {
             tp->synchronized = TC_SYNC_VELOCITY;
         } else {

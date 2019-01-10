@@ -13,9 +13,13 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#ifndef MOTION_TYPES_H
+#define MOTION_TYPES_H
 #define EMC_MOTION_TYPE_TRAVERSE 1
 #define EMC_MOTION_TYPE_FEED 2
 #define EMC_MOTION_TYPE_ARC 3
 #define EMC_MOTION_TYPE_TOOLCHANGE 4
 #define EMC_MOTION_TYPE_PROBING 5
 #define EMC_MOTION_TYPE_INDEXROTARY 6
+
+#endif
