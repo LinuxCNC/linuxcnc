@@ -728,6 +728,20 @@ double pmCircle9Target(PmCircle9 const * const circ9)
     return helical_length;
 }
 
+int tcUpdateCircleAccRatio(TC_STRUCT * tc)
+{
+    if (tc->motion_type == TC_CIRCULAR) {
+        PmCircleLimits limits = pmCircleActualMaxVel(&tc->coords.circle.xyz,
+                             tc->maxvel,
+                             tcGetOverallMaxAccel(tc));
+        tc->maxvel = limits.v_max;
+        tc->acc_ratio_tan = limits.acc_ratio;
+        return 0;
+    }
+    // TODO handle blend arc here too?
+    return 1; //nothing to do, but not an error
+}
+
 /**
  * "Finalizes" a segment so that its length can't change.
  * By setting the finalized flag, we tell the optimizer that this segment's
@@ -747,15 +761,11 @@ int tcFinalizeLength(TC_STRUCT * const tc)
         return TP_ERR_NO_ACTION;
     }
 
-    tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
-    //TODO function to check for parabolic?
-    tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
-
-    if (tc->motion_type == TC_CIRCULAR) {
-        tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, &tc->acc_ratio_tan, tc->maxvel, tcGetOverallMaxAccel(tc));
-    }
+    tp_debug_print("Finalizing motion id %d, type %d\n", tc->id, tc->motion_type);
 
     tcClampVelocityByLength(tc);
+
+    tcUpdateCircleAccRatio(tc);
 
     tc->finalized = 1;
     return TP_ERR_OK;

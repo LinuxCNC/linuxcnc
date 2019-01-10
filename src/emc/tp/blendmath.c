@@ -1627,28 +1627,41 @@ int blendPoints3Print(BlendPoints3 const * const points)
 
 }
 
-double pmCircleActualMaxVel(PmCircle * const circle,
-        double * const acc_ratio_tangential,
+PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
         double v_max,
         double a_max)
 {
-    double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
+    double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
+
     double eff_radius = pmCircleEffectiveMinRadius(circle);
-    double v_max_acc = pmSqrt(a_n_max * eff_radius);
-    double v_max_eff = fmin(v_max_acc, v_max);
-    if (acc_ratio_tangential) {
-        double a_normal = fmin(pmSq(v_max_eff) / eff_radius, a_n_max);
-        *acc_ratio_tangential = (pmSqrt(pmSq(a_max) - pmSq(a_normal)) / a_max);
-        tp_debug_print("acc_ratio_tan = %f\n",*acc_ratio_tangential);
+    // Find the acceleration necessary to reach the maximum velocity
+    double a_n_vmax = pmSq(v_max) / fmax(eff_radius, DOUBLE_FUZZ);
+    // Find the maximum velocity that still obeys our desired tangential / total acceleration ratio
+    double v_max_cutoff = pmSqrt(a_n_max_cutoff * eff_radius);
+
+    double v_max_actual = v_max;
+    double acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
+
+    if (a_n_vmax > a_n_max_cutoff) {
+        v_max_actual = v_max_cutoff;
+    } else {
+        acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
     }
 
-    if (v_max_acc < v_max) {
-        tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
-        return v_max_acc;
-    } else {
-        tp_debug_print("v_max %f is within limit of v_max_acc %f\n",v_max, v_max_acc);
-        return v_max;
-    }
+    tp_debug_json_start(pmCircleActualMaxVel);
+    tp_debug_json_double(v_max);
+    tp_debug_json_double(v_max_cutoff);
+    tp_debug_json_double(a_n_max_cutoff);
+    tp_debug_json_double(a_n_vmax);
+    tp_debug_json_double(acc_ratio_tan);
+    tp_debug_json_end();
+
+    PmCircleLimits limits = {
+        v_max_actual,
+        acc_ratio_tan
+    };
+
+    return limits;
 }
 
 
@@ -1816,7 +1829,7 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
  * The radius of curvature of a spiral is larger than the circle of the same
  * radius.
  */
-double pmCircleEffectiveMinRadius(PmCircle const * const circle)
+double pmCircleEffectiveMinRadius(PmCircle const * circle)
 {
     double radius0 = circle->radius;
     double radius1 = circle->radius + circle->spiral;
