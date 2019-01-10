@@ -687,7 +687,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         double current_vel;
         double requested_vel;
 
-        unsigned int tcqlen;
+        int tcqlen;
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
         int spindle_is_atspeed; /* hal input */
