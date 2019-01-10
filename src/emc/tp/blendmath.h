@@ -235,16 +235,22 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
-double pmCircleActualMaxVel(PmCircle * const circle,
-        double * const acc_ratio,
-        double v_max,
-        double a_max);
+
+typedef struct {
+    double v_max;
+    double acc_ratio;
+} PmCircleLimits;
+
+PmCircleLimits pmCircleActualMaxVel(const PmCircle *circle,
+        double v_max_nominal,
+        double a_max_nominal);
+
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
 int pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress,
         double * const angle);
-double pmCircleEffectiveMinRadius(PmCircle const * const circle);
+double pmCircleEffectiveMinRadius(const PmCircle *circle);
 
 #endif
