@@ -3333,7 +3333,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 }
 
 int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
-    if(sync) {
+    // WARNING assumes positive sync
+    if(sync > 0) {
         if (mode) {
             tp->synchronized = TC_SYNC_VELOCITY;
         } else {
