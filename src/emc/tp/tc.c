@@ -401,12 +401,19 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 
 
 /**
- * Set the terminal condition of a segment.
- * This function will eventually handle state changes associated with altering a terminal condition.
+ * Set the terminal condition (i.e. blend or stop) for the given motion segment.
+ * Also sets flags on the next segment relevant to blending (e.g. parabolic blend sets the blend_prev flag).
  */
-int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
-    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
-    tc->term_cond = term_cond;
+int tcSetTermCond(TC_STRUCT *tc, TC_STRUCT *nexttc, int term_cond)
+{
+    if (tc) {
+        tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
+        tc->term_cond = term_cond;
+    }
+    if (nexttc) {
+        nexttc->blend_prev = (tc && term_cond == TC_TERM_COND_PARABOLIC);
+        tp_debug_print("set blend_prev flag %d on tc id %d, type %d\n", nexttc->blend_prev, nexttc->id, nexttc->motion_type);
+    }
     return 0;
 }
 
@@ -433,7 +440,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         prev_tc->target = prev_tc->coords.line.xyz.tmag;
         tp_debug_print("Target = %f\n",prev_tc->target);
         //Setup tangent blending constraints
-        tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
         tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
                 prev_tc->coords.line.xyz.end.y,
                 prev_tc->coords.line.xyz.end.z);
@@ -451,8 +458,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
             tc->coords.line.xyz.start.y,
             tc->coords.line.xyz.start.z);
 
-    //Disable flag for parabolic blending with previous
-    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
 
     tp_info_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
     tp_info_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
@@ -524,7 +530,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tp_debug_print("waiting on spindle sync for tc %d\n", tc->id);
-        tcSetTermCond(tc, TC_TERM_COND_STOP);
+        tcSetTermCond(tc, nexttc, TC_TERM_COND_STOP);
     }
 
     if(nexttc->atspeed) {
@@ -532,7 +538,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
         tp_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
-        tcSetTermCond(tc, TC_TERM_COND_STOP);
+        tcSetTermCond(tc, nexttc, TC_TERM_COND_STOP);
     }
 
     return TP_ERR_OK;
@@ -614,7 +620,6 @@ int tcSetupMotion(TC_STRUCT * const tc,
 
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp)
 {
-    tcSetTermCond(tc, tp->termCond);
     tc->tolerance = tp->tolerance;
     tc->synchronized = tp->synchronized;
     tc->uu_per_rev = tp->uu_per_rev;
