@@ -44,7 +44,7 @@ int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
 
 int tcCanConsume(TC_STRUCT const * const tc);
 
-int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+int tcSetTermCond(TC_STRUCT * prev_tc, TC_STRUCT * tc, int term_cond);
 
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_start,

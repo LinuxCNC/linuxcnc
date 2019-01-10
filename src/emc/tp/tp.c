@@ -779,7 +779,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     blend_tc->nominal_length = length;
 
     // Set the blend arc to be tangent to the next segment
-    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
+    tcSetTermCond(blend_tc, NULL, TC_TERM_COND_TANGENT);
 
     //NOTE: blend arc radius and everything else is finalized, so set this to 1.
     //In the future, radius may be adjustable.
@@ -868,13 +868,13 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
         case PARABOLIC_BLEND: // parabolic
             tp_debug_print("using parabolic blend\n");
             tcRemoveKinkProperties(prev_tc, tc);
-            tcSetTermCond(prev_tc, TC_TERM_COND_PARABOLIC);
+            tcSetTermCond(prev_tc, tc, TC_TERM_COND_PARABOLIC);
             tcCheckLastParabolic(tc, prev_tc);
             break;
         case TANGENT_SEGMENTS_BLEND: // tangent
             tp_debug_print("using approximate tangent blend\n");
             // NOTE: acceleration / velocity reduction is done dynamically in functions that access TC_STRUCT properties
-            tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+            tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
             break;
         case ARC_BLEND: // arc blend
             tp_debug_print("using blend arc\n");
@@ -1039,7 +1039,7 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     }
     tcSetCircleXYZ(tc, &circ2_temp);
 
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
 
     return TP_ERR_OK;
 }
@@ -1181,8 +1181,7 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     tcSetLineXYZ(tc, &line2_temp);
 
     //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
     return TP_ERR_OK;
 }
 
@@ -1349,10 +1348,7 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
     tcSetCircleXYZ(prev_tc, &circ1_temp);
     tcSetCircleXYZ(tc, &circ2_temp);
 
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-
+    tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
     return TP_ERR_OK;
 }
 
@@ -1468,7 +1464,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     return TP_ERR_OK;
 }
 
-STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const tc)
+STATIC int tpCheckCanonType(TC_STRUCT * prev_tc, TC_STRUCT * tc)
 {
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
@@ -1476,7 +1472,7 @@ STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
             (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
         tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
-        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
 }
@@ -1543,7 +1539,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     tc.target = pmRigidTapTarget(&tc.coords.rigidtap, tp->uu_per_rev);
 
     // Force exact stop mode after rigid tapping regardless of TP setting
-    tcSetTermCond(&tc, TC_TERM_COND_STOP);
+    tcSetTermCond(&tc, NULL, TC_TERM_COND_STOP);
 
     TC_STRUCT *prev_tc;
     //Assume non-zero error code is failure
@@ -1811,7 +1807,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     pmCartCartDot(&prev_tan, &this_tan, &dot);
     if (dot < SHARP_CORNER_THRESHOLD) {
         tp_debug_print("Found sharp corner\n");
-        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
         return TP_ERR_FAIL;
     }
 
@@ -1864,7 +1860,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     if (acc_scale_max < kink_ratio) {
         tp_debug_print(" Kink acceleration within %g, using tangent blend\n", kink_ratio);
-        tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
         tcSetKinkProperties(prev_tc, tc, v_max, acc_scale_max);
         return TP_ERR_OK;
     } else {
