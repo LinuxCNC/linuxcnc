@@ -84,8 +84,8 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
-        set ::savelabel1 "Save Watch List" ;# identifier for entryconfigure
-        set ::savelabel2 "Save Watch List (multiline)" ;# identifier for entryconfigure
+        set ::savelabel1 [msgcat::mc "Save Watch List"] ;# identifier for entryconfigure
+        set ::savelabel2 [msgcat::mc "Save Watch List (multiline)"] ;# identifier for entryconfigure
         $filemenu add command -label [msgcat::mc $::savelabel1] \
             -command savewatchlist
         $filemenu add command -label [msgcat::mc $::savelabel2] \

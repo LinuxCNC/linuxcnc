@@ -3655,8 +3655,8 @@ class Gscreen:
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.button_zero_origin.set_label("Zero\n ")
-            self.widgets.button_offset_origin.set_label("Set At\n ")
+            self.widgets.button_zero_origin.set_label(_("Zero\n "))
+            self.widgets.button_offset_origin.set_label(_("Set At\n "))
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])

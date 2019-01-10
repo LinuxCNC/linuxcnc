@@ -198,8 +198,8 @@ proc popupDebug {{w .debugwindow}} {
     pack $lw.b1 $lw.b2 $lw.b3 $lw.b4 $lw.b5 $lw.b6 $lw.b7 $lw.b8 $lw.b9 $lw.b10 $lw.b11 $lw.b12 -side top -pady 2 -anchor w
 
     frame $lw.buttons
-    button $lw.buttons.ok -text OK -default active -command "collectDebug; popdownDebug $w"
-    button $lw.buttons.cancel -text Cancel -command "popdownDebug $w"
+    button $lw.buttons.ok -text [msgcat::mc "OK"] -default active -command "collectDebug; popdownDebug $w"
+    button $lw.buttons.cancel -text [msgcat::mc "Cancel"] -command "popdownDebug $w"
     pack $lw.buttons -side bottom -fill x -pady 2m
     pack $lw.buttons.ok $lw.buttons.cancel -side left -expand 1
     bind $w <Return> "emc_debug [collectDebug] ; popdownDebug $w"

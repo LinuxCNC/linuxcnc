@@ -282,7 +282,7 @@
                 <property name="enable_grid_lines">both</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="offset">
-                    <property name="title">Offset</property>
+                    <property name="title" translatable="yes">Offset</property>
                     <property name="sort_column_id">0</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_offset"/>
@@ -413,7 +413,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="name">
-                    <property name="title">Offset Name</property>
+                    <property name="title" translatable="yes">Offset Name</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_name"/>
                       <attributes>
