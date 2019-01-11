@@ -82,7 +82,7 @@ double fsign(double f)
 }
 
 /** negate a value (or not) based on a bool parameter */
-inline double negate(double f, int neg)
+static inline double negate(double f, int neg)
 {
     return (neg) ? -f : f;
 }

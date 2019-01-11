@@ -761,8 +761,10 @@ static void greatest_do_fail(void) {                                    \
     struct greatest_run_info *g = &greatest_info;                       \
     if (GREATEST_IS_VERBOSE()) {                                        \
         GREATEST_FPRINTF(GREATEST_STDOUT,                               \
-            "FAIL %s: %s (%s:%u)", g->name_buf,                         \
-            g->msg ? g->msg : "", g->fail_file, g->fail_line);          \
+            "%s:%u: error: test %s failed: %s",                                    \
+            g->fail_file, g->fail_line,                                 \
+            g->name_buf,                                                \
+            g->msg ? g->msg : "");                                      \
     } else {                                                            \
         GREATEST_FPRINTF(GREATEST_STDOUT, "F");                         \
         g->col++;  /* add linebreak if in line of '.'s */               \
@@ -770,9 +772,11 @@ static void greatest_do_fail(void) {                                    \
             GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
             g->col = 0;                                                 \
         }                                                               \
-        GREATEST_FPRINTF(GREATEST_STDOUT, "FAIL %s: %s (%s:%u)\n",      \
-            g->name_buf, g->msg ? g->msg : "",                          \
-            g->fail_file, g->fail_line);                                \
+        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
+            "%s:%u: error: test %s failed: %s",                                    \
+            g->fail_file, g->fail_line,                                 \
+            g->name_buf,                                                \
+            g->msg ? g->msg : "");                                      \
     }                                                                   \
     g->suite.failed++;                                                  \
 }                                                                       \
