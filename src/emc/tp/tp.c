@@ -889,9 +889,8 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     }
 
     // Check for coplanarity based on binormal and tangents
-    int coplanar = pmCartCartParallel(&geom.binormal,
-            &tc->coords.circle.xyz.normal,
-            TP_ANGLE_EPSILON);
+    int coplanar = pmUnitCartsColinear(&geom.binormal,
+            &tc->coords.circle.xyz.normal);
 
     if (!coplanar) {
         tp_debug_print("aborting arc, not coplanar\n");
@@ -1046,9 +1045,8 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     }
 
     // Check for coplanarity based on binormal
-    int coplanar = pmCartCartParallel(&geom.binormal,
-            &prev_tc->coords.circle.xyz.normal,
-            TP_ANGLE_EPSILON);
+    int coplanar = pmUnitCartsColinear(&geom.binormal,
+            &prev_tc->coords.circle.xyz.normal);
 
     if (!coplanar) {
         tp_debug_print("aborting arc, not coplanar\n");
@@ -1161,8 +1159,8 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
 
     tp_debug_print("-- Starting ArcArc blend arc --\n");
     //TODO type checks
-    int colinear = pmCartCartParallel(&prev_tc->coords.circle.xyz.normal,
-            &tc->coords.circle.xyz.normal, TP_ANGLE_EPSILON);
+    int colinear = pmUnitCartsColinear(&prev_tc->coords.circle.xyz.normal,
+            &tc->coords.circle.xyz.normal);
     if (!colinear) {
         // Fail out if not collinear
         tp_debug_print("arc abort: not coplanar\n");
@@ -1194,18 +1192,16 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
         return res_init;
     }
 
-    int coplanar1 = pmCartCartParallel(&geom.binormal,
-            &prev_tc->coords.circle.xyz.normal,
-            TP_ANGLE_EPSILON);
+    int coplanar1 = pmUnitCartsColinear(&geom.binormal,
+            &prev_tc->coords.circle.xyz.normal);
 
     if (!coplanar1) {
         tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", prev_tc->id);
         return TP_ERR_FAIL;
     }
 
-    int coplanar2 = pmCartCartParallel(&geom.binormal,
-            &tc->coords.circle.xyz.normal,
-            TP_ANGLE_EPSILON);
+    int coplanar2 = pmUnitCartsColinear(&geom.binormal,
+            &tc->coords.circle.xyz.normal);
     if (!coplanar2) {
         tp_debug_print("aborting blend arc, arc id %d is not coplanar with binormal\n", tc->id);
         return TP_ERR_FAIL;
