@@ -649,10 +649,7 @@ STATIC double tpCalculateTriangleVel(TC_STRUCT const *tc) {
         // blending may remove up to 1/2 of the segment
         length /= 2.0;
     }
-    double triangle_vel = pmSqrt( acc_scaled * length);
-    tp_debug_print("triangle vel for segment %d is %f\n", tc->id, triangle_vel);
-
-    return triangle_vel;
+    return findVPeak(acc_scaled, length);
 }
 
 
@@ -667,10 +664,11 @@ STATIC double tpCalculateTriangleVel(TC_STRUCT const *tc) {
 STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 {
     double acc_scaled = tcGetTangentialMaxAccel(tc);
-    //FIXME this is defined in two places!
-    double triangle_vel = pmSqrt( acc_scaled * tc->target * BLEND_DIST_FRACTION);
+    double triangle_vel = findVPeak(acc_scaled, tc->target);
     double max_vel = tpGetMaxTargetVel(tp, tc);
-    tp_debug_print("optimization initial vel for segment %d is %f\n", tc->id, triangle_vel);
+    tp_debug_json_start(tpCalculateOptimizationInitialVel);
+    tp_debug_json_double(triangle_vel);
+    tp_debug_json_end();
     return fmin(triangle_vel, max_vel);
 }
 

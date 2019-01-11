@@ -252,10 +252,6 @@ int pmCircleTangentVector(PmCircle const * const circle,
      */
     pmCartCartCross(&circle->normal, &radius, &uTan);
 
-    // find dz/dtheta and get differential movement along helical axis
-    double h;
-    pmCartMag(&circle->rHelix, &h);
-
     /* the binormal component of the tangent vector is (dz / dtheta) * dtheta.
      */
     double dz = 1.0 / circle->angle;
