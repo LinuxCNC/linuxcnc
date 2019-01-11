@@ -301,80 +301,57 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 }
 
 
+int pmCartCartParallel(PmCartesian const * const u1,
+                       PmCartesian const * const u2,
+                       double tol)
+{
+    double d_diff;
+    {
+        PmCartesian u_diff;
+        pmCartCartSub(u1, u2, &u_diff);
+        pmCartMagSq(&u_diff, &d_diff);
+    }
+
+    tp_debug_json_start(pmCartCartParallel);
+    tp_debug_json_double(d_diff);
+    tp_debug_json_end();
+
+    return d_diff < tol;
+}
+
+int pmCartCartAntiParallel(PmCartesian const * const u1,
+                           PmCartesian const * const u2,
+                           double tol)
+{
+    double d_sum;
+    {
+        PmCartesian u_sum;
+        pmCartCartAdd(u1, u2, &u_sum);
+        pmCartMagSq(&u_sum, &d_sum);
+    }
+
+    tp_debug_json_start(pmCartCartAntiParallel);
+    tp_debug_json_double(d_sum);
+    tp_debug_json_end();
+
+    return d_sum < tol;
+}
+
 
 /**
- * Check if two cartesian vectors are parallel.
+ * Check if two cartesian vectors are parallel or anti-parallel
  * The input tolerance specifies what the maximum angle between the
  * lines containing two vectors is. Note that vectors pointing in
  * opposite directions are still considered parallel, since their
  * containing lines are parallel.
- * @param v1 input vector 1
- * @param v2 input vector 2
- * @param tol angle tolerance for parallelism
+ * @param u1 input unit vector 1
+ * @param u2 input unit vector 2
+ * @pre BOTH u1 and u2 must be unit vectors or calculation may be skewed.
  */
-int pmCartCartParallel(PmCartesian const * const v1,
-        PmCartesian const * const v2, double tol)
+int pmUnitCartsColinear(PmCartesian const * const u1,
+        PmCartesian const * const u2)
 {
-    PmCartesian u1,u2;
-    pmCartUnit(v1, &u1);
-    pmCartUnit(v2, &u2);
-    double dot;
-    pmCartCartDot(&u1, &u2, &dot);
-    double theta = acos(fabs(dot));
-    if (theta < tol) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
-/**
- * Check if a Circle and line are coplanar.
- *
- * @param circ PmCircle input
- * @param line PmCartLine input
- * @param tol deviation tolerance (magnitude of error component)
- */
-int pmCircLineCoplanar(PmCircle const * const circ,
-        PmCartLine const * const line, double tol)
-{
-    double dot;
-    int res = pmCartCartDot(&circ->normal, &line->uVec, &dot);
-    tp_debug_print("normal = %.12g %.12g %.12g, uVec = %.12g %.12g %.12g, dot = %.12g\n",
-            circ->normal.x,
-            circ->normal.y,
-            circ->normal.z,
-            line->uVec.x,
-            line->uVec.y,
-            line->uVec.z,
-            dot);
-    if (fabs(dot) < tol && !res) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
-int blendCoplanarCheck(PmCartesian const * const normal,
-        PmCartesian const * const u1_tan,
-        PmCartesian const * const u2_tan,
-        double tol)
-{
-    if (!normal || !u1_tan  || !u2_tan) {
-        return TP_ERR_MISSING_INPUT;
-    }
-
-    double dot1, dot2;
-    int res1 = pmCartCartDot(normal, u1_tan, &dot1);
-    int res2 = pmCartCartDot(normal, u2_tan, &dot2);
-
-    if (fabs(dot1) < tol && fabs(dot2) < tol && !res1 && !res2) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return pmCartCartParallel(u1, u2, TP_ANGLE_EPSILON_SQ) || pmCartCartAntiParallel(u1, u2, TP_ANGLE_EPSILON_SQ);
 }
 
 
@@ -1844,3 +1821,4 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
             effective_radius);
     return effective_radius;
 }
+

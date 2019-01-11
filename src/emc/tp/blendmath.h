@@ -148,8 +148,16 @@ int findAccelScale(PmCartesian const * const acc,
         PmCartesian const * const bounds,
         PmCartesian * const scale);
 
-int pmCartCartParallel(PmCartesian const * const v1,
-        PmCartesian const * const v2, double tol);
+int pmUnitCartsColinear(PmCartesian const * const u1,
+        PmCartesian const * const u2);
+
+int pmCartCartParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol);
+
+int pmCartCartAntiParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol);
 
 int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol);
