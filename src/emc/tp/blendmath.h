@@ -244,6 +244,8 @@ int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
 
+double pmCartAbsMax(PmCartesian const * const v);
+
 typedef struct {
     double v_max;
     double acc_ratio;
