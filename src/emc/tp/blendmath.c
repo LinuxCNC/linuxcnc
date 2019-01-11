@@ -301,6 +301,12 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 }
 
 
+/**
+ * Checks if two UNIT vectors are parallel to the given angle tolerance (in radians).
+ * @warning tol depends on the small angle approximation and will not be
+ * accurate for angles larger than about 10 deg. This function is meant for
+ * small tolerances!
+ */
 int pmCartCartParallel(PmCartesian const * const u1,
                        PmCartesian const * const u2,
                        double tol)
@@ -319,6 +325,12 @@ int pmCartCartParallel(PmCartesian const * const u1,
     return d_diff < tol;
 }
 
+/**
+ * Checks if two UNIT vectors are anti-parallel to the given angle tolerance (in radians).
+ * @warning tol depends on the small angle approximation and will not be
+ * accurate for angles larger than about 10 deg. This function is meant for
+ * small tolerances!
+ */
 int pmCartCartAntiParallel(PmCartesian const * const u1,
                            PmCartesian const * const u2,
                            double tol)
