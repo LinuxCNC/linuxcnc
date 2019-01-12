@@ -3482,8 +3482,8 @@ if duplicate_coord_letters != "":
     print (_("Warning: Forward kinematics must handle duplicate coordinate letters:%s")%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
-    print (_("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d")
-          %(trajcoordinates,jointcount))
+    print (_("Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d")
+          %({'t':trajcoordinates,'l':jointcount}))
 
 def lathe_historical_config():
     # detect historical lathe config with dummy joint 1
