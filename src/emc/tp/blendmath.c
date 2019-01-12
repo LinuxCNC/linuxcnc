@@ -1833,7 +1833,17 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
 double pmCircleEffectiveMinRadius(PmCircle const * circle)
 {
     double dr = circle->spiral / circle->angle;
-    double effective_radius = pmSqrt(pmSq(min_radius)+pmSq(dr));
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
+
+    // Exact representation of spiral arc length flattened into
+    double n_inner = pmSq(dr) + pmSq(circle->radius);
+    double den = n_inner+pmSq(dr);
+    double num = pmSqrt(n_inner * n_inner * n_inner);
+    double r_spiral = num / den;
+
+    // Curvature of helix, assuming that helical motion is independent of plane motion
+    double effective_radius = h2 / r_spiral + r_spiral;
 
     return effective_radius;
 }
