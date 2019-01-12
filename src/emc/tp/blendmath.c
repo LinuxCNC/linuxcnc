@@ -1832,7 +1832,17 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
     double min_radius = fmin(radius0, radius1);
 
     double dr = circle->spiral / circle->angle;
-    double effective_radius = pmSqrt(pmSq(min_radius)+pmSq(dr));
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
+
+    // Exact representation of spiral arc length flattened into
+    double n_inner = pmSq(dr) + pmSq(circle->radius);
+    double den = n_inner+pmSq(dr);
+    double num = pmSqrt(n_inner * n_inner * n_inner);
+    double r_spiral = num / den;
+
+    // Curvature of helix, assuming that helical motion is independent of plane motion
+    double effective_radius = h2 / r_spiral + r_spiral;
 
     tp_debug_print("min_radius = %f, effective_min_radius = %f\n",
             min_radius,
