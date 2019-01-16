@@ -84,6 +84,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.block_delete = False
         self.optional_stop = False
         self.mdi_command = False
+        self.ini_mdi_command = False
         self.dro_relative = False
         self.dro_absolute = False
         self.dro_dtg = False
@@ -98,6 +99,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.float_alt = 50.0
         self.view_type = 'p'
         self.command_text = ''
+        self.ini_mdi_num = 0
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -287,7 +289,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('optional-stop-changed', lambda w, data: _safecheck(data))
-        elif self.mdi_command:
+        elif self.mdi_command or self.ini_mdi_command:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
@@ -449,11 +451,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     ACTION.SET_BLOCK_DELETE_OFF()
         elif self.mdi_command:
             self.command_text = str(self.command_text)
-            if 'MDI_COMMAND_LIST' in self.command_text:
-                num = int(filter(str.isdigit, self.command_text))
-                ACTION.CALL_INI_MDI(num)
-            else:
-                ACTION.CALL_MDI(self.command_text)
+            ACTION.CALL_MDI(self.command_text)
+        elif self.ini_mdi_command:
+            ACTION.CALL_INI_MDI(self.ini_mdi_num)
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
         elif self.dro_relative:
@@ -543,9 +543,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'camview_dialog', 'jog_incr', 'feed_over', 'rapid_over',
                 'spindle_over', 'jog_rate', 'view_x', 'view_p', 'spindle_fwd',
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
-                'limits_override', 'flood', 'mist', 'optional_stop',
-                'command_text', 'block_delete', 'dro_absolute', 'dro_relative',
-                'dro_dtg')
+                'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
+                'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
+                'dro_relative', 'dro_dtg')
 
         for i in data:
             if not i == picked:
@@ -899,6 +899,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_mdi_command(self):
         self.mdi_command = False
 
+    def set_ini_mdi_command(self, data):
+        self.ini_mdi_command = data
+        if data:
+            self._toggle_properties('ini_mdi_command')
+    def get_ini_mdi_command(self):
+        return self.ini_mdi_command
+    def reset_ini_mdi_command(self):
+        self.ini_mdi_command = False
+
     def set_dro_absolute(self, data):
         self.dro_absolute = data
         if data:
@@ -987,6 +996,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_command_text(self):
         self.command_text = ''
 
+    def set_ini_mdi_num(self, data):
+        self.ini_mdi_num = data
+    def get_ini_mdi_num(self):
+        return self.ini_mdi_num
+    def reset_ini_mdi_num(self):
+        self.ini_mdi_num = 0
+
     # designer will show these properties in this order:
     # BOOL
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
@@ -1018,7 +1034,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     feed_over_action = QtCore.pyqtProperty(bool, get_feed_over, set_feed_over, reset_feed_over)
     rapid_over_action = QtCore.pyqtProperty(bool, get_rapid_over, set_rapid_over, reset_rapid_over)
     spindle_over_action = QtCore.pyqtProperty(bool, get_spindle_over, set_spindle_over, reset_spindle_over)
-    toggle_float_option = QtCore.pyqtProperty(bool, get_toggle_float, set_toggle_float, reset_toggle_float)
     spindle_fwd_action = QtCore.pyqtProperty(bool, get_spindle_fwd, set_spindle_fwd, reset_spindle_fwd)
     spindle_rev_action = QtCore.pyqtProperty(bool, get_spindle_rev, set_spindle_rev, reset_spindle_rev)
     spindle_stop_action = QtCore.pyqtProperty(bool, get_spindle_stop, set_spindle_stop, reset_spindle_stop)
@@ -1031,6 +1046,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     block_delete_action = QtCore.pyqtProperty(bool, get_block_delete, set_block_delete, reset_block_delete)
     optional_stop_action = QtCore.pyqtProperty(bool, get_optional_stop, set_optional_stop, reset_optional_stop)
     mdi_command_action = QtCore.pyqtProperty(bool, get_mdi_command, set_mdi_command, reset_mdi_command)
+    ini_mdi_command_action = QtCore.pyqtProperty(bool, get_ini_mdi_command, set_ini_mdi_command, reset_ini_mdi_command)
     dro_absolute_action = QtCore.pyqtProperty(bool, get_dro_absolute, set_dro_absolute, reset_dro_absolute)
     dro_relative_action = QtCore.pyqtProperty(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
@@ -1040,11 +1056,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)
     incr_mm_number = QtCore.pyqtProperty(float, get_incr_mm, set_incr_mm, reset_incr_mm)
     incr_angular_number = QtCore.pyqtProperty(float, get_incr_angle, set_incr_angle, reset_incr_angle)
+    toggle_float_option = QtCore.pyqtProperty(bool, get_toggle_float, set_toggle_float, reset_toggle_float)
     float_num = QtCore.pyqtProperty(float, get_float, set_float, reset_float)
     float_alt_num = QtCore.pyqtProperty(float, get_float_alt, set_float_alt, reset_float_alt)
     view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)
     command_text_string = QtCore.pyqtProperty(str, get_command_text, set_command_text, reset_command_text)
-
+    ini_mdi_number = QtCore.pyqtProperty(int, get_ini_mdi_num, set_ini_mdi_num, reset_ini_mdi_num)
     ##############################
     # required class boiler code #
     ##############################
