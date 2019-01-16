@@ -1275,84 +1275,79 @@ tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
 tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
-widgets = nf.Widgets(root_window,
-    ("help_window", Toplevel, ".keys"),
-    ("about_window", Toplevel, ".about"),
-    ("text", Text, pane_bottom + ".t.text"),
-    ("preview_frame", Frame, tabs_preview),
-    ("numbers_text", Text, tabs_numbers + ".text"),
-    ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
-    ("right", bwidget.NoteBook, pane_top + ".right"),
-    ("mdi_history", Listbox, tabs_mdi + ".history"),
-    ("mdi_command", Entry, tabs_mdi + ".command"),
-    ("code_text", Text, tabs_mdi + ".gcodes"),
 
-    ("axes", Radiobutton, tabs_manual + ".axes"),
-    ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
-    ("axis_y", Radiobutton, tabs_manual + ".axes.axisy"),
-    ("axis_z", Radiobutton, tabs_manual + ".axes.axisz"),
-    ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
-    ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
-    ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
-    ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
-    ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
-    ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
+widget_list=[
+       ("help_window", Toplevel, ".keys"),
+       ("about_window", Toplevel, ".about"),
+       ("text", Text, pane_bottom + ".t.text"),
+       ("preview_frame", Frame, tabs_preview),
+       ("numbers_text", Text, tabs_numbers + ".text"),
+       ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
+       ("right", bwidget.NoteBook, pane_top + ".right"),
+       ("mdi_history", Listbox, tabs_mdi + ".history"),
+       ("mdi_command", Entry, tabs_mdi + ".command"),
+       ("code_text", Text, tabs_mdi + ".gcodes"),
 
-    ("joints", Radiobutton, tabs_manual + ".joints"),
-    ("joint_0", Radiobutton, tabs_manual + ".joints.joint0"),
-    ("joint_1", Radiobutton, tabs_manual + ".joints.joint1"),
-    ("joint_2", Radiobutton, tabs_manual + ".joints.joint2"),
-    ("joint_3", Radiobutton, tabs_manual + ".joints.joint3"),
-    ("joint_4", Radiobutton, tabs_manual + ".joints.joint4"),
-    ("joint_5", Radiobutton, tabs_manual + ".joints.joint5"),
-    ("joint_6", Radiobutton, tabs_manual + ".joints.joint6"),
-    ("joint_7", Radiobutton, tabs_manual + ".joints.joint7"),
-    ("joint_8", Radiobutton, tabs_manual + ".joints.joint8"),
-    ("joint_9", Radiobutton, tabs_manual + ".joints.joint9"),
+       ("axes", Radiobutton, tabs_manual + ".axes"),
+       ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
+       ("axis_y", Radiobutton, tabs_manual + ".axes.axisy"),
+       ("axis_z", Radiobutton, tabs_manual + ".axes.axisz"),
+       ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
+       ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
+       ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
+       ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
+       ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
+       ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
+       ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
+       ("override", Checkbutton, tabs_manual + ".jogf.override"),
 
-    ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
-    ("override", Checkbutton, tabs_manual + ".jogf.override"),
+       ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
-    ("ajogspeed", Entry, pane_top + ".ajogspeed"),
+       ("lubel", Label, tabs_manual + ".coolant"),
+       ("flood", Checkbutton, tabs_manual + ".flood"),
+       ("mist", Checkbutton, tabs_manual + ".mist"),
 
-    ("lubel", Label, tabs_manual + ".coolant"),
-    ("flood", Checkbutton, tabs_manual + ".flood"),
-    ("mist", Checkbutton, tabs_manual + ".mist"),
+       ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
 
-    ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
+       ("spindlel", Label, tabs_manual + ".spindlel"),
+       ("spindlef", Frame, tabs_manual + ".spindlef"),
+       ("spindle_ccw", Radiobutton, tabs_manual + ".spindlef.ccw"),
+       ("spindle_stop", Radiobutton, tabs_manual + ".spindlef.stop"),
+       ("spindle_cw", Radiobutton, tabs_manual + ".spindlef.cw"),
 
-    ("spindlel", Label, tabs_manual + ".spindlel"),
-    ("spindlef", Frame, tabs_manual + ".spindlef"),
-    ("spindle_ccw", Radiobutton, tabs_manual + ".spindlef.ccw"),
-    ("spindle_stop", Radiobutton, tabs_manual + ".spindlef.stop"),
-    ("spindle_cw", Radiobutton, tabs_manual + ".spindlef.cw"),
+       ("spindle_minus", Button, tabs_manual + ".spindlef.spindleminus"),
+       ("spindle_plus", Button, tabs_manual + ".spindlef.spindleplus"),
 
-    ("spindle_minus", Button, tabs_manual + ".spindlef.spindleminus"),
-    ("spindle_plus", Button, tabs_manual + ".spindlef.spindleplus"),
+       ("view_z", Button, ".toolbar.view_z"),
+       ("view_z2", Button, ".toolbar.view_z2"),
+       ("view_x", Button, ".toolbar.view_x"),
+       ("view_y", Button, ".toolbar.view_y"),
+       ("view_y2", Button, ".toolbar.view_y2"),
+       ("view_p", Button, ".toolbar.view_p"),
+       ("rotate", Button, ".toolbar.rotate"),
 
-    ("view_z", Button, ".toolbar.view_z"),
-    ("view_z2", Button, ".toolbar.view_z2"),
-    ("view_x", Button, ".toolbar.view_x"),
-    ("view_y", Button, ".toolbar.view_y"),
-    ("view_y2", Button, ".toolbar.view_y2"),
-    ("view_p", Button, ".toolbar.view_p"),
-    ("rotate", Button, ".toolbar.rotate"),
+       ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
+       ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
+       ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
+       ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
-    ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
-    ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
-    ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
-    ("spinoverridef", Scale, pane_top + ".spinoverride"),
+       ("menu_view", Menu, ".menu.view"),
+       ("menu_grid", Menu, ".menu.view.grid"),
+       ("menu_file", Menu, ".menu.file"),
+       ("menu_machine", Menu, ".menu.machine"),
+       ("menu_touchoff", Menu, ".menu.machine.touchoff"),
 
-    ("menu_view", Menu, ".menu.view"),
-    ("menu_grid", Menu, ".menu.view.grid"),
-    ("menu_file", Menu, ".menu.file"),
-    ("menu_machine", Menu, ".menu.machine"),
-    ("menu_touchoff", Menu, ".menu.machine.touchoff"),
+       ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
+       ("homemenu", Menu, ".menu.machine.home"),
+       ("unhomemenu", Menu, ".menu.machine.unhome"),
+      ]
+widget_list.append( ("joints", Radiobutton, tabs_manual + ".joints") )
+for j in range(linuxcnc.MAX_JOINTS):
+    widget_list.append( ("joint_"+str(j),
+                          Radiobutton,
+                          tabs_manual + ".joints.joint"+str(j)) )
+widgets = nf.Widgets(root_window,*widget_list)
 
-    ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
-    ("homemenu", Menu, ".menu.machine.home"),
-    ("unhomemenu", Menu, ".menu.machine.unhome")
-)
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean
@@ -1852,9 +1847,13 @@ def ja_from_rbutton():
         axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
-    if ja in "012345678":
-        a = int(ja) # number specifies a joint
-    else:    
+
+    try: # ja may be a joint number or an axis coordinate letter
+        a = int(ja) # invalid for types: 'str' or 'unicode'
+        if a not in range(linuxcnc.MAX_JOINTS):
+            print "ja_from_rbutton:Unexpected joint number",a
+            return "" # can not continue
+    except ValueError:
         a = axes.index(ja) # letter specifies an axis coordinate
 
     # handle joint jogging for known identity kins

@@ -1204,6 +1204,11 @@ assertion of index_enable.
 Support added for reverse run in the trajectory planner, the task, and
 motion modules, the python interface, the axis gui, and the test suite.
 
+==== Number of Joints
+
+The maximum number of joints (EMCMOT_MAX_JOINTS) increased from 9
+to 16.  The axis gui now supports display of up to 16 joints.
+
 ==== Homing
 
 A homing api is provided by src/emc/motion/homing.h to support users'
