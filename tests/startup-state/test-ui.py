@@ -244,8 +244,7 @@ assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
 assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80))
 
-assert(s.homed == (0, 0, 0, 0, 0, 0, 0, 0, 0))
-
+assert(not (1 in s.homed))
 assert(s.id == 0)
 assert(s.inpos == True)
 assert(s.input_timeout == False)
@@ -261,13 +260,15 @@ assert_joint_zeroed(s.joint[5])
 assert_joint_zeroed(s.joint[6])
 assert_joint_zeroed(s.joint[7])
 assert_joint_zeroed(s.joint[8])
-assert(s.joint_actual_position == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
-assert(s.joint_position == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+for i in range(len(s.joint_actual_position)):
+    assert(s.joint_actual_position[i] == 0.0)
+for i in range(len(s.joint_position)):
+    assert(s.joint_position[i] == 0.0)
 assert(s.joints == 3)
 
 assert(s.kinematics_type == 1)
 
-assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(not (1 in s.limit))
 assert(math.fabs(s.linear_units - 0.0393700787402) < 0.0000001)
 
 assert(s.lube == 0)
