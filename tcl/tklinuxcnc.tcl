@@ -1014,7 +1014,7 @@ for {set joint 0} {$joint < $::MAX_JOINTS} {incr joint} {
     }
   }
 }
-unset vitems tempini ;# remove clutter
+catch {unset vitems tempini} ;# remove clutter
 
 set jogType continuous
 set jogIncrement 0.0010
