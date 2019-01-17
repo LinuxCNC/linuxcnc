@@ -753,22 +753,8 @@ class gmoccapy(object):
         for child in dic:
             box.remove(dic[child])
 
-    def _on_btn_previous_clicked(self, widget):
-        print("previous")
-        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
-
-        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"], True, True, 0)
-        self.ref_button_dic["ref_all"].show()
-
-        self._put_button(0 , 6, self.ref_button_dic, self.widgets.hbtb_ref)
-
-        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["next_button"], True, True, 0)
-        self.ref_button_dic["next_button"].show()
-        
-        self._put_unref_and_back()
-
     def _on_btn_next_clicked(self, widget):
-        print("next")
+        # remove all buttons from container
         self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
 
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"], True, True, 0)
@@ -778,24 +764,32 @@ class gmoccapy(object):
 
         start = len(self.axis_list) - 6
         end = len(self.axis_list)
-        self._put_button(start , end, self.ref_button_dic, self.widgets.hbtb_ref)
+
+        # now put the needed widgets in the container
+        for axis in self.axis_list[start : end]:
+            name = "home_axis_{0}".format(axis.lower())
+            self.ref_button_dic[name].show()
+            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name], True, True, 0)
 
         self._put_unref_and_back()
 
-    def _on_btn_previous_macro_clicked(self, widget):
-        # remove all buttons from container
-        self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
+    def _on_btn_next_touch_clicked(self, widget):
+        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
 
-        start = 0
-        end = 8
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
+        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["previous_button"])
+        self.touch_button_dic["previous_button"].show()
+
+        start = len(self.axis_list) - 5
+        end = len(self.axis_list)
         
-        self._put_macro_button(start , end, self.macro_dic, self.widgets.hbtb_MDI)
+        # now put the needed widgets in the container
+        for axis in self.axis_list[start : end]:
+            name = "touch_{0}".format(axis.lower())
+            self.touch_button_dic[name].show()
+            self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic[name], True, True, 0)
 
-        self.widgets.hbtb_MDI.pack_start(self.macro_dic["next_button"])
-        self.macro_dic["next_button"].show()
-
-        self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
-        self.macro_dic["keyboard"].show()
+        self._put_set_active_and_back()
 
     def _on_btn_next_macro_clicked(self, widget):
         # remove all buttons from container
@@ -808,22 +802,35 @@ class gmoccapy(object):
         start = end - 8
 
         # now put the needed widgets in the container
-        self._put_macro_button(start , end, self.macro_dic, self.widgets.hbtb_MDI)
+        for pos in range(start, end):
+            name = "macro_{0}".format(pos)
+            self.widgets.hbtb_MDI.pack_start(self.macro_dic[name], True, True, 0)
+            self.macro_dic[name].show()
         
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
         self.macro_dic["keyboard"].show()
 
-    def _on_btn_next_touch_clicked(self, widget):
-        self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
 
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["previous_button"])
-        self.touch_button_dic["previous_button"].show()
+    def _on_btn_previous_clicked(self, widget):
+        print("previous")
+        self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
 
-        self._put_button(len(self.axis_list) - 5 , len(self.axis_list),
-                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["ref_all"], True, True, 0)
+        self.ref_button_dic["ref_all"].show()
 
-        self._put_set_active_and_back()
+        start = 0
+        end = 6
+        
+        # now put the needed widgets in the container
+        for axis in self.axis_list[start : end]:
+            name = "home_axis_{0}".format(axis.lower())
+            self.ref_button_dic[name].show()
+            self.widgets.hbtb_ref.pack_start(self.ref_button_dic[name], True, True, 0)
+
+        self.widgets.hbtb_ref.pack_start(self.ref_button_dic["next_button"], True, True, 0)
+        self.ref_button_dic["next_button"].show()
+        
+        self._put_unref_and_back()
 
     def _on_btn_previous_touch_clicked(self, widget):
         self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
@@ -838,8 +845,11 @@ class gmoccapy(object):
         else:
             end = 5
             
-        self._put_button(0 , end,
-                         self.touch_button_dic, self.widgets.hbtb_touch_off)
+        # now put the needed widgets in the container
+        for axis in self.axis_list[start : end]:
+            name = "touch_{0}".format(axis.lower())
+            self.touch_button_dic[name].show()
+            self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic[name], True, True, 0)
 
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["next_button"])
         self.touch_button_dic["next_button"].show()
@@ -850,15 +860,24 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"])
         self._put_set_active_and_back()
 
-    def _put_button(self, start, end, dic, box):
-        if dic == self.ref_button_dic:
-            prefix = "home_axis"
-        elif dic == self.touch_button_dic:
-            prefix = "touch"
-        for axis in self.axis_list[start : end]:
-            name = prefix + "_{0}".format(axis.lower())
-            dic[name].show()
-            box.pack_start(dic[name], True, True, 0)
+    def _on_btn_previous_macro_clicked(self, widget):
+        # remove all buttons from container
+        self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
+
+        start = 0
+        end = 8
+        
+        # now put the needed widgets in the container
+        for pos in range(start, end):
+            name = "macro_{0}".format(pos)
+            self.widgets.hbtb_MDI.pack_start(self.macro_dic[name], True, True, 0)
+            self.macro_dic[name].show()
+
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["next_button"])
+        self.macro_dic["next_button"].show()
+
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
+        self.macro_dic["keyboard"].show()
 
     def _put_set_active_and_back(self):
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"], True, True, 0)
@@ -868,14 +887,6 @@ class gmoccapy(object):
     def _put_unref_and_back(self):
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["unref_all"], True, True, 0)
         self.widgets.hbtb_ref.pack_start(self.ref_button_dic["home_back"], True, True, 0)
-
-    def _put_macro_button(self, start, end, dic, box):
-        prefix = "macro"
-        
-        for pos in range(start, end):
-            name = prefix + "_{0}".format(pos)
-            box.pack_start(dic[name], True, True, 0)
-            dic[name].show()
 
     def _make_touch_button(self):
         print("**** GMOCCAPY INFO ****")
