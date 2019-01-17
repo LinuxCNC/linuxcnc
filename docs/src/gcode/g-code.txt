@@ -83,6 +83,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43.1,G43.1>>              |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>              |Apply additional Tool Length Offset
 |<<gcode:g49,G49>>                  |Cancel Tool Length Offset
+|<<gcode:g52,G52>>                  |Local Coordinate System Offset
 |<<gcode:g53,G53>>                  |Move in Machine Coordinates
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
 |<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
@@ -1344,6 +1345,20 @@ NOTE: G43.2 does not write to the tool table.
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
 used.
+
+
+[[gcode:g52]]
+== G52 Local Coordinate System Offset
+(((Local Offsets)))
+
+----
+G53 axes
+----
+
+G52 is used in a part program as a temporary "local coordinate system offset"
+within the workpiece coordinate system. More information on G52 is in the
+<<sec:g52, Local and Global Offsets>> section.
+
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates
