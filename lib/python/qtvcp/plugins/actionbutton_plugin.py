@@ -189,7 +189,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Set DRO to DTG',['dro_dtg', 0], []), )
         node_9 = (('View Change',['view_change', 128], []),)
         node_10 = (('MDI Commands',['mdi_command', 256], []),
-                  ('MDI Commands From INI',['ini_mdi_command', 1024], []) )
+                  ('MDI Commands From INI',['ini_mdi_command', 512], []) )
 
         parent_node = [ ('Unset', ['unset',None], []),
                     ('MACHINE CONTROL',[None, None], node_1),
@@ -350,7 +350,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.ud256.hide()
 
         # MDI command from INI edit box
-        self.ud1024 = QtWidgets.QWidget()
+        self.ud512 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('MDI Command from INI File')
@@ -360,9 +360,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.MDISpinBox)
-        self.ud1024.setLayout(hbox)
-        layout.addWidget(self.ud1024)
-        self.ud1024.hide()
+        self.ud512.setLayout(hbox)
+        layout.addWidget(self.ud512)
+        self.ud512.hide()
 
         # Dialog control buttons
         buttonBox = QtWidgets.QDialogButtonBox()
@@ -399,7 +399,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         #print 'selected property,related data code:',winPropertyName,userDataCode
         if winPropertyName is None: return True
         if not userDataCode is None:
-            for i in (1,2,4,8,16,32,64,128,256,1024):
+            for i in (1,2,4,8,16,32,64,128,256,512):
                 widg = self['ud%s'% i]
                 if userDataCode & i:
                     widg.show()
@@ -466,6 +466,171 @@ class IndicatorButtonDialog(QtWidgets.QDialog):
 
         layout = QtWidgets.QGridLayout()
 
+        # Indicator option
+        self.ud1 = QtWidgets.QFrame()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('<b>State Indicator Option<\b>')
+        self.indicatorCheckBox = QtWidgets.QCheckBox()
+        self.indicatorCheckBox.setChecked(widget.draw_indicator)
+        self.indicatorCheckBox.clicked.connect(self.onSetOptions)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.indicatorCheckBox)
+        self.ud1.setLayout(hbox)
+        layout.addWidget(self.ud1)
+        #self.ud1.hide()
+
+        # HAL pin option
+        self.ud4 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Hal Pin Option')
+        self.halCheckBox = QtWidgets.QCheckBox()
+        self.halCheckBox.setChecked(widget._HAL_pin)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.halCheckBox)
+        self.ud4.setLayout(hbox)
+        layout.addWidget(self.ud4)
+        self.ud4.hide()
+
+        # indicator size
+        self.ud256 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Indicator Size')
+        self.floatSpinBox = QtWidgets.QDoubleSpinBox()
+        self.floatSpinBox.setRange(0,2)
+        self.floatSpinBox.setDecimals(4)
+        self.floatSpinBox.setSingleStep(0.1)
+        self.floatSpinBox.setValue(widget._size)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.floatSpinBox)
+        self.ud256.setLayout(hbox)
+        layout.addWidget(self.ud256)
+        self.ud256.hide()
+
+        # true state indicator color
+        self.ud512 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        button = QtWidgets.QLabel('True State Indicator Color')
+        self.trueColorButton = QtWidgets.QPushButton()
+        self.trueColorButton.setToolTip('Opens color dialog')
+        self.trueColorButton.clicked.connect(self.on_trueColorClick)
+        self.trueColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% widget._on_color.name())
+        self._onColor = widget._on_color.name()
+        hbox.addWidget(button)
+        hbox.addWidget(self.trueColorButton)
+        self.ud512.setLayout(hbox)
+        layout.addWidget(self.ud512)
+        self.ud512.hide()
+
+        # False state indicator color
+        self.ud1024 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        button = QtWidgets.QLabel('Falsee State Indicator Color')
+        self.falseColorButton = QtWidgets.QPushButton()
+        self.falseColorButton.setToolTip('Opens color dialog')
+        self.falseColorButton.clicked.connect(self.on_falseColorClick)
+        self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% widget._off_color.name())
+        self._offColor = widget._off_color.name()
+        hbox.addWidget(button)
+        hbox.addWidget(self.falseColorButton)
+        self.ud1024.setLayout(hbox)
+        layout.addWidget(self.ud1024)
+        self.ud1024.hide()
+
+
+
+        # State Text option
+        self.ud2 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('<b>State Text Option<\b?')
+        self.textCheckBox = QtWidgets.QCheckBox()
+        self.textCheckBox.setChecked(widget._state_text)
+        self.textCheckBox.clicked.connect(self.onSetOptions)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.textCheckBox)
+        self.ud2.setLayout(hbox)
+        layout.addWidget(self.ud2)
+        #self.ud2.hide()
+
+        # True text edit box
+        self.ud64 = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('True State Text Line')
+        self.tTextEditBox = QtWidgets.QLineEdit()
+        self.tTextEditBox.setText(widget._true_string)
+        vbox.addWidget(label)
+        vbox.addWidget(self.tTextEditBox)
+        self.ud64.setLayout(vbox)
+        layout.addWidget(self.ud64)
+        self.ud64.hide()
+
+        # False text edit box
+        self.ud128 = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('False State Text Line')
+        self.fTextEditBox = QtWidgets.QLineEdit()
+        self.fTextEditBox.setText(widget._false_string)
+        vbox.addWidget(label)
+        vbox.addWidget(self.fTextEditBox)
+        self.ud128.setLayout(vbox)
+        layout.addWidget(self.ud128)
+        self.ud128.hide()
+
+
+
+        # Python Text option
+        self.ud8 = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('<b>Python Command Option<\b>')
+        self.pythonCheckBox = QtWidgets.QCheckBox()
+        self.pythonCheckBox.setChecked(widget._python_command)
+        self.pythonCheckBox.clicked.connect(self.onSetOptions)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.pythonCheckBox)
+        self.ud8.setLayout(hbox)
+        layout.addWidget(self.ud8)
+        #self.ud8.hide()
+
+        # True command edit box
+        self.ud16 = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('True State Command Line')
+        self.tCommandEditBox = QtWidgets.QLineEdit()
+        self.tCommandEditBox.setText(widget.true_python_command)
+        vbox.addWidget(label)
+        vbox.addWidget(self.tCommandEditBox)
+        self.ud16.setLayout(vbox)
+        layout.addWidget(self.ud16)
+        self.ud16.hide()
+
+        # False command edit box
+        self.ud32 = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('False State Command Line')
+        self.fCommandEditBox = QtWidgets.QLineEdit()
+        self.fCommandEditBox.setText(widget.false_python_command)
+        vbox.addWidget(label)
+        vbox.addWidget(self.fCommandEditBox)
+        self.ud32.setLayout(vbox)
+        layout.addWidget(self.ud32)
+        self.ud32.hide()
+
+
         # Dialog control buttons
         buttonBox = QtWidgets.QDialogButtonBox()
         okButton = buttonBox.addButton(buttonBox.Ok)
@@ -475,8 +640,77 @@ class IndicatorButtonDialog(QtWidgets.QDialog):
         layout.addWidget(buttonBox, 11, 0, 1, 2)
 
         self.setLayout(layout)
+        self.onSetOptions()
+
+    def onSetOptions(self):
+        if self.indicatorCheckBox.isChecked():
+            self.ud4.show()
+            self.ud256.show()
+            self.ud512.show()
+            self.ud1024.show()
+        else:
+            self.ud4.hide()
+            self.ud256.hide()
+            self.ud512.hide()
+            self.ud1024.hide()
+
+        if self.pythonCheckBox.isChecked():
+            self.ud16.show()
+            self.ud32.show()
+        else:
+            self.ud16.hide()
+            self.ud32.hide()
+
+        if  self.textCheckBox.isChecked():
+            self.ud64.show()
+            self.ud128.show()
+        else:
+            self.ud64.hide()
+            self.ud128.hide()
+
+        self.adjustSize()
+
+    def on_trueColorClick(self):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self._onColor = color.name()
+            self.trueColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self._onColor)
+
+    def on_falseColorClick(self):
+        color = QtWidgets.QColorDialog.getColor()
+        if color.isValid():
+            self._offColor = color.name()
+            self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self._offColor)
 
     def updateWidget(self):
+        formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
+        if formWindow:
+            # set widget option
+            formWindow.cursor().setProperty('indicator_option',
+              QtCore.QVariant(self.indicatorCheckBox.isChecked()))
+            formWindow.cursor().setProperty('python_command_option',
+              QtCore.QVariant(self.pythonCheckBox.isChecked()))
+            formWindow.cursor().setProperty('checked_state_text_option',
+              QtCore.QVariant(self.textCheckBox.isChecked()))
+
+            formWindow.cursor().setProperty('indicator_HAL_pin_option',
+              QtCore.QVariant(self.halCheckBox.isChecked()))
+            formWindow.cursor().setProperty('indicator_size',
+              QtCore.QVariant(self.floatSpinBox.value()))
+            formWindow.cursor().setProperty('indicator_size',
+              QtCore.QVariant(self.floatSpinBox.value()))
+            formWindow.cursor().setProperty('indicator_size',
+              QtCore.QVariant(self.floatSpinBox.value()))
+
+
+            formWindow.cursor().setProperty('on_color',
+              QtCore.QVariant(self._onColor))
+            formWindow.cursor().setProperty('off_color',
+              QtCore.QVariant(self._offColor))
+            formWindow.cursor().setProperty('true_python_cmd_string',
+              QtCore.QVariant(self.tCommandEditBox.text()))
+            formWindow.cursor().setProperty('false_python_cmd_string',
+              QtCore.QVariant(self.fCommandEditBox.text()))
         self.accept()
 
 class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
@@ -495,8 +729,7 @@ class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
         return self.editStateAction
 
     def taskActions(self):
-        return [self.editStateAction]
-        #return [self.editStateAction,self.editIndicatorAction]
+        return [self.editStateAction,self.editIndicatorAction]
 
     def updateOptions(self):
         dialog = ActionButtonDialog(self.widget)
@@ -530,6 +763,10 @@ class RoundButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def initialize(self, formEditor):
         if self.initialized:
             return
+        manager = formEditor.extensionManager()
+        if manager:
+            self.factory = ActionButtonTaskMenuFactory(manager)
+            manager.registerExtensions(self.factory, Q_TYPEID['QDesignerTaskMenuExtension'])
         self.initialized = True
     def isInitialized(self):
         return self.initialized
