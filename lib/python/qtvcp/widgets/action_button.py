@@ -451,8 +451,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     ACTION.SET_BLOCK_DELETE_OFF()
         elif self.mdi_command:
             self.command_text = str(self.command_text)
+            LOG.debug("MDI STRING COMMAND: {}".format(self.command_text))
             ACTION.CALL_MDI(self.command_text)
         elif self.ini_mdi_command:
+            LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_num))
             ACTION.CALL_INI_MDI(self.ini_mdi_num)
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
