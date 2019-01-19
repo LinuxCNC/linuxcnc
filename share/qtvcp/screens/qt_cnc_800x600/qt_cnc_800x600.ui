@@ -605,19 +605,6 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="GcodeEditor" name="gcodeeditor">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>229</y>
-      <width>551</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
@@ -780,8 +767,8 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_3">
     <property name="geometry">
      <rect>
-      <x>680</x>
-      <y>370</y>
+      <x>570</x>
+      <y>490</y>
       <width>91</width>
       <height>61</height>
      </rect>
@@ -843,19 +830,6 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
     <property name="is_homed_status" stdset="0">
      <bool>false</bool>
     </property>
-    <widget class="QPushButton" name="pushButton">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>93</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>stop </string>
-     </property>
-    </widget>
    </widget>
    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_6">
     <property name="geometry">
@@ -878,25 +852,12 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
     <property name="is_homed_status" stdset="0">
      <bool>false</bool>
     </property>
-    <widget class="QPushButton" name="button_pause">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>93</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>pause</string>
-     </property>
-    </widget>
    </widget>
    <widget class="StatusLabel" name="StatusLabel_6">
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>440</y>
+      <y>510</y>
       <width>251</width>
       <height>61</height>
      </rect>
@@ -1022,7 +983,7 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
     <property name="geometry">
      <rect>
       <x>280</x>
-      <y>440</y>
+      <y>500</y>
       <width>241</width>
       <height>20</height>
      </rect>
@@ -1034,8 +995,8 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
    <widget class="StatusLabel" name="StatusLabel_8">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>420</y>
+      <x>290</x>
+      <y>490</y>
       <width>51</width>
       <height>21</height>
      </rect>
@@ -1062,8 +1023,8 @@ font: 75 48pt &quot;Noto Sans&quot;;</string>
    <widget class="DROLabel" name="drolabel_z">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>420</y>
+      <x>380</x>
+      <y>480</y>
       <width>131</width>
       <height>21</height>
      </rect>
@@ -1082,6 +1043,9 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
     <property name="scaledContents">
      <bool>true</bool>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
     <property name="Qjoint_number" stdset="0">
      <number>2</number>
     </property>
@@ -1092,8 +1056,8 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
    <widget class="DROLabel" name="drolabel_y">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>390</y>
+      <x>380</x>
+      <y>450</y>
       <width>131</width>
       <height>21</height>
      </rect>
@@ -1101,6 +1065,12 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
     <property name="styleSheet">
      <string notr="true">color:rgb(0, 0, 0);
 font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
+    </property>
+    <property name="text">
+     <string>0.00000</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
     <property name="Qjoint_number" stdset="0">
      <number>1</number>
@@ -1112,8 +1082,8 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
    <widget class="DROLabel" name="drolabel_x">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>360</y>
+      <x>380</x>
+      <y>420</y>
       <width>131</width>
       <height>21</height>
      </rect>
@@ -1125,6 +1095,9 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
     <property name="text">
      <string>  -1.6994</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
     <property name="Qreference_type" stdset="0">
      <number>1</number>
     </property>
@@ -1132,8 +1105,8 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
    <widget class="StatusLabel" name="StatusLabel">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>400</y>
+      <x>290</x>
+      <y>470</y>
       <width>51</width>
       <height>22</height>
      </rect>
@@ -1173,36 +1146,86 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="button_pause">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>530</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>500</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop </string>
+    </property>
+   </widget>
+   <widget class="GcodeEditor" name="gcode_editor">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>220</y>
+      <width>561</width>
+      <height>200</height>
+     </rect>
+    </property>
+   </widget>
+   <zorder>frame_2</zorder>
+   <zorder>frame</zorder>
+   <zorder>label_5</zorder>
+   <zorder>state_led_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>state_led</zorder>
+   <zorder>label_6</zorder>
+   <zorder>label_7</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_9</zorder>
+   <zorder>label_10</zorder>
+   <zorder>state_led_3</zorder>
+   <zorder>state_led_4</zorder>
+   <zorder>mdi_line</zorder>
+   <zorder>state_enable_gridLayout_3</zorder>
+   <zorder>state_enable_gridLayout_4</zorder>
+   <zorder>state_enable_gridLayout_6</zorder>
+   <zorder>StatusLabel_6</zorder>
+   <zorder>StatusLabel_5</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_14</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>StatusLabel</zorder>
+   <zorder>line</zorder>
+   <zorder>StatusLabel_8</zorder>
+   <zorder>drolabel_z</zorder>
+   <zorder>drolabel_y</zorder>
+   <zorder>drolabel_x</zorder>
+   <zorder>StatusLabel</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>button_pause</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>button_pause</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>gcode_editor</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StateLED</class>
-   <extends>Led</extends>
-   <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
-   <class>Led</class>
+   <class>GCodeGraphics</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.ledwidget</header>
-  </customwidget>
-  <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>MDILine</class>
@@ -1211,19 +1234,36 @@ font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>GCodeGraphics</class>
+   <class>LED</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>StateLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.state_label</header>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
   </customwidget>
   <customwidget>
    <class>StateEnableGridLayout</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

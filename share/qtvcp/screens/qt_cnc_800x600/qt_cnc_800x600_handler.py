@@ -77,7 +77,6 @@ class HandlerClass:
         self.w.jog_slider.setValue(self.jog_velocity)
         self.w.feed_slider.setValue(100)
         self.w.rapid_slider.setValue(100)
-        STATUS.forced_update()
 
         # add a backgrund image
 
@@ -170,7 +169,7 @@ class HandlerClass:
         AUX_PRGM.load_halmeter()
 
     def change_jograte(self, rate):
-        STATUS.set_jog_rate(float(rate))
+        ACTION.SET_JOG_RATE(float(rate))
 
     def change_feedrate(self, rate):
         self.cmnd.feedrate(rate/100.0)
@@ -236,9 +235,8 @@ class HandlerClass:
         fname =fname[0]
         print fname
         if fname:
-            NOTE.notify('Error',str(fname),QtWidgets.QMessageBox.Information,10)
+            NOTE.notify('Loaded',str(fname),None,10)
             f = open(str(fname), 'r')
-
             self.cmnd.mode(linuxcnc.MODE_AUTO)
             self.cmnd.program_open(str(fname))
             STATUS.emit('file-loaded', fname)
@@ -283,7 +281,7 @@ class HandlerClass:
             ACTION.JOG(joint, 0, 0, 0)
 
     def continous_jog(self, axis, direction):
-        STATUS.do_jog(axis, direction)
+        ACTION.DO_JOG(axis, direction)
 
     #####################
     # KEY BINDING CALLS #
