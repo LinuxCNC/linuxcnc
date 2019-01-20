@@ -34,6 +34,7 @@
 """
 import sys, os, subprocess
 import traceback
+import warnings
 
 import hal
 from optparse import Option, OptionParser
@@ -65,6 +66,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+          , Option( '--xid', action='store_true', dest='push_XID'
+                  , help="reparent window into a plug add push the plug xid number to standardout")
           , Option( '-u', dest='usermod', action='append', default=[], metavar='FILE'
                   , help='Use FILEs as additional user defined modules with handlers')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
@@ -76,10 +79,10 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
-def dbg(str):
+def dbg(string):
     global gladevcp_debug
     if not gladevcp_debug: return
-    print str
+    print string
 
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
@@ -171,7 +174,6 @@ def main():
     parser.add_options(options)
 
     (opts, args) = parser.parse_args()
-
     if not args:
         parser.print_help()
         sys.exit(1)
@@ -215,7 +217,33 @@ def main():
 
     builder.connect_signals(handlers)
 
+    # This option puts the gladevcp panel into a plug and pushed the plug's
+    # X window id number to standard output - so it can be reparented exterally
+    # it also forwards events to qtvcp
+    if opts.push_XID:
+        if not opts.debug:
+            # supress warnings when x window closes
+            warnings.filterwarnings("ignore")
+        # block X errors since gdk error handling silently exits the
+        # program without even the atexit handler given a chance
+        gtk.gdk.error_trap_push()
+
+        window = xembed.add_plug(window)
+        window.realize()
+        gdkwin = window.get_window()
+        w_id = gdkwin.xid
+        print >> sys.stdout,w_id
+        sys.stdout.flush()
+        forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
+        if forward:
+            xembed.keyboard_forward(window, forward)
+
+    # This option reparents gladevcp in a given X window id.
+    # it also forwards keyboard events from gladevcp to AXIS
     if opts.parent:
+        if not opts.debug:
+            # supress warnings when x window closes
+            warnings.filterwarnings("ignore")
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
         gtk.gdk.error_trap_push()
@@ -303,10 +331,10 @@ def main():
     finally:
         halcomp.exit()
 
-    if opts.parent:
+    if opts.parent or opts.push_XID:
         gtk.gdk.flush()
         error = gtk.gdk.error_trap_pop()
-        if error:
+        if error and opts.debug:
             print >> sys.stderr, "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
 
 

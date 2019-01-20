@@ -1,0 +1,8 @@
+QTvcp is an infrastructure for building customized operator screen/control panel for LinuxCNC.
+Built with python2, QTDesigner and pyQT5
+
+These are demonstration/testing screens for the QTvcp toolkit.
+These have not been heavily tested to operate real hardware.
+Please test carefully for suitability.
+
+

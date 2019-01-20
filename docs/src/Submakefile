@@ -92,6 +92,11 @@ DOC_SRCS_EN := \
 	gui/gmoccapy.txt \
 	gui/gmoccapy-hu.txt \
 	gui/gscreen.txt \
+	gui/qtvcp.txt \
+	gui/qtvcp_widgets.txt \
+	gui/qtvcp_libraries.txt \
+	gui/qtvcp_custom_widgets.txt \
+	gui/qtvcp_development.txt \
 	gui/panelui.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \

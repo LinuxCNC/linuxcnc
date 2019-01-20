@@ -1,0 +1,31 @@
+o<down> sub
+
+; #1 = [ps_searchvel]
+; #2 = [probe.ps_probe_max]
+; #3 = [ps_probe_latch]
+; #4 = [probe.ps_probevel]
+; #5 = [TOOLSENSOR]RAPID_SPEED]
+; #6 = [probe.set_zero]
+; #7 = [axis.2.joint-pos-cmd]
+
+O<down-if> IF [#6 EQ 5]
+    (cancel Z offsets)
+    G92.1
+    G49
+    G10 L20 P0 Z[#7]
+O<down-if> ENDIF 
+ 
+#<z>=#<_z> (save current Z position)
+G91
+F #1
+G38.2 Z[-#2]
+G1 Z[#3] F#5
+F #4
+G4 P0.5 
+G38.2 Z[-#3]>*2]
+G90
+(back to start point)
+G1 Z#<z> F#5
+	
+o<down> endsub
+M2
