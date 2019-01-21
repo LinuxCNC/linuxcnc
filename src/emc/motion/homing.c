@@ -182,15 +182,15 @@ static void update_home_is_synchronized(void) {
     int jno,joint_num;
 
     // first, clear all H[*].home_is_synchronized
-    for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+    for (jno = 0; jno < ALL_JOINTS; jno++) {
         H[jno].home_is_synchronized = 0;
     }
-    for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+    for (jno = 0; jno < ALL_JOINTS; jno++) {
         if (H[jno].home_sequence < 0) {
             H[jno].home_is_synchronized = 1;
             continue;
         }
-        for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
             if (joint_num == jno) continue;
             if (   (    H[joint_num].home_sequence < 0)
                 && (ABS(H[joint_num].home_sequence) == H[jno].home_sequence) )  {
@@ -397,7 +397,7 @@ void do_homing_sequence(void)
 
     case HOME_SEQUENCE_DO_ONE_JOINT:
         // Expect one joint with home_state==HOME_START
-        for (i=0; i < emcmotConfig->numJoints; i++) {
+        for (i=0; i < ALL_JOINTS; i++) {
             joint = &joints[i];
             if (H[i].home_state == HOME_START) {
                H[i].joint_in_sequence = 1;
@@ -419,7 +419,7 @@ void do_homing_sequence(void)
         // Determine home_sequence and set H[i].joint_in_sequence
         // based on home_state[i] == HOME_START
         if (!sequence_is_set) {
-            for (i=0; i < emcmotConfig->numJoints; i++) {
+            for (i=0; i < ALL_JOINTS; i++) {
                 joint = &joints[i];
                 if (H[i].home_state == HOME_START) {
                     if (   sequence_is_set
@@ -465,7 +465,7 @@ void do_homing_sequence(void)
         for(i=0; i < MAX_HOME_SEQUENCES; i++) {
             H[i].sync_final_move = 0; //reset to allow a rehome
         }
-        for(i=0; i < emcmotConfig->numJoints; i++) {
+        for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
             joint = &joints[i];
             if (   (H[i].home_flags & HOME_NO_REHOME)
@@ -478,7 +478,7 @@ void do_homing_sequence(void)
             if (H[i].home_sequence < 0) {
                 // if a H[i].home_sequence is neg, find all joints that
                 // have the same ABS sequence value and make them the same
-                for(ii=0; ii < emcmotConfig->numJoints; ii++) {
+                for(ii=0; ii < ALL_JOINTS; ii++) {
                     if (H[ii].home_sequence == ABS(H[i].home_sequence)) {
                         H[ii].home_sequence =      H[i].home_sequence;
                     }
@@ -489,14 +489,14 @@ void do_homing_sequence(void)
         *                          synchronize all joints final move
         */
         special_case_sync_all = 1; // disprove
-        for(i=0; i < emcmotConfig->numJoints; i++) {
+        for(i=0; i < ALL_JOINTS; i++) {
             joint = &joints[i];
             if (H[i].home_sequence != -1) {special_case_sync_all = 0;}
         }
         if (special_case_sync_all) {
             home_sequence = 1;
         }
-	for(i=0; i < emcmotConfig->numJoints; i++) {
+	for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
 	    joint = &joints[i];
 	    if  ( H[i].home_state != HOME_IDLE && H[i].home_state != HOME_START) {
@@ -511,7 +511,7 @@ void do_homing_sequence(void)
 
     case HOME_SEQUENCE_START_JOINTS:
 	/* start all joints whose sequence number matches home_sequence */
-	for(i=0; i < emcmotConfig->numJoints; i++) {
+	for(i=0; i < ALL_JOINTS; i++) {
 	    joint = &joints[i];
 	    if(ABS(H[i].home_sequence) == home_sequence) {
                 if (!H[i].joint_in_sequence) continue;
@@ -532,7 +532,7 @@ void do_homing_sequence(void)
 	break;
 
     case HOME_SEQUENCE_WAIT_JOINTS:
-	for(i=0; i < emcmotConfig->numJoints; i++) {
+	for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
 	    joint = &joints[i];
             // negative H[i].home_sequence means sync final move
@@ -584,7 +584,7 @@ void do_homing(void)
 	return;
     }
     /* loop thru joints, treat each one individually */
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
         if (!H[joint_num].joint_in_sequence) continue;
 	/* point to joint struct */
 	joint = &joints[joint_num];
@@ -1147,7 +1147,7 @@ void do_homing(void)
                         int jno;
                         emcmot_joint_t *jtmp;
                         H[home_sequence].sync_final_move = 1; //disprove
-                        for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+                        for (jno = 0; jno < ALL_JOINTS; jno++) {
                             jtmp = &joints[jno];
                             if (!H[jno].joint_in_sequence) continue;
                             if (ABS(H[jno].home_sequence) != home_sequence) {continue;}

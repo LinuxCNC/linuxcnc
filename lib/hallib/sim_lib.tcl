@@ -59,18 +59,32 @@ proc check_ini_items {} {
      }
   }
 
+  set n_extrajoints 0
+  if [info exists ::EMCMOT(EMCMOT)] {
+    set mot [split [lindex $::EMCMOT(EMCMOT) 0]]
+    if {[string first motmod $mot] >= 0} {
+      foreach item $mot {
+        if {[string first num_extrajoints= $item] < 0} continue
+          set n_extrajoints [lindex [split $item =] end]
+      } ;# foreach
+    }
+  }
+
   set kins [split [lindex $::KINS(KINEMATICS) 0]]
   if {[string first trivkins $kins] >= 0} {
     foreach item $kins {
       if {[string first coordinates= $item] < 0} continue
-        set     tcoords [lindex [split $item =] end]
-        set len_tcoords [string len $tcoords]
-        if {$len_tcoords != $::KINS(JOINTS)} {
+      set     tcoords [lindex [split $item =] end]
+      set len_tcoords [string len $tcoords]
+      set expected_joints [expr $len_tcoords + $n_extrajoints]
+      if {$expected_joints != $::KINS(JOINTS)} {
           set m "\ncheck_ini_items: WARNING:\n"
           set m "$m  trivkins coordinates=$tcoords specifies $len_tcoords joints\n"
-          set m "$m  but \[KINS\]JOINTS is $::KINS(JOINTS)\n"
+          set m "$m  trivkins extrajoints=$n_extrajoints\n"
+          set m "$m  trivkins totaljoints=$expected_joints\n"
+          set m "$m  !!! but \[KINS\]JOINTS=$::KINS(JOINTS)\n"
           puts stderr $m
-        }
+      }
     } ;# foreach
   }
   return
@@ -88,15 +102,13 @@ proc setup_kins {axes} {
 
   puts stderr "setup_kins: cmd=$cmd"
   if [catch {eval $cmd} msg] {
-    puts stderr "msg=$msg"
-    # if fail, try without coordinates parameters
-    $cmd
+    puts stderr "\nmsg=$msg\n"
   }
 
   # set up axis indices for known kins
   switch $kins_module {
-    trivkins   {indices_for_trivkins $axes}
-    default    {
+    trivkins {indices_for_trivkins $axes}
+    default  {
       puts stderr "setup_kins: unknown \[KINS\]KINEMATICS=<$::KINS(KINEMATICS)>"
     }
   }
@@ -115,13 +127,21 @@ proc core_sim {axes
   setup_kins $axes
 
   if {"$emcmot" == "motmod"} {
-    loadrt $emcmot \
-      base_period_nsec=$base_period \
-      servo_period_nsec=$servo_period \
-      num_joints=$number_of_joints
+    if [catch {loadrt $emcmot \
+                      base_period_nsec=$base_period \
+                      servo_period_nsec=$servo_period \
+                      num_joints=$number_of_joints} msg
+       ] {
+       # typ: too many joints attempted
+       puts stderr "\n"
+       puts stderr "core_sim: loadrt $emcmot FAIL"
+       puts stderr "     msg=$msg\n"
+       exit 1
+    }
   } else {
      # known special case with additional parameter:
      #       unlock_joint_mask=0xNN
+     #       num_extrajoints=n
      set module  [split [lindex $emcmot 0]]
      set modname [lindex $module 0]
      set modparm [lreplace $module 0 0]
@@ -213,7 +233,7 @@ proc make_ddts {number_of_joints} {
     incr ddt_ct 2
     if {$ddt_ct > $ddt_limit} {
       puts stderr "make_ddts: number of ddts limited to $ddt_limit"
-      continue
+      break
     }
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
   }

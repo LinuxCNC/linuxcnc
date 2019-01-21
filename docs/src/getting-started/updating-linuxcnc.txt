@@ -1209,6 +1209,15 @@ motion modules, the python interface, the axis gui, and the test suite.
 The maximum number of joints (EMCMOT_MAX_JOINTS) increased from 9
 to 16.  The axis gui now supports display of up to 16 joints.
 
+==== Extra Joints
+
+A new motmod parameter (num_extrajoints) specifies joints that are
+homed by conventional joint homing methods but controlled by new hal
+pins (joint.N.posthome-cmd) after homing.  Such joints may be
+managed by independent motion planner/controllers in hal and manipulated
+from gcode using custom M-codes.  See the motion man page for
+more info.
+
 ==== Homing
 
 A homing api is provided by src/emc/motion/homing.h to support users'

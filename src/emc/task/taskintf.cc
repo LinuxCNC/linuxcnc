@@ -1973,6 +1973,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
 
+    stat->numExtraJoints=emcmotStatus.numExtraJoints;
+
     // set the status flag
     error = 0;
     exec = 0;

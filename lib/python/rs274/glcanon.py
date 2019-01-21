@@ -1532,7 +1532,7 @@ class GlCanonDraw:
         else:
             # N.B. no conversion here because joint positions are unitless
             #      joint_mode and display_joint
-            posstrs = ["  %s:% 9.4f" % i for i in
+            posstrs = [" %2s:% 9.4f" % i for i in
                 zip(range(self.get_num_joints()), s.joint_actual_position)]
             droposstrs = posstrs
         return limit, homed, posstrs, droposstrs

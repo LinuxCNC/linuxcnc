@@ -930,6 +930,15 @@ class LivePlotter:
         widgets.code_text.insert("end", codes)
         widgets.code_text.configure(state="disabled")
 
+        # disable jog radiobutton for extrajoints that are homed
+        # since control is transferred to joint.N.posthome-cmd
+        for jno in range(num_joints - self.stat.num_extrajoints, num_joints):
+            jname = tabs_manual+".joints.joint"+str(jno)
+            #print jno,num_joints,num_extrajoints,s.homed[jno],jname
+            if s.homed[jno]: state="disabled"
+            else:            state="normal"
+            root_window.call(jname,"configure","-state",state)
+
         user_live_update()
 
     def clear(self):
@@ -2611,7 +2620,6 @@ class TclCommands(nf.TclCommands):
             go_home(-1)
 
     def unhome_all_joints(event=None):
-        if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         set_motion_teleop(0)
         c.unhome(-1)
