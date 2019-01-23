@@ -521,23 +521,40 @@ By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 See the <<sec:display-section,DISPLAY Section>> for more information on setting
 the increments.
 
-.Homing
+.Homing (Identity Kinematics)
 
-If your machine has home switches and a homing sequence defined for
-all axes the button will read 'Home All'. The 'Home All' button or the
-Ctrl-HOME key will home all axes using the homing sequence. Pressing
-the HOME key will home the current axis, even if a homing sequence is
-defined.
+The inifile setting [KINS]JOINTS defines the total number of
+joints for the system.  A joint may be configured with
+a home switch or for 'immediate' homing.  Joints may specify
+a home sequence that organizes the order for homing groups
+of joints.
 
-If your machine has home switches and no homing sequence is defined or
-not all axes have a homing sequence the button will read 'Home' and
-will home the selected axis only. Each axis must be selected and homed
+If *all* joints are configured for homing and have valid
+home sequences, the homing button will show 'Home All'.  Pressing
+the 'Home All' button (or the Ctrl-HOME key) will initiate homing
+for all joints using their defined home sequences.  Pressing the
+HOME key will home the joint corresponding to the currently
+selected axis even if no homing sequence is defined.
+
+If not all axes have valid home sequences, the homing button will
+show 'Home Axis' and will home the joint for the currently
+selected axis only.  Each axis must be selected and homed
 separately.
 
-If your machine does not have home switches defined in the
-configuration the 'Home' button will set the current selected axis
-current position to be the absolute position 0 for that axis and will
-set the 'is-homed' bit for that axis.
+The dropdown menu Machine/Homing provides an alternate method to
+home axes. The dropdown menu Machine/Unhoming provides means to
+unhome axes.
+
+See the <<cha:homing-configuration,Homing Configuration Chapter>> for more
+information.
+
+.Homing (Non-Identity Kinematics)
+
+Operation is similar to that for Identity Kinematics but, prior to
+homing, the selection radiobuttons select joints by number.  The
+homing button will show 'Home All' if all joints are configured
+for homing and have valid home sequences.  Otherwise, the homing
+button will show 'Home Joint'.
 
 See the <<cha:homing-configuration,Homing Configuration Chapter>> for more
 information.
