@@ -1644,6 +1644,7 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
     }
 
     tp_debug_json_start(pmCircleActualMaxVel);
+    tp_debug_json_double(eff_radius);
     tp_debug_json_double(v_max);
     tp_debug_json_double(v_max_cutoff);
     tp_debug_json_double(a_n_max_cutoff);
@@ -1826,11 +1827,6 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
  */
 double pmCircleEffectiveMinRadius(PmCircle const * circle)
 {
-    double radius0 = circle->radius;
-    double radius1 = circle->radius + circle->spiral;
-
-    double min_radius = fmin(radius0, radius1);
-
     double dr = circle->spiral / circle->angle;
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
@@ -1844,9 +1840,6 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
     // Curvature of helix, assuming that helical motion is independent of plane motion
     double effective_radius = h2 / r_spiral + r_spiral;
 
-    tp_debug_print("min_radius = %f, effective_min_radius = %f\n",
-            min_radius,
-            effective_radius);
     return effective_radius;
 }
 
