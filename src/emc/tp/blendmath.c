@@ -57,12 +57,7 @@ double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
 double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
 {
     double dx = v_plan / cycle_time;
-    if (dx > 0.0) {
-        return (dx * kink_angle);
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "dx < 0 in KinkAccel\n");
-        return 0;
-    }
+    return fabs(dx * kink_angle);
 }
 
 
