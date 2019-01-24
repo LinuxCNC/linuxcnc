@@ -13,7 +13,7 @@
 #
 # pass0:
 #       All HAL:HALFILEs (.hal,.tcl) are read.
-#       loadrt, loadusr commands are combined and executed at the end
+#       loadrt commands are combined and executed at the end
 #       of pass0 loadrt commands may be invoked multiple times for the
 #       same mod_name.  The "count=", "num_chan=", and "names=" forms for
 #       loadrt are supported but are mutually exclusive for each module.
@@ -23,8 +23,8 @@
 #       loadrt line.  dbg values are ORed together.
 #
 # pass1:
-#       All HAL:HALFILEs are reread, commands (except the loadrt and
-#       loadusr completed commands) are executed and addf commands
+#       All HAL:HALFILEs are reread, commands (except the loadrt
+#       completed commands) are executed and addf commands
 #       are executed in order of occurrence.
 #
 # The inifile item HAL:TWOPASS can be any non-null string.  This string

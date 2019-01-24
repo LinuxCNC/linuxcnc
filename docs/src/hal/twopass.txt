@@ -104,38 +104,38 @@ Alternatively, using the names= option like:
 ----
 loadrt ddt names=xvel,yvel,zvel
 ...
-loadrt ddt names=xacel,yacel,zacel
+loadrt ddt names=xaccel,yaccel,zaccel
 ----
 
-results in components sensibly named xvel,yvel,zvel, xacel,yacel,zacel.
+results in components sensibly named xvel,yvel,zvel, xaccel,yaccel,zaccel.
 
 Many comps supplied with the distribution are created with the
-comp utility and support the names= option.  These include the
+halcompile utility and support the names= option.  These include the
 common logic components that are the glue of many hal configurations.
 
-User-created comps that use the comp utility automatically
+User-created comps that use the halcompile utility automatically
 support the names= option as well.  In addition to comps generated
-with the comp utility, numerous other comps support the names=option.
+with the halcompile utility, numerous other comps support the names=option.
 Comps that support names= option include: at_pid, encoder,
 encoder_ratio, pid, siggen, and sim_encoder.
 
-Twopass processing occurs before the loading of a gui.  When using a
-[HAL]POSTGUI_HALFILE, it is convenient to place all the loadrt
-statements for components needed in a halfile that is loaded earlier.
+== Post GUI
 
-Example of a HAL section when using a POSTGUI_HALFILE :
+Some GUIs support halfiles that are processed after the GUI is started in order
+to connect hal pins that are created by the GUI.  When using a postgui halfile with
+TWOPASS processing, include all loadrt items for components added by postgui halfiles
+in a separate halfile that is processed before the GUI.  The addf commands can also
+be included in the file.
+Example:
 ----
 [HAL]
-
 TWOPASS = on
-HALFILE = core_sim.hal
-HALFILE = sim_spindle_encoder.hal
-HALFILE = axis_manualtoolchange.hal
-HALFILE = simulated_home.hal
-HALFILE = load_for_postgui.hal  <-- loadrt lines for components in postgui.hal
-
-POSTGUI_HALFILE = postgui.hal
-HALUI = halui
+HALFILE = file_1.hal
+...
+HALFILE = file_n.hal
+HALFILE = file_with_all_loads_for_postgui.hal
+...
+POSTGUI_HALFILE = the_postgui_file.hal
 ----
 
 == Exluding .hal files
@@ -153,6 +153,11 @@ with the string: '#NOTWOPASS'.  Files specified with this magic comment are
 sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose)
 options.
 
+If a realtime hal component (loaded by loadrt) depends upon hal components
+or functions created by a related user-space component (loaded by loadusr),
+ordering can be ensured by isolating the loadusr and loadrt commands in
+a separate hal file excluded from twopass processing.
+
 This exclusion provision can be used to isolate problems or for loading any hal
 component that does not require or benefit from TWOPASS processing that handles
 multiple component loadrt instances.
@@ -166,28 +171,23 @@ $ cat twopass_excluded.hal
 
 loadrt mycomponent parm1="abc def" parm2=ghi
 show pin mycomponent
+
+# load the user-space component and wait for it to be ready:
+loadusr -W lcec_conf
+# load the realtime component that depends on the user-space component:
+loadrt  lcec
+show    pint lcec
 ----
 
 [NOTE]
    Case and whitespace within the magic comment are ignored.
 
-== Post GUI
+[NOTE]
+   In general, the hal commands that create signals (net) and commands that
+   establish thread order (addf) should not be placed in excluded files.
+   This is especially true for addf commands since their ordering
+   may be important.
 
-Some GUIs support halfiles that are processed after the GUI is started in order
-to connect hal pins that are created by the GUI.  When using a postgui halfile with
-TWOPASS processing, include all loadrt items for components added by postgui halfiles
-in a separate halfile that is processed before the GUI.  The addf commands can also
-be included in the file.
-Example:
-----
-[HAL]
-HALFILE = file_1.hal
-...
-HALFILE = file_n.hal
-HALFILE = file_with_all_loads_for_postgui.hal
-...
-POSTGUI_HALFILE = the_postgui_file.hal
-----
 
 == Examples
 
