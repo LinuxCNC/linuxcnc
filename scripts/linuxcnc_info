@@ -20,7 +20,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-ofile=/tmp/linuxcnc.info
+ofile=/tmp/linuxcnc_info.txt
 PROG=$(basename $0)
 
 usage () {
@@ -162,6 +162,11 @@ echo
 for n in $(linuxcnc_var all) ; do
    show "${n%%=*}" ${n##*=}
 done
+
+echo
+echo "dpkg -l '*linuxcnc*':"
+dpkg -l '*linuxcnc*'
+echo
 
 [ -n "$VIEWER" ] && $VIEWER "$ofile"
 exit 0
