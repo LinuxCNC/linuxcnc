@@ -19,6 +19,10 @@
 #       loadrt are supported but are mutually exclusive for each module.
 #       addf commands are deferred to pass1
 #
+#       loadusr commands are executed in pass0 so that any loadrt that
+#       depends on them will be satisfied.  The loadusr -W option should
+#       be used.
+#
 #       Some components (viz. pid) support a debug=dbg specifier on the
 #       loadrt line.  dbg values are ORed together.
 #
@@ -108,9 +112,11 @@ proc ::tp::loadusr_substitute {args} {
   set pass [passnumber]
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
-    #puts "loadusr_substitute<$pass> ignored"
-  } else {
+    # do loadusr in pass 0 only
+    puts "twopass:pass0: loadusr $args"
     eval orig_loadusr $args
+  } else {
+    #"twopass: Ignore pass1: loadusr $args"
   }
 } ;# loadusr_substitute
 

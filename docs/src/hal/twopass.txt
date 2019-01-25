@@ -74,12 +74,18 @@ TWOPASS = on,verbose,nodelete
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
-accumulated.  No hal commands are executed in this initial pass.
+accumulated.  User components (loadusr) are loaded in order
+but no other hal commands are executed in the initial pass.
 
-After the initial pass, the modules are loaded automatically
-with a number equal to the total number when using the count=
-option or with all of the individual names specified when using
-the names= option.
+[NOTE]
+
+User components should use the wait (-W) option to ensure
+the component is ready before other commands are executed.
+
+After the initial pass, the realtime modules are loaded (loadrt)
+automatically with a number equal to the total number when using
+the count= option or with all of the individual names specified
+when using the names= option.
 
 A second pass is then made to execute all of the other hal
 instructions specified in the HALFILES.  The addf commands that
@@ -153,14 +159,12 @@ with the string: '#NOTWOPASS'.  Files specified with this magic comment are
 sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose)
 options.
 
-If a realtime hal component (loaded by loadrt) depends upon hal components
-or functions created by a related user-space component (loaded by loadusr),
-ordering can be ensured by isolating the loadusr and loadrt commands in
-a separate hal file excluded from twopass processing.
+This exclusion provision can be used to isolate problems or for loading any
+special hal component that does not require or benefit from TWOPASS processing.
 
-This exclusion provision can be used to isolate problems or for loading any hal
-component that does not require or benefit from TWOPASS processing that handles
-multiple component loadrt instances.
+Ordinarily, the ordering of realtime components (loadrt) is not critical,
+but ordering for special components can be enforced by placing the load
+directives in an excluded file.
 
 Excluded '.hal' file example:
 ----
@@ -169,24 +173,24 @@ $ cat twopass_excluded.hal
 # be excluded from twopass processing:
 # NOTWOPASS
 
+# debugging component with complex options:
 loadrt mycomponent parm1="abc def" parm2=ghi
 show pin mycomponent
 
-# load the user-space component and wait for it to be ready:
-loadusr -W lcec_conf
-# load the realtime component that depends on the user-space component:
-loadrt  lcec
-show    pint lcec
+# ordering special components
+loadrt component_1
+loadrt component_2
 ----
 
 [NOTE]
-   Case and whitespace within the magic comment are ignored.
 
-[NOTE]
-   In general, the hal commands that create signals (net) and commands that
-   establish thread order (addf) should not be placed in excluded files.
-   This is especially true for addf commands since their ordering
-   may be important.
+Case and whitespace within the magic comment are ignored.  The loading of
+components that use names= or count= parameters (typically built by
+halcompile) should not be used in excluded files as that would eliminate
+the benefits of TWOPASS processing.  The hal commands that create signals
+(net) and commands that establish execution order (addf) should not be
+placed in excluded files.  This is especially true for addf commands since
+their ordering may be important.
 
 
 == Examples
