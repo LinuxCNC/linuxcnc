@@ -1042,16 +1042,15 @@ static int init_comm_buffers(void)
 
     /* init motion emcmotDebug->tp */
     if (-1 == tpCreate(&emcmotDebug->tp, DEFAULT_TC_QUEUE_SIZE,
-	    emcmotDebug->queueTcSpace)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create motion emcmotDebug->tp\n");
-	return -1;
+                       emcmotDebug->queueTcSpace)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "MOTION: failed to create motion emcmotDebug->tp\n");
+        return -1;
     }
-//    tpInit(&emcmotDebug->tp); // tpInit called from tpCreate
+
     tpSetCycleTime(&emcmotDebug->tp, emcmotConfig->trajCycleTime);
     tpSetPos(&emcmotDebug->tp, &emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->tp, emcmotStatus->vel, emcmotStatus->vel);
-    tpSetAmax(&emcmotDebug->tp, emcmotStatus->acc);
 
     emcmotStatus->tail = 0;
 

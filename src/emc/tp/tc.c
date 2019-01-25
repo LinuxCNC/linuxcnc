@@ -668,6 +668,14 @@ int pmLine9Init(PmLine9 * const line9,
     int abc_fail = pmCartLineInit(&line9->abc, &start_abc, &end_abc);
     int uvw_fail = pmCartLineInit(&line9->uvw, &start_uvw, &end_uvw);
 
+#ifdef TP_DEBUG
+    print_json5_log_start(pmLine9Init, Command);
+    print_json5_PmCartLine_("xyz", line9->xyz);
+    print_json5_PmCartLine_("abc", line9->abc);
+    print_json5_PmCartLine_("uvw", line9->abc);
+    print_json5_end_();
+#endif
+
     if (xyz_fail || abc_fail || uvw_fail) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Line9, err codes %d, %d, %d\n",
                 xyz_fail,abc_fail,uvw_fail);
@@ -747,12 +755,23 @@ int tcFinalizeLength(TC_STRUCT * const tc)
         tp_debug_print("tc %d already finalized\n", tc->id);
         return TP_ERR_NO_ACTION;
     }
-
-    tp_debug_print("Finalizing motion id %d, type %d\n", tc->id, tc->motion_type);
+#ifdef TP_DEBUG
+    double maxvel_old = tc->maxvel;
+#endif
 
     tcClampVelocityByLength(tc);
 
     tcUpdateCircleAccRatio(tc);
+
+#ifdef TP_DEBUG
+    print_json5_log_start(tpFinalizeLength, Lookahead);
+    print_json5_int_("id", tc->id);
+    print_json5_string_("motion_type", tcMotionTypeAsString((tc_motion_type_t)tc->motion_type));
+    print_json5_double(maxvel_old);
+    print_json5_double_("maxvel", tc->maxvel);
+    print_json5_double_("acc_ratio_tan", tc->acc_ratio_tan);
+    print_json5_log_end();
+#endif
 
     tc->finalized = 1;
     return TP_ERR_OK;
@@ -769,7 +788,6 @@ int tcClampVelocityByLength(TC_STRUCT * const tc)
     //Reduce max velocity to match sample rate
     //Assume that cycle time is valid here
     double sample_maxvel = tc->target / tc->cycle_time;
-    tp_debug_print("sample_maxvel = %f\n",sample_maxvel);
     tc->maxvel = fmin(tc->maxvel, sample_maxvel);
     return TP_ERR_OK;
 }
@@ -883,4 +901,36 @@ int tcClearFlags(TC_STRUCT * const tc)
     return TP_ERR_OK;
 }
 
+// Helper functions to convert enums to pretty-print for debug output
 
+const char *tcTermCondAsString(tc_term_cond_t c)
+{
+    switch (c)
+    {
+        case TC_TERM_COND_STOP:
+            return "EXACT_STOP";
+        case TC_TERM_COND_EXACT:
+            return "EXACT_PATH";
+        case TC_TERM_COND_PARABOLIC:
+            return "PARABOLIC";
+        case TC_TERM_COND_TANGENT:
+            return "TANGENT";
+    }
+    return "NONE";
+}
+
+const char *tcMotionTypeAsString(tc_motion_type_t c)
+{
+    switch (c)
+    {
+        case TC_LINEAR:
+            return "Linear";
+        case TC_CIRCULAR:
+            return "Circular";
+        case TC_RIGIDTAP:
+            return "RigidTap";
+        case TC_SPHERICAL:
+            return "SphericalArc";
+    }
+    return "NONE";
+}

@@ -313,9 +313,11 @@ int pmCartCartParallel(PmCartesian const * const u1,
         pmCartMagSq(&u_diff, &d_diff);
     }
 
-    tp_debug_json_start(pmCartCartParallel);
-    tp_debug_json_double(d_diff);
-    tp_debug_json_end();
+#ifdef TP_DEBUG
+    print_json5_log_start(pmCartCartParallel, Check);
+    print_json5_double(d_diff);
+    print_json5_end_();
+#endif
 
     return d_diff < tol;
 }
@@ -337,9 +339,9 @@ int pmCartCartAntiParallel(PmCartesian const * const u1,
         pmCartMagSq(&u_sum, &d_sum);
     }
 
-    tp_debug_json_start(pmCartCartAntiParallel);
+    tp_debug_json_log_start(pmCartCartAntiParallel, Check);
     tp_debug_json_double(d_sum);
-    tp_debug_json_end();
+    tp_debug_json_log_end();
 
     return d_sum < tol;
 }
@@ -1638,14 +1640,14 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
         acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
     }
 
-    tp_debug_json_start(pmCircleActualMaxVel);
+    tp_debug_json_log_start(pmCircleActualMaxVel, Check);
     tp_debug_json_double(eff_radius);
     tp_debug_json_double(v_max);
     tp_debug_json_double(v_max_cutoff);
     tp_debug_json_double(a_n_max_cutoff);
     tp_debug_json_double(a_n_vmax);
     tp_debug_json_double(acc_ratio_tan);
-    tp_debug_json_end();
+    tp_debug_json_log_end();
 
     PmCircleLimits limits = {
         v_max_actual,
@@ -1712,14 +1714,16 @@ static int pmCircleAngleFromParam(PmCircle const * const circle,
     return TP_ERR_OK;
 }
 
-
 static void printSpiralArcLengthFit(SpiralArcLengthFit const * const fit)
 {
-    tp_debug_print("Spiral fit: b0 = %.12f, b1 = %.12f, length = %.12f, spiral_in = %d\n",
-            fit->b0,
-            fit->b1,
-            fit->total_planar_length,
-            fit->spiral_in);
+#ifdef TP_DEBUG
+    print_json5_log_start(SpiralFit, Command);
+    print_json5_double_("b0", fit->b0);
+    print_json5_double_("b1", fit->b1);
+    print_json5_double_("total_planar_length", fit->total_planar_length);
+    print_json5_bool_("spiral_in", fit->spiral_in);
+    print_json5_log_end();
+#endif
 }
 
 /**

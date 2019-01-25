@@ -23,9 +23,9 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         PmCartesian const * const center)
 {
 #ifdef ARC_PEDANTIC
-    if (!P0 || !P1 || !center) {
+    if (!start || !end || !center) {
         return TP_ERR_MISSING_INPUT;
-    
+    }
     if (!arc) {
         return TP_ERR_MISSING_OUTPUT;
     }

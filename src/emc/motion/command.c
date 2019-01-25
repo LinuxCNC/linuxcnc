@@ -1026,9 +1026,9 @@ check_stuff ( "before command_handler()" );
 	    /* set the max acceleration */
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
-	    emcmotStatus->acc = emcmotCommand->acc;
-	    tpSetAmax(&emcmotDebug->tp, emcmotStatus->acc);
-	    break;
+        emcmotStatus->acc = emcmotCommand->acc;
+        // WARNING has no effect on coordinated motion TP, only single-axis planner
+        break;
 
 	case EMCMOT_PAUSE:
 	    /* pause the motion */

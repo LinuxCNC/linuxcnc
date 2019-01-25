@@ -22,6 +22,9 @@
 #include "spherical_arc.h"
 #include "blendmath.h"
 #include "math_util.h"
+#include "joint_util.h"
+#include "string.h"
+
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -130,51 +133,6 @@ STATIC double tpGetTangentKinkRatio(void) {
     const double min_ratio = 0.001;
 
     return fmax(fmin(emcmotConfig->arcBlendTangentKinkRatio,max_ratio),min_ratio);
-}
-
-
-STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
-    if (!acc_bound) {
-        return TP_ERR_FAIL;
-    }
-
-    acc_bound->x = emcmotDebug->joints[0].acc_limit;
-    acc_bound->y = emcmotDebug->joints[1].acc_limit;
-    acc_bound->z = emcmotDebug->joints[2].acc_limit;
-    return TP_ERR_OK;
-}
-
-
-STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
-    if (!vel_bound) {
-        return TP_ERR_FAIL;
-    }
-
-    vel_bound->x = emcmotDebug->joints[0].vel_limit;
-    vel_bound->y = emcmotDebug->joints[1].vel_limit;
-    vel_bound->z = emcmotDebug->joints[2].vel_limit;
-    return TP_ERR_OK;
-}
-
-STATIC int tpGetMachineActiveLimit(double * const act_limit, PmCartesian const * const bounds) {
-    if (!act_limit) {
-        return TP_ERR_FAIL;
-    }
-    //Start with max accel value
-    *act_limit = fmax(fmax(bounds->x,bounds->y),bounds->z);
-
-    // Compare only with active axes
-    if (bounds->x > 0) {
-        *act_limit = fmin(*act_limit, bounds->x);
-    }
-    if (bounds->y > 0) {
-        *act_limit = fmin(*act_limit, bounds->y);
-    }
-    if (bounds->z > 0) {
-        *act_limit = fmin(*act_limit, bounds->z);
-    }
-    tp_debug_print(" arc blending a_max=%f\n", *act_limit);
-    return TP_ERR_OK;
 }
 
 
@@ -299,7 +257,6 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
         v_target_next = tpGetRealTargetVel(tp, nexttc);
     }
 
-    tc_debug_print("v_target_next = %f\n",v_target_next);
     // Limit final velocity to minimum of this and next target velocities
     double v_target = fmin(v_target_this, v_target_next);
     double finalvel = fmin(tc->finalvel, v_target);
@@ -402,6 +359,7 @@ int tpClear(TP_STRUCT * const tp)
     tcqInit(&tp->queue);
     tp->queueSize = 0;
     tp->goalPos = tp->currentPos;
+    ZERO_EMC_POSE(tp->currentVel);
     tp->nextId = 0;
     tp->execId = 0;
     tp->motionType = 0;
@@ -435,12 +393,6 @@ int tpInit(TP_STRUCT * const tp)
     //Velocity limits
     tp->vLimit = 0.0;
     tp->ini_maxvel = 0.0;
-    //Accelerations
-    tp->aLimit = 0.0;
-    PmCartesian acc_bound;
-    //FIXME this acceleration bound isn't valid (nor is it used)
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineActiveLimit(&tp->aMax, &acc_bound);
     //Angular limits
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
@@ -450,10 +402,10 @@ int tpInit(TP_STRUCT * const tp)
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
     ZERO_EMC_POSE(tp->currentPos);
+    ZERO_EMC_POSE(tp->currentVel);
 
-    PmCartesian vel_bound;
-    tpGetMachineVelBounds(&vel_bound);
-    tpGetMachineActiveLimit(&tp->vMax, &vel_bound);
+    PmCartesian vel_bound = getXYZVelBounds();
+    tp->vMax = findMinNonZero(&vel_bound);
 
     return tpClear(tp);
 }
@@ -506,18 +458,6 @@ int tpSetVlimit(TP_STRUCT * const tp, double vLimit)
         tp->vLimit = 0.;
     else
         tp->vLimit = vLimit;
-
-    return TP_ERR_OK;
-}
-
-/** Sets the max acceleration for the trajectory planner. */
-int tpSetAmax(TP_STRUCT * const tp, double aMax)
-{
-    if (0 == tp || aMax <= 0.0) {
-        return TP_ERR_FAIL;
-    }
-
-    tp->aMax = aMax;
 
     return TP_ERR_OK;
 }
@@ -701,9 +641,9 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
     double acc_scaled = tcGetTangentialMaxAccel(tc);
     double triangle_vel = findVPeak(acc_scaled, tc->target);
     double max_vel = tpGetMaxTargetVel(tp, tc);
-    tp_debug_json_start(tpCalculateOptimizationInitialVel);
+    tp_debug_json_log_start(tpCalculateOptimizationInitialVel, Command);
     tp_debug_json_double(triangle_vel);
-    tp_debug_json_end();
+    tp_debug_json_log_end();
     return fmin(triangle_vel, max_vel);
 }
 
@@ -863,12 +803,9 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
 {
     tp_debug_print("-- Starting LineArc blend arc --\n");
 
-    PmCartesian acc_bound, vel_bound;
+    PmCartesian vel_bound = getXYZVelBounds();
+    PmCartesian acc_bound = getXYZAccelBounds();
     
-    //Get machine limits
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineVelBounds(&vel_bound);
-
     //Populate blend geometry struct
     BlendGeom3 geom;
     BlendParameters param;
@@ -1019,11 +956,8 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
 {
 
     tp_debug_print("-- Starting ArcLine blend arc --\n");
-    PmCartesian acc_bound, vel_bound;
-    
-    //Get machine limits
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineVelBounds(&vel_bound);
+    PmCartesian vel_bound = getXYZVelBounds();
+    PmCartesian acc_bound = getXYZAccelBounds();
 
     //Populate blend geometry struct
     BlendGeom3 geom;
@@ -1167,11 +1101,8 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
         return TP_ERR_FAIL;
     }
 
-    PmCartesian acc_bound, vel_bound;
-    
-    //Get machine limits
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineVelBounds(&vel_bound);
+    PmCartesian vel_bound = getXYZVelBounds();
+    PmCartesian acc_bound = getXYZAccelBounds();
 
     //Populate blend geometry struct
     BlendGeom3 geom;
@@ -1323,12 +1254,10 @@ STATIC tp_err_t tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pr
 {
 
     tp_debug_print("-- Starting LineLine blend arc --\n");
-    PmCartesian acc_bound, vel_bound;
-    
-    //Get machine limits
-    tpGetMachineAccelBounds(&acc_bound);
-    tpGetMachineVelBounds(&vel_bound);
-    
+
+    PmCartesian vel_bound = getXYZVelBounds();
+    PmCartesian acc_bound = getXYZAccelBounds();
+
     // Setup blend data structures
     BlendGeom3 geom;
     BlendParameters param;
@@ -1424,7 +1353,13 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
-    tp_debug_print("Adding TC id %d of type %d, total length %0.08f\n",tc->id,tc->motion_type,tc->target);
+#ifdef TP_DEBUG
+    print_json5_log_start(tpAddSegmentToQueue, Command);
+    print_json5_long_("id", tc->id);
+    print_json5_string_("motion_type", tcMotionTypeAsString(tc->motion_type));
+    print_json5_double_("target", tc->target);
+    print_json5_end_();
+#endif
 
     return TP_ERR_OK;
 }
@@ -1854,9 +1789,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     pmCartScalMult(&this_tan, a_inst, &acc2);
     pmCartCartSub(&acc2,&acc1,&acc_diff);
 
-    //TODO store this in TP struct instead?
-    PmCartesian acc_bound;
-    tpGetMachineAccelBounds(&acc_bound);
+    PmCartesian acc_bound = getXYZAccelBounds();
 
     PmCartesian acc_scale;
     findAccelScale(&acc_diff,&acc_bound,&acc_scale);
@@ -2001,7 +1934,28 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
     }
-    tp_info_print("== AddLine ==\n");
+#ifdef TP_DEBUG
+    {
+        // macros use the variable name, need a plain name to please the JSON5 parser
+        long nextId = tp->nextId;
+        EmcPose goal = tp->goalPos;
+        tp_debug_json_log_start(tpAddLine, Command);
+        tp_debug_json_long(nextId);
+        tp_debug_json_EmcPose(goal);
+        tp_debug_json_EmcPose(end);
+        tp_debug_json_double(vel);
+        tp_debug_json_double(ini_maxvel);
+        tp_debug_json_double(acc);
+        tp_debug_json_unsigned(enables);
+        tp_debug_json_long(indexrotary);
+        tp_debug_json_long(atspeed);
+        tp_debug_json_long(canon_motion_type);
+        EmcPose delta = tp->goalPos;
+        emcPoseSub(&end, &tp->goalPos, &delta);
+        tp_debug_json_EmcPose(delta);
+        tp_debug_json_log_end();
+    }
+#endif
 
     // Initialize new tc struct for the line segment
     TC_STRUCT tc = {0};
@@ -2070,8 +2024,29 @@ int tpAddCircle(TP_STRUCT * const tp,
         return TP_ERR_FAIL;
     }
 
-    tp_info_print("== AddCircle ==\n");
-    tp_debug_print("ini_maxvel = %f\n",ini_maxvel);
+#ifdef TP_DEBUG
+    {
+        // macros use the variable name, need a plain name to please the JSON5 parser
+        long nextId = tp->nextId;
+        EmcPose goal = tp->goalPos;
+        tp_debug_json_log_start(tpAddCircle, Command);
+        tp_debug_json_long(nextId);
+        tp_debug_json_EmcPose(goal);
+        tp_debug_json_PmCartesian(center);
+        tp_debug_json_PmCartesian(normal);
+        tp_debug_json_long(turn);
+        tp_debug_json_double(vel);
+        tp_debug_json_double(ini_maxvel);
+        tp_debug_json_double(acc);
+        tp_debug_json_unsigned(enables);
+        tp_debug_json_long(atspeed);
+        tp_debug_json_long(canon_motion_type);
+        EmcPose delta = tp->goalPos;
+        emcPoseSub(&end, &tp->goalPos, &delta);
+        tp_debug_json_EmcPose(delta);
+        tp_debug_json_log_end();
+    }
+#endif
 
     TC_STRUCT tc = {0};
 
@@ -2271,22 +2246,31 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
 STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double acc) {
 #ifdef TC_DEBUG
     // Find maximum allowed velocity from feed and machine limits
-    double tc_target_vel = tpGetRealTargetVel(tp, tc);
+    const double v_target = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
-    double tc_finalvel = tpGetRealFinalVel(tp, tc, nexttc);
+    const double v_final = tpGetRealFinalVel(tp, tc, nexttc);
+    const double v_max = tpGetMaxTargetVel(tp, tc);
 
     /* Debug Output */
-    tc_debug_print("tc state: vr = %f, vf = %f, maxvel = %f, ",
-            tc_target_vel, tc_finalvel, tc->maxvel);
-    tc_debug_print("currentvel = %f, fs = %f, dt = %f, term = %d, ",
-            tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    tc_debug_print("acc = %f, T = %f, P = %f, ", acc,
-            tc->target, tc->progress);
-    tc_debug_print("motion_type = %d\n", tc->motion_type);
-
-    if (tc->on_final_decel) {
-        rtapi_print(" on final decel\n");
-    }
+    print_json5_log_start(tc_state, Run);
+    print_json5_double_("id", tc->id);
+    print_json5_double(v_target);
+    print_json5_double(v_final);
+    print_json5_double(v_max);
+    print_json5_double_("target", tc->target);
+    print_json5_double_("progress", tc->progress);
+    print_json5_double_("v_current", tc->currentvel);
+    print_json5_double_("a_current", acc);
+    print_json5_double_("feed_scale", tpGetFeedScale(tp, tc));
+    print_json5_double_("dt", tc->cycle_time);
+    print_json5_string_("term_cond", tcTermCondAsString((tc_term_cond_t)tc->term_cond));
+    print_json5_bool_("final_decel", tc->on_final_decel);
+    print_json5_bool_("splitting", tc->splitting);
+    print_json5_bool_("is_blending", tc->is_blending);
+    print_json5_double_("time", tp->time_elapsed_sec);
+    print_json5_long_("canon_type", tc->canon_motion_type);
+    print_json5_string_("motion_type", tcMotionTypeAsString(tc->motion_type));
+    print_json5_end_();
 #endif
 }
 
@@ -2540,8 +2524,6 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     EmcPose tc_pos;
     tcGetEndpoint(tc, &tc_pos);
 
-    tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
-            tc->id, tc->canon_motion_type, tc->motion_type);
     tp->motionType = tc->canon_motion_type;
     tp->activeDepth = tc->active_depth;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
@@ -3240,12 +3222,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // Update tp's position (checking for valid pose)
     tpAddCurrentPos(tp, &displacement);
 
-#ifdef TC_DEBUG
-    double mag;
-    emcPoseMagnitude(&displacement, &mag);
-    tc_debug_print("cycle movement = %f\n",mag);
-#endif
-
     // Trigger removal of current segment at the end of the cycle
     tc->remove = 1;
 
@@ -3352,12 +3328,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Set GUI status to "zero" state
     tpUpdateInitialStatus(tp);
 
-#ifdef TC_DEBUG
     //Hack debug output for timesteps
     // NOTE: need to track every timestep, even those where the trajectory planner is idle
-    static double time_elapsed = 0;
-    time_elapsed+=tp->cycleTime;
-#endif
+    tp->time_elapsed_sec+=tp->cycleTime;
+    ++tp->time_elapsed_ticks;
 
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
@@ -3365,8 +3339,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
-    tc_debug_print("-------------------\n");
-
+    tc_debug_print("--- TP Update <%lld> ---\n", tp->time_elapsed_ticks);
 
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
@@ -3418,10 +3391,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
-#ifdef TC_DEBUG
-    EmcPose pos_before = tp->currentPos;
-#endif
-
+    EmcPose const axis_pos_old = tp->currentPos;
+    EmcPose const axis_vel_old = tp->currentVel;
+	
 
     tcClearFlags(tc);
     tcClearFlags(nexttc);
@@ -3432,21 +3404,52 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpHandleRegularCycle(tp, tc, nexttc);
     }
 
-#ifdef TC_DEBUG
-    double mag;
-    EmcPose disp;
-    emcPoseSub(&tp->currentPos, &pos_before, &disp);
-    emcPoseMagnitude(&disp, &mag);
-    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
-            time_elapsed,
-            mag, emcmotStatus->current_vel);
+    {
 
-    tc_debug_print("tp_displacement = %.12e %.12e %.12e time = %.12e\n",
-            disp.tran.x,
-            disp.tran.y,
-            disp.tran.z,
-            time_elapsed);
+        EmcPose const axis_pos = tp->currentPos;
+
+        EmcPose axis_vel;
+        emcPoseSub(&axis_pos, &axis_pos_old, &axis_vel);
+        emcPoseMultScalar(&axis_vel, 1.0 / tp->cycleTime);
+        tp->currentVel = axis_vel;
+
+        EmcPose axis_accel;
+        emcPoseSub(&axis_vel, &axis_vel_old, &axis_accel);
+        emcPoseMultScalar(&axis_accel, 1.0 / tp->cycleTime);
+
+        unsigned failed_axes = findAccelViolations(axis_accel);
+        if (failed_axes)
+        {
+            // KLUDGE mask out good axes from print list with space
+            char failed_axes_list[9] = "XYZABCUVW";
+            for (int i = 0; i < 9;++i) {
+                if (failed_axes & (1 << i)) {
+                    continue;
+                }
+                failed_axes_list[i]=' ';
+            }
+
+            rtapi_print_msg(RTAPI_MSG_ERR, "Acceleration violation on axes [%s] at %g sec\n", failed_axes_list, tp->time_elapsed_sec);
+            print_json5_start_();
+            print_json5_object_start_("accel_violation");
+            print_json5_double_("time", tp->time_elapsed_sec);
+            print_json5_EmcPose(axis_accel);
+            print_json5_object_end_();
+            print_json5_end_();
+        }
+
+#ifdef TC_DEBUG
+        print_json5_log_start(tpRunCycle, Run);
+        print_json5_EmcPose(axis_pos);
+        print_json5_EmcPose(axis_vel);
+        print_json5_EmcPose(axis_accel);
+        double current_vel = emcmotStatus->current_vel;
+        print_json5_double(current_vel);
+        print_json5_double_("time", tp->time_elapsed_sec);
+        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+        print_json5_end_();
 #endif
+    }
 
     // If TC is complete, remove it from the queue.
     if (tc->remove) {

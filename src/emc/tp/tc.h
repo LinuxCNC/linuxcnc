@@ -111,4 +111,8 @@ int tcPureRotaryCheck(TC_STRUCT const * const tc);
 int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ);
 
 int tcClearFlags(TC_STRUCT * const tc);
+
+const char *tcTermCondAsString(tc_term_cond_t c);
+const char *tcMotionTypeAsString(tc_motion_type_t c);
+
 #endif				/* TC_H */

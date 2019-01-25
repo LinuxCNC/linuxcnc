@@ -78,6 +78,25 @@ int emcPoseSub(EmcPose const * const p1, EmcPose const * const p2, EmcPose * con
 
 }
 
+int emcPoseMultScalar(EmcPose * const p1, double m)
+{
+#ifdef EMCPOSE_PEDANTIC
+    if (!p1 || !p2) {
+        return EMCPOSE_ERR_INPUT_MISSING;
+    }
+#endif
+
+    pmCartScalMultEq(&p1->tran, m);
+    p1->a *= m;
+    p1->b *= m;
+    p1->c *= m;
+    p1->u *= m;
+    p1->v *= m;
+    p1->w *= m;
+    return EMCPOSE_ERR_OK;
+}
+
+
 int emcPoseSelfAdd(EmcPose * const self, EmcPose const * const p2)
 {
     return emcPoseAdd(self, p2, self);

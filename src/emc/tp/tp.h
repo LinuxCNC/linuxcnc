@@ -26,7 +26,6 @@ int tpClearDIOs(TP_STRUCT * const tp);
 int tpSetCycleTime(TP_STRUCT * const tp, double secs);
 int tpSetVmax(TP_STRUCT * const tp, double vmax, double ini_maxvel);
 int tpSetVlimit(TP_STRUCT * const tp, double vLimit);
-int tpSetAmax(TP_STRUCT * const tp, double aMax);
 int tpSetId(TP_STRUCT * const tp, int id);
 int tpGetExecId(TP_STRUCT * const tp);
 int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance);

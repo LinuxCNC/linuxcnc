@@ -4,6 +4,9 @@
 #include "tp_types.h"
 #include "math.h"
 #include "rtapi.h"
+#include "joint_util.h"
+#include "motion_debug.h"
+struct emcmot_debug_t emcmotDebug = {0};
 
 /* Expand to all the definitions that need to be in
    the test runner's main file. */
@@ -15,7 +18,7 @@ void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    printf(fmt, args);
+    vprintf(fmt, args);
     va_end(args);
 }
 
@@ -63,15 +66,39 @@ TEST pmCartCartAntiParallel_numerical() {
     PASS();
 }
 
+SUITE(blendmath) {
+    RUN_TEST(pmCartCartParallel_numerical);
+    RUN_TEST(pmCartCartAntiParallel_numerical);
+}
 
- SUITE(blendmath) {
-     RUN_TEST(pmCartCartParallel_numerical);
-     RUN_TEST(pmCartCartAntiParallel_numerical);
 
- }
+TEST findMinNonZeroComplete() {
+    PmCartesian normal_bounds = {3.0,1.0,2.0};
+
+    double min_bound = findMinNonZero(&normal_bounds);
+    ASSERT_EQ(min_bound, 1.0);
+    PASS();
+}
+
+TEST findMinNonZeroPartial() {
+    PmCartesian partial_bounds = {3.0,0.0,2.0};
+
+    double min_bound = findMinNonZero(&partial_bounds);
+    ASSERT_EQ(min_bound, 2.0);
+    PASS();
+}
+
+SUITE(joint_utils) {
+    RUN_TEST(findMinNonZeroComplete);
+    RUN_TEST(findMinNonZeroPartial);
+}
+
+
+
 
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
-    RUN_SUITE(blendmath);   /* run a suite */
+    RUN_SUITE(blendmath);
+    RUN_SUITE(joint_utils);
     GREATEST_MAIN_END();        /* display results */
- }
+}
