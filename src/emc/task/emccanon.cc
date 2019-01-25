@@ -56,7 +56,6 @@ static int debug_velacc = 0;
 static double css_maximum, css_numerator; // both always positive
 static int spindle_dir = 0;
 
-static const double tiny = 1e-7;
 static double xy_rotation = 0.;
 static int rotary_unlock_for_traverse = -1;
 
@@ -593,6 +592,60 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 }
 
 /**
+ * Get the shortest linear axis displacement that the TP can handle as a discrete move.
+ *
+ * If this looks dirty, it's because it is. Canon runs in its own units, but
+ * the TP uses user units. Therefore, the minimum displacement has to be
+ * computed the same way, with the same threshold, or short moves do strange
+ * things (accel violations or infinite pauses).
+ *
+ * @todo revisit this when the TP is overhauled to use a consistent set of internal units.
+ */
+static double getMinLinearDisplacement()
+{
+    return FROM_EXT_LEN(CART_FUZZ);
+}
+
+/**
+ * Equivalent of getMinLinearDisplacement for rotary axes.
+ */
+static double getMinAngularDisplacement()
+{
+    return FROM_EXT_ANG(CART_FUZZ);
+}
+
+/**
+ * Apply the minimum displacement check to each axis delta.
+ *
+ * Checks that the axis is valid / active, and looks up the appropriate minimum
+ * displacement for the axis type and user units.
+ */
+static void applyMinDisplacement(double &dx,
+                                 double &dy,
+                                 double &dz,
+                                 double &da,
+                                 double &db,
+                                 double &dc,
+                                 double &du,
+                                 double &dv,
+                                 double &dw
+                                 )
+{
+    const double tiny_linear = getMinLinearDisplacement();
+    const double tiny_angular = getMinAngularDisplacement();
+    if(!axis_valid(0) || dx < tiny_linear) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny_linear) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny_linear) dz = 0.0;
+    if(!axis_valid(3) || da < tiny_angular) da = 0.0;
+    if(!axis_valid(4) || db < tiny_linear) db = 0.0;
+    if(!axis_valid(5) || dc < tiny_linear) dc = 0.0;
+    if(!axis_valid(6) || du < tiny_linear) du = 0.0;
+    if(!axis_valid(7) || dv < tiny_linear) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny_linear) dw = 0.0;
+}
+
+
+/**
  * Get the limiting acceleration for a displacement from the current position to the given position.
  * returns a single acceleration that is the minimum of all axis accelerations.
  */
@@ -619,15 +672,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
     dv = fabs(v - canonEndPoint.v);
     dw = fabs(w - canonEndPoint.w);
 
-    if(!axis_valid(0) || dx < tiny) dx = 0.0;
-    if(!axis_valid(1) || dy < tiny) dy = 0.0;
-    if(!axis_valid(2) || dz < tiny) dz = 0.0;
-    if(!axis_valid(3) || da < tiny) da = 0.0;
-    if(!axis_valid(4) || db < tiny) db = 0.0;
-    if(!axis_valid(5) || dc < tiny) dc = 0.0;
-    if(!axis_valid(6) || du < tiny) du = 0.0;
-    if(!axis_valid(7) || dv < tiny) dv = 0.0;
-    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
 
     if(debug_velacc) 
         printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
@@ -757,15 +802,7 @@ static VelData getStraightVelocity(double x, double y, double z,
     dv = fabs(v - canonEndPoint.v);
     dw = fabs(w - canonEndPoint.w);
 
-    if(!axis_valid(0) || dx < tiny) dx = 0.0;
-    if(!axis_valid(1) || dy < tiny) dy = 0.0;
-    if(!axis_valid(2) || dz < tiny) dz = 0.0;
-    if(!axis_valid(3) || da < tiny) da = 0.0;
-    if(!axis_valid(4) || db < tiny) db = 0.0;
-    if(!axis_valid(5) || dc < tiny) dc = 0.0;
-    if(!axis_valid(6) || du < tiny) du = 0.0;
-    if(!axis_valid(7) || dv < tiny) dv = 0.0;
-    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
 
     if(debug_velacc) 
         printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
