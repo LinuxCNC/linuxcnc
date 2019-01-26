@@ -262,6 +262,13 @@ class _Lcnc_Action(object):
     def RELOAD_DISPLAY(self):
         STATUS.emit('reload-display')
 
+    def SET_GRAPHICS_VIEW(self, view):
+        if view.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
+                    'zoom-in','zoom-out','pan-up','pan-down',
+                    'pan-left','pan-right','rotate-up',
+                'rotate-down', 'rotate-cw','rotate-ccw'):
+            STATUS.emit('view-changed',view)
+
     ######################################
     # Action Helper functions
     ######################################

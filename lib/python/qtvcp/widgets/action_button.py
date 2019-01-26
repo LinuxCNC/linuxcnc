@@ -543,7 +543,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'launch_halmeter', 'launch_status', 'launch_halshow',
                 'auto', 'mdi', 'manual', 'macro_dialog', 'origin_offset_dialog',
                 'camview_dialog', 'jog_incr', 'feed_over', 'rapid_over',
-                'spindle_over', 'jog_rate', 'view_x', 'view_p', 'spindle_fwd',
+                'spindle_over', 'jog_rate', 'view_change', 'spindle_fwd',
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
@@ -983,7 +983,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.view_change = False
 
     def set_view_type(self, data):
-        if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear'):
+        if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
+                    'zoom-in','zoom-out','pan-up','pan-down',
+                    'pan-left','pan-right','rotate-up','rotate-down',
+                    'rotate-cw','rotate-ccw'):
             data = 'p'
         self.view_type = data
     def get_view_type(self):
