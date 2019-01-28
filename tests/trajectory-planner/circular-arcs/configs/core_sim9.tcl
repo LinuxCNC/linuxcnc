@@ -10,6 +10,9 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 # add motion controller functions to servo thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
+
+set next_ddt_idx = 0
+
 # link the differentiator functions into the code
 addf ddt_x servo-thread
 addf ddt_xv servo-thread

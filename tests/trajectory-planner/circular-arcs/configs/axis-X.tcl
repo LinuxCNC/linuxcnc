@@ -1,21 +1,35 @@
+set xv_id 0
+set xa_id 10
+
+# Add axis components to servo thread
+addf wcomp.$xv_id servo-thread
+addf wcomp.$xa_id servo-thread
+addf minmax.$xv_id servo-thread
+addf minmax.$xa_id servo-thread
+addf d2dt2.$xv_id servo-thread
+
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt_x.in
+net x_pos axis.$xv_id.motor-pos-cmd => axis.$xv_id.motor-pos-fb d2dt2.$xv_id.in
 
 # send the position commands thru differentiators to
 # generate velocity and accel signals
-net Xvel ddt_x.out => ddt_xv.in vel_xy.in0
-net Xacc <= ddt_xv.out
+net x_vel <= d2dt2.$xv_id.out1 => vel_xyz.in$xv_id wcomp.$xv_id.in  minmax.$xv_id.in
+net x_acc <= d2dt2.$xv_id.out2 => wcomp.$xa_id.in  minmax.$xa_id.in
 
 #Conservative limits
 set acc_limit 1.0001
 set vel_limit 1.01
 
-setp wcomp_xacc.max $::AXIS_0(MAX_ACCELERATION)*$acc_limit
-setp wcomp_xacc.min $::AXIS_0(MAX_ACCELERATION)*-1.0*$acc_limit
-setp wcomp_xvel.max $::AXIS_0(MAX_VELOCITY)*$vel_limit
-setp wcomp_xvel.min $::AXIS_0(MAX_VELOCITY)*-1.0*$vel_limit
+setp wcomp.$xa_id.max $::AXIS_0(MAX_ACCELERATION)*$acc_limit
+setp wcomp.$xa_id.min $::AXIS_0(MAX_ACCELERATION)*-1.0*$acc_limit
+setp wcomp.$xv_id.max $::AXIS_0(MAX_VELOCITY)*$vel_limit
+setp wcomp.$xv_id.min $::AXIS_0(MAX_VELOCITY)*-1.0*$vel_limit
 
-# Enable match_all pins for X axis
-setp match_all.b0 1
-setp match_all.b1 1
+net x_acc-ok <= wcomp.$xv_id.out => match_xyz.a0
+net x_vel-ok <= wcomp.$xa_id.out => match_xyz.a1
+
+# Enable match_all pins for axis
+setp match_xyz.b0 1
+setp match_xyz.b1 1
+

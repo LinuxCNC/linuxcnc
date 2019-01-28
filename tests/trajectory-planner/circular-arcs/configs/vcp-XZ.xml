@@ -5,18 +5,22 @@
             <tablesticky sticky="s"/>
             <tablerow/>
             <label>
-                <text>"Axis "</text>
+                <font>("Helvetica",18)</font>
+                <text>""</text>
             </label>
             <tablespan columns="2"/>
             <label>
-                <text>"Accelation"</text>
+                <font>("Helvetica",18)</font>
+                <text>"Acceleration"</text>
             </label>
             <tablespan columns="2"/>
             <label>
+                <font>("Helvetica",18)</font>
                 <text>"Velocity"</text>
             </label>
             <tablerow/>
             <label>
+                <font>("Helvetica",18)</font>
                 <text>"X"</text>
             </label>
             <number>
@@ -41,25 +45,26 @@
             </number>
             <tablerow/>
             <label>
-                <text>"Y"</text>
+                <font>("Helvetica",18)</font>
+                <text>"Z"</text>
             </label>
             <number>
-                <halpin>"pyacc"</halpin>
+                <halpin>"pzacc"</halpin>
                 <font>("Helvetica",24)</font>
                 <format>"+4.3f"</format>
             </number>
             <number>
-                <halpin>"nyacc"</halpin>
+                <halpin>"nzacc"</halpin>
                 <font>("Helvetica",24)</font>
                 <format>"+4.3f"</format>
             </number>
             <number>
-                <halpin>"pyvel"</halpin>
+                <halpin>"pzvel"</halpin>
                 <font>("Helvetica",24)</font>
                 <format>"+4.2f"</format>
             </number>
             <number>
-                <halpin>"nyvel"</halpin>
+                <halpin>"nzvel"</halpin>
                 <font>("Helvetica",24)</font>
                 <format>"+4.2f"</format>
             </number>
