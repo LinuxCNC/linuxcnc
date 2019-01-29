@@ -4,6 +4,7 @@ rate to less than maxv per second, and limit its second derivative to
 less than maxa per second squared.  When the signal is a position,
 this means that the position, velocity, and acceleration are limited.""";
 pin in float in;
+pin in bit enable = 1 "1: out follows in, 0: out returns to 0 (always per constraints)";
 pin out float out;
 pin in bit load=0
     """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
@@ -44,6 +45,7 @@ license "GPL";
 #define EPSILON 1e-9
 
 FUNCTION(_) {
+    double invalue;
     double in_pos_lim, in_vel;
     double min_vel, max_vel, min_pos, max_pos;
     double stop_pos_max, stop_pos_min;
@@ -57,9 +59,16 @@ FUNCTION(_) {
     double pos_diff, vel_diff, goal_pos_prev;
     double t, ti, a, v, s;
 
+    if (enable) {
+        invalue = in; // out pin follows in pin per limits
+    } else {
+        invalue = 0;  // out pin returns to 0 per limits
+                      // so steady-state out==0
+    }
+
     if (load) {
 	// Apply first order limit
-	in_pos_lim = fmin(max_, fmax(min_, in));
+	in_pos_lim = fmin(max_, fmax(min_, invalue));
 	SET_NEXT_STATE(in_pos_lim, in_pos_lim);
 	return;
     }
@@ -75,7 +84,7 @@ FUNCTION(_) {
     // 1.  Calculate distances and times to stop and match input velocity
     //
     // Input and output velocity
-    in_vel = (in - in_pos_old) / fperiod;
+    in_vel = (invalue - in_pos_old) / fperiod;
     out_vel = (out - out_old) / fperiod;
     //
     // Most negative/positive velocity reachable in one period
@@ -102,8 +111,8 @@ FUNCTION(_) {
     out_pos_max = max_pos + S_GIVEN_VI_VF_T(max_vel, in_vel, in_vel_time_max);
     out_pos_min = min_pos + S_GIVEN_VI_VF_T(min_vel, in_vel, in_vel_time_min);
     // - input position after velocity match
-    in_pos_max = in + in_vel * in_vel_time_max;
-    in_pos_min = in + in_vel * in_vel_time_min;
+    in_pos_max = invalue + in_vel * in_vel_time_max;
+    in_pos_min = invalue + in_vel * in_vel_time_min;
 
     // 2. Choose the current goal:  input signal, max limit or min limit
     // 
@@ -120,9 +129,9 @@ FUNCTION(_) {
     // - if input is outside min/max limit but heading back in, is
     //   there time to keep heading toward the limit before we need to
     //   start running to meet the input signal?
-    else if (in >= max_ && in_pos_max > out_pos_max)
+    else if (invalue >= max_ && in_pos_max > out_pos_max)
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = max_;
-    else if (in <= min_ && in_pos_min < out_pos_min)
+    else if (invalue <= min_ && in_pos_min < out_pos_min)
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = min_;
     //
     // Input signal:
@@ -130,7 +139,7 @@ FUNCTION(_) {
     else {
 	goal_pos_min = in_pos_min;
 	goal_pos_max = in_pos_max;
-	goal_pos_cur = in;
+	goal_pos_cur = invalue;
 	goal_pos_prev = in_pos_old;
 	vel_diff = out_vel - in_vel;
 	ach_pos_min = out_pos_min;
@@ -152,15 +161,15 @@ FUNCTION(_) {
     //   in the next period doesn't violate acceleration constraints,
     //   pass the input straight to the output
     if (VALID_NEXT(goal_pos_cur) && fabs(t) <= fperiod)
-	    SET_NEXT_STATE(goal_pos_cur, in);
+	    SET_NEXT_STATE(goal_pos_cur, invalue);
 
     // - If no danger of overshoot, accel at max in direction of goal
     if (ach_pos_max < goal_pos_max + EPSILON)
 	// Max pos. accel toward goal will still fall short
-	SET_NEXT_STATE(max_pos, in);
+	SET_NEXT_STATE(max_pos, invalue);
     if (ach_pos_min > goal_pos_min - EPSILON)
 	// Max neg. accel toward goal will still fall short
-	SET_NEXT_STATE(min_pos, in);
+	SET_NEXT_STATE(min_pos, invalue);
 
     // - If close to reaching goal, try to grease a landing; always
     //   using max acceleration can result in oscillating around the
@@ -174,18 +183,18 @@ FUNCTION(_) {
 	v = out_vel + a * fperiod;
 	s = v * fperiod;
 	// - Effect new position, within limits
-	SET_NEXT_STATE(fmin(max_pos, fmax(min_pos, out + s)), in);
+	SET_NEXT_STATE(fmin(max_pos, fmax(min_pos, out + s)), invalue);
     }
 
     // - If moving toward goal and in danger of overshoot, accelerate
     //   at max in opposite direction of goal
     if (goal_pos_max + EPSILON < ach_pos_max && goal_pos_prev > out)
     	// Heading up from below
-	SET_NEXT_STATE(min_pos, in);
+	SET_NEXT_STATE(min_pos, invalue);
     if (goal_pos_min - EPSILON > ach_pos_min && goal_pos_prev < out)
     	// Heading down from above
-	SET_NEXT_STATE(max_pos, in);
+	SET_NEXT_STATE(max_pos, invalue);
 
     // - Shouldn't get here; coast
-    SET_NEXT_STATE((min_pos+max_pos)/2, in);
+    SET_NEXT_STATE((min_pos+max_pos)/2, invalue);
 }

@@ -24,6 +24,7 @@ foreach c [hal --commands] {
         proc $c args "eval hal $c \$args"
     }
 }
+proc show args {puts [eval hal show $args]}
 
 if {[llength $argv] == 0} {
     package require tclreadline

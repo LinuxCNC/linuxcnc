@@ -13,18 +13,22 @@
 #
 # pass0:
 #       All HAL:HALFILEs (.hal,.tcl) are read.
-#       loadrt, loadusr commands are combined and executed at the end
+#       loadrt commands are combined and executed at the end
 #       of pass0 loadrt commands may be invoked multiple times for the
 #       same mod_name.  The "count=", "num_chan=", and "names=" forms for
 #       loadrt are supported but are mutually exclusive for each module.
 #       addf commands are deferred to pass1
 #
+#       loadusr commands are executed in pass0 so that any loadrt that
+#       depends on them will be satisfied.  The loadusr -W option should
+#       be used.
+#
 #       Some components (viz. pid) support a debug=dbg specifier on the
 #       loadrt line.  dbg values are ORed together.
 #
 # pass1:
-#       All HAL:HALFILEs are reread, commands (except the loadrt and
-#       loadusr completed commands) are executed and addf commands
+#       All HAL:HALFILEs are reread, commands (except the loadrt
+#       completed commands) are executed and addf commands
 #       are executed in order of occurrence.
 #
 # The inifile item HAL:TWOPASS can be any non-null string.  This string
@@ -108,9 +112,11 @@ proc ::tp::loadusr_substitute {args} {
   set pass [passnumber]
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
-    #puts "loadusr_substitute<$pass> ignored"
-  } else {
+    # do loadusr in pass 0 only
+    puts "twopass:pass0: loadusr $args"
     eval orig_loadusr $args
+  } else {
+    #"twopass: Ignore pass1: loadusr $args"
   }
 } ;# loadusr_substitute
 

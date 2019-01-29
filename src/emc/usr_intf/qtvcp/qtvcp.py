@@ -25,6 +25,7 @@ log = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 
 STATUS = Status()
 INFO = Info()
+ERROR_COUNT = 0
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -402,11 +403,19 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # Throws up a dialog with debug info when an error is encountered 
     def excepthook(self, exc_type, exc_obj, exc_tb):
+        global ERROR_COUNT
+        ERROR_COUNT +=1
+
         lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
         message = ("Qtvcp encountered an error.  The following "
                     + "information may be useful in troubleshooting:\n\n"
                     + "".join(lines))
-        result = ScrollMessageBox(QtWidgets.QMessageBox.Critical,"QTvcp ERROR!",message,parent=None)
+        if ERROR_COUNT > 5:
+            log.critical("Too many errors: {}".format(message))
+            self.shutdown()
+        result = ScrollMessageBox(QtWidgets.QMessageBox.Critical,
+            "QTvcp ERROR! Message # %d"%ERROR_COUNT,message,parent=None)
+
 
 class ScrollMessageBox(QtWidgets.QMessageBox):
     def __init__(self, *args, **kwargs):

@@ -218,7 +218,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Joint/axis number')
         self.JNumSpinBox = QtWidgets.QSpinBox()
-        self.JNumSpinBox.setMaximum(8)
+        self.JNumSpinBox.setRange(-1,8)
         self.JNumSpinBox.setValue(widget.joint_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -327,8 +327,15 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Graphics View')
         self.viewComboBox = QtWidgets.QComboBox()
-        for i in ('P','X','Y','Y2','Z','Z2'):
+        flag = 0
+        for num, i in enumerate(('P','X','Y','Y2','Z','Z2','Clear',
+            'zoom-in','zoom-out','pan-up','pan-down','pan-left',
+            'pan-right','rotate-up','rotate-down','rotate-cw',
+            'rotate-ccw')):
+            if widget.view_type.lower() == i.lower():
+                flag = num
             self.viewComboBox.addItem(i)
+        self.viewComboBox.setCurrentIndex(flag)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.viewComboBox)

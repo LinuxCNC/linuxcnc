@@ -199,11 +199,25 @@ Now we will add action buttons. +
 Add 7 action buttons on to the main window. If you double click the button, you +
 can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', +
 'Run', 'Pause' and 'stop'. +
-Action buttons default to Estop action so we must change the the other buttons. +
-Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
+Action buttons default to no action so we must change the properties for defined functions. +
+You can edit the properties directly in the property editor on the right side of designer. +
+A convenient alternating is right clicking on the button and choosing 'Set Actions' or +
+'Set Indicator Actions'. Each will launch a Dialog that allows selecting actions while +
+only display relevant data to the action. +
+ +
+We will describe the convenient way first: +
+
+ - Right click the 'Machine On' button and select 'Set Actions'. When the Dialog displays, +
+use the combobox to navigate to 'MACHINE CONTROLS - Machine On'. In this case there there +
+is no option for this action so select ok. Now the button will turn the machine on when pressed +
+
+And now the direct way with Designer's property editor +
+
+ - Select the 'Machine On' button. Now go to the 'Property Editor' on the right +
 side of Designer. Scroll down until you find the 'ActionButton' heading. +
 You will see a list of properties and values. find the 'machine on action' and +
 click the checkbox. the button will now control machine on/off. +
+
 Do the same for all the other button with the addition of: +
 
  - With the 'Home' button we must also change the joint_number property to -1, +

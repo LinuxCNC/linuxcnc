@@ -1,4 +1,3 @@
 loadrt and2 names=andZ
 net p andZ.in0
-
-loadusr -w halcmd -s show pin
+show pin

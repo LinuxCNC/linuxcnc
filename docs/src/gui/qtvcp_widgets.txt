@@ -105,7 +105,7 @@ There are function calls to display specific widgets: +
 
 By calling one of these functions, you control what widget +
 is currently displayed. A default layout shows the combined +
-layout, initially built in Designer.+
+layout, initially built in Designer. +
 
 It is based on the QStack widget. +
 
@@ -116,48 +116,56 @@ These widgets interact to the Machine Controller state.
 === Action Button Widget
 
 These buttons are used to control action of the machine controller. +
+
+[NOTE]
+If you right click on this widget you can launch a dialog +
+to set any of these action. The dialogs will help to set the +
+right related data to the selected action. +
+You can also change these properties directly in the property editor. +
+
 You can select one of these actions: +
-Estop +
-Machine On +
-Auto +
-mdi +
-manual +
-run +
-abort +
-pause +
-load dialog (requires a dialog widget present) +
-Camview dialog (requires camview dialog widget present) +
-origin offset dialog (requires origin offset dialog widget present) +
-macro dialog (requires macro dialog widget present) +
-Launch Halmeter +
-Launch Status +
-Launch Halshow +
-Home (set the joint number to -1 for all-home) +
-zero axis +
-jog joint positive (set the joint number) +
-jog joint negative (set the joint number) +
-jog selected positive (selected with a different widget or STATUS) +
-jog selected negative (selected with a different widget or STATUS) +
-jog increment (set metric/imperial/angular numbers) +
-jog rate (set the float/alt float number) +
-feed override (set the float/alt float number) +
-rapid override (set the float/alt float number) +
-spindle override (set the float/alt float number) +
-spindle fwd
-spindle bacward
-spindle stop
-spindle up
-spindle down +
-view change (set view type string) +
-limits override +
-flood +
-mist +
-block delete +
-optional stop +
-mdi command (set command string) +
-dro absolute +
-dro relative +
-dro dtg +
+'Estop' +
+'Machine On' +
+'Auto' +
+'mdi' +
+'manual' +
+'run' +
+'abort' +
+'pause' +
+'load dialog' (requires a dialog widget present) +
+'Camview dialog' (requires camview dialog widget present) +
+'origin offset dialog' (requires origin offset dialog widget present) +
+'macro dialog' (requires macro dialog widget present) +
+'Launch Halmeter' +
+'Launch Status' +
+'Launch Halshow' +
+'Home' (set the joint number to -1 for all-home) +
+'zero axis' +
+'jog joint positive' (set the joint number) +
+'jog joint negative' (set the joint number) +
+'jog selected positive' (selected with a different widget or STATUS) +
+'jog selected negative' (selected with a different widget or STATUS) +
+'jog increment' (set metric/imperial/angular numbers) +
+'jog rate' (set the float/alt float number) +
+'feed override' (set the float/alt float number) +
+'rapid override' (set the float/alt float number) +
+'spindle override' (set the float/alt float number) +
+'spindle fwd' +
+'spindle backward' +
+'spindle stop' +
+'spindle up' +
+'spindle down' +
+'view change' (set view_type_string) +
+'limits override' +
+'flood' +
+'mist' +
+'block delete' +
+'optional stop' +
+'mdi command' (set command_string) +
+'INI mdi number' (set ini_mdi_number) +
+'dro absolute' +
+'dro relative' +
+'dro dtg' +
 
 These set attributes of the selected action. Availability depends on the widget. +
  +
@@ -168,11 +176,13 @@ These set attributes of the selected action. Availability depends on the widget.
 'incr angular number' -sets the angular jog increment (set negative to ignore) +
 'float number' - used for jograte and overrides +
 'float alternate number' -for jograte and overrides that can toggle between two float numbers +
-'view type string' - can be p, x, y, y2, z, z2, clear +
-'command string' - MDI command string. can be a direct command or a reference to +
-the INI file [MDI_COMMAND_LIST] section. To use the INI reference type 'MDI_COMMAND_LIST=0', 0 being +
-an integer of the INI's MDI_COMMAND line starting at 0. Then in the INI file, under the heading +
-'[MDI_COMMAND_LIST]' add a line: 'MDI_COMMAND=<some command>' some command being the MDI command. +
+'view type string' - can be p, x, y, y2, z, z2, clear, zoom-in, zoom-out, pan-up, pan-down, +
+ pan-left, pan-right, rotate-up, rotate-down, rotate-cw, rotate-ccw +
+'command string' - MDI command string that will be invoked if the MDI command action is selected. +
+'ini_mdi_number' - a reference to the INI file [MDI_COMMAND_LIST] section. +
+Set an integer of select one line under the INI's MDI_COMMAND line starting at 0. +
+Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
+'MDI_COMMAND=<some command>' +
 
 Action buttons are subclasssed from indicated_PushButton +
 
@@ -185,8 +195,7 @@ Indicated PushButtons have three options: +
 
 Indicator_option puts a triangle 'LED' on the top right corner of the button. +
 It will indicated the current state of the button. Use the properties +
-'on_state_color', 'off_state_color', and 'indicator_size' to customized the +
-indicator. +
+'on_state_color', 'off_state_color', and 'indicator_size' to customized the indicator. +
 
 Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
 button indicator state. +
@@ -195,12 +204,18 @@ Checked_state_text_option allows a checkable button to change the text based +
 on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
 to specify the text for each state. +
 
-Python_command_option allow small snippets of python code to be run from th epush of a button, +
+Python_command_option allow small snippets of python code to be run from the push of a button, +
 with out having to edit the handler file. (though it can call functions in the handler file) +
-When using the command_string properties, the capitalized word 'INSTANCE' will give access to +
-the widgets instances and handler functions. +
+When using the command_string properties. +
 'true_python_cmd_string' - a python command that will be called when the button is toggled true +
 'false_python_cmd_string' - a python command that will be called when the button is toggled false +
+ +
+The capitalized word 'INSTANCE' will give access to the widgets instances and handler functions. +
+eg. 'INSTANCE.my_handler_function_call(True)' +
+The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
+eg. 'ACTION.TOGGLE_FLOOD()' +
+The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
+eg. 'PROGRAM_LOADER.load_halshow()' +
 
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 

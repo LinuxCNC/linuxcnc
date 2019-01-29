@@ -55,6 +55,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.show_overlay = False  # no DRO or DRO overlay
         self._reload_filename = None
         self.use_gradient_background = False
+        self._view_incr = 20
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
@@ -64,10 +65,39 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('view-changed', self.set_view_signal)
 
     def set_view_signal(self, w, view):
-        if view.lower() == 'clear':
+        v = view.lower()
+        if v == 'clear':
             self.clear_live_plotter()
+        elif v == 'zoom-in':
+            self.zoomin()
+        elif v == 'zoom-out':
+            self.zoomout()
+        elif v == 'pan-down':
+            self.recordMouse(0,0)
+            self.translateOrRotate(0,self._view_incr)
+        elif v == 'pan-up':
+            self.recordMouse(0,0)
+            self.translateOrRotate(0,-self._view_incr)
+        elif v == 'pan-right':
+            self.recordMouse(0,0)
+            self.translateOrRotate(self._view_incr,0)
+        elif v == 'pan-left':
+            self.recordMouse(0,0)
+            self.translateOrRotate(-self._view_incr,0)
+        elif v == 'rotate-ccw':
+            self.recordMouse(0,0)
+            self.rotateOrTranslate(self._view_incr,0)
+        elif v == 'rotate-cw':
+            self.recordMouse(0,0)
+            self.rotateOrTranslate(-self._view_incr,0)
+        elif v == 'rotate-up':
+            self.recordMouse(0,0)
+            self.rotateOrTranslate(0,self._view_incr)
+        elif v == 'rotate-down':
+            self.recordMouse(0,0)
+            self.rotateOrTranslate(0,-self._view_incr)
         else:
-            self.set_view(view)
+            self.set_view(v)
 
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
