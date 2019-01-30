@@ -439,9 +439,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
       <height>201</height>
      </rect>
     </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
     <widget class="CamViewDialog" name="camviewdialog">
      <property name="geometry">
       <rect>
