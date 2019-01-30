@@ -10,6 +10,7 @@ from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
 
 from qtvcp.core import Status, Action
@@ -28,6 +29,7 @@ import os
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
+
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -49,6 +51,8 @@ class HandlerClass:
         self.PATH = paths.CONFIGPATH
         self.IMAGE_PATH = paths.IMAGEDIR
         self._big_view = -1
+        self.STYLEEDITOR = SSE(widgets,paths)
+
     ##########################################
     # Special Functions called from QTVCP
     ##########################################
@@ -63,6 +67,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
+        KEYBIND.add_call('Key_F12','on_keycall_F12')
         self.w.tooloffsetdialog._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -174,6 +179,10 @@ class HandlerClass:
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
             self.w.versaprobedialog.load_dialog()
+    def on_keycall_F12(self,event,state,shift,cntrl):
+        if state:
+            self.STYLEEDITOR.load_dialog()
+
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
