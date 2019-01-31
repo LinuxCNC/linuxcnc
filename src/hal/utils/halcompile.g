@@ -21,6 +21,9 @@ import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
+MAX_NAMES = 16
+MAX_PERSONALITIES = MAX_NAMES
+
 %%
 parser Hal:
     ignore: "//.*"
@@ -490,16 +493,16 @@ static int comp_id;
         if not options.get("singleton") and not options.get("count_function") :
             print("static int default_count=%s, count=0;" \
                 % options.get("default_count", 1), file=f)
-            print("char *names[16] = {0,};", file=f)
+            print("char *names[%d] = {0,};"%(MAX_NAMES), file=f)
             if not options.get("userspace"):
                 print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
-                print("RTAPI_MP_ARRAY_STRING(names, 16, \"names of %s\");" % comp_name, file=f)
+                print("RTAPI_MP_ARRAY_STRING(names, %d, \"names of %s\");" %(MAX_NAMES,comp_name), file=f)
 
         if has_personality:
             init1 = str(int(options.get('default_personality', 0)))
-            init = ",".join([init1] * 16)
-            print("static int personality[16] = {%s};" % init, file=f)
-            print("RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name, file=f)
+            init = ",".join([init1] * MAX_PERSONALITIES)
+            print("static int personality[%d] = {%s};" %(MAX_PERSONALITIES,init), file=f)
+            print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
         print("int rtapi_app_main(void) {", file=f)
         print("    int r = 0;", file=f)
         if not options.get("singleton"):
@@ -524,7 +527,7 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("        r = export(buf, i, personality[i%16]);", file=f)
+                print("        r = export(buf, i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
             else:
                 print("        r = export(buf, i);", file=f)
             print("    }", file=f)
@@ -542,7 +545,7 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("            r = export(buf, i, personality[i%16]);", file=f)
+                print("            r = export(buf, i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
             else:
                 print("            r = export(buf, i);", file=f)
             print("            if(r != 0) break;", file=f)
@@ -556,7 +559,7 @@ static int comp_id;
             print("                break;", file=f)
             print("            }", file=f)
             if has_personality:
-                print("            r = export(names[i], i, personality[i%16]);", file=f)
+                print("            r = export(names[i], i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
             else:
                 print("            r = export(names[i], i);", file=f)
             print("            if(r != 0) break;", file=f)
@@ -619,7 +622,7 @@ int __comp_parse_names(int *argc, char **argv) {
             }
             argv[i] = NULL;
             (*argc)--;
-            for (j = 0; j < 16; j ++) {
+            for (j = 0; j < %d; j ++) {
                 names[j] = strtok(p, ",");
                 p = NULL;
                 if (names[j] == NULL) {
@@ -631,7 +634,7 @@ int __comp_parse_names(int *argc, char **argv) {
     }
     return 0;
 }
-""", file=f)
+"""%MAX_NAMES, file=f)
         print("int argc=0; char **argv=0;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
