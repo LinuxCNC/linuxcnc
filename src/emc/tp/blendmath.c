@@ -1873,15 +1873,13 @@ EndCondition checkEndCondition(double cycleTime,
                                double target,
                                double currentvel,
                                double v_f,
-                               double a_max,
-                               tc_term_cond_t term_cond)
+                               double a_max)
 {
     double dx = target - progress;
     // Start with safe defaults (segment will not end next cycle
     EndCondition out = {
         v_f,
         TP_BIG_NUM * cycleTime,
-        0
     };
 
     // This block essentially ignores split cycles for exact-stop moves
@@ -1891,14 +1889,8 @@ EndCondition checkEndCondition(double cycleTime,
         //Force progress to land exactly on the target to prevent numerical errors.
         out.dt = 0.0;
         out.v_f = currentvel;
-        if (term_cond == TC_TERM_COND_STOP || term_cond == TC_TERM_COND_EXACT) {
-            out.remove = 1;
-        }
-        return out;
-    } else if (term_cond == TC_TERM_COND_STOP || term_cond == TC_TERM_COND_EXACT) {
         return out;
     }
-
 
     double v_avg = (currentvel + v_f) / 2.0;
 

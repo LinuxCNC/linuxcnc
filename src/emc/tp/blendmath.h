@@ -272,7 +272,6 @@ static inline double findVPeak(double a_t_max, double distance)
 typedef struct {
     double v_f;
     double dt;
-    int remove;
 } EndCondition;
 
 EndCondition checkEndCondition(double cycleTime,
@@ -280,7 +279,6 @@ EndCondition checkEndCondition(double cycleTime,
                                double target,
                                double currentvel,
                                double v_f,
-                               double a_max,
-                               tc_term_cond_t term_cond);
+                               double a_max);
 
 #endif

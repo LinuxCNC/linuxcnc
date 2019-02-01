@@ -3113,16 +3113,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
                                         tc->target,
                                         tc->currentvel,
                                         tpGetRealFinalVel(tp, tc, nexttc),
-                                        tcGetTangentialMaxAccel(tc),
-                                        (tc_term_cond_t)tc->term_cond
+                                        tcGetTangentialMaxAccel(tc)
                                         );
-
-    // Copy results into tc
-    tc->remove = ec.remove;
-
-    if (ec.remove || ec.dt < TP_TIME_EPSILON) {
-        tc->progress = tc->target;
-    }
 
     double dt = ec.dt;
     int splitting = dt < tp->cycleTime;
@@ -3139,7 +3131,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         print_json5_double_("v_final", ec.v_f);
         print_json5_double_("t_remaining", ec.dt);
         print_json5_double_("dt_used", dt);
-        print_json5_bool_("remove", ec.remove);
+        print_json5_bool_("remove", tc->remove);
         print_json5_bool_("splitting", splitting);
         print_json5_end_();
     }
@@ -3181,13 +3173,20 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_OK;
     }
 
+    // Handle various cases of updates for split cycles
+    //  Tangent: next segment gets a partial update for the remaining cycle time
+    //  Parabolic: next segment updates with full cycle time (since both current / next are active at the same time)
+    //  Exact: NO motion in next segment here since current segment must stop completely
     switch (tc->term_cond) {
         case TC_TERM_COND_TANGENT:
             nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
             nexttc->currentvel = tc->term_vel;
-            tp_debug_print("Doing tangent split\n");
-            break;
+            // Intentional fallthrough
         case TC_TERM_COND_PARABOLIC:
+        {
+            TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
+            tpUpdateCycle(tp, nexttc, next2tc);
+        }
             break;
         case TC_TERM_COND_STOP:
             break;
@@ -3199,15 +3198,12 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
                     tc->id);
     }
 
-    // Run split cycle update with remaining time in nexttc
-    // KLUDGE: use next cycle after nextc to prevent velocity dip (functions fail gracefully w/ NULL)
-    TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
-
-    tpUpdateCycle(tp, nexttc, next2tc);
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
-    if (tc->cycle_time > nexttc->cycle_time && tc->term_cond == TC_TERM_COND_TANGENT) {
+    if (tc->term_cond == TC_TERM_COND_STOP
+            || tc->term_cond == TC_TERM_COND_EXACT
+            || (tc->cycle_time > nexttc->cycle_time && tc->term_cond == TC_TERM_COND_TANGENT)) {
         //Majority of time spent in current segment
         tpToggleDIOs(tc);
         tpUpdateMovementStatus(tp, tc);
