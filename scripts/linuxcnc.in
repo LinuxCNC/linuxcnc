@@ -528,9 +528,9 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
 	fi
-	KILL_PIDS=
-	KILL_TASK=
     done
+    KILL_PIDS=
+    KILL_TASK=
 }
 
 
