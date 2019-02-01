@@ -41,6 +41,14 @@ halcompile \- Build, compile and install LinuxCNC HAL components
 \fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR cfile...
 .PP
 \fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR pyfile...
+
+.PP
+By default, the maximum number of names= items is 16.
+To alter this limit, set the environmental variable \fBHALCOMPILE_MAX_NAMES\fR.
+Example:
+   [sudo] \fBHALCOMPILE_MAX_NAMES\fR=20 \fBhalcompile\fR ...
+
+
 .PD
 .SH DESCRIPTION
 \fBhalcompile\fR performs many different functions:
