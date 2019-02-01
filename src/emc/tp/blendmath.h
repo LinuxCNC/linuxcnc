@@ -267,4 +267,11 @@ static inline double findVPeak(double a_t_max, double distance)
 {
     return pmSqrt(a_t_max * distance);
 }
+
+// Start by mimicing the current structure for minimal changes
+typedef struct {
+    double v_f;
+    double dt;
+    int remove;
+} EndCondition;
 #endif
