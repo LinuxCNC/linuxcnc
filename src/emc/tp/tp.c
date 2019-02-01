@@ -1928,8 +1928,17 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
-        ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary) {
+int tpAddLine(TP_STRUCT * const tp,
+        EmcPose end,
+        int canon_motion_type,
+        double vel,
+        double ini_maxvel,
+        double acc,
+        unsigned char enables,
+        char atspeed,
+        int indexrotary,
+        int pure_angular)
+{
 
     if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
@@ -1983,7 +1992,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     pmLine9Init(&tc.coords.line,
             &tp->goalPos,
             &end);
-    tc.target = pmLine9Target(&tc.coords.line);
+    tc.target = pmLine9Target(&tc.coords.line, pure_angular);
     if (tc.target < TP_POS_EPSILON) {
         rtapi_print_msg(RTAPI_MSG_DBG,"failed to create line id %d, zero-length segment\n",tp->nextId);
         return TP_ERR_ZERO_LENGTH;

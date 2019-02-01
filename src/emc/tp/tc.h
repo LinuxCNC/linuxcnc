@@ -63,7 +63,7 @@ int pmCircleTangentVector(PmCircle const * const circle,
 int tcFlagEarlyStop(TC_STRUCT * const tc,
         TC_STRUCT * const nexttc);
 
-double pmLine9Target(PmLine9 * const line9);
+double pmLine9Target(PmLine9 * const line9, int pure_angular);
 
 int pmLine9Init(PmLine9 * const line9,
         EmcPose const * const start,

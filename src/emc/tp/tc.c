@@ -568,9 +568,11 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
     return TP_ERR_OK;
 }
 
-double pmLine9Target(PmLine9 * const line9)
+double pmLine9Target(PmLine9 * const line9, int pure_angular)
 {
-    if (!line9->xyz.tmag_zero) {
+    if (pure_angular && !line9->abc.tmag_zero) {
+        return line9->abc.tmag;
+    } else if (!line9->xyz.tmag_zero) {
         return line9->xyz.tmag;
     } else if (!line9->uvw.tmag_zero) {
         return line9->uvw.tmag;
