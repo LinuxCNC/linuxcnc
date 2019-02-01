@@ -151,9 +151,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.combo = TreeComboBox()
         model = QtGui.QStandardItemModel()
         model.setHeaderData(0, QtCore.Qt.Horizontal, 'Name', QtCore.Qt.DisplayRole)
-        node_1 = (('Estop',['estop', 0], []), ('Machine On',['machine_on', 0], []),
-                ('Home',['home', 1], []), ('Run',['run', 0], []),
-                ('Abort',['abort', 0], []), ('Pause',['pause', 0], []),
+        node_1 = (('Estop',['estop', 0], []),
+                 ('Machine On',['machine_on', 0], []),
+                ('Home',['home', 1], []),
+                ('Run',['run', 0], []),
+                ('Abort',['abort', 0], []),
+                 ('Pause',['pause', 0], []),
                 ('Override Limits',['limits_override', 0], []),
                 ('Zero Axis',['zero_axis', 1], []),
                 ('Block Delete',['block_delete', 0], []),
