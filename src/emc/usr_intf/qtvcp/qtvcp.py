@@ -408,29 +408,22 @@ Pressing cancel will close linuxcnc.""" % target)
 
         lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
         message = ("Qtvcp encountered an error.  The following "
-                    + "information may be useful in troubleshooting:\n\n"
-                    + "".join(lines))
+                    + "information may be useful in troubleshooting:\n")
         if ERROR_COUNT > 5:
             log.critical("Too many errors: {}".format(message))
             self.shutdown()
-        result = ScrollMessageBox(QtWidgets.QMessageBox.Critical,
-            "QTvcp ERROR! Message # %d"%ERROR_COUNT,message,parent=None)
-
-
-class ScrollMessageBox(QtWidgets.QMessageBox):
-    def __init__(self, *args, **kwargs):
-        QtWidgets.QMessageBox.__init__(self, *args, **kwargs)
-        chldn = self.children()
-        scroll = QtWidgets.QScrollArea(self)
-        scroll.setWidgetResizable(True)
-        grid = self.findChild(QtWidgets.QGridLayout)
-        lbl = QtWidgets.QLabel(chldn[1].text(), self)
-        lbl.setWordWrap(True)
-        scroll.setWidget(lbl)
-        scroll.setMinimumSize (400,200)
-        grid.addWidget(scroll,0,1)
-        chldn[1].setText('')
-        self.exec_()
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Critical)
+        msg.setText(message)
+        msg.setInformativeText("QTvcp ERROR! Message # %d"%ERROR_COUNT)
+        msg.setWindowTitle("Error")
+        msg.setDetailedText(''.join(lines))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.show()
+        retval = msg.exec_()
+        if retval == 4194304: #cancel button
+            log.critical("Canceled from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
+            self.shutdown()
 
 # starts Qtvcp
 if __name__ == "__main__":
