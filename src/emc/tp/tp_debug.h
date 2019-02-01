@@ -67,6 +67,13 @@
 #define tc_debug_print(...) 
 #endif
 
+/** "TC" debug info for inspecting trajectory planner output at each timestep */
+#ifdef TP_PEDANTIC_DEBUG
+#define tc_pdebug_print(...) rtapi_print(__VA_ARGS__)
+#else
+#define tc_pdebug_print(...)
+#endif
+
 /** TP position data output to debug acceleration spikes */
 #ifdef TP_POSEMATH_DEBUG
 #define tp_posemath_debug(...) rtapi_print(__VA_ARGS__)

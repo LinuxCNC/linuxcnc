@@ -1885,7 +1885,7 @@ EndCondition checkEndCondition(double cycleTime,
     // This block essentially ignores split cycles for exact-stop moves
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
-        tp_debug_print("close to target, dx = %.12f\n",dx);
+        tc_pdebug_print("close to target, dx = %.12f\n",dx);
         //Force progress to land exactly on the target to prevent numerical errors.
         out.dt = 0.0;
         out.v_f = currentvel;
@@ -1909,7 +1909,7 @@ EndCondition checkEndCondition(double cycleTime,
         dt = fmax(dt, dx / v_avg);
     } else {
         if ( dx > (v_avg * cycleTime) && dx > TP_POS_EPSILON) {
-            tc_debug_print(" below velocity threshold, assuming far from end\n");
+            tc_pdebug_print(" below velocity threshold, assuming far from end\n");
             return out;
         }
     }
@@ -1927,26 +1927,24 @@ EndCondition checkEndCondition(double cycleTime,
 
     //Need to recalculate vf and above
     if (recalc) {
-        tc_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
         double disc = pmSq(currentvel / a) + 2.0 / a * dx;
         if (disc < 0) {
             //Should mean that dx is too big, i.e. we're not close enough
-            tc_debug_print(" dx = %f, too large, not at end yet\n",dx);
+            tc_pdebug_print(" dx = %f, too large, not at end yet\n",dx);
             return out;
         }
 
         if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
-            tc_debug_print("disc too small, skipping sqrt\n");
+            tc_pdebug_print("disc too small, skipping sqrt\n");
             dt =  -currentvel / a;
         } else if (a > 0) {
-            tc_debug_print("using positive sqrt\n");
+            tc_pdebug_print("using positive sqrt\n");
             dt = -currentvel / a + pmSqrt(disc);
         } else {
-            tc_debug_print("using negative sqrt\n");
             dt = -currentvel / a - pmSqrt(disc);
         }
 
-        tc_debug_print(" revised dt = %f\n", dt);
+        tc_pdebug_print(" revised dt = %f\n", dt);
         //Update final velocity with actual result
         out.v_f = currentvel + dt * a;
     }

@@ -70,8 +70,16 @@ STATIC double estimateParabolicBlendPerformance(
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc);
 
+typedef enum {
+    UPDATE_NORMAL,
+    UPDATE_PARABOLIC_BLEND,
+    UPDATE_SPLIT
+} UpdateCycleMode;
+
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT const * const nexttc);
+        TC_STRUCT * const tc,
+        TC_STRUCT const * const nexttc,
+        UpdateCycleMode cycle_mode);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
@@ -1852,9 +1860,6 @@ static bool tpCreateBlendIfPossible(
             res_create = tpCreateArcArcBlend(tp, prev_tc, tc, blend_tc);
             break;
         case BLEND_NONE:
-        default:
-            tp_debug_print("intersection type not recognized, aborting arc\n");
-            res_create = TP_ERR_FAIL;
             break;
     }
 
@@ -2252,7 +2257,20 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     return TP_ERR_OK;
 }
 
-STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double acc) {
+static const char *cycleModeToString(UpdateCycleMode mode)
+{
+    switch (mode) {
+    case UPDATE_NORMAL:
+        return "normal";
+    case UPDATE_PARABOLIC_BLEND:
+        return "parabolic_blend";
+    case UPDATE_SPLIT:
+        return "split_cycle";
+    }
+    return "unknown";
+}
+
+STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double acc, int accel_mode, UpdateCycleMode cycle) {
 #ifdef TC_DEBUG
     // Find maximum allowed velocity from feed and machine limits
     const double v_target = tpGetRealTargetVel(tp, tc);
@@ -2279,6 +2297,8 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
     print_json5_double_("time", tp->time_elapsed_sec);
     print_json5_long_("canon_type", tc->canon_motion_type);
     print_json5_string_("motion_type", tcMotionTypeAsString(tc->motion_type));
+    print_json5_string_("accel_mode",accel_mode ? "ramp" : "trapezoidal");
+    print_json5_string_("cycle", cycleModeToString(cycle));
     print_json5_end_();
 #endif
 }
@@ -2295,8 +2315,6 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
 void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc,
         double * const acc, double * const vel_desired)
 {
-    tc_debug_print("using trapezoidal acceleration\n");
-
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
@@ -2335,7 +2353,6 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
         double * const acc,
         double * const vel_desired)
 {
-    tc_debug_print("using ramped acceleration\n");
     // displacement remaining in this segment
     double dx = tc->target - tc->progress;
 
@@ -2391,7 +2408,6 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
         tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
     }
 }
-
 /**
  * Compute the spindle displacement used for spindle position tracking.
  *
@@ -2574,7 +2590,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = 0.0;
     }
 
-    tpUpdateCycle(tp, nexttc, NULL);
+    tpUpdateCycle(tp, nexttc, NULL, UPDATE_PARABOLIC_BLEND);
     //Restore the original target velocity
     nexttc->target_vel = save_vel;
 }
@@ -2981,7 +2997,6 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
-    tc_debug_print("in DoParabolicBlend\n");
     tpUpdateBlend(tp,tc,nexttc);
 
     /* Status updates */
@@ -3009,8 +3024,10 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Handles the majority of updates on a single segment for the current cycle.
  */
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT const * const nexttc) {
-
+    TC_STRUCT * const tc,
+    TC_STRUCT const * const nexttc,
+    UpdateCycleMode cycle_mode)
+{
     //placeholders for position for this update
     EmcPose before;
 
@@ -3037,8 +3054,9 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
     }
 
+    int accel_mode_ramp = (res_accel == TP_ERR_OK);
     tcUpdateDistFromAccel(tc, acc, vel_desired);
-    tpDebugCycleInfo(tp, tc, nexttc, acc);
+    tpDebugCycleInfo(tp, tc, nexttc, acc, accel_mode_ramp, cycle_mode);
 
     //Check if we're near the end of the cycle and set appropriate changes
     tpCheckEndCondition(tp, tc, nexttc);
@@ -3051,12 +3069,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     //Store displacement (checking for valid pose)
     int res_set = tpAddCurrentPos(tp, &displacement);
-
-#ifdef TC_DEBUG
-    double mag;
-    emcPoseMagnitude(&displacement, &mag);
-    tc_debug_print("cycle movement = %f\n", mag);
-#endif
 
     return res_set;
 }
@@ -3185,7 +3197,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_PARABOLIC:
         {
             TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
-            tpUpdateCycle(tp, nexttc, next2tc);
+            tpUpdateCycle(tp, nexttc, next2tc, UPDATE_SPLIT);
         }
             break;
         case TC_TERM_COND_STOP:
@@ -3224,9 +3236,8 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
         return TP_ERR_NO_ACTION;
     }
     //Run with full cycle time
-    tc_debug_print("Normal cycle\n");
     tc->cycle_time = tp->cycleTime;
-    tpUpdateCycle(tp, tc, nexttc);
+    tpUpdateCycle(tp, tc, nexttc, UPDATE_NORMAL);
 
     /* Parabolic blending */
 
