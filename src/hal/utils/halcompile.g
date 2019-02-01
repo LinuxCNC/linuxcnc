@@ -1028,11 +1028,15 @@ Usage:
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
-""" % {'name': os.path.basename(sys.argv[0])})
+
+Option to set maximum 'names' items:
+    --names=integer_value   (default is %(dflt)d)
+""" % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_NAMES})
     raise SystemExit(exitval)
 
 def main():
     global require_license
+    global MAX_NAMES,MAX_PERSONALITIES
     require_license = True
     global require_unix_line_endings
     require_unix_line_endings = False
@@ -1040,10 +1044,11 @@ def main():
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?n:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc', 'require-license', 'print-modinc'])
+                            'view-doc', 'require-license', 'print-modinc',
+                            'names='])
     except getopt.GetoptError:
         usage(1)
 
@@ -1072,6 +1077,13 @@ def main():
             if len(args) != 1:
                 raise SystemExit("Cannot specify -o with multiple input files")
             outfile = v 
+        if k in ("-n", "--names"):
+            try: 
+                MAX_NAMES = int(v)
+                MAX_PERSONALITIES = MAX_NAMES
+                print("MAX_NAMES=%d,MAX_PERSONALITIES=%d"%(MAX_NAMES,MAX_PERSONALITIES))
+            except Exception, detail:
+                raise SystemExit("Bad value for -n (--names)=",v,"\n",detail)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
