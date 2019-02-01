@@ -21,17 +21,7 @@ import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
-MAX_NAMES_DEFAULT = 16
-try:
-    MAX_NAMES = int(os.environ['HALCOMPILE_MAX_NAMES'])
-    print("halcompile: HALCOMPILE_MAX_NAMES=",MAX_NAMES)
-except ValueError, detail:
-    print("halcompile: HALCOMPILE_MAX_NAMES\n  ",detail)
-    MAX_NAMES = MAX_NAMES_DEFAULT
-    print("   Using MAX_NAMES=",MAX_NAMES)
-except KeyError, detail:
-    MAX_NAMES = MAX_NAMES_DEFAULT
-
+MAX_NAMES = 16
 MAX_PERSONALITIES = MAX_NAMES
 
 %%
@@ -1038,12 +1028,7 @@ Usage:
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
-
-    By default, the maximum number of names= items is %(dflt)d.
-    To alter this limit, set the environmental variable HALCOMPILE_MAX_NAMES.
-    Example:
-        [sudo] HALCOMPILE_MAX_NAMES=20 %(name)s ...
-""" % {'name': os.path.basename(sys.argv[0]),'dflt': MAX_NAMES_DEFAULT})
+""" % {'name': os.path.basename(sys.argv[0])})
     raise SystemExit(exitval)
 
 def main():
