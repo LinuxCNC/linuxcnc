@@ -1867,3 +1867,98 @@ double findTrapezoidalDesiredVel(double a_max,
 
     return maxnewvel;
 }
+
+EndCondition checkEndCondition(double cycleTime,
+                               double progress,
+                               double target,
+                               double currentvel,
+                               double v_f,
+                               double a_max,
+                               tc_term_cond_t term_cond)
+{
+    double dx = target - progress;
+    // Start with safe defaults (segment will not end next cycle
+    EndCondition out = {
+        v_f,
+        TP_BIG_NUM * cycleTime,
+        0
+    };
+
+    // This block essentially ignores split cycles for exact-stop moves
+    if (dx <= TP_POS_EPSILON) {
+        //If the segment is close to the target position, then we assume that it's done.
+        tp_debug_print("close to target, dx = %.12f\n",dx);
+        //Force progress to land exactly on the target to prevent numerical errors.
+        out.dt = 0.0;
+        out.v_f = currentvel;
+        if (term_cond == TC_TERM_COND_STOP || term_cond == TC_TERM_COND_EXACT) {
+            out.remove = 1;
+        }
+        return out;
+    } else if (term_cond == TC_TERM_COND_STOP || term_cond == TC_TERM_COND_EXACT) {
+        return out;
+    }
+
+
+    double v_avg = (currentvel + v_f) / 2.0;
+
+    //Check that we have a non-zero "average" velocity between now and the
+    //finish. If not, it means that we have to accelerate from a stop, which
+    //will take longer than the minimum 2 timesteps that each segment takes, so
+    //we're safely far form the end.
+
+    //Get dt assuming that we can magically reach the final velocity at
+    //the end of the move.
+    //
+    //KLUDGE: start with a value below the cutoff
+    double dt = TP_TIME_EPSILON / 2.0;
+    if (v_avg > TP_VEL_EPSILON) {
+        //Get dt from distance and velocity (avoid div by zero)
+        dt = fmax(dt, dx / v_avg);
+    } else {
+        if ( dx > (v_avg * cycleTime) && dx > TP_POS_EPSILON) {
+            tc_debug_print(" below velocity threshold, assuming far from end\n");
+            return out;
+        }
+    }
+
+
+    // Assuming a full timestep:
+    double dv = v_f - currentvel;
+    double a_f = dv / dt;
+
+    //If this is a valid acceleration, then we're done. If not, then we solve
+    //for v_f and dt given the max acceleration allowed.
+    //If we exceed the maximum acceleration, then the dt estimate is too small.
+    double a = a_f;
+    int recalc = sat_inplace(&a, a_max);
+
+    //Need to recalculate vf and above
+    if (recalc) {
+        tc_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
+        double disc = pmSq(currentvel / a) + 2.0 / a * dx;
+        if (disc < 0) {
+            //Should mean that dx is too big, i.e. we're not close enough
+            tc_debug_print(" dx = %f, too large, not at end yet\n",dx);
+            return out;
+        }
+
+        if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
+            tc_debug_print("disc too small, skipping sqrt\n");
+            dt =  -currentvel / a;
+        } else if (a > 0) {
+            tc_debug_print("using positive sqrt\n");
+            dt = -currentvel / a + pmSqrt(disc);
+        } else {
+            tc_debug_print("using negative sqrt\n");
+            dt = -currentvel / a - pmSqrt(disc);
+        }
+
+        tc_debug_print(" revised dt = %f\n", dt);
+        //Update final velocity with actual result
+        out.v_f = currentvel + dt * a;
+    }
+
+    out.dt = dt;
+    return out;
+}

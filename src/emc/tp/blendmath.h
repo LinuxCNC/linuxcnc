@@ -274,4 +274,13 @@ typedef struct {
     double dt;
     int remove;
 } EndCondition;
+
+EndCondition checkEndCondition(double cycleTime,
+                               double progress,
+                               double target,
+                               double currentvel,
+                               double v_f,
+                               double a_max,
+                               tc_term_cond_t term_cond);
+
 #endif
