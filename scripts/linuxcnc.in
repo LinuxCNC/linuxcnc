@@ -494,15 +494,20 @@ function KillTaskWithTimeout() {
 	echo "Could not find pid(s) for task $KILL_TASK"
 	return -1
     fi
+    local NPROCS
     for KILL_PID in $KILL_PIDS ; do
-	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+        if $PS -o comm= $KILL_PID | $GREP -q '<defunct>'; then
+            echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+            continue
+        fi
 	# first a "gentle" kill with signal TERM
 	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-	    if $PS $KILL_PID >>$DEBUG_FILE ; then
+            NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+            if [ $NPROCS -gt 0 ]; then
 		WAIT=$(($WAIT-1))
 		sleep .1
 	    else
@@ -517,7 +522,8 @@ function KillTaskWithTimeout() {
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-		if $PS $KILL_PID >>$DEBUG_FILE ; then
+                NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+                if [ $NPROCS -gt 0 ]; then
 		    WAIT=$(($WAIT-1))
 		    sleep .1
 		else
