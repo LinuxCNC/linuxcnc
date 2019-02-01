@@ -40,7 +40,7 @@ LOG = logger.getLogger(__name__)
 class MDIHistory(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MDIHistory, self).__init__(parent)
-        self.setMinimumSize(QSize(300, 200))    
+        self.setMinimumSize(QSize(200, 150))    
         self.setWindowTitle("PyQt5 editor test example") 
 
         lay = QVBoxLayout()
