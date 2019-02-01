@@ -7,6 +7,7 @@
 export LANG=C
 
 PIDOF=@PIDOF@
+GREP=@GREP@
 
 CheckKernel() {
     case "@KERNEL_VERS@" in
@@ -113,7 +114,7 @@ CheckStatus(){
         # check loaded/unloaded status of modules
         unset NOTLOADED
         for MOD in $MODULES_UNLOAD ; do
-            if @LSMOD@ | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+            if @LSMOD@ | awk '{print $1}' | $GREP -x $MOD >/dev/null ; then
                 echo "$MOD is loaded"
             else
                 echo "$MOD is not loaded"
@@ -212,7 +213,7 @@ CheckUnloaded(){
     STATUS=
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
-	if @LSMOD@ | awk '{print $1}' | grep -x $module >/dev/null ; then
+	if @LSMOD@ | awk '{print $1}' | $GREP -x $module >/dev/null ; then
 	    echo "ERROR: Could not unload '$module'"
 	    STATUS=error
 	fi
