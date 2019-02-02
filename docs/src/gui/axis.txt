@@ -966,6 +966,18 @@ python script to make custom, periodic actions.  The details of what may
 be accomplished in this function are dependent on the axis gui
 implementation and subject to change during the development cycle.
 
+=== user_hal_pins()
+
+The axis gui includes a no-op (placeholder) function named
+'user_hal_pins()'. +
+It is executed just after the .axisrc file is called and 
+just before any gladevcp panels / embedded tabs are initialized. +
+This function may be implemented
+within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
+python script to make custom HAL pins that use the 'axisui.' prefix. +
+Use 'comp' as the HAL component instance reference. +
+HAL comp.ready() is called just after this function returns.
+
 === External Editor
 
 The menu options File > Edit... and File > Edit Tool Table... become
