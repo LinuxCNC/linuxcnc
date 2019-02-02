@@ -75,7 +75,6 @@ class MDIHistory(QWidget, _HalWidgetBase):
         STATUS.connect('all-homed', lambda w: self.setEnabled(STATUS.machine_is_on()))
 
     def reload(self, w=None ):
-        print 'RELOAD'
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
             with open(fp,'r') as inputfile:
@@ -85,9 +84,8 @@ class MDIHistory(QWidget, _HalWidgetBase):
                     self.model.appendRow(item)
             self.list.setModel(self.model)
             self.list.scrollToBottom()
-        except Exception as e:
-            print e
-            LOG.error('File path is not valid: {}]n,()'.format(fp),e)
+        except:
+            LOG.debug('File path is not valid: {}'.format(fp))
 
     def line_up(self):
         print 'up'

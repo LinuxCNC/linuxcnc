@@ -303,6 +303,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                             tName.append(name)
         except (TypeError):
             return None
+        except OSError as e:
+            LOG.debug('Path: {} is not valid.'.format(path))
+            return None
         except Exception as e:
             LOG.debug('Exception loading Macros:', exc_info=e)
             return None
