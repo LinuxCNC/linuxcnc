@@ -136,17 +136,13 @@ class MyWindow(QtWidgets.QMainWindow):
             return
         except:
             if fname:
+                themes = ''
                 log.error('QSS Filepath Error: {}'.format(qssname))
-                # warnings
-                log.warning("{} theme not available".format(fname))
-                current_theme = QtWidgets.qApp.style().objectName()
-                themes=['\nQTvcp Available system themes:']
+                log.error("{} theme not available".format(fname))
+                current_theme = str(QtWidgets.qApp.style().objectName())
                 for i in (QtWidgets.QStyleFactory.keys()):
-                    if i == current_theme:
-                        themes.append('  * green<{}>'.format(i))
-                    else:
-                        themes.append('  * {}'.format(i))
-                log.info('\n'.join(themes))
+                    themes += (', {}'.format(i))
+                log.error('QTvcp Available system themes: green<{}> {}'.format(current_theme, themes))
 
     def load_extension(self,handlerpath):
         methods,self.handler_module,self.handler_instance = self._load_handlers([handlerpath], self.halcomp,self)

@@ -93,6 +93,13 @@ many numbered instances are created.  If 'count' is not specified, the
 If neither 'count' nor 'names' is specified, a single numbered instance
 is created.
 
+[NOTE}
+
+By default, the maximum number of 'names' items is 16.  To alter this
+limit, use the --names option with halcompile. For example, to allow
+20 'names' items:
+  [sudo] halcompile --names=20 --install ...
+
 == Implicit Parameters
 
 Functions are implicitly passed the 'period' parameter which is the time in
@@ -492,8 +499,14 @@ in a single step, placing 'rtexample.ko' in the LinuxCNC realtime
 module directory:
 
 ----
-halcompile --install rtexample.comp
+[sudo] halcompile --install rtexample.comp
 ----
+
+[NOTE]
+
+sudo (for root permission) is needed when using LinuxCNC from
+a deb package install.  When using a Run-In-Place (RIP) build,
+root privileges should not be needed.
 
 Or, it can process and compile in one step, leaving 'example.ko' (or
 'example.so' for the simulator) in the current directory:
@@ -512,7 +525,7 @@ halcompile rtexample.comp
 the '--install' and '--compile' options shown above:
 
 ----
-halcompile --install rtexample2.c
+[sudo] halcompile --install rtexample2.c
 ----
 
 man-format documentation can also be created from the information in
@@ -537,7 +550,7 @@ or copied to a standard location for manual pages.
 ----
 halcompile usrexample.comp
 halcompile --compile usrexample.comp
-halcompile --install usrexample.comp
+[sudo] halcompile --install usrexample.comp
 halcompile --document usrexample.comp
 ----
 

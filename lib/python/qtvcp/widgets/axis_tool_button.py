@@ -63,7 +63,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self.setMenu(SettingMenu)
         self.clicked.connect(self.SelectAxis)
         self.dialog = EntryDialog()
-        #self.setPopupMode(QToolButton.DelayedPopup)
+
 
     def _hal_init(self):
         self.dialog.hal_init(self.HAL_GCOMP_, self.HAL_NAME_ ,self,self.QTVCP_INSTANCE_,self.PATHS_, self.PREFS_) 
@@ -79,7 +79,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
         STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
         STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
-        if self._halpin_option:
+        if self._halpin_option and self._joint != -1:
             self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
 
     def Zero(self):
@@ -119,17 +119,19 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             self._last = now
 
     def _a_from_j(self, jnum):
+        if jnum == -1:
+            jnum = STATUS.get_selected_axis()
         j = "XYZABCUVW"
         try:
-            axis = j[self._joint]
+            axis = j[jnum]
         except IndexError:
-            LOG.error("can't zero origin for specified joint {}".format(self.joint_number))
+            LOG.error("can't zero origin for specified joint {}".format(jnum))
             return None, None
         p,r,d = STATUS.get_position()
-        return axis, r[self._joint]
+        return axis, r[jnum]
 
     def SelectAxis(self):
-       if self._block_signal: return
+       if self._block_signal or self._joint == -1: return
        if self.isChecked() == True:
             ACTION.SET_SELECTED_AXIS(self._joint)
        self.hal_pin.set(self.isChecked())
@@ -139,7 +141,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             self._block_signal = True
             self.setChecked(False)
             self._block_signal = False
-            self.hal_pin.set(False)
+            if self._halpin_option and self._joint != -1:
+                self.hal_pin.set(False)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -150,6 +153,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def set_joint(self, data):
         self._joint = data
+        if data == -1:
+            self.setPopupMode(QToolButton.InstantPopup)
     def get_joint(self):
         return self._joint
     def reset_joint(self):

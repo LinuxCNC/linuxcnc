@@ -2999,6 +2999,9 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 # placeholder function for LivePlotter.update():
 def user_live_update():
     pass
+# placeholder function for building user HAL pins
+def user_hal_pins():
+    pass
 
 vars.touch_off_system.set(all_systems[0])
 
@@ -3826,7 +3829,6 @@ if hal_present == 1 :
         help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
     else:
         widgets.menu_view.delete(_("Show pyVCP pan_el").replace("_", ""))
-    comp.ready()
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
     if gladevcp:
@@ -4091,6 +4093,13 @@ if os.path.exists(rcfile):
         print >>sys.stderr, tb
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
+
+# call an empty function that can be overidden
+# by an .axisrc user_hal_pins() function
+# then set HAL component ready
+if hal_present == 1 :
+    user_hal_pins()
+    comp.ready()
 
 _dynamic_tabs(inifile)
 if hal_present == 1:

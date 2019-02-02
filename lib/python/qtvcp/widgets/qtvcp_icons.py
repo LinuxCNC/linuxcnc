@@ -4,6 +4,8 @@ import os
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
+# Set the log level for this module
+log.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Icon:
     def __init__(self):

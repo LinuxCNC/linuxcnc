@@ -35,8 +35,13 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
         if self.axis.isdigit():
             self.joint = int(data)
         else:
-            conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
-            self.joint = int(conversion[data.upper()])
+            try:
+                conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+                self.joint = int(conversion[data.upper()])
+            except:
+                LOG.warning('axis not recognized: {} using X axis'.format(data))
+                self.joint = 0
+
     def getAxis(self):
         return self.axis
     def resetAxis(self):
