@@ -103,6 +103,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         LOG.debug('load the display: {}'.format(fname))
         self._reload_filename = fname
         self.load(fname)
+        STATUS.emit('graphics-gcode-properties',self.gcode_properties)
 
     def set_metric_units(self, w, state):
         self.metric_units = state
@@ -132,6 +133,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         except:
             print 'error', self._reload_filename
             pass
+
+
 
     ####################################################
     # functions that override qt5_graphics

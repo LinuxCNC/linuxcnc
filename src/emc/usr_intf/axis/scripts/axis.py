@@ -4096,10 +4096,11 @@ if os.path.exists(rcfile):
 
 # call an empty function that can be overidden
 # by an .axisrc user_hal_pins() function
-# then set HAL component ready
+# then set HAL component ready if the .axisui didn't
 if hal_present == 1 :
     user_hal_pins()
-    comp.ready()
+    if not hal.component_is_ready('axisui'):
+        comp.ready()
 
 _dynamic_tabs(inifile)
 if hal_present == 1:

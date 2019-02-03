@@ -61,6 +61,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
         TOOLBAR.configure_action(self.w.actionMachineOn, 'power')
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
+        TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_action(self.w.actionRun, 'run')
         TOOLBAR.configure_action(self.w.actionPause, 'pause')
         TOOLBAR.configure_action(self.w.actionStop, 'abort')
@@ -74,6 +75,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
+        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', self.w.close)
+        TOOLBAR.configure_action(self.w.menuRecent, 'recent_submenu')
+        TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions

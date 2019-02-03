@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 from PyQt5 import QtWidgets
-
+from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -33,10 +33,12 @@ LOG = logger.getLogger(__name__)
 
 class ToolBarActions():
     def __init__(self):
-        pass
+        self.recentNum = 0
+        self.gcode_propeties = None
 
-    def configure_action(self, widget, action):
+    def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
+        function = None
 
         def homed_on_loaded_test():
             return (STATUS.machine_is_on()
@@ -45,23 +47,40 @@ class ToolBarActions():
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+        def update_properties(d):
+            self.gcode_properties = d
 
         if action == 'estop':
             STATUS.connect('state-estop', lambda w: widget.setChecked(True))
             STATUS.connect('state-estop-reset', lambda w: widget.setChecked(False))
-            widget.triggered.connect(self.actOnEstop)
+            function = (self.actOnEstop)
         elif action == 'power':
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: widget.setEnabled(True))
             STATUS.connect('state-estop', lambda w: widget.setChecked(False))
-            widget.triggered.connect(self.actOnPower)
+            function = (self.actOnPower)
         elif action == 'load':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setChecked(True))
-            widget.triggered.connect(self.actOnLoad)
+            function = (self.actOnLoad)
+        elif action == 'reload':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            function = (self.actOnReload)
+        elif action == 'gcode_properties':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            STATUS.connect('graphics-gcode-properties', lambda w, d: update_properties(d))
+            function = (self.actOnProperties)
         elif action == 'run':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -71,7 +90,7 @@ class ToolBarActions():
             STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
             STATUS.connect('interp-paused', lambda w: widget.setEnabled(True))
             STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(True))
-            widget.triggered.connect(self.actOnRun)
+            function = (self.actOnRun)
         elif action == 'pause':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -79,14 +98,14 @@ class ToolBarActions():
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
             STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
             STATUS.connect('program-pause-changed', lambda w, state: widget.setChecked(state))
-            widget.triggered.connect(self.actOnPause)
+            function = (self.actOnPause)
         elif action == 'abort':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
             STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
-            widget.triggered.connect(self.actOnAbort)
+            function = (self.actOnAbort)
         elif action == 'block_delete':
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
@@ -94,45 +113,66 @@ class ToolBarActions():
             STATUS.connect('mode-manual', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(False))
             STATUS.connect('block-delete-changed', lambda w, data: widget.setChecked(data))
-            widget.triggered.connect(self.actOnBlockDelete)
+            function = (self.actOnBlockDelete)
         elif action == 'optional_stop':
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('mode-mdi', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-manual', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(False))
-            widget.triggered.connect(self.actOnOptionalStop)
+            function = (self.actOnOptionalStop)
         elif action == 'zoom_in':
-            widget.triggered.connect(self.actOnZoomIn)
+            function = (self.actOnZoomIn)
         elif action == 'zoom_out':
-            widget.triggered.connect(self.actOnZoomOut)
+            function = (self.actOnZoomOut)
         elif action == 'view_x':
-            widget.triggered.connect(self.actOnViewX)
+            function = (self.actOnViewX)
         elif action == 'view_y':
-            widget.triggered.connect(self.actOnViewY)
+            function = (self.actOnViewY)
         elif action == 'view_y2':
-            widget.triggered.connect(self.actOnViewY2)
+            function = (self.actOnViewY2)
         elif action == 'view_z':
-            widget.triggered.connect(self.actOnViewZ)
+            function = (self.actOnViewZ)
         elif action == 'view_z2':
-            widget.triggered.connect(self.actOnViewZ2)
+            function = (self.actOnViewZ2)
         elif action == 'view_p':
-            widget.triggered.connect(self.actOnViewp)
+            function = (self.actOnViewp)
         elif action == 'view_clear':
-            widget.triggered.connect(self.actOnViewClear)
+            function = (self.actOnViewClear)
+        elif action == 'quit':
+            function = (self.actOnQuit)
+        elif action == 'recent_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(d, widget))
+            function = None
+
         else:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
+        if extFunction:
+            widget.triggered.connect(extFunction)
+        elif function:
+            widget.triggered.connect(function)
+
     def actOnEstop(self, state):
-        print 'estop Action', state
         ACTION.SET_ESTOP_STATE(state)
 
     def actOnPower(self, state):
-        print 'power Action', state
         ACTION.SET_MACHINE_STATE(state)
 
     def actOnLoad(self):
         STATUS.emit('load-file-request')
+
+    def actOnReload(self):
+        STATUS.emit('reload-display')
+
+    def actOnProperties(self):
+        for i in self.gcode_properties:
+            print i, self.gcode_properties[i]
 
     def actOnRun(self):
         ACTION.RUN()
@@ -174,7 +214,6 @@ class ToolBarActions():
         STATUS.emit('view-changed', 'z')
 
     def actOnViewZ2(self):
-        print 'z2'
         STATUS.emit('view-changed', 'z2')
 
     def actOnViewp(self):
@@ -182,3 +221,40 @@ class ToolBarActions():
 
     def actOnViewClear(self):
         STATUS.emit('view-changed', 'clear')
+
+    def actOnQuit(self):
+        STATUS.emit('shutdown')
+
+    def actOnRecent(self):
+        pass
+
+    def updateRecent(self, filename, widget):
+        def loadRecent(w):
+            ACTION.OPEN_PROGRAM(w.text())
+
+        # get a list of the current actions
+        alist =  widget.actions()
+
+        #build the action
+        impAct = QtWidgets.QAction(filename, widget)
+        impAct.triggered.connect(lambda:loadRecent(impAct))
+
+        # adding actions is different if it's the first
+        # if it's not the first add it before the first
+        try:
+            widget.insertAction(alist[0],impAct)
+        except:
+            widget.addAction(impAct)
+
+        # is this a dublicate ?
+        for i in alist:
+            if i.text() == filename:
+                widget.removeAction(i)
+                return
+
+        # are we past 5 files? remove the lowest
+        # else update cuurrent number
+        if self.recentNum  >5:
+            widget.removeAction(alist[5])
+        else:
+            self.recentNum +=1

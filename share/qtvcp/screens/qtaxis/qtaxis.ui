@@ -1267,7 +1267,14 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionRecent"/>
+    <widget class="QMenu" name="menuRecent">
+     <property name="title">
+      <string>Recent</string>
+     </property>
+    </widget>
+    <addaction name="actionOpen"/>
+    <addaction name="menuRecent"/>
+    <addaction name="actionReload"/>
     <addaction name="actionEdit"/>
     <addaction name="actionSave"/>
     <addaction name="actionProperties"/>
@@ -1355,11 +1362,6 @@
   <action name="actionQuick_Reference">
    <property name="text">
     <string>Quick Reference</string>
-   </property>
-  </action>
-  <action name="actionRecent">
-   <property name="text">
-    <string>Recent</string>
    </property>
   </action>
   <action name="actionEdit">
