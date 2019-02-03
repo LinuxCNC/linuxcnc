@@ -1343,7 +1343,7 @@ Keyboard shortcuts::
 Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
 So everybody can select whether to use them or not.
 
-Default is to use keyboard shortcuts.
+Default is not to use keyboard shortcuts.
 
 Please take care if you use a lathe, than the shortcuts will be different.
 See <<gmoccapy:lathe-section,the Lathe section>>
