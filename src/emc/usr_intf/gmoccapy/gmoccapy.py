@@ -75,7 +75,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
+    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
 
     if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append(pydevdir)
@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.4.2"
+_RELEASE = " 2.3.5"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -491,7 +491,6 @@ class gmoccapy(object):
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
         gobject.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
-
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
@@ -2422,6 +2421,7 @@ class gmoccapy(object):
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
+        print("IDLE")
         if self.load_tool:
             return
 
@@ -2467,6 +2467,8 @@ class gmoccapy(object):
         self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
+        print("RUN")
+
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",

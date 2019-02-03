@@ -72,4 +72,5 @@ toggle_readout = True
 reload_tool = True
 tool_in_spindle = 0
 blockheight = 0.0
+use_toolmeasurement = False
 
