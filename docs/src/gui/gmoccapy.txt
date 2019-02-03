@@ -1361,6 +1361,11 @@ See <<gmoccapy:lathe-section,the Lathe section>>
  * F5 = MDI mode
  
  * ESC = Abort
+ 
+In AUTO Mode we will allow the following key shortcuts
+ * R or r = run program
+ * P or p = pause program
+ * S or s = resume program
 
 There are additional keys for message handling, see
 <<gmoccapy:message-behavior,Message behavior and appearance>>
