@@ -1,3 +1,9 @@
+ver 2.3.5
+- jogging a not homed machine did change the button state of MDI and AUTO to be
+  sensitive, what is not correct.
+- it was not possible to jog a unhomed machine over the given limits, what is 
+  not a correct behavior.
+
 ver 2.3.4.2
 - introduced new keyboard shortcuts (not case sensitive)
   R = run program
