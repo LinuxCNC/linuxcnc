@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>688</width>
+    <height>534</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="ActionButton" name="actionbutton_2">
+        <property name="text">
+         <string>SET Origin</string>
+        </property>
+        <property name="mdi_command_action" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="ini_mdi_command_action" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="joint_number" stdset="0">
+         <number>0</number>
+        </property>
+        <property name="incr_imperial_number" stdset="0">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="incr_mm_number" stdset="0">
+         <double>0.025000000000000</double>
+        </property>
+        <property name="incr_angular_number" stdset="0">
+         <double>-1.000000000000000</double>
+        </property>
+        <property name="toggle_float_option" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="float_num" stdset="0">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="float_alt_num" stdset="0">
+         <double>50.000000000000000</double>
+        </property>
+        <property name="view_type_string" stdset="0">
+         <string>P</string>
+        </property>
+        <property name="command_text_string" stdset="0">
+         <string>(MSG:,MDI command missing)</string>
+        </property>
+        <property name="ini_mdi_number" stdset="0">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ActionButton" name="actionbutton">
+        <property name="text">
+         <string> GOTO Origin</string>
+        </property>
+        <property name="mdi_command_action" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="ini_mdi_command_action" stdset="0">
+         <bool>true</bool>
+        </property>
+        <property name="joint_number" stdset="0">
+         <number>0</number>
+        </property>
+        <property name="incr_imperial_number" stdset="0">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="incr_mm_number" stdset="0">
+         <double>0.025000000000000</double>
+        </property>
+        <property name="incr_angular_number" stdset="0">
+         <double>-1.000000000000000</double>
+        </property>
+        <property name="toggle_float_option" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="float_num" stdset="0">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="float_alt_num" stdset="0">
+         <double>50.000000000000000</double>
+        </property>
+        <property name="view_type_string" stdset="0">
+         <string>P</string>
+        </property>
+        <property name="command_text_string" stdset="0">
+         <string>(MSG,MDI command missing)</string>
+        </property>
+        <property name="ini_mdi_number" stdset="0">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="DROLabel" name="dro_label">
+        <property name="Qreference_type" stdset="0">
+         <number>1</number>
+        </property>
+        <property name="metric_template" stdset="0">
+         <string>X %10.3f</string>
+        </property>
+        <property name="imperial_template" stdset="0">
+         <string>X %9.4f</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="DROLabel" name="dro_label_2">
+        <property name="Qjoint_number" stdset="0">
+         <number>1</number>
+        </property>
+        <property name="Qreference_type" stdset="0">
+         <number>1</number>
+        </property>
+        <property name="metric_template" stdset="0">
+         <string>Y %10.3f</string>
+        </property>
+        <property name="imperial_template" stdset="0">
+         <string>X %9.4f</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="DROLabel" name="dro_label_3">
+        <property name="Qjoint_number" stdset="0">
+         <number>2</number>
+        </property>
+        <property name="Qreference_type" stdset="0">
+         <number>1</number>
+        </property>
+        <property name="metric_template" stdset="0">
+         <string>Z %10.3f</string>
+        </property>
+        <property name="imperial_template" stdset="0">
+         <string>X %9.4f</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="CamView" name="camview">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>688</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

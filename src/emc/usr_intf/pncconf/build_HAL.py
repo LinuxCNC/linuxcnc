@@ -522,7 +522,7 @@ class HAL:
                         print >>file, _("#  ---mpg signals---")
                         print >>file
                         if self.d.multimpg: # means MPG per axis
-                            print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
+                            print >>file, "setp    axis.%s.jog-vel-mode 0" % axletter
                             print >>file, "net %s-jog-enable         =>  axis.%s.jog-enable"% (axletter, axletter)
                             print >>file, "net %s-jog-count          =>  axis.%s.jog-counts" % (axletter, axletter)
                             print >>file, "net selected-jog-incr    =>  axis.%s.jog-scale" % axletter

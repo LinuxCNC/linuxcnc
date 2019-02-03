@@ -221,7 +221,7 @@ class ToolEdit(gtk.VBox):
                 liststore.set_value(liststore.get_iter(pathlist[0]),0,1)
                 treeselection.select_path(pathlist[0])
         except:
-            print "tooledit_widget error: cannot select tool number",toolnumber
+            print _("tooledit_widget error: cannot select tool number"),toolnumber
 
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',"comment"]):
         self.model.append(data)
@@ -240,7 +240,7 @@ class ToolEdit(gtk.VBox):
         self.model.clear()
         #print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):
-            print "Toolfile does not exist"
+            print _("Toolfile does not exist")
             return
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
@@ -274,12 +274,12 @@ class ToolEdit(gtk.VBox):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                print "Tooledit widget int error"
+                                print _("Tooledit widget int error")
                         else:
                             try:
                                 array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
-                                print "Tooledit_widget float error"
+                                print _("Tooledit_widget float error")
                         break
             if toolinfo_flag:
                 self.toolinfo = array
@@ -316,7 +316,7 @@ class ToolEdit(gtk.VBox):
         try:
             linuxcnc.command().load_tool_table()
         except:
-            print "Reloading tooltable into linuxcnc failed"
+            print _("Reloading tooltable into linuxcnc failed")
 
         # This is for changing the display after tool editor was loaded using the style button
         # note that it toggles the display
@@ -476,7 +476,7 @@ class ToolEdit(gtk.VBox):
 
         # you could overload this to do something else.
     def toolfile_stale(self):
-        print "Tool file was modified since it was last read"
+        print _("Tool file was modified since it was last read")
         self.reload(None)
         self.set_selected_tool(self.toolinfo_num)
 

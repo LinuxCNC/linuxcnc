@@ -78,11 +78,13 @@ c.wait_complete()
 # wait for homing to complete
 start_time = time.time()
 s.poll()
-while (s.homed != (1, 1, 1, 0, 0, 0, 0, 0, 0)) and (time.time() - start_time < 5):
+all_homed = s.homed[0]+s.homed[1]+s.homed[2]
+while (all_homed is not 3) and (time.time() - start_time < 5):
     time.sleep(0.100)
     s.poll()
+    all_homed = s.homed[0]+s.homed[1]+s.homed[2]
 
-if s.homed != (1, 1, 1, 0, 0, 0, 0, 0, 0):
+if all_homed is not 3:
     print "failed to home"
     print "s.homed:", s.homed
     sys.exit(1)
@@ -120,7 +122,7 @@ assert(s.joint[0]['max_hard_limit'] == False)
 assert(s.joint[0]['inpos'] == False)
 assert(s.joint[0]['enabled'] == True)
 
-assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(not (1 in s.limit))
 assert(s.inpos == False)
 assert(s.enabled == True)
 
@@ -168,7 +170,7 @@ assert(s.joint[0]['max_hard_limit'] == False)
 assert(s.joint[0]['inpos'] == True)
 assert(s.joint[0]['enabled'] == False)
 
-assert(s.limit == (1, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(s.limit[0] == 1)
 assert(s.inpos == True)
 assert(s.enabled == False)
 
@@ -195,7 +197,7 @@ assert(s.joint[0]['max_hard_limit'] == False)
 assert(s.joint[0]['inpos'] == True)
 assert(s.joint[0]['enabled'] == True)
 
-assert(s.limit == (1, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(s.limit[0] == 1)
 assert(s.inpos == True)
 assert(s.enabled == True)
 
@@ -236,7 +238,7 @@ assert(s.joint[0]['max_hard_limit'] == False)
 assert(s.joint[0]['inpos'] == False)
 assert(s.joint[0]['enabled'] == True)
 
-assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(s.limit[0] == 0)
 assert(s.inpos == False)
 assert(s.enabled == True)
 
@@ -267,7 +269,7 @@ assert(s.joint[0]['max_hard_limit'] == False)
 #assert(s.joint[0]['inpos'] == True)
 assert(s.joint[0]['enabled'] == True)
 
-assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(s.limit[0] == 0)
 # FIXME: another bug
 #assert(s.inpos == True)
 assert(s.enabled == True)

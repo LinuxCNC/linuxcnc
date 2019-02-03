@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.4"
+_RELEASE = " 2.3.4.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -2944,11 +2944,42 @@ class gmoccapy(object):
                     self.last_key_event = keyname, signal
                     return True
 
+        # in AUTO Mode we will allow the following key shortcuts
+        # R = run program
+        # P = pause program
+        # S = resume program
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            # if we are in edit mode do not start a program!
+            if self.widgets.ntb_button.get_current_page() == _BB_EDIT:
+                return
+
+            # all makes only sense, if a program is loaded, 
+            # if so, the button use current is sensitive
+            if not self.widgets.btn_use_current.get_sensitive():
+                return
+
+            if (keyname == "R" or keyname == "r") and self.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.command.auto(linuxcnc.AUTO_RUN,0)
+
+            if (keyname == "p" or keyname == "P") and self.widgets.tbtn_pause.get_sensitive():
+                self.command.auto(linuxcnc.AUTO_PAUSE)
+
+            if (keyname == "S" or keyname == "s"):
+                self.command.auto(linuxcnc.AUTO_RESUME)
+                if self.widgets.tbtn_pause.get_active():
+                    self.widgets.tbtn_pause.set_active(False)
+
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         # we also check if we are in settings or user page
         if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+            return
+
+        # This is just to avoid a terminal message, that this keys are not implemented:
+        if (keyname == "R" or keyname == "r" or
+            keyname == "p" or keyname == "P" or
+            keyname == "S" or keyname == "s"):
             return
 
         # offset page is active, so keys must go through
@@ -4219,8 +4250,6 @@ class gmoccapy(object):
         self.widgets.window1.resize(self.width, value)
 
     def on_adj_dro_size_value_changed(self, widget, data=None):
-        if not self.initialized:
-            return
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value

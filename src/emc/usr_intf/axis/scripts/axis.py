@@ -2518,7 +2518,7 @@ class TclCommands(nf.TclCommands):
     def set_grid_size_custom(*event):
         if vars.metric.get(): unit_str = " " + _("mm")
         else: unit_str = " " + _("in")
-        v = prompt_float("Custom Grid", "Enter grid size",
+        v = prompt_float(_("Custom Grid"), _("Enter grid size"),
                 "", unit_str) or 0
         if v <= 0: return
         if vars.metric.get(): v /= 25.4
@@ -2592,10 +2592,10 @@ class TclCommands(nf.TclCommands):
         jora = vars.ja_rbutton.get()
         if jora in trajcoordinates:
             if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print "home_joint <%s> Use joint mode for homing"%jora
+                print _("home_joint <%s> Use joint mode for homing")%jora
                 return
             if jora in duplicate_coord_letters:
-                print "\nIndividual axis homing disallowed for duplicated letter:<%s> "%jora
+                print _("\nIndividual axis homing disallowed for duplicated letter:<%s> ")%jora
                 return
             jnum = trajcoordinates.index(jora)
         else:
@@ -2612,7 +2612,7 @@ class TclCommands(nf.TclCommands):
         jora = vars.ja_rbutton.get()
         if jora in trajcoordinates:
             if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print "unhome_joint <%s> Use joint mode for unhoming"%jora
+                print _("unhome_joint <%s> Use joint mode for unhoming")%jora
                 return
             jnum = trajcoordinates.index(jora)
         else:
@@ -2971,6 +2971,9 @@ vars.optional_stop.set(ap.getpref("optional_stop", True))
 # placeholder function for LivePlotter.update():
 def user_live_update():
     pass
+# placeholder function for building user HAL pins
+def user_hal_pins():
+    pass
 
 vars.touch_off_system.set(all_systems[0])
 
@@ -3306,8 +3309,8 @@ try:
     vars.maxvel_speed.set(float(max_velocity)*60)
     vars.max_maxvel.set(float(max_velocity))
 except Exception:
-    print ("\nMissing required specifier:\n%s"
-           "\nSee the \'INI Configuration\' documents\n"%msg)
+    print (_("\nMissing required specifier:\n%s"
+           "\nSee the \'INI Configuration\' documents\n")%msg)
     raise SystemExit
 
 try:
@@ -3319,8 +3322,8 @@ try:
             default_jog_linear_speed = max_linear_speed
         vars.jog_speed.set(float(default_jog_linear_speed)*60)
 except Exception:
-    print ("\nMissing required specifier (has linear joint or axis):\n%s"
-           "\nSee the \'INI Configuration\' documents\n"%msg)
+    print (_("\nMissing required specifier (has linear joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n")%msg)
     raise SystemExit
 
 # Check for these slider items (message if missing)
@@ -3332,8 +3335,8 @@ try:
         if default_jog_angular_speed is None: default_jog_angular_speed = max_angular_speed
         vars.jog_aspeed.set(float(default_jog_angular_speed)*60)
 except Exception:
-    print ("\nWarning: Missing required specifier (has angular joint or axis):\n%s"
-           "\nSee the \'INI Configuration\' documents\n"%msg)
+    print (_("\nWarning: Missing required specifier (has angular joint or axis):\n%s"
+           "\nSee the \'INI Configuration\' documents\n")%msg)
     max_angular_speed = 1
     default_jog_angular_speed = 1
     vars.max_aspeed.set(float(max_angular_speed))
@@ -3404,7 +3407,13 @@ else:
     root_window.tk.eval("${pane_top}.jogspeed.l1 configure -text in/min")
     root_window.tk.eval("${pane_top}.maxvel.l1 configure -text in/min")
 root_window.tk.eval(u"${pane_top}.ajogspeed.l1 configure -text deg/min")
-homing_order_defined = inifile.find("JOINT_0", "HOME_SEQUENCE") is not None
+
+homing_order_defined = 1
+# set homing_order_defined only if ALL joints specify a HOME_SEQUENCE
+for j in range(jointcount):
+    if inifile.find("JOINT_"+str(j), "HOME_SEQUENCE") is None:
+         homing_order_defined = 0
+         break
 
 update_ms = int(1000 * float(inifile.find("DISPLAY","CYCLE_TIME") or 0.020))
 
@@ -3479,11 +3488,11 @@ if duplicate_coord_letters != "":
     # sophisticated kinematics module that accepts duplicated coordinate
     # letters with some special requirements -- hence the warning:
 
-    print ("Warning: Forward kinematics must handle duplicate coordinate letters:%s"%
+    print (_("Warning: Forward kinematics must handle duplicate coordinate letters:%s")%
           duplicate_coord_letters)
 if len(trajcoordinates) > jointcount:
-    print ("Note: number of [TRAJ]COORDINATES=%s exceeds [KINS]JOINTS=%d"
-          %(trajcoordinates,jointcount))
+    print (_("Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d")
+          %({'t':trajcoordinates,'l':jointcount}))
 
 def lathe_historical_config():
     # detect historical lathe config with dummy joint 1
@@ -3514,8 +3523,8 @@ for jnum in range(num_joints):
         ja_id = aletter_for_jnum(jnum)
         if ja_id.lower() in duplicate_coord_letters:
             if ja_id not in gave_individual_homing_message:
-                print "\nNote:\nIndividual axis homing is not currently supported for"
-                print "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"%ja_id
+                print _("\nNote:\nIndividual axis homing is not currently supported for")
+                print _("KINEMATICS_IDENTITY with duplicate axis letter <%s>\n")%ja_id
                 gave_individual_homing_message = gave_individual_homing_message + ja_id
             continue # no menu item for this individual axis letter
         widgets.homemenu.add_command(
@@ -3528,6 +3537,8 @@ for jnum in range(num_joints):
         widgets.unhomemenu.add_command(
                command=lambda jnum=jnum: commands.unhome_joint_number(jnum))
         ja_name = _("Joint")
+        if not homing_order_defined:
+            widgets.homebutton.configure(text=_("Home Joint"))
         if joint_sequence[jnum] is '':
             ja_id = "%d"%jnum
         elif (int(joint_sequence[jnum]) < 0):
@@ -3788,7 +3799,6 @@ if hal_present == 1 :
         help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
     else:
         widgets.menu_view.delete(_("Show pyVCP pan_el").replace("_", ""))
-    comp.ready()
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
     if gladevcp:
@@ -4053,6 +4063,14 @@ if os.path.exists(rcfile):
         print >>sys.stderr, tb
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
+
+# call an empty function that can be overidden
+# by an .axisrc user_hal_pins() function
+# then set HAL component ready if the .axisui didn't
+if hal_present == 1 :
+    user_hal_pins()
+    if not hal.component_is_ready('axisui'):
+        comp.ready()
 
 _dynamic_tabs(inifile)
 if hal_present == 1:

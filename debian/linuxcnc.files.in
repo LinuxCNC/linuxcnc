@@ -11,6 +11,9 @@ usr/lib/python*/*/*.so
 usr/lib/python*/*/*/*.py
 usr/lib/python*/*/pyui/*.ini
 usr/lib/python*/*/gladevcp/*.glade
+usr/lib/python*/*/qtvcp/*
+usr/lib/python*/*/qtvcp/*/*
+usr/lib/python*/*/qtvcp/*/*/*
 usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/glade3
@@ -36,3 +39,5 @@ usr/share/man/man9/*
 usr/share/gtksourceview-2.0/
 usr/share/gscreen
 usr/share/gmoccapy
+usr/share/qtvcp
+

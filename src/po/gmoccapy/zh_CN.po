@@ -5,15 +5,15 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gmoccapy-zh_CN\n"
+"Project-Id-Version: Gmoccapy 2.2.3.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-13 01:11+0800\n"
-"PO-Revision-Date: 2018-11-26 23:16+0800\n"
-"Last-Translator: David Shaw <373103793@qq.com>\n"
-"Language-Team: David Shaw <373103793@qq.com>\n"
+"POT-Creation-Date: 2018-12-09 14:15+0800\n"
+"PO-Revision-Date: 2018-12-14 13:16+0800\n"
+"Last-Translator: David <davidshore@yeah.net>\n"
+"Language-Team: David <davidshore@yeah.net>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
@@ -118,11 +118,11 @@ msgstr "英寸/分钟"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:886
 msgid "**** To many increments given in INI File for this screen ****"
-msgstr "**** 在INI文件中为此屏幕提供的许多增量 ****"
+msgstr "**** 在此界面的INI文件中给出的许多增量 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:887
 msgid "**** Only the first 10 will be reachable through this screen ****"
-msgstr "**** 只有前10个可以通过此屏幕到达 ****"
+msgstr "**** 只有前10个才能通过此界面访问 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:896
 msgid "Continuous"
@@ -130,7 +130,7 @@ msgstr "连续"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:925
 msgid "**** gmoccapy screen 2 found ****"
-msgstr "**** 发现gmoccapy屏幕2****"
+msgstr "**** 发现gmoccapy界面2****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:930
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1292
@@ -141,7 +141,7 @@ msgstr "**** GMOCCAPY 错误****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:931
 msgid "**** screen 2 GLADE ERROR: ****"
-msgstr "**** 屏幕2 GLADE 错误 ****"
+msgstr "**** 界面2 GLADE 错误 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:936
 msgid "**** No gmoccapy2.glade file present ****"
@@ -153,7 +153,7 @@ msgstr "**** 嵌入式标签配置无效 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:952
 msgid "**** No tabs will be added! ****"
-msgstr "**** 没有标签将被添加！****"
+msgstr "**** 不会添加任何标签!****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:965
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
@@ -174,11 +174,11 @@ msgstr "跟随系统主题"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1109
 msgid "**** audio available! ****"
-msgstr "**** 音频可用！****"
+msgstr "**** 音频可用!****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1122
 msgid "**** no audio available! ****"
-msgstr "**** 没有音频可用！ ****"
+msgstr "**** 没有音频可用! ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1123
 msgid "**** PYGST libray not installed? ****"
@@ -248,11 +248,11 @@ msgstr "重要警告"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1634
 msgid "ERROR : External ESTOP is set, could not change state!"
-msgstr "错误：外部ESTOP设置，无法更改状态！"
+msgstr "错误:外部ESTOP设置，无法更改状态!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1647
 msgid "ERROR : Could not switch the machine on, is limit switch activated?"
-msgstr "错误：无法打开机器，限位开关是否被激活?"
+msgstr "错误:无法打开机器，限位开关是否被激活?"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1725
 msgid "No file loaded"
@@ -260,11 +260,11 @@ msgstr "没有文件加载"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1892
 msgid "It is not possible to change to MDI Mode at the moment"
-msgstr "此时无法更改为MDI模式"
+msgstr "目前无法更改为MDI模式"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1925
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr "此时无法更改为自动模式"
+msgstr "目前无法更改为自动模式"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2043
 msgid "Enter value:"
@@ -286,7 +286,7 @@ msgstr "转换错误！"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2174
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr "模式改变只有在解释器空闲的情况下才允许！"
+msgstr "模式改变只有在解释器空闲的情况下才允许!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2362
 msgid "**** replaced {0} to {1} ****"
@@ -302,7 +302,7 @@ msgstr "**** 发现超过9个宏，只有前9个将被使用 ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2410
 msgid "**** {0} ****"
-msgstr "**** {0}  ****"
+msgstr "**** {0} ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2420
 msgid "**** No widget named: {0} to sensitize ****"
@@ -339,7 +339,7 @@ msgstr "只是为了警告你"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3158
 msgid "ERROR : No limit switch is active, ignore limits will not be set."
-msgstr "错误：无限位开关被激活，忽略限制将不被设置。"
+msgstr "错误:无限位开关被激活，忽略限制将不被设置。"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3197
 msgid "INFO:"
@@ -379,7 +379,7 @@ msgstr "偏移量{0} 无法设置，因为未知轴"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3550
 msgid "Wrong offset setting!"
-msgstr "错误的偏移设置！"
+msgstr "错误的偏移设置!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3555
 msgid "Enter value for diameter"
@@ -387,7 +387,7 @@ msgstr "输入直径的值"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3556
 msgid "Set diameter to:"
-msgstr "将直径设置为："
+msgstr "将直径设置为:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3559
 msgid "Enter value for radius"
@@ -395,7 +395,7 @@ msgstr "输入半径值"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3560
 msgid "Set radius to:"
-msgstr "将半径设置为："
+msgstr "将半径设置为:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3563
 msgid "Enter value for axis {0}"
@@ -415,7 +415,7 @@ msgstr "btn_set_value中的转换错误!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3570
 msgid "Please enter only numerical values. Values have not been applied"
-msgstr "请仅输入数值。 值未被应用"
+msgstr "请仅输入数字值，值未被应用"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3584
 msgid ""
@@ -428,7 +428,7 @@ msgstr "您没有选择要更改的坐标系，所以没有任何改变"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4038
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4053
 msgid "Important Warning!"
-msgstr "重要警告！"
+msgstr "重要警告!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3635
 msgid "Enter the block height"
@@ -474,7 +474,7 @@ msgstr "手动换刀"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3926
 msgid "Tool Change has been aborted!\n"
-msgstr "刀具更改已中止!\n"
+msgstr "换刀已中止!\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3927
 msgid "The old tool will remain set!"
@@ -494,7 +494,7 @@ msgstr "警告：刀具无法删除！"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3956
 msgid "No or more than one tool selected in tool table"
-msgstr "刀具表中没有或多于一个刀具，"
+msgstr "在刀具表中选择了一个或多个刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3957
 msgid "Please select only one tool in the table"
@@ -508,7 +508,7 @@ msgstr "警告:无法对刀!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3962
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "无法对刀，刀具还没有安装刀主轴上，"
+msgstr "无法对刀，刀具还没有安装到主轴上，"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3963
 msgid "your selection has been reseted to the tool in spindle"
@@ -521,11 +521,11 @@ msgstr "刀具半径补偿打开时，不能对刀!\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3971
 msgid "Please emit an G40 before tool touch off"
-msgstr "在刀具对刀前，请发出G40"
+msgstr "在对刀前，请发出G40"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3980
 msgid "Real big error!"
-msgstr "严重错误！"
+msgstr "严重错误!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3981
 msgid ""
@@ -546,7 +546,7 @@ msgstr "轴{0}对刀偏移量输入错误导致转换错误"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4009
 msgid "Enter the tool number as integer "
-msgstr "输入刀具号为整数"
+msgstr "输入刀号为整数"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4010
 msgid "Select the tool to change"
@@ -554,11 +554,11 @@ msgstr "选择要更改的刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4012
 msgid "Conversion error because of wrong entry for tool number\n"
-msgstr "由于刀具编号输入错误导致转换错误\n"
+msgstr "由于刀号输入错误导致转换错误\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4013
 msgid "enter only integer numbers"
-msgstr "只输入整数"
+msgstr "只能输入整数"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4019
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4037
@@ -572,7 +572,7 @@ msgstr "您没有选择或选择了多个刀具，刀具选择必须是唯一的
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4052
 msgid "Could not understand the entered tool number. Will not change anything"
-msgstr "无法理解输入的刀具号。 不会改变任何东西"
+msgstr "无法理解输入的刀号。 不会改变任何东西"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4289
 msgid ""
@@ -613,7 +613,7 @@ msgstr "重新启动条目"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:194
 msgid "Up"
-msgstr "上"
+msgstr "向上"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:196
 msgid "Enter"
@@ -621,7 +621,7 @@ msgstr "输入"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:198
 msgid "Down"
-msgstr "下"
+msgstr "向下"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:383
 msgid "**** GMOCCAPY GETINIINFO ****\n"
@@ -769,7 +769,7 @@ msgstr "主轴上的刀具信息"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
 msgid "Tool no."
-msgstr "刀具号"
+msgstr "刀号"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "Diameter"
@@ -797,11 +797,11 @@ msgstr "G和M代码信息以及速度和进给"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
 msgid "active_mcodes_label"
-msgstr "active_mcodes_label"
+msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
 msgid "active_gcodes_label"
-msgstr "active_gcodes_label"
+msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "<b>G-Code</b>"
@@ -848,16 +848,16 @@ msgid ""
 "Search\n"
 " back"
 msgstr ""
-"搜索\n"
-"  返回"
+"向后\n"
+"搜索"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
-"搜索\n"
-"  fwd"
+"向前\n"
+"搜索"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid "Redo"
@@ -869,7 +869,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "替换\n"
-"   文本："
+"内容:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:61
 msgid ""
@@ -877,7 +877,7 @@ msgid ""
 "   All"
 msgstr ""
 "替换\n"
-"   所有"
+"所有"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:63
 msgid ""
@@ -885,7 +885,7 @@ msgid ""
 " Case"
 msgstr ""
 "忽略\n"
-" 事件"
+"例子"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid "Replace"
@@ -897,7 +897,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "搜索\n"
-"  文本:"
+"内容:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "Main"
@@ -917,19 +917,19 @@ msgstr "以窗口启动"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "X Pos."
-msgstr "X 位置"
+msgstr "X位置"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Y Pos."
-msgstr "Y 位置"
+msgstr "Y位置"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "Width"
-msgstr "宽度"
+msgstr "宽 度"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "Height"
-msgstr "高度"
+msgstr "高 度"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
@@ -1005,15 +1005,15 @@ msgstr "显示DRO按钮"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "Homed color"
-msgstr "主色"
+msgstr "回零颜色"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
 msgid "Unhomed color"
-msgstr "未命名的颜色"
+msgstr "消零颜色"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "Size"
-msgstr "大小\t"
+msgstr "大小"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Digits"
@@ -1027,7 +1027,7 @@ msgstr "单击DRO，切换DRO模式。"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "<b>DRO</b>"
-msgstr "<b>DRO</b>"
+msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "Grid size"
@@ -1099,19 +1099,19 @@ msgstr "外观"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale rapid override"
-msgstr "调整空程速率"
+msgstr "空程速率范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "Scale jog velocity"
-msgstr "调整点动速度"
+msgstr "点动速度范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Scale feed override"
-msgstr "调整进给速率"
+msgstr "进给速率范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "Scale spindle override"
-msgstr "调整主轴速率"
+msgstr "主轴速率范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "<b>Hardware MPG Scale</b>"
@@ -1127,15 +1127,15 @@ msgstr "<b>键盘快捷键</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "Use unlock code"
-msgstr "使用解锁码"
+msgstr "启用解锁码"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Do not use unlock code"
-msgstr "不使用解锁码"
+msgstr "禁用解锁码"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Use hal pin to unlock"
-msgstr "使用硬件pin解锁"
+msgstr "使用HAL针脚解锁"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "<b>Unlock settings</b>"
@@ -1183,7 +1183,7 @@ msgstr "探测高度"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 msgid "0.000"
-msgstr "0.000"
+msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Z Pos."
@@ -1251,7 +1251,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "<b>Reload Tool</b>"
-msgstr "重新加载刀具"
+msgstr "<b>重新加载刀具</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
@@ -1389,7 +1389,7 @@ msgstr "进入自动模式运行程序"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:200
 msgid "Enter the settings page, the default code is \"123\""
-msgstr "进入设置页面，默认代码为“123”"
+msgstr "进入设置页面，默认密码为“123”"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "show user tabs"
@@ -1463,7 +1463,7 @@ msgstr "单步运行加载的程序"
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checed!"
-msgstr "从某一行开始运行程序。注意：这是危险的，因为前面的行不会检查！"
+msgstr "从某一行运行程序，注意:这是危险的，因为之前的行不会被检查!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid ""
@@ -1476,7 +1476,7 @@ msgstr "程序跳段， 当程序段首有”/“并且按下该按钮，则自�
 msgid ""
 "Make optional stops or not. if an M1 is programed and the button is pressed "
 "(is active) the programm will pause if it found a M1"
-msgstr "选择性暂停，如果M1被编程并按下该按钮（有效），则如果找到M1，程序将暂停"
+msgstr "选择性暂停，如果M1被编程并按下该按钮(有效)，则如果找到M1，程序将暂停"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Edit the loaded program"
@@ -1500,7 +1500,7 @@ msgstr "Z 轴回零"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "Unhome all axis"
-msgstr "全部轴离零"
+msgstr "全部轴消零"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "go back to main button list"
@@ -1608,15 +1608,15 @@ msgstr "启动 hal 仪表"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Calibration"
-msgstr "校准"
+msgstr "调校"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "launch calibration"
-msgstr "启动校准"
+msgstr "启动调校"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
 msgid "Halshow"
-msgstr "Hal配置"
+msgstr "Hal 配置"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 msgid "opens the show hal tool"
@@ -1643,7 +1643,6 @@ msgid "Go back to main button list"
 msgstr "返回主界面"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:262
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:1
 msgid "Delete"
 msgstr "删除"
 
@@ -1652,7 +1651,6 @@ msgid "delete selected tool or tools"
 msgstr "删除选定的刀具或刀具组"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:264
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:2
 msgid "Add"
 msgstr "添加"
 
@@ -1661,7 +1659,6 @@ msgid "add a new tool to tool table"
 msgstr "在刀具表中添加一个新刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:266
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Reload"
 msgstr "刷新"
 
@@ -1670,7 +1667,6 @@ msgid "reload tool table from file"
 msgstr "从文件重新加载刀具表"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:268
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:4
 msgid "Apply"
 msgstr "应用"
 
@@ -1681,15 +1677,15 @@ msgstr "应用您所做的更改，G43将仅在活动的g代码时执行"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:270
 msgid "Select a tool by number"
-msgstr "按号码选择一个刀具"
+msgstr "按编号选择刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:271
 msgid "change tool with the command M61 Q?, no machine move will be done"
-msgstr "使用M61 Q？命令更换刀具，不会移动机床"
+msgstr "使用M61 Q?指令更换刀具，不会移动机床"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:272
 msgid "change tool to the selected one"
-msgstr "将刀具更改为所选的刀具"
+msgstr "将刀具更改为选定的刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:273
 msgid ""
@@ -1712,7 +1708,6 @@ msgstr ""
 "  刀具 z"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:278
-#: ../lib/python/gladevcp/iconview.py:112
 msgid "Move to your home directory"
 msgstr "移动到您的主目录"
 
@@ -1725,22 +1720,18 @@ msgid "Select the previos file"
 msgstr "选择上一个文件"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:281
-#: ../lib/python/gladevcp/iconview.py:136
 msgid "Select the next file"
 msgstr "选择下一个文件"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:282
-#: ../lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
 msgstr "跳转到用户定义的目录"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:283
-#: ../lib/python/gladevcp/iconview.py:168
 msgid "select the highlighted file and return the path"
 msgstr "选择突出显示的文件并返回路径"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:284
-#: ../lib/python/gladevcp/iconview.py:176
 msgid "Close without returning a file path"
 msgstr "关闭而不返回文件路径"
 
@@ -1767,143 +1758,3 @@ msgstr "关节2回零"
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:290
 msgid "home joints"
 msgstr "关节回零"
-
-#: ../lib/python/gladevcp/iconview.py:120
-msgid "Move to parent directory"
-msgstr "移动到父目录"
-
-#: ../lib/python/gladevcp/iconview.py:128
-msgid "Select the previous file"
-msgstr "选择上一个文件"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:1
-msgid "Tool"
-msgstr "刀具"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:2
-msgid "1"
-msgstr "1"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:3
-msgid "2"
-msgstr "2"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:4
-msgid "3"
-msgstr "3"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:5
-msgid "4"
-msgstr "4"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:6
-msgid "5"
-msgstr "5"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:7
-msgid "6"
-msgstr "6"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:8
-msgid "7"
-msgstr "7"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:9
-msgid "8"
-msgstr "8"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:10
-msgid "9"
-msgstr "9"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:11
-msgid "black"
-msgstr "黑色"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:12
-msgid "G5x"
-msgstr "G5x"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:13
-msgid "Rot"
-msgstr "红色"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:14
-msgid "Rotation of Z"
-msgstr "旋转 Z"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:15
-msgid "G92"
-msgstr "G92"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:16
-msgid "0"
-msgstr "0"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:17
-msgid "G54"
-msgstr "G54"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:18
-msgid "G55"
-msgstr "G55"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:19
-msgid "G56"
-msgstr "G56"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:20
-msgid "G57"
-msgstr "G57"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:21
-msgid "G58"
-msgstr "G58"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:22
-msgid "G59"
-msgstr "G59"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:23
-msgid "G59.1"
-msgstr "G59.1"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:24
-msgid "G59.2"
-msgstr "G59.2"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:25
-msgid "G59.3"
-msgstr "G59.3"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:26
-msgid ""
-"Zero\n"
-"G92"
-msgstr ""
-"置零\n"
-"G92"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:28
-msgid ""
-"    Zero\n"
-"Rotational"
-msgstr ""
-"置零\n"
-"旋转"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:30
-msgid "Edit"
-msgstr "编辑"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:5
-msgid "All Offsets"
-msgstr "所有偏移量"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:6
-msgid "Lathe Wear Offsets"
-msgstr "车床磨损偏移"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:7
-msgid "Lathe Tool Offsets"
-msgstr "车床刀具补偿"

@@ -1343,7 +1343,7 @@ Keyboard shortcuts::
 Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
 So everybody can select whether to use them or not.
 
-Default is to use keyboard shortcuts.
+Default is not to use keyboard shortcuts.
 
 Please take care if you use a lathe, than the shortcuts will be different.
 See <<gmoccapy:lathe-section,the Lathe section>>
@@ -1361,6 +1361,11 @@ See <<gmoccapy:lathe-section,the Lathe section>>
  * F5 = MDI mode
  
  * ESC = Abort
+ 
+In AUTO Mode we will allow the following key shortcuts
+ * R or r = run program
+ * P or p = pause program
+ * S or s = resume program
 
 There are additional keys for message handling, see
 <<gmoccapy:message-behavior,Message behavior and appearance>>

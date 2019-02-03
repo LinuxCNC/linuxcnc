@@ -28,7 +28,7 @@ tester.ini
    more sophisticated customizations.
    If you run this without adding a GLADE
    file to the folder, it will load a default
-   gscreen file.
+   file with a message.
    This is for imperial based machines
 
 tester_metric.ini

@@ -1,7 +1,13 @@
-PYTARGETS += ../bin/gremlin ../lib/python/gremlin.py
+PYTARGETS += ../bin/gremlin ../lib/python/gremlin.py ../lib/python/qt5_graphics.py
 PYI18NSRCS += emc/usr_intf/gremlin/gremlin.py
 
 ../lib/python/%: emc/usr_intf/gremlin/%
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)cp $< $@
+
+../lib/python/%: emc/usr_intf/qt5_graphics/%
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)

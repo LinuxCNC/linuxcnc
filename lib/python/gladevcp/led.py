@@ -17,8 +17,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'has_hal_pin' : ( gobject.TYPE_BOOLEAN, 'Create HAL pin', 'Whether to create a HAL pin',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'led_shape' : ( gobject.TYPE_INT, 'Shape', '0: round 1:oval 2:square',
-                    0, 2, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'led_shape' : ( gobject.TYPE_INT, 'Shape', '0: round 1:oval 2:square 3:horizonal 4: vertical',
+                    0, 4, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_size'  : ( gobject.TYPE_INT, 'Size', 'size of LED',
                     5, 30, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_blink_rate' : ( gobject.TYPE_INT, 'Blink rate',  'Led blink rate (ms)',
@@ -116,10 +116,57 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 lg = cairo.LinearGradient(0, -self._dia, 0, self._dia)
                 lg.add_color_stop_rgba(0, color.red/65535., color.green/65535., color.blue/65535., alpha)
                 lg.add_color_stop_rgba(.4, 1, 1, 1, .75)
-                lg.add_color_stop_rgba(1, color.red/65535., color.green/65535., color.blue/65535., alpha)
-                #lg.add_color_stop_rgba(1, .6, .6, .6, .5)
+                lg.add_color_stop_rgba(.6, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(1, .6, .6, .6, .5)
                 cr.set_source(lg)
                 cr.fill()
+
+        # horizontal led
+        elif self.led_shape == 3:
+            self.set_size_request(self._dia*5+5, self._dia+5)
+            w = self.allocation.width
+            h = self.allocation.height
+            cr.translate(w/2, h/2)
+            cr.rectangle(-self._dia*5/2, -self._dia/2, self._dia*5, self._dia)
+            cr.stroke_preserve()
+            cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
+            #cr.fill()
+            cr.fill_preserve()
+            
+            # now make it shiny
+            if self.led_shiny:
+                #cr.rectangle(0, 0, w, h)
+                lg = cairo.LinearGradient(0, -self._dia, 0, self._dia)
+                lg.add_color_stop_rgba(0, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(.4, 1, 1, 1, .75)
+                lg.add_color_stop_rgba(.6, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(1, .6, .6, .6, .5)
+                cr.set_source(lg)
+                cr.fill()
+
+        # vertical led
+        elif self.led_shape == 4:
+            self.set_size_request(self._dia+5, self._dia*5+5)
+            w = self.allocation.width
+            h = self.allocation.height
+            cr.translate(w/2, h/2)
+            cr.rectangle(-self._dia/2, -self._dia*5/2, self._dia, self._dia*5)
+            cr.stroke_preserve()
+            cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
+            #cr.fill()
+            cr.fill_preserve()
+            
+            # now make it shiny
+            if self.led_shiny:
+                #cr.rectangle(0, 0, w, h)
+                lg = cairo.LinearGradient(0, -self._dia, 0, self._dia)
+                lg.add_color_stop_rgba(0, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(.3, 1, 1, 1, .75)
+                lg.add_color_stop_rgba(.7, color.red/65535., color.green/65535., color.blue/65535., alpha)
+                lg.add_color_stop_rgba(1, .6, .6, .6, .5)
+                cr.set_source(lg)
+                cr.fill()
+
 
         # oval led
         elif self.led_shape == 1:

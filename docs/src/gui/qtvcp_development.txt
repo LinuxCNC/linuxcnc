@@ -1,0 +1,153 @@
+= QTvcp Development
+
+The intention of QtVCP is to supply an infrastructure to support +
+screen and VCP panel building for linuxcnc. By supplying a diverse +
+widget set and supporting custom coding, QtVCP hopes that development +
+energy will be expended in one toolkit rather then continuous re-invention. +
+By using the same toolkit across many screens/panels users should have an easier +
+time customizing/creating and developers should find it easier to help +
+trouble shoot with less effort. +
+
+== Overview
+
+QtVCP uses a QT Designer built .ui file and a python handler file +
+to load and control a screen/panel that displays QT widgets to control +
+linuxcnc's motion controller or HAL pins. +
+There are builtin screens and panels, easily loaded by a user or +
+A user can build/modify one of their own. +
+QtVCP uses libraries and custom widgets to hide some of the complexity +
+of interfacing to linuxcnc. By using QtVCP's library rather then linuxcnc's, +
+We can mitigate minor linuxcnc code changes. +
+
+== Builtin locations
+
+Builtin screens and panels are stored in separate folders. +
+
+ * screens in share/qtvcp/screens +
+ * panels in share/qtvcp/panels +
+ * Stock images are in share/qtvcp/images +
+
+screens and panels are sorted by their folder name, which is +
+also the name used to load them. +
+Inside the folder would be the .ui file, the handler file and +
+possibly the .qss theme file. +
+
+== QtVCP startup to shutdown
+
+QtVCP source is located in src/emc/usr_intf/qtvcp +
+
+ * When QtVCP first starts, it must decide if this object is a screen +
+or a panel. Then it searches for and collects information about +
+paths of required files and useful folders. +
+ * Next, it builds the HAL component, loads the window instance, +
+adds handler extensions and installs an event filter. +
+ * Now the window/widgets are instantiated, the HAL pins are built, +
+which also initiates the '_init_hal()' function of the widgets. +
+ * The handler function 'initialized__()' is called and then the STATUS +
+library is forced to update. Hal component is set ready at this point. +
+ * A variety of optional switch arguments are set, including calling a +
+POSTGUI HAL file (if a screen). Terminate signals are trapped and +
+QtVCP now polls for events. +
+ * Finally when QtVCP is asked to shutdown, it calls shutdown functions +
+in the handler file, shuts down STATUS monitoring and kills teh HAL +
+component. +
+
+== Path information
+
+When QtVCP loads it collects Path information: +
+This is available in the handler file's '__init__()' function +
+as 'path' +
+
+ * IMAGEDIR = Path of builtin images +
+ * SCREENDIR = Path of builtin motion controller screens + 
+ * PANELDIR = Path of builtin accessory panels +
+ * WORKINGDIR = Path of where QtVCP was launched from +
+ * CONFIGPATH = Path of the launched configuration +
+ * BASEDIR = general path, used to derive all paths +
+ * BASENAME = Generic name used to derive all paths + 
+ * LIBDIR = Path of QtVCP's python library +
+ * HANDLER = Path of handler file +
+ * XML = Path of .ui file +
+ * DOMAIN = Path of translation +
+ * IS_SCREEN = screen/panel switch +
+
+== Idiosyncrasies
+
+These try to cover non-obvious situations.
+
+=== Error code  collecting
+
+Linuxcnc's error code collecting can only be read from one place. +
+When read , it is 'consumed' - no other object can read it. +
+In QtVCP screens, it is recommended to use the ScreenOptionss widget to +
+set up error reading. They are then sent to other objects via STATUS +
+signals.
+
+=== Jog rate
+
+Linuxcnc has no internal record of jog rate - you must specify it at the +
+time of jogging. +
+QtVCP uses the STATUS library to keep track of the latest linear and +
+angular jog rate. It is always specified in machine units per minute, so must be +
+converted when in non-machine units mode. +
+So if your machine is imperial based but you are in metric mode +
+changes to jog rate sent to ACTION functions must be converted to imperial. +
+at the same time if the machine is metric based and you are in imperial mode, +
+ changes to jog rate must be sent to ACTION functions in metric units. +
+Angular jog rates the units don't change in metric/imperial +
+mode so you can send them to ACTION functions without conversion. +
+While you are free to ignore this jogging record while building screens, +
+Anyone modifying your screen and using the builtin jog rate widgets would +
+not get the desired results. The ACTION library's 'DO_JOG' function, gets +
+it's jog rate from the STATUS library. +
+
+=== Keybinding
+
+Keybinding is always a difficult-to-get-right-in-all-cases affair. +
+Custom keybinding functions are to be defined in the handler file. +
+Most importantly widgets that require regular key input and not jogging, +
+should be checked for in the 'processed_key_event__' function. +
+
+=== Preference file
+
+Some QtVCP widget use the preference file to record important information. +
+This requires The preference file to be set up early in the widget +
+initialization process. The easiest way to do this is to use the +
+ScreenOptions widget.
+
+=== Widget special setup functions
+
+QtVCP looks for and calls the '_hal_init' function, when the widget +
+is first loaded. It is not called when using Designer. +
+After this function is called the widget has access to some special +
+variables: +
+
+[source,python]
+----
+        self.HAL_GCOMP = the HAL component instance
+        self.HAL_NAME = This widgets name as a string
+        self.QT_OBJECT_ = This widgets pyQt object instance
+        self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
+        self.PATHS_ = The instance of QtVCP's path library
+        self.PREFS_ = the instance of an optional preference file
+----
+
+When making a custom widget, import and sub class the +
+'_HalWidgetBase' class:
+
+=== Dialogs
+
+Dialogs (AKA pop up windows) are placed on the screen in Designer. +
+It doesn't matter where on the layout but to make them hidden, +
+cycle the 'state' property to true then false. +
+By default, if there is a preference file, the dialogs will +
+rember their last size/placement. It is possible to override +
+this so they open in the same location each time. +
+
+=== Styles (Themes)
+
+While it is possible to set styles in designer, it is more +
+convenient to change them later if they are all set in a +
+separate .qss file. The file should be put in the same +
+location as the handler file.+
+

@@ -28,6 +28,7 @@ docs/html/drivers
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
 lib/python/gremlin.py
+lib/python/qt5_graphics.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref
 configs/sim/gmoccapy/gmoccapy_plasma/*.pref
