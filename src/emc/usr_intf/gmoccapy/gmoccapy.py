@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.5"
+_RELEASE = " 3.0.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -843,7 +843,8 @@ class gmoccapy(object):
             end = 4
         else:
             end = 5
-            
+
+        start = 0
         # now put the needed widgets in the container
         for axis in self.axis_list[start : end]:
             name = "touch_{0}".format(axis.lower())
@@ -1067,6 +1068,7 @@ class gmoccapy(object):
         print(button_name[0] in "abc")
 
         # only in manual mode we will allow jogging the axis at this development state
+        # needed to avoid error on start up, machine not on
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
@@ -1091,16 +1093,7 @@ class gmoccapy(object):
         else:
             dir = -1
 
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self._set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
+        JOGMODE = self._get_jog_mode()
 
         if self.distance <> 0:  # incremental jogging
             self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, dir * velocity, self.distance)
@@ -1117,22 +1110,24 @@ class gmoccapy(object):
         if joint_axis_number is None:
             return
 
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self._set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
+        JOGMODE = self._get_jog_mode()
 
         # Otherwise the movement would stop before the desired distance was moved
         if self.distance <> 0:
             pass
         else:
             self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
+
+    def _get_jog_mode(self):
+        # self.stat.motion_mode ==
+        # 1 = Joint
+        # 2 = MDI
+        # 3 = TELOP
+        if self.stat.motion_mode == 1:
+                JOGMODE = 1
+        else :
+            JOGMODE = 0
+        return JOGMODE
 
     def _get_joint_axis_number(self, button_name):
         joint_btn = False
@@ -2812,6 +2807,7 @@ class gmoccapy(object):
 # =========================================================
 
     def _change_kbd_image(self, image):
+       #print(self.macro_dic)
         if image == "stop":
             file = "stop.png"
         else:
@@ -3567,14 +3563,12 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_HOME)
 
     def on_btn_home_all_clicked(self, widget, data=None):
-        if self.stat.motion_mode != 1:
-            self._set_motion_mode(0)
+        self._set_motion_mode(0)
         # home -1 means all
         self.command.home(-1)
 
     def _on_btn_unhome_clicked(self, widget):
         self._set_motion_mode(0)
-        self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
 

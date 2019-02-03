@@ -68,5 +68,5 @@ show_preview_on_offset = False
 use_keyboard_shortcuts = True
 dro_digits = 3
 toggle_readout = True
-tool_in_spindle = 0
+tool_in_spindle = 2
 
