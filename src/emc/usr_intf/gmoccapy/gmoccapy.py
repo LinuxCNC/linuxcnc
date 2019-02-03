@@ -88,7 +88,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.4"
+_RELEASE = " 2.3.4.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -3791,8 +3791,6 @@ class gmoccapy(object):
         self.widgets.window1.resize(self.width, value)
 
     def on_adj_dro_size_value_changed(self, widget, data=None):
-        if not self.initialized:
-            return
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value

@@ -1,3 +1,8 @@
+ver 2.3.4.1
+- Philippe mentioned that a change of the DRO Size on settings page will be
+  saved as expected, but after new start of the GUI, the value did note be
+  restored properly. I have corrected the behavior
+
 ver 2.3.4
 - Leon82 mentioned, that offset page did close after editing a column and leaving
   the edited cell. This was caused due to a hidden mode change to MDI because
