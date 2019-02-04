@@ -367,10 +367,6 @@ hal_vti:: (((hal-vti)))
 halcmd:: (((halcmd)))
      Ligne de commande pour la configuration et les réglages. 
 
-halgui:: (((halgui)))
-     Outil graphique pour la configuration et les réglages. (pas encore
-    implémenté).
-
 halmeter:: (((halmeter)))
       Un multimètre pour les signaux HAL. Plus de détails pour utiliser 
 <<sec:Tutoriel-halmeter,halmeter>>.
