@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>763</width>
-    <height>732</height>
+    <width>746</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -613,7 +613,20 @@
             </attribute>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="MDIHistory" name="mdihistory"/>
+              <widget class="MDIHistory" name="mdihistory">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>100</height>
+                </size>
+               </property>
+              </widget>
              </item>
              <item>
               <widget class="QLabel" name="label_5">
@@ -1259,7 +1272,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>763</width>
+     <width>746</width>
      <height>27</height>
     </rect>
    </property>
@@ -1289,17 +1302,13 @@
      <property name="title">
       <string>Homing</string>
      </property>
-     <addaction name="actionHome_All_Axes"/>
-     <addaction name="actionHome_X"/>
-     <addaction name="actionHome_Y"/>
-     <addaction name="actionHome_Z"/>
     </widget>
     <addaction name="actionClear_MDI_History"/>
     <addaction name="actionCalibration"/>
-    <addaction name="actionShow_HAL_Configuration"/>
-    <addaction name="actionHAl_meter"/>
-    <addaction name="actionHAl_Scope"/>
-    <addaction name="actionLinuxcnc_Status"/>
+    <addaction name="actionHalshow"/>
+    <addaction name="actionHalmeter"/>
+    <addaction name="actionHalscope"/>
+    <addaction name="actionStatus"/>
     <addaction name="menuHoming"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -1312,7 +1321,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
-    <addaction name="actionQuick_Reference"/>
+    <addaction name="actionQuickRef"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMachine"/>
@@ -1359,7 +1368,7 @@
     <string>About</string>
    </property>
   </action>
-  <action name="actionQuick_Reference">
+  <action name="actionQuickRef">
    <property name="text">
     <string>Quick Reference</string>
    </property>
@@ -1581,22 +1590,22 @@
     <string>Calibration</string>
    </property>
   </action>
-  <action name="actionShow_HAL_Configuration">
+  <action name="actionHalshow">
    <property name="text">
     <string>Show HAL Configuration</string>
    </property>
   </action>
-  <action name="actionHAl_meter">
+  <action name="actionHalmeter">
    <property name="text">
     <string>HAl meter</string>
    </property>
   </action>
-  <action name="actionHAl_Scope">
+  <action name="actionHalscope">
    <property name="text">
     <string>HAl Scope</string>
    </property>
   </action>
-  <action name="actionLinuxcnc_Status">
+  <action name="actionStatus">
    <property name="text">
     <string>Linuxcnc Status</string>
    </property>

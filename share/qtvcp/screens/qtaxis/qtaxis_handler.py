@@ -27,7 +27,7 @@ import os
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
-TOOLBAR = ToolBarActions()
+TOOLBAR = None
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -48,7 +48,8 @@ class HandlerClass:
         self.PATHS = paths
         self.IMAGE_PATH = paths.IMAGEDIR
         self.STYLEEDITOR = SSE(widgets,paths)
-
+        global TOOLBAR
+        TOOLBAR = ToolBarActions(path=paths)
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
@@ -77,7 +78,15 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', self.w.close)
         TOOLBAR.configure_action(self.w.menuRecent, 'recent_submenu')
+        TOOLBAR.configure_action(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
+        TOOLBAR.configure_action(self.w.actionCalibration, 'load_calibration')
+        TOOLBAR.configure_action(self.w.actionStatus, 'load_status')
+        TOOLBAR.configure_action(self.w.actionHalshow, 'load_halshow')
+        TOOLBAR.configure_action(self.w.actionHalmeter, 'load_halmeter')
+        TOOLBAR.configure_action(self.w.actionHalscope, 'load_halscope')
+        TOOLBAR.configure_action(self.w.actionAbout, 'about')
+        self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -115,6 +124,108 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
+    def quick_reference(self):
+        help1 = [
+    ("F1", _("Emergency stop")),
+    ("F2", _("Turn machine on")),
+    ("", ""),
+    ("X", _("Activate first axis")),
+    ("Y", _("Activate second axis")),
+    ("Z", _("Activate third axis")),
+    ("A", _("Activate fourth axis")),
+    ("` or 0,1..8", _("Activate first through ninth joint <br>if joints radiobuttons visible")),
+    ("", _("")),
+    ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
+    ("", _("if axes radiobuttons visible")),
+    (_(", and ."), _("Select jog speed")),
+    (_("< and >"), _("Select angular jog speed")),
+    (_("I, Shift-I"), _("Select jog increment")),
+    ("C", _("Continuous jog")),
+    (_("Home"), _("Send active joint home")),
+    (_("Ctrl-Home"), _("Home all joints")),
+    (_("Shift-Home"), _("Zero G54 offset for active axis")),
+    (_("End"), _("Set G54 offset for active axis")),
+    (_("Ctrl-End"), _("Set tool offset for loaded tool")),
+    ("-, =", _("Jog active axis or joint")),
+    (";, '", _("Select Max velocity")),
+
+    ("", ""),
+    (_("Left, Right"), _("Jog first axis or joint")),
+    (_("Up, Down"), _("Jog second axis or joint")),
+    (_("Pg Up, Pg Dn"), _("Jog third axis or joint")),
+    (_("Shift+above jogs"), _("Jog at traverse speed")),
+    ("[, ]", _("Jog fourth axis or joint")),
+
+    ("", ""),
+    ("D", _("Toggle between Drag and Rotate mode")),
+    (_("Left Button"), _("Pan, rotate or select line")),
+    (_("Shift+Left Button"), _("Rotate or pan")),
+    (_("Right Button"), _("Zoom view")),
+    (_("Wheel Button"), _("Rotate view")),
+    (_("Rotate Wheel"), _("Zoom view")),
+    (_("Control+Left Button"), _("Zoom view")),
+]
+        help2 = [
+    ("F3", _("Manual control")),
+    ("F5", _("Code entry (MDI)")),
+    (_("Control-M"), _("Clear MDI history")),
+    (_("Control-H"), _("Copy selected MDI history elements")),
+    ("",          _("to clipboard")),
+    (_("Control-Shift-H"), _("Paste clipboard to MDI history")),
+    ("L", _("Override Limits")),
+    ("", ""),
+    ("O", _("Open program")),
+    (_("Control-R"), _("Reload program")),
+    (_("Control-S"), _("Save g-code as")),
+    ("R", _("Run program")),
+    ("T", _("Step program")),
+    ("P", _("Pause program")),
+    ("S", _("Resume program")),
+    ("ESC", _("Stop running program, or")),
+    ("", _("stop loading program preview")),
+    ("", ""),
+    ("F7", _("Toggle mist")),
+    ("F8", _("Toggle flood")),
+    ("B", _("Spindle brake off")),
+    (_("Shift-B"), _("Spindle brake on")),
+    ("F9", _("Turn spindle clockwise")),
+    ("F10", _("Turn spindle counterclockwise")),
+    ("F11", _("Turn spindle more slowly")),
+    ("F12", _("Turn spindle more quickly")),
+    (_("Control-K"), _("Clear live plot")),
+    ("V", _("Cycle among preset views")),
+    ("F4", _("Cycle among preview, DRO, and user tabs")),
+    ("@", _("toggle Actual/Commanded")),
+    ("#", _("toggle Relative/Machine")),
+    (_("Ctrl-Space"), _("Clear notifications")),
+    (_("Alt-F, M, V"), _("Open a Menu")),
+]
+        help =  zip(help1,help2)
+        msg = QtWidgets.QDialog()
+        msg.setWindowTitle("Quick Reference")
+        button = QtWidgets.QPushButton("Ok")
+        button.clicked.connect(lambda: msg.close())
+        edit = QtWidgets.QTextEdit()
+        edit.setLineWrapMode(0)
+
+        mess = '''<TABLE border="1"><COLGROUP>
+                <COL><COL align="char" char="."><THEAD>
+                <TR><TH>Key <TH>Command<TH>Key <TH>Command
+                <TBODY>'''
+        for i,j in help:
+            m='<TR><TD><b>%s</b>        <TD>%s<TD><b>%s</b>        <TD>%s'%(i[0],i[1],j[0],j[1])
+            mess += m
+        mess += '</TABLE'
+        edit.setText(mess)
+        edit.setReadOnly(True)
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(edit)
+        layout.addWidget(button)
+        msg.setLayout(layout)
+        msg.setMinimumSize(700,800)
+        msg.show()
+        retval = msg.exec_()
+
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
