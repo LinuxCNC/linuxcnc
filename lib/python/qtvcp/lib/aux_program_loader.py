@@ -1,9 +1,11 @@
 import hal
 import os
 import subprocess
+
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']
+    INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 except:
     pass
 
@@ -22,9 +24,9 @@ class Aux_program_loader:
         p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
 
     # opens the calibration program
-    def load_calibration(self, inipath):
-        print "calibration --%s"% inipath
-        p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH,inipath),"w")
+    def load_calibration(self):
+        print "calibration --%s"% INIPATH
+        p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH, INIPATH), "w")
 
     # opens the linuxcnc status program
     def load_status(self,*args):
