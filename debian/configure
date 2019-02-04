@@ -129,6 +129,8 @@ Debian-testing|Debian-10.*)
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+        PYTHON_IMAGING="python${PYTHON_VERSION}-pil"
+        PYTHON_IMAGING_TK="python${PYTHON_VERSION}-pil.imagetk"
 	;;
 Debian-9.*|Ubuntu-18.*|LinuxMint-19.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
