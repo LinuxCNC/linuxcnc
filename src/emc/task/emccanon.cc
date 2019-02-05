@@ -1881,7 +1881,7 @@ void ARC_FEED(int line_number,
 
         // Convert internal center and normal to external units
         circularMoveMsg.center = to_ext_len(center_cart);
-        circularMoveMsg.normal = to_ext_len(normal_cart);
+        circularMoveMsg.normal = normal_cart;
 
         if (rotation > 0)
             circularMoveMsg.turn = rotation - 1;
