@@ -8,7 +8,7 @@ G64 P0.01 q00.01
 (Part: 51 Meander Ave)
 (Operation: Outside Offset, LAYER_1, T210: Stainless 2.0mm)
 G00
-X21.000 Y20.000
+X21.000 Y20.000 Z0
 M01
 M03
 G04 P0.6
