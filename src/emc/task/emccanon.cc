@@ -1792,11 +1792,11 @@ void ARC_FEED(int line_number,
     }
 
     //FIXME allow tangential acceleration like in TP
-    double a_max_normal = a_max_axes * sqrt(3.0)/2.0;
+    double a_normal_budget = a_max_axes * sqrt(3.0)/2.0;
     canon_debug("a_max_axes = %f\n", a_max_axes);
 
     // Compute the centripetal acceleration
-    double v_max_radial = sqrt(a_max_normal * effective_radius);
+    double v_max_radial = sqrt(a_normal_budget * effective_radius);
     canon_debug("v_max_radial = %f\n", v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
@@ -1894,6 +1894,7 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(v_max);
         circularMoveMsg.acc = toExtAcc(a_max);
+        circularMoveMsg.acc_normal = toExtAcc(a_max_axes);
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list

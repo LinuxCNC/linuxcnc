@@ -2032,6 +2032,7 @@ int tpAddCircle(TP_STRUCT * const tp,
         double vel,
         double ini_maxvel,
         double acc,
+        double acc_normal,
         unsigned char enables,
         char atspeed)
 {
@@ -2053,6 +2054,7 @@ int tpAddCircle(TP_STRUCT * const tp,
         tp_debug_json_double(vel);
         tp_debug_json_double(ini_maxvel);
         tp_debug_json_double(acc);
+        tp_debug_json_double(acc_normal);
         tp_debug_json_unsigned(enables);
         tp_debug_json_long(atspeed);
         tp_debug_json_long(canon_motion_type);
@@ -2088,8 +2090,7 @@ int tpAddCircle(TP_STRUCT * const tp,
 
     if (res_init) return res_init;
 
-    PmCartesian acc_bound = getXYZAccelBounds();
-    calculateInscribedDiameter(&normal, &acc_bound, &tc.acc_normal_max);
+    tc.acc_normal_max = acc_normal;
 
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);

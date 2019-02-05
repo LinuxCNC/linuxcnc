@@ -222,7 +222,8 @@ extern "C" {
         double css_factor; // Only used during CSS mode
         double css_xoffset; // Only used during CSS mode
 	double acc;		/* max acceleration */
-	double backlash;	/* amount of backlash */
+    double acc_normal;		/* max normal acceleration (circular moves only)*/
+    double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */

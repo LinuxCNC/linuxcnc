@@ -443,7 +443,7 @@ extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(EmcPose end, int type, double vel,
                              double ini_maxvel, double acc, int indexrotary, int pure_angular);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
-        normal, int turn, int type, double vel, double ini_maxvel, double acc);
+        normal, int turn, int type, double vel, double ini_maxvel, double acc, double acc_normal);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(EmcPose tool_offset);
