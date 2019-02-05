@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_view">
       <attribute name="title">
@@ -45,6 +45,13 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="openButton">
+           <property name="text">
+            <string>Open</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QLabel" name="label">
@@ -77,6 +84,33 @@
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QPushButton" name="clearButton">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="colorButton">
+           <property name="text">
+            <string>Color Chooser</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <spacer name="horizontalSpacer_3">
            <property name="orientation">

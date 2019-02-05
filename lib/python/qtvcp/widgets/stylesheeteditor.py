@@ -42,7 +42,7 @@ import os
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
-        QStyleFactory, QWidget)
+        QStyleFactory, QWidget, QColorDialog)
 
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
@@ -79,7 +79,6 @@ class StyleSheetEditor(QDialog):
             BNAME = self.path.BASENAME
         qssname = os.path.join(DIR, BNAME)
         fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
-        print fileNames
         self.styleSheetCombo.addItem('Default')
         for i in(fileNames):
             self.styleSheetCombo.addItem(i)
@@ -93,26 +92,65 @@ class StyleSheetEditor(QDialog):
     def on_styleSheetCombo_activated(self, sheetName):
         self.loadStyleSheet(sheetName)
 
+    @pyqtSlot()
     def on_styleTextView_textChanged(self):
         self.applyButton.setEnabled(True)
 
+    @pyqtSlot()
     def on_applyButton_clicked(self):
-        print 'apply'
         if self.tabWidget.currentIndex() == 0:
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
         else:
            self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
 
+    @pyqtSlot()
+    def on_openButton_clicked(self):
+        dialog = QFileDialog(self)
+        if self.path.IS_SCREEN:
+            DIR = self.path.SCREENDIR
+        else:
+            DIR =self.path.PANELDIR
+        print DIR
+        dialog.setDirectory(DIR)
+        fileName, _ = dialog.getOpenFileName()
+        if fileName:
+            file = QFile(fileName)
+            file.open(QFile.ReadOnly)
+            styleSheet = file.readAll()
+            try:
+                # Python v2.
+                styleSheet = unicode(styleSheet, encoding='utf8')
+            except NameError:
+                # Python v3.
+                styleSheet = str(styleSheet, encoding='utf8')
+
+            self.styleTextView.setPlainText(styleSheet)
+
+    @pyqtSlot()
     def on_saveButton_clicked(self):
         fileName, _ = QFileDialog.getSaveFileName(self)
         if fileName:
             self.saveStyleSheet(fileName)
 
+    @pyqtSlot()
     def on_closeButton_clicked(self):
         self.close()
 
+    @pyqtSlot()
+    def on_clearButton_clicked(self):
+        self.styleTextEdit.clear()
+
+    @pyqtSlot()
     def on_copyButton_clicked(self):
         self.styleTextEdit.setPlainText(self.styleTextView.toPlainText())
+
+    @pyqtSlot()
+    def on_colorButton_clicked(self):
+        _color = QColorDialog.getColor()
+        if _color.isValid():
+            Color = _color.name()
+            self.colorButton.setStyleSheet('QPushButton {background-color: %s ;}'% Color)
+            self.styleTextEdit.insertPlainText(Color)
 
     def loadStyleSheet(self, sheetName):
         if not sheetName == 'Default':
@@ -125,7 +163,6 @@ class StyleSheetEditor(QDialog):
             qssname = os.path.join(DIR, BNAME, sheetName)
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
-
             styleSheet = file.readAll()
             try:
                 # Python v2.
@@ -139,7 +176,7 @@ class StyleSheetEditor(QDialog):
         self.styleTextView.setPlainText(styleSheet)
 
     def saveStyleSheet(self, fileName):
-        styleSheet = self.styleTextView.toPlainText()
+        styleSheet = self.styleTextEdit.toPlainText()
         file = QFile(fileName)
         if file.open(QFile.WriteOnly):
             QTextStream(file) << styleSheet
