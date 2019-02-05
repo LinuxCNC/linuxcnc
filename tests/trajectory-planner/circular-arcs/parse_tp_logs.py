@@ -54,12 +54,17 @@ if __name__ == '__main__':
     plt.figure(2)
     plt.plot(times * 1000.0, axis_vel[:, idx])
     plt.grid(True)
-    plt.title('{} Axis velocity vs time, ms'.format(plt_axis))
+    plt.title('{} velocity vs time, ms'.format(plt_axis))
 
     plt.figure(3)
     plt.plot(times * 1000.0, axis_accel[:, idx])
     plt.grid(True)
     plt.title('{} Axis acceleration vs time, ms'.format(plt_axis))
+
+    plt.figure(4)
+    plt.plot(times * 1000.0, np.sqrt(np.sum(np.square(axis_vel[:, 0:2]), 1)))
+    plt.grid(True)
+    plt.title('XYZ velocity vs time, ms')
 
     plt.show()
 
