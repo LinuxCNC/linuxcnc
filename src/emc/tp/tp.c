@@ -2836,6 +2836,32 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         res = TP_ERR_WAITING;
     }
 
+
+    EmcPose tp_position_error;
+    ZERO_EMC_POSE(tp_position_error);
+    tcGetPos(tc, &tp_position_error);
+    emcPoseSelfSub(&tp_position_error, &tp->currentPos);
+    int failed_axes = findAbsThresholdViolations(tp_position_error, TP_POS_EPSILON);
+    if (failed_axes) {
+        // KLUDGE mask out good axes from print list with space
+        char failed_axes_list[9] = "XYZABCUVW";
+        for (int i = 0; i < 9;++i) {
+            if (failed_axes & (1 << i)) {
+                continue;
+            }
+            failed_axes_list[i]=' ';
+        }
+
+        rtapi_print_msg(RTAPI_MSG_ERR, "TP Position violation on axes [%s] at segment %d\n", failed_axes_list, tc->id);
+        print_json5_start_();
+        print_json5_object_start_("accel_violation");
+        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+        print_json5_int_("id", tc->id);
+        print_json5_EmcPose(tp_position_error);
+        print_json5_object_end_();
+        print_json5_end_();
+    }
+
 #ifdef TP_DEBUG
     print_json5_log_start(ActivateSegment,Run);
     print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
@@ -3399,7 +3425,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     {
-
         EmcPose const axis_pos = tp->currentPos;
 
         EmcPose axis_vel;
