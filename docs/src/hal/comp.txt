@@ -767,3 +767,16 @@ which creates the following pins:
    logic.2.in-01, logic.2.in-02
 
 
+== Command Line Usage
+
+The halcompile man page gives details for invoking halcompile.
+
+----
+$ man halcompile
+----
+
+A brief summary of halcompile usage is given by:
+
+----
+$ halcompile --help
+----

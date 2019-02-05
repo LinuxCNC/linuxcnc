@@ -43,10 +43,17 @@ halcompile \- Build, compile and install LinuxCNC HAL components
 \fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR pyfile...
 
 .PP
-By default, the maximum number of 'names' items is 16.  To alter this limit,
-use the \fB--names=\fR option with halcompile.  For example, to allow
-20 'names' items:
-   [sudo] \fBhalcompile --names=20\fR --install ...
+
+When personalities are used in a comp file, hal instances are exported
+sequentially (typically by the mutually exclusive count= or names= parameters).
+If the number of exports excedes the maximum number of personalities,
+subsequent personalities are assigned modulo the maximum number of
+personalities allowed.
+
+By default, the maximum number of personalities is 16.  To alter this
+limit, use the \fB--personalities=\fR option with halcompile.  For example,
+to set the maximum of  personality items to 4:
+   [sudo] \fBhalcompile --personalities=4\fR --install ...
 
 .PD
 .SH DESCRIPTION
