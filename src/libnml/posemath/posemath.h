@@ -686,6 +686,7 @@ extern "C" {
 
 #define pmClose(a, b, eps) ((fabs((a) - (b)) < (eps)) ? 1 : 0)
 #define pmSq(x) ((x)*(x))
+#define pmCb(x) ((x)*(x)*(x))
 
 #ifdef TO_DEG
 #undef TO_DEG

@@ -31,7 +31,7 @@
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
         double max_scale)
 {
-    double v_max_target;
+    double v_max_target = tc->maxvel;
 
     switch (tc->synchronized) {
         case TC_SYNC_NONE:
@@ -43,8 +43,6 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
             max_scale = 1.0;
         case TC_SYNC_POSITION:
             // Assume no spindle override during blend target
-        default:
-            v_max_target = tc->maxvel;
             break;
     }
 
@@ -734,7 +732,7 @@ int tcUpdateCircleAccRatio(TC_STRUCT * tc)
     if (tc->motion_type == TC_CIRCULAR) {
         PmCircleLimits limits = pmCircleActualMaxVel(&tc->coords.circle.xyz,
                              tc->maxvel,
-                             tcGetOverallMaxAccel(tc));
+                             tc->acc_normal_max * tcGetAccelScale(tc));
         tc->maxvel = limits.v_max;
         tc->acc_ratio_tan = limits.acc_ratio;
         return 0;

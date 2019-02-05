@@ -1625,7 +1625,9 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
 {
     double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
 
+    // For debugging only
     double eff_radius = pmCircleEffectiveMinRadius(circle);
+
     // Find the acceleration necessary to reach the maximum velocity
     double a_n_vmax = pmSq(v_max) / fmax(eff_radius, DOUBLE_FUZZ);
     // Find the maximum velocity that still obeys our desired tangential / total acceleration ratio
@@ -1640,14 +1642,21 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
         acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
     }
 
-    tp_debug_json_log_start(pmCircleActualMaxVel, Check);
-    tp_debug_json_double(eff_radius);
-    tp_debug_json_double(v_max);
-    tp_debug_json_double(v_max_cutoff);
-    tp_debug_json_double(a_n_max_cutoff);
-    tp_debug_json_double(a_n_vmax);
-    tp_debug_json_double(acc_ratio_tan);
-    tp_debug_json_log_end();
+#ifdef TP_DEBUG
+    print_json5_log_start(pmCircleActualMaxVel, Check);
+    print_json5_double_("angle", circle->angle);
+    print_json5_double_("nominal_radius", circle->radius);
+    double r_spiral = spiralEffectiveRadius(circle);
+    print_json5_double_("spiral_radius", r_spiral);
+    print_json5_double(eff_radius);
+    print_json5_double(v_max);
+    print_json5_double(v_max_cutoff);
+    print_json5_double(a_max);
+    print_json5_double(a_n_max_cutoff);
+    print_json5_double(a_n_vmax);
+    print_json5_double(acc_ratio_tan);
+    print_json5_log_end();
+#endif
 
     PmCircleLimits limits = {
         v_max_actual,
@@ -1818,6 +1827,19 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
     return pmCircleAngleFromParam(circle, fit, t, angle);
 }
 
+double spiralEffectiveRadius(PmCircle const * circle)
+{
+    double dr = circle->spiral / circle->angle;
+
+    // Exact representation of spiral arc length flattened into
+    double n_inner = pmSq(dr) + pmSq(circle->radius);
+    double den = n_inner+pmSq(dr);
+    double num = pmSqrt(pmCb(n_inner));
+    double r_spiral = num / den;
+
+    return r_spiral;
+}
+
 
 /**
  * Find the effective minimum radius for acceleration calculations.
@@ -1826,18 +1848,14 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
  */
 double pmCircleEffectiveMinRadius(PmCircle const * circle)
 {
-    double dr = circle->spiral / circle->angle;
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
+    double dh2 = h2 / pmSq(circle->angle);
 
-    // Exact representation of spiral arc length flattened into
-    double n_inner = pmSq(dr) + pmSq(circle->radius);
-    double den = n_inner+pmSq(dr);
-    double num = pmSqrt(n_inner * n_inner * n_inner);
-    double r_spiral = num / den;
+    double r_spiral = spiralEffectiveRadius(circle);
 
     // Curvature of helix, assuming that helical motion is independent of plane motion
-    double effective_radius = h2 / r_spiral + r_spiral;
+    double effective_radius = dh2 / r_spiral + r_spiral;
 
     return effective_radius;
 }

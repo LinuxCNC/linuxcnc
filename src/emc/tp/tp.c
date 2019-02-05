@@ -2088,6 +2088,9 @@ int tpAddCircle(TP_STRUCT * const tp,
 
     if (res_init) return res_init;
 
+    PmCartesian acc_bound = getXYZAccelBounds();
+    calculateInscribedDiameter(&normal, &acc_bound, &tc.acc_normal_max);
+
     // Update tc target with existing circular segment
     tc.target = pmCircle9Target(&tc.coords.circle);
     if (tc.target < TP_POS_EPSILON) {

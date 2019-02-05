@@ -262,6 +262,7 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
         double progress,
         double * const angle);
 double pmCircleEffectiveMinRadius(const PmCircle *circle);
+double spiralEffectiveRadius(PmCircle const * circle);
 
 static inline double findVPeak(double a_t_max, double distance)
 {
