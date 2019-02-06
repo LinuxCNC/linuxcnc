@@ -940,3 +940,17 @@ const char *tcMotionTypeAsString(tc_motion_type_t c)
     }
     return "NONE";
 }
+
+const char *tcSyncModeAsString(tc_spindle_sync_t c)
+{
+    switch (c)
+    {
+        case TC_SYNC_NONE:
+            return "sync_none";
+        case TC_SYNC_VELOCITY:
+            return "sync_velocity";
+        case TC_SYNC_POSITION:
+            return "sync_position";
+    }
+    return "NONE";
+}

@@ -119,7 +119,7 @@ typedef struct {
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during
                                    blends */
-    int synchronized;       // spindle sync required for this move
+    tc_spindle_sync_t synchronized;       // spindle sync required for this move
     int velocity_mode; 	        /* TRUE if spindle sync is in velocity mode,
 				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
@@ -129,6 +129,7 @@ typedef struct {
 
     double time_elapsed_sec; // Total elapsed TP run time in seconds
     long long time_elapsed_ticks; // Total elapsed TP run time in cycles (ticks)
+    long long time_at_wait; // Time when TP started to wait for spindle
 
 } TP_STRUCT;
 

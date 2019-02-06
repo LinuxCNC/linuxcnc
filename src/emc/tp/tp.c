@@ -1362,10 +1362,11 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
 #ifdef TP_DEBUG
-    print_json5_log_start(tpAddSegmentToQueue, Command);
+    print_json5_log_start(Enqueue, Command);
     print_json5_long_("id", tc->id);
     print_json5_string_("motion_type", tcMotionTypeAsString(tc->motion_type));
     print_json5_double_("target", tc->target);
+    print_json5_string_("term_cond", tcTermCondAsString(tc->term_cond));
     print_json5_end_();
 #endif
 
@@ -2257,7 +2258,7 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     return TP_ERR_OK;
 }
 
-static const char *cycleModeToString(UpdateCycleMode mode)
+const char *cycleModeToString(UpdateCycleMode mode)
 {
     switch (mode) {
     case UPDATE_NORMAL:
@@ -2280,6 +2281,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
 
     /* Debug Output */
     print_json5_log_start(tc_state, Run);
+    print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
     print_json5_double_("id", tc->id);
     print_json5_double(v_target);
     print_json5_double(v_final);
@@ -2292,9 +2294,8 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
     print_json5_double_("dt", tc->cycle_time);
     print_json5_string_("term_cond", tcTermCondAsString((tc_term_cond_t)tc->term_cond));
     print_json5_bool_("final_decel", tc->on_final_decel);
-    print_json5_bool_("splitting", tc->splitting);
+    print_json5_bool_("need_split", tc->splitting);
     print_json5_bool_("is_blending", tc->is_blending);
-    print_json5_double_("time", tp->time_elapsed_sec);
     print_json5_long_("canon_type", tc->canon_motion_type);
     print_json5_string_("motion_type", tcMotionTypeAsString(tc->motion_type));
     print_json5_string_("accel_mode",accel_mode ? "ramp" : "trapezoidal");
@@ -2452,9 +2453,9 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT * const tp,
     static double old_spindle_pos = 0.0;
     double spindle_pos = emcmotStatus->spindle_fb.position_rev;
 
-    switch (tc->coords.rigidtap.state) {
+    RIGIDTAP_STATE const initial_state = tc->coords.rigidtap.state;
+    switch (initial_state) {
         case TAPPING:
-            tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
                 cmdReverseSpindle();
@@ -2462,7 +2463,6 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT * const tp,
             }
             break;
         case REVERSING:
-            tc_debug_print("REVERSING\n");
             if (spindleReversed(tp->spindle.origin, old_spindle_pos, spindle_pos) && tc->currentvel <= 0.0) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2483,10 +2483,8 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT * const tp,
 
                 tc->coords.rigidtap.state = RETRACTION;
             }
-            tc_debug_print("Spindlepos = %f\n", spindle_pos);
             break;
         case RETRACTION:
-            tc_debug_print("RETRACTION\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // Flip spindle direction again to start final reversal
                 cmdReverseSpindle();
@@ -2494,7 +2492,6 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT * const tp,
             }
             break;
         case FINAL_REVERSAL:
-            tc_debug_print("FINAL_REVERSAL\n");
             if (spindleReversed(tp->spindle.origin, old_spindle_pos, spindle_pos) && tc->currentvel <= 0.0) {
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
@@ -2513,11 +2510,16 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT * const tp,
             }
             break;
         case FINAL_PLACEMENT:
-            tc_debug_print("FINAL_PLACEMENT\n");
             // this is a regular move now, it'll stop at target above.
             break;
     }
     old_spindle_pos = spindle_pos;
+#ifdef TC_DEBUG
+    RIGIDTAP_STATE current_state = tc->coords.rigidtap.state;
+    print_json5_log_start(tpUpdateRigidTapState, Run);
+    print_json5_unsigned(current_state);
+    print_json5_log_end();
+#endif
 }
 
 
@@ -2764,9 +2766,11 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
+#ifdef TP_PEDANTIC
     if (!tp) {
         return TP_ERR_MISSING_INPUT;
     }
+#endif
 
     /* Based on the INI setting for "cutoff frequency", this calculation finds
      * short segments that can have their acceleration be simple ramps, instead
@@ -2779,14 +2783,11 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     // Given what velocities we can actually reach, estimate the total time for the segment under ramp conditions
     double segment_time = 2.0 * length / (tc->currentvel + fmin(tc->finalvel,tpGetRealTargetVel(tp,tc)));
 
-
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
             tc->term_cond == TC_TERM_COND_TANGENT &&
             tc->motion_type != TC_RIGIDTAP)
     {
-        tp_debug_print("segment_time = %f, cutoff_time = %f, ramping\n",
-                segment_time, cutoff_time);
         tc->accel_mode = TC_ACCEL_RAMP;
     }
 
@@ -2808,23 +2809,16 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             return TP_ERR_WAITING;
     }
 
-    tp_debug_print("Activate tc id = %d target_vel = %f req_vel = %f final_vel = %f length = %f max_acc = %f term_cond = %d\n",
-            tc->id,
-            tc->target_vel,
-            tc->reqvel,
-            tc->finalvel,
-            tc->target,
-            tc->maxaccel,
-            tc->term_cond);
-
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
     tp->motionType = tc->canon_motion_type;
     tc->blending_next = 0;
     tc->on_final_decel = 0;
 
+    tp_err_t res = TP_ERR_OK;
+
     if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindle_fb.synced)) {
-        tp_debug_print(" Setting up position sync\n");
+        tp_debug_print("Setting up position sync\n");
         // if we aren't already synced, wait
         tp->spindle.waiting_for_index = tc->id;
         // ask for an index reset
@@ -2833,10 +2827,31 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         tp->spindle.origin.position = 0.0;
         tp->spindle.origin.direction = signum(emcmotStatus->spindle_cmd.velocity_rpm_out);
         rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync...\n");
-        return TP_ERR_WAITING;
+        res = TP_ERR_WAITING;
     }
 
-    return TP_ERR_OK;
+#ifdef TP_DEBUG
+    print_json5_log_start(ActivateSegment,Run);
+    print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+    print_json5_int_("id", tc->id);
+    // Position settings
+    print_json5_double_("target", tc->target);
+    print_json5_double_("progress", tc->progress);
+    // Velocity settings
+    print_json5_double_("reqvel", tc->reqvel);
+    print_json5_double_("target_vel", tc->target_vel);
+    print_json5_double_("finalvel", tc->finalvel);
+    // Acceleration settings
+    print_json5_double_("accel_scale", tcGetAccelScale(tc));
+    print_json5_double_("acc_overall", tcGetOverallMaxAccel(tc));
+    print_json5_double_("acc_tangential", tcGetTangentialMaxAccel(tc));
+    print_json5_bool_("accel_ramp", tc->accel_mode);
+    print_json5_bool_("blend_prev", tc->blend_prev);
+    print_json5_string_("sync_mode", tcSyncModeAsString(tc->synchronized));
+    print_json5_log_end();
+#endif
+
+    return res;
 }
 
 
@@ -3095,7 +3110,7 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
 STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
         double v_f)
 {
-    tp_debug_print("split time for id %d is %.16g\n", tc->id, split_time);
+    tc_pdebug_print("split time for id %d is %.16g\n", tc->id, split_time);
     if (tc->splitting != 0 && split_time > 0.0) {
         rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %.16g, dx = %.16g, split time %.12g\n",
                 tc->id,
@@ -3144,7 +3159,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         print_json5_double_("t_remaining", ec.dt);
         print_json5_double_("dt_used", dt);
         print_json5_bool_("remove", tc->remove);
-        print_json5_bool_("splitting", splitting);
+        print_json5_bool_("need_split", splitting);
         print_json5_end_();
     }
 #endif
@@ -3166,7 +3181,18 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     EmcPose before;
     tcGetPos(tc, &before);
 
-    tp_debug_print("tc id %d splitting\n",tc->id);
+#ifdef TC_DEBUG
+    /* Debug Output */
+    print_json5_log_start(tc_splitting, Run);
+    print_json5_double_("id", tc->id);
+    print_json5_double_("target", tc->target);
+    print_json5_double_("progress", tc->progress);
+    print_json5_double_("v_terminal", tc->term_vel);
+    print_json5_double_("dt", tc->cycle_time);
+    print_json5_end_();
+#endif
+
+
     //Shortcut tc update by assuming we arrive at end
     tc->progress = tc->target;
     //Get displacement from prev. position
@@ -3297,8 +3323,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
-    tc_debug_print("--- TP Update <%lld> ---\n", tp->time_elapsed_ticks);
-
     /* If the queue empties enough, assume that the program is near the end.
      * This forces the last segment to be "finalized" to let the optimizer run.*/
     /*tpHandleLowQueue(tp);*/
@@ -3318,6 +3342,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         int res = tpActivateSegment(tp, tc);
         // Need to wait to continue motion, end planning here
         if (res == TP_ERR_WAITING) {
+            tp->time_at_wait = tp->time_elapsed_ticks;
             return TP_ERR_WAITING;
         }
     }
@@ -3345,7 +3370,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             tpSyncPositionMode(tp, tc, nexttc);
             break;
         default:
-            tc_debug_print("unrecognized spindle sync state!\n");
+            rtapi_print_msg(RTAPI_MSG_WARN, "Unrecognized spindle sync state %d, no sync applied\n", tc->synchronized);
             break;
     }
 
@@ -3390,7 +3415,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             rtapi_print_msg(RTAPI_MSG_ERR, "Acceleration violation on axes [%s] at %g sec\n", failed_axes_list, tp->time_elapsed_sec);
             print_json5_start_();
             print_json5_object_start_("accel_violation");
-            print_json5_double_("time", tp->time_elapsed_sec);
+            print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+            print_json5_int_("id", tc->id);
             print_json5_EmcPose(axis_accel);
             print_json5_object_end_();
             print_json5_end_();
@@ -3398,13 +3424,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
 #ifdef TC_DEBUG
         print_json5_log_start(tpRunCycle, Run);
+        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
         print_json5_EmcPose(axis_pos);
         print_json5_EmcPose(axis_vel);
         print_json5_EmcPose(axis_accel);
         double current_vel = emcmotStatus->current_vel;
         print_json5_double(current_vel);
         print_json5_double_("time", tp->time_elapsed_sec);
-        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
         print_json5_end_();
 #endif
     }

@@ -49,8 +49,10 @@ typedef enum {
 #define TC_OPTIM_UNTOUCHED 0
 #define TC_OPTIM_AT_MAX 1
 
-#define TC_ACCEL_TRAPZ 0
-#define TC_ACCEL_RAMP 1
+typedef enum {
+    TC_ACCEL_TRAPZ,
+    TC_ACCEL_RAMP,
+} TCAccelMode;
 
 /**
  * Spiral arc length approximation by quadratic fit.
@@ -159,7 +161,7 @@ typedef struct {
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move,
                             // stay within this distance from the path.
-    int synchronized;       // spindle sync state
+    tc_spindle_sync_t synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle

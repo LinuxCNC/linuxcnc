@@ -115,5 +115,6 @@ int tcClearFlags(TC_STRUCT * const tc);
 
 const char *tcTermCondAsString(tc_term_cond_t c);
 const char *tcMotionTypeAsString(tc_motion_type_t c);
+const char *tcSyncModeAsString(tc_spindle_sync_t c);
 
 #endif				/* TC_H */
