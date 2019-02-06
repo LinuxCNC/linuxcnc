@@ -52,7 +52,7 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
     return fmin(v_max_target, tc->maxvel);
 }
 
-double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+double tcGetAccelScale(const TC_STRUCT *tc)
 {
     // Handle any acceleration reduction due to an approximate-tangent "blend" with the previous or next segment
     double a_scale = (1.0 - fmax(tc->kink_accel_reduce, tc->kink_accel_reduce_prev));
@@ -64,7 +64,11 @@ double tcGetOverallMaxAccel(const TC_STRUCT *tc)
         a_scale *= 0.5;
     }
 
-    return tc->maxaccel * a_scale;
+    return a_scale;
+}
+double tcGetOverallMaxAccel(const TC_STRUCT *tc)
+{
+    return tc->maxaccel * tcGetAccelScale(tc);
 }
 
 /**
@@ -72,7 +76,7 @@ double tcGetOverallMaxAccel(const TC_STRUCT *tc)
  */
 double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
 {
-    double a_scale = tcGetOverallMaxAccel(tc);
+    double a_scale = tcGetAccelScale(tc);
 
     // Reduce allowed tangential acceleration in circular motions to stay
     // within overall limits (accounts for centripetal acceleration while
@@ -81,7 +85,7 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
         //Limit acceleration for cirular arcs to allow for normal acceleration
         a_scale *= tc->acc_ratio_tan;
     }
-    return a_scale;
+    return tc->maxaccel * a_scale;
 }
 
 

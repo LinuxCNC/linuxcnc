@@ -25,6 +25,7 @@
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
         double max_scale);
 
+double tcGetAccelScale(TC_STRUCT const * tc);
 double tcGetOverallMaxAccel(TC_STRUCT const * tc);
 double tcGetTangentialMaxAccel(TC_STRUCT const * const tc);
 
