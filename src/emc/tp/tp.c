@@ -1952,11 +1952,9 @@ int tpAddLine(TP_STRUCT * const tp,
 #ifdef TP_DEBUG
     {
         // macros use the variable name, need a plain name to please the JSON5 parser
-        long nextId = tp->nextId;
-        EmcPose goal = tp->goalPos;
         tp_debug_json_log_start(tpAddLine, Command);
-        tp_debug_json_long(nextId);
-        tp_debug_json_EmcPose(goal);
+        print_json5_long_("id", tp->nextId);
+        print_json5_EmcPose_("goal", tp->goalPos);
         tp_debug_json_EmcPose(end);
         tp_debug_json_double(vel);
         tp_debug_json_double(ini_maxvel);
@@ -2097,7 +2095,6 @@ int tpAddCircle(TP_STRUCT * const tp,
     if (tc.target < TP_POS_EPSILON) {
         return TP_ERR_ZERO_LENGTH;
     }
-    tp_debug_print("tc.target = %f\n",tc.target);
     tc.nominal_length = tc.target;
 
     // Copy in motion parameters
