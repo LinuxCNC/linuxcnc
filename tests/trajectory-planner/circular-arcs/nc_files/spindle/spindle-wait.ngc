@@ -1,6 +1,6 @@
+o<default_inch> call
 (Test of atspeed)
 (Setup code)
-G20 G90 G64 G17
 (Move to standard initial position)
 G0 x0 y0 z1
 (Tangent segments allow speed above "triangle" velocity)

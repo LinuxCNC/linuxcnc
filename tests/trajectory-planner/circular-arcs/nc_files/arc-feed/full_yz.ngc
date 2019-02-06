@@ -1,5 +1,5 @@
+o<default_inch> call
 (Basic ARC_FEED test using english to test unit conv)
-G20 G90
 (Force exact path to ignore blend effects)
 G61
 (Arbitrary rotation of current csys)

@@ -1,4 +1,4 @@
-G21 G90
+o<default_mm> call
 F100000
 G0 X0 Y0 Z0
 G1 X0 Y2
