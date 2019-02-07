@@ -183,7 +183,8 @@ FUNCTION(_){
         break;
     case 'S': // individual sensors
         for (i = inst_sense - 1; sense(i) == 0 && i > 0 ; i--) {}
-        p = i;
+        if (sense(i)) 
+            p = i + 1;
         break;
     case 'I': // index + position.
         p = current_position;
