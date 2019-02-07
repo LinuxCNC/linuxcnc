@@ -160,7 +160,7 @@ FUNCTION(_){
     case 'B': // Straight Binary
         for (i = 0; i < inst_sense ; i++) {
             p += sense(i) << i;
-            pcalc ^= sense(i);
+        pcalc ^= sense(i);
         }
         break;
     case 'D': // BCD
@@ -178,7 +178,7 @@ FUNCTION(_){
             p += d * pow;
             pow *= 10;
             d = 0;
-            pcalc ^= sense(i);
+        pcalc ^= sense(i);
         }
         break;
     case 'S': // individual sensors
@@ -298,11 +298,11 @@ FUNCTION(_){
     case 2: // moving
         if ((current_position != mod_pocket) && enable) return;
         if (rev_pulse > 0){
-        motor_fwd = 0;
+	    motor_fwd = 0;
             motor_rev = 1;
             motor_vel = rev_dc;
-            timer = rev_pulse;
-            state = 3;
+            timer = rev_pulse;        
+	    state = 3;
         } else {
             motor_fwd = 0;
             motor_rev = 0;
@@ -313,7 +313,7 @@ FUNCTION(_){
             break;
         }
     case 3:
-    timer -= fperiod;
+	timer -= fperiod;
         if (timer > 0) break;
         state = 4;
         motor_fwd = 0;
