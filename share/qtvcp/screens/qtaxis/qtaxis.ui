@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>618</height>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -629,11 +629,22 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="label_5">
-               <property name="text">
-                <string>Active Codes:</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_11">
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Active Codes:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="StatusLabel" name="statuslabel_2">
+                 <property name="mcodes_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item>
               <widget class="StatusLabel" name="statuslabel">
@@ -644,13 +655,6 @@
                 <bool>true</bool>
                </property>
                <property name="gcodes_status" stdset="0">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="StatusLabel" name="statuslabel_2">
-               <property name="mcodes_status" stdset="0">
                 <bool>true</bool>
                </property>
               </widget>
@@ -1315,6 +1319,11 @@
     <property name="title">
      <string>View</string>
     </property>
+    <addaction name="actionPerspectiveView"/>
+    <addaction name="actionSideView"/>
+    <addaction name="actionFrontView"/>
+    <addaction name="actionTopView"/>
+    <addaction name="actionRotatedView"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1398,6 +1407,10 @@
    </property>
   </action>
   <action name="actionQuit">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../axis/images/close.gif</normaloff>../../../axis/images/close.gif</iconset>
+   </property>
    <property name="text">
     <string>Quit</string>
    </property>
@@ -1518,6 +1531,9 @@
    </property>
   </action>
   <action name="actionTopView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_axis_z.gif</normaloff>../../../axis/images/tool_axis_z.gif</iconset>
@@ -1527,6 +1543,9 @@
    </property>
   </action>
   <action name="actionRotatedView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_axis_z2.gif</normaloff>../../../axis/images/tool_axis_z2.gif</iconset>
@@ -1536,6 +1555,9 @@
    </property>
   </action>
   <action name="actionSideView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_axis_x.gif</normaloff>../../../axis/images/tool_axis_x.gif</iconset>
@@ -1545,6 +1567,9 @@
    </property>
   </action>
   <action name="actionFrontView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_axis_y.gif</normaloff>../../../axis/images/tool_axis_y.gif</iconset>
@@ -1554,6 +1579,9 @@
    </property>
   </action>
   <action name="actionPerspectiveView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_axis_p.gif</normaloff>../../../axis/images/tool_axis_p.gif</iconset>
