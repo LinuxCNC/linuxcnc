@@ -1,3 +1,23 @@
+ver 2.3.5
+- jogging a not homed machine did change the button state of MDI and AUTO to be
+  sensitive, what is not correct.
+- it was not possible to jog a unhomed machine over the given limits, what is 
+  not a correct behavior.
+
+ver 2.3.4.2
+- introduced new keyboard shortcuts (not case sensitive)
+  R = run program
+  P = pause program
+  S = resume program
+  This keys will only work in auto mode, not being in edit mode and 
+  a program must be loaded. Pause and resume do only work if a 
+  program is running and / or paused.
+
+ver 2.3.4.1
+- Philippe mentioned that a change of the DRO Size on settings page will be
+  saved as expected, but after new start of the GUI, the value did note be
+  restored properly. I have corrected the behavior
+
 ver 2.3.4
 - Leon82 mentioned, that offset page did close after editing a column and leaving
   the edited cell. This was caused due to a hidden mode change to MDI because

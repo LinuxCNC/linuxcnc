@@ -77,4 +77,6 @@ offset_axis_x = 0.0
 offset_axis_y = 0.0
 reload_tool = True
 tool_in_spindle = 0
+blockheight = 0.0
+use_toolmeasurement = False
 

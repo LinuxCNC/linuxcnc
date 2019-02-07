@@ -13,9 +13,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+import os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
+from qtvcp.widgets.dialog_widget import LcncDialog as Dialog
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -25,16 +28,21 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
+_DIALOG = Dialog()
 
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+CONFIGDIR = os.environ['CONFIG_DIR']
 
 class ToolBarActions():
-    def __init__(self):
+    def __init__(self, path=None):
+        self.path = path
         self.recentNum = 0
-        self.gcode_propeties = None
+        self.gcode_properties = None
+        self.maxRecent = 5
 
     def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
@@ -121,6 +129,25 @@ class ToolBarActions():
             STATUS.connect('mode-manual', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(False))
             function = (self.actOnOptionalStop)
+        elif action == 'home_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            self.addHomeActions(widget)
+            function = None
+        elif action == 'load_calibration':
+            function = (self.actOnLoadCalibration)
+        elif action == 'load_halmeter':
+            function = (self.actOnLoadHalmeter)
+        elif action == 'load_halshow':
+            function = (self.actOnLoadHalshow)
+        elif action == 'load_status':
+            function = (self.actOnLoadStatus)
+        elif action == 'load_halscope':
+            function = (self.actOnLoadHalscope)
+        elif action == 'about':
+            function = (self.actOnAbout)
         elif action == 'zoom_in':
             function = (self.actOnZoomIn)
         elif action == 'zoom_out':
@@ -146,7 +173,7 @@ class ToolBarActions():
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
             STATUS.connect('file-loaded', lambda w, d: self.updateRecent(d, widget))
             function = None
 
@@ -171,8 +198,16 @@ class ToolBarActions():
         STATUS.emit('reload-display')
 
     def actOnProperties(self):
+        mess = ''
         for i in self.gcode_properties:
-            print i, self.gcode_properties[i]
+            mess +='<b>%s</b>: %s<br>'%( i, self.gcode_properties[i])
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(mess)
+        msg.setWindowTitle("Gcode Properties")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
 
     def actOnRun(self):
         ACTION.RUN()
@@ -194,6 +229,27 @@ class ToolBarActions():
             ACTION.SET_OPTIONAL_STOP_ON()
         else:
             ACTION.SET_OPTIONAL_STOP_OFF()
+
+    def actOnLoadCalibration(self):
+        AUX_PRGM.load_calibration()
+
+    def actOnLoadHalmeter(self):
+        AUX_PRGM.load_halmeter()
+
+    def actOnLoadStatus(self):
+        AUX_PRGM.load_status()
+
+    def actOnLoadHalshow(self):
+        AUX_PRGM.load_halshow()
+
+    def actOnLoadHalscope(self):
+        AUX_PRGM.load_halscope()
+
+    def actOnLoadExtTooledit(self):
+        AUX_PRGM.load_tooledit()
+
+    def actOnLoadClassicladder(self):
+        AUX_PRGM.load_ladder()
 
     def actOnZoomIn(self):
         STATUS.emit('view-changed', 'zoom-in')
@@ -225,8 +281,39 @@ class ToolBarActions():
     def actOnQuit(self):
         STATUS.emit('shutdown')
 
-    def actOnRecent(self):
-        pass
+    def actOnAbout(self):
+        msg = QtWidgets.QMessageBox()
+
+        mess =''
+        path = os.path.join(CONFIGDIR, 'README')
+        if os.path.exists(path):
+            for line in open(path):
+                mess += line
+            msg.setWindowTitle("README")
+        else:
+            msg.setWindowTitle("About")
+            mess = 'This is a QtVCP based screen for Linuxcnc'
+        msg.setText(mess)
+
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
+
+    def addHomeActions(self, widget):
+        def home(joint):
+            print 'home'
+            ACTION.SET_MACHINE_HOMING(joint)
+
+        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        homeAct = QtWidgets.QAction('Home ALL', widget)
+        homeAct.triggered.connect(lambda: home(-1))
+        widget.addAction(homeAct)
+        for i in INFO.AVAILABLE_AXES:
+            print i
+            homeAct = QtWidgets.QAction('Home %s'%i, widget)
+            homeAct.triggered.connect(lambda: home(conversion[i]))
+            widget.addAction(homeAct)
 
     def updateRecent(self, filename, widget):
         def loadRecent(w):
@@ -254,7 +341,7 @@ class ToolBarActions():
 
         # are we past 5 files? remove the lowest
         # else update cuurrent number
-        if self.recentNum  >5:
-            widget.removeAction(alist[5])
+        if self.recentNum  >self.maxRecent:
+            widget.removeAction(alist[self.maxRecent])
         else:
             self.recentNum +=1

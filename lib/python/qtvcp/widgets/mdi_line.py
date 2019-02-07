@@ -65,7 +65,7 @@ class MDI(QLineEdit):
         elif text == 'HALSCOPE':
             AUX_PRGM.load_halscope()
         elif text == 'CALIBRATION':
-            AUX_PRGM.load_calibration(self.inifile)
+            AUX_PRGM.load_calibration()
         elif text == 'PREFERENCE':
             STATUS.emit('show-preference')
         else:
