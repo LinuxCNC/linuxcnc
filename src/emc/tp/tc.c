@@ -470,6 +470,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
                 prev_tc->coords.line.xyz.end.y,
                 prev_tc->coords.line.xyz.end.z);
+
     } else {
         tp_debug_print("connect: consume prev_tc\n");
     }

@@ -6,30 +6,12 @@
 #include "rtapi.h"
 #include "joint_util.h"
 #include "motion_debug.h"
-struct emcmot_debug_t emcmotDebug = {0};
 
 /* Expand to all the definitions that need to be in
    the test runner's main file. */
 GREATEST_MAIN_DEFS();
 
-// KLUDGE fix link error the ugly way
-void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-}
-
-void rtapi_print(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vprintf(fmt, args);
-    va_end(args);
-}
+#include "mock_rtapi.inc"
 
 TEST pmCartCartParallel_numerical() {
 
