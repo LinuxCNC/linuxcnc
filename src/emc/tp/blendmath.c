@@ -1903,16 +1903,6 @@ EndCondition checkEndCondition(double cycleTime,
         TP_BIG_NUM * cycleTime,
     };
 
-    // This block essentially ignores split cycles for exact-stop moves
-    if (dx <= TP_POS_EPSILON) {
-        //If the segment is close to the target position, then we assume that it's done.
-        tc_pdebug_print("close to target, dx = %.12f\n",dx);
-        //Force progress to land exactly on the target to prevent numerical errors.
-        out.dt = 0.0;
-        out.v_f = currentvel;
-        return out;
-    }
-
     double v_avg = (currentvel + v_f) / 2.0;
 
     //Check that we have a non-zero "average" velocity between now and the
@@ -1938,7 +1928,7 @@ EndCondition checkEndCondition(double cycleTime,
 
     // Assuming a full timestep:
     double dv = v_f - currentvel;
-    double a_f = dv / dt;
+    double a_f = dv / fmax(dt, TP_TIME_EPSILON);
 
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
@@ -1962,6 +1952,7 @@ EndCondition checkEndCondition(double cycleTime,
             tc_pdebug_print("using positive sqrt\n");
             dt = -currentvel / a + pmSqrt(disc);
         } else {
+            tc_pdebug_print("using negative sqrt\n");
             dt = -currentvel / a - pmSqrt(disc);
         }
 

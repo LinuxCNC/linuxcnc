@@ -17,7 +17,7 @@ inc_dir = include_directories([
 cc = meson.get_compiler('c')
 m_dep = cc.find_library('m', required : true)
 
-add_global_arguments(['-DULAPI','-DUNIT_TEST'], language : 'c')
+add_global_arguments(['-DULAPI','-DUNIT_TEST','-DTP_PEDANTIC_DEBUG'], language : 'c')
 
 pm = static_library('posemath',
   'src/libnml/posemath/_posemath.c',

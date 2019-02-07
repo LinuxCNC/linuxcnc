@@ -44,3 +44,4 @@ position.txt
 *.glade.h
 # expanded INI files
 *.ini.expanded
+build

@@ -37,7 +37,7 @@
 /* "neighborhood" size (if two values differ by less than the epsilon,
  * then they are effectively equal.)*/
 #define TP_ACCEL_EPSILON 1e-4
-#define TP_VEL_EPSILON   1e-8
+#define TP_VEL_EPSILON   DOUBLE_FUZZ
 #define TP_POS_EPSILON   1e-12
 #define TP_TIME_EPSILON  1e-12
 #define TP_ANGLE_EPSILON 1e-6
