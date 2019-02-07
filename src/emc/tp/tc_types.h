@@ -150,12 +150,12 @@ typedef struct {
         Arc9 arc;
     } coords;
 
-    int motion_type;       // TC_LINEAR (coords.line) or
+    tc_motion_type_t motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
     int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
-    int term_cond;          // gcode requests continuous feed at the end of
+    tc_term_cond_t term_cond;          // gcode requests continuous feed at the end of
                             // this segment (g64 mode)
 
     int blending_next;      // segment is being blended into following segment

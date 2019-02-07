@@ -46,7 +46,7 @@ int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
 
 int tcCanConsume(TC_STRUCT const * const tc);
 
-int tcSetTermCond(TC_STRUCT * tc, TC_STRUCT * nexttc, int term_cond);
+int tcSetTermCond(TC_STRUCT * tc, TC_STRUCT * nexttc, tc_term_cond_t term_cond);
 
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_start,
@@ -86,7 +86,7 @@ int pmRigidTapInit(PmRigidTap * const tap,
 double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev);
 
 int tcInit(TC_STRUCT * const tc,
-        int motion_type,
+        tc_motion_type_t motion_type,
         int canon_motion_type,
         double cycle_time,
         unsigned char enables,

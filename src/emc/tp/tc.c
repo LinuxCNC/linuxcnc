@@ -430,7 +430,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
  * Set the terminal condition (i.e. blend or stop) for the given motion segment.
  * Also sets flags on the next segment relevant to blending (e.g. parabolic blend sets the blend_prev flag).
  */
-int tcSetTermCond(TC_STRUCT *tc, TC_STRUCT *nexttc, int term_cond)
+int tcSetTermCond(TC_STRUCT *tc, TC_STRUCT *nexttc, tc_term_cond_t term_cond)
 {
     if (tc) {
         tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
@@ -520,10 +520,10 @@ int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
     double T1 = prev_tc->tolerance;
     double T2 = tc->tolerance;
     //Detect zero tolerance = no tolerance and force to reasonable maximum
-    if (T1 == 0) {
+    if (T1 <= 0) {
         T1 = prev_tc->nominal_length * tolerance_ratio;
     }
-    if (T2 == 0) {
+    if (T2 <= 0) {
         T2 = tc->nominal_length * tolerance_ratio;
     }
     *nominal_tolerance = fmin(T1,T2);
@@ -593,7 +593,7 @@ double pmLine9Target(PmLine9 * const line9, int pure_angular)
  * the struct is properly initialized BEFORE calling this function.
  */
 int tcInit(TC_STRUCT * const tc,
-        int motion_type,
+        tc_motion_type_t motion_type,
         int canon_motion_type,
         double cycle_time,
         unsigned char enables,

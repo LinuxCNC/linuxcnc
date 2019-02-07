@@ -758,12 +758,15 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
         return NO_BLEND;
     }
 
-    // Can't blend segments that are explicitly disallowed
     switch  (prev_tc->term_cond)
     {
     case TC_TERM_COND_EXACT:
     case TC_TERM_COND_STOP:
+    // Can't blend segments that are explicitly disallowed
         return NO_BLEND;
+    case TC_TERM_COND_PARABOLIC:
+    case TC_TERM_COND_TANGENT:
+        break;
     }
 
     // Compute performance measures ("perf_xxx") for each method. This is

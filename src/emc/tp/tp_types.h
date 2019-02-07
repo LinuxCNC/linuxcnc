@@ -109,7 +109,7 @@ typedef struct {
     double wDotMax;		/* rotational accelleration max */
     int nextId;
     int execId;
-    int termCond;
+    tc_term_cond_t termCond;
     int done;
     int depth;			/* number of total queued motions */
     int activeDepth;		/* number of motions blending */
