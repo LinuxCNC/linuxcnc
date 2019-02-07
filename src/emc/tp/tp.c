@@ -649,10 +649,14 @@ STATIC double tpCalculateOptimizationInitialVel(TP_STRUCT const * const tp, TC_S
     double acc_scaled = tcGetTangentialMaxAccel(tc);
     double triangle_vel = findVPeak(acc_scaled, tc->target);
     double max_vel = tpGetMaxTargetVel(tp, tc);
-    tp_debug_json_log_start(tpCalculateOptimizationInitialVel, Command);
-    tp_debug_json_double(triangle_vel);
-    tp_debug_json_log_end();
-    return fmin(triangle_vel, max_vel);
+    double optim_init_vel = fmin(triangle_vel, max_vel);
+#ifdef TP_DEBUG
+    print_json5_log_start(tpCalculateOptimizationInitialVel, Command);
+    print_json5_double(triangle_vel);
+    print_json5_double(optim_init_vel);
+    print_json5_log_end();
+#endif
+    return optim_init_vel;
 }
 
 
@@ -742,6 +746,21 @@ static inline int find_max_element(double arr[], int sz)
     return max_idx;
 }
 
+const char *blendTypeAsString(tc_blend_type_t c)
+{
+    switch(c) {
+    case NO_BLEND:
+        return "NO_BLEND";
+    case PARABOLIC_BLEND:
+        return "PARABOLIC_BLEND";
+    case TANGENT_SEGMENTS_BLEND:
+        return "TANGENT_SEGMENTS";
+    case ARC_BLEND:
+        return "ARC_BLEND";
+    }
+    return "";
+}
+
 /**
  * Compare performance of blend arc and equivalent tangent speed.
  * If we can go faster by assuming the segments are already tangent (and
@@ -778,34 +797,37 @@ STATIC tc_blend_type_t tpChooseBestBlend(TP_STRUCT const * const tp,
     double perf_tangent = prev_tc->kink_vel;
     double perf_arc_blend = blend_tc ? blend_tc->maxvel : 0.0;
 
-    tp_debug_print("Blend performance: parabolic %f, tangent %f, arc_blend %f, ",
-                   perf_parabolic,
-                   perf_tangent,
-                   perf_arc_blend);
-
     // KLUDGE Order the performance measurements so that they match the enum values
     double perf[3] = {perf_parabolic, perf_tangent, perf_arc_blend};
     tc_blend_type_t best_blend = find_max_element(perf, 3);
 
     switch (best_blend) {
         case PARABOLIC_BLEND: // parabolic
-            tp_debug_print("using parabolic blend\n");
             tcRemoveKinkProperties(prev_tc, tc);
             tcSetTermCond(prev_tc, tc, TC_TERM_COND_PARABOLIC);
             break;
         case TANGENT_SEGMENTS_BLEND: // tangent
-            tp_debug_print("using approximate tangent blend\n");
             // NOTE: acceleration / velocity reduction is done dynamically in functions that access TC_STRUCT properties
             tcSetTermCond(prev_tc, tc, TC_TERM_COND_TANGENT);
             break;
         case ARC_BLEND: // arc blend
-            tp_debug_print("using blend arc\n");
             tcRemoveKinkProperties(prev_tc, tc);
-
             break;
         case NO_BLEND:
+            tcRemoveKinkProperties(prev_tc, tc);
+            tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
             break;
     }
+
+#ifdef TP_DEBUG
+    print_json5_log_start(CheckBlendPerformance,Command);
+    print_json5_double(perf_parabolic);
+    print_json5_double(perf_tangent);
+    print_json5_double(perf_arc_blend);
+    print_json5_string_("best_blend", blendTypeAsString(best_blend));
+    print_json5_log_end();
+#endif
+
     return best_blend;
 }
 
@@ -1955,21 +1977,21 @@ int tpAddLine(TP_STRUCT * const tp,
 #ifdef TP_DEBUG
     {
         // macros use the variable name, need a plain name to please the JSON5 parser
-        tp_debug_json_log_start(tpAddLine, Command);
+        print_json5_log_start(tpAddLine, Command);
         print_json5_long_("id", tp->nextId);
         print_json5_EmcPose_("goal", tp->goalPos);
-        tp_debug_json_EmcPose(end);
-        tp_debug_json_double(vel);
-        tp_debug_json_double(ini_maxvel);
-        tp_debug_json_double(acc);
-        tp_debug_json_unsigned(enables);
-        tp_debug_json_long(indexrotary);
-        tp_debug_json_long(atspeed);
-        tp_debug_json_long(canon_motion_type);
+        print_json5_EmcPose(end);
+        print_json5_double(vel);
+        print_json5_double(ini_maxvel);
+        print_json5_double(acc);
+        print_json5_unsigned(enables);
+        print_json5_long(indexrotary);
+        print_json5_long(atspeed);
+        print_json5_long(canon_motion_type);
         EmcPose delta = tp->goalPos;
         emcPoseSub(&end, &tp->goalPos, &delta);
-        tp_debug_json_EmcPose(delta);
-        tp_debug_json_log_end();
+        print_json5_EmcPose(delta);
+        print_json5_log_end();
     }
 #endif
 
@@ -2046,23 +2068,23 @@ int tpAddCircle(TP_STRUCT * const tp,
         // macros use the variable name, need a plain name to please the JSON5 parser
         long nextId = tp->nextId;
         EmcPose goal = tp->goalPos;
-        tp_debug_json_log_start(tpAddCircle, Command);
-        tp_debug_json_long(nextId);
-        tp_debug_json_EmcPose(goal);
-        tp_debug_json_PmCartesian(center);
-        tp_debug_json_PmCartesian(normal);
-        tp_debug_json_long(turn);
-        tp_debug_json_double(vel);
-        tp_debug_json_double(ini_maxvel);
-        tp_debug_json_double(acc);
-        tp_debug_json_double(acc_normal);
-        tp_debug_json_unsigned(enables);
-        tp_debug_json_long(atspeed);
-        tp_debug_json_long(canon_motion_type);
+        print_json5_log_start(tpAddCircle, Command);
+        print_json5_long(nextId);
+        print_json5_EmcPose(goal);
+        print_json5_PmCartesian(center);
+        print_json5_PmCartesian(normal);
+        print_json5_long(turn);
+        print_json5_double(vel);
+        print_json5_double(ini_maxvel);
+        print_json5_double(acc);
+        print_json5_double(acc_normal);
+        print_json5_unsigned(enables);
+        print_json5_long(atspeed);
+        print_json5_long(canon_motion_type);
         EmcPose delta = tp->goalPos;
         emcPoseSub(&end, &tp->goalPos, &delta);
-        tp_debug_json_EmcPose(delta);
-        tp_debug_json_log_end();
+        print_json5_EmcPose(delta);
+        print_json5_log_end();
     }
 #endif
 
@@ -2857,9 +2879,10 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
         rtapi_print_msg(RTAPI_MSG_ERR, "TP Position violation on axes [%s] at segment %d\n", failed_axes_list, tc->id);
         print_json5_start_();
-        print_json5_object_start_("accel_violation");
+        print_json5_object_start_("position_violation");
         print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
         print_json5_int_("id", tc->id);
+        print_json5_string_("failed_axes", failed_axes_list);
         print_json5_EmcPose(tp_position_error);
         print_json5_object_end_();
         print_json5_end_();
