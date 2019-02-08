@@ -734,7 +734,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
             &geom->center2,
             &geom->radius2);
     // Handle convexity
-    param->convex2 = arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
+    param->convex2 = checkRayIntersectsArc(&geom->center2, &geom->P, &geom->u_tan1, true);
     tp_debug_print("circ2 convex: %d\n",
             param->convex2);
 
@@ -820,7 +820,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
             &geom->center1,
             &geom->radius1);
 
-    param->convex1 = arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
+    param->convex1 = checkRayIntersectsArc(&geom->center1, &geom->P, &geom->u_tan2, false);
     tp_debug_print("circ1 convex: %d\n",
             param->convex1);
 
@@ -936,8 +936,8 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
             geom->P.y,
             geom->P.z);
 
-    param->convex1 = arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
-    param->convex2 = arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
+    param->convex1 = checkRayIntersectsArc(&geom->center1, &geom->P, &geom->u_tan2, false);
+    param->convex2 = checkRayIntersectsArc(&geom->center2, &geom->P, &geom->u_tan1, true);
     tp_debug_print("circ1 convex: %d, circ2 convex: %d\n",
             param->convex1,
             param->convex2);

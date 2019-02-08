@@ -15,21 +15,54 @@ GREATEST_MAIN_DEFS();
 
 TEST arcInitFromPoints_simple() {
     SphericalArc arc;
-    PmCartesian start = {0,0,0};
-    PmCartesian end = {1,1,0};
-    PmCartesian center = {0,1,0};
+    PmCartesian start = {1,2,0};
+    PmCartesian end = {2,3,0};
+    PmCartesian center = {1,3,0};
 
     int res = arcInitFromPoints(&arc, &start, &end, &center);
     ASSERT_FALSE(res);
 
     ASSERT(pmCartCartCompare(&arc.end, &end));
     ASSERT(pmCartCartCompare(&arc.start, &start));
-    ASSERT_EQ(arc.radius, 1.0);
+    ASSERT(pmCartCartCompare(&arc.center, &center));
+
+    double mag;
+    pmCartMag(&arc.rStart, &mag);
+    ASSERT_FLOAT_EQ(mag, 1.0);
+    pmCartMag(&arc.rEnd, &mag);
+    ASSERT_FLOAT_EQ(mag, 1.0);
+
+    ASSERT_FLOAT_EQ(arc.radius, 1.0);
+    ASSERT_FLOAT_EQ(arc.Sangle, 1.0);
+    ASSERT_FLOAT_EQ(arc.spiral, 0.0);
+    ASSERT_FLOAT_EQ(arc.angle, M_PI_2);
+
+    PmCartesian pt={0};
+    arcPoint(&arc, 0, &pt);
+    ASSERT(pmCartCartCompare(&arc.center, &center));
+
+    PASS();
+}
+
+/**
+ * Tests the orientation of a line-arc intersection
+ * @return
+ */
+TEST test_rayIntersectsArc() {
+    PmCartesian center = {DOUBLE_FUZZ,1,0};
+    PmCartesian P = {0,0,0};
+    PmCartesian uVec = {1,0,0};
+    int reverse_dir = 0;
+
+    ASSERT(checkRayIntersectsArc(&center, &P, &uVec, reverse_dir));
+    center.x*=-1.0;;
+    ASSERT_FALSE(checkRayIntersectsArc(&center, &P, &uVec, reverse_dir));
     PASS();
 }
 
 SUITE(arc_shape) {
     RUN_TEST(arcInitFromPoints_simple);
+    RUN_TEST(test_rayIntersectsArc);
 }
 
 int main(int argc, char **argv) {

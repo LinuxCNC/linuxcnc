@@ -54,16 +54,16 @@ TEST findMinNonZero_cases()
 {
     {
         PmCartesian v1 = {1,2,0};
-        ASSERT_IN_RANGE(findMinNonZero(&v1), 1.0,1.0);
+        ASSERT_IN_RANGE(findMinNonZero(&v1), 1.0,DOUBLE_FUZZ);
     }
 
     {
         PmCartesian v2 = {3,1,4};
-        ASSERT_IN_RANGE(findMinNonZero(&v2), 1.0,1.0);
+        ASSERT_IN_RANGE(findMinNonZero(&v2), 1.0,DOUBLE_FUZZ);
     }
     {
         PmCartesian v3 = {3,0,0};
-        ASSERT_IN_RANGE(findMinNonZero(&v3), 3.0,3.0);
+        ASSERT_IN_RANGE(findMinNonZero(&v3), 3.0,DOUBLE_FUZZ);
     }
     PASS();
 }
