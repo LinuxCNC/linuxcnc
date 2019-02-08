@@ -3350,6 +3350,24 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
  * status; I think those are spelled out here correctly and I can't clean it up
  * without breaking the API that the TP presents to motion.
  */
+tp_err_t updateSyncTargets(TP_STRUCT *tp, TC_STRUCT *tc, TC_STRUCT *nexttc)
+{
+    switch (tc->synchronized) {
+        case TC_SYNC_NONE:
+            emcmotStatus->spindle_fb.synced = 0;
+            return TP_ERR_OK;
+        case TC_SYNC_VELOCITY:
+            tc_debug_print("sync velocity\n");
+            tpSyncVelocityMode(tc, nexttc);
+            return TP_ERR_OK;
+        case TC_SYNC_POSITION:
+            tc_debug_print("sync position\n");
+            tpSyncPositionMode(tp, tc, nexttc);
+            return TP_ERR_OK;
+    }
+    return TP_ERR_INVALID;
+}
+
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
     //Pointers to current and next trajectory component
@@ -3408,24 +3426,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     // Assume zero tracking error unless position sync is active
     emcmotStatus->pos_tracking_error = 0.0;
 
-    /** If synchronized with spindle, calculate requested velocity to track
-     * spindle motion.*/
-    switch (tc->synchronized) {
-        case TC_SYNC_NONE:
-            emcmotStatus->spindle_fb.synced = 0;
-            break;
-        case TC_SYNC_VELOCITY:
-            tc_debug_print("sync velocity\n");
-            tpSyncVelocityMode(tc, nexttc);
-            break;
-        case TC_SYNC_POSITION:
-            tc_debug_print("sync position\n");
-            tpSyncPositionMode(tp, tc, nexttc);
-            break;
-        default:
-            rtapi_print_msg(RTAPI_MSG_WARN, "Unrecognized spindle sync state %d, no sync applied\n", tc->synchronized);
-            break;
-    }
+    // If synchronized with spindle, calculate requested velocity to track spindle motion
+    updateSyncTargets(tp, tc, nexttc);
 
     EmcPose const axis_pos_old = tp->currentPos;
     EmcPose const axis_vel_old = tp->currentVel;
