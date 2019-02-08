@@ -117,10 +117,8 @@ STATIC int tcRotaryMotionCheck(TC_STRUCT const * const tc) {
             }
         case TC_SPHERICAL:
             return true;
-        default:
-            tp_debug_print("Unknown motion type!\n");
-            return false;
     }
+    return false;
 }
 
 
@@ -511,11 +509,9 @@ int tpGetExecId(TP_STRUCT * const tp)
  * begins. If cond is TC_TERM_COND_PARABOLIC, the following move is begun when the
  * current move slows below a calculated blend velocity.
  */
-int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
+int tpSetTermCond(TP_STRUCT * const tp, tc_term_cond_t cond, double tolerance)
 {
-    if (!tp) {
-        return TP_ERR_FAIL;
-    }
+    tp_err_t res = TP_ERR_FAIL;
 
     switch (cond) {
         //Purposeful waterfall for now
@@ -523,15 +519,15 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
         case TC_TERM_COND_TANGENT:
         case TC_TERM_COND_EXACT:
         case TC_TERM_COND_STOP:
+        if (tp) {
             tp->termCond = cond;
             tp->tolerance = tolerance;
+            res = TP_ERR_OK;
+        }
             break;
-        default:
-            //Invalid condition
-            return  -1;
     }
 
-    return TP_ERR_OK;
+    return res;
 }
 
 /**
@@ -1464,7 +1460,7 @@ STATIC int tcUpdateArcLengthFit(TC_STRUCT * const tc)
     case TC_LINEAR:
     case TC_RIGIDTAP:
     case TC_SPHERICAL:
-    default:
+        // No update necessary
         break;
     }
     return 0;
@@ -3285,15 +3281,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         }
             break;
         case TC_TERM_COND_STOP:
-            break;
         case TC_TERM_COND_EXACT:
             break;
-        default:
-            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",
-                    tc->term_cond,
-                    tc->id);
     }
-
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
