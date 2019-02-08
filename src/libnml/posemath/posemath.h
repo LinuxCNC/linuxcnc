@@ -771,10 +771,14 @@ extern "C" {
 /* global error number and errors */
     extern int pmErrno;
     extern void pmPerror(const char *fmt);
-#define PM_ERR             -1	/* unspecified error */
-#define PM_IMPL_ERR        -2	/* not implemented */
-#define PM_NORM_ERR        -3	/* arg should have been norm */
-#define PM_DIV_ERR         -4	/* divide by zero error */
+
+    typedef enum {
+        PM_DIV_ERR = -4, /* divide by zero error */
+        PM_NORM_ERR = -3, /* arg should have been norm */
+        PM_IMPL_ERR = -2, /* not implemented */
+        PM_ERR = -1, /* unspecified error */
+        PM_OK = 0
+    } PosemathErrCode;
 
 /* Scalar functions */
 

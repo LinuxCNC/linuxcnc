@@ -777,12 +777,9 @@ int pmHomPoseConvert(PmHomogeneous const * const h, PmPose * const p)
 
 int pmCartCartCompare(PmCartesian const * const v1, PmCartesian const * const v2)
 {
-    if (fabs(v1->x - v2->x) >= V_FUZZ ||
-	fabs(v1->y - v2->y) >= V_FUZZ || fabs(v1->z - v2->z) >= V_FUZZ) {
-	return 0;
-    }
-
-    return 1;
+    return fabs(v1->x - v2->x) < V_FUZZ
+            && fabs(v1->y - v2->y) < V_FUZZ
+            && fabs(v1->z - v2->z) < V_FUZZ;
 }
 
 int pmCartCartDot(PmCartesian const * const v1, PmCartesian const * const v2, double *d)

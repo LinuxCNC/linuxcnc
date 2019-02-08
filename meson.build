@@ -21,48 +21,44 @@ m_dep = cc.find_library('m', required : true)
 
 add_global_arguments(['-DULAPI','-DUNIT_TEST','-DTP_PEDANTIC_DEBUG'], language : 'c')
 
-pm = static_library('posemath',
+# Define static libraries for easier linking with unit tests
+
+posemath_obj = static_library('posemath',
   'src/libnml/posemath/_posemath.c',
-  include_directories : inc_dir)
+  include_directories : inc_dir,
+  dependencies : [m_dep]
+  )
 
-# TODO implement subdir builds for tp, motion, etc
+emcpose_obj = static_library('emcpose',
+  join_paths(src_root,   'emc/nml_intf/emcpose.c'),
+  include_directories : inc_dir
+  )
 
-# KLUDGE just shove all the source files into the test build
-test_blendmath=executable('test_blendmath',
-  ['unit_tests/tp/test_blendmath.c',
+utlib_tp_deps = static_library('tp_deps',
+  [
+    join_paths(tp_src_dir, 'joint_util.c'), 
     join_paths(tp_src_dir, 'blendmath.c'), 
     join_paths(tp_src_dir, 'spherical_arc.c'), 
-    join_paths(tp_src_dir, 'joint_util.c'),
-    join_paths(src_root, 'emc/nml_intf/emcpose.c'), 
     join_paths(tp_src_dir, 'tc.c'), 
-    ],
+    join_paths(tp_src_dir, 'tcq.c'), 
+  ],
+  include_directories : inc_dir,
+  link_with: [emcpose_obj, posemath_obj])
+
+tp_test_files = [
+  'test_blendmath',
+  'test_joint_util',
+  'test_spherical_arc',
+  'test_posemath'
+  ]
+
+foreach n : tp_test_files
+  
+test(n, executable(n,
+  join_paths('unit_tests/tp', n+'.c'),
   dependencies : [m_dep],
   include_directories : inc_dir,
-  link_with : pm
-  )
+  link_with : [ utlib_tp_deps]
+  ))
+endforeach
 
-test('blendmath test',test_blendmath)
-
-test_joint_util=executable('test_joint_util',
-  ['unit_tests/tp/test_joint_util.c',
-    join_paths(tp_src_dir, 'joint_util.c'), 
-    join_paths(src_root, 'emc/nml_intf/emcpose.c'), 
-    ],
-  dependencies : [m_dep],
-  include_directories : inc_dir,
-  link_with : pm
-  )
-
-test('joint_util test',test_joint_util)
-
-test_spherical_arc=executable('test_spherical_arc',
-  ['unit_tests/tp/test_spherical_arc.c',
-    join_paths(tp_src_dir, 'spherical_arc.c'), 
-    join_paths(src_root, 'emc/nml_intf/emcpose.c'), 
-    ],
-  dependencies : [m_dep],
-  include_directories : inc_dir,
-  link_with : pm
-  )
-
-test('spherical_arc test',test_spherical_arc)

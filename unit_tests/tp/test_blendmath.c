@@ -190,10 +190,36 @@ SUITE(tc_functions) {
     RUN_TEST(checkEndCondition_below_final_velocity);
 }
 
+TEST test_pmCircleActualMaxVel_cutoff()
+{
+    double const v_max = 8.0;
+    double const a_max = 30.0;
+    double const r_cutoff = pmSq(v_max)/(a_max * BLEND_ACC_RATIO_NORMAL);
+
+    PmCircle c;
+    PmCartesian start = {r_cutoff,0, 0};
+    PmCartesian end = start;
+    PmCartesian center = {0,0,0};
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 2);
+
+    PmCircleLimits lim = pmCircleActualMaxVel(&c, v_max, a_max);
+
+    ASSERT_IN_RANGE(lim.v_max, v_max, CART_FUZZ);
+    ASSERT_IN_RANGE(lim.acc_ratio, 0.5, CART_FUZZ);
+    PASS();
+}
+
+SUITE(circle_funcs)
+{
+    RUN_TEST(test_pmCircleActualMaxVel_cutoff);
+}
+
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
     RUN_SUITE(blendmath);
     RUN_SUITE(joint_utils);
     RUN_SUITE(tc_functions);
+    RUN_SUITE(circle_funcs);
     GREATEST_MAIN_END();        /* display results */
 }
