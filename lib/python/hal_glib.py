@@ -132,6 +132,7 @@ class _GStat(gobject.GObject):
         'spindle-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'feed-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'rapid-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
 
         'feed-hold-enabled-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
 
@@ -234,6 +235,7 @@ class _GStat(gobject.GObject):
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
+        self.old['max-velocity-or'] = self.stat.max_velocity
         self.old['feed-hold']  = self.stat.feed_hold_enabled
         self.old['g5x-index']  = self.stat.g5x_index
         self.old['spindle-enabled']  = self.stat.spindle[0]['enabled']
@@ -471,6 +473,11 @@ class _GStat(gobject.GObject):
         rapid_or_new = self.old['rapid-or']
         if rapid_or_new != rapid_or_old:
             self.emit('rapid-override-changed',rapid_or_new * 100)
+        # max-velocity override
+        max_velocity_or_old = old.get('max-velocity-or', None)
+        max_velocity_or_new = self.old['max-velocity-or']
+        if max_velocity_or_new != max_velocity_or_old:
+            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         # feed hold
         feed_hold_old = old.get('feed-hold', None)
         feed_hold_new = self.old['feed-hold']
@@ -579,6 +586,8 @@ class _GStat(gobject.GObject):
         self.emit('feed-override-changed',feed_or_new * 100)
         rapid_or_new = self.old['rapid-or']
         self.emit('rapid-override-changed',rapid_or_new  * 100)
+        max_velocity_or_new = self.old['max-velocity-or']
+        self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         spindle_or_new = self.old['spindle-or']
         self.emit('spindle-override-changed',spindle_or_new  * 100)
 

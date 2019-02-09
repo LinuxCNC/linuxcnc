@@ -918,6 +918,9 @@
              <property name="textTemplate" stdset="0">
               <string>%s</string>
              </property>
+             <property name="max_velocity_override_status" stdset="0">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -935,6 +938,9 @@
               <bool>false</bool>
              </property>
              <property name="jograte_angular_rate" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="max_velocity_rate" stdset="0">
               <bool>true</bool>
              </property>
             </widget>

@@ -156,6 +156,8 @@ class _Lcnc_Action(object):
             log.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
+    def SET_MAX_VELOCITY_RATE(self, rate):
+        self.cmd.maxvel(rate/60.0)
     def SET_RAPID_RATE(self, rate):
         self.cmd.rapidrate(rate/100.0)
     def SET_FEED_RATE(self, rate):

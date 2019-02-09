@@ -43,6 +43,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
 
         self.feed_override = True
         self.rapid_override = False
+        self.max_velocity_override = False
         self.spindle_override = False
         self.jograte = False
         self.jograte_angular = False
@@ -71,6 +72,8 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('feed-override-changed', lambda w, data: _f(data))
         elif self.rapid_override:
             STATUS.connect('rapid-override-changed', lambda w, data: _f(data))
+        elif self.max_velocity_override:
+            STATUS.connect('max-velocity-override-changed', lambda w, data: _f(data))
         elif self.spindle_override:
             STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
@@ -231,7 +234,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'machine_state',
-                'time_stamp')
+                'time_stamp', 'max_velocity')
 
         for i in data:
             if not i == picked:
@@ -284,6 +287,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         return self.rapid_override
     def reset_rapid_override(self):
         self.rapid_override = False
+
+    # max_velocity override status
+    def set_max_velocity_override(self, data):
+        self.max_velocity_override = data
+        if data:
+            self._toggle_properties('max_velocity_override')
+    def get_max_velocity_override(self):
+        return self.max_velocity_override
+    def reset_max_velocity_override(self):
+        self.max_velocity_override = False
 
     # spindle override status
     def set_spindle_override(self, data):
@@ -480,6 +493,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
     rapid_override_status = QtCore.pyqtProperty(bool, get_rapid_override, set_rapid_override, reset_rapid_override)
+    max_velocity_override_status = QtCore.pyqtProperty(bool, get_max_velocity_override, set_max_velocity_override, reset_max_velocity_override)
     spindle_override_status = QtCore.pyqtProperty(bool, get_spindle_override, set_spindle_override,
                                                   reset_spindle_override)
     jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)

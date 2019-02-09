@@ -130,7 +130,8 @@ class _IStat(object):
         self.MAX_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_OVERRIDE",1)) * 100
         self.MIN_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_OVERRIDE",0.5)) * 100
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_FEED_OVERRIDE",1.5)) * 100
-
+        self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ","MAX_LINEAR_VELOCITY",
+                                    self.get_error_safe_setting("AXIS_X","MAX_VELOCITY", 5) )) * 60
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
         self.USRMESS_TEXT = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
@@ -165,7 +166,7 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.warning('INI Parcing Error, No Entry: {}, Using: {}'.format(detail, default))
+            log.warning('INI Parcing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
     def convert_metric_to_machine(self, data):
