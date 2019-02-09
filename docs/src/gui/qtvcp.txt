@@ -381,7 +381,7 @@ class HandlerClass:
     # **** GENERAL FUNCTIONS SECTION **** #
     #######################################
 
-    def continous_jog(self, axis, direction):
+    def continuous_jog(self, axis, direction):
         STATUS.continuous_jog(axis, direction)
 
     #################################
@@ -421,7 +421,7 @@ def get_handlers(halcomp,widgets,paths):
 ----
 
 === IMPORT SECTION
-This section is for importing libraries required for your screen. +
+This section is for importing library modules required for your screen. +
 It would be typical to import qtvcp's keybinding, Status and action +
 libraries. +
 
@@ -453,7 +453,14 @@ You can manipulate the widgets and HAL pins or add more HAL pins here. +
 Typically preferences can be checked and set, styles applied to  +
 widgets or status of linuxcnc be connected to functions. +
 This is also where keybindings would be added. +
-    
+
+==== class_patch__(self):
+Class patching allow you to override function calls in an imported module. +
+Class patching must be done before the module is instantiated and it modifies +
+all instances made after that. +
+An example might be patching button calls from the gcode editor to call functions +
+in the handler file instead.
+
 ==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
 This function is called to facilitate keyboard jogging etc. +
 By using the keybindings library this can be used to easily add +
