@@ -276,6 +276,9 @@ Pressing cancel will close linuxcnc.""" % target)
         if opts.usermod:
             log.debug('Loading the handler file')
             window.load_extension(opts.usermod)
+            # do any class patching now
+            if "class_patch__" in dir(window.handler_instance):
+                window.handler_instance.class_patch__()
             # add filter to catch keyboard events
             log.debug('Adding the key events filter')
             myFilter = qt_makegui.MyEventFilter(window)

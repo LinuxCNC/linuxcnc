@@ -57,6 +57,12 @@ class HandlerClass:
     # Special Functions called from QTVCP
     ##########################################
 
+    # For changing functions in widgets we can 'class patch'.
+    # class patching must be done before the class is instantiated.
+    # 
+    def class_patch__(self):
+        GCODE.exitCall = self.editor_exit
+
     # at this point:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
@@ -69,6 +75,9 @@ class HandlerClass:
         KEYBIND.add_call('Key_F7','on_keycall_F7')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         self.w.tooloffsetdialog._geometry_string='0 0 600 400 onwindow '
+
+    def editor_exit(self):
+        self.w.gcodeeditor.exit()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
