@@ -485,13 +485,13 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         gCodeLexerAction.setCheckable(1)
         gCodeLexerAction.setShortcut('Ctrl+G')
         gCodeLexerAction.setStatusTip('Set Gcode highlighting')
-        gCodeLexerAction.triggered.connect(self.editor.set_gcode_lexer)
+        gCodeLexerAction.triggered.connect(self.gcodeLexerCall)
 
         # Create gcode lexer action
         pythonLexerAction = QAction(QIcon.fromTheme('lexer.png'), '&python\n lexer', self)        
         pythonLexerAction.setShortcut('Ctrl+P')
         pythonLexerAction.setStatusTip('Set Python highlighting')
-        pythonLexerAction.triggered.connect(self.editor.set_python_lexer)
+        pythonLexerAction.triggered.connect(self.pythonLexerCall)
 
         # Create toolbar and add action
         toolBar = QToolBar('File')
@@ -576,9 +576,89 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         return self.bottomMenu
 
+    # callback functions built for easy class patching ##########
+    # want to refrain from renaming these functions as it will break
+    # any class patch user's use
+    # we split them like this so a user can intercept the callback
+    # but still call the original functionality
+
+    def caseCall(self):
+        self.case()
+    def case(self):
+        self.isCaseSensitive -=1
+        self.isCaseSensitive *=-1
+        print self.isCaseSensitive
+
+    def exitCall(self):
+        self.exit()
+    def exit(self):
+        if self.editor.isModified():
+            result = self.killCheck()
+            if result:
+                self.readOnlyMode()
+
+    def findCall(self):
+        self.find()
+    def find(self):
+        self.editor.search(str(self.searchText.text()),
+                             re=False, case=self.isCaseSensitive,
+                             word=False, wrap= False, fwd=True)
+
+    def gcodeLexerCall(self):
+        self.gcodeLexer()
+    def gcodeLexer(self):
+        self.editor.set_gcode_lexer()
+
+    def nextCall(self):
+        self.next()
+    def next(self):
+        self.editor.search(str(self.searchText.text()),False)
+        self.editor.search_Next()
+
+    def newCall(self):
+        self.new()
+    def new(self):
+        if self.editor.isModified():
+            result = self.killCheck()
+            if result:
+                self.editor.new_text()
+
+    def openCall(self):
+        self.open()
+    def open(self):
+        f = self.getFileName()
+        self.editor.load_text(f)
+        self.editor.setModified(False)
+
+    def pythonLexerCall(self):
+        self.pythonLexer()
+    def pythonLexer(self):
+        self.editor.set_python_lexer()
+
+    def redoCall(self):
+        self.redo()
+    def redo(self):
+        self.editor.redo()
+
+    def replaceCall(self):
+        self.replace()
+    def replace(self):
+        self.editor.replace_text(str(self.replaceText.text()))
+
+    def saveCall(self):
+        self.save()
+    def save(self):
+        self.saveFile()
+
+    def undoCall(self):
+        self.undo()
+    def undo(self):
+        self.editor.undo()
+
+    # helper functions ############################################
+
     def _hal_init(self):
         # name the top and bottom frames so it's easier to style
-        #print '%sBottomButtonFrame'% self.objectName()
         self.bottomMenu.setObjectName('%sBottomButtonFrame'% self.objectName())
         self.topMenu.setObjectName('%sTopButtonFrame'% self.objectName())
 
@@ -591,52 +671,6 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.topMenu.hide()
         self.bottomMenu.hide()
         self.editor.setReadOnly(True)
-
-    def openCall(self):
-        print('Open')
-        f = self.getFileName()
-        self.editor.load_text(f)
-        self.editor.setModified(False)
-
-    def saveCall(self):
-        print('save')
-        self.saveFile()
-
-    def newCall(self):
-        if self.editor.isModified():
-            result = self.killCheck()
-            if result:
-                self.editor.new_text()
-
-    def exitCall(self):
-        print('Exit app')
-        if self.editor.isModified():
-            result = self.killCheck()
-            if result:
-                self.readOnlyMode()
-
-    def undoCall(self):
-        self.editor.undo()
-
-    def redoCall(self):
-        self.editor.redo()
-
-    def replaceCall(self):
-        self.editor.replace_text(str(self.replaceText.text()))
-
-    def findCall(self):
-        self.editor.search(str(self.searchText.text()),
-                             re=False, case=self.isCaseSensitive,
-                             word=False, wrap= False, fwd=True)
-
-    def nextCall(self):
-        self.editor.search(str(self.searchText.text()),False)
-        self.editor.search_Next()
-
-    def caseCall(self):
-        self.isCaseSensitive -=1
-        self.isCaseSensitive *=-1
-        print self.isCaseSensitive
 
     def getFileName(self):
         name = QFileDialog.getOpenFileName(self, 'Open File')
@@ -663,6 +697,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def emit_percent(self, percent):
         self.percentDone.emit(percent)
 
+# for direct testing
 if __name__ == "__main__":
     from PyQt5.QtWidgets import *
     from PyQt5.QtCore import *

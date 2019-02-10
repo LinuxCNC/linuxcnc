@@ -591,6 +591,16 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
 
 == Hal Changes (Other)
 
+=== halcompile
+
+The number of names= instances was formerly limited to 16.  Now,
+for realtime components (loadrt) the instances are assigned
+dynamically with no built-in limit.  The limit of 16 still
+applies to names= items for userspace (loadusr) components.
+
+For components using 'personality', the maximum number is now
+settable by a command line option -P|--personalities.
+
 === Parameter to Pin changes
 
 The following hal output pins were changed from parameters to pins

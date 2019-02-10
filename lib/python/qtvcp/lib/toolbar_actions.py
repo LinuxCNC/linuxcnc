@@ -43,6 +43,7 @@ class ToolBarActions():
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
+        self.viewActiongroup = QtWidgets.QActionGroup(None)
 
     def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
@@ -153,16 +154,28 @@ class ToolBarActions():
         elif action == 'zoom_out':
             function = (self.actOnZoomOut)
         elif action == 'view_x':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewX)
         elif action == 'view_y':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewY)
         elif action == 'view_y2':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewY2)
         elif action == 'view_z':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewZ)
         elif action == 'view_z2':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewZ2)
         elif action == 'view_p':
+            self.viewActiongroup.addAction(widget)
+            self.viewActiongroup.setExclusive(True)
             function = (self.actOnViewp)
         elif action == 'view_clear':
             function = (self.actOnViewClear)
@@ -174,33 +187,45 @@ class ToolBarActions():
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(d, widget))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
             function = None
 
         else:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
+        # Call an external function when triggered. If it's checkable; add state
         if extFunction:
-            widget.triggered.connect(extFunction)
-        elif function:
-            widget.triggered.connect(function)
+            if widget.isCheckable():
+                widget.triggered.connect(lambda state: extfunction(widget, state))
+            else:
+                widget.triggered.connect(lambda: extFunction(widget))
 
-    def actOnEstop(self, state):
+        # Call a function when triggered. If it's checkable; add state
+        elif function:
+            if widget.isCheckable():
+                widget.triggered.connect(lambda state: function(widget, state))
+            else:
+                widget.triggered.connect(lambda: function(widget))
+
+    def actOnEstop(self, widget, state):
         ACTION.SET_ESTOP_STATE(state)
 
-    def actOnPower(self, state):
+    def actOnPower(self, widget, state):
         ACTION.SET_MACHINE_STATE(state)
 
-    def actOnLoad(self):
+    def actOnLoad(self,widget, state=None):
         STATUS.emit('load-file-request')
 
-    def actOnReload(self):
+    def actOnReload(self,widget, state=None):
         STATUS.emit('reload-display')
 
-    def actOnProperties(self):
+    def actOnProperties(self,widget, state=None):
         mess = ''
-        for i in self.gcode_properties:
-            mess +='<b>%s</b>: %s<br>'%( i, self.gcode_properties[i])
+        if self.gcode_properties:
+            for i in self.gcode_properties:
+                mess +='<b>%s</b>: %s<br>'%( i, self.gcode_properties[i])
+        else:
+            mess = 'No properties to display'
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Information)
         msg.setText(mess)
@@ -209,13 +234,12 @@ class ToolBarActions():
         msg.show()
         retval = msg.exec_()
 
-    def actOnRun(self):
+    def actOnRun(self,widget, state=None):
         ACTION.RUN()
-
-    def actOnPause(self):
+    def actOnPause(self,widget, state=None):
         ACTION.PAUSE()
 
-    def actOnAbort(self):
+    def actOnAbort(self,widget, state=None):
         ACTION.ABORT()
 
     def actOnBlockDelete(self, state):
@@ -230,58 +254,59 @@ class ToolBarActions():
         else:
             ACTION.SET_OPTIONAL_STOP_OFF()
 
-    def actOnLoadCalibration(self):
+    def actOnLoadCalibration(self,widget, state=None):
         AUX_PRGM.load_calibration()
 
-    def actOnLoadHalmeter(self):
+    def actOnLoadHalmeter(self,widget, state=None):
         AUX_PRGM.load_halmeter()
 
-    def actOnLoadStatus(self):
+    def actOnLoadStatus(self,widget, state=None):
         AUX_PRGM.load_status()
 
-    def actOnLoadHalshow(self):
+    def actOnLoadHalshow(self,widget, state=None):
         AUX_PRGM.load_halshow()
 
-    def actOnLoadHalscope(self):
+    def actOnLoadHalscope(self,widget, state=None):
         AUX_PRGM.load_halscope()
 
-    def actOnLoadExtTooledit(self):
+    def actOnLoadExtTooledit(self,widget, state=None):
         AUX_PRGM.load_tooledit()
 
-    def actOnLoadClassicladder(self):
+    def actOnLoadClassicladder(self,widget, state=None):
         AUX_PRGM.load_ladder()
 
-    def actOnZoomIn(self):
+    def actOnZoomIn(self,widget, state=None):
         STATUS.emit('view-changed', 'zoom-in')
 
-    def actOnZoomOut(self):
+    def actOnZoomOut(self,widget, state=None):
         STATUS.emit('view-changed', 'zoom-out')
 
-    def actOnViewX(self):
+    def actOnViewX(self,widget, state=None):
         STATUS.emit('view-changed', 'x')
 
-    def actOnViewY(self):
+    def actOnViewY(self,widget, state=None):
         STATUS.emit('view-changed', 'y')
 
-    def actOnViewY2(self):
+    def actOnViewY2(self,widget, state=None):
         STATUS.emit('view-changed', 'y2')
 
-    def actOnViewZ(self):
+    def actOnViewZ(self,widget, state=None):
         STATUS.emit('view-changed', 'z')
 
-    def actOnViewZ2(self):
+    def actOnViewZ2(self,widget, state=None):
         STATUS.emit('view-changed', 'z2')
 
-    def actOnViewp(self):
+    def actOnViewp(self,widget, state=None):
         STATUS.emit('view-changed', 'p')
 
-    def actOnViewClear(self):
+    def actOnViewClear(self,widget, state=None):
         STATUS.emit('view-changed', 'clear')
 
-    def actOnQuit(self):
+    def actOnQuit(self,widget, state=None):
+        print 'quit'
         STATUS.emit('shutdown')
 
-    def actOnAbout(self):
+    def actOnAbout(self,widget, state=None):
         msg = QtWidgets.QMessageBox()
 
         mess =''
@@ -300,7 +325,7 @@ class ToolBarActions():
         msg.show()
         retval = msg.exec_()
 
-    def addHomeActions(self, widget):
+    def addHomeActions(self,widget):
         def home(joint):
             print 'home'
             ACTION.SET_MACHINE_HOMING(joint)
@@ -310,12 +335,11 @@ class ToolBarActions():
         homeAct.triggered.connect(lambda: home(-1))
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
-            print i
             homeAct = QtWidgets.QAction('Home %s'%i, widget)
             homeAct.triggered.connect(lambda: home(conversion[i]))
             widget.addAction(homeAct)
 
-    def updateRecent(self, filename, widget):
+    def updateRecent(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 

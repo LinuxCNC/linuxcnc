@@ -76,7 +76,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
-        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', self.w.close)
+        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
         TOOLBAR.configure_action(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_action(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')

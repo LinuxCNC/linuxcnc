@@ -21,8 +21,15 @@ import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
-MAX_NAMES = 16
-MAX_PERSONALITIES = MAX_NAMES
+MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
+# NOTE: names are assigned dynamically for realtime components (loadrt)
+
+# Components that use 'personality' features statically allocate
+# memory based on MAX_PERSONALITIES (RTAPI_MP_ARRAY_INT)
+# The number can be set with the cmdline option -P|--personalities
+# Smaller values may be useful since the index of the personality
+# exported is computed modulo MAX_PERSONALITIES
+MAX_PERSONALITIES = 16
 
 %%
 parser Hal:
@@ -493,11 +500,12 @@ static int comp_id;
         if not options.get("singleton") and not options.get("count_function") :
             print("static int default_count=%s, count=0;" \
                 % options.get("default_count", 1), file=f)
-            print("char *names[%d] = {0,};"%(MAX_NAMES), file=f)
-            if not options.get("userspace"):
+            if options.get("userspace"):
+                print("char *names[%d] = {0,};"%(MAX_USERSPACE_NAMES), file=f)
+            else:
                 print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
-                print("RTAPI_MP_ARRAY_STRING(names, %d, \"names of %s\");" %(MAX_NAMES,comp_name), file=f)
-
+                print("char *names = \"\"; // comma separated names", file=f)
+                print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
         if has_personality:
             init1 = str(int(options.get('default_personality', 0)))
             init = ",".join([init1] * MAX_PERSONALITIES)
@@ -551,20 +559,44 @@ static int comp_id;
             print("            if(r != 0) break;", file=f)
             print("       }", file=f)
             print("    } else {", file=f)
-            print("        int max_names = sizeof(names)/sizeof(names[0]);", file=f)
-            print("        for(i=0; (i < max_names) && names[i]; i++) {", file=f)
-            print("            if (strlen(names[i]) < 1) {", file=f)
-            print("                rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", i);", file=f)
-            print("                r = -EINVAL;", file=f)
-            print("                break;", file=f)
-            print("            }", file=f)
-            if has_personality:
-                print("            r = export(names[i], i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
+            if options.get("userspace"):
+                print("        int max_names = sizeof(names)/sizeof(names[0]);", file=f)
+                print("        for(i=0; (i < max_names) && names[i]; i++) {", file=f)
+                print("            if (strlen(names[i]) < 1) {", file=f)
+                print("                rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", i);", file=f)
+                print("                r = -EINVAL;", file=f)
+                print("                break;", file=f)
+                print("            }", file=f)
+                if has_personality:
+                    print("            r = export(names[i], i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
+                else:
+                    print("            r = export(names[i], i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("       }", file=f)
+                print("    }", file=f)
             else:
-                print("            r = export(names[i], i);", file=f)
-            print("            if(r != 0) break;", file=f)
-            print("       }", file=f)
-            print("    }", file=f)
+                print("        int j,idx;", file=f)
+                print("        char *ptr;", file=f)
+                print("        char buf[HAL_NAME_LEN+1];", file=f)
+                print("        ptr = names;", file=f)
+                print("        idx = 0;", file=f)
+                print("        for (i=0,j=0; i <= strlen(names); i++) {", file=f)
+                print("            buf[j] = *(ptr+i);", file=f)
+                print("            if ( (*(ptr+i) == ',') || (*(ptr+i) == 0) ) {", file=f)
+                print("                buf[j] = 0;", file=f)
+                if has_personality:
+                    print("                r = export(buf, idx, personality[idx%%%d]);"%MAX_PERSONALITIES, file=f)
+                else:
+                    print("                r = export(buf, idx);", file=f)
+                print("                if (*(ptr+i+1) == 0) {break;}", file=f)
+                print("                idx++;", file=f)
+                print("                if(r != 0) {break;}", file=f)
+                print("                j=0;", file=f)
+                print("            } else {", file=f)
+                print("                j++;", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
 
         if options.get("constructable") and not options.get("singleton"):
             print("    hal_set_constructor(comp_id, export_1);", file=f)
@@ -634,7 +666,7 @@ int __comp_parse_names(int *argc, char **argv) {
     }
     return 0;
 }
-"""%MAX_NAMES, file=f)
+"""%MAX_USERSPACE_NAMES, file=f)
         print("int argc=0; char **argv=0;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
@@ -1029,14 +1061,15 @@ Usage:
     [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
 
-Option to set maximum 'names' items:
-    --names=integer_value   (default is %(dflt)d)
-""" % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_NAMES})
+Option to set maximum 'personalities' items:
+    --personalities=integer_value   (default is %(dflt)d)
+""" % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)
 
 def main():
     global require_license
-    global MAX_NAMES,MAX_PERSONALITIES
+    global MAX_USERSPACE_NAMES
+    global MAX_PERSONALITIES
     require_license = True
     global require_unix_line_endings
     require_unix_line_endings = False
@@ -1044,11 +1077,11 @@ def main():
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?n:",
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?P:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
-                            'names='])
+                            'personalities='])
     except getopt.GetoptError:
         usage(1)
 
@@ -1077,13 +1110,12 @@ def main():
             if len(args) != 1:
                 raise SystemExit("Cannot specify -o with multiple input files")
             outfile = v 
-        if k in ("-n", "--names"):
-            try: 
-                MAX_NAMES = int(v)
-                MAX_PERSONALITIES = MAX_NAMES
-                print("MAX_NAMES=%d,MAX_PERSONALITIES=%d"%(MAX_NAMES,MAX_PERSONALITIES))
+        if k in ("-P", "--personalities"):
+            try:
+                MAX_PERSONALITIES = int(v)
+                print("MAX_PERSONALITIES=%d"%(MAX_PERSONALITIES))
             except Exception, detail:
-                raise SystemExit("Bad value for -n (--names)=",v,"\n",detail)
+                raise SystemExit("Bad value for -P (--personalities)=",v,"\n",detail)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
