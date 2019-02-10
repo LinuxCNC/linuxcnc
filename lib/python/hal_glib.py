@@ -755,13 +755,16 @@ class _GStat(gobject.GObject):
         return self.old['state'] > linuxcnc.STATE_ESTOP
 
     def is_man_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_MANUAL
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MANUAL
 
     def is_mdi_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_MDI
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MDI
 
     def is_auto_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_AUTO
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_AUTO
 
     def is_on_and_idle(self):
         self.stat.poll()
