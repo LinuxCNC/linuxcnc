@@ -242,13 +242,13 @@ class ToolBarActions():
     def actOnAbort(self,widget, state=None):
         ACTION.ABORT()
 
-    def actOnBlockDelete(self, state):
+    def actOnBlockDelete(self, widget,  state):
         if state:
             ACTION.SET_BLOCK_DELETE_ON()
         else:
             ACTION.SET_BLOCK_DELETE_OFF()
 
-    def actOnOptionalStop(self, state):
+    def actOnOptionalStop(self, widget, state):
         if state:
             ACTION.SET_OPTIONAL_STOP_ON()
         else:
