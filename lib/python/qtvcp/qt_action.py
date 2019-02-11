@@ -138,6 +138,17 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    def SET_TOOL_OFFSET(self,axis,value,fixture = False):
+        lnum = 10+int(fixture)
+        m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
     def RUN(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
         if STATUS.is_auto_paused():
