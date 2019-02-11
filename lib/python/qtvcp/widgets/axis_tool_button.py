@@ -46,6 +46,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self._last = 0
         self._block_signal = False
         self._halpin_option = True
+        self.request_dialog_code = 'ENTRY'
 
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -81,6 +82,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
         if self._halpin_option and self._joint != -1:
             self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
+        STATUS.connect('general',self.return_value)
 
     def Zero(self):
         axis, now = self._a_from_j(self._joint)
@@ -92,9 +94,18 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def SetOrigin(self):
         axis, now = self._a_from_j(self._joint)
         if axis:
-            num = self.dialog.showdialog()
-            if num is None: return
-            self._last = now
+            mess = {'NAME':self.request_dialog_code,'ID':'AxisToolButton__',
+            'AXIS':axis,'CURRENT':now}
+            STATUS.emit('dialog-request', mess)
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == 'AxisToolButton__')
+        name = bool(message['NAME'] == self.request_dialog_code)
+        if num and code and name:
+            axis = message['AXIS']
+            self._last = message['CURRENT']
             ACTION.SET_AXIS_ORIGIN(axis, num)
             STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 

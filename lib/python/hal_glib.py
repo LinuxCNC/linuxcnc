@@ -163,7 +163,7 @@ class _GStat(gobject.GObject):
         'move-text-lineup': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'move-text-linedown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'load-file-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'dialog-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'dialog-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'focus-overlay-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_STRING,
                             gobject.TYPE_PYOBJECT)),
         'play-sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
@@ -173,6 +173,7 @@ class _GStat(gobject.GObject):
         'show-preference': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'shutdown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
+        'general': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'

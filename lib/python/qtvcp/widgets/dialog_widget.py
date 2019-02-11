@@ -296,11 +296,15 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         else:
             self.play_sound = False
 
-    def _external_request(self, w, cmd):
-        if cmd == 'FILE':
-            self.load_dialog()
+    def _external_request(self, w, message):
+        if message['NAME'] == 'FILE':
+            if message['ID']:
+                message['RETURN'] = self.load_dialog(True)
+                STATUS.emit('general', message)
+            else:
+                self.load_dialog()
 
-    def load_dialog(self):
+    def load_dialog(self, return_path=False):
 
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
@@ -313,7 +317,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'FileDialog-geometry')
-        if fname:
+        if fname and not return_path: 
             if self.PREFS_:
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
@@ -403,8 +407,8 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'ORIGINOFFSET':
+    def _external_request(self, w, message):
+        if message['NAME'] == 'ORIGINOFFSET':
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -517,8 +521,8 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'ORIGINOFFSET':
+    def _external_request(self, w, message):
+        if message['NAME'] == 'ORIGINOFFSET':
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -616,8 +620,8 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'CAMVIEW':
+    def _external_request(self, w, message):
+        if message['NAME'] == 'CAMVIEW':
             self.load_dialog()
 
     def load_dialog(self):
@@ -701,8 +705,8 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'MACRO':
+    def _external_request(self, w, message):
+        if message['NAME'] == 'MACRO':
             self.load_dialog()
 
     # This method is called instead of MacroTab's closeChecked method
@@ -795,8 +799,8 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'VERSAPROBE':
+    def _external_request(self, w, message):
+        if message['NAME'] == 'VERSAPROBE':
             self.load_dialog()
 
     def load_dialog(self):
@@ -878,6 +882,18 @@ class EntryDialog(QDialog, _HalWidgetBase):
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
         else:
             self.play_sound = False
+        STATUS.connect('dialog-request', self._external_request)
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message['NAME'] == 'ENTRY':
+            num = self.showdialog()
+            message['RETURN'] = num
+            STATUS.emit('general', message)
 
     def showdialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
