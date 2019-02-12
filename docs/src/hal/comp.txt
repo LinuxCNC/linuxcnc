@@ -93,13 +93,6 @@ many numbered instances are created.  If 'count' is not specified, the
 If neither 'count' nor 'names' is specified, a single numbered instance
 is created.
 
-[NOTE}
-
-By default, the maximum number of 'names' items is 16.  To alter this
-limit, use the --names option with halcompile. For example, to allow
-20 'names' items:
-  [sudo] halcompile --names=20 --install ...
-
 == Implicit Parameters
 
 Functions are implicitly passed the 'period' parameter which is the time in
@@ -481,6 +474,36 @@ For instance, personality is used in the 'logic' component, to allow
 for a variable number of input pins to each logic gate and to allow 
 for a selection of any of the basic boolean logic functions 'and', 
 'or', and 'xor'. 
+
+The default number of allowed 'personality' items is a
+compile-time setting (64).  The default applies to numerous
+components included in the distribution that are built using
+halcompile.
+
+To alter the allowed number of personality items for user-built
+components, use the '--personality' option with halcompile.  For
+example, to allow up to 128 personality times:
+
+----
+  [sudo] halcompile --personality=128 --install ...
+----
+
+When using components with personality, normal usage is to
+specify a personality item for *each* specified component
+instance.  Example for 3 instances of the logic component:
+
+----
+loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
+----
+
+[NOTE]
+
+If a loadrt line specifies more instances than personalities, the
+instances with unspecified personalities are assigned a
+personality of 0.  If the requested number of instances
+excedes the number of allowed personalities, personalities are
+assigned by indexing modulo the number of allowed personalities.
+A message is printed denoting such assignments.
 
 == Compiling
 

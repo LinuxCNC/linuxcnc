@@ -29,7 +29,7 @@ MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
 # The number can be set with the cmdline option -P|--personalities
 # Smaller values may be useful since the index of the personality
 # exported is computed modulo MAX_PERSONALITIES
-MAX_PERSONALITIES = 16
+MAX_PERSONALITIES = 64
 
 %%
 parser Hal:
@@ -511,6 +511,27 @@ static int comp_id;
             init = ",".join([init1] * MAX_PERSONALITIES)
             print("static int personality[%d] = {%s};" %(MAX_PERSONALITIES,init), file=f)
             print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
+
+            # Return personality value.
+            # If requested index excedes MAX_PERSONALITIES, use modulo indexing and give message
+            print("""
+            static int p_value(char* cname, char *name, int idx) {
+                int ans = personality[idx%%%d];
+                if (idx >= %d) {
+            """%(MAX_PERSONALITIES,MAX_PERSONALITIES), file=f)
+            print("""
+                    if (name==NULL) {
+                        rtapi_print_msg(RTAPI_MSG_ERR,"%s: instance %d assigned personality=%d(=%#0x)\\n",
+                                        cname, idx, ans, ans);
+                    } else {
+                        rtapi_print_msg(RTAPI_MSG_ERR,"%s: name %s assigned personality=%d(=%#0x)\\n",
+                                        cname, name, ans, ans);
+                    }
+                }
+                return ans;
+            }
+            """, file=f)
+
         print("int rtapi_app_main(void) {", file=f)
         print("    int r = 0;", file=f)
         if not options.get("singleton"):
@@ -535,7 +556,7 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("        r = export(buf, i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
+                print("        r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
             else:
                 print("        r = export(buf, i);", file=f)
             print("    }", file=f)
@@ -553,7 +574,7 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("            r = export(buf, i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
+                print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
             else:
                 print("            r = export(buf, i);", file=f)
             print("            if(r != 0) break;", file=f)
@@ -568,7 +589,7 @@ static int comp_id;
                 print("                break;", file=f)
                 print("            }", file=f)
                 if has_personality:
-                    print("            r = export(names[i], i, personality[i%%%d]);"%MAX_PERSONALITIES, file=f)
+                    print("            r = export(names[i], i, p_value(\"%s\", names[i], i) );"%comp_name, file=f)
                 else:
                     print("            r = export(names[i], i);", file=f)
                 print("            if(r != 0) break;", file=f)
@@ -585,7 +606,7 @@ static int comp_id;
                 print("            if ( (*(ptr+i) == ',') || (*(ptr+i) == 0) ) {", file=f)
                 print("                buf[j] = 0;", file=f)
                 if has_personality:
-                    print("                r = export(buf, idx, personality[idx%%%d]);"%MAX_PERSONALITIES, file=f)
+                    print("                r = export(buf, idx, p_value(\"%s\", buf, idx) );"%comp_name, file=f)
                 else:
                     print("                r = export(buf, idx);", file=f)
                 print("                if (*(ptr+i+1) == 0) {break;}", file=f)
