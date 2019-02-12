@@ -1,9 +1,12 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
+import sys
+import os
+import linuxcnc
 
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtWidgets
+
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
 from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
@@ -17,10 +20,10 @@ from qtvcp.core import Status, Action
 
 # Set up logging
 from qtvcp import logger
+LOG = logger.getLogger(__name__)
 
-import linuxcnc
-import sys
-import os
+# Set the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###########################################
 # **** instantiate libraries section **** #
@@ -47,11 +50,8 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.stat = linuxcnc.stat()
-        self.cmnd = linuxcnc.command()
-        self.error = linuxcnc.error_channel()
-        self.PATH = paths.CONFIGPATH
-        self.IMAGE_PATH = paths.IMAGEDIR
+        self.PATH = paths
+
     ##########################################
     # Special Functions called from QTVCP
     ##########################################
@@ -75,20 +75,41 @@ class HandlerClass:
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
-            if isinstance(receiver, OFFVIEW_WIDGET) or \
-                isinstance(receiver, MDI_WIDGET) or isinstance(receiver, TOOLVIEW_WIDGET):
-                if is_pressed:
+
+            # search for the top widget of whatever widget received the event
+            # then check if it's one we want the keypress events to go to
+            flag = False
+            receiver2 = receiver
+            while receiver2 is not None and not flag:
+                if isinstance(receiver2, QtWidgets.QDialog):
+                    flag = True
+                    break
+                if isinstance(receiver2, MDI_WIDGET):
+                    flag = True
+                    break
+                if isinstance(receiver2, GCODE):
+                    flag = False
+                    break
+                receiver2 = receiver2.parent()
+
+            if flag:
+                if isinstance(receiver2, GCODE):
+                    # if in manual do our keybindings - otherwise
+                    # send events to gcode widget
+                    if STATUS.is_man_mode() == False:
+                        if is_pressed:
+                            receiver.keyPressEvent(event)
+                            event.accept()
+                        return True
+                elif is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
-                return True
-            elif isinstance(receiver, GCODE) and STATUS.is_man_mode() == False:
-                if is_pressed:
-                    receiver.keyPressEvent(event)
+                    return True
+                else:
                     event.accept()
-                return True
-            elif isinstance(receiver,QtWidgets.QDialog):
-                print 'dialog'
-                return True
+                    return True
+
+        # ok if we got here then try keybindings
         try:
             return KEYBIND.call(self,event,is_pressed,shift,cntrl)
         except NameError as e:
@@ -97,6 +118,7 @@ class HandlerClass:
             LOG.debug('Exception in KEYBINDING:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             return False
+
 
     ########################
     # callbacks from STATUS #
@@ -111,6 +133,8 @@ class HandlerClass:
     #####################
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+            return
         if linear:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
