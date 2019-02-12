@@ -265,6 +265,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FileDialog, self).__init__(parent)
         self._state = False
+        self._request_name = 'FILE'
         self._color = QColor(0, 0, 0, 150)
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -297,7 +298,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.play_sound = False
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'FILE':
+        if message['NAME'] == self._request_name:
             if message['ID']:
                 message['RETURN'] = self.load_dialog(True)
                 STATUS.emit('general', message)
@@ -362,6 +363,8 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         super(OriginOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'ORIGINOFFSET'
+
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -408,7 +411,7 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'ORIGINOFFSET':
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -476,6 +479,8 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         super(ToolOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'ORIGINOFFSET'
+
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -522,7 +527,7 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'ORIGINOFFSET':
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -590,6 +595,7 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         super(CamViewDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'CAMVIEW'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -623,7 +629,7 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'CAMVIEW':
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     def load_dialog(self):
@@ -672,6 +678,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         super(MacroTabDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'MACRO'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -708,7 +715,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'MACRO':
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This method is called instead of MacroTab's closeChecked method
@@ -770,7 +777,7 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         super(VersaProbeDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
-
+        self._request_name  = 'VERSAPROBE'
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -802,7 +809,7 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         STATUS.connect('dialog-request', self._external_request)
 
     def _external_request(self, w, message):
-        if message['NAME'] == 'VERSAPROBE':
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     def load_dialog(self):
@@ -850,6 +857,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         super(EntryDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
+        self._request_name = 'ENTRY'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -892,7 +900,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
     # if all good show the dialog
     # and then send back the dialog response via a general message
     def _external_request(self, w, message):
-        if message['NAME'] == 'ENTRY':
+        if message['NAME'] == self._request_name:
             num = self.showdialog()
             message['RETURN'] = num
             STATUS.emit('general', message)
