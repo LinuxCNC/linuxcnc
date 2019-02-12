@@ -17,7 +17,7 @@ import os
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, \
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout, \
-        QHBoxLayout, QLineEdit
+        QHBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
@@ -596,15 +596,17 @@ class CamViewDialog(QDialog, _HalWidgetBase):
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        b = buttonBox.button(QDialogButtonBox.Ok)
-        b.clicked.connect(lambda: self.close())
+        h = QHBoxLayout()
+        h.addStretch(1)
+        self.b = QPushButton("Close")
+        self.b.clicked.connect(lambda: self.close())
+        h.addWidget(self.b)
         l = QVBoxLayout()
         o = CamView()
         o._hal_init()
         self.setLayout(l)
         l.addWidget(o)
-        l.addWidget(buttonBox)
+        l.addLayout(h)
 
     def _hal_init(self):
         x = self.geometry().x()
