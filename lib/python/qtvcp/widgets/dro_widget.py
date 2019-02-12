@@ -49,12 +49,19 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.allow_reference_change_requests = True
 
     def _hal_init(self):
-        # get position update from STATUS every 100 ms
-        STATUS.connect('current-position', self.update)
-        STATUS.connect('metric-mode-changed', self._switch_units)
-        STATUS.connect('diameter-mode', self._switch_modes)
-        if self.allow_reference_change_requests:
-            STATUS.connect('dro-reference-change-request', self._status_reference_change)
+        if self.joint_number == 10:
+            STATUS.connect('current-z-rotation', self.update_rotation)
+        else:
+            # get position update from STATUS every 100 ms
+            STATUS.connect('current-position', self.update)
+            STATUS.connect('metric-mode-changed', self._switch_units)
+            STATUS.connect('diameter-mode', self._switch_modes)
+            if self.allow_reference_change_requests:
+                STATUS.connect('dro-reference-change-request', self._status_reference_change)
+
+    def update_rotation(self, widget, rotation):
+        degtmpl = lambda s: self.angular_text_template % s
+        self.setText(degtmpl(rotation))
 
     def update(self, widget, absolute, relative, dtg):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
@@ -90,7 +97,6 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
                     self.setText(tmpl(dtg[self.joint_number]*scale))
         except:
             pass
-        return True
 
     def _status_reference_change(self,w ,value):
         self.reference_type = value
@@ -117,6 +123,8 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
 
     # JOINT Number
     def setjoint_number(self, data):
+        if data >10: data = 10
+        if data < 0: data = 0
         self.joint_number = data
     def getjoint_number(self):
         return self.joint_number

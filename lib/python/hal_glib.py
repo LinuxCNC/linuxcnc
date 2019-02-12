@@ -126,6 +126,7 @@ class _GStat(gobject.GObject):
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
                             gobject.TYPE_PYOBJECT,)),
+        'current-z-rotation': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'requested-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'actual-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
 
@@ -250,6 +251,7 @@ class _GStat(gobject.GObject):
              self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
+        self.old['current-z-rotation'] = self.stat.rotation_xy
 
         # override limits / hard limits
         or_limit_list=[]
@@ -494,6 +496,11 @@ class _GStat(gobject.GObject):
         flood_new = self.old['flood']
         if flood_new != flood_old:
             self.emit('flood-changed',flood_new)
+        # rotation around Z
+        z_rot_old = old.get('current-z-rotation', None)
+        z_rot_new = self.old['current-z-rotation']
+        if z_rot_new != z_rot_old:
+            self.emit('current-z-rotation',z_rot_new)
 
         #############################
         # Gcodes
@@ -623,6 +630,9 @@ class _GStat(gobject.GObject):
         # diameter mode g7
         diam_new = self.old['diameter']
         self.emit('diameter-mode',diam_new)
+        # rotation around Z
+        z_rot_new = self.old['current-z-rotation']
+        self.emit('current-z-rotation',z_rot_new)
 
         # M codes
         m_code_new = self.old['m-code']
