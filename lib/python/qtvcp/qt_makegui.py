@@ -48,7 +48,6 @@ class MyEventFilter(QtCore.QObject):
                 handled = self.w.handler_instance.keypress_event__(receiver,event)
             elif self.has_process_key_handler:
                 if event.isAutoRepeat():return True
-                if event.key() in(16777249,16777248): return True
                 p,k,c,s,ctrl = self.process_event(event,True)
                 handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
             if handled: return True
@@ -59,7 +58,6 @@ class MyEventFilter(QtCore.QObject):
                 handled = self.w.handler_instance.keyrelease_event__(event)
             elif self.has_process_key_handler:
                 if event.isAutoRepeat():return True
-                if event.key() in(16777249,16777248): return True
                 p,k,c,s,ctrl = self.process_event(event,False)
                 handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
             if handled: return True
