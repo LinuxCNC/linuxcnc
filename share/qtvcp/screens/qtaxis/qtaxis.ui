@@ -1273,6 +1273,16 @@
         <height>200</height>
        </size>
       </property>
+      <widget class="EntryDialog" name="entrydialog">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>40</y>
+         <width>152</width>
+         <height>67</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1671,6 +1681,11 @@
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EntryDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>LcncDialog</class>
