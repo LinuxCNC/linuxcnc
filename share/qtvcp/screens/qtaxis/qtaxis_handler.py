@@ -47,6 +47,8 @@ class HandlerClass:
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
         TOOLBAR = ToolBarActions(path=paths)
+        STATUS.connect('general',self.return_value)
+
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
@@ -56,6 +58,10 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
+        TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
+        TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
+        TOOLBAR.configure_submenu(self.w.menuZeroCoordinateSystem, 'zero_systems_submenu')
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
         TOOLBAR.configure_action(self.w.actionMachineOn, 'power')
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
@@ -74,8 +80,6 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
-        TOOLBAR.configure_action(self.w.menuRecent, 'recent_submenu')
-        TOOLBAR.configure_action(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
         TOOLBAR.configure_action(self.w.actionCalibration, 'load_calibration')
         TOOLBAR.configure_action(self.w.actionStatus, 'load_status')
@@ -83,6 +87,8 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionHalmeter, 'load_halmeter')
         TOOLBAR.configure_action(self.w.actionHalscope, 'load_halscope')
         TOOLBAR.configure_action(self.w.actionAbout, 'about')
+        TOOLBAR.configure_action(self.w.actionTouchoffWorkplace, 'touchoffworkplace')
+        TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -143,9 +149,30 @@ class HandlerClass:
     # callbacks from form #
     #######################
 
+    def tool_offset_clicked(self):
+        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
+        axis = STATUS.get_selected_axis()
+        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[axis],
+            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
+
     #####################
     # general functions #
     #####################
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == 'FORM__')
+        name = bool(message['NAME'] == 'ENTRY')
+        if num and code and name:
+            LOG.debug('message return:{}'.format (message))
+            axis = message['AXIS']
+            fixture = message['FIXTURE']
+            ACTION.SET_TOOL_OFFSET(axis,num,fixture)
+            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+
     def quick_reference(self):
         help1 = [
     ("F1", _("Emergency stop")),
