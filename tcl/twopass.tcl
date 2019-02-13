@@ -518,6 +518,7 @@ proc ::tp::hal_to_tcl {ifile ofile} {
 } ;# hal_to_tcl
 
 proc ::tp::source_the_files {} {
+  set errct 0
   foreach file_plus_args $::TP(runfiles) {
     catch {unset ::argv}
     set f [lindex $file_plus_args 0]
@@ -528,7 +529,6 @@ proc ::tp::source_the_files {} {
       set ::argv [lrange $file_plus_args 1 end]
     }
     verbose "sourcing: $f"
-    set errct 0
 
     if [catch {source $f} msg] {
        if [info exists ::TP(origfile,$f)] {
