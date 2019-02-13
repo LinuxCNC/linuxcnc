@@ -858,6 +858,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
         self._request_name = 'ENTRY'
+        self.title = 'Numerical Entry'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -866,15 +867,24 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.setLayout(l)
 
         o = TouchInputWidget()
+        l.addWidget(o)
 
         self.Num = QLineEdit()
-        self.Num.returnPressed.connect(lambda: self.close())
         # actiate touch input
         self.Num.keyboard_type = 'numeric'
+        self.Num.returnPressed.connect(lambda: self.close())
+
         gl = QVBoxLayout()
         gl.addWidget(self.Num)
+
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.rejected.connect(lambda: self.close())
+        self.bBox.accepted.connect(lambda: self.close())
+
+        gl.addWidget(self.bBox)
         o.setLayout(gl)
-        l.addWidget(o)
 
     def _hal_init(self):
         x = self.geometry().x()
@@ -901,13 +911,18 @@ class EntryDialog(QDialog, _HalWidgetBase):
     # and then send back the dialog response via a general message
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:
+            t = message.get('TITLE')
+            if t:
+                self.title = t
+            else:
+                self.title = 'Entry'
             num = self.showdialog()
             message['RETURN'] = num
             STATUS.emit('general', message)
 
     def showdialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
-        self.setWindowTitle('Numerical Entry');
+        self.setWindowTitle(self.title);
         if self.play_sound:
             STATUS.emit('play-alert', self.sound_type)
         self.calculate_placement()
