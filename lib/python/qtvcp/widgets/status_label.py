@@ -40,6 +40,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self._actual_RPM = 0
         self._diameter = 1
         self._delay = 0
+        self._index = 0
 
         self.feed_override = True
         self.rapid_override = False
@@ -63,6 +64,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.filename = False
         self.machine_state = False
         self.time_stamp = False
+        self.tool_offset = False
 
     def _hal_init(self):
         def _f(data):
@@ -121,6 +123,9 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             #STATUS.connect('interp-waiting', lambda w: self._machine_state('Waiting'))
         elif self.time_stamp:
             STATUS.connect('periodic', self._set_timestamp)
+        elif self.tool_offset:
+            STATUS.connect('current-tool-offset', self._set_tool_offset_text)
+
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -189,6 +194,9 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
         self._set_text(str(tool_table_line[index]))
 
+    def _set_tool_offset_text(self, w, offsets):
+        self._set_text(offsets[self._index])
+
     def _ss_tool_diam(self, data):
         if data.id is not -1:
             self._diameter = data.diameter
@@ -234,7 +242,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
                 'tool_comment',  'actual_surface_speed', 'filename', 'machine_state',
-                'time_stamp', 'max_velocity')
+                'time_stamp', 'max_velocity', 'tool_offset')
 
         for i in data:
             if not i == picked:
@@ -267,6 +275,16 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         return self._alt_textTemplate
     def reset_alt_textTemplate(self):
         self._alt_textTemplate = '%s'
+
+    # index for tool offset
+    def set_index(self, data):
+        if data < 0: data = 0
+        self._index = data
+    def get_index(self):
+        return self._index
+    def reset_index(self):
+        self._index = 0
+
 
     # feed override status
     def set_feed_override(self, data):
@@ -488,9 +506,20 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     def reset_time_stamp(self):
         self.time_stamp = False
 
+    # tool_offset status
+    def set_tool_offset(self, data):
+        self.tool_offset = data
+        if data:
+            self._toggle_properties('tool_offset')
+    def get_tool_offset(self):
+        return self.tool_offset
+    def reset_tool_offset(self):
+        self.tool_offset = False
 
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
+    index_number = QtCore.pyqtProperty(int, get_index, set_index, reset_index)
+
     feed_override_status = QtCore.pyqtProperty(bool, get_feed_override, set_feed_override, reset_feed_override)
     rapid_override_status = QtCore.pyqtProperty(bool, get_rapid_override, set_rapid_override, reset_rapid_override)
     max_velocity_override_status = QtCore.pyqtProperty(bool, get_max_velocity_override, set_max_velocity_override, reset_max_velocity_override)
@@ -500,7 +529,6 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     jograte_angular_status = QtCore.pyqtProperty(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
     joginct_angle_status = QtCore.pyqtProperty(bool, get_joginct_angle, set_joginct_angle, reset_joginct_angle)
-    tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
                                                   reset_current_feedrate)
     current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
@@ -513,6 +541,9 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
     tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)
+    tool_number_status = QtCore.pyqtProperty(bool, get_tool_number, set_tool_number, reset_tool_number)
+    tool_offset_status = QtCore.pyqtProperty(bool, get_tool_offset, set_tool_offset, reset_tool_offset)
+
     actual_surface_speed_status = QtCore.pyqtProperty(bool, get_actual_surface_speed, set_actual_surface_speed,
                                                       reset_actual_surface_speed)
     filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,

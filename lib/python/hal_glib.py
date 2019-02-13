@@ -120,6 +120,8 @@ class _GStat(gobject.GObject):
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'tool-info-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'current-tool-offset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -252,6 +254,7 @@ class _GStat(gobject.GObject):
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
         self.old['current-z-rotation'] = self.stat.rotation_xy
+        self.old['current-tool-offset'] = self.stat.tool_offset
 
         # override limits / hard limits
         or_limit_list=[]
@@ -501,7 +504,11 @@ class _GStat(gobject.GObject):
         z_rot_new = self.old['current-z-rotation']
         if z_rot_new != z_rot_old:
             self.emit('current-z-rotation',z_rot_new)
-
+        # current tool offsets
+        tool_off_old = old.get('current-tool-offset', None)
+        tool_off_new = self.old['current-tool-offset']
+        if tool_off_new != tool_off_old:
+               self.emit('current-tool-offset',tool_off_new)
         #############################
         # Gcodes
         #############################
@@ -633,6 +640,9 @@ class _GStat(gobject.GObject):
         # rotation around Z
         z_rot_new = self.old['current-z-rotation']
         self.emit('current-z-rotation',z_rot_new)
+        # current tool offsets
+        tool_off_new = self.old['current-tool-offset']
+        self.emit('current-tool-offset',tool_off_new)
 
         # M codes
         m_code_new = self.old['m-code']
