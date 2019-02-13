@@ -207,6 +207,15 @@ class _Lcnc_Action(object):
     def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
         self.RELOAD_DISPLAY()
+    def ZERO_G5X_OFFSET(self, num):
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        clear_command = "G10 L2 P%d R0" % num
+        for a in INFO.AVAILABLE_AXES:
+            clear_command += " %c0" % a
+        self.cmd.mdi('%s'% clear_command)
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
 
     def RECORD_CURRENT_MODE(self):
         mode = STATUS.get_current_mode()
