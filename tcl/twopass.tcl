@@ -542,7 +542,7 @@ proc ::tp::source_the_files {} {
     }
   }
   if {$errct} {
-    exit 1
+      exit 1
   }
 } ;# source_the_files
 
@@ -557,6 +557,7 @@ proc ::tp::load_the_modules {} {
     # no modules unlikely, but can occur in testing
     set ::TP(modules) ""
   }
+  set errct 0
   foreach m $::TP(modules) {
     set cmd "orig_loadrt $m" ;# this is the real loadrt
     if [info exists ::TP($m,count)] {
@@ -579,7 +580,11 @@ proc ::tp::load_the_modules {} {
     verbose "[string range $cmd 5 end]" ;# omit leading orig_
     if [catch { eval $cmd} msg] {
        puts "\ntwopass: load_the_modules cmd=<$cmd>\n$msg\n"
+       incr errct
     }
+  }
+  if $errct {
+      exit 1
   }
   set ::TP(loaded,modules) $::TP(modules)
   set ::TP(modules) ""
