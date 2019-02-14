@@ -1847,7 +1847,9 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
+#ifdef EMCCANON_DEBUG
     double nominal_vel = getActiveFeedRate(FEED_LINEAR);
+#endif
 
     // Make sure spindle speed is within range (for spindle_sync motion only)
     double vel = limitSpindleSpeedByActiveFeedRate(v_max);
