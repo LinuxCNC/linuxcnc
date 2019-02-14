@@ -17,7 +17,7 @@ import os
 
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, \
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout, \
-        QHBoxLayout, QLineEdit
+        QHBoxLayout, QLineEdit, QPushButton
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
@@ -265,6 +265,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FileDialog, self).__init__(parent)
         self._state = False
+        self._request_name = 'FILE'
         self._color = QColor(0, 0, 0, 150)
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -296,11 +297,15 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         else:
             self.play_sound = False
 
-    def _external_request(self, w, cmd):
-        if cmd == 'FILE':
-            self.load_dialog()
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
+            if message['ID']:
+                message['RETURN'] = self.load_dialog(True)
+                STATUS.emit('general', message)
+            else:
+                self.load_dialog()
 
-    def load_dialog(self):
+    def load_dialog(self, return_path=False):
 
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
@@ -313,7 +318,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'FileDialog-geometry')
-        if fname:
+        if fname and not return_path: 
             if self.PREFS_:
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
@@ -358,6 +363,8 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         super(OriginOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'ORIGINOFFSET'
+
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -403,8 +410,8 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'ORIGINOFFSET':
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -472,6 +479,8 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         super(ToolOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'ORIGINOFFSET'
+
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -517,8 +526,8 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'ORIGINOFFSET':
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This weird code is just so we can get the axis
@@ -586,21 +595,24 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         super(CamViewDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'CAMVIEW'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        b = buttonBox.button(QDialogButtonBox.Ok)
-        b.clicked.connect(lambda: self.close())
+        h = QHBoxLayout()
+        h.addStretch(1)
+        self.b = QPushButton("Close")
+        self.b.clicked.connect(lambda: self.close())
+        h.addWidget(self.b)
         l = QVBoxLayout()
         o = CamView()
         o._hal_init()
         self.setLayout(l)
         l.addWidget(o)
-        l.addWidget(buttonBox)
+        l.addLayout(h)
 
     def _hal_init(self):
         x = self.geometry().x()
@@ -616,8 +628,8 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'CAMVIEW':
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     def load_dialog(self):
@@ -666,6 +678,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         super(MacroTabDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
+        self._request_name = 'MACRO'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -701,8 +714,8 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'MACRO':
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     # This method is called instead of MacroTab's closeChecked method
@@ -764,7 +777,7 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         super(VersaProbeDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
-
+        self._request_name  = 'VERSAPROBE'
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -795,8 +808,8 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
-    def _external_request(self, w, cmd):
-        if cmd == 'VERSAPROBE':
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
             self.load_dialog()
 
     def load_dialog(self):
@@ -844,6 +857,8 @@ class EntryDialog(QDialog, _HalWidgetBase):
         super(EntryDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
+        self._request_name = 'ENTRY'
+        self.title = 'Numerical Entry'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -852,15 +867,24 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.setLayout(l)
 
         o = TouchInputWidget()
+        l.addWidget(o)
 
         self.Num = QLineEdit()
-        self.Num.returnPressed.connect(lambda: self.close())
         # actiate touch input
         self.Num.keyboard_type = 'numeric'
+        self.Num.returnPressed.connect(lambda: self.close())
+
         gl = QVBoxLayout()
         gl.addWidget(self.Num)
+
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.rejected.connect(lambda: self.close())
+        self.bBox.accepted.connect(lambda: self.close())
+
+        gl.addWidget(self.bBox)
         o.setLayout(gl)
-        l.addWidget(o)
 
     def _hal_init(self):
         x = self.geometry().x()
@@ -878,10 +902,27 @@ class EntryDialog(QDialog, _HalWidgetBase):
             self.sound_type = self.PREFS_.getpref('toolDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
         else:
             self.play_sound = False
+        STATUS.connect('dialog-request', self._external_request)
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message['NAME'] == self._request_name:
+            t = message.get('TITLE')
+            if t:
+                self.title = t
+            else:
+                self.title = 'Entry'
+            num = self.showdialog()
+            message['RETURN'] = num
+            STATUS.emit('general', message)
 
     def showdialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
-        self.setWindowTitle('Numerical Entry');
+        self.setWindowTitle(self.title);
         if self.play_sound:
             STATUS.emit('play-alert', self.sound_type)
         self.calculate_placement()

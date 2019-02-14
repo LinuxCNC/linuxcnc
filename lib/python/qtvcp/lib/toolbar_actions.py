@@ -43,7 +43,8 @@ class ToolBarActions():
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
-        self.viewActiongroup = QtWidgets.QActionGroup(None)
+        self._viewActiongroup = QtWidgets.QActionGroup(None)
+        self._touchoffActiongroup = QtWidgets.QActionGroup(None)
 
     def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
@@ -130,13 +131,24 @@ class ToolBarActions():
             STATUS.connect('mode-manual', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(False))
             function = (self.actOnOptionalStop)
-        elif action == 'home_submenu':
+        elif action == 'touchoffworkplace':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
-            self.addHomeActions(widget)
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
             function = None
+            self._touchoffActiongroup.addAction(widget)
+            self._touchoffActiongroup.setExclusive(True)
+        elif action == 'touchofffixture':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            function = None
+            self._touchoffActiongroup.addAction(widget)
+            self._touchoffActiongroup.setExclusive(True)
         elif action == 'load_calibration':
             function = (self.actOnLoadCalibration)
         elif action == 'load_halmeter':
@@ -154,41 +166,33 @@ class ToolBarActions():
         elif action == 'zoom_out':
             function = (self.actOnZoomOut)
         elif action == 'view_x':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewX)
         elif action == 'view_y':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewY)
         elif action == 'view_y2':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewY2)
         elif action == 'view_z':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewZ)
         elif action == 'view_z2':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewZ2)
         elif action == 'view_p':
-            self.viewActiongroup.addAction(widget)
-            self.viewActiongroup.setExclusive(True)
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
             function = (self.actOnViewp)
         elif action == 'view_clear':
             function = (self.actOnViewClear)
         elif action == 'quit':
             function = (self.actOnQuit)
-        elif action == 'recent_submenu':
-            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
-            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
-            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
-            function = None
 
         else:
             LOG.warning('Unrecogzied action command: {}'.format(action))
@@ -207,6 +211,40 @@ class ToolBarActions():
             else:
                 widget.triggered.connect(lambda: function(widget))
 
+    def configure_submenu(self, widget, submenu):
+        submenu = submenu.lower()
+        if submenu == 'home_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            self.addHomeActions(widget)
+        elif submenu == 'unhome_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            self.addUnHomeActions(widget)
+        elif submenu == 'recent_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
+        elif submenu == 'zero_systems_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            self.addZeroSystemsActions(widget)
+        else:
+            LOG.warning('Unrecogzied sunmenu command: {}'.format(submenu))
+
+    #########################################################
+    # Standard Actions
+    #########################################################
     def actOnEstop(self, widget, state):
         ACTION.SET_ESTOP_STATE(state)
 
@@ -242,13 +280,13 @@ class ToolBarActions():
     def actOnAbort(self,widget, state=None):
         ACTION.ABORT()
 
-    def actOnBlockDelete(self, state):
+    def actOnBlockDelete(self, widget,  state):
         if state:
             ACTION.SET_BLOCK_DELETE_ON()
         else:
             ACTION.SET_BLOCK_DELETE_OFF()
 
-    def actOnOptionalStop(self, state):
+    def actOnOptionalStop(self, widget, state):
         if state:
             ACTION.SET_OPTIONAL_STOP_ON()
         else:
@@ -325,6 +363,9 @@ class ToolBarActions():
         msg.show()
         retval = msg.exec_()
 
+    #########################################################
+    # Sub menus
+    #########################################################
     def addHomeActions(self,widget):
         def home(joint):
             print 'home'
@@ -338,6 +379,59 @@ class ToolBarActions():
             homeAct = QtWidgets.QAction('Home %s'%i, widget)
             homeAct.triggered.connect(lambda: home(conversion[i]))
             widget.addAction(homeAct)
+
+    def addUnHomeActions(self,widget):
+        def unHome(joint):
+            print 'home'
+            ACTION.SET_MACHINE_UNHOMED(joint)
+
+        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        homeAct = QtWidgets.QAction('Unhome ALL', widget)
+        homeAct.triggered.connect(lambda: unHome(-1))
+        widget.addAction(homeAct)
+        for i in INFO.AVAILABLE_AXES:
+            homeAct = QtWidgets.QAction('Unhome %s'%i, widget)
+            homeAct.triggered.connect(lambda: unHome(conversion[i]))
+            widget.addAction(homeAct)
+
+    def addZeroSystemsActions(self, widget):
+        # no idea why I can't use a for loop to build this like above
+        # but it never returned the right system index
+        zeroSysAct = QtWidgets.QAction('G54', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(1))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G55', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(2))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G56', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(3))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G57', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(4))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G58', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(5))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(6))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.1', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(7))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.2', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(8))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.3', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(9))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G92', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G92_OFFSET())
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('Rotaional', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_ROTATIONAL_OFFSET())
+        widget.addAction(zeroSysAct)
+
+
 
     def updateRecent(self, widget, filename):
         def loadRecent(w):

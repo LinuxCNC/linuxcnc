@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>746</width>
-    <height>598</height>
+    <height>680</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -87,7 +87,7 @@
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>20</y>
+               <y>0</y>
                <width>251</width>
                <height>31</height>
               </rect>
@@ -148,7 +148,7 @@
              <property name="geometry">
               <rect>
                <x>100</x>
-               <y>60</y>
+               <y>40</y>
                <width>31</width>
                <height>21</height>
               </rect>
@@ -194,7 +194,7 @@
              <property name="geometry">
               <rect>
                <x>60</x>
-               <y>60</y>
+               <y>40</y>
                <width>31</width>
                <height>21</height>
               </rect>
@@ -243,7 +243,7 @@
              <property name="geometry">
               <rect>
                <x>140</x>
-               <y>60</y>
+               <y>40</y>
                <width>111</width>
                <height>21</height>
               </rect>
@@ -259,7 +259,7 @@
              <property name="geometry">
               <rect>
                <x>60</x>
-               <y>100</y>
+               <y>70</y>
                <width>71</width>
                <height>21</height>
               </rect>
@@ -305,7 +305,7 @@
              <property name="geometry">
               <rect>
                <x>150</x>
-               <y>100</y>
+               <y>70</y>
                <width>111</width>
                <height>21</height>
               </rect>
@@ -321,7 +321,7 @@
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>140</y>
+               <y>130</y>
                <width>54</width>
                <height>17</height>
               </rect>
@@ -334,7 +334,7 @@
              <property name="geometry">
               <rect>
                <x>60</x>
-               <y>140</y>
+               <y>130</y>
                <width>31</width>
                <height>27</height>
               </rect>
@@ -345,6 +345,9 @@
               </iconset>
              </property>
              <property name="spindle_rev_action" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="spindle_down_action" stdset="0">
               <bool>true</bool>
              </property>
              <property name="joint_number" stdset="0">
@@ -382,7 +385,7 @@
              <property name="geometry">
               <rect>
                <x>100</x>
-               <y>140</y>
+               <y>130</y>
                <width>45</width>
                <height>27</height>
               </rect>
@@ -434,7 +437,7 @@
              <property name="geometry">
               <rect>
                <x>160</x>
-               <y>140</y>
+               <y>130</y>
                <width>31</width>
                <height>27</height>
               </rect>
@@ -445,96 +448,7 @@
               </iconset>
              </property>
              <property name="spindle_fwd_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>0</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
               <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_7">
-             <property name="geometry">
-              <rect>
-               <x>60</x>
-               <y>180</y>
-               <width>16</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>-</string>
-             </property>
-             <property name="spindle_down_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>0</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_8">
-             <property name="geometry">
-              <rect>
-               <x>100</x>
-               <y>180</y>
-               <width>21</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>+</string>
              </property>
              <property name="spindle_up_action" stdset="0">
               <bool>true</bool>
@@ -605,6 +519,57 @@
                <height>105</height>
               </rect>
              </property>
+            </widget>
+            <widget class="StatusLabel" name="statuslabel_9">
+             <property name="geometry">
+              <rect>
+               <x>210</x>
+               <y>130</y>
+               <width>71</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>%d RPM</string>
+             </property>
+             <property name="actual_spindle_speed_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
+             <property name="geometry">
+              <rect>
+               <x>70</x>
+               <y>100</y>
+               <width>171</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="is_on_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="is_idle_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <property name="is_homed_status" stdset="0">
+              <bool>true</bool>
+             </property>
+             <widget class="QPushButton" name="pushButton">
+              <property name="geometry">
+               <rect>
+                <x>40</x>
+                <y>0</y>
+                <width>111</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Set Tool Ofsset</string>
+              </property>
+             </widget>
             </widget>
            </widget>
            <widget class="QWidget" name="tab_4">
@@ -918,6 +883,9 @@
              <property name="textTemplate" stdset="0">
               <string>%s</string>
              </property>
+             <property name="max_velocity_override_status" stdset="0">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
            <item>
@@ -935,6 +903,9 @@
               <bool>false</bool>
              </property>
              <property name="jograte_angular_rate" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="max_velocity_rate" stdset="0">
               <bool>true</bool>
              </property>
             </widget>
@@ -953,7 +924,7 @@
          </size>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -992,8 +963,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_7">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>10</y>
+            <x>0</x>
+            <y>-10</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1027,8 +998,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_8">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>50</y>
+            <x>0</x>
+            <y>30</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1065,8 +1036,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_9">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>90</y>
+            <x>0</x>
+            <y>70</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1103,8 +1074,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_13">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>150</y>
+            <x>0</x>
+            <y>120</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1147,8 +1118,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_14">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>190</y>
+            <x>0</x>
+            <y>160</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1194,8 +1165,8 @@
          <widget class="QWidget" name="horizontalLayoutWidget_15">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>230</y>
+            <x>0</x>
+            <y>200</y>
             <width>257</width>
             <height>51</height>
            </rect>
@@ -1248,6 +1219,137 @@
            </rect>
           </property>
          </widget>
+         <widget class="QWidget" name="horizontalLayoutWidget_16">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>240</y>
+            <width>257</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_20">
+           <item>
+            <widget class="StatusLabel" name="statuslabel_16">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;G100.0 R:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="textTemplate" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;G%s R:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="user_system_status" stdset="0">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="DROLabel" name="dro_label_13">
+             <property name="text">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="Qjoint_number" stdset="0">
+              <number>10</number>
+             </property>
+             <property name="Qreference_type" stdset="0">
+              <number>0</number>
+             </property>
+             <property name="metric_template" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="imperial_template" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;%9.4f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="angular_template" stdset="0">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;%4.2f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="StatusLabel" name="statuslabel_17">
+          <property name="geometry">
+           <rect>
+            <x>290</x>
+            <y>130</y>
+            <width>191</width>
+            <height>49</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO X:   100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO X:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alt_textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Y:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="user_system_status" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="tool_offset_status" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="StatusLabel" name="statuslabel_18">
+          <property name="geometry">
+           <rect>
+            <x>290</x>
+            <y>170</y>
+            <width>191</width>
+            <height>49</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Y:   100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Y:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alt_textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Y:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="index_number" stdset="0">
+           <number>1</number>
+          </property>
+          <property name="user_system_status" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="tool_offset_status" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="StatusLabel" name="statuslabel_19">
+          <property name="geometry">
+           <rect>
+            <x>290</x>
+            <y>210</y>
+            <width>191</width>
+            <height>49</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Z:   100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Z:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alt_textTemplate" stdset="0">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;TLO Z:%10.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="index_number" stdset="0">
+           <number>2</number>
+          </property>
+          <property name="user_system_status" stdset="0">
+           <bool>false</bool>
+          </property>
+          <property name="tool_offset_status" stdset="0">
+           <bool>true</bool>
+          </property>
+         </widget>
         </widget>
        </widget>
       </item>
@@ -1267,6 +1369,16 @@
         <height>200</height>
        </size>
       </property>
+      <widget class="EntryDialog" name="entrydialog">
+       <property name="geometry">
+        <rect>
+         <x>763</x>
+         <y>492</y>
+         <width>152</width>
+         <height>67</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -1307,6 +1419,16 @@
       <string>Homing</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuUnhome">
+     <property name="title">
+      <string>Unhome </string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuZeroCoordinateSystem">
+     <property name="title">
+      <string>Zero Coordinate System</string>
+     </property>
+    </widget>
     <addaction name="actionClear_MDI_History"/>
     <addaction name="actionCalibration"/>
     <addaction name="actionHalshow"/>
@@ -1314,6 +1436,23 @@
     <addaction name="actionHalscope"/>
     <addaction name="actionStatus"/>
     <addaction name="menuHoming"/>
+    <addaction name="menuUnhome"/>
+    <addaction name="separator"/>
+    <addaction name="actionEstop"/>
+    <addaction name="actionMachineOn"/>
+    <addaction name="separator"/>
+    <addaction name="actionRun"/>
+    <addaction name="actionRun_From_Line"/>
+    <addaction name="actionStep"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionStop"/>
+    <addaction name="separator"/>
+    <addaction name="actionOptionalStop"/>
+    <addaction name="actionSkip"/>
+    <addaction name="separator"/>
+    <addaction name="menuZeroCoordinateSystem"/>
+    <addaction name="actionTouchoffWorkplace"/>
+    <addaction name="actionTouchoffFixture"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1324,6 +1463,7 @@
     <addaction name="actionFrontView"/>
     <addaction name="actionTopView"/>
     <addaction name="actionRotatedView"/>
+    <addaction name="actionClearPlot"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1591,6 +1731,9 @@
    </property>
   </action>
   <action name="actionToolRotate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../../../axis/images/tool_rotate.gif</normaloff>../../../axis/images/tool_rotate.gif</iconset>
@@ -1638,24 +1781,25 @@
     <string>Linuxcnc Status</string>
    </property>
   </action>
-  <action name="actionHome_All_Axes">
+  <action name="actionRun_From_Line">
    <property name="text">
-    <string>Home All Axes</string>
+    <string>Run From Line</string>
    </property>
   </action>
-  <action name="actionHome_X">
+  <action name="actionTouchoffWorkplace">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Home X</string>
+    <string>Touchoff Workplace</string>
    </property>
   </action>
-  <action name="actionHome_Y">
-   <property name="text">
-    <string>Home Y</string>
+  <action name="actionTouchoffFixture">
+   <property name="checkable">
+    <bool>true</bool>
    </property>
-  </action>
-  <action name="actionHome_Z">
    <property name="text">
-    <string>Home Z</string>
+    <string>Touchoff Fixture</string>
    </property>
   </action>
  </widget>
@@ -1665,6 +1809,11 @@
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EntryDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>LcncDialog</class>
@@ -1685,6 +1834,12 @@
    <class>FileDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>RadioAxisSelector</class>
@@ -1736,5 +1891,25 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>tool_offset_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>162</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>260</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>tool_offset_clicked()</slot>
+ </slots>
 </ui>

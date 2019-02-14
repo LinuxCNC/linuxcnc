@@ -138,6 +138,17 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    def SET_TOOL_OFFSET(self,axis,value,fixture = False):
+        lnum = 10+int(fixture)
+        m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
     def RUN(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
         if STATUS.is_auto_paused():
@@ -156,6 +167,8 @@ class _Lcnc_Action(object):
             log.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
+    def SET_MAX_VELOCITY_RATE(self, rate):
+        self.cmd.maxvel(rate/60.0)
     def SET_RAPID_RATE(self, rate):
         self.cmd.rapidrate(rate/100.0)
     def SET_FEED_RATE(self, rate):
@@ -193,6 +206,15 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
     def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
+        self.RELOAD_DISPLAY()
+    def ZERO_G5X_OFFSET(self, num):
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        clear_command = "G10 L2 P%d R0" % num
+        for a in INFO.AVAILABLE_AXES:
+            clear_command += " %c0" % a
+        self.cmd.mdi('%s'% clear_command)
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
     def RECORD_CURRENT_MODE(self):

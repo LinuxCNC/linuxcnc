@@ -120,18 +120,22 @@ class _GStat(gobject.GObject):
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'tool-info-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'current-tool-offset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
                             gobject.TYPE_PYOBJECT,)),
+        'current-z-rotation': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'requested-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'actual-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
 
         'spindle-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'feed-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'rapid-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
 
         'feed-hold-enabled-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
 
@@ -162,7 +166,7 @@ class _GStat(gobject.GObject):
         'move-text-lineup': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'move-text-linedown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'load-file-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'dialog-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'dialog-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'focus-overlay-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_STRING,
                             gobject.TYPE_PYOBJECT)),
         'play-sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
@@ -172,6 +176,7 @@ class _GStat(gobject.GObject):
         'show-preference': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'shutdown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
+        'general': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -234,6 +239,7 @@ class _GStat(gobject.GObject):
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
+        self.old['max-velocity-or'] = self.stat.max_velocity
         self.old['feed-hold']  = self.stat.feed_hold_enabled
         self.old['g5x-index']  = self.stat.g5x_index
         self.old['spindle-enabled']  = self.stat.spindle[0]['enabled']
@@ -247,6 +253,8 @@ class _GStat(gobject.GObject):
              self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
+        self.old['current-z-rotation'] = self.stat.rotation_xy
+        self.old['current-tool-offset'] = self.stat.tool_offset
 
         # override limits / hard limits
         or_limit_list=[]
@@ -471,6 +479,11 @@ class _GStat(gobject.GObject):
         rapid_or_new = self.old['rapid-or']
         if rapid_or_new != rapid_or_old:
             self.emit('rapid-override-changed',rapid_or_new * 100)
+        # max-velocity override
+        max_velocity_or_old = old.get('max-velocity-or', None)
+        max_velocity_or_new = self.old['max-velocity-or']
+        if max_velocity_or_new != max_velocity_or_old:
+            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         # feed hold
         feed_hold_old = old.get('feed-hold', None)
         feed_hold_new = self.old['feed-hold']
@@ -486,7 +499,16 @@ class _GStat(gobject.GObject):
         flood_new = self.old['flood']
         if flood_new != flood_old:
             self.emit('flood-changed',flood_new)
-
+        # rotation around Z
+        z_rot_old = old.get('current-z-rotation', None)
+        z_rot_new = self.old['current-z-rotation']
+        if z_rot_new != z_rot_old:
+            self.emit('current-z-rotation',z_rot_new)
+        # current tool offsets
+        tool_off_old = old.get('current-tool-offset', None)
+        tool_off_new = self.old['current-tool-offset']
+        if tool_off_new != tool_off_old:
+               self.emit('current-tool-offset',tool_off_new)
         #############################
         # Gcodes
         #############################
@@ -579,6 +601,8 @@ class _GStat(gobject.GObject):
         self.emit('feed-override-changed',feed_or_new * 100)
         rapid_or_new = self.old['rapid-or']
         self.emit('rapid-override-changed',rapid_or_new  * 100)
+        max_velocity_or_new = self.old['max-velocity-or']
+        self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         spindle_or_new = self.old['spindle-or']
         self.emit('spindle-override-changed',spindle_or_new  * 100)
 
@@ -613,6 +637,12 @@ class _GStat(gobject.GObject):
         # diameter mode g7
         diam_new = self.old['diameter']
         self.emit('diameter-mode',diam_new)
+        # rotation around Z
+        z_rot_new = self.old['current-z-rotation']
+        self.emit('current-z-rotation',z_rot_new)
+        # current tool offsets
+        tool_off_new = self.old['current-tool-offset']
+        self.emit('current-tool-offset',tool_off_new)
 
         # M codes
         m_code_new = self.old['m-code']
@@ -746,13 +776,16 @@ class _GStat(gobject.GObject):
         return self.old['state'] > linuxcnc.STATE_ESTOP
 
     def is_man_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_MANUAL
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MANUAL
 
     def is_mdi_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_MDI
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MDI
 
     def is_auto_mode(self):
-        return self.old['mode']  == linuxcnc.MODE_AUTO
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_AUTO
 
     def is_on_and_idle(self):
         self.stat.poll()

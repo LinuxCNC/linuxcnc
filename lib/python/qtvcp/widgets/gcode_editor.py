@@ -192,8 +192,6 @@ class EditorBase(QsciScintilla):
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
-        # linuxcnc defaults
-        self.idle_line_reset = False
         # don't allow editing by default
         self.setReadOnly(True)
         # Set the default font
@@ -308,8 +306,12 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(GcodeDisplay, self).__init__(parent)
+        # linuxcnc defaults
+        self.idle_line_reset = False
         self._last_filename = None
         self.auto_show_mdi = True
+        self.auto_show_manual = False
+        self.auto_show_preference = True
         self.last_line = None
         #self.setEolVisibility(True)
 
@@ -318,12 +320,14 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.auto_show_mdi:
             STATUS.connect('mode-mdi', self.load_mdi)
             STATUS.connect('reload-mdi-history', self.load_mdi)
-            STATUS.connect('machine-log-changed', self.load_manual)
             STATUS.connect('mode-auto', self.reload_last)
-            STATUS.connect('mode-manual', self.load_manual)
-            STATUS.connect('show-preference', self.load_preference)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
+        if self.auto_show_manual:
+            STATUS.connect('mode-manual', self.load_manual)
+            STATUS.connect('machine-log-changed', self.load_manual)
+        if self.auto_show_preference:
+            STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
         STATUS.connect('line-changed', self.highlight_line)
         if self.idle_line_reset:
@@ -364,17 +368,19 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             self.setCursorPosition(self.lines(), 0)
 
     def load_text(self, filename):
-        try:
-            fp = os.path.expanduser(filename)
-            self.setText(open(fp).read())
-        except:
-            LOG.error('File path is not valid: {}'.format(filename))
-            self.setText('')
-            return
+        if filename:
+            try:
+                fp = os.path.expanduser(filename)
+                self.setText(open(fp).read())
+                self.last_line = None
+                self.ensureCursorVisible()
+                self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
+                return
+            except:
+                LOG.error('File path is not valid: {}'.format(filename))
+        self.setText('')
 
-        self.last_line = None
-        self.ensureCursorVisible()
-        self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
+
 
     def highlight_line(self, w, line):
         if STATUS.is_auto_running():
@@ -696,6 +702,17 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def emit_percent(self, percent):
         self.percentDone.emit(percent)
+
+    # designer recognized getter/setters
+    # auto_show_mdi status
+    # These adjust the self.editor instance
+    def set_auto_show_mdi(self, data):
+        self.editor.auto_show_mdi = data
+    def get_auto_show_mdi(self):
+        return self.editor.auto_show_mdi
+    def reset_auto_show_mdi(self):
+        self.editor.auto_show_mdi = True
+    auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
 # for direct testing
 if __name__ == "__main__":

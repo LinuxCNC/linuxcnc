@@ -181,7 +181,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Set Manual Mode',['manual', 0], []) )
         node_6 = (('Set Feed Override',['feed_over', 112], []),
                 ('Set Rapid Override',['rapid_over', 112], []),
-                ('Set Spindle Override',['spindle_over', 112], []) )
+                ('Set Spindle Override',['spindle_over', 112], []),
+                ('Set Max Veocity Override',['max_velocity_over', 112], [])  )
         node_7 = (('Set Spindle Forward',['spindle_fwd', 0], []),
                 ('Set Spindle Reverse',['spindle_rev', 0], []),
                 ('Set Spindle Stop',['spindle_stop', 0], []),

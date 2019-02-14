@@ -491,7 +491,7 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0">
+                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
                  <property name="spacing">
                   <number>0</number>
                  </property>
@@ -970,6 +970,9 @@
                     </layout>
                    </item>
                   </layout>
+                 </item>
+                 <item>
+                  <widget class="EntryDialog" name="entrydialog"/>
                  </item>
                  <item>
                   <spacer name="verticalSpacer_3">
@@ -2042,14 +2045,14 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>LcncDialog</class>
+   <class>EntryDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusAdjustmentBar</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.adjustment_bar</header>
+   <class>LcncDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>MDILine</class>
@@ -2073,16 +2076,15 @@
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>ScreenOptions</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.screen_options</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
    <class>StatusLabel</class>
@@ -2115,6 +2117,12 @@
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ToolDialog</class>

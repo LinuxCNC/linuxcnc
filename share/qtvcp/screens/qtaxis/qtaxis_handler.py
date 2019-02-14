@@ -1,12 +1,14 @@
 ############################
 # **** IMPORT SECTION **** #
 ############################
+import sys
+import os
+import linuxcnc
 
 from PyQt5 import QtCore, QtWidgets
-from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
-from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
+
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
+from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -14,11 +16,10 @@ from qtvcp.core import Status, Action
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 
-import linuxcnc
-import sys
-import os
+# Set the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###########################################
 # **** instantiate libraries section **** #
@@ -42,14 +43,12 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.stat = linuxcnc.stat()
-        self.cmnd = linuxcnc.command()
-        self.error = linuxcnc.error_channel()
         self.PATHS = paths
-        self.IMAGE_PATH = paths.IMAGEDIR
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
         TOOLBAR = ToolBarActions(path=paths)
+        STATUS.connect('general',self.return_value)
+
     ##########################################
     # Special Functions called from QTSCREEN
     ##########################################
@@ -59,6 +58,10 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
+        TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
+        TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
+        TOOLBAR.configure_submenu(self.w.menuZeroCoordinateSystem, 'zero_systems_submenu')
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
         TOOLBAR.configure_action(self.w.actionMachineOn, 'power')
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
@@ -77,8 +80,6 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
-        TOOLBAR.configure_action(self.w.menuRecent, 'recent_submenu')
-        TOOLBAR.configure_action(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
         TOOLBAR.configure_action(self.w.actionCalibration, 'load_calibration')
         TOOLBAR.configure_action(self.w.actionStatus, 'load_status')
@@ -86,6 +87,8 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionHalmeter, 'load_halmeter')
         TOOLBAR.configure_action(self.w.actionHalscope, 'load_halscope')
         TOOLBAR.configure_action(self.w.actionAbout, 'about')
+        TOOLBAR.configure_action(self.w.actionTouchoffWorkplace, 'touchoffworkplace')
+        TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -94,23 +97,48 @@ class HandlerClass:
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
-            if isinstance(receiver, OFFVIEW_WIDGET) or isinstance(receiver, MDI_WIDGET):
-                if is_pressed:
+
+            # search for the top widget of whatever widget received the event
+            # then check if it's one we want the keypress events to go to
+            flag = False
+            receiver2 = receiver
+            while receiver2 is not None and not flag:
+                if isinstance(receiver2, QtWidgets.QDialog):
+                    flag = True
+                    break
+                if isinstance(receiver2, MDI_WIDGET):
+                    flag = True
+                    break
+                if isinstance(receiver2, GCODE):
+                    flag = False
+                    break
+                receiver2 = receiver2.parent()
+
+            if flag:
+                if isinstance(receiver2, GCODE):
+                    # if in manual do our keybindings - otherwise
+                    # send events to gcode widget
+                    if STATUS.is_man_mode() == False:
+                        if is_pressed:
+                            receiver.keyPressEvent(event)
+                            event.accept()
+                        return True
+                elif is_pressed:
                     receiver.keyPressEvent(event)
                     event.accept()
-                return True
-            if isinstance(receiver,QtWidgets.QDialog):
-                print 'dialog'
-                return True
+                    return True
+                else:
+                    event.accept()
+                    return True
+
+        # ok if we got here then try keybindings
         try:
-            KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            return True
+            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            LOG.debug('Exception in KEYBINDING: {}'.format (e))
         except Exception as e:
-            #log.debug('Exception loading Macros:', exc_info=e)
+            LOG.debug('Exception in KEYBINDING:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            if e:
-                print e
-            #print 'from %s'% receiver
             return False
 
     ########################
@@ -121,9 +149,30 @@ class HandlerClass:
     # callbacks from form #
     #######################
 
+    def tool_offset_clicked(self):
+        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
+        axis = STATUS.get_selected_axis()
+        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[axis],
+            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
+
     #####################
     # general functions #
     #####################
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == 'FORM__')
+        name = bool(message['NAME'] == 'ENTRY')
+        if num and code and name:
+            LOG.debug('message return:{}'.format (message))
+            axis = message['AXIS']
+            fixture = message['FIXTURE']
+            ACTION.SET_TOOL_OFFSET(axis,num,fixture)
+            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+
     def quick_reference(self):
         help1 = [
     ("F1", _("Emergency stop")),
@@ -230,6 +279,8 @@ class HandlerClass:
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+            return
         if linear:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60

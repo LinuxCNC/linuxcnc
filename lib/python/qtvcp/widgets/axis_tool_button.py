@@ -22,7 +22,6 @@ from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.dialog_widget import EntryDialog
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -37,7 +36,7 @@ INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class AxisToolButton(QToolButton, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -46,6 +45,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self._last = 0
         self._block_signal = False
         self._halpin_option = True
+        self.request_dialog_code = 'ENTRY'
 
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -62,11 +62,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         SettingMenu.addAction(setlowButton)
         self.setMenu(SettingMenu)
         self.clicked.connect(self.SelectAxis)
-        self.dialog = EntryDialog()
-
 
     def _hal_init(self):
-        self.dialog.hal_init(self.HAL_GCOMP_, self.HAL_NAME_ ,self,self.QTVCP_INSTANCE_,self.PATHS_, self.PREFS_) 
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -81,6 +78,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
         if self._halpin_option and self._joint != -1:
             self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
+        STATUS.connect('general',self.return_value)
 
     def Zero(self):
         axis, now = self._a_from_j(self._joint)
@@ -92,9 +90,20 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def SetOrigin(self):
         axis, now = self._a_from_j(self._joint)
         if axis:
-            num = self.dialog.showdialog()
-            if num is None: return
-            self._last = now
+            mess = {'NAME':self.request_dialog_code,'ID':'%s__' % self.objectName(),
+            'AXIS':axis,'CURRENT':now,'TITLE':'Set %s Origin'% axis}
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == '%s__'% self.objectName())
+        name = bool(message['NAME'] == self.request_dialog_code)
+        if num and code and name:
+            LOG.debug('message return:{}'.format (message))
+            axis = message['AXIS']
+            self._last = message['CURRENT']
             ACTION.SET_AXIS_ORIGIN(axis, num)
             STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 
@@ -131,10 +140,11 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         return axis, r[jnum]
 
     def SelectAxis(self):
-       if self._block_signal or self._joint == -1: return
-       if self.isChecked() == True:
+        if self._block_signal or self._joint == -1: return
+        if self.isChecked() == True:
             ACTION.SET_SELECTED_AXIS(self._joint)
-       self.hal_pin.set(self.isChecked())
+        if self._halpin_option:
+            self.hal_pin.set(self.isChecked())
 
     def ChangeState(self, joint):
         if int(joint) != self._joint:
