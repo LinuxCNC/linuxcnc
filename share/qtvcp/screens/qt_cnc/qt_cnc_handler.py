@@ -200,19 +200,19 @@ class HandlerClass:
     # dialogs
     def on_keycall_F3(self,event,state,shift,cntrl):
         if state:
-            self.w.originoffsetdialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            self.w.camviewdialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'CAMVIEW'})
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
-            self.w.macrotabdialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'MACROTAB'})
     def on_keycall_F6(self,event,state,shift,cntrl):
         if state:
-            self.w.tooloffsetdialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
-            self.w.versaprobedialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
