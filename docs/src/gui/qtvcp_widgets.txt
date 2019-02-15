@@ -312,7 +312,7 @@ It is based on pyQT's combobox
 === ScreenOption widget
 
 This widget doesn't add anything visually to a screen but sets up important +
-options. +
+options. this is the proffered way to use these options +
 
 .These include: 
 * monitoring the linuxcnc error channel.
@@ -321,7 +321,8 @@ options. +
 * playing sounds
 * user defined pop up message dialogs
 * setting up a preference file
-
+* adding common dialog widgets (File, Entry, and manual toolchange)
+* adding the focus-overlay widget (colors/darkens the main screen when dialogs are up)
 
 === StatusSlider Widget
 
