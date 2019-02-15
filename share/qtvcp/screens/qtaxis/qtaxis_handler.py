@@ -88,7 +88,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionHalscope, 'load_halscope')
         TOOLBAR.configure_action(self.w.actionAbout, 'about')
         TOOLBAR.configure_action(self.w.actionTouchoffWorkplace, 'touchoffworkplace')
+        TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
         TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
+
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -172,6 +174,12 @@ class HandlerClass:
             fixture = message['FIXTURE']
             ACTION.SET_TOOL_OFFSET(axis,num,fixture)
             STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+
+    def edit(self, widget, state):
+        if state:
+            self.w.gcode_editor.editMode()
+        else:
+            self.w.gcode_editor.readOnlyMode()
 
     def quick_reference(self):
         help1 = [
