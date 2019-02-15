@@ -200,7 +200,7 @@ class ToolBarActions():
         # Call an external function when triggered. If it's checkable; add state
         if extFunction:
             if widget.isCheckable():
-                widget.triggered.connect(lambda state: extfunction(widget, state))
+                widget.triggered.connect(lambda state: extFunction(widget, state))
             else:
                 widget.triggered.connect(lambda: extFunction(widget))
 
