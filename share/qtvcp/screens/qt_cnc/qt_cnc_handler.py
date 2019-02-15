@@ -78,8 +78,6 @@ class HandlerClass:
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         self.w.tooloffsetdialog._geometry_string='0 0 600 400 onwindow '
 
-    def editor_exit(self):
-        self.w.gcodeeditor.exit()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -171,6 +169,9 @@ class HandlerClass:
     # to test that function
     def test_function(self, text=None):
         print text
+
+    def editor_exit(self):
+        self.w.gcodeeditor.exit()
 
     #####################
     # KEY BINDING CALLS #
