@@ -312,7 +312,7 @@ It is based on pyQT's combobox
 === ScreenOption widget
 
 This widget doesn't add anything visually to a screen but sets up important +
-options. +
+options. this is the proffered way to use these options +
 
 .These include: 
 * monitoring the linuxcnc error channel.
@@ -321,7 +321,8 @@ options. +
 * playing sounds
 * user defined pop up message dialogs
 * setting up a preference file
-
+* adding common dialog widgets (File, Entry, and manual toolchange)
+* adding the focus-overlay widget (colors/darkens the main screen when dialogs are up)
 
 === StatusSlider Widget
 
@@ -450,3 +451,56 @@ If there is a Focus Overlay widget present, it will signal it to display. +
 
 This is a dialog to display the camview object for Webcam part alignment. +
 It is based on pyQT's QDialog
+
+===  Dialog entry
+
+This is a dialog to display an edit line for information entry, such as origin offset. +
+It returns the entry via STATUS messages using a python DICT. +
+The DICT contains at minimum, the name of the dialog requested and an id code. +
+The code name for this dialog is 'ENTRY' +
+ +
+To set this up first register to catch the 'general' message from STATUS:
+[source,python]
+----
+STATUS.connect('general',self.return_value)
+----
+
+Add a function to call a dialog: +
+This function must build a message DICT to send to the dialog. +
+This message will be passed back in the general message with the addition +
+of the RETURN varaible. It is possible to add extra user information to the message. +
+The dialog will ignore these and pass them back. +
+'NAME' = code name of dialog to show. +
+'ID' = a unique id so we process only an entry that we requested. +
+'TITLE' = the title to use on the dialog
+
+[source,python]
+----
+        def show_dialog(self):
+            mess = {'NAME':'ENTRY','ID':'__test1__',
+                    'TITLE':'Test Entry'}
+            STATUS.emit('dialog-request', mess)
+----
+
+Add a callback function that processes the general message:
+This function should check the the name and id is the same as +
+we sent, then it can extract the return value and any user variables. +
+Keep in mind this function will get all general messages so the DICT keynames +
+are not guaranteed to be there. Using the .get() function and or using try/except +
+is advisable.
+[source,python]
+----
+    # process the STATUS return message
+    def return_value(self, w, message):
+        rtn = message.get('RETURN')
+        code = bool(message.get('ID') == '__test1__')
+        name = bool(message.get('NAME') == 'ENTRY')
+        if rtn and code and name:
+            Print ('Entry return value from {} = {}').format(code, rtn)
+
+
+----
+
+It is based on pyQT's QDialog
+
+

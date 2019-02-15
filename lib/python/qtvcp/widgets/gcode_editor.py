@@ -283,6 +283,7 @@ class EditorBase(QsciScintilla):
             return
         self.ensureCursorVisible()
         self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
+        self.setModified(False)
 
     def save_text(self):
         with open(self.filepath + 'text', "w") as text_file:
@@ -341,6 +342,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.load_text(filename)
         #self.zoomTo(6)
         self.setCursorPosition(0, 0)
+        self.setModified(False)
 
     # when switching from MDI to AUTO we need to reload the
     # last (linuxcnc loaded) program.
@@ -457,6 +459,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         # so we get the lines percent update
         self.editor.emit_percent = self.emit_percent
         self.editor.setReadOnly(True)
+        self.editor.setModified(False)
 
         ################################
         # add menubar actions
@@ -699,6 +702,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             file = open(name[0],'w')
             file.write(self.editor.text())
             file.close()
+            self.editor.setModified(False)
 
     def emit_percent(self, percent):
         self.percentDone.emit(percent)

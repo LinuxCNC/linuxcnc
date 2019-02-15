@@ -479,7 +479,7 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         super(ToolOffsetDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
-        self._request_name = 'ORIGINOFFSET'
+        self._request_name = 'TOOLOFFSET'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -678,7 +678,7 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         super(MacroTabDialog, self).__init__(parent)
         self._color = QColor(0, 0, 0, 150)
         self._state = False
-        self._request_name = 'MACRO'
+        self._request_name = 'MACROTAB'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -910,7 +910,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
     # if all good show the dialog
     # and then send back the dialog response via a general message
     def _external_request(self, w, message):
-        if message['NAME'] == self._request_name:
+        if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
                 self.title = t

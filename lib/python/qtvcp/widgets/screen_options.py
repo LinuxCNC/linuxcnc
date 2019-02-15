@@ -70,13 +70,32 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.play_shutdown_sounds = True
         self.user_messages = True
         self.use_pref_file = True
+        self.add_entry_dialog = False
+        self.add_tool_dialog = False
+        self.add_file_dialog = False
+        self.add_focus_overlay = False
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._close_color = QtGui.QColor(100, 0, 0, 150)
+        self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
+        self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
     # come from base class
     def _hal_init(self):
+        if self.add_entry_dialog:
+            self.init_entry_dialog()
+
+        if self.add_tool_dialog:
+            self.init_tool_dialog()
+
+        if self.add_file_dialog:
+            self.init_file_dialog()
+
+        if self.add_focus_overlay:
+            self.init_focus_overlay()
+
         # Read user preferences
         if self.PREFS_:
             self.catch_errors = self.PREFS_.getpref('catch_errors', True, bool, 'SCREEN_OPTIONS')
@@ -221,6 +240,37 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         text = 'Tool %s: %s'%(str(tool_table_line[0]),str(tool_table_line[index]))
         STATUS.emit('update-machine-log', text, 'TIME')
 
+    def init_tool_dialog(self):
+        from qtvcp.widgets.dialog_widget import ToolDialog
+        w = self.QTVCP_INSTANCE_
+        w.toolDialog_ = ToolDialog()
+        w.toolDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.toolDialog_, w, w.PATHS, self.PREFS_)
+        w.toolDialog_.overlay_color = self._toolDialogColor
+
+    def init_entry_dialog(self):
+        from qtvcp.widgets.dialog_widget import EntryDialog
+        w = self.QTVCP_INSTANCE_
+        w.entryDialog_ = EntryDialog()
+        w.entryDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.entryDialog_, w, w.PATHS, self.PREFS_)
+        w.entryDialog_.overlay_color = self._entryDialogColor
+
+    def init_file_dialog(self):
+        from qtvcp.widgets.dialog_widget import FileDialog
+        w = self.QTVCP_INSTANCE_
+        w.fileDialog_ = FileDialog()
+        w.fileDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.fileDialog_, w, w.PATHS, self.PREFS_)
+        w.fileDialog_.overlay_color = self._fileDialogColor
+
+    def init_focus_overlay(self):
+        from qtvcp.widgets.overlay_widget import FocusOverlay
+        w = self.QTVCP_INSTANCE_
+        w.focusOverlay_ = FocusOverlay(w)
+        w.focusOverlay_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.focusOverlay_, w, w.PATHS, self.PREFS_)
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -278,9 +328,60 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
+
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
+
     catch_errors_option = QtCore.pyqtProperty(bool, get_errors, set_errors, reset_errors)
     play_sounds_option = QtCore.pyqtProperty(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
+
     use_pref_file_option = QtCore.pyqtProperty(bool, get_use_pref_file, set_use_pref_file, reset_use_pref_file)
     pref_filename_string = QtCore.pyqtProperty(str, get_pref_filename, set_pref_filename, reset_pref_filename)
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
+
+    def set_focusOverlay(self, data):
+        self.add_focus_overlay = data
+    def get_focusOverlay(self):
+        return self.add_focus_overlay
+    def reset_focusOverlay(self):
+        self.add_focus_overlay = False
+    focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
+
+    def set_entryDialog(self, data):
+        self.add_entry_dialog = data
+    def get_entryDialog(self):
+        return self.add_entry_dialog
+    def reset_entryDialog(self):
+        self.add_entry_dialog = False
+    entryDialog_option = QtCore.pyqtProperty(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
+    def get_entryDialogColor(self):
+        return self._entryDialogColor
+    def set_entryDialogColor(self, value):
+        self._entryDialogColor = value
+    entry_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_entryDialogColor, set_entryDialogColor)
+
+    def set_toolDialog(self, data):
+        self.add_tool_dialog = data
+    def get_toolDialog(self):
+        return self.add_tool_dialog
+    def reset_toolDialog(self):
+        self.add_tool_dialog = False
+    toolDialog_option = QtCore.pyqtProperty(bool, get_toolDialog, set_toolDialog, reset_toolDialog)
+    def get_toolDialogColor(self):
+        return self._toolDialogColor
+    def set_toolDialogColor(self, value):
+        self._toolDialogColor = value
+    tool_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolDialogColor, set_toolDialogColor)
+
+    def set_fileDialog(self, data):
+        self.add_file_dialog = data
+    def get_fileDialog(self):
+        return self.add_file_dialog
+    def reset_fileDialog(self):
+        self.add_file_dialog = False
+    fileDialog_option = QtCore.pyqtProperty(bool, get_fileDialog, set_fileDialog, reset_fileDialog)
+    def get_fileDialogColor(self):
+        return self._fileDialogColor
+    def set_fileDialogColor(self, value):
+        self._fileDialogColor = value
+    file_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
+
