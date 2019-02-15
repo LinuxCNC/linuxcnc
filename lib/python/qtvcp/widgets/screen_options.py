@@ -94,7 +94,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.init_file_dialog()
 
         if self.add_focus_overlay:
-            self.init_ocus_overlay()
+            self.init_focus_overlay()
 
         # Read user preferences
         if self.PREFS_:
@@ -264,7 +264,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
              w.fileDialog_, w, w.PATHS, self.PREFS_)
         w.fileDialog_.overlay_color = self._fileDialogColor
 
-    def init_focu_overlay(self):
+    def init_focus_overlay(self):
         from qtvcp.widgets.overlay_widget import FocusOverlay
         w = self.QTVCP_INSTANCE_
         w.focusOverlay_ = FocusOverlay(w)
