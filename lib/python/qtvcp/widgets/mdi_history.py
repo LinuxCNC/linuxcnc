@@ -16,7 +16,7 @@
 import os
 
 from PyQt5.QtWidgets import QPlainTextEdit, QWidget, QVBoxLayout, QListView
-from PyQt5.QtCore import pyqtProperty, QSize
+from PyQt5.QtCore import pyqtProperty, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -54,16 +54,18 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.list.selectionChanged = self.selectionChanged
         self.model = QStandardItemModel(self.list)
 
-
         self.MDILine = MDILine()
         self.MDILine.soft_keyboard = False
         self.MDILine.line_up = self.line_up
         self.MDILine.line_down = self.line_down
 
+        STATUS.connect('reload-mdi-history', self.reload)
+
         # add widgets
         lay.addWidget(self.list)
         lay.addWidget(self.MDILine)
         self.reload()
+        self.select_row('last')
 
     def _hal_init(self):
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
@@ -75,6 +77,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
         STATUS.connect('all-homed', lambda w: self.setEnabled(STATUS.machine_is_on()))
 
     def reload(self, w=None ):
+        self.model.clear()
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
             with open(fp,'r') as inputfile:
@@ -84,19 +87,17 @@ class MDIHistory(QWidget, _HalWidgetBase):
                     self.model.appendRow(item)
             self.list.setModel(self.model)
             self.list.scrollToBottom()
+            if self.MDILine.hasFocus():
+                self.select_row('last')
         except:
             LOG.debug('File path is not valid: {}'.format(fp))
-
-    def line_up(self):
-        print 'up'
-
-    def line_down(self):
-        print 'down'
 
     def selectionChanged(self,old, new):
         cmd = self.getSelected()
         self.MDILine.setText(cmd)
-
+        selectionModel = self.list.selectionModel()
+        if selectionModel.hasSelection():
+            self.row = selectionModel.currentIndex().row()
 
     def getSelected(self):
         selected_indexes = self.list.selectedIndexes()
@@ -110,9 +111,39 @@ class MDIHistory(QWidget, _HalWidgetBase):
         cmd = self.getSelected()
         self.MDILine.setText(cmd)
         self.MDILine.submit()
-        item = QStandardItem(cmd)
-        self.model.appendRow(item)
-        self.list.update()
+        self.select_row('down')
+
+    def select_row(self, style):
+        selectionModel = self.list.selectionModel()
+        parent = QModelIndex()
+        self.rows = self.model.rowCount(parent) - 1
+        if style == 'last':
+            self.row = self.rows
+        elif style == 'up':
+            if self.row > 0:
+                self.row -= 1
+            else:
+                self.row = self.rows
+        elif style == 'down':
+            if self.row < self.rows:
+                self.row += 1
+            else:
+                self.row = 0
+        else:
+            return
+        top = self.model.index(self.row, 0, parent)
+        bottom = self.model.index(self.row, 0, parent)
+        selectionModel.setCurrentIndex(top, QItemSelectionModel.Select | QItemSelectionModel.Rows)
+        selection = QItemSelection(top, top)
+        selectionModel.clearSelection()
+        selectionModel.select(selection, QItemSelectionModel.Select)
+
+    def line_up(self):
+        self.select_row('up')
+
+    def line_down(self):
+        self.select_row('down')
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
