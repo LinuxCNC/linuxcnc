@@ -637,6 +637,21 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
       <blue>255</blue>
      </color>
     </property>
+    <property name="versaProbeDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="macroTabDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="camViewDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toolOffsetDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="originOffsetDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
@@ -652,32 +667,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     </property>
     <property name="jogincr_status" stdset="0">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="MacroTabDialog" name="macrotabdialog">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>230</y>
-      <width>600</width>
-      <height>400</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="OriginOffsetDialog" name="originoffsetdialog">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>40</y>
-      <width>800</width>
-      <height>500</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
     </property>
    </widget>
    <widget class="StatusStacked" name="StatusStacked">
@@ -905,16 +894,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="linear_option" stdset="0">
           <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="CamViewDialog" name="camviewdialog">
-         <property name="geometry">
-          <rect>
-           <x>489</x>
-           <y>325</y>
-           <width>700</width>
-           <height>400</height>
-          </rect>
          </property>
         </widget>
        </widget>
@@ -2470,19 +2449,6 @@ View</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="VersaProbeDialog" name="versaprobedialog">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>60</y>
-       <width>622</width>
-       <height>475</height>
-      </rect>
-     </property>
-     <property name="state">
-      <bool>false</bool>
-     </property>
-    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_4">
     <property name="geometry">
@@ -3315,19 +3281,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
             <height>200</height>
            </size>
           </property>
-          <widget class="ToolOffsetDialog" name="tooloffsetdialog">
-           <property name="geometry">
-            <rect>
-             <x>130</x>
-             <y>30</y>
-             <width>800</width>
-             <height>247</height>
-            </rect>
-           </property>
-           <property name="state">
-            <bool>false</bool>
-           </property>
-          </widget>
          </widget>
         </item>
        </layout>
@@ -3368,8 +3321,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <zorder>actionbutton_11</zorder>
    <zorder>ScreenOptions</zorder>
    <zorder>StatusLabel_2</zorder>
-   <zorder>macrotabdialog</zorder>
-   <zorder>originoffsetdialog</zorder>
    <zorder>StatusStacked</zorder>
    <zorder>mcodes_label</zorder>
    <zorder>frame_auto_8</zorder>
@@ -3390,11 +3341,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CamViewDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
    <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
@@ -3411,24 +3357,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>VersaProbeDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>MacroTabDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
    <class>StateLED</class>
    <extends>LED</extends>
    <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>StateEnableGridLayout</class>
@@ -3441,11 +3372,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <extends>QStackedWidget</extends>
    <header>qtvcp.widgets.status_stacked</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ToolOffsetDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>JogIncrements</class>

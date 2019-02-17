@@ -7,10 +7,6 @@ import linuxcnc
 
 from PyQt5 import QtCore, QtWidgets
 
-from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
-from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
-from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -76,8 +72,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
-        self.w.tooloffsetdialog._geometry_string='0 0 600 400 onwindow '
-
+        self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
