@@ -151,6 +151,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.combo = TreeComboBox()
         model = QtGui.QStandardItemModel()
         model.setHeaderData(0, QtCore.Qt.Horizontal, 'Name', QtCore.Qt.DisplayRole)
+
+        # (('Displayed name',['widget property name', code to show related data],[])
         node_1 = (('Estop',['estop', 0], []),
                  ('Machine On',['machine_on', 0], []),
                 ('Home',['home', 1], []),
@@ -165,7 +167,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Mist Coolant',['mist', 0], []) )
         node_2 = (('Jog Joint Positive',['jog_joint_pos', 1], []), 
                 ('Jog Joint Negative',['jog_joint_neg', 1], []),
-                ('Jog Selected Positve',['jog_selected_pos', 0], []),
+                ('Jog Selected Positive',['jog_selected_pos', 0], []),
                 ('Jog Selected Negative',['jog_selected_neg', 0], []),
                 ('Jog Increment',['jog_incr', 14], []),
                 ('Jog Rate',['jog_rate', 112], []) )
@@ -175,14 +177,15 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Origin Offset Dialog',['origin_offset_dialog', 0], []))
         node_4 = (('Launch HALmeter',['launch_halmeter', 0], []),
                 ('Launch Status',['launch_status', 0], []),
-                ('Launch HALshow',['launch_halshow', 0], []) )
+                ('Launch HALshow',['launch_halshow', 0], []),
+                ('Launch HALscope',['launch_halscope', 0], [])  )
         node_5 = (('Set MDI Mode',['mdi', 0], []),
                 ('Set Auto Mode',['auto', 0], []),
                 ('Set Manual Mode',['manual', 0], []) )
         node_6 = (('Set Feed Override',['feed_over', 112], []),
                 ('Set Rapid Override',['rapid_over', 112], []),
                 ('Set Spindle Override',['spindle_over', 112], []),
-                ('Set Max Veocity Override',['max_velocity_over', 112], [])  )
+                ('Set Max Velocity Override',['max_velocity_over', 112], [])  )
         node_7 = (('Set Spindle Forward',['spindle_fwd', 0], []),
                 ('Set Spindle Reverse',['spindle_rev', 0], []),
                 ('Set Spindle Stop',['spindle_stop', 0], []),
@@ -216,6 +219,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.combo)
 
+        # related data selection - note the name 'self.ud' uses a number
+        # that doubles each time - binary coded. thsi is so we can specify
+        # multiple selectors  code 1 give ud1, code 2 gives ud2, code 3 gives
+        # ud1 and ud2 etc
+ 
         # Joint number selection
         self.ud1 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
