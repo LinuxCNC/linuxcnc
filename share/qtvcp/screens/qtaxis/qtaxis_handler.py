@@ -90,7 +90,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionTouchoffWorkplace, 'touchoffworkplace')
         TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
         TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
-
+        TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):

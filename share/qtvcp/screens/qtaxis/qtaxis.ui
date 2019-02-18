@@ -1435,7 +1435,7 @@
     <addaction name="actionMachineOn"/>
     <addaction name="separator"/>
     <addaction name="actionRun"/>
-    <addaction name="actionRun_From_Line"/>
+    <addaction name="actionRunFromLine"/>
     <addaction name="actionStep"/>
     <addaction name="actionPause"/>
     <addaction name="actionStop"/>
@@ -1777,7 +1777,7 @@
     <string>Linuxcnc Status</string>
    </property>
   </action>
-  <action name="actionRun_From_Line">
+  <action name="actionRunFromLine">
    <property name="text">
     <string>Run From Line</string>
    </property>
