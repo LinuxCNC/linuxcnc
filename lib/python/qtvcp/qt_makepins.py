@@ -37,6 +37,7 @@ class QTPanel():
         self.window = window
         window['PREFS_'] = None
         self._screenOptions = None
+        self._geo_string = ''
 
         self.hal = QComponent(halcomp)
         # see if a screenoptions widget is present
