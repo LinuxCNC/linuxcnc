@@ -112,6 +112,10 @@ int main(int argc, char **argv) {
 #define GREATEST_STDOUT stdout
 #endif
 
+#ifndef GREATEST_STDERR
+#define GREATEST_STDERR stderr
+#endif
+
 /* Remove GREATEST_ prefix from most commonly used symbols? */
 #ifndef GREATEST_USE_ABBREVS
 #define GREATEST_USE_ABBREVS 1
@@ -503,9 +507,13 @@ typedef enum greatest_test_res {
         int greatest_GOT = (int)(GOT);                                  \
         greatest_enum_str_fun *greatest_ENUM_STR = ENUM_STR;            \
         if (greatest_EXP != greatest_GOT) {                             \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: %s",         \
-                greatest_ENUM_STR(greatest_EXP));                       \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: %s\n",       \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                "%s:%u: In %s:\n",                                      \
+                __FILE__, __LINE__, greatest_info.name_buf);            \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                "%s:%u: expected %s, got %s",                           \
+                __FILE__, __LINE__,                                     \
+                greatest_ENUM_STR(greatest_EXP),                        \
                 greatest_ENUM_STR(greatest_GOT));                       \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
@@ -522,12 +530,19 @@ typedef enum greatest_test_res {
                 greatest_EXP - greatest_GOT > greatest_TOL) ||          \
             (greatest_EXP < greatest_GOT &&                             \
                 greatest_GOT - greatest_EXP > greatest_TOL)) {          \
-            GREATEST_FPRINTF(GREATEST_STDOUT,                           \
-                "\nExpected: " GREATEST_FLOAT_FMT                       \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                "%s:%u: In %s:\n",                                      \
+                __FILE__, __LINE__, greatest_info.name_buf);            \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                "%s:%u: expected " GREATEST_FLOAT_FMT                   \
                 " +/- " GREATEST_FLOAT_FMT                              \
-                "\n     Got: " GREATEST_FLOAT_FMT                       \
-                "\n",                                                   \
-                greatest_EXP, greatest_TOL, greatest_GOT);              \
+                ", got " GREATEST_FLOAT_FMT                             \
+                ", difference " GREATEST_FLOAT_FMT "\n",                \
+                __FILE__, __LINE__,                                     \
+                greatest_EXP,                                           \
+                greatest_TOL,                                           \
+                greatest_GOT,                                           \
+                greatest_EXP-greatest_GOT);                             \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)
@@ -759,24 +774,17 @@ static void greatest_do_pass(void) {                                    \
                                                                         \
 static void greatest_do_fail(void) {                                    \
     struct greatest_run_info *g = &greatest_info;                       \
-    if (GREATEST_IS_VERBOSE()) {                                        \
-        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
-            "%s:%u: error: test %s failed: %s",                                    \
+        GREATEST_FPRINTF(GREATEST_STDERR,                               \
+            "%s:%u: error: %s failed: %s\n",                              \
             g->fail_file, g->fail_line,                                 \
             g->name_buf,                                                \
             g->msg ? g->msg : "");                                      \
+    if (GREATEST_IS_VERBOSE()) {                                        \
+        GREATEST_FPRINTF(GREATEST_STDOUT, "FAIL %s: %s",                \
+            g->name_buf, g->msg ? g->msg : "");                         \
     } else {                                                            \
         GREATEST_FPRINTF(GREATEST_STDOUT, "F");                         \
         g->col++;  /* add linebreak if in line of '.'s */               \
-        if (g->col != 0) {                                              \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
-            g->col = 0;                                                 \
-        }                                                               \
-        GREATEST_FPRINTF(GREATEST_STDOUT,                               \
-            "%s:%u: error: test %s failed: %s",                                    \
-            g->fail_file, g->fail_line,                                 \
-            g->name_buf,                                                \
-            g->msg ? g->msg : "");                                      \
     }                                                                   \
     g->suite.failed++;                                                  \
 }                                                                       \
