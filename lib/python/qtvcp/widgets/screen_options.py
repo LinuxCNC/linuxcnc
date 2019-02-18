@@ -79,6 +79,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_camview_dialog = False
         self.add_originoffset_dialog = False
         self.add_tooloffset_dialog = False
+        self.add_calculator_dialog = False
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._close_color = QtGui.QColor(100, 0, 0, 150)
@@ -90,6 +91,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -122,6 +124,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_originoffset_dialog:
             self.init_originoffset_dialog()
+
+        if self.add_calculator_dialog:
+            self.init_calculator_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -338,6 +343,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
              w.originOffsetDialog_, w, w.PATHS, self.PREFS_)
         w.originOffsetDialog_.overlay_color = self._originOffsetDialogColor
 
+    def init_calculator_dialog(self):
+        from qtvcp.widgets.dialog_widget import CalculatorDialog
+        w = self.QTVCP_INSTANCE_
+        w.calculatorDialog_ = CalculatorDialog()
+        w.calculatorDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.calculatorDialog_, w, w.PATHS, self.PREFS_)
+        w.calculatorDialog_.overlay_color = self._calculatorDialogColor
 
     ########################################################################
     # This is how designer can interact with our widget properties.
@@ -517,4 +529,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_originOffsetDialogColor(self, value):
         self._originOffsetDialogColor = value
     originOffset_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_originOffsetDialogColor, set_originOffsetDialogColor)
+
+    def set_calculatorDialog(self, data):
+        self.add_calculator_dialog = data
+    def get_calculatorDialog(self):
+        return self.add_calculator_dialog
+    def reset_calculatorDialog(self):
+        self.add_calculator_dialog = False
+    calculatorDialog_option = QtCore.pyqtProperty(bool, get_calculatorDialog, set_calculatorDialog, reset_calculatorDialog)
+    def get_calculatorDialogColor(self):
+        return self._calculatorDialogColor
+    def set_calculatorDialogColor(self, value):
+        self._calculatorDialogColor = value
+    calculator_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
+
 

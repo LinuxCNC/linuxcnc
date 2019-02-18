@@ -15,9 +15,9 @@
 
 import os
 
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QDesktopWidget, \
-        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout, \
-        QHBoxLayout, QLineEdit, QPushButton
+from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
+        QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
+        QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
@@ -28,6 +28,7 @@ from qtvcp.widgets.camview_widget import CamView
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
+from qtvcp.widgets.calculator import Calculator
 from qtvcp.lib.notify import Notify
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -880,8 +881,8 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.bBox = QDialogButtonBox()
         self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
         self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
-        self.bBox.rejected.connect(lambda: self.close())
-        self.bBox.accepted.connect(lambda: self.close())
+        self.bBox.rejected.connect(self.reject)
+        self.bBox.accepted.connect(self.accept)
 
         gl.addWidget(self.bBox)
         o.setLayout(gl)
@@ -930,10 +931,12 @@ class EntryDialog(QDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
-        try:
-            return float(self.Num.text())
-        except:
-            return None
+        if retval:
+            try:
+                return float(self.Num.text())
+            except:
+                pass
+        return None
 
     def calculate_placement(self):
         geometry_parsing(self,'EntryDialog-geometry')
@@ -946,6 +949,84 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
 
     overlay_color = pyqtProperty(QColor, getColor, setColor)
+
+############################################
+# Calculator Dialog
+############################################
+class CalculatorDialog(Calculator, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(CalculatorDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self.play_sound = False
+        self._request_name = 'CALCULATOR'
+        self.title = 'Calculator Entry'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+
+    def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('CalculatorDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('CalculatorDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('CalculatorDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
+        STATUS.connect('dialog-request', self._external_request)
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            t = message.get('TITLE')
+            if t:
+                self.title = t
+            else:
+                self.title = 'Entry'
+            num = self.showdialog()
+            message['RETURN'] = num
+            STATUS.emit('general', message)
+
+    def showdialog(self):
+        STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
+        self.setWindowTitle(self.title);
+        if self.play_sound:
+            STATUS.emit('play-alert', self.sound_type)
+        self.calculate_placement()
+        retval = self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        record_geometry(self,'EntryDialog-geometry')
+        LOG.debug("Value of pressed button: {}".format(retval))
+        if retval:
+            try:
+                return float(self.display.text())
+            except:
+                pass
+        return None
+
+    def calculate_placement(self):
+        geometry_parsing(self,'EntryDialog-geometry')
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
 
 # This general function parses the geometry string and places
 # the dialog based on what it finds.
@@ -1015,11 +1096,11 @@ def record_geometry(widget, prefname):
 ################################
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = ToolDialog()
-    widget.show()
+    widget = CalculatorDialog()
+    widget.showdialog()
     sys.exit(app.exec_())
 if __name__ == "__main__":
     main()
