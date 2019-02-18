@@ -74,14 +74,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tool_dialog = False
         self.add_file_dialog = False
         self.add_focus_overlay = False
+        self.add_versaprobe_dialog = False
+        self.add_macrotab_dialog = False
+        self.add_camview_dialog = False
+        self.add_originoffset_dialog = False
+        self.add_tooloffset_dialog = False
+
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
+        self._versaProbeDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._macroTabDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
+    # self.PREFS_
     # come from base class
     def _hal_init(self):
         if self.add_entry_dialog:
@@ -95,6 +107,21 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_focus_overlay:
             self.init_focus_overlay()
+
+        if self.add_versaprobe_dialog:
+            self.init_versaprobe_dialog()
+
+        if self.add_macrotab_dialog:
+            self.init_macrotab_dialog()
+
+        if self.add_camview_dialog:
+            self.init_camview_dialog()
+
+        if self.add_tooloffset_dialog:
+            self.init_tooloffset_dialog()
+
+        if self.add_originoffset_dialog:
+            self.init_originoffset_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -271,6 +298,47 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.focusOverlay_, w, w.PATHS, self.PREFS_)
 
+    def init_versaprobe_dialog(self):
+        from qtvcp.widgets.dialog_widget import VersaProbeDialog
+        w = self.QTVCP_INSTANCE_
+        w.versaProbeDialog_ = VersaProbeDialog()
+        w.versaProbeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.versaProbeDialog_, w, w.PATHS, self.PREFS_)
+        w.versaProbeDialog_.overlay_color = self._versaProbeDialogColor
+
+    def init_macrotab_dialog(self):
+        from qtvcp.widgets.dialog_widget import MacroTabDialog
+        w = self.QTVCP_INSTANCE_
+        w.macroTabDialog_ = MacroTabDialog()
+        w.macroTabDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.macroTabDialog_, w, w.PATHS, self.PREFS_)
+        w.macroTabDialog_.overlay_color = self._macroTabDialogColor
+
+    def init_camview_dialog(self):
+        from qtvcp.widgets.dialog_widget import CamViewDialog
+        w = self.QTVCP_INSTANCE_
+        w.camViewDialog_ = CamViewDialog()
+        w.camViewDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.camViewDialog_, w, w.PATHS, self.PREFS_)
+        w.camViewDialog_.overlay_color = self._camViewDialogColor
+
+    def init_tooloffset_dialog(self):
+        from qtvcp.widgets.dialog_widget import ToolOffsetDialog
+        w = self.QTVCP_INSTANCE_
+        w.toolOffsetDialog_ = ToolOffsetDialog()
+        w.toolOffsetDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.toolOffsetDialog_, w, w.PATHS, self.PREFS_)
+        w.toolOffsetDialog_.overlay_color = self._toolOffsetDialogColor
+
+    def init_originoffset_dialog(self):
+        from qtvcp.widgets.dialog_widget import OriginOffsetDialog
+        w = self.QTVCP_INSTANCE_
+        w.originOffsetDialog_ = OriginOffsetDialog()
+        w.originOffsetDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.originOffsetDialog_, w, w.PATHS, self.PREFS_)
+        w.originOffsetDialog_.overlay_color = self._originOffsetDialogColor
+
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -384,4 +452,69 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_fileDialogColor(self, value):
         self._fileDialogColor = value
     file_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_fileDialogColor, set_fileDialogColor)
+
+    def set_versaProbeDialog(self, data):
+        self.add_versaprobe_dialog = data
+    def get_versaProbeDialog(self):
+        return self.add_versaprobe_dialog
+    def reset_versaProbeDialog(self):
+        self.add_versaprobe_dialog = False
+    versaProbeDialog_option = QtCore.pyqtProperty(bool, get_versaProbeDialog, set_versaProbeDialog, reset_versaProbeDialog)
+    def get_versaProbeDialogColor(self):
+        return self._versaProbeDialogColor
+    def set_versaProbeDialogColor(self, value):
+        self._versaProbeDialogColor = value
+    versaProbe_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_versaProbeDialogColor, set_versaProbeDialogColor)
+
+    def set_macroTabDialog(self, data):
+        self.add_macrotab_dialog = data
+    def get_macroTabDialog(self):
+        return self.add_macrotab_dialog
+    def reset_macroTabDialog(self):
+        self.add_macrotab_dialog = False
+    macroTabDialog_option = QtCore.pyqtProperty(bool, get_macroTabDialog, set_macroTabDialog, reset_macroTabDialog)
+    def get_macroTabDialogColor(self):
+        return self._macroTabDialogColor
+    def set_macroTabDialogColor(self, value):
+        self._macroTabDialogColor = value
+    macroTab_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_macroTabDialogColor, set_macroTabDialogColor)
+
+    def set_camViewDialog(self, data):
+        self.add_camview_dialog = data
+    def get_camViewDialog(self):
+        return self.add_camview_dialog
+    def reset_camViewDialog(self):
+        self.add_camview_dialog = False
+    camViewDialog_option = QtCore.pyqtProperty(bool, get_camViewDialog, set_camViewDialog, reset_camViewDialog)
+    def get_camViewDialogColor(self):
+        return self._camViewDialogColor
+    def set_camViewDialogColor(self, value):
+        self._camViewDialogColor = value
+    camView_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_camViewDialogColor, set_camViewDialogColor)
+
+    def set_toolOffsetDialog(self, data):
+        self.add_tooloffset_dialog = data
+    def get_toolOffsetDialog(self):
+        return self.add_tooloffset_dialog
+    def reset_toolOffsetDialog(self):
+        self.add_tooloffset_dialog = False
+    toolOffsetDialog_option = QtCore.pyqtProperty(bool, get_toolOffsetDialog, set_toolOffsetDialog, reset_toolOffsetDialog)
+    def get_toolOffsetDialogColor(self):
+        return self._toolOffsetDialogColor
+    def set_toolOffsetDialogColor(self, value):
+        self._toolOffsetDialogColor = value
+    toolOffset_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolOffsetDialogColor, set_toolOffsetDialogColor)
+
+    def set_originOffsetDialog(self, data):
+        self.add_originoffset_dialog = data
+    def get_originOffsetDialog(self):
+        return self.add_originoffset_dialog
+    def reset_originOffsetDialog(self):
+        self.add_originoffset_dialog = False
+    originOffsetDialog_option = QtCore.pyqtProperty(bool, get_originOffsetDialog, set_originOffsetDialog, reset_originOffsetDialog)
+    def get_originOffsetDialogColor(self):
+        return self._originOffsetDialogColor
+    def set_originOffsetDialogColor(self, value):
+        self._originOffsetDialogColor = value
+    originOffset_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_originOffsetDialogColor, set_originOffsetDialogColor)
 

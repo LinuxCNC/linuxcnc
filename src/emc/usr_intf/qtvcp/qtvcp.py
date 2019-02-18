@@ -367,7 +367,8 @@ Pressing cancel will close linuxcnc.""" % target)
         elif opts.fullscreen:
             window.showFullScreen()
         else:
-            window.show()
+            self.panel.set_preference_geometry()
+        window.show()
         if INIPATH:
             self.postgui()
 

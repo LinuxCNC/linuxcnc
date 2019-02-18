@@ -64,6 +64,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_halmeter = False
         self.launch_status = False
         self.launch_halshow = False
+        self.launch_halscope = False
         self.mdi = False
         self.auto = False
         self.manual = False
@@ -232,6 +233,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             pass
         elif self.launch_halshow:
             pass
+        elif self.launch_halscope:
+            pass
         elif self.auto:
             STATUS.connect('mode-auto', lambda w: _safecheck(True))
             STATUS.connect('mode-mdi', lambda w: _safecheck(False))
@@ -365,6 +368,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             AUX_PRGM.load_status()
         elif self.launch_halshow:
             AUX_PRGM.load_halshow()
+        elif self.launch_halscope:
+            AUX_PRGM.load_halscope()
         elif self.auto:
             ACTION.SET_AUTO_MODE()
         elif self.mdi:
@@ -561,7 +566,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
-                'dro_relative', 'dro_dtg','max_velocity_over',)
+                'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope')
 
         for i in data:
             if not i == picked:
@@ -729,6 +734,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.launch_halshow
     def reset_launch_halshow(self):
         self.launch_halshow = False
+
+    def set_launch_halscope(self, data):
+        self.launch_halscope = data
+        if data:
+            self._toggle_properties('launch_halscope')
+    def get_launch_halscope(self):
+        return self.launch_halscope
+    def reset_launch_halscope(self):
+        self.launch_halscope = False
 
     def set_auto(self, data):
         self.auto = data
@@ -1051,6 +1065,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
     launch_halshow_action = QtCore.pyqtProperty(bool, get_launch_halshow, set_launch_halshow, reset_launch_halshow)
+    launch_halscope_action = QtCore.pyqtProperty(bool, get_launch_halscope, set_launch_halscope, reset_launch_halscope)
     home_action = QtCore.pyqtProperty(bool, get_home, set_home, reset_home)
     zero_axis_action = QtCore.pyqtProperty(bool, get_zero_axis, set_zero_axis, reset_zero_axis)
     jog_joint_pos_action = QtCore.pyqtProperty(bool, get_jog_joint_pos, set_jog_joint_pos, reset_jog_joint_pos)
