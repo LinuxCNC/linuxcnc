@@ -185,7 +185,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'ENTRY'
-    dialog_code_string = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 # for testing without editor:
 def main():
