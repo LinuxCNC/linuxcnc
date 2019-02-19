@@ -38,13 +38,7 @@ double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
     //TODO somewhat redundant with findKinkAccel, should refactor
     double acc_margin = BLEND_ACC_RATIO_NORMAL * BLEND_KINK_FACTOR * acc_limit;
     double dx = v_plan / cycle_time;
-    if (dx > 0.0) {
-        return (acc_margin / dx);
-    } else {
-        tp_debug_print(" Velocity or period is negative!\n");
-        //Should not happen...
-        return TP_ANGLE_EPSILON;
-    }
+    return fabs(acc_margin / fmax(dx, TP_POS_EPSILON));
 }
 
 
