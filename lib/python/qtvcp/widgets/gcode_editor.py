@@ -402,15 +402,17 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def emit_percent(self, percent):
         pass
 
-    def set_line_number(self, w, line):
-        pass
+    def set_line_number(self, line):
+        STATUS.emit('gcode-line-selected', line)
 
     def line_changed(self, line, index):
-        #LOG.debug('Line changed: {}'.format(STATUS.is_auto_mode()))
-        self.line_text = str(self.text(line)).strip()
-        self.line = line
-        if STATUS.is_mdi_mode() and STATUS.is_auto_running() is False:
-            STATUS.emit('mdi-line-selected', self.line_text, self._last_filename)
+        #LOG.debug('Line changed: {}'.format(line))
+        if STATUS.is_auto_running() is False:
+            if STATUS.is_mdi_mode():
+                line_text = str(self.text(line)).strip()
+                STATUS.emit('mdi-line-selected', line_text, self._last_filename)
+            else:
+                self.set_line_number(line)
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
@@ -455,9 +457,11 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         # make editor
         self.editor = GcodeDisplay(self)
+
         # class patch editor's function to ours
         # so we get the lines percent update
         self.editor.emit_percent = self.emit_percent
+
         self.editor.setReadOnly(True)
         self.editor.setModified(False)
 

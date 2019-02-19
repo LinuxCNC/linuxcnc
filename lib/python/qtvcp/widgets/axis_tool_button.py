@@ -45,7 +45,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self._last = 0
         self._block_signal = False
         self._halpin_option = True
-        self.request_dialog_code = 'ENTRY'
+        self.dialog_code = 'ENTRY'
 
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -90,7 +90,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def SetOrigin(self):
         axis, now = self._a_from_j(self._joint)
         if axis:
-            mess = {'NAME':self.request_dialog_code,'ID':'%s__' % self.objectName(),
+            mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
             'AXIS':axis,'CURRENT':now,'TITLE':'Set %s Origin'% axis}
             STATUS.emit('dialog-request', mess)
             LOG.debug('message sent:{}'.format (mess))
@@ -99,7 +99,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     def return_value(self, w, message):
         num = message['RETURN']
         code = bool(message['ID'] == '%s__'% self.objectName())
-        name = bool(message['NAME'] == self.request_dialog_code)
+        name = bool(message['NAME'] == self.dialog_code)
         if num and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
@@ -169,6 +169,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         return self._joint
     def reset_joint(self):
         self._joint = -1
+    joint_number = pyqtProperty(int, get_joint, set_joint, reset_joint)
 
     def set_halpin_option(self, value):
         self._halpin_option = value
@@ -176,9 +177,15 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         return self._halpin_option
     def reset_halpin_option(self):
         self._halpin_option = True
-
-    joint_number = pyqtProperty(int, get_joint, set_joint, reset_joint)
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'ENTRY'
+    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 # for testing without editor:
 def main():

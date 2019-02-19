@@ -149,12 +149,12 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
-    def RUN(self):
+    def RUN(self, line=0):
         self.ensure_mode(linuxcnc.MODE_AUTO)
-        if STATUS.is_auto_paused():
+        if STATUS.is_auto_paused() and line ==0:
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
-        self.cmd.auto(linuxcnc.AUTO_RUN,0)
+        self.cmd.auto(linuxcnc.AUTO_RUN,line)
 
     def ABORT(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)

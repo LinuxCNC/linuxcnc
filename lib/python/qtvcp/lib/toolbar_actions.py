@@ -43,6 +43,7 @@ class ToolBarActions():
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
+        self.selected_line = 0
         self._viewActiongroup = QtWidgets.QActionGroup(None)
         self._touchoffActiongroup = QtWidgets.QActionGroup(None)
 
@@ -59,6 +60,8 @@ class ToolBarActions():
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
         def update_properties(d):
             self.gcode_properties = d
+        def update_selected(line):
+            self.selected_line = line
 
         if action == 'estop':
             STATUS.connect('state-estop', lambda w: widget.setChecked(True))
@@ -96,10 +99,10 @@ class ToolBarActions():
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
-            STATUS.connect('interp-paused', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(True))
+            STATUS.connect('interp-paused', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(homed_on_test()))
             function = (self.actOnRun)
         elif action == 'pause':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
@@ -149,6 +152,15 @@ class ToolBarActions():
             function = None
             self._touchoffActiongroup.addAction(widget)
             self._touchoffActiongroup.setExclusive(True)
+        elif action == 'runfromline':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-mdi', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-manual', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-auto', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(homed_on_test()))
+            STATUS.connect('gcode-line-selected', lambda w, line: update_selected(line))
+            function = (self.actOnRunFromLine)
         elif action == 'load_calibration':
             function = (self.actOnLoadCalibration)
         elif action == 'load_halmeter':
@@ -341,7 +353,6 @@ class ToolBarActions():
         STATUS.emit('view-changed', 'clear')
 
     def actOnQuit(self,widget, state=None):
-        print 'quit'
         STATUS.emit('shutdown')
 
     def actOnAbout(self,widget, state=None):
@@ -363,12 +374,14 @@ class ToolBarActions():
         msg.show()
         retval = msg.exec_()
 
+    def actOnRunFromLine(self, widget, state=False):
+        ACTION.RUN(self.selected_line)
+
     #########################################################
     # Sub menus
     #########################################################
     def addHomeActions(self,widget):
         def home(joint):
-            print 'home'
             ACTION.SET_MACHINE_HOMING(joint)
 
         conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
@@ -382,7 +395,6 @@ class ToolBarActions():
 
     def addUnHomeActions(self,widget):
         def unHome(joint):
-            print 'home'
             ACTION.SET_MACHINE_UNHOMED(joint)
 
         conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
