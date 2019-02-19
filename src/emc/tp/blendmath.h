@@ -141,8 +141,8 @@ int findIntersectionAngle(PmCartesian const * const u1,
 
 double pmCartMin(PmCartesian const * const in);
 
-int calculateInscribedDiameter(PmCartesian const * const normal,
-        PmCartesian const * const bounds, double * const diameter);
+int calculateInscribedRadius(PmCartesian const * const normal,
+        PmCartesian const * const bounds, double * const radius);
 
 int findAccelScale(PmCartesian const * const acc,
         PmCartesian const * const bounds,

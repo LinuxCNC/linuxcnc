@@ -405,13 +405,13 @@ double pmCartMin(PmCartesian const * const in)
  * Calculate the diameter of a circle incscribed on a central cross section of a 3D
  * rectangular prism.
  *
- * @param normal normal direction of plane slicing prism.
+ * @param normal normal direction of plane slicing prism (must be unit length!).
  * @param extents distance from center to one corner of the prism.
  * @param diameter diameter of inscribed circle on cross section.
  *
  */
-int calculateInscribedDiameter(PmCartesian const * const normal,
-        PmCartesian const * const bounds, double * const diameter)
+int calculateInscribedRadius(PmCartesian const * const normal,
+        PmCartesian const * const bounds, double * const radius)
 {
     if (!normal ) {
         return TP_ERR_MISSING_INPUT;
@@ -473,17 +473,17 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     }
 
     // Find the highest value to start from
-    *diameter = fmax(fmax(x_extent, y_extent),z_extent);
+    *radius = fmax(fmax(x_extent, y_extent),z_extent);
 
     // Only for active axes, find the minimum extent
     if (bounds->x > 0) {
-        *diameter = fmin(*diameter, x_extent);
+        *radius = fmin(*radius, x_extent);
     }
     if (bounds->y > 0) {
-        *diameter = fmin(*diameter, y_extent);
+        *radius = fmin(*radius, y_extent);
     }
     if (bounds->z > 0) {
-        *diameter = fmin(*diameter, z_extent);
+        *radius = fmin(*radius, z_extent);
     }
 
     return TP_ERR_OK;
@@ -632,7 +632,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
 
     // Calculate max acceleration based on plane containing lines
-    int res_dia = calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
+    int res_dia = calculateInscribedRadius(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
     param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
@@ -652,7 +652,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
     // Calculate the maximum planar velocity
     double v_planar_max;
     //FIXME sloppy handling of return value
-    res_dia |= calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
+    res_dia |= calculateInscribedRadius(&geom->binormal, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
