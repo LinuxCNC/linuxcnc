@@ -13,6 +13,44 @@ GREATEST_MAIN_DEFS();
 
 #include "mock_rtapi.inc"
 
+TEST test_findMaxTangentAngle() {
+    double acc_limit = 30.0;
+    double cycle_time = 0.001;
+
+    // Don't bother testing arithmetic, just make sure that the output is sane
+    double max_angle_out = findMaxTangentAngle(1.0, acc_limit, cycle_time);
+    ASSERT(max_angle_out <= acc_limit / 1000);
+    ASSERT(max_angle_out >= 0.0);
+
+    double max_angle_at_zero = findMaxTangentAngle(0.0, acc_limit, cycle_time);
+    ASSERT(max_angle_at_zero > 0.0);
+
+    PASS();
+}
+
+TEST test_findKinkAccel()
+{
+    double acc_out = findKinkAccel(M_PI / 8, 2.0, 0.001);
+    ASSERT(acc_out > 0.0);
+    double acc_tangent = findKinkAccel(0, 2.0, 0.001);
+    ASSERT_FLOAT_EQ(0.0, acc_tangent);
+    PASS();
+}
+
+TEST test_findAccelScale()
+{
+    PmCartesian bounds = {5.0, 0.0, 20.0};
+    PmCartesian acc = {200.0, 100.0, -1.0};
+
+    PmCartesian scale_out;
+    findAccelScale(&acc, &bounds, &scale_out);
+
+    ASSERT_FLOAT_EQ(40, scale_out.x);
+    ASSERT_FLOAT_EQ(0, scale_out.y);
+    ASSERT_FLOAT_EQ(1/20.0, scale_out.z);
+    PASS();
+}
+
 TEST pmCartCartParallel_numerical() {
 
     PmCartesian u0 = {1,0,0};
@@ -58,6 +96,9 @@ TEST pmCartCartAntiParallel_numerical() {
 }
 
 SUITE(blendmath) {
+    RUN_TEST(test_findMaxTangentAngle);
+    RUN_TEST(test_findKinkAccel);
+    RUN_TEST(test_findAccelScale);
     RUN_TEST(pmCartCartParallel_numerical);
     RUN_TEST(pmCartCartAntiParallel_numerical);
 }
@@ -215,11 +256,41 @@ SUITE(circle_funcs)
     RUN_TEST(test_pmCircleActualMaxVel_cutoff);
 }
 
+TEST test_calculateInscribedRadius()
+{
+    const PmCartesian xy = {0,0,1};
+    const PmCartesian bounds = {3,4,5};
+    double d_xy;
+    calculateInscribedRadius(&xy, &bounds, &d_xy);
+    ASSERT_FLOAT_EQ(3.0, d_xy);
+
+    double d_yz;
+    const PmCartesian xz = {1,0,0};
+    calculateInscribedRadius(&xz, &bounds, &d_yz);
+    ASSERT_FLOAT_EQ(4.0, d_yz);
+
+    // Test the case where the normal vector is aligned just so the plane slices the prism along the XY diagonal
+    double d_xycorner;
+    PmCartesian corner = {-4.0, 3.0, 0.0};
+    pmCartUnitEq(&corner);
+
+    calculateInscribedRadius(&corner, &bounds, &d_xycorner);
+    ASSERT_FLOAT_EQ(5, d_xycorner);
+
+    PASS();
+}
+
+SUITE(geom_funcs)
+{
+    RUN_TEST(test_calculateInscribedRadius);
+}
+
 int main(int argc, char **argv) {
     GREATEST_MAIN_BEGIN();      /* command-line arguments, initialization. */
     RUN_SUITE(blendmath);
     RUN_SUITE(joint_utils);
     RUN_SUITE(tc_functions);
     RUN_SUITE(circle_funcs);
+    RUN_SUITE(geom_funcs);
     GREATEST_MAIN_END();        /* display results */
 }
