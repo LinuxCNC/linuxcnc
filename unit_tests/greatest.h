@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
 /* Floating point type, for ASSERT_IN_RANGE. */
 #ifndef GREATEST_FLOAT
 #define GREATEST_FLOAT double
-#define GREATEST_FLOAT_FMT "%g"
+#define GREATEST_FLOAT_FMT "%0.17g"
 #endif
 
 /* Size of buffer for test name + optional '_' separator and suffix */
