@@ -314,7 +314,6 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_manual = False
         self.auto_show_preference = True
         self.last_line = None
-        #self.setEolVisibility(True)
 
     def _hal_init(self):
         self.cursorPositionChanged.connect(self.line_changed)
@@ -446,6 +445,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(GcodeEditor, self).__init__(parent)
+        self.dialog_code = 'FILE'
+        STATUS.connect('general',self.returnFileName)
+
         self.isCaseSensitive = 0
 
         self.setMinimumSize(QSize(300, 200))    
@@ -639,7 +641,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def openCall(self):
         self.open()
     def open(self):
-        f = self.getFileName()
+        self.getFileName()
+    def openReturn(self,f):
         self.editor.load_text(f)
         self.editor.setModified(False)
 
@@ -686,8 +689,17 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.setReadOnly(True)
 
     def getFileName(self):
-        name = QFileDialog.getOpenFileName(self, 'Open File')
-        return str(name[0])
+        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'Load Editor'}
+        STATUS.emit('dialog-request', mess)
+
+    # process the STATUS return message
+    def returnFileName(self, w, message):
+        path = message.get('RETURN')
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if path and code and name:
+            self.openReturn(path)
 
     def killCheck(self):
         choice = QMessageBox.question(self, 'Warning!!',
