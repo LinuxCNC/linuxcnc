@@ -873,7 +873,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.Num = QLineEdit()
         # actiate touch input
         self.Num.keyboard_type = 'numeric'
-        self.Num.returnPressed.connect(lambda: self.close())
+        self.Num.returnPressed.connect(lambda: self.accept())
 
         gl = QVBoxLayout()
         gl.addWidget(self.Num)
@@ -934,8 +934,8 @@ class EntryDialog(QDialog, _HalWidgetBase):
         if retval:
             try:
                 return float(self.Num.text())
-            except:
-                pass
+            except Exception as e:
+                print e
         return None
 
     def calculate_placement(self):
