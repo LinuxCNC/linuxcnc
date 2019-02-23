@@ -42,7 +42,7 @@ except ImportError as e:
     sys.exit(1)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -51,6 +51,7 @@ from qtvcp import logger
 # LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
@@ -643,7 +644,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def open(self):
         self.getFileName()
     def openReturn(self,f):
-        self.editor.load_text(f)
+        ACTION.OPEN_PROGRAM(f)
         self.editor.setModified(False)
 
     def pythonLexerCall(self):
