@@ -941,8 +941,9 @@ fi
 AC_PATH_PROGS(YAPPS, yapps yapps2, "none", $SPATH)
 if test $YAPPS = "none"
 then
-    AC_MSG_ERROR([yapps not found])
+    AC_MSG_ERROR([yapps/yapps2 and not found])
 fi
+AC_SUBST(YAPPS)
 
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
