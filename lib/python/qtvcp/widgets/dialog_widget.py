@@ -931,7 +931,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
-        if retval:
+        if retval is not None:
             try:
                 return float(self.Num.text())
             except Exception as e:
@@ -1008,7 +1008,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
-        if retval:
+        if retval is not None:
             try:
                 return float(self.display.text())
             except:

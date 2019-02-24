@@ -100,7 +100,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message['ID'] == '%s__'% self.objectName())
         name = bool(message['NAME'] == self.dialog_code)
-        if num and code and name:
+        if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
             self._last = message['CURRENT']
