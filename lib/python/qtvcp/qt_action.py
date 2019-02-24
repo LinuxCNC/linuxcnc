@@ -128,16 +128,16 @@ class _Lcnc_Action(object):
 
         if flt:
             log.debug('get {} filtered program {}'.format(flt,fname))
-            fname = self.open_filter_program(str(fname), flt)
+            self.open_filter_program(str(fname), flt)
+        else:
+            log.debug( 'Load program {}'.format(fname))
+            self.cmd.program_open(str(fname))
 
-        log.debug( 'Load program {}'.format(fname))
-        self.cmd.program_open(str(fname))
-
-        # STATUS can't tell if we are loading the same file.
-        # for instance if you edit a file then load it again.
-        # so we check for it and force an update:
-        if old == fname:
-            STATUS.emit('file-loaded',fname)
+            # STATUS can't tell if we are loading the same file.
+            # for instance if you edit a file then load it again.
+            # so we check for it and force an update:
+            if old == fname:
+                STATUS.emit('file-loaded',fname)
 
     def SET_AXIS_ORIGIN(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
@@ -314,21 +314,22 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
-        def _load_filter_result(fname):
-            if fname:
-                return fname
-
-        print 'Openning filter program',fname,flt
+        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))
-        print 'temp',tmp
-        flt = FilterProgram(flt, fname, tmp, lambda r: r or _load_filter_result(tmp))
+        flt = FilterProgram(flt, fname, tmp, lambda r: r or self._load_filter_result(tmp))
 
     def _load_filter_result(self, fname):
-        if fname:
-            print 'Loading filteed program',fname
-            self.cmd.program_open(fname)
+        old = STATUS.stat.file
+        log.debug( 'Load filtered program {}'.format(fname))
+        self.cmd.program_open(str(fname))
+
+        # STATUS can't tell if we are loading the same file.
+        # for instance if you edit a file then load it again.
+        # so we check for it and force an update:
+        if old == fname:
+            STATUS.emit('file-loaded',fname)
 
     def _mktemp(self):
         if self.tmp:
