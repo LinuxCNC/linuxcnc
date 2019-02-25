@@ -216,13 +216,15 @@ class _IStat(object):
         all_extensions = [("G code (*.ngc)")]
         try:
             for k, v in self.PROGRAM_FILTERS:
-                k = k.replace('.','*.')
-                all_extensions.append( ( ';;%s(%s)'%(v,k)) )
+                k = k.replace('.',' *.')
+                k = k.replace(',',' ')
+                all_extensions.append( ( ';;%s (%s)'%(v,k)) )
+            all_extensions.append((';;All (*)'))
             temp =''
             for i in all_extensions:
                 temp = '%s %s'%(temp ,i)
             return temp
         except:
-            return all_extensions[0]
+            return ('All (*)')
 
 
