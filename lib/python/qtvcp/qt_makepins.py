@@ -49,7 +49,10 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
-                    window['PREFS_'], pref_fn = widget._pref_init()
+                    try:
+                        window['PREFS_'], pref_fn = widget._pref_init()
+                    except:
+                        window['PREFS_'], pref_fn = (None,None)
                     path.PREFS_FILENAME = pref_fn
         # parse for HAL objects:
         # initiate the hal function on each
@@ -63,7 +66,8 @@ class QTPanel():
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings
     def shutdown(self):
-        self.record_preference_geometry()
+        if self.window['PREFS_']:
+            self.record_preference_geometry()
         LOG.debug('search for widget closing cleanup functions')
         for widget in self.window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
@@ -76,7 +80,6 @@ class QTPanel():
     # the window geometry
     def record_preference_geometry(self):
         temp = self._geo_string.replace(' ','')
-        print temp, temp.isdigit()
         if temp == '' or temp.isdigit():
             LOG.debug('Saving Main Window geometry to preference file.')
             x = self.window.geometry().x()
