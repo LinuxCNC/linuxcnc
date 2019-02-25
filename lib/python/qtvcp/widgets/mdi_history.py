@@ -64,6 +64,13 @@ class MDIHistory(QWidget, _HalWidgetBase):
         # add widgets
         lay.addWidget(self.list)
         lay.addWidget(self.MDILine)
+
+        self.fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+        try:
+            open(self.fp, 'r')
+        except:
+            open(self.fp, 'a+')
+            LOG.debug('MDI History file created: {}'.format(self.fp))
         self.reload()
         self.select_row('last')
 
@@ -79,8 +86,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
     def reload(self, w=None ):
         self.model.clear()
         try:
-            fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
-            with open(fp,'r') as inputfile:
+            with open(self.fp,'r') as inputfile:
                 for line in inputfile:
                     line = line.rstrip('\n')
                     item = QStandardItem(line)
