@@ -21,7 +21,6 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.dialog_widget import LcncDialog as CloseDialog
 from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
@@ -68,8 +67,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.usrMsg_sound_type = 'READY'
         self.usrMsg_use_FocusOverlay = True
         self.play_shutdown_sounds = True
+        self.notify_start_title = 'Welcome'
+        self.notify_start_detail = ''
+        self.notify_start_timeout = 5
+        self.shutdown_msg_title = 'Do you want to Shutdown now?'
+        self.shutdown_msg_detail = ''
         self.user_messages = True
         self.use_pref_file = True
+        self.add_message_dialog = True
         self.add_entry_dialog = False
         self.add_tool_dialog = False
         self.add_file_dialog = False
@@ -83,6 +88,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._close_color = QtGui.QColor(100, 0, 0, 150)
+        self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
@@ -98,6 +104,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # self.PREFS_
     # come from base class
     def _hal_init(self):
+        if self.add_message_dialog:
+            self.init_message_dialog()
+
         if self.add_entry_dialog:
             self.init_entry_dialog()
 
@@ -190,8 +199,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.emit('update-machine-log', '', 'DELETE')
         STATUS.emit('update-machine-log', '', 'INITIAL')
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
-        # We supply our own dialog for closing
-        self.CLOSE_DIALOG = CloseDialog()
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to ther widgets
@@ -231,7 +238,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
-            answer = self.CLOSE_DIALOG.showdialog(self.shutdown_msg_title,
+            answer = self.QTVCP_INSTANCE_.messageDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
                                                                  details=self.shutdown_msg_detail,
                                                                  icon=MSG.CRITICAL,
@@ -279,6 +286,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.toolDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.toolDialog_, w, w.PATHS, self.PREFS_)
         w.toolDialog_.overlay_color = self._toolDialogColor
+
+    def init_message_dialog(self):
+        from qtvcp.widgets.dialog_widget import LcncDialog
+        w = self.QTVCP_INSTANCE_
+        w.messageDialog_ = LcncDialog()
+        w.messageDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.messageDialog_, w, w.PATHS, self.PREFS_)
+        w.messageDialog_.overlay_color = self._messageDialogColor
 
     def init_entry_dialog(self):
         from qtvcp.widgets.dialog_widget import EntryDialog
@@ -425,6 +440,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_focusOverlay(self):
         self.add_focus_overlay = False
     focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
+
+    def set_messageDialog(self, data):
+        self.add_message_dialog = data
+    def get_messageDialog(self):
+        return self.add_message_dialog
+    def reset_messageDialog(self):
+        self.add_message_dialog = False
+    messageDialog_option = QtCore.pyqtProperty(bool, get_messageDialog, set_messageDialog, reset_messageDialog)
+    def get_messageDialogColor(self):
+        return self._messageDialogColor
+    def set_messageDialogColor(self, value):
+        self._messageDialogColor = value
+    message_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_messageDialogColor, set_messageDialogColor)
 
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
