@@ -171,14 +171,15 @@ style "halsourceview" = "default"
 {
     base[SELECTED]    = "#FFFFFF" # hilight color
     text[NORMAL]      = "#000000" # normal gcode text
-    base[INSENSITIVE] = "#d7d7d7" # gcode background
-    bg[INSENSITIVE]   = "#999999" # gcode line number background
+    base[INSENSITIVE] = "#d7d7d7" # gcode background 'insensitive'
+    base[NORMAL]      = "#d7d7d7" # gcode background 'sensitive'
+    bg[INSENSITIVE]   = "#999999" # gcode line number background 'insensitive'
+    bg[NORMAL]        = "#999999" # gcode line number background 'sensitive'
 }
 widget "*.*.gcode_view"         style "halsourceview"
 
 style "tooledit" = "default"
 {
-
     base[NORMAL]      = "#d7d7d7" # background color
     bg[NORMAL]        = "#d7d7d7" # header color
     text[NORMAL]      = "#000000" # text
