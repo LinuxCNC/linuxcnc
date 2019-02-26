@@ -399,12 +399,18 @@ class FilterProgram:
         if self.callback:
             self.callback(r)
 
+    # pop a (probable) dialog box
     def error(self, exitcode, stderr):
-        dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
-                _("The program %(program)r exited with code %(code)d.  "
-                "Any error messages it produced are shown below:")
-                    % {'program': self.program_filter, 'code': exitcode})
-        dialog.format_secondary_text(stderr)
-        dialog.run()
-        dialog.destroy()
+        message = _('The filter program %(program)r exited with an error')% {'program': self.program_filter}
+        more = _("Any error messages it produced are shown below:")
+        mess = {'NAME':'MESSAGE','ID':'ACTION_ERROR__',
+            'MESSAGE':message,
+            'MORE': more,
+            'DETAILS':stderr,
+            'ICON':'CRITICAL',
+            'FOCUS_TEXT': _('Filter program Error'),
+            'TITLE':'Program Filter Error'}
+        STATUS.emit('dialog-request', mess)
+        log.error('Filter Program Error:{}'.format (stderr))
+
 

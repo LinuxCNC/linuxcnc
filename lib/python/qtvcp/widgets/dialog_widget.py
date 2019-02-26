@@ -48,7 +48,7 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class LcncDialog(QMessageBox):
+class LcncDialog(QMessageBox, _HalWidgetBase):
     def __init__(self, parent=None):
         super(LcncDialog, self).__init__(parent)
         self.setTextFormat(Qt.RichText)
@@ -61,40 +61,85 @@ class LcncDialog(QMessageBox):
         self._state = False
         self._color = QColor(0, 0, 0, 150)
         self.focus_text = ''
+        self._request_name = 'MESSAGE'
         self.hide()
+
+    def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('LcncDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
+        self.topParent = self.QTVCP_INSTANCE_
+        STATUS.connect('dialog-request', self._external_request)
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            t = message.get('TITLE')
+            if t:
+                self.title = t
+            else:
+                self.title = 'Entry'
+            mess = message.get('MESSAGE') or None
+            more = message.get('MORE') or None
+            details = message.get('DETAILS') or None
+            ok_type = message.get('TYPE') or True
+            icon = message.get('ICON') or 'INFO'
+            pin = message.get('PINNAME') or None
+            ftext = message.get('FOCUS_TEXT') or None
+            fcolor = message.get('FOCUS_COLOR') or None
+            alert = message.get('PLAY_ALERT') or None
+            rtrn = self.showdialog(mess, more, details, ok_type, 
+                                    icon, pin, ftext, fcolor, alert)
+            message['RETURN'] = rtrn
+            STATUS.emit('general', message)
 
     def showdialog(self, message, more_info=None, details=None, display_type=1,
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
                    focus_color=None, play_alert=None):
-        if focus_text:
-            self.focus_text = focus_text
-        if focus_color:
-            self._color = focus_color
-        self.OK_TYPE = 1
-        self.YN_TYPE = 0
-        self.QUESTION = QMessageBox.Question
-        self.INFO = QMessageBox.Information
-        self.WARNING = QMessageBox.Warning
-        self.CRITICAL = QMessageBox.Critical
+
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.FramelessWindowHint | Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
                             #Qt.X11BypassWindowManagerHint
+
+        if focus_text is not None:
+            self.focus_text = focus_text
+        if focus_color is not None:
+            color = focus_color
+        else:
+            color = self._color
+
+        if icon == 'QUESTION': icon = QMessageBox.Question
+        elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Information
+        elif icon == 'WARNING': icon = QMessageBox.Warning
+        elif icon == 'CRITICAL': icon = QMessageBox.Critical
         self.setIcon(icon)
+
         self.setText('<b>%s</b>' % message)
-        if more_info:
+        if more_info is not None:
             self.setInformativeText(more_info)
         else:
             self.setInformativeText('')
-        if details:
+        if details is not None:
             self.setDetailedText(details)
         if display_type == self.OK_TYPE:
             self.setStandardButtons(QMessageBox.Ok)
         else:
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.buttonClicked.connect(self.msgbtn)
-        STATUS.emit('focus-overlay-changed', True, self.focus_text, self._color)
+        STATUS.emit('focus-overlay-changed', True, self.focus_text, color)
         if play_alert:
             STATUS.emit('play-alert', play_alert)
         retval = self.exec_()
@@ -931,7 +976,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
-        if retval:
+        if retval is not None:
             try:
                 return float(self.Num.text())
             except Exception as e:
@@ -1008,7 +1053,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug("Value of pressed button: {}".format(retval))
-        if retval:
+        if retval is not None:
             try:
                 return float(self.display.text())
             except:

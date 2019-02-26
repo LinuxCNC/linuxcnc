@@ -46,6 +46,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self._block_signal = False
         self._halpin_option = True
         self.dialog_code = 'ENTRY'
+        self.display_units_mm = 0
 
         SettingMenu = QMenu()
         exitButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -67,7 +68,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
-
+        STATUS.connect('metric-mode-changed', self._switch_units)
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
@@ -100,7 +101,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message['ID'] == '%s__'% self.objectName())
         name = bool(message['NAME'] == self.dialog_code)
-        if num and code and name:
+        if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
             self._last = message['CURRENT']
@@ -137,6 +138,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             LOG.error("can't zero origin for specified joint {}".format(jnum))
             return None, None
         p,r,d = STATUS.get_position()
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            r = INFO.convert_units_9(r)
         return axis, r[jnum]
 
     def SelectAxis(self):
@@ -153,6 +156,11 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             self._block_signal = False
             if self._halpin_option and self._joint != -1:
                 self.hal_pin.set(False)
+
+    def _switch_units(self, widget, data):
+        self.display_units_mm = data
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            self._last = INFO.convert_units(self._last)
 
     #########################################################################
     # This is how designer can interact with our widget properties.

@@ -168,7 +168,7 @@ class HandlerClass:
         num = message['RETURN']
         code = bool(message['ID'] == 'FORM__')
         name = bool(message['NAME'] == 'ENTRY')
-        if num and code and name:
+        if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
             fixture = message['FIXTURE']
