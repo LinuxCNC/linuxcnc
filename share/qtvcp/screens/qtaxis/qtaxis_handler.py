@@ -12,7 +12,7 @@ from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.core import Status, Action
+from qtvcp.core import Status, Action, Info
 
 # Set up logging
 from qtvcp import logger
@@ -28,6 +28,7 @@ LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
+INFO = Info()
 TOOLBAR = None
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -57,6 +58,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
+        self.hide_unused_axis()
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
@@ -163,7 +165,14 @@ class HandlerClass:
     # general functions #
     #####################
 
-    # process the STATUS return message
+    def hide_unused_axis(self):
+        for i in range(1,9):
+            if i in INFO.AVAILABLE_AXES_INT:
+                continue
+            self.w['ras_label_%s'%i].hide()
+            self.w['ras_%s'%i].hide()
+
+    # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
         num = message['RETURN']
         code = bool(message['ID'] == 'FORM__')
