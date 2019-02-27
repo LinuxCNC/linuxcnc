@@ -151,12 +151,30 @@ class _IStat(object):
             self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
         except:
             self.ZIPPED_USRMESS = None
+
+        # XEmbed tabs
         self.TAB_NAMES = (self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")) or None
-        self.TAB_LOCATION = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or None
-        self.TAB_CMD   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        self.TAB_LOCATIONS = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
+        self.TAB_CMDS   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
+            log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
+        if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
+            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCACTION - guessng default.')
+            for num,i in enumerate(self.TAB_NAMES):
+                try:
+                    if self.TAB_LOCATIONS[num]:
+                        continue
+                except:
+                    self.TAB_LOCATIONS.append("default")
+        try:
+            self.ZIPPED_TABS = zip(self.TAB_NAMES,self.TAB_LOCATIONS,self.TAB_CMDS)
+        except:
+            self.ZIPPED_TABS = None
+
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
         self.TOOL_FILE_PATH = (self.inifile.find("EMCIO", "TOOL_TABLE")) or None
         self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
+
     ###################
     # helper functions
     ###################
