@@ -8,10 +8,21 @@ from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.lib import xembed
+from qtvcp import logger
 
-class XEmbeddable(QWidget):
+# Instantiate the libraries with global reference
+# LOG is for running code logging
+LOG = logger.getLogger(__name__)
+
+# Set the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+class XEmbeddable(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(XEmbeddable, self).__init__(parent)
+
+    def _hal_init(self):
+        pass
 
     def embed(self, command):
         try:
@@ -20,9 +31,10 @@ class XEmbeddable(QWidget):
             self.container = QWidget.createWindowContainer(window, self)
             self.show()
             return True
-        except  Exception,e:
-            print 'Error Embedding program: ',command
-            print e
+        except  Exception, e:
+            LOG.warning('Exception:{}'.format(command))
+            LOG.warning('Exception:{}'.format( e))
+            raise Exception(e)
             return False
 
     def event(self, event):
@@ -36,12 +48,17 @@ class XEmbeddable(QWidget):
 
     def launch_xid(self,cmd):
         c = cmd.split()
-        #print c
         self.ob = subprocess.Popen(c,stdin = subprocess.PIPE,
                                    stdout = subprocess.PIPE)
         sid = self.ob.stdout.readline()
-        print 'XID:',sid
+        LOG.debug( 'XID: {}'.format(sid))
         return int(sid)
+
+    def closing_cleanup__(self):
+        try:
+            self.ob.terminate()
+        except Exception, e:
+            print e
 
 class XEmbed(XEmbeddable, _HalWidgetBase):
     def __init__(self, parent=None):
