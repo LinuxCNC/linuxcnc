@@ -251,10 +251,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 return
             if self.play_sounds and self.play_shutdown_sounds:
                 STATUS.emit('play-alert', self.shutdown_exit_sound_type)
-                try:
-                    self.QTVCP_INSTANCE_.handler_instance.closing_cleanup__()
-                except:
-                    pass
             event.accept()
 
         # [0] = tool number
