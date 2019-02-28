@@ -912,8 +912,9 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 	stat[joint_num].ferrorCurrent = joint->ferror;
 	stat[joint_num].ferrorHighMark = joint->ferror_high_mark;
 
-	stat[joint_num].homing = (joint->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
-	stat[joint_num].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
+	stat[joint_num].homing = joint->homing;
+	stat[joint_num].homed  = joint->homed;
+
 	stat[joint_num].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
 	stat[joint_num].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
 	stat[joint_num].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);

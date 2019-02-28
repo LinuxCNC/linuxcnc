@@ -25,6 +25,7 @@
 #include "motion_debug.h"
 #include "config.h"
 #include "motion_types.h"
+#include "homing.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -149,12 +150,11 @@ static void set_operating_mode(void);
 static void handle_jjogwheels(void);
 static void handle_ajogwheels(void);
 
-/* 'do_homing_sequence()' looks at emcmotStatus->homingSequenceState 
-   to decide what, if anything, needs to be done related to multi-joint
-   homing.
+/* 'do_homing_sequence()' decides what, if anything, needs to be done
+    related to multi-joint homing.
 
    no prototype here, implemented in homing.c, proto in mot_priv.h
- */
+*/
 
 /* 'do_homing()' looks at the home_state field of each joint struct
     to decide what, if anything, needs to be done related to homing
@@ -274,6 +274,7 @@ void emcmotController(void *arg, long period)
     dbg_ct++;
 #endif
     process_inputs();
+    read_homing_in_pins(emcmotConfig->numJoints);
     do_forward_kins();
     process_probe_inputs();
     check_for_faults();
@@ -286,6 +287,7 @@ void emcmotController(void *arg, long period)
     compute_screw_comp();
     plan_external_offsets();
     output_to_hal();
+    write_homing_out_pins(emcmotConfig->numJoints);
     update_status();
     /* here ends the core of the controller */
     emcmotStatus->heartbeat++;
@@ -403,11 +405,10 @@ static void process_inputs(void)
 	    continue;
 	}
 	/* copy data from HAL to joint structure */
-	joint->index_enable = *(joint_data->index_enable);
 	joint->motor_pos_fb = *(joint_data->motor_pos_fb);
 	/* calculate pos_fb */
-	if (( joint->home_state == HOME_INDEX_SEARCH_WAIT ) &&
-	    ( joint->index_enable == 0 )) {
+	if (( get_homing_at_index_search_wait(joint_num) ) &&
+	    ( get_index_enable(joint_num) == 0 )) {
 	    /* special case - we're homing the joint, and it just
 	       hit the index.  The encoder count might have made a
 	       step change.  The homing code will correct for it
@@ -463,14 +464,6 @@ static void process_inputs(void)
 	} else {
 	    SET_JOINT_FAULT_FLAG(joint, 0);
 	}
-
-	/* read home switch input */
-	if (*(joint_data->home_sw)) {
-	    SET_JOINT_HOME_SWITCH_FLAG(joint, 1);
-	} else {
-	    SET_JOINT_HOME_SWITCH_FLAG(joint, 0);
-	}
-	/* end of read and process joint inputs loop */
     }
 
     // a fault was signalled during a spindle-orient in progress
@@ -676,8 +669,8 @@ static void process_probe_inputs(void)
             }
 
             // abort any homing
-            if(GET_JOINT_HOMING_FLAG(joint)) {
-                joint->home_state = HOME_ABORT;
+            if(get_homing(i)) {
+                set_home_abort(i);
                 aborted=1;
             }
 
@@ -748,7 +741,7 @@ static void check_for_faults(void)
 	    if ((GET_JOINT_PHL_FLAG(joint) && ! pos_limit_override ) ||
 		(GET_JOINT_NHL_FLAG(joint) && ! neg_limit_override )) {
 		/* joint is on limit switch, should we trip? */
-		if (GET_JOINT_HOMING_FLAG(joint)) {
+		if (get_homing(joint_num)) {
 		    /* no, ignore limits */
 		} else {
 		    /* trip on limits */
@@ -811,8 +804,8 @@ static void set_operating_mode(void)
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_INPOS_FLAG(joint, 1);
 		SET_JOINT_ENABLE_FLAG(joint, 0);
-		SET_JOINT_HOMING_FLAG(joint, 0);
-		joint->home_state = HOME_IDLE;
+		set_joint_homing(joint_num,0);
+		set_home_idle(joint_num);
 	    }
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
@@ -848,8 +841,8 @@ static void set_operating_mode(void)
 	    joint->free_tp.curr_pos = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
-		SET_JOINT_HOMING_FLAG(joint, 0);
-		joint->home_state = HOME_IDLE;
+		set_joint_homing(joint_num,0);
+                set_home_idle(joint_num);
 	    }
 	    /* clear any outstanding joint errors when going into enabled
 	       state */
@@ -1020,7 +1013,7 @@ static void handle_jjogwheels(void)
 	    continue;
 	}
 	/* must not be homing */
-	if (emcmotStatus->homing_active) {
+	if (get_homing_is_active() ) {
 	    continue;
 	}
 	/* must not be doing a keyboard jog */
@@ -1031,20 +1024,20 @@ static void handle_jjogwheels(void)
 	    /* don't jog if feedhold is on or if feed override is zero */
 	    break;
 	}
-        if (joint->home_flags & HOME_UNLOCK_FIRST) {
+        if (get_home_needs_unlock_first(joint_num) ) {
             reportError("Can't wheel jog locking joint_num=%d",joint_num);
             continue;
         }
-        if (joint->home_sequence < 0) {
+        if (get_home_sequence(joint_num) < 0) {
             if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                 "Homing is REQUIRED to wheel jog requested coordinate\n"
                 "because joint (%d) in home_sequence is negative (%d)\n"
-                ,joint_num,joint->home_sequence);
+                ,joint_num,get_home_sequence(joint_num) );
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                 "Cannot wheel jog joint %d because home_sequence is negative (%d)\n"
-                ,joint_num,joint->home_sequence);
+                ,joint_num,get_home_sequence(joint_num) );
             }
             continue;
         }
@@ -1060,7 +1053,7 @@ static void handle_jjogwheels(void)
 	/* calc target position for jog */
 	pos = joint->free_tp.pos_cmd + distance;
 	/* don't jog past limits */
-	refresh_jog_limits(joint);
+	refresh_jog_limits(joint,joint_num);
 	if (pos > joint->max_jog_limit) {
 	    continue;
 	}
@@ -1146,7 +1139,7 @@ static void handle_ajogwheels(void)
 	if (!GET_MOTION_TELEOP_FLAG())        { continue; }
 	if (!GET_MOTION_ENABLE_FLAG())        { continue; }
 	if ( *(axis_data->ajog_enable) == 0 ) { continue; }
-	if (emcmotStatus->homing_active)      { continue; }
+	if (get_homing_is_active()   )        { continue; }
 	if (axis->kb_ajog_active)             { continue; }
 
 	if (axis->locking_joint >= 0) {
@@ -1225,7 +1218,7 @@ static void get_pos_cmds(long period)
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
 	    /* compute joint velocity limit */
-            if ( joint->home_state == HOME_IDLE ) {
+            if ( get_home_is_idle(joint_num) ) {
                 /* velocity limit = joint limit * global scale factor */
                 /* the global factor is used for feedrate override */
                 vel_lim = joint->vel_limit * emcmotStatus->net_feed_scale;
@@ -1269,8 +1262,8 @@ static void get_pos_cmds(long period)
 		/* active TP means we're moving, so not in position */
 		SET_JOINT_INPOS_FLAG(joint, 0);
 		SET_MOTION_INPOS_FLAG(0);
-                /* if we move at all, clear AT_HOME flag */
-		SET_JOINT_AT_HOME_FLAG(joint, 0);
+                /* if we move at all, clear at_home flag */
+		set_joint_at_home(joint_num,0);
 		/* is any limit disabled for this move? */
 		if ( emcmotStatus->overrideLimitMask ) {
                     emcmotDebug->overriding = 1;
@@ -1516,7 +1509,7 @@ static void get_pos_cmds(long period)
 	/* point to joint data */
 	joint = &joints[joint_num];
 	/* skip inactive or unhomed axes */
-	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!GET_JOINT_HOMED_FLAG(joint))) {
+	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
 	    continue;
         }
 
@@ -2009,8 +2002,7 @@ static void output_to_hal(void)
 	*(joint_data->joint_pos_cmd) = joint->pos_cmd;
 	*(joint_data->joint_pos_fb) = joint->pos_fb;
 	*(joint_data->amp_enable) = GET_JOINT_ENABLE_FLAG(joint);
-	*(joint_data->index_enable) = joint->index_enable;
-	*(joint_data->homing) = GET_JOINT_HOMING_FLAG(joint);
+
 	*(joint_data->coarse_pos_cmd) = joint->coarse_pos;
 	*(joint_data->joint_vel_cmd) = joint->vel_cmd;
 	*(joint_data->joint_acc_cmd) = joint->acc_cmd;
@@ -2031,17 +2023,15 @@ static void output_to_hal(void)
 	*(joint_data->error) = GET_JOINT_ERROR_FLAG(joint);
 	*(joint_data->phl) = GET_JOINT_PHL_FLAG(joint);
 	*(joint_data->nhl) = GET_JOINT_NHL_FLAG(joint);
-	*(joint_data->homed) = GET_JOINT_HOMED_FLAG(joint);
 	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
 	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
-	*(joint_data->home_state) = joint->home_state;
 
         // conditionally remove outstanding requests to unlock rotaries:
         if  ( !GET_MOTION_ENABLE_FLAG() && (joint_is_lockable(joint_num))) {
              *(joint_data->unlock) = 0;
         }
 
-    }
+    } //for joint_num
 
     /* output axis info to HAL for scoping, etc */
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
@@ -2091,6 +2081,8 @@ static void update_status(void)
 	}
 #endif
 	joint_status->flag = joint->flag;
+	joint_status->homing = get_homing(joint_num);
+	joint_status->homed  = get_homed(joint_num);
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
 	joint_status->vel_cmd = joint->vel_cmd;
@@ -2102,7 +2094,6 @@ static void update_status(void)
 	joint_status->min_pos_limit = joint->min_pos_limit;
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
-	joint_status->home_offset = joint->home_offset;
     }
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
