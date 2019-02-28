@@ -1582,6 +1582,15 @@ int emcSetupArcBlends(int arcBlendEnable,
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcSetupConsistencyChecks(int consistency_checks,
+                              double max_position_drift_error)
+{
+    emcmotCommand.command = EMCMOT_SETUP_CONSISTENCY_CHECKS;
+    emcmotCommand.consistencyCheckConfig.extraConsistencyChecks = consistency_checks;
+    emcmotCommand.consistencyCheckConfig.maxPositionDriftError = max_position_drift_error;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcSetMaxFeedOverride(double maxFeedScale) {
     emcmotCommand.command = EMCMOT_SET_MAX_FEED_OVERRIDE;
     emcmotCommand.maxFeedScale = maxFeedScale;

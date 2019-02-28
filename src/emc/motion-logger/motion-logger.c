@@ -625,6 +625,12 @@ int main(int argc, char* argv[]) {
                 log_print("SETUP_ARC_BLENDS\n");
                 break;
 
+            case EMCMOT_SETUP_CONSISTENCY_CHECKS:
+                log_print("SETUP_CONSISTENCY_CHECKS enabled=%d, position_drift=%f\n",
+                          c->consistencyCheckConfig.extraConsistencyChecks,
+                          c->consistencyCheckConfig.maxPositionDriftError);
+                break;
+
             default:
                 log_print("ERROR: unknown command %d\n", c->command);
                 break;

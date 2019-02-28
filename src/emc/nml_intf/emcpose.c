@@ -332,11 +332,12 @@ int emcPoseValid(EmcPose const * const pose)
  * out-of-limit axes set their corresponding bit to 1 in the returned value (X
  * is 0th bit, Y is 1st, etc.).
  */
-int findAbsThresholdViolations(EmcPose vec, double threshold)
+unsigned int findAbsThresholdViolations(EmcPose vec, double threshold)
 {
     threshold = fabs(threshold);
     // Bit-mask each failure so we can report all failed axes
-    int fail_bits = (fabs(vec.tran.x) > threshold) << 0
+    unsigned fail_bits = (unsigned)(0x0
+            | (fabs(vec.tran.x) > threshold) << 0
             | (fabs(vec.tran.y) > threshold) << 1
             | (fabs(vec.tran.z) > threshold) << 2
             | (fabs(vec.a) > threshold) << 3
@@ -344,6 +345,6 @@ int findAbsThresholdViolations(EmcPose vec, double threshold)
             | (fabs(vec.c) > threshold) << 5
             | (fabs(vec.u) > threshold) << 6
             | (fabs(vec.v) > threshold) << 7
-            | (fabs(vec.w) > threshold) << 8;
+            | (fabs(vec.w) > threshold) << 8);
     return fail_bits;
 }

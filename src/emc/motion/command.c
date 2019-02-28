@@ -1646,26 +1646,32 @@ check_stuff ( "before command_handler()" );
 	    joint->comp.entries++;
 	    break;
 
-        case EMCMOT_SET_OFFSET:
-            emcmotStatus->tool_offset = emcmotCommand->tool_offset;
-            break;
+    case EMCMOT_SET_OFFSET:
+        emcmotStatus->tool_offset = emcmotCommand->tool_offset;
+        break;
 
-	default:
-	    rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
-	    reportError(_("unrecognized command %d"), emcmotCommand->command);
-	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
-	    break;
-        case EMCMOT_SET_MAX_FEED_OVERRIDE:
-            emcmotConfig->maxFeedScale = emcmotCommand->maxFeedScale;
-            break;
-        case EMCMOT_SETUP_ARC_BLENDS:
-            emcmotConfig->arcBlendEnable = emcmotCommand->arcBlendEnable;
-            emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
-            emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
-            emcmotConfig->arcBlendGapCycles = emcmotCommand->arcBlendGapCycles;
-            emcmotConfig->arcBlendRampFreq = emcmotCommand->arcBlendRampFreq;
-            emcmotConfig->arcBlendTangentKinkRatio = emcmotCommand->arcBlendTangentKinkRatio;
-            break;
+    case EMCMOT_SET_MAX_FEED_OVERRIDE:
+        emcmotConfig->maxFeedScale = emcmotCommand->maxFeedScale;
+        break;
+
+    case EMCMOT_SETUP_ARC_BLENDS:
+        emcmotConfig->arcBlendEnable = emcmotCommand->arcBlendEnable;
+        emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
+        emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
+        emcmotConfig->arcBlendGapCycles = emcmotCommand->arcBlendGapCycles;
+        emcmotConfig->arcBlendRampFreq = emcmotCommand->arcBlendRampFreq;
+        emcmotConfig->arcBlendTangentKinkRatio = emcmotCommand->arcBlendTangentKinkRatio;
+        break;
+
+    case EMCMOT_SETUP_CONSISTENCY_CHECKS:
+        emcmotConfig->consistencyCheckConfig = emcmotCommand->consistencyCheckConfig;
+        break;
+
+    default:
+        rtapi_print_msg(RTAPI_MSG_DBG, "UNKNOWN");
+        reportError(_("unrecognized command %d"), emcmotCommand->command);
+        emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
+        break;
 
 	}			/* end of: command switch */
 	if (emcmotStatus->commandStatus != EMCMOT_COMMAND_OK) {

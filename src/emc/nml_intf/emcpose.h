@@ -49,7 +49,7 @@ int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw);
 
 int emcPoseMagnitude(EmcPose const * const pose, double * const out);
 
-int findAbsThresholdViolations(EmcPose vec, double threshold);
+unsigned int findAbsThresholdViolations(EmcPose vec, double threshold);
 
 int emcPoseValid(EmcPose const * const pose);
 

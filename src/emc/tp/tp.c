@@ -89,6 +89,37 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
 
 
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc);
+
+typedef struct {
+    char axes[9];
+} AxisMaskString;
+
+inline AxisMaskString axisBitMaskToString(unsigned failed_axes)
+{
+    AxisMaskString axis_str = {{"XYZABCUVW"}};
+    for (int i = 0; i < 9;++i) {
+        if (failed_axes & (1 << i)) {
+            continue;
+        }
+        axis_str.axes[i] =' ';
+    }
+    return axis_str;
+}
+
+
+static inline void reportTPAxisError(TP_STRUCT const *tp, unsigned failed_axes, const char *msg_prefix)
+{
+    if (failed_axes)
+    {
+        AxisMaskString failed_axes_str = axisBitMaskToString(failed_axes);
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s, axes [%s] at %g sec\n",
+                        msg_prefix ?: "unknown error",
+                        failed_axes_str.axes,
+                        tp->time_elapsed_sec);
+    }
+}
+
+
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
@@ -2783,13 +2814,57 @@ STATIC tp_err_t tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
     return TP_ERR_OK;
 }
 
+
+void checkPositionMatch(TP_STRUCT const *tp, TC_STRUCT const *tc)
+{
+    if (!emcmotConfig->consistencyCheckConfig.extraConsistencyChecks || tc->is_blending){
+        return;
+    }
+
+    EmcPose tp_position_error;
+    ZERO_EMC_POSE(tp_position_error);
+    tcGetPos(tc, &tp_position_error);
+    emcPoseSelfSub(&tp_position_error, &tp->currentPos);
+
+    unsigned position_mismatch_axes = findAbsThresholdViolations(tp_position_error, emcmotConfig->consistencyCheckConfig.maxPositionDriftError);
+    reportTPAxisError(tp, position_mismatch_axes, "Motion start position difference exceeds threshold");
+
+#ifdef TP_DEBUG
+    int need_print = true;
+#else
+    int need_print = position_mismatch_axes != 0;
+#endif
+
+    // Log a bunch of TP internal state if required by debug level or position error
+    if (need_print) {
+        print_json5_log_start(ActivateSegment,Run);
+        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+        print_json5_int_("id", tc->id);
+        // Position settings
+        print_json5_double_("target", tc->target);
+        print_json5_double_("progress", tc->progress);
+        // Velocity settings
+        print_json5_double_("reqvel", tc->reqvel);
+        print_json5_double_("target_vel", tc->target_vel);
+        print_json5_double_("finalvel", tc->finalvel);
+        // Acceleration settings
+        print_json5_double_("accel_scale", tcGetAccelScale(tc));
+        print_json5_double_("acc_overall", tcGetOverallMaxAccel(tc));
+        print_json5_double_("acc_tangential", tcGetTangentialMaxAccel(tc));
+        print_json5_bool_("accel_ramp", tc->accel_mode);
+        print_json5_bool_("blend_prev", tc->blend_prev);
+        print_json5_string_("sync_mode", tcSyncModeAsString(tc->synchronized));
+        print_json5_log_end();
+    }
+}
+
+
 /**
  * "Activate" a segment being read for the first time.
  * This function handles initial setup of a new segment read off of the queue
  * for the first time.
  */
 STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
-
     //Check if already active
     if (!tc || tc->active) {
         return TP_ERR_OK;
@@ -2859,52 +2934,7 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         res = TP_ERR_WAITING;
     }
 
-
-    EmcPose tp_position_error;
-    ZERO_EMC_POSE(tp_position_error);
-    tcGetPos(tc, &tp_position_error);
-    emcPoseSelfSub(&tp_position_error, &tp->currentPos);
-    int failed_axes = findAbsThresholdViolations(tp_position_error, 1e-6);
-    if (failed_axes) {
-        // KLUDGE mask out good axes from print list with space
-        char failed_axes_list[9] = "XYZABCUVW";
-        for (int i = 0; i < 9;++i) {
-            if (failed_axes & (1 << i)) {
-                continue;
-            }
-            failed_axes_list[i]=' ';
-        }
-
-        rtapi_print_msg(RTAPI_MSG_ERR, "TP Position violation on axes [%s] at segment %d\n", failed_axes_list, tc->id);
-    }
-
-#ifdef TP_DEBUG
-    int need_print = true;
-#else
-    int need_print = failed_axes;
-#endif
-
-    if (need_print) {
-        print_json5_log_start(ActivateSegment,Run);
-        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
-        print_json5_int_("id", tc->id);
-        // Position settings
-        print_json5_double_("target", tc->target);
-        print_json5_double_("progress", tc->progress);
-        // Velocity settings
-        print_json5_double_("reqvel", tc->reqvel);
-        print_json5_double_("target_vel", tc->target_vel);
-        print_json5_double_("finalvel", tc->finalvel);
-        // Acceleration settings
-        print_json5_double_("accel_scale", tcGetAccelScale(tc));
-        print_json5_double_("acc_overall", tcGetOverallMaxAccel(tc));
-        print_json5_double_("acc_tangential", tcGetTangentialMaxAccel(tc));
-        print_json5_bool_("accel_ramp", tc->accel_mode);
-        print_json5_bool_("blend_prev", tc->blend_prev);
-        print_json5_string_("sync_mode", tcSyncModeAsString(tc->synchronized));
-        print_json5_log_end();
-    }
-
+    checkPositionMatch(tp, tc);
     return res;
 }
 
@@ -3442,35 +3472,6 @@ int tpRunCycleInternal(TP_STRUCT * const tp)
     return TP_ERR_OK;
 }
 
-typedef struct {
-    char axes[9];
-} AxisMaskString;
-
-inline AxisMaskString axisBitMaskToString(unsigned failed_axes)
-{
-    AxisMaskString axis_str = {{"XYZABCUVW"}};
-    for (int i = 0; i < 9;++i) {
-        if (failed_axes & (1 << i)) {
-            continue;
-        }
-        axis_str.axes[i] =' ';
-    }
-    return axis_str;
-}
-
-
-static inline void reportTPAxisError(TP_STRUCT const *tp, unsigned failed_axes, const char *msg_prefix)
-{
-    if (failed_axes)
-    {
-        AxisMaskString failed_axes_str = axisBitMaskToString(failed_axes);
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s, axes [%s] at %g sec\n",
-                        msg_prefix ?: "unknown error",
-                        failed_axes_str.axes,
-                        tp->time_elapsed_sec);
-    }
-}
-
 
 int tpRunCycle(TP_STRUCT *tp, long period)
 {
@@ -3479,48 +3480,50 @@ int tpRunCycle(TP_STRUCT *tp, long period)
     tp->time_elapsed_sec+=tp->cycleTime;
     ++tp->time_elapsed_ticks;
     EmcPose const axis_pos_old = tp->currentPos;
-    EmcPose const axis_vel_old = tp->currentVel;
 
     int res = tpRunCycleInternal(tp);
 
-    // After update (even a no-op), update pos / vel / accel
-    EmcPose const axis_pos = tp->currentPos;
+    if (emcmotConfig->consistencyCheckConfig.extraConsistencyChecks) {
+        // After update (even a no-op), update pos / vel / accel
+        EmcPose const axis_vel_old = tp->currentVel;
+        EmcPose const axis_pos = tp->currentPos;
 
-    EmcPose axis_vel;
-    emcPoseSub(&axis_pos, &axis_pos_old, &axis_vel);
-    emcPoseMultScalar(&axis_vel, 1.0 / tp->cycleTime);
-    tp->currentVel = axis_vel;
+        EmcPose axis_vel;
+        emcPoseSub(&axis_pos, &axis_pos_old, &axis_vel);
+        emcPoseMultScalar(&axis_vel, 1.0 / tp->cycleTime);
+        tp->currentVel = axis_vel;
 
-    EmcPose axis_accel;
-    emcPoseSub(&axis_vel, &axis_vel_old, &axis_accel);
-    emcPoseMultScalar(&axis_accel, 1.0 / tp->cycleTime);
+        EmcPose axis_accel;
+        emcPoseSub(&axis_vel, &axis_vel_old, &axis_accel);
+        emcPoseMultScalar(&axis_accel, 1.0 / tp->cycleTime);
 
-    unsigned accel_error_mask = findAccelViolations(axis_accel);
-    unsigned vel_error_mask = findVelocityViolations(axis_vel);
-    unsigned pos_limit_error_mask = findPositionLimitViolations(axis_pos);
+        unsigned accel_error_mask = findAccelViolations(axis_accel);
+        unsigned vel_error_mask = findVelocityViolations(axis_vel);
+        unsigned pos_limit_error_mask = findPositionLimitViolations(axis_pos);
 
-    reportTPAxisError(tp, accel_error_mask, "Acceleration limit exceeded");
-    reportTPAxisError(tp, vel_error_mask, "Velocity limit exceeded");
-    reportTPAxisError(tp, pos_limit_error_mask, "Position limits exceeded");
+        reportTPAxisError(tp, accel_error_mask, "Acceleration limit exceeded");
+        reportTPAxisError(tp, vel_error_mask, "Velocity limit exceeded");
+        reportTPAxisError(tp, pos_limit_error_mask, "Position limits exceeded");
 
-    #ifdef TC_DEBUG
+#ifdef TC_DEBUG
         unsigned debug_mask = (unsigned)(-1);
-    #else
+#else
         unsigned debug_mask = 0;
-    #endif
+#endif
 
-    if (debug_mask || (
-        accel_error_mask | vel_error_mask | pos_limit_error_mask)
-           ) {
-        print_json5_log_start(tpRunCycle, Run);
-        print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
-        print_json5_EmcPose(axis_pos);
-        print_json5_EmcPose(axis_vel);
-        print_json5_EmcPose(axis_accel);
-        double current_vel = emcmotStatus->current_vel;
-        print_json5_double(current_vel);
-        print_json5_double_("time", tp->time_elapsed_sec);
-        print_json5_end_();
+        if (debug_mask || (
+                    accel_error_mask | vel_error_mask | pos_limit_error_mask)
+                ) {
+            print_json5_log_start(tpRunCycle, Run);
+            print_json5_ll_("time_ticks", tp->time_elapsed_ticks);
+            print_json5_EmcPose(axis_pos);
+            print_json5_EmcPose(axis_vel);
+            print_json5_EmcPose(axis_accel);
+            double current_vel = emcmotStatus->current_vel;
+            print_json5_double(current_vel);
+            print_json5_double_("time", tp->time_elapsed_sec);
+            print_json5_end_();
+        }
     }
     return res;
 }
