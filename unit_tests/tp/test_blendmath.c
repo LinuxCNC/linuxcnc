@@ -206,29 +206,87 @@ TEST checkEndCondition_at_velocity()
     PASS();
 }
 
-TEST checkEndCondition_below_final_velocity()
+TEST checkEndCondition_below_vf_close()
 {
     const double v_final = v_max_mock;
     const double v_current = 1.0;
     const double nominal_cycle_dist = v_current * cycle_time;
 
-    EndCondition ec_close = checkEndCondition(cycle_time,
+    EndCondition ec = checkEndCondition(cycle_time,
                                    target_dist_mock - nominal_cycle_dist,
                                    target_dist_mock,
                                    v_current,
-                                   v_max_mock,
+                                   v_final,
                                    a_max_mock
                                    );
-    ASSERT(ec_close.dt < cycle_time);
-    ASSERT_IN_RANGEm("final velocity", ec_close.v_f, 1.0, v_final);
+    ASSERT(ec.dt < cycle_time);
+    ASSERT_IN_RANGEm("final velocity", ec.v_f, 1.0, v_final);
     PASS();
 }
+
+TEST checkEndCondition_below_vf_far()
+{
+    const double v_final = v_max_mock;
+    const double v_current = 1.0;
+    const double nominal_cycle_dist = v_current * cycle_time;
+
+    EndCondition ec = checkEndCondition(cycle_time,
+                                   target_dist_mock - 4*nominal_cycle_dist,
+                                   target_dist_mock,
+                                   v_current,
+                                   v_final,
+                                   a_max_mock
+                                   );
+    ASSERT(ec.dt > cycle_time);
+    ASSERT_IN_RANGEm("final velocity", ec.v_f, 1.0, v_final);
+    PASS();
+}
+
+TEST checkEndCondition_above_vf_far()
+{
+    const double v_final = 1.0;
+    const double v_current = v_max_mock;
+
+    EndCondition ec = checkEndCondition(cycle_time,
+                                              0.0,
+                                              target_dist_mock,
+                                              v_current,
+                                              v_final,
+                                              a_max_mock
+                                              );
+    ASSERT(ec.dt > cycle_time);
+    ASSERT_IN_RANGEm("final velocity", ec.v_f, 1.0, v_final);
+    PASS();
+}
+
+
+TEST checkEndCondition_above_vf_close()
+{
+    const double v_final = 1.0;
+    const double v_current = v_final + a_max_mock * cycle_time;
+    const double nominal_cycle_dist = (v_current + v_final) / 2.0 * cycle_time;
+
+    EndCondition ec = checkEndCondition(cycle_time,
+                                              target_dist_mock - nominal_cycle_dist,
+                                              target_dist_mock,
+                                              v_current,
+                                              v_final,
+                                              a_max_mock
+                                              );
+    ASSERT_IN_RANGE(ec.dt, cycle_time, TP_TIME_EPSILON);
+    ASSERT_IN_RANGEm("final velocity", ec.v_f, 1.0, v_final);
+    PASS();
+}
+
 
 SUITE(tc_functions) {
     RUN_TEST(checkEndCondition_zero_velocity);
     RUN_TEST(checkEndCondition_small_velocity);
     RUN_TEST(checkEndCondition_at_velocity);
-    RUN_TEST(checkEndCondition_below_final_velocity);
+    RUN_TEST(checkEndCondition_below_vf_far);
+    RUN_TEST(checkEndCondition_below_vf_close);
+    RUN_TEST(checkEndCondition_above_vf_far);
+    RUN_TEST(checkEndCondition_above_vf_close);
 }
 
 TEST test_pmCircleActualMaxVel_cutoff()
