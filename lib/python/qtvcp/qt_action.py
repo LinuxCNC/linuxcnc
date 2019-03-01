@@ -139,6 +139,20 @@ class _Lcnc_Action(object):
             if old == fname:
                 STATUS.emit('file-loaded',fname)
 
+    def SAVE_PROGRAM(self, source, fname):
+        if source == '': return
+        if '.' not in fname:
+            fname += '.ngc'
+        name, ext = fname.rsplit('.')
+        try:
+            outfile = open(name + '.' + ext.lower(),'w')
+            outfile.write(source)
+            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+        except Exception as e:
+            print e
+        finally:
+            outfile.close()
+
     def SET_AXIS_ORIGIN(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)

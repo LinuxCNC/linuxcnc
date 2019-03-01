@@ -264,7 +264,7 @@ class ToolBarActions():
         ACTION.SET_MACHINE_STATE(state)
 
     def actOnLoad(self,widget, state=None):
-        STATUS.emit('load-file-request')
+        STATUS.emit('dialog-request',{'NAME':'LOAD'})
 
     def actOnReload(self,widget, state=None):
         STATUS.emit('reload-display')

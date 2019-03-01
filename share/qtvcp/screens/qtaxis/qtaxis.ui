@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>680</height>
+    <width>789</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>6</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QFrame" name="frame">
@@ -83,497 +83,871 @@
             <attribute name="title">
              <string>Manual Control [F3]</string>
             </attribute>
-            <widget class="QWidget" name="horizontalLayoutWidget_2">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>0</y>
-               <width>251</width>
-               <height>31</height>
-              </rect>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <property name="spacing">
+              <number>6</number>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Axis            </string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="RadioAxisSelector" name="radioaxisselector">
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>X</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="RadioAxisSelector" name="radioaxisselector_2">
-                <property name="axis_selection" stdset="0">
-                 <string>y</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="text">
-                 <string>Y</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="RadioAxisSelector" name="radioaxisselector_3">
-                <property name="axis_selection" stdset="0">
-                 <string>z</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>Z</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-            <widget class="ActionButton" name="actionbutton">
-             <property name="geometry">
-              <rect>
-               <x>100</x>
-               <y>40</y>
-               <width>31</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>+</string>
-             </property>
-             <property name="jog_selected_pos_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
+             <property name="leftMargin">
               <number>0</number>
              </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
+             <property name="topMargin">
+              <number>6</number>
              </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
+             <property name="rightMargin">
               <number>0</number>
              </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_2">
-             <property name="geometry">
-              <rect>
-               <x>60</x>
-               <y>40</y>
-               <width>31</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>-</string>
-             </property>
-             <property name="jog_selected_pos_action" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="jog_selected_neg_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
+             <property name="bottomMargin">
               <number>0</number>
              </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="JogIncrements" name="jogincrements">
-             <property name="geometry">
-              <rect>
-               <x>140</x>
-               <y>40</y>
-               <width>111</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_3">
-             <property name="geometry">
-              <rect>
-               <x>60</x>
-               <y>70</y>
-               <width>71</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Home All</string>
-             </property>
-             <property name="home_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>-1</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="AxisToolButton" name="axistoolbutton">
-             <property name="geometry">
-              <rect>
-               <x>150</x>
-               <y>70</y>
-               <width>111</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Set Origin</string>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>-1</number>
-             </property>
-            </widget>
-            <widget class="QLabel" name="label_7">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>130</y>
-               <width>54</width>
-               <height>17</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Spindle:</string>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_4">
-             <property name="geometry">
-              <rect>
-               <x>60</x>
-               <y>130</y>
-               <width>31</width>
-               <height>27</height>
-              </rect>
-             </property>
-             <property name="icon">
-              <iconset>
-               <selectedon>../../../axis/images/spindle_ccw.gif</selectedon>
-              </iconset>
-             </property>
-             <property name="spindle_rev_action" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="spindle_down_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>0</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_5">
-             <property name="geometry">
-              <rect>
-               <x>100</x>
-               <y>130</y>
-               <width>45</width>
-               <height>27</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Stop</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-             <property name="spindle_stop_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>0</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="ActionButton" name="actionbutton_6">
-             <property name="geometry">
-              <rect>
-               <x>160</x>
-               <y>130</y>
-               <width>31</width>
-               <height>27</height>
-              </rect>
-             </property>
-             <property name="icon">
-              <iconset>
-               <selectedon>../../../axis/images/spindle_cw.gif</selectedon>
-              </iconset>
-             </property>
-             <property name="spindle_fwd_action" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="spindle_up_action" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="joint_number" stdset="0">
-              <number>0</number>
-             </property>
-             <property name="incr_imperial_number" stdset="0">
-              <double>0.010000000000000</double>
-             </property>
-             <property name="incr_mm_number" stdset="0">
-              <double>0.025000000000000</double>
-             </property>
-             <property name="incr_angular_number" stdset="0">
-              <double>-1.000000000000000</double>
-             </property>
-             <property name="toggle_float_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="float_num" stdset="0">
-              <double>100.000000000000000</double>
-             </property>
-             <property name="float_alt_num" stdset="0">
-              <double>50.000000000000000</double>
-             </property>
-             <property name="view_type_string" stdset="0">
-              <string>P</string>
-             </property>
-             <property name="command_text_string" stdset="0">
-              <string/>
-             </property>
-             <property name="ini_mdi_number" stdset="0">
-              <number>0</number>
-             </property>
-            </widget>
-            <widget class="ScreenOptions" name="screen_options">
-             <property name="geometry">
-              <rect>
-               <x>230</x>
-               <y>230</y>
-               <width>16</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="play_sounds_option" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="focusOverlay_option" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="entryDialog_option" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="toolDialog_option" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="tool_overlay_color" stdset="0">
-              <color alpha="150">
-               <red>140</red>
-               <green>135</green>
-               <blue>135</blue>
-              </color>
-             </property>
-             <property name="fileDialog_option" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="file_overlay_color" stdset="0">
-              <color alpha="150">
-               <red>100</red>
-               <green>100</green>
-               <blue>184</blue>
-              </color>
-             </property>
-            </widget>
-            <widget class="StatusLabel" name="statuslabel_9">
-             <property name="geometry">
-              <rect>
-               <x>210</x>
-               <y>130</y>
-               <width>71</width>
-               <height>21</height>
-              </rect>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="textTemplate" stdset="0">
-              <string>%d RPM</string>
-             </property>
-             <property name="actual_spindle_speed_status" stdset="0">
-              <bool>true</bool>
-             </property>
-            </widget>
-            <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
-             <property name="geometry">
-              <rect>
-               <x>70</x>
-               <y>100</y>
-               <width>171</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="is_on_status" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="is_idle_status" stdset="0">
-              <bool>true</bool>
-             </property>
-             <property name="is_homed_status" stdset="0">
-              <bool>true</bool>
-             </property>
-             <widget class="QPushButton" name="pushButton">
-              <property name="geometry">
-               <rect>
-                <x>40</x>
-                <y>0</y>
-                <width>111</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Set Tool Ofsset</string>
-              </property>
-             </widget>
-            </widget>
+             <item>
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Maximum</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMaximumSize</enum>
+               </property>
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>0</number>
+               </property>
+               <item row="1" column="1">
+                <widget class="RadioAxisSelector" name="ras_3">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>a</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="5">
+                <widget class="RadioAxisSelector" name="ras_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>z</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="4">
+                <widget class="QLabel" name="ras_label_1">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>Y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="6">
+                <widget class="QLabel" name="ras_label_5">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>C</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="RadioAxisSelector" name="ras_1">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>y</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="2">
+                <widget class="QLabel" name="ras_label_3">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>A</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="3">
+                <widget class="RadioAxisSelector" name="ras_4">
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>b</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="4">
+                <widget class="QLabel" name="ras_label_4">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>B</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="6">
+                <widget class="QLabel" name="ras_label_2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Z</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="5">
+                <widget class="RadioAxisSelector" name="ras_5">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>c</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="ras_label_title">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Axis&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="RadioAxisSelector" name="ras_0">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="ras_label_0">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>X</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="5">
+                <widget class="RadioAxisSelector" name="ras_8">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>w</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QLabel" name="ras_label_6">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>U</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="3">
+                <widget class="RadioAxisSelector" name="ras_7">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>v</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="RadioAxisSelector" name="ras_6">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>u</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="4">
+                <widget class="QLabel" name="ras_label_7">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>V</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="6">
+                <widget class="QLabel" name="ras_label_8">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>W</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Maximum</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item row="1" column="0">
+                <widget class="ActionButton" name="actionbutton_3">
+                 <property name="minimumSize">
+                  <size>
+                   <width>75</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>75</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Home All</string>
+                 </property>
+                 <property name="home_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>-1</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.025000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="StateEnableGridLayout" name="state_enable_gridLayout_2">
+                 <property name="is_on_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="is_idle_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="is_homed_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_7">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QPushButton" name="pushButton">
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>25</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Set Tool Offets</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <item>
+                  <widget class="ActionButton" name="actionbutton">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>+</string>
+                   </property>
+                   <property name="jog_selected_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="incr_imperial_number" stdset="0">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="incr_mm_number" stdset="0">
+                    <double>0.025000000000000</double>
+                   </property>
+                   <property name="incr_angular_number" stdset="0">
+                    <double>-1.000000000000000</double>
+                   </property>
+                   <property name="toggle_float_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="float_num" stdset="0">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="float_alt_num" stdset="0">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="view_type_string" stdset="0">
+                    <string>P</string>
+                   </property>
+                   <property name="command_text_string" stdset="0">
+                    <string/>
+                   </property>
+                   <property name="ini_mdi_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_2">
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                   <property name="jog_selected_pos_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jog_selected_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="incr_imperial_number" stdset="0">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="incr_mm_number" stdset="0">
+                    <double>0.025000000000000</double>
+                   </property>
+                   <property name="incr_angular_number" stdset="0">
+                    <double>-1.000000000000000</double>
+                   </property>
+                   <property name="toggle_float_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="float_num" stdset="0">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="float_alt_num" stdset="0">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="view_type_string" stdset="0">
+                    <string>P</string>
+                   </property>
+                   <property name="command_text_string" stdset="0">
+                    <string/>
+                   </property>
+                   <property name="ini_mdi_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item row="1" column="1">
+                <widget class="AxisToolButton" name="axistoolbutton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Set Origin</string>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>-1</number>
+                 </property>
+                 <property name="halpin_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="JogIncrements" name="jogincrements">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeType">
+                <enum>QSizePolicy::Maximum</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_7">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Spindle:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ActionButton" name="actionbutton_4">
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <selectedon>../../../axis/images/spindle_ccw.gif</selectedon>
+                  </iconset>
+                 </property>
+                 <property name="spindle_rev_action" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="spindle_down_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.025000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ActionButton" name="actionbutton_5">
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Stop</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>true</bool>
+                 </property>
+                 <property name="spindle_stop_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.025000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="ActionButton" name="actionbutton_6">
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>25</height>
+                  </size>
+                 </property>
+                 <property name="icon">
+                  <iconset>
+                   <selectedon>../../../axis/images/spindle_cw.gif</selectedon>
+                  </iconset>
+                 </property>
+                 <property name="spindle_fwd_action" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="spindle_up_action" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="joint_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                 <property name="incr_imperial_number" stdset="0">
+                  <double>0.010000000000000</double>
+                 </property>
+                 <property name="incr_mm_number" stdset="0">
+                  <double>0.025000000000000</double>
+                 </property>
+                 <property name="incr_angular_number" stdset="0">
+                  <double>-1.000000000000000</double>
+                 </property>
+                 <property name="toggle_float_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="float_num" stdset="0">
+                  <double>100.000000000000000</double>
+                 </property>
+                 <property name="float_alt_num" stdset="0">
+                  <double>50.000000000000000</double>
+                 </property>
+                 <property name="view_type_string" stdset="0">
+                  <string>P</string>
+                 </property>
+                 <property name="command_text_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="ini_mdi_number" stdset="0">
+                  <number>0</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="StatusLabel" name="statuslabel_9">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>35</height>
+                  </size>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 </property>
+                 <property name="textTemplate" stdset="0">
+                  <string>%d RPM</string>
+                 </property>
+                 <property name="actual_spindle_speed_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="ScreenOptions" name="screen_options">
+               <property name="play_sounds_option" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="default_embed_tab" stdset="0">
+                <string>rightTab</string>
+               </property>
+               <property name="focusOverlay_option" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="entryDialog_option" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="toolDialog_option" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="tool_overlay_color" stdset="0">
+                <color alpha="150">
+                 <red>140</red>
+                 <green>135</green>
+                 <blue>135</blue>
+                </color>
+               </property>
+               <property name="fileDialog_option" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="file_overlay_color" stdset="0">
+                <color alpha="150">
+                 <red>100</red>
+                 <green>100</green>
+                 <blue>184</blue>
+                </color>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
            <widget class="QWidget" name="tab_4">
             <attribute name="title">
@@ -1381,7 +1755,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>746</width>
+     <width>789</width>
      <height>27</height>
     </rect>
    </property>
@@ -1875,11 +2249,11 @@
    <slot>tool_offset_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>211</y>
+     <x>211</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
+     <x>264</x>
      <y>-11</y>
     </hint>
    </hints>

@@ -446,8 +446,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(GcodeEditor, self).__init__(parent)
-        self.dialog_code = 'FILE'
-        STATUS.connect('general',self.returnFileName)
+        self.load_dialog_code = 'LOAD'
+        self.save_dialog_code = 'SAVE'
+        STATUS.connect('general',self.returnFromDialog)
 
         self.isCaseSensitive = 0
 
@@ -665,7 +666,11 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def saveCall(self):
         self.save()
     def save(self):
-        self.saveFile()
+        self.getSaveFileName()
+    def saveReturn(self, fname):
+        ACTION.SAVE_PROGRAM(self.editor.text(), fname)
+        self.editor.setModified(False)
+        ACTION.OPEN_PROGRAM(fname)
 
     def undoCall(self):
         self.undo()
@@ -690,17 +695,27 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.setReadOnly(True)
 
     def getFileName(self):
-        mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+        mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
             'TITLE':'Load Editor'}
         STATUS.emit('dialog-request', mess)
 
+    def getSaveFileName(self):
+        mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'Save Editor'}
+        STATUS.emit('dialog-request', mess)
+
     # process the STATUS return message
-    def returnFileName(self, w, message):
-        path = message.get('RETURN')
-        code = bool(message.get('ID') == '%s__'% self.objectName())
-        name = bool(message.get('NAME') == self.dialog_code)
-        if path and code and name:
-            self.openReturn(path)
+    def returnFromDialog(self, w, message):
+        if message.get('NAME') == self.load_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.objectName())
+            if path and code:
+                self.openReturn(path)
+        elif message.get('NAME') == self.save_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.objectName())
+            if path and code:
+                self.saveReturn(path)
 
     def killCheck(self):
         choice = QMessageBox.question(self, 'Warning!!',
@@ -710,16 +725,6 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             return True
         else:
             return False
-
-    def saveFile(self):
-        if self.editor.text() == '': return
-        name = QFileDialog.getSaveFileName(self, 'Save File')
-        print name
-        if name[0]:
-            file = open(name[0],'w')
-            file.write(self.editor.text())
-            file.close()
-            self.editor.setModified(False)
 
     def emit_percent(self, percent):
         self.percentDone.emit(percent)

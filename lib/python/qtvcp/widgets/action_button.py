@@ -348,13 +348,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.pause:
             ACTION.PAUSE()
         elif self.load_dialog:
-            STATUS.emit('load-file-request')
+            STATUS.emit('dialog-request',{'NAME':'LOAD'})
         elif self.camview_dialog:
-            STATUS.emit('dialog-request', 'CAMVIEW')
+            STATUS.emit('dialog-request', {'NAME':'CAMVIEW'})
         elif self.macro_dialog:
-            STATUS.emit('dialog-request', 'MACRO')
+            STATUS.emit('dialog-request', {'NAME':'MACRO'})
         elif self.origin_offset_dialog:
-            STATUS.emit('dialog-request', 'ORIGINOFFSET')
+            STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET'})
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:

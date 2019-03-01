@@ -311,13 +311,13 @@ class FileDialog(QFileDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FileDialog, self).__init__(parent)
         self._state = False
-        self._request_name = 'FILE'
+        self._load_request_name = 'LOAD'
+        self._save_request_name = 'SAVE'
         self._color = QColor(0, 0, 0, 150)
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
-        self.setFileMode(QFileDialog.ExistingFile)
         exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(exts)
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
@@ -333,7 +333,6 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self._geometry_string = self.PREFS_.getpref('FileDialog-geometry', geo, str, 'DIALOG_OPTIONS')
         else:
             self._geometry_string = 'default'
-        STATUS.connect('load-file-request', lambda w: self.load_dialog())
         STATUS.connect('dialog-request', self._external_request)
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('fileDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
@@ -344,15 +343,22 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.play_sound = False
 
     def _external_request(self, w, message):
-        if message['NAME'] == self._request_name:
-            if message['ID']:
+        if message.get('NAME') == self._load_request_name:
+            # if there is an ID then a file name response is expected
+            if message.get('ID'):
                 message['RETURN'] = self.load_dialog(True)
                 STATUS.emit('general', message)
             else:
                 self.load_dialog()
+        elif message.get('NAME') == self._save_request_name:
+            if message.get('ID'):
+                message['RETURN'] = self.save_dialog()
+                STATUS.emit('general', message)
 
     def load_dialog(self, return_path=False):
-
+        self.setFileMode(QFileDialog.ExistingFile)
+        self.setAcceptMode(QFileDialog.AcceptOpen)
+        self.setWindowTitle('Open')
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
             STATUS.emit('play-alert', self.sound_type)
@@ -369,6 +375,28 @@ class FileDialog(QFileDialog, _HalWidgetBase):
                 self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+        return fname
+
+    def save_dialog(self):
+        self.setFileMode(QFileDialog.AnyFile)
+        self.setAcceptMode(QFileDialog.AcceptSave)
+        self.setWindowTitle('Save')
+        STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
+        if self.play_sound:
+            STATUS.emit('play-alert', self.sound_type)
+        self.calculate_placement()
+        fname = None
+        if (self.exec_()):
+            fname = self.selectedFiles()[0]
+            path = self.directory().absolutePath()
+            self.setDirectory(path)
+        else:
+            fname = None
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        record_geometry(self,'FileDialog-geometry')
+        if fname: 
+            if self.PREFS_:
+                self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
         return fname
 
     def calculate_placement(self):
