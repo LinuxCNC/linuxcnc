@@ -9,8 +9,8 @@ PmCartesian getXYZAccelBounds();
 PmCartesian getXYZVelBounds();
 
 unsigned findAccelViolations(EmcPose axis_accel);
-
-double jointMaxAccel(int joint_idx);
+unsigned findVelocityViolations(EmcPose axis_vel);
+unsigned findPositionLimitViolations(EmcPose axis_pos);
 
 /**
  * Finds the smallest non-zero component in a non-negative "bounds" vector.
