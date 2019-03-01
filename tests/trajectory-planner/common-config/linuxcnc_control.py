@@ -6,6 +6,8 @@ import os
 import sys
 import re
 from time import sleep
+import datetime
+import string
 
 
 class LinuxcncError(Exception):
@@ -39,19 +41,17 @@ class LinuxcncControl:
 
     """
 
-    def __init__(self, timeout=2, max_runtime=24 * 60 * 60, throw_lcnc_exceptions=False, continue_after_error=True):
+    def __init__(self, timeout=2, max_runtime=24 * 60 * 60, throw_lcnc_exceptions=False):
         self.c = None
         self.e = None
         self.s = None
         self.cmd_timeout = timeout
-        self.error_list = []
         self.raise_on_error = throw_lcnc_exceptions
         # Ignore blank errors by default
         self.err_ignore_mask = '^$'
         self.try_init(ignore_error=True)
         # Don't allow a test to run for more than
         self.max_runtime = max_runtime
-        self.continue_after_error = continue_after_error
         self.has_error_ = False
 
     def try_init(self, ignore_error=False):
@@ -165,7 +165,7 @@ class LinuxcncControl:
                     pass
                 return True
             except KeyboardInterrupt:
-                self.error_list.append("warning: interrupted by keyboard in c.wait_complete(self.timeout)")
+                self.log('mdi', 'warning', 'interrupted by keyboard in c.wait_complete(self.timeout)')
                 return False
 
         self.poll_and_log_error(code)
@@ -217,11 +217,12 @@ class LinuxcncControl:
             self.s.poll()
             self.flush_errors(f)
             if self.s.task_state != linuxcnc.STATE_ON:
-                self.error_list.append('{}: error: motion disabled'.format(f))
+                self.log_error(f, 'motion disabled')
                 return False
 
             if self.s.exec_state == linuxcnc.EXEC_ERROR or self.s.state == linuxcnc.RCS_ERROR:
-                self.error_list.append('{}: warning: unhandled linuxcnc error, exec_state = {}, rcs_state = {}, aborting test'.format(f, self.s.exec_state, self.s.state))
+                self.log_error(f, 'unhandled linuxcnc error with exec_state = {}, rcs_state = {}'.format(
+                    self.s.exec_state, self.s.state))
                 return False
 
             if self.s.exec_state == linuxcnc.EXEC_DONE and self.s.state == linuxcnc.RCS_DONE:
@@ -229,7 +230,7 @@ class LinuxcncControl:
 
             sleep(1. / update_rate)
         else:
-            self.error_list.append('{}: error: exceeded max allowed run time of {} seconds'.format(f, self.max_runtime))
+            self.log_error(f, 'exceeded max allowed run time of {} seconds'.format(self.max_runtime))
             return False
 
     def run_until_done(self, f):
@@ -248,17 +249,26 @@ class LinuxcncControl:
     def set_error_ignore_pattern(self, pattern):
         self.err_ignore_mask = pattern
 
+    def log(self, ngc_file, level, msg_text):
+        full_msg = '{} | {}: {}: {}\n'.format(datetime.datetime.now(), ngc_file, level, msg_text)
+        sys.stderr.write(full_msg)
+        if string.lower(level) is 'error':
+            self.has_error_ = True
+        return full_msg
+
+    def log_error(self, ngc_file, msg_text):
+        err_str = self.log(ngc_file, 'error', msg_text)
+        if self.raise_on_error:
+            raise LinuxcncError(err_str)
+
     def poll_and_log_error(self, f):
         error = self.e.poll()
         if error is None:
             return False
 
         err_type, msg_text = error
-        err_type_str = "error" if err_type in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR) else "info"
-        err_str = "{}: {}: {}".format(f, err_type_str, msg_text)
-        self.error_list.append(err_str)
-        if self.raise_on_error:
-            raise LinuxcncError(err_str)
+        err_type_str = 'error' if err_type in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR) else 'info'
+        self.log(f, err_type_str, msg_text)
         return True
 
     def flush_errors(self, filename=""):
@@ -267,23 +277,7 @@ class LinuxcncControl:
             continue
 
     def has_error(self):
-        self.has_error_ = self.has_error_ or self.find_new_error()
         return self.has_error_
-
-    def find_new_error(self):
-        for msg in self.error_list:
-            if re.search(self.err_ignore_mask, msg):
-                continue
-            if re.search('error: ', msg):
-                return True
-        else:
-            return False
-
-    def write_error_log(self):
-        sys.stderr.writelines(self.error_list)
-        # Cache the error state since we flush the error list to std err
-        self.has_error_ = self.has_error()
-        self.error_list = []
 
     def do_startup(self, need_home=False):
         self.set_mode(linuxcnc.MODE_MANUAL)

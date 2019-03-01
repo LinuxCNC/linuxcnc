@@ -18,7 +18,7 @@
     #<RPM> = #5 (Spindle RPM)
     #<ToolNumber> = #6 (Tool Number)
     #<Coolant> = #7 (=8 Coolant 8 On 9 Off)
-    G7 G17 G20 G40 G80
+    G17 G20 G40 G80
     T#<ToolNumber> M6 G43
 o<053o110>  if [#<thread-type> EQ 0]
       #<pitch> = [1 / #<thread>]

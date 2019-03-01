@@ -1,4 +1,4 @@
-G90 G20
+o<default_inch> call
 G64 P0.001 Q0.001
 F100
 G0 X2 Y0
