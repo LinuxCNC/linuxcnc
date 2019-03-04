@@ -282,10 +282,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         # [14] = tool orientation
         # [15] = tool comment
     def _tool_file_info(self, tool_entry, index):
-        toolnum = tool_entry[0]
-        tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
-        text = 'Tool %s: %s'%(str(tool_table_line[0]),str(tool_table_line[index]))
-        STATUS.emit('update-machine-log', text, 'TIME')
+        try:
+            toolnum = tool_entry[0]
+            tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
+            text = 'Tool %s: %s'%(str(tool_table_line[0]),str(tool_table_line[index]))
+            STATUS.emit('update-machine-log', text, 'TIME')
+        except:
+            pass
 
     # XEmbed program into tabs
     def add_xembed_tabs(self):
