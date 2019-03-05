@@ -1219,6 +1219,14 @@ greatest_run_info greatest_info
 #define SHUFFLE_TESTS  GREATEST_SHUFFLE_TESTS
 #define SHUFFLE_SUITES GREATEST_SHUFFLE_SUITES
 
+// Customized for LinuxCNC
+#define ASSERT_PMCARTESIAN_IN_RANGE(EXP, GOT, tol) do { \
+    ASSERT_IN_RANGE(EXP.x, GOT.x, tol); \
+    ASSERT_IN_RANGE(EXP.y, GOT.y, tol); \
+    ASSERT_IN_RANGE(EXP.z, GOT.z, tol); \
+} while (0)
+
+
 #ifdef GREATEST_VA_ARGS
 #define RUN_TESTp      GREATEST_RUN_TESTp
 #endif
