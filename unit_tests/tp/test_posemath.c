@@ -245,6 +245,75 @@ TEST test_pmCircleInit()
     PASS();
 }
 
+TEST test_pmCircleInit_spiral_short()
+{
+    PmCircle c;
+    PmCartesian center = {0.0, 0.0, 0.0};
+    PmCartesian start = {1,0, 0};
+    PmCartesian end = {0, 1 + 0.3,0};
+
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 0);
+
+    ASSERT_IN_RANGE(M_PI_2, c.angle, CART_FUZZ);
+    ASSERT_IN_RANGE(0.3, c.spiral, CART_FUZZ);
+
+    PASS();
+}
+
+TEST test_pmCircleInit_spiral_long()
+{
+    PmCircle c;
+    PmCartesian center = {0.0, 0.0, 0.0};
+    PmCartesian start = {1,0, 0};
+    PmCartesian end = {-1-0.3, 0,0};
+
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 3);
+
+    ASSERT_IN_RANGE(M_PI * 7, c.angle, CART_FUZZ);
+    ASSERT_IN_RANGE(0.3, c.spiral, CART_FUZZ);
+
+    PASS();
+}
+
+TEST test_pmCircleInit_helix()
+{
+    PmCircle c;
+    // Assume center is zero for ease of writing the test
+    const PmCartesian center = {1.0, 2.0, 3.0};
+
+    PmCartesian start = {1,0, 0};
+    PmCartesian end = {1.0,0,0.4};
+    pmCartCartAddEq(&start, &center);
+    pmCartCartAddEq(&end, &center);
+
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 0);
+
+    PmCartesian const expect_rHelix = {0,0,0.4};
+
+    ASSERT_IN_RANGE(2.0 * M_PI, c.angle, CART_FUZZ);
+    ASSERT(pmCartCartCompare(&expect_rHelix, &c.rHelix));
+    const double expect_radius = 1.0;
+
+    // Radius should be constant for an ideal helix
+    for (double angle = 0.0; angle <= M_PI * 2.0; angle += M_PI / 3.0) {
+        PmCartesian p = {0};
+        pmCirclePoint(&c, 0.0, &p);
+        pmCartCartSubEq(&p, &center);
+        // Ignore perpendicular component
+        p.z=0;
+        double r;
+        pmCartMag(&p, &r);
+
+        ASSERT_FLOAT_EQ(expect_radius, r);
+    }
+
+    PASS();
+}
+
+
 TEST test_pmCircleStretch()
 {
     PmCircle c;
@@ -284,6 +353,9 @@ TEST test_pmCircleStretch()
 SUITE(pm_circle) {
     RUN_TEST(test_pmCircleInit_simple);
     RUN_TEST(test_pmCircleInit);
+    RUN_TEST(test_pmCircleInit_spiral_short);
+    RUN_TEST(test_pmCircleInit_spiral_long);
+    RUN_TEST(test_pmCircleInit_helix);
     RUN_TEST(test_pmCircleStretch);
 }
 

@@ -6,10 +6,12 @@
 #include "rtapi.h"
 #include "joint_util.h"
 #include "motion_debug.h"
+#include "tc.h"
 
 /* Expand to all the definitions that need to be in
    the test runner's main file. */
 GREATEST_MAIN_DEFS();
+
 
 #include "mock_rtapi.inc"
 
@@ -289,6 +291,109 @@ SUITE(tc_functions) {
     RUN_TEST(checkEndCondition_above_vf_close);
 }
 
+TEST test_pmCircleTangentVector_unitcircle()
+{
+    PmCircle c;
+    PmCartesian start = {1,0, 0};
+    PmCartesian end = {0,1,0};
+    PmCartesian center = {0,0,0};
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 0);
+
+    {
+        PmCartesian utan_start;
+        const double angle = 0.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_start));
+        PmCartesian const expect_utan_start = {0,1,0};
+        ASSERT(pmCartCartCompare(&utan_start, &expect_utan_start));
+    }
+
+    {
+        PmCartesian utan_30deg;
+        const double angle = M_PI / 6.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_30deg));
+        PmCartesian const expect_utan_30deg = {-0.5, sqrt(3)/2.0,0};
+        ASSERT(pmCartCartCompare(&utan_30deg, &expect_utan_30deg));
+    }
+    {
+        PmCartesian utan_60deg;
+        const double angle = M_PI / 3.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_60deg));
+        PmCartesian const expect_utan_60deg = {-sqrt(3)/2.0, 0.5, 0};
+        ASSERT(pmCartCartCompare(&utan_60deg, &expect_utan_60deg));
+    }
+    {
+        PmCartesian utan_end;
+        const double angle = M_PI / 2.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_end));
+        PmCartesian const expect_utan_end = {-1.0, 0, 0};
+        ASSERT(pmCartCartCompare(&utan_end, &expect_utan_end));
+    }
+
+    PASS();
+}
+
+
+/**
+ * Evaluate the derivative of the ideal XY spiral
+ * x(theta) = a*cos(theta) - (r0+a*theta)*sin(theta)
+ * y(theta) = a*sin(theta) + (r0+a*theta)*sin(theta)
+ *
+ * Where a is the spiral component, r0 is radius when theta is zero.
+ *
+ * Uses the derivative to produce the unit vector at the given theta.
+ * From https://math.stackexchange.com/questions/1078185/differentiate-archimedess-spiral
+ */
+static PmCartesian idealXYSpiralUnitVec(double a, double r0, double theta)
+{
+    PmCartesian out = {0};
+    out.x = a*cos(theta) - (r0+a*theta)*sin(theta);
+    out.y = a*sin(theta) + (r0+a*theta)*cos(theta);
+    pmCartUnitEq(&out);
+    return out;
+}
+
+TEST test_pmCircleTangentVector_spiralout()
+{
+    PmCircle c;
+    PmCartesian start = {1,0, 0};
+    PmCartesian end = {1.0 + M_PI_2,0,0};
+    PmCartesian center = {0,0,0};
+    PmCartesian normal = {0,0,1};
+    pmCircleInit(&c, &start, &end, &center, &normal, 0);
+
+    // a = (r1-r0)/theta = (pi/2) / (2pi) = 1/4
+    double expect_spiral_a = 0.25;
+    ASSERT_FLOAT_EQ(c.angle, 2.0 * M_PI);
+
+    {
+        PmCartesian utan_start;
+        const double angle = 0.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_start));
+        PmCartesian const expect_utan_start = idealXYSpiralUnitVec(expect_spiral_a, 1.0, angle);
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_start, expect_utan_start, CART_FUZZ);
+    }
+
+    {
+        PmCartesian utan_30deg;
+        const double angle = M_PI / 6.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_30deg));
+        PmCartesian const expect_utan_30deg = idealXYSpiralUnitVec(expect_spiral_a, 1.0, angle);
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_30deg, expect_utan_30deg, CART_FUZZ);
+    }
+
+    {
+        PmCartesian utan_end;
+        const double angle = M_PI / 6.0;
+        ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_end));
+        PmCartesian const expect_utan_end = idealXYSpiralUnitVec(expect_spiral_a, 1.0, angle);
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_end, expect_utan_end, CART_FUZZ);
+    }
+
+    PASS();
+}
+
+
 TEST test_pmCircleActualMaxVel_cutoff()
 {
     double const v_max = 8.0;
@@ -311,6 +416,8 @@ TEST test_pmCircleActualMaxVel_cutoff()
 
 SUITE(circle_funcs)
 {
+    RUN_TEST(test_pmCircleTangentVector_unitcircle);
+    RUN_TEST(test_pmCircleTangentVector_spiralout);
     RUN_TEST(test_pmCircleActualMaxVel_cutoff);
 }
 
