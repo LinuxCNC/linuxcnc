@@ -305,7 +305,7 @@ TEST test_pmCircleTangentVector_unitcircle()
         const double angle = 0.0;
         ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_start));
         PmCartesian const expect_utan_start = {0,1,0};
-        ASSERT(pmCartCartCompare(&utan_start, &expect_utan_start));
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_start, expect_utan_start, CART_FUZZ);
     }
 
     {
@@ -313,21 +313,21 @@ TEST test_pmCircleTangentVector_unitcircle()
         const double angle = M_PI / 6.0;
         ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_30deg));
         PmCartesian const expect_utan_30deg = {-0.5, sqrt(3)/2.0,0};
-        ASSERT(pmCartCartCompare(&utan_30deg, &expect_utan_30deg));
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_30deg, expect_utan_30deg, CART_FUZZ);
     }
     {
         PmCartesian utan_60deg;
         const double angle = M_PI / 3.0;
         ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_60deg));
         PmCartesian const expect_utan_60deg = {-sqrt(3)/2.0, 0.5, 0};
-        ASSERT(pmCartCartCompare(&utan_60deg, &expect_utan_60deg));
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_60deg, expect_utan_60deg, CART_FUZZ);
     }
     {
         PmCartesian utan_end;
         const double angle = M_PI / 2.0;
         ASSERT_FALSE(pmCircleTangentVector(&c, angle, &utan_end));
         PmCartesian const expect_utan_end = {-1.0, 0, 0};
-        ASSERT(pmCartCartCompare(&utan_end, &expect_utan_end));
+        ASSERT_PMCARTESIAN_IN_RANGE(utan_end, expect_utan_end, CART_FUZZ);
     }
 
     PASS();

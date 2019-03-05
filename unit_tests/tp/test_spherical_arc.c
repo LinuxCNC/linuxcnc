@@ -22,9 +22,9 @@ TEST arcInitFromPoints_simple() {
     int res = arcInitFromPoints(&arc, &start, &end, &center);
     ASSERT_FALSE(res);
 
-    ASSERT(pmCartCartCompare(&arc.end, &end));
-    ASSERT(pmCartCartCompare(&arc.start, &start));
-    ASSERT(pmCartCartCompare(&arc.center, &center));
+    ASSERT_PMCARTESIAN_IN_RANGE(arc.end, end, V_FUZZ);
+    ASSERT_PMCARTESIAN_IN_RANGE(arc.start, start, V_FUZZ);
+    ASSERT_PMCARTESIAN_IN_RANGE(arc.center, center, V_FUZZ);
 
     double mag;
     pmCartMag(&arc.rStart, &mag);
@@ -39,7 +39,7 @@ TEST arcInitFromPoints_simple() {
 
     PmCartesian pt={0};
     arcPoint(&arc, 0, &pt);
-    ASSERT(pmCartCartCompare(&arc.center, &center));
+    ASSERT_PMCARTESIAN_IN_RANGE(arc.center, center, V_FUZZ);
 
     PASS();
 }

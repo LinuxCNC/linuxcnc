@@ -10,6 +10,8 @@ GREATEST_MAIN_DEFS();
 
 #include "mock_rtapi.inc"
 
+#define ASSERT_PMCARTESIAN_EQ(EXP, GOT) ASSERT_PMCARTESIAN_IN_RANGE(EXP, GOT, V_FUZZ)
+
 TEST test_pmCartCartCompare_self()
 {
     PmCartesian start = {10.0, 2.0, -3.45};
@@ -119,23 +121,23 @@ TEST test_PmCartesian_arithmetic()
 
     PmCartesian pmsum;
     ASSERT_EQ(PM_OK, pmCartCartAdd(&v1, &v2, &pmsum));
-    ASSERT(pmCartCartCompare(&sum, &pmsum));
+    ASSERT_PMCARTESIAN_EQ(sum, pmsum);
 
     PmCartesian pm_diff;
     ASSERT_EQ(PM_OK, pmCartCartSub(&v2, &v1, &pm_diff));
-    ASSERT(pmCartCartCompare(&diff, &pm_diff));
+    ASSERT_PMCARTESIAN_EQ(diff, pm_diff);
 
     PmCartesian pm_mult_k;
     ASSERT_EQ(PM_OK, pmCartScalMult(&v1, k, &pm_mult_k));
-    ASSERT(pmCartCartCompare(&v1_mult_k, &pm_mult_k));
+    ASSERT_PMCARTESIAN_EQ(v1_mult_k, pm_mult_k);
 
     PmCartesian pm_div_k;
     ASSERT_EQ(PM_OK, pmCartScalDiv(&v1, k, &pm_div_k));
-    ASSERT(pmCartCartCompare(&v1_div_k, &pm_div_k));
+    ASSERT_PMCARTESIAN_EQ(v1_div_k, pm_div_k);
 
     PmCartesian pm_neg;
     ASSERT_EQ(PM_OK, pmCartNeg(&v1, &pm_neg));
-    ASSERT(pmCartCartCompare(&v1_neg, &pm_neg));
+    ASSERT_PMCARTESIAN_EQ(v1_neg, pm_neg);
 
     double pm_dot=0.0;
     pmCartCartDot(&v1, &v2, &pm_dot);
@@ -143,15 +145,15 @@ TEST test_PmCartesian_arithmetic()
 
     PmCartesian pm_cross;
     pmCartCartCross(&v1, &v2, &pm_cross);
-    ASSERT(pmCartCartCompare(&pm_cross, &cross));
+    ASSERT_PMCARTESIAN_EQ(pm_cross, cross);
 
     PmCartesian pm_elem_mult;
     pmCartCartMult(&v1, &v2, &pm_elem_mult);
-    ASSERT(pmCartCartCompare(&pm_elem_mult, &elem_mult));
+    ASSERT_PMCARTESIAN_EQ(pm_elem_mult, elem_mult);
 
     PmCartesian pm_elem_div;
     pmCartCartDiv(&v1, &v2, &pm_elem_div);
-    ASSERT(pmCartCartCompare(&pm_elem_div, &elem_div));
+    ASSERT_PMCARTESIAN_EQ(pm_elem_div, elem_div);
 
     PASS();
 }
@@ -179,7 +181,7 @@ TEST test_pmCartUnit()
     // Show that the self-modifying version is the same output
     PmCartesian ueq = v1;
     ASSERT_FALSE(pmCartUnitEq(&ueq));
-    ASSERT(pmCartCartCompare(&ueq, &pm_u1));
+    ASSERT_PMCARTESIAN_EQ(ueq, pm_u1);
     PASS();
 }
 
@@ -294,7 +296,7 @@ TEST test_pmCircleInit_helix()
     PmCartesian const expect_rHelix = {0,0,0.4};
 
     ASSERT_IN_RANGE(2.0 * M_PI, c.angle, CART_FUZZ);
-    ASSERT(pmCartCartCompare(&expect_rHelix, &c.rHelix));
+    ASSERT_PMCARTESIAN_EQ(expect_rHelix, c.rHelix);
     const double expect_radius = 1.0;
 
     // Radius should be constant for an ideal helix
@@ -338,7 +340,7 @@ TEST test_pmCircleStretch()
     PmCartesian sample_end_stretch;
     pmCirclePoint(&c, M_PI / 8.0, &sample_end_stretch);
 
-    ASSERT(pmCartCartCompare(&sample_before, &sample_end_stretch) == 1);
+    ASSERT_PMCARTESIAN_EQ(sample_before, sample_end_stretch);
 
     // Stretch to extend past the starting point
     pmCircleStretch(&c, M_PI * 5.0/4.0, 1);
@@ -346,7 +348,7 @@ TEST test_pmCircleStretch()
     PmCartesian sample_start_stretch;
     pmCirclePoint(&c, M_PI / 8.0 + M_PI_4, &sample_start_stretch);
 
-    ASSERT(pmCartCartCompare(&sample_before, &sample_start_stretch) == 1);
+    ASSERT_PMCARTESIAN_EQ(sample_before, sample_start_stretch);
     PASS();
 }
 
@@ -368,8 +370,8 @@ TEST test_pmCartLineInit_simple()
     pmCartLineInit(&tst, &start, &end);
 
     ASSERT_FLOAT_EQ(tst.tmag, sqrt(1 + 4 + 9));
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
@@ -390,8 +392,8 @@ TEST test_pmCartLineInit_ex1()
     pmCartLineInit(&tst, &start, &end);
 
     ASSERT_FLOAT_EQ(tst.tmag, mag);
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
@@ -412,8 +414,8 @@ TEST test_pmCartLineInit_ex2()
     pmCartLineInit(&tst, &start, &end);
 
     ASSERT_FLOAT_EQ(tst.tmag, mag);
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
@@ -436,8 +438,8 @@ TEST test_pmCartLineInit_small_belowfuzz()
     // Store the actual magnitude
     ASSERT_FLOAT_EQ(tst.tmag, mag);
     ASSERT(tst.tmag_zero > 0);
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
@@ -457,8 +459,8 @@ TEST test_pmCartLineInit_small_abovefuzz()
 
     ASSERT(tst.tmag > 0.0);
     ASSERT(tst.tmag_zero == 0);
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
@@ -482,8 +484,8 @@ TEST test_pmCartLinePoint()
 
     ASSERT(tst.tmag > 0.0);
     ASSERT(tst.tmag_zero == 0);
-    ASSERT(pmCartCartCompare(&start, &tst.start));
-    ASSERT(pmCartCartCompare(&end, &tst.end));
+    ASSERT_PMCARTESIAN_EQ(start, tst.start);
+    ASSERT_PMCARTESIAN_EQ(end, tst.end);
     PASS();
 }
 
