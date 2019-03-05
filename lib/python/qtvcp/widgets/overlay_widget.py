@@ -16,8 +16,8 @@
 
 import os
 
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
-from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton, QDialog
+from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent
 from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
