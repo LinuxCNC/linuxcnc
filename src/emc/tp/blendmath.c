@@ -307,7 +307,7 @@ int pmCartCartParallel(PmCartesian const * const u1,
         pmCartMagSq(&u_diff, &d_diff);
     }
 
-#ifdef TP_DEBUG
+#if defined(TP_DEBUG) && defined(TP_PEDANTIC)
     print_json5_log_start(pmCartCartParallel, Check);
     print_json5_double(d_diff);
     print_json5_end_();
@@ -333,9 +333,11 @@ int pmCartCartAntiParallel(PmCartesian const * const u1,
         pmCartMagSq(&u_sum, &d_sum);
     }
 
-    tp_debug_json_log_start(pmCartCartAntiParallel, Check);
-    tp_debug_json_double(d_sum);
-    tp_debug_json_log_end();
+#if defined(TP_DEBUG) && defined(TP_PEDANTIC)
+    print_json5_log_start(pmCartCartAntiParallel, Check);
+    print_json5_double(d_sum);
+    print_json5_end_();
+#endif
 
     return d_sum < tol;
 }
