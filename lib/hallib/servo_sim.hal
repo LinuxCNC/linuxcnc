@@ -7,9 +7,9 @@ loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # PID module, for three PID loops
 loadrt pid names=pid_x,pid_y,pid_z
-# 6 differentiators (for velocity and accel sigs),
+# 6 differentiators (for velocity and accel sigs)
 loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
-# three scale blocks (to simulate motor and leadscrew scaling),
+# three scale blocks (to simulate motor and leadscrew scaling)
 loadrt scale names=scale_x,scale_y,scale_z
 # three lowpass filters (to simulate motor inertia), and nine
 loadrt lowpass names=lowpass_x,lowpass_y,lowpass_z
@@ -19,7 +19,7 @@ loadrt wcomp names=wcomp_xneg,wcomp_xpos,wcomp_xhome,wcomp_yneg,wcomp_ypos,wcomp
 # simulated encoders
 loadrt sim_encoder names=sim_encoder_px,sim_encoder_py,sim_encoder_pz
 # software encoder counters, 3 for feedback, 3 for actual axis pos
-loadrt encoder names=encoder_px,encoder_py,encoder_pz,encoder_x,encoder_y,encoder_z,
+loadrt encoder names=encoder_px,encoder_py,encoder_pz,encoder_x,encoder_y,encoder_z
 # add encoder counter and simulator functions to high speed thread
 addf sim-encoder.make-pulses base-thread
 addf encoder.update-counters base-thread
