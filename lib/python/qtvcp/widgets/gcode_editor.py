@@ -408,6 +408,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def line_changed(self, line, index):
         #LOG.debug('Line changed: {}'.format(line))
         if STATUS.is_auto_running() is False:
+            self.markerDeleteAll(-1)
             if STATUS.is_mdi_mode():
                 line_text = str(self.text(line)).strip()
                 STATUS.emit('mdi-line-selected', line_text, self._last_filename)

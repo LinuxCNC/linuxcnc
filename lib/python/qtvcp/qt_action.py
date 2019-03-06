@@ -251,20 +251,21 @@ class _Lcnc_Action(object):
     def SET_SELECTED_AXIS(self, data):
         STATUS.set_selected_axis(data)
 
-    # jog based on STATUS's rate and distace
-    def DO_JOG(self, axisnum, direction):
-        if axisnum in (3,4,5):
+    # jog based on STATUS's rate and distance
+    # use joint number for joint or axis joging
+    def DO_JOG(self, jointnum, direction):
+        if STATUS.stat.joint[jointnum]['jointType'] == linuxcnc.ANGULAR:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
         else:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
-        self.JOG(axisnum, direction, rate, distance)
+        self.JOG(jointnum, direction, rate, distance)
 
-    # jog based on given varaibles
+    # jog based on given variables
     # checks for jog joint mode first
-    def JOG(self, axisnum, direction, rate, distance=0):
-        jjogmode,j_or_a = STATUS.get_jog_info(axisnum)
+    def JOG(self, jointnum, direction, rate, distance=0):
+        jjogmode,j_or_a = self.get_jog_info(jointnum)
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
@@ -317,6 +318,25 @@ class _Lcnc_Action(object):
     ######################################
     # Action Helper functions
     ######################################
+
+    # In free (joint) mode we use the plain joint number.
+    # In axis mode we convert the joint number to the equivalent
+    # axis number - so in a dual-joint axis - jogging either will
+    # jog the axis
+    def get_jog_info (self,num):
+        if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            return True, self.jnum_check(num)
+        return False, INFO.GET_JOG_FROM_NAME[INFO.GET_NAME_FROM_JOINT[num]]
+
+    def jnum_check(self,num):
+        if STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            log.warning("Joint jogging not supported for non-identity kinematics")
+            #return -1
+        if num > INFO.JOINT_COUNT:
+            log.error("Computed joint number={} exceeds jointcount={}".format(num,INFO.JOINT_COUNT))
+            # decline to jog
+            return -1
+        return num
 
     def ensure_mode(self, *modes):
         truth, premode = STATUS.check_for_modes(modes)

@@ -14,6 +14,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+import linuxcnc
 import sys
 import os
 
@@ -38,6 +39,8 @@ LOG = logger.getLogger(__name__)
 class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(DROLabel, self).__init__(parent)
+        self._mode = False
+        self._joint_type = 1
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
@@ -49,21 +52,34 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.allow_reference_change_requests = True
 
     def _hal_init(self):
+        # get position update from STATUS every 100 ms
         if self.joint_number == 10:
             STATUS.connect('current-z-rotation', self.update_rotation)
         else:
-            # get position update from STATUS every 100 ms
+            STATUS.connect('motion-mode-changed',self.motion_mode)
             STATUS.connect('current-position', self.update)
             STATUS.connect('metric-mode-changed', self._switch_units)
             STATUS.connect('diameter-mode', self._switch_modes)
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
+            self._joint_type  = STATUS.stat.joint[self.joint_number]['jointType']
+
+
+    def motion_mode(self, w, mode):
+        if mode == linuxcnc.TRAJ_MODE_COORD:
+            pass
+        # Joint mode
+        elif mode == linuxcnc.TRAJ_MODE_FREE:
+            self._mode = False
+        # axis 
+        elif mode == linuxcnc.TRAJ_MODE_TELEOP:
+            self._mode = True
 
     def update_rotation(self, widget, rotation):
         degtmpl = lambda s: self.angular_text_template % s
         self.setText(degtmpl(rotation))
 
-    def update(self, widget, absolute, relative, dtg):
+    def update(self, widget, absolute, relative, dtg, joint):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             absolute = INFO.convert_units_9(absolute)
             relative = INFO.convert_units_9(relative)
@@ -74,6 +90,7 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         else:
             tmpl = lambda s: self.imperial_text_template % s
         degtmpl = lambda s: self.angular_text_template % s
+
         # only joint 0 (X) can use diameter mode
         if self.diameter and self.joint_number == 0:
             scale = 2.0
@@ -81,17 +98,19 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
             scale = 1
         try:
             if self.reference_type == 0:
-                if self.joint_number in (3,4,5):
+                if not self._mode and STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                    self.setText(tmpl(joint[self.joint_number]))
+                elif self._joint_type == linuxcnc.ANGULAR:
                     self.setText(degtmpl(absolute[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(absolute[self.joint_number]*scale))
             elif self.reference_type == 1:
-                if self.joint_number in (3,4,5):
+                if self._joint_type == linuxcnc.ANGULAR:
                     self.setText(degtmpl(relative[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(relative[self.joint_number]*scale))
             elif self.reference_type == 2:
-                if self.joint_number in (3,4,5):
+                if self._joint_type == linuxcnc.ANGULAR:
                     self.setText(degtmpl(dtg[self.joint_number]*scale))
                 else:
                     self.setText(tmpl(dtg[self.joint_number]*scale))

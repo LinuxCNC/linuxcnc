@@ -49,6 +49,7 @@ class HandlerClass:
         global TOOLBAR
         TOOLBAR = ToolBarActions(path=paths)
         STATUS.connect('general',self.return_value)
+        STATUS.connect('motion-mode-changed',self.motion_mode)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -58,7 +59,6 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        self.hide_unused_axis()
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
@@ -149,6 +149,36 @@ class HandlerClass:
     # callbacks from STATUS #
     ########################
 
+    # process the STATUS return message from set-tool-offset
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == 'FORM__')
+        name = bool(message['NAME'] == 'ENTRY')
+        if num is not None and code and name:
+            LOG.debug('message return:{}'.format (message))
+            axis = message['AXIS']
+            fixture = message['FIXTURE']
+            ACTION.SET_TOOL_OFFSET(axis,num,fixture)
+            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+
+    def motion_mode(self, w, mode):
+        #print STATUS.stat.joints
+        #print STATUS.stat.kinematics_type
+        #print INFO.AVAILABLE_AXES
+        #print INFO.GET_NAME_FROM_JOINT
+        if mode == linuxcnc.TRAJ_MODE_COORD:
+            print 'Mode Coordinate'
+        # Joint mode
+        elif mode == linuxcnc.TRAJ_MODE_FREE:
+            if STATUS.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+                self.show_axes()
+            else:
+                print 'Mode Free'
+                self.show_joints()
+        elif mode == linuxcnc.TRAJ_MODE_TELEOP:
+            print 'Mode Teleop'
+            self.show_axes()
+
     #######################
     # callbacks from form #
     #######################
@@ -165,24 +195,34 @@ class HandlerClass:
     # general functions #
     #####################
 
-    def hide_unused_axis(self):
-        for i in range(1,9):
-            if i in INFO.AVAILABLE_AXES_INT:
+    def show_joints(self):
+        for i in range(0,9):
+            if i in INFO.AVAILABLE_JOINTS:
+                self.w['ras_label_%s'%i].show()
+                self.w['ras_%s'%i].show()
+                self.w['ras_label_%s'%i].setText('J%d'%i)
+                try:
+                    self.w['machine_label_j%d'%i].setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Joint %d:</span></p></body></html>'%i)
+                except:
+                    pass
                 continue
             self.w['ras_label_%s'%i].hide()
             self.w['ras_%s'%i].hide()
 
-    # process the STATUS return message from set-tool-offset
-    def return_value(self, w, message):
-        num = message['RETURN']
-        code = bool(message['ID'] == 'FORM__')
-        name = bool(message['NAME'] == 'ENTRY')
-        if num is not None and code and name:
-            LOG.debug('message return:{}'.format (message))
-            axis = message['AXIS']
-            fixture = message['FIXTURE']
-            ACTION.SET_TOOL_OFFSET(axis,num,fixture)
-            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+    def show_axes(self):
+        for i in range(0,9):
+            j = INFO.GET_NAME_FROM_JOINT.get(i)
+            if j and len(j) == 1:
+                self.w['ras_label_%s'%i].show()
+                self.w['ras_%s'%i].show()
+                self.w['ras_label_%s'%i].setText('%s'%j)
+                try:
+                    self.w['machine_label_j%d'%i].setText('<html><head/><body><p><span style=" font-size:20pt; font-weight:600;">Machine %s:</span></p></body></html>' %j)
+                except:
+                    pass
+                continue
+            self.w['ras_label_%s'%i].hide()
+            self.w['ras_%s'%i].hide()
 
     def edit(self, widget, state):
         if state:

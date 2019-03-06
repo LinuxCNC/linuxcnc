@@ -127,7 +127,7 @@ class _GStat(gobject.GObject):
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
-                            gobject.TYPE_PYOBJECT,)),
+                            gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT,)),
         'current-z-rotation': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'requested-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'actual-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
@@ -445,7 +445,7 @@ class _GStat(gobject.GObject):
 
         # calculate position offsets (native units)
         p,rel_p,dtg = self.get_position()
-        self.emit('current_position',p, rel_p, dtg)
+        self.emit('current_position',p, rel_p, dtg, self.stat.joint_actual_position)
 
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
@@ -661,6 +661,11 @@ class _GStat(gobject.GObject):
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
+
+        # Trajectory Motion mode
+        motion_mode_new = self.old['motion-mode']
+        self.emit('motion-mode-changed', motion_mode_new)
+
         # Spindle requested speed
         spindle_spd_new = self.old['spindle-speed']
         self.emit('requested-spindle-speed-changed', spindle_spd_new)
