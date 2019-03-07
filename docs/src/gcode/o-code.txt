@@ -116,10 +116,9 @@ they are defined. They may be called from other functions, and may call
 themselves recursively if it makes sense to do so. The maximum
 subroutine nesting level is 10.
 
-Subroutines do not have 'return values', but they may change the value
-of parameters above #30 and those changes will be visible to the
-calling code. Subroutines may also change the value of global named
-parameters.
+Subroutines can change the value of parameters above #30 and those changes will
+be visible to the calling code. Subroutines may also change the value of global
+named parameters.
 
 [[ocode:fanuc-style-programs]]
 === Fanuc-Style Numbered Programs ===
