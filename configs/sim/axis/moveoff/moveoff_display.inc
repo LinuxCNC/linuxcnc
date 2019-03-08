@@ -12,7 +12,7 @@ DEFAULT_LINEAR_VELOCITY = .25
          PROGRAM_PREFIX = ../../nc_files/
           INTRO_GRAPHIC = linuxcnc.gif
              INTRO_TIME = 5
-                 EDITOR = gedit
+                 #EDITOR = gedit
             TOOL_EDITOR = tooledit
              INCREMENTS = 1 in, 0.1 in, 10 mil, 1 mil, 1mm, .1mm, 1/8000 in
 
