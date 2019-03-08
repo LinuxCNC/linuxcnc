@@ -55,7 +55,7 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self.setText('<b>Sample Text?</b>')
         self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.setIcon(QMessageBox.Critical)
-        self.setDetailedText('Sample Detail Text')
+        self.setDetailedText('')
         self.OK_TYPE = 1
         self.YN_TYPE = 0
         self._state = False
@@ -93,7 +93,8 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             mess = message.get('MESSAGE') or None
             more = message.get('MORE') or None
             details = message.get('DETAILS') or None
-            ok_type = message.get('TYPE') or True
+            ok_type = message.get('TYPE')
+            if ok_type == None: ok_type = True
             icon = message.get('ICON') or 'INFO'
             pin = message.get('PINNAME') or None
             ftext = message.get('FOCUS_TEXT') or None
@@ -134,6 +135,8 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             self.setInformativeText('')
         if details is not None:
             self.setDetailedText(details)
+        else:
+            self.setDetailedText('')
         if display_type == self.OK_TYPE:
             self.setStandardButtons(QMessageBox.Ok)
         else:
