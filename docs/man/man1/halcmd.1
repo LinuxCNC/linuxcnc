@@ -344,6 +344,10 @@ name that can be used to refer to a pin or parameter, both the
 original name and the alias will work.
    "type" must be \fBpin\fR or \fBparam\fR.
    "name" must be an existing name or \fBalias\fR of the specified type.
+Note that the "show" command will only show the aliased name, but the
+original name is still valid to use in HAL. The original names can still
+be seen with "show all" or "show alias"
+Existing nets will be preserved when a pin name is aliased.
 .TP
 \fBunalias\fR \fItype\fR \fIalias\fR
 Removes any alias from the pin or parameter alias.
