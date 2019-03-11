@@ -48,7 +48,7 @@ You should see something like this:
 
 .HAL Latency Test
 
-image::../config/images/latency.png[align="center", alt="HAL Latency Test"]
+image::../config/images/latency-test_en.png[align="center", alt="HAL Latency Test"]
 
 While the test is running, you should 'abuse' the computer. 
 Move windows around on the screen. Surf the web. Copy some large files 
