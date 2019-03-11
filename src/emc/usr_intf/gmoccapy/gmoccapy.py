@@ -91,7 +91,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.1"
+_RELEASE = " 3.0.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -300,7 +300,6 @@ class gmoccapy(object):
             self.widgets.lbl_offset_x.hide()
             self.widgets.btn_tool_touchoff_x.hide()
             self.widgets.lbl_hide_tto_x.show()
-
         
         self._arrange_dro()
         self._arrange_jog_button()
@@ -310,7 +309,7 @@ class gmoccapy(object):
         self._init_user_messages()
 
         # set the title of the window, to show the release
-        self.widgets.window1.set_title("gmoccapy for linuxcnc {0}".format(_RELEASE))
+        self.widgets.window1.set_title("gmoccapy for LinuxCNC {0}".format(_RELEASE))
         self.widgets.lbl_version.set_label("<b>gmoccapy\n{0}</b>".format(_RELEASE))
 
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
@@ -318,7 +317,6 @@ class gmoccapy(object):
         self.halcomp.ready()
 
         self.builder.connect_signals(self)
-
 
         # this are settings to be done before window show
         self._init_preferences()
@@ -527,8 +525,6 @@ class gmoccapy(object):
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
         self.rapid_override_max = self.get_ini_info.get_max_rapid_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
-
-
 
     def _get_pref_data(self):
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
@@ -809,7 +805,6 @@ class gmoccapy(object):
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"])
         self.macro_dic["keyboard"].show()
 
-
     def _on_btn_previous_clicked(self, widget):
         print("previous")
         self._remove_button(self.ref_button_dic, self.widgets.hbtb_ref)
@@ -1009,7 +1004,6 @@ class gmoccapy(object):
             print(_("**** found valid probe config in INI File ****"))
             print(_("**** will use auto tool measurement ****"))
             return True
-
 
     def _make_jog_increments(self):
         print("**** GMOCCAPY INFO ****")
@@ -1677,26 +1671,6 @@ class gmoccapy(object):
         # hide the angular jog vel if no angular joint is used
         if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
             self.widgets.spc_ang_jog_vel.hide()
-
-    def _check_screen2(self):
-        # second screen
-        self.screen2 = False
-        screen2 = os.path.join(CONFIGPATH, "gmoccapy2.glade")
-        if os.path.exists(screen2):
-            print (_("**** GMOCCAPY INFO ****"))
-            print (_("**** gmoccapy screen 2 found ****"))
-            try:
-                self.builder.add_from_file(screen2)
-                self.screen2 = True
-            except Exception, e:
-                print (_("**** GMOCCAPY ERROR ****"))
-                print _("**** screen 2 GLADE ERROR: ****")
-                self.widgets.tbtn_use_screen2.set_sensitive(False)
-                traceback.print_exc()
-        else:
-            print (_("**** GMOCCAPY INFO ****"))
-            print _("**** No gmoccapy2.glade file present ****")
-            self.widgets.tbtn_use_screen2.set_sensitive(False)
 
 # =============================================================
 # Dynamic tabs handling Start
@@ -2560,7 +2534,6 @@ class gmoccapy(object):
         # on incremental jogging.
         self.last_key_event = None, 0
 
-
     def on_hal_status_mode_mdi(self, widget):
         print ("MDI Mode", self.tool_change)
 
@@ -2608,7 +2581,6 @@ class gmoccapy(object):
             # press events by holding down the key. I.e. One press should only advance one increment
             # on incremental jogging.
             self.last_key_event = None, 0
-
 
     def on_hal_status_mode_auto(self, widget):
         print ("AUTO Mode")
@@ -2755,11 +2727,6 @@ class gmoccapy(object):
         self.command.wait_complete()
 
         self.initialized = True
-
-        # does the user want to show screen2
-        self._check_screen2()
-        if self.screen2:
-            self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):

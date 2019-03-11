@@ -1,3 +1,7 @@
+ver 3.0.2
+- minor code style changes
+- get rid of the screen2 stuff, as screens can be displayed using hal commands
+
 ver 3.0.1
 - bug being in full-size preview in auto mode and loading a file leaded to
   normal view as expected, but the full-size button stayed activated
