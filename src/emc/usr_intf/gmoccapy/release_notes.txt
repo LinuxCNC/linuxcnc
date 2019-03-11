@@ -1,3 +1,14 @@
+ver 3.0.1
+- bug being in full-size preview in auto mode and loading a file leaded to
+  normal view as expected, but the full-size button stayed activated
+
+ver 3.0.0
+- added the possibility to use up to 9 axis and 15 joints
+- no limits to configuration of axis and joints
+- support for lathes with additional axis like XZCW
+- support up to 16 macros
+- if an angular axis is used it will display an additional jog vel slider
+
 ver 2.3.5
 - jogging a not homed machine did change the button state of MDI and AUTO to be
   sensitive, what is not correct.
