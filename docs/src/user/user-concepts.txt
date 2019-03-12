@@ -297,12 +297,12 @@ shown by the 'Tool Direction' image. This makes the 'tool' move in the
 correct direction in relation to the material.
 
 .Mill Configuration
-image::images/mill-diagram.png[align="center", alt="Mill Configuration"]
+image::images/mill-diagram_en.svg[align="center", alt="Mill Configuration"]
 
 The following diagram shows a typical lathe showing direction of travel
 of the tool and limit switches.
 
 .Lathe Configuration
-image::images/lathe-diagram.png[align="center", alt="Lathe Configuration"]
+image::images/lathe-diagram_en.svg[align="center", alt="Lathe Configuration"]
 
 // vim: set syntax=asciidoc:
