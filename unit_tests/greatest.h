@@ -491,11 +491,15 @@ typedef enum greatest_test_res {
     do {                                                                \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) {                                           \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\nExpected: ");          \
-            GREATEST_FPRINTF(GREATEST_STDOUT, FMT, EXP);                \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\n     Got: ");          \
-            GREATEST_FPRINTF(GREATEST_STDOUT, FMT, GOT);                \
-            GREATEST_FPRINTF(GREATEST_STDOUT, "\n");                    \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                __FILE__ ":%u: In %s:\n",                               \
+                __LINE__, greatest_info.name_buf);                      \
+            GREATEST_FPRINTF(GREATEST_STDERR,                           \
+                __FILE__ ":%u: expected " FMT                           \
+                ", got " FMT "\n",                                      \
+                __LINE__,                                               \
+                EXP,                                                    \
+                GOT);                                                   \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
     } while (0)
@@ -508,11 +512,11 @@ typedef enum greatest_test_res {
         greatest_enum_str_fun *greatest_ENUM_STR = ENUM_STR;            \
         if (greatest_EXP != greatest_GOT) {                             \
             GREATEST_FPRINTF(GREATEST_STDERR,                           \
-                "%s:%u: In %s:\n",                                      \
-                __FILE__, __LINE__, greatest_info.name_buf);            \
+                __FILE__ ":%u: In %s:\n",                               \
+                __LINE__, greatest_info.name_buf);                      \
             GREATEST_FPRINTF(GREATEST_STDERR,                           \
-                "%s:%u: expected %s, got %s",                           \
-                __FILE__, __LINE__,                                     \
+                __FILE__ ":%u: expected %s, got %s\n",                  \
+                __LINE__,                                               \
                 greatest_ENUM_STR(greatest_EXP),                        \
                 greatest_ENUM_STR(greatest_GOT));                       \
             GREATEST_FAILm(MSG);                                        \
@@ -531,14 +535,14 @@ typedef enum greatest_test_res {
             (greatest_EXP < greatest_GOT &&                             \
                 greatest_GOT - greatest_EXP > greatest_TOL)) {          \
             GREATEST_FPRINTF(GREATEST_STDERR,                           \
-                "%s:%u: In %s:\n",                                      \
-                __FILE__, __LINE__, greatest_info.name_buf);            \
+                __FILE__ ":%u: In %s:\n",                               \
+                __LINE__, greatest_info.name_buf);                      \
             GREATEST_FPRINTF(GREATEST_STDERR,                           \
-                "%s:%u: expected " GREATEST_FLOAT_FMT                   \
+                __FILE__ ":%u: expected " GREATEST_FLOAT_FMT            \
                 " +/- " GREATEST_FLOAT_FMT                              \
                 ", got " GREATEST_FLOAT_FMT                             \
                 ", difference " GREATEST_FLOAT_FMT "\n",                \
-                __FILE__, __LINE__,                                     \
+                __LINE__,                                               \
                 greatest_EXP,                                           \
                 greatest_TOL,                                           \
                 greatest_GOT,                                           \
