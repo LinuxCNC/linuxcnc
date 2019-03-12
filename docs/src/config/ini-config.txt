@@ -584,6 +584,12 @@ time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
+* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
+* 'ON_ABORT_COMMAND=O <on_abort> call'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
 [[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
 === [EMCMOT] Section
