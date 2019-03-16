@@ -3734,6 +3734,8 @@ class gmoccapy(object):
         self.widgets.lbl_spindle_act.set_label("S {0}".format(int(rpm)))
 
         if command == "stop":
+            # documentation of self.command.spindle()
+            # linuxcnc.spindle(direction, speed, spindle=0)
             self.command.spindle(0)
             self.widgets.lbl_spindle_act.set_label("S 0")
         elif command == "forward":
@@ -3746,7 +3748,7 @@ class gmoccapy(object):
     def _check_spindle_range(self):
         rpm = (self.stat.settings[2])
         if rpm == 0:
-            rpm = abs(self.spindle_start_rpm)
+            rpm = self.spindle_start_rpm
 
         spindle_override = self.widgets.spc_spindle.get_value() / 100
         real_spindle_speed = rpm * spindle_override
