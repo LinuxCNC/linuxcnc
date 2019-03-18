@@ -18,6 +18,7 @@ import os
 
 from PyQt5 import QtCore, QtWidgets
 
+from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
 from qtvcp import logger
@@ -32,7 +33,7 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class StateLabel(QtWidgets.QLabel, _HalWidgetBase):
+class StateLabel(ScaledLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(StateLabel, self).__init__(parent)
 
