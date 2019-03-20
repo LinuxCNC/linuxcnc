@@ -40,7 +40,6 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._alt_textTemplate = 'None'
         self._actual_RPM = 0
         self._diameter = 1
-        self._delay = 0
         self._index = 0
 
         self.feed_override = True
@@ -223,10 +222,6 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.setText(text)
 
     def _set_timestamp(self, w):
-        if self._delay < 99:
-            self._delay += 1
-            return
-        self._delay = 0
         self.setText(time.strftime(self._textTemplate))
 
     #########################################################################
