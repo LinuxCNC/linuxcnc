@@ -239,7 +239,7 @@ on the next move.
 
 .Compensation End Point
 
-image::images/comp-path.png[align="center", alt="Compensation End Point"]
+image::images/comp-path_en.svg[align="center", alt="Compensation End Point"]
 
 === Overview
 
@@ -265,7 +265,7 @@ entry move.
 
 .Entry Move
 
-image::images/comp02.png[alt="Entry Move"]
+image::images/comp02_en.svg[alt="Entry Move"]
 
 .Z Motion
 

@@ -28,7 +28,7 @@ para que los botones de la parte baja de la pantalla sean visibles.
 
 .Pagina de entrada[[cap:Entry-Page]]
 
-image::images/stepconf-config.png[align="center", alt="Pagina de entrada"]
+image::images/stepconf-start_en.png[align="center", alt="Pagina de entrada"]
 
 Create New::
     Crea una configuracion nueva.
@@ -53,7 +53,7 @@ Create Desktop Launcher::
 
 .Informacion Basica[[cap:Basic-Information-Page]]
 
-image::images/stepconf-basic.png[align="center", alt="Informacion Basica"]
+image::images/stepconf-base_en.png[align="center", alt="Informacion Basica"]
 
 Machine Name::
     (((Machine Name)))
@@ -148,7 +148,7 @@ No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
 .Prueba de Latencia[[cap:Latency-Test]]
 
-image::images/latency.png[align="center", alt="Prueba de Latencia"]
+image::images/latency-test_en.png[align="center", alt="Prueba de Latencia"]
 
 Latencia es cuanto le tomara a la PC detenerse en lo que esta haciendo
 y responder a una solicitud externa. En este caso, la solicitud
@@ -190,7 +190,7 @@ usa generacion de pulsos de paso por software o no.
 
 .Pagina de ajuste del Puerto Paralelo[[cap:Parallel-Port-Setup]]
 
-image::images/stepconf-pinout.png[align="center", alt="Pagina de ajuste del Puerto Paralelo"]
+image::images/stepconf-parallel-1_en.png[align="center", alt="Pagina de ajuste del Puerto Paralelo"]
 
 Para cada pin se devera seleccionar la señal de control
 que concuerde con la configuracion del puerto.
@@ -226,7 +226,7 @@ Bomba de Carga (Charge Pump)::
 
 .Pagina de configuracion de eje[[cap:Axis-Configuration-Page]]
 
-image::images/stepconf-axis.png[align="center", alt="Pagina de configuracion de eje"]
+image::images/stepconf-axis-x_en.png[align="center", alt="Pagina de configuracion de eje"]
 
 Pasos del motor por revolucion (Motor Steps Per Revolution)::
     (((Motor Steps Per Revolution)))
@@ -349,7 +349,7 @@ Probar este Eje (Test this axis)::
 
 .Probar este Eje[[cap:Test-This-Axis]]
 
-image::images/stepconf-test.png[align="center", alt="Probar este Eje"]
+image::images/stepconf-x-test_en.png[align="center", alt="Probar este Eje"]
 
 Con Stepconf es sencillo probar diferentes valores de aceleracion y velocidad.
  
@@ -417,7 +417,7 @@ durante la prueba, redusca el valor encontrado un 10% y utilice este nuevo valor
 
 .Pagina configuracion del Husillo[[cap:Spindle-Configuration-Page]]
 
-image::images/stepconf-spindle.png[align="center", alt="Pagina configuracion del Husillo"]
+image::images/stepconf-spindle_en.png[align="center", alt="Pagina configuracion del Husillo"]
 
 Esta pagina solo aparece cuando la opcion 'Spindle PWM' es seleccionada en la 
 pagina de seleccion de las salidad 'Parallel Port Pinout
@@ -523,7 +523,7 @@ vusque los valores de PWM que proporcionen 1600 RPM (40%) y 2800 RPM (70%).
 
 .Configuracion avanzada[[cap:Advanced-Configuration]]
 
-image::images/stepconf-advanced.png[align="center", alt="Configuracion avanzada"]
+image::images/stepconf-options_en.png[align="center", alt="Configuracion avanzada"]
 
 Incluir Halui::
     Esta opcion incluira la interface de usuario Halui.
@@ -629,13 +629,13 @@ Un balor tipoco de resistencia de polarizacion es de 47K.
 
 Cableado de Interruptores Normalmente Cerrados en serie (diagrama simplificado)
 
-image::images/switch-nc-series.png[align="center", alt="Interruptores normalmente cerrados"]
+image::images/switch-nc-series_en.svg[align="center", alt="Interruptores normalmente cerrados"]
 
 .Interruptores normalmente abiertos[[cap:Normally-Open-Switches]]
 
 Cableado de interruptores normalmente abiertos en paralelo (diagrama simplificado)
 
-image::images/switch-no-parallel.png[align="center", alt="Interruptores normalmente abiertos"]
+image::images/switch-no-parallel_en.svg[align="center", alt="Interruptores normalmente abiertos"]
 
 Las siguientes configuraciones de interruptores estan permitidas en Stepconf:
 

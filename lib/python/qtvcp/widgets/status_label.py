@@ -18,6 +18,7 @@ import time
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp import logger
+from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Tool
 
@@ -31,7 +32,7 @@ TOOL = Tool()
 LOG = logger.getLogger(__name__)
 
 
-class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
+class StatusLabel(ScaledLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(StatusLabel, self).__init__(parent)
         self.display_units_mm = False
@@ -67,6 +68,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.tool_offset = False
 
     def _hal_init(self):
+        super(StatusLabel, self)._hal_init()
         def _f(data):
             self._set_text(data)
 
@@ -127,7 +129,7 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
             STATUS.connect('current-tool-offset', self._set_tool_offset_text)
 
         else:
-            LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
+            LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
 
     def _set_text(self, data):
             tmpl = lambda s: str(self._textTemplate) % s
@@ -257,8 +259,13 @@ class StatusLabel(QtWidgets.QLabel, _HalWidgetBase):
                 self.setText(time.strftime(self._textTemplate))
             except:
                 raise
+        except TypeError:
+            try:
+                self.setText(data)
+            except ValueError:
+                raise
         except Exception as e:
-            LOG.exception("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
+            LOG.error("textTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error')
     def get_textTemplate(self):
         return self._textTemplate

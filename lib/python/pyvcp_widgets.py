@@ -1514,8 +1514,33 @@ class pyvcp_scale(Scale):
 
 
 class pyvcp_table(Frame):
-    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows=""):
-        Frame.__init__(self, master)
+    """ Grid layout widget with rows and columns.
+        * flexible_columns - list of column indexes that should be flexible width
+        * flexible_rows - list of row indexes that should be flexible width
+        * uniform_columns - string of characters for each column, in order. Columns with the same character will be the same width.
+        * uniform_rows - string of characters for each row, in order. Rows with the same character will be the same height.
+        * (also accepts Tk options for Frame)
+
+        <table flexible_rows="[3]" flexible_columns="[3]" uniform_columns="aab" uniform_rows="aab" highlightthickness="10" highlightbackground="#CCCCCC">
+            <tablesticky sticky="nwes"/>
+            <!-- row 1 -->
+            <tablerow/>
+            <label text="AAAAAAAAA" />
+            <label text="BBBBBBBBB" />
+            <label text="CCCCCCCCC" />
+            <!-- row 2 -->
+            <tablerow/>
+            <label text="A" />
+            <label text="B" />
+            <label text="C" />
+            <!-- row 3 -->
+            <tablerow/>
+            <tablespan columns="3"/>
+            <label text="Merged columns" />
+        </table>
+    """
+    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows="", **kw):
+        Frame.__init__(self, master, **kw)
         for r in flexible_rows:
             self.grid_rowconfigure(r, weight=1)
         for c in flexible_columns:

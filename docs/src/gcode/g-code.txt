@@ -360,7 +360,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2.png[align="center", alt="G2 Example"]
+image::images/g2_en.svg[align="center", alt="G2 Example"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -378,7 +378,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3.png[align="center", alt="G2-G3 Example"]
+image::images/g2-3_en.svg[align="center", alt="G2-G3 Example"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -1554,7 +1554,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L- $-
 
 .G76 Threading
 
-image::images/g76-threads.png[align="center", alt="G76 Threading"]
+image::images/g76-threads_en.svg[align="center", alt="G76 Threading"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1817,7 +1817,7 @@ The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
 specified.
 
-image::images/eight.png[align="center"]
+image::images/eight-holes_en.svg[align="center"]
 
 
 .Twelve Holes in a Square
@@ -1841,7 +1841,7 @@ N1090 Z0
 N1100 M2 (program end)
 ----
 
-image::images/twelve.png[align="center"]
+image::images/twelve-holes_en.svg[align="center"]
 
 The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control
@@ -1912,7 +1912,7 @@ being able to point a reader to a specific line of code.
 
 .G80 Cycle
     
-image::images/G81mult.png[align="center", alt="G80 Cycle"]
+image::images/g81mult_en.svg[align="center", alt="G80 Cycle"]
 
 The use of G80 in line N200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80 as shown in 
@@ -1971,7 +1971,7 @@ The following moves take place:
 
 . a rapid move parallel to the Z-axis to (Z3)
 
-image::images/G81ex1.png[align="center"]
+image::images/g81ex1_en.svg[align="center"]
 
 .Example 2 - Relative Position G81
 
@@ -2019,7 +2019,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 . a rapid move parallel to the Z-axis to (X13, Y17, Z4.8)
 
-image::images/G81ex2.png[align="center"]
+image::images/g81ex2_en.svg[align="center"]
 
 .Example 3 - Relative Position G81
 
@@ -2035,7 +2035,7 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image::images/G81.png[align="center"]
+image::images/g81_en.svg[align="center"]
 
 .Example 4 - Absolute G81 R > Z
 
@@ -2050,7 +2050,7 @@ initial Z0 and R1.8 and rapid moves to that location. After that initial Z
 move, the repeat feature works the same as it did in example 3 with the
 final Z depth being 0.6 below the R value.
 
-image::images/G81a.png[align="center"]
+image::images/g81a_en.svg[align="center"]
 
 .Example 5 - Relative position R > Z
 
