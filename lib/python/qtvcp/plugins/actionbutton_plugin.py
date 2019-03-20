@@ -164,7 +164,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Block Delete',['block_delete', 0], []),
                 ('Optional Stop',['optional_stop', 0], []),
                 ('Food Coolant',['flood', 0], []),
-                ('Mist Coolant',['mist', 0], []) )
+                ('Mist Coolant',['mist', 0], []),
+                ('Exit Screen',['exit', 0], []) )
         node_2 = (('Jog Joint Positive',['jog_joint_pos', 1], []), 
                 ('Jog Joint Negative',['jog_joint_neg', 1], []),
                 ('Jog Selected Positive',['jog_selected_pos', 0], []),

@@ -90,6 +90,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_relative = False
         self.dro_absolute = False
         self.dro_dtg = False
+        self.exit = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -306,6 +307,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
+        elif self.exit:
+            pass
 
         # connect a signal and callback function to the button
         if self.isCheckable():
@@ -481,6 +484,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.emit('dro-reference-change-request', 1)
         elif self.dro_dtg:
             STATUS.emit('dro-reference-change-request', 2)
+        elif self.exit:
+            self.QTVCP_INSTANCE_.close()
         # defult error case
         elif not self._python_command:
             LOG.error('No action recognised')
@@ -566,7 +571,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'spindle_rev', 'spindle_stop', 'spindle_up', 'spindle_down',
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
-                'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope')
+                'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
+                 'exit')
 
         for i in data:
             if not i == picked:
@@ -974,6 +980,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_dro_dtg(self):
         self.dro_dtg = False
 
+    def set_exit(self, data):
+        self.exit = data
+        if data:
+            self._toggle_properties('exit')
+    def get_exit(self):
+        return self.exit
+    def reset_exit(self):
+        self.exit = False
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1094,6 +1109,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     dro_absolute_action = QtCore.pyqtProperty(bool, get_dro_absolute, set_dro_absolute, reset_dro_absolute)
     dro_relative_action = QtCore.pyqtProperty(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
+    exit_action = QtCore.pyqtProperty(bool, get_exit, set_exit, reset_exit)
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)

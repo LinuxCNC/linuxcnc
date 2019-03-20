@@ -50,7 +50,6 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.video = None
         self.grabbed = None
         self.frame = None
-        self.count = 0
         self.diameter = 20
         self.rotation = 0
         self.scale = 1
@@ -101,10 +100,6 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def nextFrameSlot(self, w):
         if not self.video: return
         if not self.isVisible(): return
-        # don't update at the full 100ms rate
-        self.count += 1
-        if self.count < 30: return
-        self.count = 0
 
         ############################
         # capture a freme from cam

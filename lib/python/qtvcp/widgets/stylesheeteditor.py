@@ -43,6 +43,7 @@ from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
         QStyleFactory, QWidget, QColorDialog)
+from PyQt5 import QtGui, QtCore
 
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
@@ -62,6 +63,7 @@ class StyleSheetEditor(QDialog):
         self.parent = parent
         if path:
             self.setPath(path)
+        self.styleSheetCombo.currentIndexChanged.connect(self.selectionChanged)
 
     def load_dialog(self):
         self.origStyleSheet = self.parent.styleSheet()
@@ -71,6 +73,9 @@ class StyleSheetEditor(QDialog):
 
     def setPath(self, path):
         self.path = path
+        self.styleSheetCombo.addItem('Default')
+        model = self.styleSheetCombo.model()
+        # check for default qss from qtvcp's default folders
         if self.path.IS_SCREEN:
             DIR = self.path.SCREENDIR
             BNAME = self.path.BASENAME
@@ -78,18 +83,33 @@ class StyleSheetEditor(QDialog):
             DIR =self.path.PANELDIR
             BNAME = self.path.BASENAME
         qssname = os.path.join(DIR, BNAME)
-        fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
-        self.styleSheetCombo.addItem('Default')
-        for i in(fileNames):
-            self.styleSheetCombo.addItem(i)
+        try:
+            fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
+            for i in(fileNames):
+                item = QtGui.QStandardItem(i)
+                item.setData(qssname, role = QtCore.Qt.UserRole + 1)
+                model.appendRow(item)
+        except Exception as e:
+            print e
 
-    @pyqtSlot(str)
-    def on_styleCombo_activated(self, styleName):
-        QApplication.setStyle(styleName)
-        self.applyButton.setEnabled(False)
+        # check for qss in the users's config folder 
+        localqss = self.path.CONFIGPATH
+        try:
+            fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
+            for i in(fileNames):
+                item = QtGui.QStandardItem(i)
+                item.setData(localqss, role = QtCore.Qt.UserRole + 1)
+                model.appendRow(item)
+        except Exception as e:
+            print e
 
-    @pyqtSlot(str)
-    def on_styleSheetCombo_activated(self, sheetName):
+    def selectionChanged(self,i):
+        path = self.styleSheetCombo.itemData(i,role = QtCore.Qt.UserRole + 1)
+        name = self.styleSheetCombo.itemData(i,role = QtCore.Qt.DisplayRole)
+        if name == 'Default':
+            sheetName = name
+        else:
+            sheetName = os.path.join(path, name)
         self.loadStyleSheet(sheetName)
 
     @pyqtSlot()
