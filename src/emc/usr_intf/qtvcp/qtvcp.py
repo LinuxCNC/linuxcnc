@@ -119,6 +119,22 @@ class Paths():
                 log.critical("No UI file found")
                 sys.exit(0)
 
+        # check for qss file
+        localqss = os.path.join(self.CONFIGPATH,"%s.qss"% self.BASENAME)
+        defaultqss = os.path.join(self.SCREENDIR,"%s/%s.qss"%(self.BASENAME,self.BASENAME))
+        log.debug("Checking for .qss in: yellow<{}>".format(localqss))
+        if os.path.exists(localqss):
+            log.info("Using specified qss file from yellow<{}>".format(localqss))
+            self.QSS = localqss
+        else:
+            log.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
+            if os.path.exists(defaultqss):
+                log.info("Using DEFAULT qss file from yellow<{}>".format(defaultqss))
+                self.QSS = defaultqss
+            else:
+                self.QSS = None
+                log.info("No qss file found")
+
     def add_screen_paths(self):
         # check for a local translation folder
         locallocale = os.path.join(self.CONFIGPATH,"locale")
