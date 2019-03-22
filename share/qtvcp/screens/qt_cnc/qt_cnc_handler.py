@@ -135,7 +135,7 @@ class HandlerClass:
         self.w.widgetswitcher.show_next()
 
     def set_edit_mode(self, num):
-        if num == 1:
+        if num == 2:
             self.w.gcodeeditor.editMode()
         else:
             self.w.gcodeeditor.readOnlyMode()

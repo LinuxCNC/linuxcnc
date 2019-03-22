@@ -53,6 +53,16 @@
     <property name="notify_option" stdset="0">
      <bool>true</bool>
     </property>
+    <property name="close_overlay_color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="focusOverlay_option" stdset="0">
+     <bool>true</bool>
+    </property>
     <property name="toolDialog_option" stdset="0">
      <bool>true</bool>
     </property>
@@ -143,8 +153,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>MISC
-SPARE</string>
+       <string>Full</string>
       </property>
       <property name="checkable">
        <bool>true</bool>
@@ -1022,637 +1031,6 @@ OFFSETS</string>
       <number>0</number>
      </property>
      <widget class="QWidget" name="panel_master">
-      <widget class="QStackedWidget" name="stackedWidget_1">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>600</width>
-         <height>400</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="currentIndex">
-        <number>1</number>
-       </property>
-       <widget class="QWidget" name="panel_gcode_graphics">
-        <widget class="QFrame" name="frame_gcode_graphics">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="GCodeGraphics" name="gcodegraphics">
-          <property name="geometry">
-           <rect>
-            <x>60</x>
-            <y>0</y>
-            <width>527</width>
-            <height>391</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>527</width>
-            <height>390</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>525</width>
-            <height>391</height>
-           </size>
-          </property>
-          <property name="background_color" stdset="0">
-           <color alpha="0">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_graphics_btns">
-          <property name="geometry">
-           <rect>
-            <x>-4</x>
-            <y>-4</y>
-            <width>60</width>
-            <height>400</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::WinPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="ActionButton" name="abtn_graphics_view_p">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>126</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View P</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_z">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>282</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Z</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>z</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_y">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>230</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Y</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>y</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_x">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>178</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View X</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>x</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_y2">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>56</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Y2</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>y2</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_z2">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>4</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Z2</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>z2</string>
-           </property>
-          </widget>
-          <widget class="PushButton" name="abtn_graphics_clear">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>346</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-          </widget>
-         </widget>
-         <zorder>frame_graphics_btns</zorder>
-         <zorder>gcodegraphics</zorder>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_homing">
-        <widget class="QFrame" name="frame_homing">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_homing_panel_not_done">
-          <property name="geometry">
-           <rect>
-            <x>60</x>
-            <y>150</y>
-            <width>481</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>put  homing all and homing  by axis on this panel  600x400</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="ActionButton" name="actionbutton">
-          <property name="geometry">
-           <rect>
-            <x>70</x>
-            <y>220</y>
-            <width>71</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Home All</string>
-          </property>
-          <property name="home_action" stdset="0">
-           <bool>true</bool>
-          </property>
-          <property name="joint_number" stdset="0">
-           <number>-1</number>
-          </property>
-          <property name="incr_imperial_number" stdset="0">
-           <double>0.010000000000000</double>
-          </property>
-          <property name="incr_mm_number" stdset="0">
-           <double>0.025000000000000</double>
-          </property>
-          <property name="incr_angular_number" stdset="0">
-           <double>-1.000000000000000</double>
-          </property>
-          <property name="toggle_float_option" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="float_num" stdset="0">
-           <double>100.000000000000000</double>
-          </property>
-          <property name="float_alt_num" stdset="0">
-           <double>50.000000000000000</double>
-          </property>
-          <property name="view_type_string" stdset="0">
-           <string>P</string>
-          </property>
-          <property name="command_text_string" stdset="0">
-           <string/>
-          </property>
-          <property name="ini_mdi_number" stdset="0">
-           <number>0</number>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_tool_table">
-        <widget class="QFrame" name="frame_tool_table">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_tool_table_panel_not_done">
-          <property name="geometry">
-           <rect>
-            <x>80</x>
-            <y>140</y>
-            <width>461</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>put tool table and tool selection on this panel  600x400</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_probing"/>
-       <widget class="QWidget" name="panel_tool_offsets">
-        <widget class="QFrame" name="frame_tool_offsets">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="ToolOffsetView" name="tooloffsetview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_origin_offsets">
-        <widget class="QFrame" name="frame_origin_offsets">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="OriginOffsetView" name="originoffsetview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_macro_selection">
-        <widget class="QFrame" name="frame_macro_selection">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="MacroTab" name="macrotab">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_gcode_edit">
-        <widget class="QFrame" name="frame_gcode_edit">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="GcodeEditor" name="gcode_editor">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_cam_view">
-        <widget class="QFrame" name="frame_cam_view_filler">
-         <property name="geometry">
-          <rect>
-           <x>400</x>
-           <y>0</y>
-           <width>200</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_filler">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>110</y>
-            <width>131</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>filler panel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </widget>
-        <widget class="QFrame" name="frame_cam_view">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>400</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="CamView" name="camview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>400</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_filedialog">
-        <widget class="QFrame" name="frame_filedialog">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="FileManager" name="filemanager">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-      </widget>
       <widget class="QStackedWidget" name="stackedWidget_4">
        <property name="geometry">
         <rect>
@@ -8640,13 +8018,824 @@ Jog Ovr</string>
         </widget>
        </widget>
       </widget>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>-10</y>
+         <width>601</width>
+         <height>411</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QStackedWidget" name="stackedWidget_1">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::WinPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="panel_gcode_graphics">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_gcode_graphics">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QFrame" name="frame_graphics_btns">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>400</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::WinPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_3">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Z2</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>z2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_y2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Y2</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>y2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_p">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View P</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_x">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View X</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>x</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_y">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Y</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>y</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Z</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>z</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z_2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>Clear</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="GCodeGraphics" name="gcodegraphics">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>527</width>
+                   <height>390</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="background_color" stdset="0">
+                  <color alpha="0">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_homing">
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QFrame" name="frame_homing">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="QLabel" name="lab_homing_panel_not_done">
+               <property name="geometry">
+                <rect>
+                 <x>60</x>
+                 <y>150</y>
+                 <width>481</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>put  homing all and homing  by axis on this panel  600x400</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+              <widget class="ActionButton" name="actionbutton">
+               <property name="geometry">
+                <rect>
+                 <x>70</x>
+                 <y>220</y>
+                 <width>71</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>Home All</string>
+               </property>
+               <property name="home_action" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="joint_number" stdset="0">
+                <number>-1</number>
+               </property>
+               <property name="incr_imperial_number" stdset="0">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="incr_mm_number" stdset="0">
+                <double>0.025000000000000</double>
+               </property>
+               <property name="incr_angular_number" stdset="0">
+                <double>-1.000000000000000</double>
+               </property>
+               <property name="toggle_float_option" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="float_num" stdset="0">
+                <double>100.000000000000000</double>
+               </property>
+               <property name="float_alt_num" stdset="0">
+                <double>50.000000000000000</double>
+               </property>
+               <property name="view_type_string" stdset="0">
+                <string>P</string>
+               </property>
+               <property name="command_text_string" stdset="0">
+                <string/>
+               </property>
+               <property name="ini_mdi_number" stdset="0">
+                <number>0</number>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_tool_table">
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QFrame" name="frame_tool_table">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="QLabel" name="lab_tool_table_panel_not_done">
+               <property name="geometry">
+                <rect>
+                 <x>80</x>
+                 <y>140</y>
+                 <width>461</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>put tool table and tool selection on this panel  600x400</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_probing">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="VersaProbe" name="versaprobe">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_tool_offsets">
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <widget class="QFrame" name="frame_tool_offsets">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_18">
+               <item>
+                <widget class="ToolOffsetView" name="tooloffsetview"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_origin_offsets">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QFrame" name="frame_origin_offsets">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="OriginOffsetView" name="originoffsetview">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>600</width>
+                 <height>400</height>
+                </rect>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_macro_selection">
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_macro_selection">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_17">
+               <item>
+                <widget class="MacroTab" name="macrotab"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_gcode_edit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_gcode_edit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_16">
+               <item>
+                <widget class="GcodeEditor" name="gcode_editor">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_cam_view">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_cam_view">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="CamView" name="camview">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+              <zorder>camview</zorder>
+              <zorder>frame_cam_view_filler</zorder>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_filedialog">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_filedialog">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_19">
+               <item>
+                <widget class="FileManager" name="filemanager">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
      <widget class="QWidget" name="panel_full_screen">
       <widget class="QFrame" name="frame_full_screen">
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-10</y>
          <width>954</width>
          <height>698</height>
         </rect>
@@ -8657,26 +8846,37 @@ Jog Ovr</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="label_full_screen">
+       <widget class="WidgetSwitcher" name="widgetswitcher">
         <property name="geometry">
          <rect>
-          <x>260</x>
-          <y>330</y>
-          <width>431</width>
-          <height>41</height>
+          <x>10</x>
+          <y>20</y>
+          <width>941</width>
+          <height>671</height>
          </rect>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>14</pointsize>
-         </font>
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>THIS FULL SCREEN panel IS NOT USED YET</string>
+        <property name="widget_list" stdset="0">
+         <stringlist>
+          <string>stackedWidget_1</string>
+         </stringlist>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+        <widget class="QWidget" name="page_0">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4"/>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -8712,6 +8912,11 @@ Jog Ovr</string>
    <class>StateLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>VersaProbe</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.versa_probe</header>
   </customwidget>
   <customwidget>
    <class>LED</class>
@@ -8752,6 +8957,12 @@ Jog Ovr</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>WidgetSwitcher</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.widget_switcher</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>FileManager</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.file_manager</header>
@@ -8786,7 +8997,24 @@ Jog Ovr</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pbtn_mainv_misc_spare</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>full_screen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>985</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>750</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>abtn_main_estop_toggled()</slot>
   <slot>abtn_mainv_power_on_toggled()</slot>
@@ -8972,5 +9200,6 @@ Jog Ovr</string>
   <slot>scrb_jog_linear_slow_setRange()</slot>
   <slot>scrb_jog_linear_fast_setRange()</slot>
   <slot>scrb_axis4_spindle_rpm_setRange()</slot>
+  <slot>full_screen()</slot>
  </slots>
 </ui>

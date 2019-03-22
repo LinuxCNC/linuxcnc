@@ -2939,9 +2939,12 @@ View</string>
      <rect>
       <x>200</x>
       <y>4</y>
-      <width>819</width>
-      <height>454</height>
+      <width>831</width>
+      <height>461</height>
      </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
     <property name="widget_list" stdset="0">
      <stringlist>
@@ -2950,7 +2953,7 @@ View</string>
       <string>dro_frame</string>
      </stringlist>
     </property>
-    <widget class="QWidget" name="page">
+    <widget class="QWidget" name="page_0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -3284,6 +3287,27 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
          </widget>
         </item>
        </layout>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="page_1">
+     <layout class="QVBoxLayout" name="verticalLayout_8">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_7"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="page_2">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="page_3">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5"/>
       </item>
      </layout>
     </widget>

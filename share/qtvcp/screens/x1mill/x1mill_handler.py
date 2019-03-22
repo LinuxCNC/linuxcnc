@@ -113,6 +113,13 @@ class HandlerClass:
     #######################
     # callbacks from form #
     #######################
+    def full_screen(self, state):
+        if state:
+            self.w.stackedWidget_0.setCurrentIndex(1)
+            self.w.widgetswitcher.show_id_widget(1)
+        else:
+            self.w.stackedWidget_0.setCurrentIndex(0)
+            self.w.widgetswitcher.show_id_widget(0)
 
     #####################
     # general functions #
