@@ -216,14 +216,14 @@ If the arc is circular,
 it lies in a plane parallel to the selected plane.
 
 To program a helix, include the axis word perpendicular to the arc
-plane: for example, if in the 'G17' plane, include a 'Z' word. This
+plane, for example, if in the 'G17' plane, include a 'Z' word. This
 will cause the 'Z' axis to move to the programmed value during the
 circular 'XY' motion. 
 
 To program an arc that gives more than one full turn, use the 'P' word
 specifying the number of full turns plus the programmed arc. The 'P' word
 must be an integer. If 'P' is unspecified, the behavior is as if 'P1' was
-given: that is, only one full or partial turn will result. For example, if a
+given that is, only one full or partial turn will result. For example, if a
 180 degree arc is programmed with a P2, the resulting motion will be 1 1/2
 rotations. For each P increment above 1 an extra full circle is added to the
 programmed arc. Multi turn helical arcs are supported and give motion useful
@@ -1275,7 +1275,7 @@ It is an error if:
 
 
 [[gcode:g43.1]]
-== G43.1: Dynamic Tool Length Offset
+== G43.1 Dynamic Tool Length Offset
 (((G43.1 Dynamic Tool Length Offset)))
 
 ----
@@ -1303,7 +1303,7 @@ It is an error if:
 NOTE: G43.1 does not write to the tool table.
 
 [[gcode:g43.2]]
-== G43.2: Apply additional Tool Length Offset
+== G43.2 Apply additional Tool Length Offset
 (((G43.2 Apply additional Tool Length Offset)))
 
 ----
@@ -1337,7 +1337,7 @@ It is an error if:
 NOTE: G43.2 does not write to the tool table.
 
 [[gcode:g49]]
-== G49: Cancel Tool Length Compensation
+== G49 Cancel Tool Length Compensation
 (((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
@@ -1741,7 +1741,7 @@ times', Omitting the L word is equivalent to specifying L=1.
 
 The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
-the retract mode: either to the original Z position (if that is above
+the retract mode, either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<gcode:g98-g99,G98 G99>> Section.
 
@@ -2343,8 +2343,8 @@ Use 'G92.3' near the beginning of the second program. That will restore
 the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
-== G93, G94, G95: Feed Rate Mode
-(((G93, G94, G95: Feed Rate Mode)))
+== G93, G94, G95 Feed Rate Mode
+(((G93, G94, G95 Feed Rate Mode)))
 
 * 'G93' - is Inverse Time Mode. In inverse time feed rate mode, an F word
   means the move should be completed in [one divided by the F number]
