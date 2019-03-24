@@ -86,7 +86,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g52,G52>>                  |Local Coordinate System Offset
 |<<gcode:g53,G53>>                  |Move in Machine Coordinates
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
-|<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
+|<<gcode:g61,G61>>                  |Exact Path Mode
+|<<gcode:g61.1,G61.1>>              |Exact Stop Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
@@ -1429,13 +1430,16 @@ It is an error if:
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
 
-[[gcode:g61-g61.1]]
-== G61, G61.1 Exact Path Mode
+[[gcode:g61]]
+== G61 Exact Path Mode
 (((G61 G61.1 G64 Path Mode)))
 
 * 'G61' - Exact path mode, movement exactly as programed. Moves will slow or
 stop as needed to reach every programed point. If two sequential moves are
 exactly co-linear movement will not stop.
+
+[[gcode:g61.1]]
+==  G61.1 Exact Stop Mode
 
 * 'G61.1' - Exact stop mode, movement will stop at the end of each programed
 segment.
@@ -1541,7 +1545,7 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     8. Restore Feed and Speed override enables to previous state
 
-The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+The length of the dwell is specified by a 'P-' word in the G74 block. Thread pitch is F divided by S.
 In example S100 F125 gives pitch of 1.25MM per revolution.
 
 [[gcode:g76]]
