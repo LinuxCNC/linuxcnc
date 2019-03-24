@@ -143,8 +143,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
     def __init__(self, widget, parent = None):
         QtWidgets.QDialog.__init__(self, parent)
 
-        self.setGeometry(300, 300, 300, 200)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        self.setGeometry(300, 300, 200, 200)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.widget = widget
         self.previewWidget = ActionButton()
 
@@ -170,7 +170,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Jog Joint Negative',['jog_joint_neg', 1], []),
                 ('Jog Selected Positive',['jog_selected_pos', 0], []),
                 ('Jog Selected Negative',['jog_selected_neg', 0], []),
-                ('Jog Increment',['jog_incr', 14], []),
+                ('Jog Increment',['jog_incr', 1038], []),
                 ('Jog Rate',['jog_rate', 112], []) )
         node_3 = (('Load Dialog',['load_dialog', 0], []),
                 ('Macro Dialog',['macro_dialog', 0], []),
@@ -384,6 +384,40 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.ud512)
         self.ud512.hide()
 
+        # text template edit box
+        self.ud1024 = QtWidgets.QWidget()
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.setContentsMargins(0,0,0,0)
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Template Label Option')
+        self.textTemplateCheckBox = QtWidgets.QCheckBox()
+        self.textTemplateCheckBox.setChecked(widget.template_label)
+        self.textTemplateCheckBox.clicked.connect(self.onSetOptions)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.textTemplateCheckBox)
+        vbox.addLayout(hbox)
+
+        self.vbox = QtWidgets.QWidget()
+        vbox2 = QtWidgets.QVBoxLayout(self.vbox)
+        label = QtWidgets.QLabel('Imperial Text Template')
+        self.textTemplateEditBox = QtWidgets.QLineEdit()
+        self.textTemplateEditBox.setText(widget._textTemplate)
+        vbox2.addWidget(label)
+        vbox2.addWidget(self.textTemplateEditBox)
+
+        label = QtWidgets.QLabel('Metric Text Template')
+        self.altTextTemplateEditBox = QtWidgets.QLineEdit()
+        self.altTextTemplateEditBox.setText(widget._alt_textTemplate)
+        vbox2.addWidget(label)
+        vbox2.addWidget(self.altTextTemplateEditBox)
+        vbox.addWidget(self.vbox)
+
+        self.ud1024.setLayout(vbox)
+        layout.addWidget(self.ud1024)
+        self.ud1024.hide()
+
         # Dialog control buttons
         buttonBox = QtWidgets.QDialogButtonBox()
         okButton = buttonBox.addButton(buttonBox.Ok)
@@ -412,6 +446,14 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 break
         if flag:
             self.combo.select(pnum,cnum)
+        self.onSetOptions()
+
+    def onSetOptions(self):
+        if self.textTemplateCheckBox.isChecked():
+            self.vbox.show()
+        else:
+            self.vbox.hide()
+        self.adjustSize()
 
     def selectionChanged(self,i):
         winPropertyName = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
@@ -419,7 +461,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         #print 'selected property,related data code:',winPropertyName,userDataCode
         if winPropertyName is None: return True
         if not userDataCode is None:
-            for i in (1,2,4,8,16,32,64,128,256,512):
+            for i in (1,2,4,8,16,32,64,128,256,512,1024):
                 widg = self['ud%s'% i]
                 if userDataCode & i:
                     widg.show()
@@ -463,7 +505,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
               QtCore.QVariant(self.commandEditBox.text()))
             formWindow.cursor().setProperty('ini_mdi_number',
               QtCore.QVariant(self.MDISpinBox.value()))
-
+            formWindow.cursor().setProperty('template_label_option',
+              QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
+            formWindow.cursor().setProperty('textTemplate',
+              QtCore.QVariant(self.textTemplateEditBox.text()))
+            formWindow.cursor().setProperty('alt_textTemplate',
+              QtCore.QVariant(self.altTextTemplateEditBox.text()))
         self.accept()
 
     ##############################
