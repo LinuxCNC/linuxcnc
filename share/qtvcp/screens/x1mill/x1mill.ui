@@ -53,6 +53,16 @@
     <property name="notify_option" stdset="0">
      <bool>true</bool>
     </property>
+    <property name="close_overlay_color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="focusOverlay_option" stdset="0">
+     <bool>true</bool>
+    </property>
     <property name="toolDialog_option" stdset="0">
      <bool>true</bool>
     </property>
@@ -143,8 +153,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>MISC
-SPARE</string>
+       <string>Full</string>
       </property>
       <property name="checkable">
        <bool>true</bool>
@@ -1022,637 +1031,6 @@ OFFSETS</string>
       <number>0</number>
      </property>
      <widget class="QWidget" name="panel_master">
-      <widget class="QStackedWidget" name="stackedWidget_1">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>600</width>
-         <height>400</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::WinPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="currentIndex">
-        <number>1</number>
-       </property>
-       <widget class="QWidget" name="panel_gcode_graphics">
-        <widget class="QFrame" name="frame_gcode_graphics">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="GCodeGraphics" name="gcodegraphics">
-          <property name="geometry">
-           <rect>
-            <x>60</x>
-            <y>0</y>
-            <width>527</width>
-            <height>391</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>527</width>
-            <height>390</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>525</width>
-            <height>391</height>
-           </size>
-          </property>
-          <property name="background_color" stdset="0">
-           <color alpha="0">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </property>
-         </widget>
-         <widget class="QFrame" name="frame_graphics_btns">
-          <property name="geometry">
-           <rect>
-            <x>-4</x>
-            <y>-4</y>
-            <width>60</width>
-            <height>400</height>
-           </rect>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>60</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>60</width>
-            <height>400</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::WinPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <widget class="ActionButton" name="abtn_graphics_view_p">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>126</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View P</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_z">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>282</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Z</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>z</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_y">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>230</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Y</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>y</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_x">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>178</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View X</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>x</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_y2">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>56</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Y2</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>y2</string>
-           </property>
-          </widget>
-          <widget class="ActionButton" name="abtn_graphics_view_z2">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>4</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>View Z2</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>true</bool>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="view_change_action" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="view_type_string" stdset="0">
-            <string>z2</string>
-           </property>
-          </widget>
-          <widget class="PushButton" name="abtn_graphics_clear">
-           <property name="geometry">
-            <rect>
-             <x>6</x>
-             <y>346</y>
-             <width>50</width>
-             <height>50</height>
-            </rect>
-           </property>
-           <property name="text">
-            <string>Clear</string>
-           </property>
-           <property name="true_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-           <property name="false_python_cmd_string" stdset="0">
-            <string/>
-           </property>
-          </widget>
-         </widget>
-         <zorder>frame_graphics_btns</zorder>
-         <zorder>gcodegraphics</zorder>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_homing">
-        <widget class="QFrame" name="frame_homing">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_homing_panel_not_done">
-          <property name="geometry">
-           <rect>
-            <x>60</x>
-            <y>150</y>
-            <width>481</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>put  homing all and homing  by axis on this panel  600x400</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-         <widget class="ActionButton" name="actionbutton">
-          <property name="geometry">
-           <rect>
-            <x>70</x>
-            <y>220</y>
-            <width>71</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Home All</string>
-          </property>
-          <property name="home_action" stdset="0">
-           <bool>true</bool>
-          </property>
-          <property name="joint_number" stdset="0">
-           <number>-1</number>
-          </property>
-          <property name="incr_imperial_number" stdset="0">
-           <double>0.010000000000000</double>
-          </property>
-          <property name="incr_mm_number" stdset="0">
-           <double>0.025000000000000</double>
-          </property>
-          <property name="incr_angular_number" stdset="0">
-           <double>-1.000000000000000</double>
-          </property>
-          <property name="toggle_float_option" stdset="0">
-           <bool>false</bool>
-          </property>
-          <property name="float_num" stdset="0">
-           <double>100.000000000000000</double>
-          </property>
-          <property name="float_alt_num" stdset="0">
-           <double>50.000000000000000</double>
-          </property>
-          <property name="view_type_string" stdset="0">
-           <string>P</string>
-          </property>
-          <property name="command_text_string" stdset="0">
-           <string/>
-          </property>
-          <property name="ini_mdi_number" stdset="0">
-           <number>0</number>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_tool_table">
-        <widget class="QFrame" name="frame_tool_table">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_tool_table_panel_not_done">
-          <property name="geometry">
-           <rect>
-            <x>80</x>
-            <y>140</y>
-            <width>461</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>put tool table and tool selection on this panel  600x400</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_probing"/>
-       <widget class="QWidget" name="panel_tool_offsets">
-        <widget class="QFrame" name="frame_tool_offsets">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="ToolOffsetView" name="tooloffsetview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_origin_offsets">
-        <widget class="QFrame" name="frame_origin_offsets">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="OriginOffsetView" name="originoffsetview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_macro_selection">
-        <widget class="QFrame" name="frame_macro_selection">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="MacroTab" name="macrotab">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_gcode_edit">
-        <widget class="QFrame" name="frame_gcode_edit">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="GcodeEditor" name="gcode_editor">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_cam_view">
-        <widget class="QFrame" name="frame_cam_view_filler">
-         <property name="geometry">
-          <rect>
-           <x>400</x>
-           <y>0</y>
-           <width>200</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="QLabel" name="lab_filler">
-          <property name="geometry">
-           <rect>
-            <x>30</x>
-            <y>110</y>
-            <width>131</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>filler panel</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </widget>
-        <widget class="QFrame" name="frame_cam_view">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>400</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::WinPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="CamView" name="camview">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>400</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="panel_filedialog">
-        <widget class="QFrame" name="frame_filedialog">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>600</width>
-           <height>400</height>
-          </rect>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-         <widget class="FileManager" name="filemanager">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>600</width>
-            <height>400</height>
-           </rect>
-          </property>
-         </widget>
-        </widget>
-       </widget>
-      </widget>
       <widget class="QStackedWidget" name="stackedWidget_4">
        <property name="geometry">
         <rect>
@@ -1701,6 +1079,9 @@ OFFSETS</string>
             <width>354</width>
             <height>216</height>
            </rect>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
           </property>
           <widget class="QWidget" name="panel_jogging_linear">
            <widget class="QFrame" name="frame_jogging_linear">
@@ -1760,7 +1141,7 @@ OFFSETS</string>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <widget class="PushButton" name="pbtn_jog_linear_0">
+             <widget class="ActionButton" name="actionbutton_3">
               <property name="geometry">
                <rect>
                 <x>0</x>
@@ -1770,19 +1151,52 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>1.000</string>
+               <string>Cont</string>
               </property>
               <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
                <bool>true</bool>
               </property>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>1.000</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.000000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>0.000000000000000</double>
+              </property>
+              <property name="toggle_float_option" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="view_type_string" stdset="0">
+               <string>P</string>
+              </property>
+              <property name="command_text_string" stdset="0">
+               <string/>
+              </property>
+              <property name="ini_mdi_number" stdset="0">
+               <number>0</number>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_1">
+             <widget class="ActionButton" name="actionbutton_4">
               <property name="geometry">
                <rect>
                 <x>60</x>
@@ -1792,7 +1206,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.750</string>
+               <string>.75</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1800,11 +1214,26 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.750</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.750000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>20.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_2">
+             <widget class="ActionButton" name="actionbutton_5">
               <property name="geometry">
                <rect>
                 <x>120</x>
@@ -1814,7 +1243,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.500</string>
+               <string>.5</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1822,11 +1251,26 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.500</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>10.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_3">
+             <widget class="ActionButton" name="actionbutton_6">
               <property name="geometry">
                <rect>
                 <x>180</x>
@@ -1836,7 +1280,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.250</string>
+               <string>.25</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1844,77 +1288,29 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.250</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.250000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_6">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>46</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.050</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.050</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_5">
-              <property name="geometry">
-               <rect>
-                <x>60</x>
-                <y>46</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.075</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.075</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_7">
-              <property name="geometry">
-               <rect>
-                <x>180</x>
-                <y>46</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.025</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.025</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_4">
+             <widget class="ActionButton" name="actionbutton_7">
               <property name="geometry">
                <rect>
                 <x>0</x>
@@ -1924,7 +1320,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.100</string>
+               <string>.1</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1932,43 +1328,39 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.100</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_11">
-              <property name="geometry">
-               <rect>
-                <x>180</x>
-                <y>92</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.0025</string>
-              </property>
-              <property name="checkable">
+              <property name="jog_incr_action" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="autoExclusive">
+              <property name="template_label_option" stdset="0">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.0025</string>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_9">
+             <widget class="ActionButton" name="actionbutton_8">
               <property name="geometry">
                <rect>
                 <x>60</x>
-                <y>92</y>
+                <y>46</y>
                 <width>60</width>
                 <height>45</height>
                </rect>
               </property>
               <property name="text">
-               <string>0.0075</string>
+               <string>..075</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1976,11 +1368,109 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.0075</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.075000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.750000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_8">
+             <widget class="ActionButton" name="actionbutton_9">
+              <property name="geometry">
+               <rect>
+                <x>120</x>
+                <y>46</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>.05</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.050000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.500000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_10">
+              <property name="geometry">
+               <rect>
+                <x>180</x>
+                <y>46</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>.025</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.025000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.050000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_11">
               <property name="geometry">
                <rect>
                 <x>0</x>
@@ -1990,7 +1480,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.010</string>
+               <string>.01</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1998,11 +1488,72 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.010</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_10">
+             <widget class="ActionButton" name="actionbutton_12">
+              <property name="geometry">
+               <rect>
+                <x>60</x>
+                <y>92</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>200.0000 in</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.007500000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%1.4f in</string>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_13">
               <property name="geometry">
                <rect>
                 <x>120</x>
@@ -2012,7 +1563,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.005</string>
+               <string>.005</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -2020,65 +1571,39 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.005</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.005000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>0.001000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_14">
-              <property name="geometry">
-               <rect>
-                <x>120</x>
-                <y>138</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.0005</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.0005</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_13">
-              <property name="geometry">
-               <rect>
-                <x>60</x>
-                <y>138</y>
-                <width>60</width>
-                <height>45</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>0.00075</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-              <property name="autoExclusive">
-               <bool>true</bool>
-              </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.00075</string>
-              </property>
-             </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_15">
+             <widget class="ActionButton" name="actionbutton_14">
               <property name="geometry">
                <rect>
                 <x>180</x>
-                <y>138</y>
+                <y>92</y>
                 <width>60</width>
                 <height>45</height>
                </rect>
               </property>
               <property name="text">
-               <string>0.00025</string>
+               <string>200.0000 in</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -2086,11 +1611,32 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.00025</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.002500000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%1.4f in</string>
               </property>
              </widget>
-             <widget class="PushButton" name="pbtn_jog_linear_12">
+             <widget class="ActionButton" name="actionbutton_15">
               <property name="geometry">
                <rect>
                 <x>0</x>
@@ -2100,7 +1646,7 @@ OFFSETS</string>
                </rect>
               </property>
               <property name="text">
-               <string>0.001</string>
+               <string>200.000 in</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -2108,8 +1654,176 @@ OFFSETS</string>
               <property name="autoExclusive">
                <bool>true</bool>
               </property>
-              <property name="true_state_string" stdset="0">
-               <string>0.001</string>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.001000000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>25.399999999999999</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="toggle_float_option" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="view_type_string" stdset="0">
+               <string>P</string>
+              </property>
+              <property name="command_text_string" stdset="0">
+               <string/>
+              </property>
+              <property name="ini_mdi_number" stdset="0">
+               <number>0</number>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%1.3f in</string>
+              </property>
+              <property name="alt_textTemplate" stdset="0">
+               <string>%1.2f mm</string>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_16">
+              <property name="geometry">
+               <rect>
+                <x>60</x>
+                <y>138</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>200.0000 in</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.000700000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%.4f in</string>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_17">
+              <property name="geometry">
+               <rect>
+                <x>120</x>
+                <y>138</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>200.0000 in</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.000500000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%.4f in</string>
+              </property>
+             </widget>
+             <widget class="ActionButton" name="actionbutton_18">
+              <property name="geometry">
+               <rect>
+                <x>180</x>
+                <y>138</y>
+                <width>60</width>
+                <height>45</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>200.0000 in</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="jog_incr_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="template_label_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="incr_imperial_number" stdset="0">
+               <double>0.000200000000000</double>
+              </property>
+              <property name="incr_mm_number" stdset="0">
+               <double>5.000000000000000</double>
+              </property>
+              <property name="incr_angular_number" stdset="0">
+               <double>-1.000000000000000</double>
+              </property>
+              <property name="float_num" stdset="0">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="float_alt_num" stdset="0">
+               <double>25.000000000000000</double>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%.4f in</string>
               </property>
              </widget>
             </widget>
@@ -2194,11 +1908,20 @@ OFFSETS</string>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
               <property name="maximum">
-               <number>117</number>
+               <number>10</number>
+              </property>
+              <property name="pageStep">
+               <number>1</number>
               </property>
               <property name="value">
-               <number>10</number>
+               <number>1</number>
+              </property>
+              <property name="sliderPosition">
+               <number>1</number>
               </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -2222,11 +1945,23 @@ OFFSETS</string>
               <property name="cursor">
                <cursorShape>PointingHandCursor</cursorShape>
               </property>
+              <property name="minimum">
+               <number>10</number>
+              </property>
+              <property name="maximum">
+               <number>100</number>
+              </property>
+              <property name="singleStep">
+               <number>10</number>
+              </property>
               <property name="pageStep">
-               <number>0</number>
+               <number>10</number>
               </property>
               <property name="value">
-               <number>20</number>
+               <number>10</number>
+              </property>
+              <property name="tracking">
+               <bool>true</bool>
               </property>
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -2880,10 +2615,10 @@ MODE</string>
              <bool>false</bool>
             </property>
             <property name="python_command_option" stdset="0">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="true_python_cmd_string" stdset="0">
-             <string/>
+             <string>INSTANCE.stackedWidget_5.setCurrentIndex(1)</string>
             </property>
             <property name="false_python_cmd_string" stdset="0">
              <string/>
@@ -2917,6 +2652,9 @@ MODE</string>
             <property name="checkable">
              <bool>true</bool>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
@@ -2924,10 +2662,10 @@ MODE</string>
              <bool>false</bool>
             </property>
             <property name="python_command_option" stdset="0">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="true_python_cmd_string" stdset="0">
-             <string/>
+             <string>INSTANCE.stackedWidget_5.setCurrentIndex(0)</string>
             </property>
             <property name="false_python_cmd_string" stdset="0">
              <string/>
@@ -2968,10 +2706,10 @@ MODE</string>
              <bool>false</bool>
             </property>
             <property name="python_command_option" stdset="0">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="true_python_cmd_string" stdset="0">
-             <string/>
+             <string>INSTANCE.stackedWidget_5.setCurrentIndex(2)</string>
             </property>
             <property name="false_python_cmd_string" stdset="0">
              <string/>
@@ -3020,59 +2758,14 @@ MODE</string>
             <property name="checkable">
              <bool>true</bool>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
             <property name="checked_state_text_option" stdset="0">
              <bool>false</bool>
-            </property>
-           </widget>
-           <widget class="PushButton" name="pbtn_jog_method">
-            <property name="geometry">
-             <rect>
-              <x>73</x>
-              <y>0</y>
-              <width>100</width>
-              <height>45</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>45</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>45</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>CONTINUOS
-JOG</string>
-            </property>
-            <property name="checkable">
-             <bool>true</bool>
-            </property>
-            <property name="indicator_option" stdset="0">
-             <bool>false</bool>
-            </property>
-            <property name="checked_state_text_option" stdset="0">
-             <bool>true</bool>
-            </property>
-            <property name="true_state_string" stdset="0">
-             <string>STEP JOG</string>
-            </property>
-            <property name="false_state_string" stdset="0">
-             <string>CONTINUOS
-JOG</string>
-            </property>
-            <property name="true_python_cmd_string" stdset="0">
-             <string/>
-            </property>
-            <property name="false_python_cmd_string" stdset="0">
-             <string/>
             </property>
            </widget>
            <widget class="PushButton" name="pbtn_jog_rate_fast">
@@ -3527,52 +3220,30 @@ JOG</string>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
-            <widget class="QLabel" name="lab_jog_step_label">
-             <property name="geometry">
-              <rect>
-               <x>72</x>
-               <y>0</y>
-               <width>30</width>
-               <height>24</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>20</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>40</width>
-               <height>24</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>STEP</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
             <widget class="StatusLabel" name="lab_jog_jog_step">
              <property name="geometry">
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>70</width>
+               <width>100</width>
                <height>24</height>
               </rect>
              </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize">
               <size>
-               <width>70</width>
+               <width>100</width>
                <height>24</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>70</width>
+               <width>100</width>
                <height>24</height>
               </size>
              </property>
@@ -3602,6 +3273,9 @@ JOG</string>
              <property name="spindle_override_status" stdset="0">
               <bool>false</bool>
              </property>
+             <property name="jogincr_status" stdset="0">
+              <bool>true</bool>
+             </property>
              <property name="current_feedrate_status" stdset="0">
               <bool>false</bool>
              </property>
@@ -3609,7 +3283,7 @@ JOG</string>
               <bool>false</bool>
              </property>
              <property name="actual_spindle_speed_status" stdset="0">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </widget>
@@ -3715,6 +3389,9 @@ JOG</string>
              <property name="spindle_override_status" stdset="0">
               <bool>false</bool>
              </property>
+             <property name="jograte_status" stdset="0">
+              <bool>true</bool>
+             </property>
              <property name="current_feedrate_status" stdset="0">
               <bool>false</bool>
              </property>
@@ -3722,7 +3399,7 @@ JOG</string>
               <bool>false</bool>
              </property>
              <property name="actual_spindle_speed_status" stdset="0">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </widget>
@@ -5041,6 +4718,9 @@ SCOPE</string>
             <property name="checkable">
              <bool>true</bool>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
@@ -5077,6 +4757,9 @@ SCOPE</string>
             </property>
             <property name="checkable">
              <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
             <property name="autoExclusive">
              <bool>true</bool>
@@ -7771,7 +7454,7 @@ Override</string>
              <widget class="ActionButton" name="abtn_override_feed_rate">
               <property name="geometry">
                <rect>
-                <x>65</x>
+                <x>80</x>
                 <y>21</y>
                 <width>60</width>
                 <height>40</height>
@@ -7794,7 +7477,7 @@ Override</string>
              <widget class="ActionButton" name="abtn_override_rapid_rate">
               <property name="geometry">
                <rect>
-                <x>128</x>
+                <x>150</x>
                 <y>21</y>
                 <width>60</width>
                 <height>40</height>
@@ -7846,39 +7529,10 @@ Override</string>
                <set>Qt::AlignCenter</set>
               </property>
              </widget>
-             <widget class="ActionButton" name="abtn_override_jog_rate">
-              <property name="geometry">
-               <rect>
-                <x>192</x>
-                <y>21</y>
-                <width>60</width>
-                <height>40</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>JogRate
-Override</string>
-              </property>
-              <property name="jog_rate_action" stdset="0">
-               <bool>true</bool>
-              </property>
-              <property name="feed_over_action" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="rapid_over_action" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="toggle_float_option" stdset="0">
-               <bool>true</bool>
-              </property>
-              <property name="float_alt_num" stdset="0">
-               <double>25.000000000000000</double>
-              </property>
-             </widget>
              <widget class="ActionButton" name="abtn_override_angular_rate">
               <property name="geometry">
                <rect>
-                <x>256</x>
+                <x>220</x>
                 <y>21</y>
                 <width>60</width>
                 <height>40</height>
@@ -7938,7 +7592,7 @@ Jog Ovr</string>
               <widget class="StatusSlider" name="statusslider_2">
                <property name="geometry">
                 <rect>
-                 <x>70</x>
+                 <x>80</x>
                  <y>0</y>
                  <width>18</width>
                  <height>121</height>
@@ -7951,7 +7605,7 @@ Jog Ovr</string>
               <widget class="StatusSlider" name="statusslider_3">
                <property name="geometry">
                 <rect>
-                 <x>130</x>
+                 <x>160</x>
                  <y>0</y>
                  <width>18</width>
                  <height>121</height>
@@ -7959,28 +7613,12 @@ Jog Ovr</string>
                </property>
                <property name="maximum">
                 <number>100</number>
-               </property>
-              </widget>
-              <widget class="StatusSlider" name="statusslider_4">
-               <property name="geometry">
-                <rect>
-                 <x>190</x>
-                 <y>0</y>
-                 <width>18</width>
-                 <height>121</height>
-                </rect>
-               </property>
-               <property name="maximum">
-                <number>100</number>
-               </property>
-               <property name="jograte_rate" stdset="0">
-                <bool>true</bool>
                </property>
               </widget>
               <widget class="StatusSlider" name="statusslider_5">
                <property name="geometry">
                 <rect>
-                 <x>250</x>
+                 <x>220</x>
                  <y>0</y>
                  <width>18</width>
                  <height>121</height>
@@ -8016,7 +7654,7 @@ Jog Ovr</string>
              <widget class="StatusLabel" name="statuslabel_2">
               <property name="geometry">
                <rect>
-                <x>70</x>
+                <x>80</x>
                 <y>64</y>
                 <width>60</width>
                 <height>20</height>
@@ -8038,7 +7676,7 @@ Jog Ovr</string>
              <widget class="StatusLabel" name="statuslabel_3">
               <property name="geometry">
                <rect>
-                <x>130</x>
+                <x>150</x>
                 <y>64</y>
                 <width>60</width>
                 <height>20</height>
@@ -8055,37 +7693,12 @@ Jog Ovr</string>
               </property>
               <property name="spindle_override_status" stdset="0">
                <bool>false</bool>
-              </property>
-             </widget>
-             <widget class="StatusLabel" name="statuslabel_4">
-              <property name="geometry">
-               <rect>
-                <x>190</x>
-                <y>64</y>
-                <width>60</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::WinPanel</enum>
-              </property>
-              <property name="frameShadow">
-               <enum>QFrame::Sunken</enum>
-              </property>
-              <property name="rapid_override_status" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="spindle_override_status" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="jograte_status" stdset="0">
-               <bool>true</bool>
               </property>
              </widget>
              <widget class="StatusLabel" name="statuslabel_5">
               <property name="geometry">
                <rect>
-                <x>250</x>
+                <x>220</x>
                 <y>64</y>
                 <width>60</width>
                 <height>20</height>
@@ -8640,13 +8253,822 @@ Jog Ovr</string>
         </widget>
        </widget>
       </widget>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>-10</y>
+         <width>601</width>
+         <height>411</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QStackedWidget" name="stackedWidget_1">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::WinPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="panel_gcode_graphics">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_gcode_graphics">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QFrame" name="frame_graphics_btns">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>400</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::WinPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QVBoxLayout" name="verticalLayout_3">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Z2</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>z2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_y2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Y2</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>y2</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_p">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View P</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_x">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View X</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>x</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_y">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Y</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>y</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>View Z</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>z</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="ActionButton" name="abtn_graphics_view_z_2">
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>50</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>Clear</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>true</bool>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="view_change_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>100.000000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>Clear</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="GCodeGraphics" name="gcodegraphics">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>527</width>
+                   <height>390</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="background_color" stdset="0">
+                  <color alpha="0">
+                   <red>0</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_homing">
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <widget class="QFrame" name="frame_homing">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="QLabel" name="lab_homing_panel_not_done">
+               <property name="geometry">
+                <rect>
+                 <x>60</x>
+                 <y>150</y>
+                 <width>481</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>put  homing all and homing  by axis on this panel  600x400</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+              <widget class="ActionButton" name="actionbutton">
+               <property name="geometry">
+                <rect>
+                 <x>70</x>
+                 <y>220</y>
+                 <width>71</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>Home All</string>
+               </property>
+               <property name="home_action" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="joint_number" stdset="0">
+                <number>-1</number>
+               </property>
+               <property name="incr_imperial_number" stdset="0">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="incr_mm_number" stdset="0">
+                <double>0.025000000000000</double>
+               </property>
+               <property name="incr_angular_number" stdset="0">
+                <double>-1.000000000000000</double>
+               </property>
+               <property name="toggle_float_option" stdset="0">
+                <bool>false</bool>
+               </property>
+               <property name="float_num" stdset="0">
+                <double>100.000000000000000</double>
+               </property>
+               <property name="float_alt_num" stdset="0">
+                <double>50.000000000000000</double>
+               </property>
+               <property name="view_type_string" stdset="0">
+                <string>P</string>
+               </property>
+               <property name="command_text_string" stdset="0">
+                <string/>
+               </property>
+               <property name="ini_mdi_number" stdset="0">
+                <number>0</number>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_tool_table">
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QFrame" name="frame_tool_table">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="QLabel" name="lab_tool_table_panel_not_done">
+               <property name="geometry">
+                <rect>
+                 <x>80</x>
+                 <y>140</y>
+                 <width>461</width>
+                 <height>51</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>12</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>put tool table and tool selection on this panel  600x400</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_probing">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="VersaProbe" name="versaprobe">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_tool_offsets">
+           <layout class="QVBoxLayout" name="verticalLayout_9">
+            <item>
+             <widget class="QFrame" name="frame_tool_offsets">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_18">
+               <item>
+                <widget class="ToolOffsetView" name="tooloffsetview"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_origin_offsets">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
+            <item>
+             <widget class="QFrame" name="frame_origin_offsets">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <widget class="OriginOffsetView" name="originoffsetview">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>600</width>
+                 <height>400</height>
+                </rect>
+               </property>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_macro_selection">
+           <layout class="QVBoxLayout" name="verticalLayout_13">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_macro_selection">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_17">
+               <item>
+                <widget class="MacroTab" name="macrotab"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_gcode_edit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_gcode_edit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_16">
+               <item>
+                <widget class="GcodeEditor" name="gcode_editor">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_cam_view">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_cam_view">
+              <property name="frameShape">
+               <enum>QFrame::WinPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="CamView" name="camview">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="panel_filedialog">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QFrame" name="frame_filedialog">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_19">
+               <item>
+                <widget class="FileManager" name="filemanager">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
      <widget class="QWidget" name="panel_full_screen">
       <widget class="QFrame" name="frame_full_screen">
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-10</y>
          <width>954</width>
          <height>698</height>
         </rect>
@@ -8657,26 +9079,37 @@ Jog Ovr</string>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QLabel" name="label_full_screen">
+       <widget class="WidgetSwitcher" name="widgetswitcher">
         <property name="geometry">
          <rect>
-          <x>260</x>
-          <y>330</y>
-          <width>431</width>
-          <height>41</height>
+          <x>10</x>
+          <y>20</y>
+          <width>941</width>
+          <height>671</height>
          </rect>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>14</pointsize>
-         </font>
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>THIS FULL SCREEN panel IS NOT USED YET</string>
+        <property name="widget_list" stdset="0">
+         <stringlist>
+          <string>stackedWidget_1</string>
+         </stringlist>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+        <widget class="QWidget" name="page_0">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="page">
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4"/>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
      </widget>
@@ -8712,6 +9145,11 @@ Jog Ovr</string>
    <class>StateLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>VersaProbe</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.versa_probe</header>
   </customwidget>
   <customwidget>
    <class>LED</class>
@@ -8752,6 +9190,12 @@ Jog Ovr</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>WidgetSwitcher</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.widget_switcher</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>FileManager</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.file_manager</header>
@@ -8786,7 +9230,120 @@ Jog Ovr</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pbtn_mainv_misc_spare</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>full_screen()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>985</x>
+     <y>196</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>750</x>
+     <y>-4</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scrb_jog_linear_slow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lab_jog_linear_slow</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>882</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>877</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scrb_jog_linear_fast</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lab_jog_linear_fast</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>925</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>925</x>
+     <y>43</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_jog_rate_slow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_slow_rate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>690</x>
+     <y>440</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>673</x>
+     <y>-10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbtn_jog_rate_fast</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>set_fast_rate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>858</x>
+     <y>452</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>815</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scrb_jog_linear_slow</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slow_jog_slider_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>872</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>850</x>
+     <y>-6</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>scrb_jog_linear_fast</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>fast_jog_slider_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>921</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>905</x>
+     <y>-6</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>abtn_main_estop_toggled()</slot>
   <slot>abtn_mainv_power_on_toggled()</slot>
@@ -8972,5 +9529,10 @@ Jog Ovr</string>
   <slot>scrb_jog_linear_slow_setRange()</slot>
   <slot>scrb_jog_linear_fast_setRange()</slot>
   <slot>scrb_axis4_spindle_rpm_setRange()</slot>
+  <slot>full_screen()</slot>
+  <slot>set_slow_rate()</slot>
+  <slot>set_fast_rate()</slot>
+  <slot>slow_jog_slider_changed()</slot>
+  <slot>fast_jog_slider_changed()</slot>
  </slots>
 </ui>

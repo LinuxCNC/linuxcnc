@@ -113,6 +113,27 @@ class HandlerClass:
     #######################
     # callbacks from form #
     #######################
+    def full_screen(self, state):
+        if state:
+            self.w.stackedWidget_0.setCurrentIndex(1)
+            self.w.widgetswitcher.show_id_widget(1)
+        else:
+            self.w.stackedWidget_0.setCurrentIndex(0)
+            self.w.widgetswitcher.show_id_widget(0)
+
+    def slow_jog_slider_changed(self, rate):
+        if self.w.pbtn_jog_rate_slow.isChecked():
+            ACTION.SET_JOG_RATE(rate)
+    def fast_jog_slider_changed(self, rate):
+        if self.w.pbtn_jog_rate_fast.isChecked():
+            ACTION.SET_JOG_RATE(rate)
+
+    def set_slow_rate(self, state):
+        if state:
+            ACTION.SET_JOG_RATE(self.w.scrb_jog_linear_slow.value())
+    def set_fast_rate(self, state):
+        if state:
+            ACTION.SET_JOG_RATE(self.w.scrb_jog_linear_fast.value())
 
     #####################
     # general functions #

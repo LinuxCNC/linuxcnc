@@ -177,6 +177,7 @@ class _GStat(gobject.GObject):
         'shutdown': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
         'general': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'forced-update': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -677,6 +678,9 @@ class _GStat(gobject.GObject):
         self.emit('jogincrement-angular-changed', self.current_jog_distance_angular, self.current_jog_distance_angular_text)
         tool_info_new = self.old['tool-info']
         self.emit('tool-info-changed', tool_info_new)
+
+        # update external ojects
+        self.emit('forced-update')
 
     # ********** Helper function ********************
     def get_position(self):
