@@ -15,6 +15,13 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#ifndef INTERP_ARRAY_TYPES_HH
+#define INTERP_ARRAY_TYPES_HH
+#include <interp_base.hh>
+#include <paramclass.hh>
+#include <array1.hh>
+
+namespace pp = pyplusplus::containers::static_sized;
 
 typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
 typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
@@ -30,4 +37,4 @@ typedef pp::array_1_t< double, INTERP_SUB_PARAMS> params_array,
     (*params_w)( block &),
     (*saved_params_w) (context &);
 
-
+#endif
