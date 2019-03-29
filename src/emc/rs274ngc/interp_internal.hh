@@ -25,6 +25,7 @@
 #include "libintl.h"
 #include <boost/python/object_fwd.hpp>
 #include <cmath>
+#include "interp_parameter_def.hh"
 
 
 #define _(s) gettext(s)
@@ -264,13 +265,6 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 // name of parameter file for saving/restoring interpreter variables
 #define RS274NGC_PARAMETER_FILE_NAME_DEFAULT "rs274ngc.var"
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"
-
-// number of parameters in parameter table
-
-// leave some room above 5428 for further introspection
-// 5599 = control DEBUG, output, 0=no output; default=1.0
-// 5600-5601 = toolchanger codes
-#define RS274NGC_MAX_PARAMETERS 5602
 
 // Subroutine parameters
 #define INTERP_SUB_PARAMS 30
@@ -690,7 +684,7 @@ struct setup
   double origin_offset_y;       // g5x offset y
   double origin_offset_z;       // g5x offset z
   double rotation_xy;         // rotation of coordinate system around Z, in degrees
-  double parameters[RS274NGC_MAX_PARAMETERS];   // system parameters
+  double parameters[interp_param_global::RS274NGC_MAX_PARAMETERS];   // system parameters
   int parameter_occurrence;     // parameter buffer index
   int parameter_numbers[MAX_NAMED_PARAMETERS];    // parameter number buffer
   double parameter_values[MAX_NAMED_PARAMETERS];  // parameter value buffer

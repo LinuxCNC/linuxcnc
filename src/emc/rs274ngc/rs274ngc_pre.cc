@@ -102,6 +102,9 @@ include an option for suppressing superfluous commands.
 
 #include <unordered_set>
 
+#include <interp_parameter_def.hh>
+using namespace interp_param_global;
+
 namespace bp = boost::python;
 
 extern char * _rs274ngc_errors[];

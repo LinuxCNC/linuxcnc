@@ -28,11 +28,13 @@
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 #include "interp_queue.hh"
+#include "interp_parameter_def.hh"
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
+using namespace interp_param_global;
 
 // These four functions help make the rest of cutter comp
 // plane-agnostic in much the same way the ARC_FEED canon call is.
@@ -1057,7 +1059,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
        block->c_number, 'C');
   pars = settings->parameters;
   if ((g_code == G_52) || (g_code == G_92)) {
-      pars[5210] = 1.0;
+      pars[G92_APPLIED] = 1.0;
 
       if (g_code == G_52) {
 	  if (block->x_flag) {
@@ -1193,15 +1195,15 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->v_axis_offset = 0.0;
     settings->w_axis_offset = 0.0;
     if (g_code == G_92_1) {
-      pars[5211] = 0.0;
-      pars[5212] = 0.0;
-      pars[5213] = 0.0;
-      pars[5214] = 0.0;
-      pars[5215] = 0.0;
-      pars[5216] = 0.0;
-      pars[5217] = 0.0;
-      pars[5218] = 0.0;
-      pars[5219] = 0.0;
+      pars[G92_X] = 0.0;
+      pars[G92_Y] = 0.0;
+      pars[G92_Z] = 0.0;
+      pars[G92_A] = 0.0;
+      pars[G92_B] = 0.0;
+      pars[G92_C] = 0.0;
+      pars[G92_U] = 0.0;
+      pars[G92_V] = 0.0;
+      pars[G92_W] = 0.0;
     }
   } else if (g_code == G_92_3) {
     pars[5210] = 1.0;
