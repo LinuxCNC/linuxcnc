@@ -241,7 +241,7 @@ made. */
 
 extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
-			      double a, double b, double c,
+                              double a, double b, double c,
                               double u, double v, double w);
 /*
 
