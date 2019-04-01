@@ -152,9 +152,9 @@ public:
 	this->line_number = line_number;
 	this->line_text = line_text;
     }
-    const char *what() const throw() { return this->error_message.c_str();  }
+    const char *what() const noexcept { return this->error_message.c_str();  }
 
-    ~InterpreterException() throw()  {}
+    ~InterpreterException() noexcept  {}
     std::string get_error_message()  { return this->error_message;  }
     int get_line_number()    { return this->line_number;  }
     std::string get_line_text()      { return this->line_text; }
