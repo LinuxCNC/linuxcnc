@@ -26,6 +26,7 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost_pyenum_macros.hh>
 #include <map>
 
 namespace bp = boost::python;
@@ -780,7 +781,6 @@ static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
 }
 
-
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
     using namespace boost;
@@ -790,28 +790,44 @@ BOOST_PYTHON_MODULE(interpreter) {
         ;
     scope().attr("throw_exceptions") = throw_exceptions;
 
-    scope().attr("INTERP_OK") = INTERP_OK;
-    scope().attr("INTERP_EXIT") = INTERP_EXIT;
-    scope().attr("INTERP_EXECUTE_FINISH") = INTERP_EXECUTE_FINISH;
-    scope().attr("INTERP_ENDFILE") = INTERP_ENDFILE;
-    scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
-    scope().attr("INTERP_ERROR") = INTERP_ERROR;
-    scope().attr("INTERP_MIN_ERROR") = INTERP_MIN_ERROR;
+    BOOST_PYENUM_(InterpReturn)
+            .BOOST_PYENUM_VAL(INTERP_OK)
+            .BOOST_PYENUM_VAL(INTERP_EXIT)
+            .BOOST_PYENUM_VAL(INTERP_EXECUTE_FINISH)
+            .BOOST_PYENUM_VAL(INTERP_ENDFILE)
+            .BOOST_PYENUM_VAL(INTERP_FILE_NOT_OPEN)
+            .BOOST_PYENUM_VAL(INTERP_ERROR)
+            .export_values();
+
+    scope().attr("INTERP_MIN_ERROR") = (int)INTERP_MIN_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    scope().attr("MODE_ABSOLUTE") = (int) MODE_ABSOLUTE;
-    scope().attr("MODE_INCREMENTAL") = (int) MODE_INCREMENTAL;
-    scope().attr("R_PLANE") =  (int) R_PLANE;
-    scope().attr("OLD_Z") =  (int) OLD_Z;
+    BOOST_PYENUM_(DISTANCE_MODE)
+            .BOOST_PYENUM_VAL(MODE_ABSOLUTE)
+            .BOOST_PYENUM_VAL(MODE_INCREMENTAL)
+            .export_values();
 
-    scope().attr("UNITS_PER_MINUTE") =  (int) UNITS_PER_MINUTE;
-    scope().attr("INVERSE_TIME") =  (int) INVERSE_TIME;
-    scope().attr("UNITS_PER_REVOLUTION") =  (int) UNITS_PER_REVOLUTION;
+    BOOST_PYENUM_(RETRACT_MODE)
+            .BOOST_PYENUM_VAL(R_PLANE)
+            .BOOST_PYENUM_VAL(OLD_Z)
+            .export_values();
 
-    scope().attr("RIGHT") = RIGHT;
-    scope().attr("LEFT") = LEFT;
-    scope().attr("CONSTANT_RPM") =  (int) CONSTANT_RPM;
-    scope().attr("CONSTANT_SURFACE") =  (int) CONSTANT_SURFACE;
+    BOOST_PYENUM_(FEED_MODE)
+            .BOOST_PYENUM_VAL(UNITS_PER_MINUTE)
+            .BOOST_PYENUM_VAL(INVERSE_TIME)
+            .BOOST_PYENUM_VAL(UNITS_PER_REVOLUTION)
+            .export_values();
+
+    BOOST_PYENUM_(CUTTER_COMP_DIRECTION)
+            .BOOST_PYENUM_VAL(RIGHT)
+            .BOOST_PYENUM_VAL(LEFT)
+            .export_values();
+
+    BOOST_PYENUM_(SPINDLE_MODE)
+            .BOOST_PYENUM_VAL(CONSTANT_RPM)
+            .BOOST_PYENUM_VAL(CONSTANT_SURFACE)
+            .export_values();
+
 
     def("equal", &__equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int

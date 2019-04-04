@@ -96,22 +96,30 @@ static inline bool equal(double a, double b)
     return (fabs(a - b) < TOLERANCE_EQUAL);
 }
 
-
 #define TINY 1e-12              /* for arc_data_r */
 
 // max number of m codes on one line
 #define MAX_EMS  4
 
 // feed_mode
-enum feed_mode { UNITS_PER_MINUTE=0, INVERSE_TIME=1, UNITS_PER_REVOLUTION=2 };
+enum FEED_MODE {
+    UNITS_PER_MINUTE=0,
+    INVERSE_TIME=1,
+    UNITS_PER_REVOLUTION=2
+};
 
 // cutter radius compensation mode, 0 or false means none
 // not using CANON_SIDE since interpreter handles cutter radius comp
-#define RIGHT 1
-#define LEFT 2
+enum CUTTER_COMP_DIRECTION {
+    RIGHT = 1,
+    LEFT = 2,
+};
 
 // spindle control modes
-enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
+enum SPINDLE_MODE {
+    CONSTANT_RPM,
+    CONSTANT_SURFACE
+};
 
 // unary operations
 // These are not enums because the "&" operator is used in
@@ -290,14 +298,18 @@ enum GCodes
 /**********************/
 
 /* distance_mode */
-typedef enum
-{ MODE_ABSOLUTE, MODE_INCREMENTAL }
-DISTANCE_MODE;
+enum DISTANCE_MODE
+{
+    MODE_ABSOLUTE,
+    MODE_INCREMENTAL,
+};
 
 /* retract_mode for cycles */
-typedef enum
-{ R_PLANE, OLD_Z }
-RETRACT_MODE;
+enum RETRACT_MODE
+{
+    R_PLANE,
+    OLD_Z,
+};
 
 // string table - to get rid of strdup/free
 const char *strstore(const char *s);
