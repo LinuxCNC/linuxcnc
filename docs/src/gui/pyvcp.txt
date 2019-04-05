@@ -622,18 +622,42 @@ using fillcolor) or set to change color dependent upon the value of the halpin
 (range1, range2 range3 must all be set, if you only want 2 ranges, set 2 of
 them to the same color).
 
+* <halpin>"my-bar"</halpin> text, sets the pin name, pyvcp.my-bar
+* <min_>0</min_> number, sets the minimum scale
+* <max_>140</max_> number, sets the maximum scale
+* <format>"3.1f"</format> text, sets the number format using python number
+  formatting
+* <bgcolor>"grey"</bgcolor> text, sets the background color
+* <fillcolor>"red"</fillcolor> text, sets the fill color
+* <range1>0,100,"green"</range1> number, number, text, sets the first range and
+  color
+* <range2>101,135,"orange"</range2> number, number, text, sets the first range
+  and color
+* <range3>136, 150,"red"</range3> number, number, text, sets the first range and
+  color
+* <canvas_width>200</canvas_width> number, sets the overall width
+* <canvas_height>50</canvas_height> number, sets the overall height
+* <bar_height>30</bar_height> number, sets the bar height, must be less than
+  canvas_height
+* <bar_width>150</bar_width> number, sets the bar width, must be less than
+  canvas_width
+
 [source,xml]
 ---------------------------------------
 <bar>
     <halpin>"my-bar"</halpin>
     <min_>0</min_>
-    <max_>150</max_>
+    <max_>123</max_>
     <format>"3.1f"</format>
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
     <range1>0,100,"green"</range1>
     <range2>101,135,"orange"</range2>
     <range3>136, 150,"red"</range3>
+    <canvas_width>200</canvas_width>
+    <canvas_height>50</canvas_height>
+    <bar_height>30</bar_height>
+    <bar_width>150</bar_width>
 </bar>
 ---------------------------------------
 
