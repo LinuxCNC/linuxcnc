@@ -70,7 +70,7 @@ def prepare_epilog(self, userdata, **words):
 	if retval >= 0:
 		self.selected_pocket = self._pocket
 		self.selected_tool = self._tool
-		emccanon.SELECT_POCKET( self._pocket, self._tool)
+		emccanon.SELECT_TOOL(self._tool)
 		return INTERP_OK
 	else:
 		self.set_errormsg("T%d: aborted (return code %.4f)" % (self._tool,retval))

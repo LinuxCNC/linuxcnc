@@ -645,13 +645,13 @@ void CHANGE_TOOL(int slot)
   _tools[0] = _tools[slot];
 }
 
-void SELECT_POCKET(int slot, int tool)
-{PRINT1("SELECT_POCKET(%d)\n", slot);}
+void SELECT_TOOL(int tool)//TODO: fix slot number
+{PRINT1("SELECT_TOOL(%d)\n", tool);}
 
-void CHANGE_TOOL_NUMBER(int slot)
+void CHANGE_TOOL_NUMBER(int tool)
 {
-  PRINT1("CHANGE_TOOL_NUMBER(%d)\n", slot);
-  _active_slot = slot;
+  PRINT1("CHANGE_TOOL_NUMBER(%d)\n", tool);
+  _active_slot = tool;
 }
 
 

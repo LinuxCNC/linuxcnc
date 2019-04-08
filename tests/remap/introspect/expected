@@ -5,7 +5,7 @@ executing
     4 N..... SET_XY_ROTATION(0.0000)
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... MESSAGE(" before introspect: call_level= 0.000000")
-    7 N..... SELECT_POCKET(3)
+    7 N..... SELECT_TOOL(3)
     8 N..... START_CHANGE()
     9 N..... STOP_SPINDLE_TURNING()
    10 N..... CHANGE_TOOL(3)
