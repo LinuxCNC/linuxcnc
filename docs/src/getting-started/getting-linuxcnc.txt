@@ -32,17 +32,6 @@ Image.
 
 === Normal Download
 
-A live install for Debian 9 code name Stretch with Rt-Preempt,
-LinuxCNC 2.7.x is avalible here
-
-http://www.linuxcnc.org/testing-stretch-rtpreempt/
-
-Debian 7 code name Wheezy end of long term service was May 2018.
-You can change /etc/apt/sources.list to use debian archive to be able
-to install packages, but you can't get security updates.
-You should use http://archive.debian.org/debian/ for the wheezy main
-contrib non-free wheezy-updates and security are not available.
-
 Download the Live/Install CD by clicking here:
 
 http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
