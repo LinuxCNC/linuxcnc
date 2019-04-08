@@ -793,8 +793,12 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
             {
-                signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+                int p = 0;
                 int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+                for(int i = 0;i < CANON_POCKETS_MAX;i++){
+                    if(emcioStatus.tool.toolTable[i].toolno == t)
+                        p = i;
+                }
                 rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
                 // Set HAL pins/params for tool number, pocket, and index.
