@@ -100,6 +100,8 @@ include an option for suppressing superfluous commands.
 
 #include "units.h"
 
+#include <unordered_set>
+
 namespace bp = boost::python;
 
 extern char * _rs274ngc_errors[];
@@ -2563,15 +2565,15 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     return newFP;
 }
 
-static std::set<std::string> stringtable;
-
 const char *strstore(const char *s)
 {
+    static std::unordered_set<std::string> stringtable;
     using namespace std;
 
-    if (s == NULL)
+    if (s == nullptr) {
         throw invalid_argument("strstore(): NULL argument");
-    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
+    }
+    auto pair = stringtable.insert(s);
     return pair.first->c_str();
 }
 
