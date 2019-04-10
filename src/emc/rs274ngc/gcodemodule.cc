@@ -24,6 +24,7 @@
 #include "interp_return.hh"
 #include "canon.hh"
 #include "config.h"		// LINELEN
+#include <memory>
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -144,12 +145,11 @@ static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-static InterpBase *pinterp;
-#define interp_new (*pinterp)
+static std::unique_ptr<InterpBase> pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
-static void maybe_new_line(int sequence_number=interp_new.sequence_number());
+static void maybe_new_line(int sequence_number=pinterp->sequence_number());
 static void maybe_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
@@ -714,14 +714,12 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             return NULL;
     }
 
-    if(pinterp) {
-        delete pinterp;
-        pinterp = 0;
+    if(interpname && *interpname) {
+        pinterp.reset(interp_from_shlib(interpname));
     }
-    if(interpname && *interpname)
-        pinterp = interp_from_shlib(interpname);
-    if(!pinterp)
-        pinterp = new Interp;
+    if(!pinterp) {
+        pinterp.reset(new Interp());
+    }
 
     for(int i=0; i<USER_DEFINED_FUNCTION_NUM; i++) 
         USER_DEFINED_FUNCTION[i] = user_defined_function;
@@ -735,8 +733,8 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_new.init();
-    interp_new.open(f);
+    pinterp->init();
+    pinterp->open(f);
 
     maybe_new_line();
 
@@ -754,18 +752,18 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         }
     }
     if(unitcode && RESULT_OK) {
-        result = interp_new.read(unitcode);
+        result = pinterp->read(unitcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     if(initcode && RESULT_OK) {
-        result = interp_new.read(initcode);
+        result = pinterp->read(initcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
-        result = interp_new.read();
+        result = pinterp->read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
@@ -773,7 +771,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         }
         if(!RESULT_OK) break;
         error_line_offset = 0;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
 out_error:
     if(pinterp)
@@ -804,8 +802,8 @@ static int maxerror = -1;
 static char savedError[LINELEN+1];
 static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
-    if(!PyArg_ParseTuple(o, "i", &err)) return NULL;
-    interp_new.error_text(err, savedError, LINELEN);
+    if(!PyArg_ParseTuple(o, "i", &err)) return nullptr;
+    pinterp->error_text(err, savedError, LINELEN);
     return PyString_FromString(savedError);
 }
 
