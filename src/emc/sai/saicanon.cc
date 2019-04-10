@@ -142,69 +142,13 @@ void print_nc_line_number()
     fprintf(_outfile, "N..... ");
 }
 
-
-#define PRINT0(control) if (1)                        \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++); \
-           print_nc_line_number();                    \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control);                \
-          } else
-#define PRINT1(control, arg1) if (1)                  \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++); \
-           print_nc_line_number();                    \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1);          \
-          } else
-#define PRINT2(control, arg1, arg2) if (1)            \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++); \
-           print_nc_line_number();                    \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1, arg2);    \
-          } else
-#define PRINT3(control, arg1, arg2, arg3) if (1)         \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);    \
-           print_nc_line_number();                       \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1, arg2, arg3); \
-          } else
-#define PRINT4(control, arg1, arg2, arg3, arg4) if (1)         \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);          \
-           print_nc_line_number();                             \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1, arg2, arg3, arg4); \
-          } else
-#define PRINT5(control, arg1, arg2, arg3, arg4, arg5) if (1)         \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                \
-           print_nc_line_number();                                   \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1, arg2, arg3, arg4, arg5); \
-          } else
-#define PRINT6(control, arg1, arg2, arg3, arg4, arg5, arg6) if (1)         \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                      \
-           print_nc_line_number();                                         \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control, arg1, arg2, arg3, arg4, arg5, arg6); \
-          } else
-#define PRINT7(control, arg1, arg2, arg3, arg4, arg5, arg6, arg7) if (1) \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                    \
-           print_nc_line_number();                                       \
-           {if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  control,                                    \
-                           arg1, arg2, arg3, arg4, arg5, arg6, arg7);    \
-          } else
-#define PRINT9(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9) \
-          if (1)                                                            \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                       \
-           print_nc_line_number();                                          \
-           fprintf(_outfile, control,                                       \
-                   arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);           \
-          } else
-#define PRINT10(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10) \
-          if (1)                                                            \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                       \
-           print_nc_line_number();                                          \
-           fprintf(_outfile, control,                                       \
-                   arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);     \
-          } else
-#define PRINT14(control,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14) \
-          if (1)                                                            \
-          {{if(_outfile==NULL){_outfile=stdout;}} fprintf(_outfile,  "%5d ", _line_number++);                       \
-           print_nc_line_number();                                          \
-           fprintf(_outfile, control,                                       \
-                   arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10,arg11,arg12,arg13,arg14); \
-          } else
+#define PRINT(control, ...) do \
+{ \
+    _outfile = _outfile ?: stdout; \
+    fprintf(_outfile,  "%5d ", _line_number++); \
+    print_nc_line_number(); \
+    fprintf(_outfile, control, ##__VA_ARGS__); \
+} while (false)
 
 /* Representation */
 
@@ -265,7 +209,7 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 {
   if (in_unit == CANON_UNITS_INCHES)
     {
-      PRINT0("USE_LENGTH_UNITS(CANON_UNITS_INCHES)\n");
+      PRINT("USE_LENGTH_UNITS(CANON_UNITS_INCHES)\n");
       if (_length_unit_type == CANON_UNITS_MM)
         {
           _length_unit_type = CANON_UNITS_INCHES;
@@ -286,7 +230,7 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
     }
   else if (in_unit == CANON_UNITS_MM)
     {
-      PRINT0("USE_LENGTH_UNITS(CANON_UNITS_MM)\n");
+      PRINT("USE_LENGTH_UNITS(CANON_UNITS_MM)\n");
       if (_length_unit_type == CANON_UNITS_INCHES)
         {
           _length_unit_type = CANON_UNITS_MM;
@@ -306,13 +250,13 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
         }
     }
   else
-    PRINT0("USE_LENGTH_UNITS(UNKNOWN)\n");
+    PRINT("USE_LENGTH_UNITS(UNKNOWN)\n");
 }
 
 /* Free Space Motion */
 void SET_TRAVERSE_RATE(double rate)
 {
-  PRINT1("SET_TRAVERSE_RATE(%.4f)\n", rate);
+  PRINT("SET_TRAVERSE_RATE(%.4f)\n", rate);
   _traverse_rate = rate;
 }
 
@@ -346,18 +290,18 @@ void STRAIGHT_TRAVERSE( int line_number,
 /* Machining Attributes */
 void SET_FEED_MODE(int spindle, int mode)
 {
-  PRINT2("SET_FEED_MODE(%d, %d)\n", spindle, mode);
+  PRINT("SET_FEED_MODE(%d, %d)\n", spindle, mode);
   _feed_mode = mode;
 }
 void SET_FEED_RATE(double rate)
 {
-  PRINT1("SET_FEED_RATE(%.4f)\n", rate);
+  PRINT("SET_FEED_RATE(%.4f)\n", rate);
   _feed_rate = rate;
 }
 
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 {
-  PRINT1("SET_FEED_REFERENCE(%s)\n",
+  PRINT("SET_FEED_REFERENCE(%s)\n",
          (reference == CANON_WORKPIECE) ? "CANON_WORKPIECE" : "CANON_XYZ");
 }
 
@@ -366,33 +310,33 @@ extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
   motion_tolerance = 0;
   if (mode == CANON_EXACT_STOP)
     {
-      PRINT0("SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP)\n");
+      PRINT("SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP)\n");
       _motion_mode = CANON_EXACT_STOP;
     }
   else if (mode == CANON_EXACT_PATH)
     {
-      PRINT0("SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH)\n");
+      PRINT("SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH)\n");
       _motion_mode = CANON_EXACT_PATH;
     }
   else if (mode == CANON_CONTINUOUS)
     {
       motion_tolerance = tolerance;
-      PRINT1("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, %f)\n", tolerance);
+      PRINT("SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, %f)\n", tolerance);
       _motion_mode = CANON_CONTINUOUS;
     }
   else
-    PRINT0("SET_MOTION_CONTROL_MODE(UNKNOWN)\n");
+    PRINT("SET_MOTION_CONTROL_MODE(UNKNOWN)\n");
 }
 
 extern void SET_NAIVECAM_TOLERANCE(double tolerance)
 {
   naivecam_tolerance = tolerance;
-  PRINT1("SET_NAIVECAM_TOLERANCE(%.4f)\n", tolerance);
+  PRINT("SET_NAIVECAM_TOLERANCE(%.4f)\n", tolerance);
 }
 
 void SELECT_PLANE(CANON_PLANE in_plane)
 {
-  PRINT1("SELECT_PLANE(CANON_PLANE_%s)\n",
+  PRINT("SELECT_PLANE(CANON_PLANE_%s)\n",
          ((in_plane == CANON_PLANE_XY) ? "XY" :
           (in_plane == CANON_PLANE_YZ) ? "YZ" :
           (in_plane == CANON_PLANE_XZ) ? "XZ" : "UNKNOWN"));
@@ -400,22 +344,22 @@ void SELECT_PLANE(CANON_PLANE in_plane)
 }
 
 void SET_CUTTER_RADIUS_COMPENSATION(double radius)
-{PRINT1("SET_CUTTER_RADIUS_COMPENSATION(%.4f)\n", radius);}
+{PRINT("SET_CUTTER_RADIUS_COMPENSATION(%.4f)\n", radius);}
 
 void START_CUTTER_RADIUS_COMPENSATION(int side)
-{PRINT1("START_CUTTER_RADIUS_COMPENSATION(%s)\n",
+{PRINT("START_CUTTER_RADIUS_COMPENSATION(%s)\n",
         (side == CANON_SIDE_LEFT)  ? "LEFT"  :
         (side == CANON_SIDE_RIGHT) ? "RIGHT" : "UNKNOWN");
 }
 
 void STOP_CUTTER_RADIUS_COMPENSATION()
-{PRINT0 ("STOP_CUTTER_RADIUS_COMPENSATION()\n");}
+{PRINT ("STOP_CUTTER_RADIUS_COMPENSATION()\n");}
 
 void START_SPEED_FEED_SYNCH()
-{PRINT0 ("START_SPEED_FEED_SYNCH()\n");}
+{PRINT ("START_SPEED_FEED_SYNCH()\n");}
 
 void STOP_SPEED_FEED_SYNCH()
-{PRINT0 ("STOP_SPEED_FEED_SYNCH()\n");}
+{PRINT ("STOP_SPEED_FEED_SYNCH()\n");}
 
 /* Machining Functions */
 
@@ -565,56 +509,56 @@ void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 
 
 void DWELL(double seconds)
-{PRINT1("DWELL(%.4f)\n", seconds);}
+{PRINT("DWELL(%.4f)\n", seconds);}
 
 /* Spindle Functions */
 void SPINDLE_RETRACT_TRAVERSE()
-{PRINT0("SPINDLE_RETRACT_TRAVERSE()\n");}
+{PRINT("SPINDLE_RETRACT_TRAVERSE()\n");}
 
 void SET_SPINDLE_MODE(int spindle, double arg) {
-  PRINT2("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
+  PRINT("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
 }
 
 void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed)
 {
-  PRINT1("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
+  PRINT("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
   _spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed)
+void START_SPINDLE_COUNTERCLOCKWISE()
 {
-  PRINT1("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
-  _spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
+  PRINT("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
+  _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_COUNTERCLOCKWISE);
 }
 
 void SET_SPINDLE_SPEED(int spindle, double rpm)
 {
-  PRINT2("SET_SPINDLE_SPEED(%i, %.4f)\n", spindle, rpm);
+  PRINT("SET_SPINDLE_SPEED(%i, %.4f)\n", spindle, rpm);
   _spindle_speed[spindle] = rpm;
 }
 
 void STOP_SPINDLE_TURNING(int spindle)
 {
-  PRINT1("STOP_SPINDLE_TURNING(%i)\n", spindle);
+  PRINT("STOP_SPINDLE_TURNING(%i)\n", spindle);
   _spindle_turning[spindle] = CANON_STOPPED;
 }
 
 void SPINDLE_RETRACT()
-{PRINT0("SPINDLE_RETRACT()\n");}
+{PRINT("SPINDLE_RETRACT()\n");}
 
 void ORIENT_SPINDLE(int spindle, double orientation, int mode)
-{PRINT3("ORIENT_SPINDLE(%i, %.4f, %d)\n", spindle, orientation,mode);
+{PRINT("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
 }
 
 void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout)
 {
-  PRINT2("SPINDLE.%i.WAIT_ORIENT_COMPLETE(%.4f)\n", spindle, timeout);
+  PRINT("SPINDLE.%i.WAIT_ORIENT_COMPLETE(%.4f)\n", spindle, timeout);
 }
 
 void USE_NO_SPINDLE_FORCE()
-{PRINT0("USE_NO_SPINDLE_FORCE()\n");}
+{PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
@@ -625,7 +569,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
     _tools[pocket].frontangle = frontangle;
     _tools[pocket].backangle = backangle;
     _tools[pocket].orientation = orientation;
-    PRINT14("SET_TOOL_TABLE_ENTRY(%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d)\n",
+    PRINT("SET_TOOL_TABLE_ENTRY(%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d)\n",
             pocket, toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
@@ -634,23 +578,23 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 {
     _tool_offset = offset;
-    PRINT9("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f)\n",
+    PRINT("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f)\n",
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
 void CHANGE_TOOL(int slot)
 {
-  PRINT1("CHANGE_TOOL(%d)\n", slot);
+  PRINT("CHANGE_TOOL(%d)\n", slot);
   _active_slot = slot;
   _tools[0] = _tools[slot];
 }
 
 void SELECT_POCKET(int slot, int tool)
-{PRINT1("SELECT_POCKET(%d)\n", slot);}
+{PRINT("SELECT_POCKET(%d)\n", slot);}
 
 void CHANGE_TOOL_NUMBER(int slot)
 {
-  PRINT1("CHANGE_TOOL_NUMBER(%d)\n", slot);
+  PRINT("CHANGE_TOOL_NUMBER(%d)\n", slot);
   _active_slot = slot;
 }
 
@@ -658,7 +602,7 @@ void CHANGE_TOOL_NUMBER(int slot)
 /* Misc Functions */
 
 void CLAMP_AXIS(CANON_AXIS axis)
-{PRINT1("CLAMP_AXIS(%s)\n",
+{PRINT("CLAMP_AXIS(%s)\n",
         (axis == CANON_AXIS_X) ? "CANON_AXIS_X" :
         (axis == CANON_AXIS_Y) ? "CANON_AXIS_Y" :
         (axis == CANON_AXIS_Z) ? "CANON_AXIS_Z" :
@@ -667,41 +611,41 @@ void CLAMP_AXIS(CANON_AXIS axis)
         (axis == CANON_AXIS_C) ? "CANON_AXIS_C" : "UNKNOWN");}
 
 void COMMENT(const char *s)
-{PRINT1("COMMENT(\"%s\")\n", s);}
+{PRINT("COMMENT(\"%s\")\n", s);}
 
 void DISABLE_ADAPTIVE_FEED()
-{PRINT0("DISABLE_ADAPTIVE_FEED()\n");}
+{PRINT("DISABLE_ADAPTIVE_FEED()\n");}
 
 void DISABLE_FEED_HOLD()
-{PRINT0("DISABLE_FEED_HOLD()\n");}
+{PRINT("DISABLE_FEED_HOLD()\n");}
 
 void DISABLE_FEED_OVERRIDE()
-{PRINT0("DISABLE_FEED_OVERRIDE()\n"); fo_enable = false; }
+{PRINT("DISABLE_FEED_OVERRIDE()\n"); fo_enable = false; }
 
 void DISABLE_SPEED_OVERRIDE(int spindle)
-{PRINT1("DISABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = false; }
+{PRINT("DISABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = false; }
 
 void ENABLE_ADAPTIVE_FEED()
-{PRINT0("ENABLE_ADAPTIVE_FEED()\n");}
+{PRINT("ENABLE_ADAPTIVE_FEED()\n");}
 
 void ENABLE_FEED_HOLD()
-{PRINT0("ENABLE_FEED_HOLD()\n");}
+{PRINT("ENABLE_FEED_HOLD()\n");}
 
 void ENABLE_FEED_OVERRIDE()
-{PRINT0("ENABLE_FEED_OVERRIDE()\n"); fo_enable = true; }
+{PRINT("ENABLE_FEED_OVERRIDE()\n"); fo_enable = true; }
 
 void ENABLE_SPEED_OVERRIDE(int spindle)
-{PRINT1("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
+{PRINT("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
 
 void FLOOD_OFF()
 {
-  PRINT0("FLOOD_OFF()\n");
+  PRINT("FLOOD_OFF()\n");
   _flood = 0;
 }
 
 void FLOOD_ON()
 {
-  PRINT0("FLOOD_ON()\n");
+  PRINT("FLOOD_ON()\n");
   _flood = 1;
 }
 
@@ -710,40 +654,40 @@ void INIT_CANON()
 }
 
 void MESSAGE(char *s)
-{PRINT1("MESSAGE(\"%s\")\n", s);}
+{PRINT("MESSAGE(\"%s\")\n", s);}
 
 void LOG(char *s)
-{PRINT1("LOG(\"%s\")\n", s);}
+{PRINT("LOG(\"%s\")\n", s);}
 void LOGOPEN(char *s)
-{PRINT1("LOGOPEN(\"%s\")\n", s);}
+{PRINT("LOGOPEN(\"%s\")\n", s);}
 void LOGAPPEND(char *s)
-{PRINT1("LOGAPPEND(\"%s\")\n", s);}
+{PRINT("LOGAPPEND(\"%s\")\n", s);}
 void LOGCLOSE()
-{PRINT0("LOGCLOSE()\n");}
+{PRINT("LOGCLOSE()\n");}
 
 void MIST_OFF()
 {
-  PRINT0("MIST_OFF()\n");
+  PRINT("MIST_OFF()\n");
   _mist = 0;
 }
 
 void MIST_ON()
 {
-  PRINT0("MIST_ON()\n");
+  PRINT("MIST_ON()\n");
   _mist = 1;
 }
 
 void PALLET_SHUTTLE()
-{PRINT0("PALLET_SHUTTLE()\n");}
+{PRINT("PALLET_SHUTTLE()\n");}
 
 void TURN_PROBE_OFF()
-{PRINT0("TURN_PROBE_OFF()\n");}
+{PRINT("TURN_PROBE_OFF()\n");}
 
 void TURN_PROBE_ON()
-{PRINT0("TURN_PROBE_ON()\n");}
+{PRINT("TURN_PROBE_ON()\n");}
 
 void UNCLAMP_AXIS(CANON_AXIS axis)
-{PRINT1("UNCLAMP_AXIS(%s)\n",
+{PRINT("UNCLAMP_AXIS(%s)\n",
         (axis == CANON_AXIS_X) ? "CANON_AXIS_X" :
         (axis == CANON_AXIS_Y) ? "CANON_AXIS_Y" :
         (axis == CANON_AXIS_Z) ? "CANON_AXIS_Z" :
@@ -754,7 +698,7 @@ void UNCLAMP_AXIS(CANON_AXIS axis)
 /* Program Functions */
 
 void PROGRAM_STOP()
-{PRINT0("PROGRAM_STOP()\n");}
+{PRINT("PROGRAM_STOP()\n");}
 
 void SET_BLOCK_DELETE(bool state)
 {block_delete = state;} //state == ON, means we don't interpret lines starting with "/"
@@ -769,10 +713,10 @@ bool GET_OPTIONAL_PROGRAM_STOP()
 {return optional_program_stop;} //state == ON, means we stop
 
 void OPTIONAL_PROGRAM_STOP()
-{PRINT0("OPTIONAL_PROGRAM_STOP()\n");}
+{PRINT("OPTIONAL_PROGRAM_STOP()\n");}
 
 void PROGRAM_END()
-{PRINT0("PROGRAM_END()\n");}
+{PRINT("PROGRAM_END()\n");}
 
 
 /*************************************************************************/
@@ -806,7 +750,7 @@ double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {return so_enable;}
 void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel)
-{PRINT2("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
+{PRINT("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;
 
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
@@ -1051,37 +995,37 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 
 void SET_MOTION_OUTPUT_BIT(int index)
 {
-    PRINT1("SET_MOTION_OUTPUT_BIT(%d)\n", index);
+    PRINT("SET_MOTION_OUTPUT_BIT(%d)\n", index);
     return;
 }
 
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
-    PRINT1("CLEAR_MOTION_OUTPUT_BIT(%d)\n", index);
+    PRINT("CLEAR_MOTION_OUTPUT_BIT(%d)\n", index);
     return;
 }
 
 void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
-    PRINT2("SET_MOTION_OUTPUT_VALUE(%d,%f)\n", index, value);
+    PRINT("SET_MOTION_OUTPUT_VALUE(%d,%f)\n", index, value);
     return;
 }
 
 void SET_AUX_OUTPUT_BIT(int index)
 {
-    PRINT1("SET_AUX_OUTPUT_BIT(%d)\n", index);
+    PRINT("SET_AUX_OUTPUT_BIT(%d)\n", index);
     return;
 }
 
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
-    PRINT1("CLEAR_AUX_OUTPUT_BIT(%d)\n", index);
+    PRINT("CLEAR_AUX_OUTPUT_BIT(%d)\n", index);
     return;
 }
 
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-    PRINT2("SET_AUX_OUTPUT_VALUE(%d,%f)\n", index, value);
+    PRINT("SET_AUX_OUTPUT_VALUE(%d,%f)\n", index, value);
     return;
 }
 
@@ -1131,11 +1075,11 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET()
 }
 
 void FINISH(void) {
-    PRINT0("FINISH()\n");
+    PRINT("FINISH()\n");
 }
 
 void START_CHANGE(void) {
-    PRINT0("START_CHANGE()\n");
+    PRINT("START_CHANGE()\n");
 }
 
 
@@ -1180,12 +1124,12 @@ void CANON_ERROR(const char *fmt, ...)
 	va_end(ap);
 	if(err)
 	{
-	    PRINT1("CANON_ERROR(%s)\n", err);
+        PRINT("CANON_ERROR(%s)\n", err);
 	    free(err);
 	}
 	else
 	{
-	    PRINT1("CANON_ERROR(vasprintf failed: %s)\n", strerror(errno));
+        PRINT("CANON_ERROR(vasprintf failed: %s)\n", strerror(errno));
 	}
     }
 }
