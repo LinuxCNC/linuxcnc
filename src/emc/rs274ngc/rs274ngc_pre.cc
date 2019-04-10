@@ -171,11 +171,10 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
-
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
-	log_file = 0;
+        log_file = nullptr;
     }
 }
 
