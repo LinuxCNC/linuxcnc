@@ -9,7 +9,7 @@ if {[llength $::argv] == 1} {
   set scalevalue $::argv
 }
 catch {
-  foreach l {x y z z b c u v w} {
+  foreach l {x y z a b c u v w} {
     setp axis.$l.jog-enable 1
     setp axis.$l.jog-scale $::scalevalue
   }
