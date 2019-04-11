@@ -16,6 +16,7 @@
 
 #include <Python.h> // must be first header
 #include "rs274ngc.hh"
+#include "canon.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
