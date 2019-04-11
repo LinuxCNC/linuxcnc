@@ -21,6 +21,8 @@
 #include <paramclass.hh>
 #include <array1.hh>
 
+#include <interp_internal.hh>
+
 namespace pp = pyplusplus::containers::static_sized;
 
 typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );

@@ -526,10 +526,10 @@ void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed)
                                                    CANON_CLOCKWISE);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE()
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed)
 {
   PRINT("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
-  _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
+  _spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_COUNTERCLOCKWISE);
 }
 

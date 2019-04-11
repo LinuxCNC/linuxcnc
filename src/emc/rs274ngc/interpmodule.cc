@@ -760,7 +760,7 @@ static inline int get_spindle_turning (Interp &interp, int spindle)  {
     return interp._setup.spindle_turning[spindle];
 }
 static inline void set_spindle_turning(Interp &interp, int spindle, int value)  {
-    interp._setup.spindle_turning = value;
+    interp._setup.spindle_turning[spindle] = (CANON_DIRECTION)value;
 }
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;

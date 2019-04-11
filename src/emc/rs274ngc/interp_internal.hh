@@ -26,6 +26,7 @@
 #include <boost/python/object_fwd.hpp>
 #include <cmath>
 #include "interp_parameter_def.hh"
+#include "interp_fwd.hh"
 
 
 #define _(s) gettext(s)
@@ -377,11 +378,8 @@ enum ModalGroups
     GM_MAX_MODAL_GROUPS
 };
 
-typedef struct remap_struct remap;
-typedef remap *remap_pointer;
-
 // the remap configuration descriptor
-typedef struct remap_struct {
+struct remap_struct {
     const char *name;
     const char *argspec;
     // if no modalgroup= was given in the REMAP= line, use these defaults
@@ -393,7 +391,7 @@ typedef struct remap_struct {
     const char *remap_py;    // Py function maybe  null, OR
     const char *remap_ngc;   // NGC file, maybe  null
     const char *epilog_func; // Py function or null
-} remap;
+};
 
 
 // case insensitive compare for std::map etc
@@ -414,7 +412,7 @@ typedef int_remap_map::iterator int_remap_iterator;
 #define REMAP_FUNC(r) (r->remap_ngc ? r->remap_ngc: \
 		       (r->remap_py ? r->remap_py : "BUG-no-remap-func"))
 
-typedef struct block_struct
+struct block_struct
 {
   block_struct ();
 
@@ -519,8 +517,7 @@ typedef struct block_struct
     // reason for recording the fact: this permits an epilog to do the
     // right thing depending on wether the builtin was used or not.
     bool builtin_used; 
-}
-block;
+};
 
 // indicates which type of Python handler yielded, and needs reexecution
 // post sync/read_inputs
@@ -544,15 +541,12 @@ enum call_types {
 
 enum retopts { RET_NONE, RET_DOUBLE, RET_INT, RET_YIELD, RET_STOPITERATION, RET_ERRORMSG };
 
-typedef block *block_pointer;
-
 // parameters will go to a std::map<const char *,parameter_value_pointer>
-typedef struct parameter_value_struct {
+struct parameter_value_struct {
     double value;
     unsigned attr;
-} parameter_value;
+};
 
-typedef parameter_value *parameter_pointer;
 typedef std::map<const char *, parameter_value, nocase_cmp> parameter_map;
 typedef parameter_map::iterator parameter_map_iterator;
 
@@ -582,7 +576,7 @@ struct pycontext {
     pycontext_impl *impl;
 };
 
-typedef struct context_struct {
+struct context_struct {
     context_struct();
     void clear();
 
@@ -600,22 +594,20 @@ typedef struct context_struct {
     int call_type; // enum call_types
     pycontext pystuff;
     // Python-related stuff
-} context;
-
-typedef context *context_pointer;
+};
 
 // context.context_status
 #define CONTEXT_VALID   1 // this was stored by M7*
 #define CONTEXT_RESTORE_ON_RETURN 2 // automatically execute M71 on sub return
 #define REMAP_FRAME   4 // a remap call frame
 
-typedef struct offset_struct {
+struct offset_struct {
   int type;
   const char *filename;  // the name of the file
   long offset;     // the offset in the file
   int sequence_number;
   int repeat_count;
-} offset;
+};
 
 typedef std::map<const char *, offset, nocase_cmp> offset_map_type;
 typedef std::map<const char *, offset, nocase_cmp>::iterator offset_map_iterator;
@@ -821,7 +813,7 @@ struct setup
     int init_once;  
 };
 
-typedef setup *setup_pointer;
+
 // the externally visible singleton instance
 
 extern class PythonPlugin *python_plugin;

@@ -157,9 +157,9 @@ static void maybe_new_line(int sequence_number) {
         return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
-    interp_new.active_settings(new_line_code->settings);
-    interp_new.active_g_codes(new_line_code->gcodes);
-    interp_new.active_m_codes(new_line_code->mcodes);
+    pinterp->active_settings(new_line_code->settings);
+    pinterp->active_g_codes(new_line_code->gcodes);
+    pinterp->active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
     PyObject *result = 
@@ -746,9 +746,9 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             if(!item) return NULL;
             char *code = PyString_AsString(item);
             if(!code) return NULL;
-            result = interp_new.read(code);
+            result = pinterp->read(code);
             if(!RESULT_OK) goto out_error;
-            result = interp_new.execute();
+            result = pinterp->execute();
         }
     }
     if(unitcode && RESULT_OK) {
@@ -776,7 +776,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 out_error:
     if(pinterp)
     {
-        auto interp = dynamic_cast<Interp*>(pinterp);
+        auto interp = dynamic_cast<Interp*>(pinterp.get());
         if(interp) interp->_setup.use_lazy_close = false;
         pinterp->close();
     }

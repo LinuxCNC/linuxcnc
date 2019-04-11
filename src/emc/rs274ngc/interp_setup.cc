@@ -126,8 +126,8 @@ setup::setup() :
     speed {0.0},
     spindle_mode{CONSTANT_RPM},
     speed_feed_mode{CANON_INDEPENDENT},
-    speed_override{CANON_STOPPED},
-    spindle_turning(0),
+    speed_override{false},
+    spindle_turning{CANON_STOPPED},
     stack{},
     stack_index(0),
     tool_offset{{0,0,0},0,0,0,0,0,0},
@@ -180,7 +180,7 @@ setup::setup() :
     disable_g92_persistence(0),
     pythis(),
     on_abort_command(NULL),
-    init_once(0)
+    init_once(CANON_STOPPED)
 {
 }
 
