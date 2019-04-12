@@ -240,11 +240,14 @@ int Interp::convert_spline(int mode,
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
       cp.W = 1;
-      cp.X = settings->current_x, cp.Y = settings->current_y;
+        cp.X = settings->current_x;
+        cp.Y = settings->current_y;
       nurbs_control_points.push_back(cp);
-      cp.X = x1, cp.Y = y1;
+        cp.X = x1;
+        cp.Y = y1;
       nurbs_control_points.push_back(cp);
-      cp.X = x2, cp.Y = y2;
+        cp.X = x2;
+        cp.Y = y2;
       nurbs_control_points.push_back(cp);
       NURBS_FEED(block->line_number, nurbs_control_points, 3);
       nurbs_control_points.clear();
@@ -269,13 +272,17 @@ int Interp::convert_spline(int mode,
       y2 = y3 + block->q_number;
 
       cp.W = 1;
-      cp.X = settings->current_x, cp.Y = settings->current_y;
+      cp.X = settings->current_x;
+      cp.Y = settings->current_y;
       nurbs_control_points.push_back(cp);
-      cp.X = x1, cp.Y = y1;
+      cp.X = x1;
+      cp.Y = y1;
       nurbs_control_points.push_back(cp);
-      cp.X = x2, cp.Y = y2;
+      cp.X = x2;
+      cp.Y = y2;
       nurbs_control_points.push_back(cp);
-      cp.X = x3, cp.Y = y3;
+      cp.X = x3;
+      cp.Y = y3;
       nurbs_control_points.push_back(cp);
       NURBS_FEED(block->line_number, nurbs_control_points, 4);
       nurbs_control_points.clear();
