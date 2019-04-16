@@ -27,24 +27,30 @@ of G20/G21.
 [source,python]
 ----
 #!/usr/bin/env python
+
 import hal
 from hal_glib import GStat
 import gobject
 GSTAT = GStat()
 
+# callback to change HAL pin state
 def mode_changed(obj, data):
         h['g20'] = not data
         h['g21'] = data
 
+# Make a component and pins
 h = hal.component("metric_status")
 h.newpin("g20", hal.HAL_BIT, hal.HAL_OUT)
 h.newpin("g21", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 
+# connect a GSTAT message to a callback function
 GSTAT.connect("metric-mode-changed",mode_changed)
-GSTAT.forced_update()
-GSTAT.emit('metric_mode_changed',metric_new)
 
+# force GSTAT to initialize states
+GSTAT.forced_update()
+
+# loop till exit
 try:
         gobject.MainLoop().run()
 except KeyboardInterrupt:
@@ -52,6 +58,9 @@ except KeyboardInterrupt:
 ----
 
 ===  Messages
+
+*periodic* :: '(returns nothing)' -
+sent every 100 ms.
 
 *state-estop* :: '(returns nothing)' -
 Sent when linuxcnc is goes into estop.
@@ -76,6 +85,9 @@ Sends a list of joints not currently homed.
 
 *override_limits_changed* :: '(returns string)' -
 Sent if linuxcnc has been directed to override it's limits.
+
+*hard-limit-tripped* :: '(returns bool)' -
+Sent when any hard limit is tripped.
 
 *mode-manual* :: '(returns nothing)' -
 Sent when linuxcnc switches to manual mode.
@@ -102,9 +114,28 @@ Sent when linuxcnc's interpreter is reading.
 Sent when linuxcnc's interpreter is waiting.
 
 *jograte-changed* :: '(returns float)' -
-Sent when jograte has changed. +
-Linuxcnc does not have an internal jograte. +
-This is GStat's internal jograte.
+Sent when jog rate has changed. +
+Linuxcnc does not have an internal jog rate. +
+This is GStat's internal jog rate. +
+It is expected to be in the machine's native units regardless of the current unit mode .
+
+*jograte-angular-changed* :: '(returns float)' -
+Sent when the angular jog rate has changed. +
+Linuxcnc does not have an internal angular jog rate. +
+This is GStat's internal jog rate. +
+It is expected to be in the machine's native units regardless of the current unit mode .
+
+*jogincrement-changed* :: '(returns float)' -
+Sent when jog increment has changed. +
+Linuxcnc does not have an internal jog increment. +
+This is GStat's internal jog increment. +
+It is expected to be in the machine's native units regardless of the current unit mode .
+
+*jogincrement-angular-changed* :: '(returns float)' -
+Sent when angular jog increment has changed. +
+Linuxcnc does not have an internal angular jog increment. +
+This is GStat's internal angular jog increment. +
+It is expected to be in the machine's native units regardless of the current unit mode .
 
 *program-pause-changed* :: '(returns bool)' -
 Sent when program is paused/unpaused.
@@ -128,6 +159,12 @@ Linuxcnc does not update this for every type of line.
 *tool-in-spindle-changed* :: '(returns integer)' -
 Sent when the tool has changed.
 
+*tool-info-changed* :: '(returns python object)' -
+Sent when current tool info changes.
+
+*line-changed* :: '(returns python object)' -
+Sent when the current tool offsets change.
+
 *motion-mode-changed* :: '(returns integer)' -
 Sent when motion's mode has changed
 
@@ -147,6 +184,9 @@ returns tuples of position,relative position and distance-to-go.
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
 
+*actual-spindle-speed-changed* :: '(returns float)' -
+Sent when the actual RPM changes based on the HAL pin 'spindle.0.speed-in'. +
+
 *spindle-override-changed* :: '(returns float)' -
 Sent when the spindle override value changes +
 in percent
@@ -158,6 +198,10 @@ in percent
 *rapid-override-changed* :: '(returns float)' -
 Sent when the rapid override value changes +
 in percent 0-100
+
+*max-velocity-override-changed* :: '(returns float)' -
+Sent when the maximum velocity override value changes +
+in units per minute +
 
 *feed-hold-enabled-changed* :: '(returns bool)' -
 Sent when feed hold status changes
@@ -190,6 +234,12 @@ display X in radius mode
 Sent when G7 status changes +
 display X in Diameter mode
 
+*flood-changed* :: '(returns bool)' -
+Sent when flood coolant state changes.
+
+*mist-changed* :: '(returns bool )' -
+Sent when mist coolant state changes.
+
 *m-code-changed* :: '(returns string)' -
 Sent when active M codes change
 
@@ -202,14 +252,105 @@ Sent when G21 status changes
 *user_system-changed* :: '(returns string)' -
 Sent when G20 status changes
 
-*error-message* :: '(returns string)' -
-Error messages are sent when detected
+*mdi-line-selected* :: '(returns string, string)' -
+intended to be sent when an MDI line is selected by user. +
+This depends on the widget/libraries used. +
 
-*text-messsage* :: '(returns string)' -
-Text messages are sent when detected
+*gcode-line-selected* :: '(returns integer)' -
+intended to be sent when a gcode line is selected by user. +
+This depends on the widget/libraries used. +
 
-*display-message* :: '(returns string)' -
-Operator display messages are sent when detected
+*graphics-line-selected* :: '(returns integer)' -
+intended to be sent when graphics line is selected by user. +
+This depends on the widget/libraries used. +
+
+*graphics-gcode-error* :: '(returns string)' -
+intended to be sent when a gcode error is found when loading. +
+This depends on the widget/libraries used. +
+
+*graphics-gcode-properties* :: '(returns string)' -
+intended to be sent when gcode is loaded. +
+This depends on the widget/libraries used. +
+
+*view-changed* :: '(returns string)' -
+intended to be sent when graphics view is changed. +
+This depends on the widget/libraries used. +
+
+*reload-mdi-history* :: '(returns None)' -
+intended to be sent when an MDI history needs to be reloaded. +
+This depends on the widget/libraries used. +
+
+*machine-log-changed* :: '(returns None)' -
+intended to be sent when machine log has changed. +
+This depends on the widget/libraries used. +
+
+*update-machine-log* :: '(returns string, string)' -
+intended to be sent when updating the machine. +
+This depends on the widget/libraries used. +
+
+*move-text-lineup* :: '(returns None)' -
+intended to be sent when moving the cursor one line up in gcode display. +
+This depends on the widget/libraries used. +
+
+*move-text-linedown* :: '(returns None)' -
+intended to be sent when moving the cursor one line down in gcode display. +
+This depends on the widget/libraries used. +
+
+*dialog-request* :: '(returns python dict)' -
+intended to be sent when requesting a gui dialog. +
+It uses a python dict for communication. +
+The dict must include the following keyname pair: +
+* NAME: 'requested dialog name' +
+The dict usually has more keyname pair - it depends on the dialog. +
+dialogs return information using a general message +
+This depends on the widget/libraries used. +
+
+*focus-overlay-changed* :: '(returns bool, string, python object)' -
+intended to be sent when requesting an overlay to be put over the display. +
+This depends on the widget/libraries used. +
+
+*play-sound* :: '(returns string)' -
+intended to be sent when requesting a specific sound file to be played. +
+This depends on the widget/libraries used. +
+
+*play-alert* :: '(returns string)' -
+intended to be sent when requesting a builtin alert sound to be played. +
+This depends on the widget/libraries used. +
+
+*virtual-keyboard* :: '(returns string)' -
+intended to be sent when requesting a on screen keyboard. +
+This depends on the widget/libraries used. +
+
+*dro-reference-change-request* :: '(returns integer)' -
+intended to be sent when requesting a DRO widget to change it's reference. +
+0 = machine, 1 = relative, 3 = distance-to-go +
+This depends on the widget/libraries used. +
+
+*show-preferences* :: '(returns None)' -
+intended to be sent when requesting the screen preferences to be displayed. +
+This depends on the widget/libraries used. +
+
+*shutdown* :: '(returns None)' -
+intended to be sent when requesting linuxcnc to shutdown. +
+This depends on the widget/libraries used. +
+
+*error* :: '(returns integer, string)' -
+intended to be sent when an error has been reported . +
+integer represents the kind of error. ERROR, TEXT or DISPLAY +
+string is the actual error message. +
+This depends on the widget/libraries used. +
+
+*general* :: '(returns python dict)' -
+intended to be sent when message must be sent that is not covered by a more specific message. +
+General message should be used a sparsely as possible because all object connected to it will have to parse it. +
+It uses a python dict for communication. +
+The dict should include and be checked for a unique id  keyname pair: +
+* ID: 'UNIQUE_ID_CODE' +
+The dict usually has more keyname pair - it depends on implementation. +
+
+*forced-update* :: '(returns None)' -
+intended to be sent when one wishes to initialize or arbitrarily update an object. +
+This depends on the widget/libraries used. +
 
 == Functions
 These are convenience functions that are commonly used in programming
@@ -224,6 +365,18 @@ GSTAT.set_jog_rate( 10 ) would set the jog rate and emit the jograte-changed sig
 
 *get_jograte()* :: '(Nothing)' -
 x = GSTAT.get_jograte would return GSTAT's current internal jograte.
+
+*set_jograte_angular* :: '(float)' -
+
+*get_jograte_angular* :: '(None)' -
+
+*set_jog_increment_angular* :: '(float, string)' -
+
+*get_jog_increment_angular* :: '(None)' -
+
+*set_jog_increments* :: '(float, string)' -
+
+*get_jog_increments* :: '(None)' -
 
 *is_all_homed* :: '(nothing)' -
 This will return the current state of all_homed (BOOL).
@@ -252,6 +405,34 @@ emit a 'reload-display' signal. +
 *do_jog* :: '(axis_number,direction, distance)' -
 This will jog an axis continuously or at a set distance. +
 You must be in the proper mode to jog.
+
+*check_for_modes* :: '(modes)' -
+
+*get_current_mode* :: '(nothing)' -
+
+*set_selected_axis* :: '(integer)' -
+
+*get_selected_axis* :: '(None)' -
+
+*is_man_mode* :: '(None)' -
+
+*is_mdi_mode* :: '(None)' -
+
+*is_auto_mode* :: '(None)' -
+
+*is_on_and_idle* :: '(None)' -
+
+*is_auto_running* :: '(None)' -
+
+*is_auto_paused* :: '(None)' -
+
+*is_file_loaded* :: '(None)' -
+
+*is_metric_mode* :: '(None)' -
+
+*is_spindle_on* :: '(None)' -
+
+*shutdown* :: '(None)' -
 
 == Known Issues
 
