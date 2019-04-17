@@ -477,6 +477,8 @@ class Data:
             pps = max(xhz, zhz)
         elif self.axes == 3:
             pps = max(xhz, yhz, uhz, vhz)
+        elif self.axes == 4:
+            pps = max(xhz, yhz)
         else:
             print 'error in ideal period calculation - number of axes unrecognized'
             return

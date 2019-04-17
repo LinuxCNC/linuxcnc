@@ -76,7 +76,7 @@ class HAL:
             print >>file, "loadrt stepgen step_type=0,0,0"
         elif self.d.axes in(1,3):
             print >>file, "loadrt stepgen step_type=0,0,0,0"
-        elif self.d.axes == 2:
+        elif self.d.axes in(2,4):
             print >>file, "loadrt stepgen step_type=0,0"
 
 
@@ -241,7 +241,7 @@ class HAL:
             print >>file, "setp lut5.0.function 0x10000"
             print >>file, "net all-limit-home => lut5.0.in-4"
             print >>file, "net all-limit <= lut5.0.out"
-            if self.d.axes == 2:
+            if self.d.axes in(2,4):
                 print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
                 print >>file, "net homing-z <= joint.1.homing => lut5.0.in-1"
             elif self.d.axes == 0:
@@ -276,6 +276,9 @@ class HAL:
             self.connect_joint(file, 1, 'y')
             self.connect_joint(file, 2, 'u')
             self.connect_joint(file, 3, 'v')
+        elif self.d.axes == 4:
+            self.connect_joint(file, 0, 'x')
+            self.connect_joint(file, 1, 'y')
 
         print >>file
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
@@ -475,6 +478,8 @@ class HAL:
                 print >>f1, "net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos"
                 print >>f1, "net Ujoint-pos-fb      joint.2.pos-fb      sim-hardware.Ucurrent-pos"
                 print >>f1, "net Vjoint-pos-fb      joint.3.pos-fb      sim-hardware.Vcurrent-pos"
+            if self.d.axes == 4: # XY
+                print >>f1, "net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos"
             print >>f1
             print >>f1, "setp sim-hardware.Xmaxsw-upper 1000"
             print >>f1, "setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT"
@@ -527,6 +532,13 @@ class HAL:
                 print >>f1, "setp sim-hardware.Vminsw-upper [JOINT_3]MIN_LIMIT"
                 print >>f1, "setp sim-hardware.Vminsw-lower -1000"
                 print >>f1, "setp sim-hardware.Vhomesw-pos [JOINT_3]HOME_OFFSET"
+                print >>f1
+            if self.d.axes == 4: # XY
+                print >>f1, "setp sim-hardware.Ymaxsw-upper 1000"
+                print >>f1, "setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-lower -1000"
+                print >>f1, "setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET"
                 print >>f1
             for port in range(0,self.d.number_pports):
                 print >>f1
