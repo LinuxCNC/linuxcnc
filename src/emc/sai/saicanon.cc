@@ -142,6 +142,8 @@ void print_nc_line_number()
     fprintf(_outfile, "N..... ");
 }
 
+#define ECHO_WITH_ARGS(fmt, ...) PRINT("%s(" fmt ")\n", __FUNCTION__, ##__VA_ARGS__)
+
 #define PRINT(control, ...) do \
 { \
     _outfile = _outfile ?: stdout; \
@@ -153,20 +155,15 @@ void print_nc_line_number()
 /* Representation */
 
 void SET_XY_ROTATION(double t) {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SET_XY_ROTATION(%.4f)\n", t);
-  // CJR XXX 
+  ECHO_WITH_ARGS("%.4f", t);
 }
-    
 
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SET_G5X_OFFSET(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)\n",
+
+  ECHO_WITH_ARGS("%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
           index, x, y, z, a, b, c);
   _program_position_x = _program_position_x + _g5x_x - x;
   _program_position_y = _program_position_y + _g5x_y - y;
@@ -186,10 +183,8 @@ void SET_G5X_OFFSET(int index,
 void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "SET_G92_OFFSET(%.4f, %.4f, %.4f, %.4f, %.4f, %.4f)\n",
-          x, y, z, a, b, c);
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
+                      x, y, z, a, b, c);
   _program_position_x = _program_position_x + _g92_x - x;
   _program_position_y = _program_position_y + _g92_y - y;
   _program_position_z = _program_position_z + _g92_z - z;
@@ -268,13 +263,11 @@ void STRAIGHT_TRAVERSE( int line_number,
  , double u, double v, double w
 )
 {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "STRAIGHT_TRAVERSE(%.4f, %.4f, %.4f"
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/
          ", %.4f" /*CC*/
-         ")\n", x, y, z
+         , x, y, z
          , a /*AA*/
          , b /*BB*/
          , c /*CC*/
@@ -366,9 +359,7 @@ void STOP_SPEED_FEED_SYNCH()
 void NURBS_FEED(int lineno,
 std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
 {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "NURBS_FEED(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
+  ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 
   _program_position_x = nurbs_control_points[nurbs_control_points.size()].X;
   _program_position_y = nurbs_control_points[nurbs_control_points.size()].Y;
@@ -383,13 +374,11 @@ void ARC_FEED(int line_number,
  , double u, double v, double w
 )
 {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "ARC_FEED(%.4f, %.4f, %.4f, %.4f, %d, %.4f"
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %d, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/
          ", %.4f" /*CC*/
-         ")\n", first_end, second_end, first_axis, second_axis,
+         , first_end, second_end, first_axis, second_axis,
          rotation, axis_end_point
          , a /*AA*/
          , b /*BB*/
@@ -426,13 +415,11 @@ void STRAIGHT_FEED(int line_number,
  , double u, double v, double w
 )
 {
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "STRAIGHT_FEED(%.4f, %.4f, %.4f"
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/
          ", %.4f" /*CC*/
-         ")\n", x, y, z
+         , x, y, z
          , a /*AA*/
          , b /*BB*/
          , c /*CC*/
@@ -467,13 +454,11 @@ void STRAIGHT_PROBE(int line_number,
   dz = (_program_position_z - z);
   distance = sqrt((dx * dx) + (dy * dy) + (dz * dz));
 
-  fprintf(_outfile, "%5d ", _line_number++);
-  print_nc_line_number();
-  fprintf(_outfile, "STRAIGHT_PROBE(%.4f, %.4f, %.4f"
+  ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/
          ", %.4f" /*CC*/
-         ")\n", x, y, z
+         , x, y, z
          , a /*AA*/
          , b /*BB*/
          , c /*CC*/
@@ -499,17 +484,14 @@ void STRAIGHT_PROBE(int line_number,
 
 void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
-
-
-    fprintf(_outfile, "%5d ", _line_number++);
-    print_nc_line_number();
-    fprintf(_outfile, "RIGID_TAP(%.4f, %.4f, %.4f)\n", x, y, z);
-
+    ECHO_WITH_ARGS("%.4f, %.4f, %.4f", x, y, z);
 }
 
 
 void DWELL(double seconds)
-{PRINT("DWELL(%.4f)\n", seconds);}
+{
+  ECHO_WITH_ARGS("%.4f", seconds);
+}
 
 /* Spindle Functions */
 void SPINDLE_RETRACT_TRAVERSE()
@@ -569,7 +551,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
     _tools[pocket].frontangle = frontangle;
     _tools[pocket].backangle = backangle;
     _tools[pocket].orientation = orientation;
-    PRINT("SET_TOOL_TABLE_ENTRY(%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d)\n",
+    ECHO_WITH_ARGS("%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d",
             pocket, toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
@@ -578,7 +560,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 {
     _tool_offset = offset;
-    PRINT("USE_TOOL_LENGTH_OFFSET(%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f)\n",
+    ECHO_WITH_ARGS("%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f",
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
