@@ -37,8 +37,9 @@
 
 project('linuxcnc-unit-test', ['c','cpp'])
 
+# TODO make these arguments specific to libraries if we ever replace autotools
 add_global_arguments(['-DULAPI','-DUNIT_TEST','-DTP_PEDANTIC_DEBUG','-Wall'], language : 'c')
-add_global_arguments(['-DULAPI'], language : 'cpp')
+add_global_arguments(['-DULAPI','-DUNIT_TEST'], language : 'cpp')
 
 # Common external dependencies 
 m_dep = meson.get_compiler('c').find_library('m', required : true)

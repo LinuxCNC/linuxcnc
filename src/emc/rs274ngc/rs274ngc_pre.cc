@@ -129,43 +129,46 @@ Interp::Interp()
     _setup{}
 {
     _setup.init_once = 1;  
-    init_named_parameters();  // need this before Python init.
+  init_named_parameters();  // need this before Python init.
  
-    if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
-	Error("Interp ctor: cant instantiate Python plugin");
-	return;
-    }
+  if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
+    Error("Interp ctor: cant instantiate Python plugin");
+    return;
+  }
 
-    try {
-	// this import will register the C++->Python converter for Interp
-	bp::object interp_module = bp::import("interpreter");
+// KLUDGE just to get unit tests to stop complaining about python modules we won't use anyway
+#ifndef UNIT_TEST
+  try {
+    // this import will register the C++->Python converter for Interp
+    bp::object interp_module = bp::import("interpreter");
 	
-	// use a boost::cref to avoid per-call instantiation of the
-	// Interp Python wrapper (used for the 'self' parameter in handlers)
-	// since interp.init() may be called repeatedly this would create a new
-	// wrapper instance on every init(), abandoning the old one and all user attributes
-	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis = new boost::python::object(boost::cref(*this));
+    // use a boost::cref to avoid per-call instantiation of the
+    // Interp Python wrapper (used for the 'self' parameter in handlers)
+    // since interp.init() may be called repeatedly this would create a new
+    // wrapper instance on every init(), abandoning the old one and all user attributes
+    // tacked onto it, so make sure this is done exactly once
+    _setup.pythis = new boost::python::object(boost::cref(*this));
 	
-	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
-	// besides 'this', eventually use proper instance names to handle
+    // alias to 'interpreter.this' for the sake of ';py, .... ' comments
+    // besides 'this', eventually use proper instance names to handle
 	// several instances 
-	bp::scope(interp_module).attr("this") =  *_setup.pythis;
+    bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
-	// make "this" visible without importing interpreter explicitly
-	bp::object retval;
-	python_plugin->run_string("from interpreter import this", retval, false);
-    }
-    catch (bp::error_already_set) {
-	std::string exception_msg;
-	if (PyErr_Occurred()) {
-	    exception_msg = handle_pyerror();
-	} else
-	    exception_msg = "unknown exception";
-	bp::handle_exception();
-	PyErr_Clear();
-	Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
-    }
+    // make "this" visible without importing interpreter explicitly
+    bp::object retval;
+    python_plugin->run_string("from interpreter import this", retval, false);
+  }
+  catch (bp::error_already_set) {
+    std::string exception_msg;
+    if (PyErr_Occurred()) {
+      exception_msg = handle_pyerror();
+    } else
+      exception_msg = "unknown exception";
+    bp::handle_exception();
+    PyErr_Clear();
+    Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+  }
+#endif
 }
 
 InterpBase *makeInterp()
