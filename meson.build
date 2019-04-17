@@ -235,12 +235,9 @@ libsaicanon = shared_module('saicanon',
   dependencies : [boost_dep, python2_dep, dl_dep, liblinuxcncini_dep, librs274ngc_dep]
   )
 
-mock_sai = static_library('mock_sai',
-  'unit_tests/mock/mock_sai.cc',
-  include_directories : [rs274ngc_inc, rs274ngc_external_inc ],
-  )
+libsaicanon_dep = declare_dependency(include_directories : sai_inc,
+    link_with : libsaicanon)
 
-  
 test_interp_ex = executable('test_interp',
     test_interp_srcs,
     include_directories : [test_interp_inc, rs274ngc_external_inc, unit_test_inc],
@@ -249,8 +246,9 @@ test_interp_ex = executable('test_interp',
         python2_dep,
         librs274ngc_dep,
         libpyplugin_dep,
-        ],
-    link_with : [librs274ngc, libsaicanon, mock_sai, liblinuxcnchal]
+        liblinuxcnchal_dep,
+        libsaicanon_dep,
+        ]
     )
 
 test('test_interp', test_interp_ex)

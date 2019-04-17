@@ -4,6 +4,7 @@
 #include <rs274ngc_interp.hh>
 #include <interp_inspection.hh>
 #include <interp_return.hh>
+#include <saicanon.hh>
 #include <interp_parameter_def.hh>
 using namespace interp_param_global;
 
@@ -79,6 +80,7 @@ TEST_CASE("Interp Basics")
 
   SECTION("G55 without rotation")
   {
+    REQUIRE_INTERP_OK(test_interp.execute("G20"));
     REQUIRE_FUZZ(currentX(settings), 0.0);
     REQUIRE_FUZZ(currentY(settings), 0.0);
     REQUIRE_FUZZ(currentZ(settings), 0.0);
@@ -98,6 +100,7 @@ TEST_CASE("Interp Basics")
 
   SECTION("G55 with rotation")
   {
+    REQUIRE_INTERP_OK(test_interp.execute("G20"));
     currentX(settings) = 0.0;
     // KLUDGE hack in parameters directly to avoid depending on other functions
     test_interp._setup.parameters[G55_X] = 2;
