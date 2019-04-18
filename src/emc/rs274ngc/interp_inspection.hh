@@ -25,4 +25,11 @@ double &currentA(setup_pointer s);
 double &currentB(setup_pointer s);
 double &currentC(setup_pointer s);
 
+double &currentWorkOffsetX(setup_pointer s);
+double &currentWorkOffsetY(setup_pointer s);
+double &currentWorkOffsetZ(setup_pointer s);
+double &currentWorkOffsetA(setup_pointer s);
+double &currentWorkOffsetB(setup_pointer s);
+double &currentWorkOffsetC(setup_pointer s);
+
 #endif // INTERP_INSPECTION_HH
