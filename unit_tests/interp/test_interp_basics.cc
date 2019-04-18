@@ -332,43 +332,56 @@ SCENARIO("Call G10 with G92 active (based on runtest g10-with-g92)")
     DECL_INIT_TEST_INTERP();
     REQUIRE_INTERP_OK(test_interp.execute("g20"));
     REQUIRE(settings->length_units == CANON_UNITS_INCHES);
-    REQUIRE_INTERP_OK(test_interp.execute("g92 x.1 y.2 z.3"));
-    WHEN("No work offsets are applied") {
-      THEN("Both current position and current offset should only be due to G92")
-          REQUIRE_FUZZ(currentX(settings), 0.1);
-      REQUIRE_FUZZ(currentY(settings), 0.2);
-      REQUIRE_FUZZ(currentZ(settings), 0.3);
+    REQUIRE_INTERP_OK(test_interp.execute("g92 x3 y4 z5"));
+    constexpr double axis_offset_x = -3;
+    constexpr double axis_offset_y = -4;
 
-      REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+    WHEN("No work offsets are applied") {
+      THEN("Both current position and current offset should only be due to G92") {
+        REQUIRE_FUZZ(currentX(settings), -axis_offset_x);
+        REQUIRE_FUZZ(currentY(settings), -axis_offset_y);
+        REQUIRE_FUZZ(currentZ(settings), 5);
+
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+      }
     }
     WHEN("Work offsets are specified via G10 L2 for the active coordinate system with rotation")
     {
-      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p0 x7 y8 z9 a10 b11 c12 R30"));
+      constexpr double work_offset_x = 7;
+      constexpr double work_offset_y = 8;
+
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p0 x7 y8 z9 a10 b11 c12 R45"));
       THEN ("Current position will be rotated in X/Y")
       {
         REQUIRE_FUZZ(settings->origin_index, 1); // Confirm it's G54
-        REQUIRE_FUZZ(settings->parameters[G54_X], 7);
-        REQUIRE_FUZZ(settings->parameters[G54_Y], 8);
+        REQUIRE_FUZZ(settings->parameters[G54_X], work_offset_x);
+        REQUIRE_FUZZ(settings->parameters[G54_Y], work_offset_y);
         REQUIRE_FUZZ(settings->parameters[G54_Z], 9);
         REQUIRE_FUZZ(settings->parameters[G54_A], 10);
         REQUIRE_FUZZ(settings->parameters[G54_B], 11);
         REQUIRE_FUZZ(settings->parameters[G54_C], 12);
 
-        REQUIRE_FUZZ(currentWorkOffsetX(settings), 7);
-        REQUIRE_FUZZ(currentWorkOffsetY(settings), 8);
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), work_offset_x);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), work_offset_y);
         REQUIRE_FUZZ(currentWorkOffsetZ(settings), 9);
         REQUIRE_FUZZ(currentWorkOffsetA(settings), 10);
         REQUIRE_FUZZ(currentWorkOffsetB(settings), 11);
         REQUIRE_FUZZ(currentWorkOffsetC(settings), 12);
 
-        REQUIRE_FUZZ(currentX(settings), -9.8755752861);
-        REQUIRE_FUZZ(currentY(settings), -3.3049981495);
-        REQUIRE_FUZZ(currentZ(settings), -8.7);
+        constexpr double xy_rotation = M_PI / 4;
+        // FIXME this math is wrong but what the current interpreter expects
+        const double total_offset_x = axis_offset_x + work_offset_x;
+        const double total_offset_y = axis_offset_y + work_offset_y;
+        const double expect_x = (cos(-xy_rotation) * -total_offset_x + -sin(-xy_rotation) * -total_offset_y);
+        const double expect_y = (sin(-xy_rotation) * -total_offset_x + cos(-xy_rotation) * -total_offset_y);
+        REQUIRE_FUZZ(currentX(settings), expect_x);
+        REQUIRE_FUZZ(currentY(settings), expect_y);
+        REQUIRE_FUZZ(currentZ(settings), -4);
         REQUIRE_FUZZ(currentA(settings), -10);
         REQUIRE_FUZZ(currentB(settings), -11);
         REQUIRE_FUZZ(currentC(settings), -12);
