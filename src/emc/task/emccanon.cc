@@ -145,7 +145,7 @@ static void flush_segments(void);
   defined here that are used for convenience but no longer have decls
   in the 6-axis canon.hh. So, we declare them here now.
 */
-extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
+void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
@@ -2787,8 +2787,12 @@ int GET_EXTERNAL_POCKETS_MAX()
     return CANON_POCKETS_MAX;
 }
 
-char _parameter_file_name[LINELEN];	/* Not static.Driver
-					   writes */
+static char _parameter_file_name[LINELEN];
+
+void SET_PARAMETER_FILE_NAME(const char *name)
+{
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+}
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 							   file name into */

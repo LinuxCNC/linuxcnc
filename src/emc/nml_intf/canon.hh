@@ -820,6 +820,8 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // An empty string may be placed in filename.
 extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
 
+extern void SET_PARAMETER_FILE_NAME(const char *name);
+
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
 
@@ -935,10 +937,7 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 // Returns the mask of axes present in the system
 extern int GET_EXTERNAL_AXIS_MASK();
 
-extern FILE *_outfile;		/* where to print, set in main */
-extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
-extern int _pockets_max;		/* in canon.cc */
-extern char _parameter_file_name[];	/* in canon.cc */
+
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100

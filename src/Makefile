@@ -306,6 +306,7 @@ HEADERS := \
     emc/rs274ngc/interp_fwd.hh \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/rs274ngc.hh \
+    emc/rs274ngc/saicanon.hh \
     hal/hal.h \
     hal/hal_parport.h \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
