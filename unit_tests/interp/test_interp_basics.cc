@@ -222,3 +222,156 @@ SECTION("G10 L10 tool offsets relative to position + 45 deg rotation")
   REQUIRE_FUZZ(currentY(settings), 0.0);
 }
 }
+
+SCENARIO("Call G10 with G92 active (based on runtest g10-with-g92)")
+{
+  GIVEN("No G92 offsets applied")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+    WHEN("No offsets are applied") {
+      THEN("Both current position and current offset should be zero")
+          REQUIRE_FUZZ(currentX(settings), 0.0);
+      REQUIRE_FUZZ(currentY(settings), 0.0);
+      REQUIRE_FUZZ(currentZ(settings), 0.0);
+      REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+    }
+    WHEN("Work offsets are specified via G10 L2 for the active coordinate system")
+    {
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p0 x7 y8 z9 a10 b11 c12"));
+      THEN ("New offset values are stored and immediately applied")
+      {
+        REQUIRE_FUZZ(settings->origin_index, 1); // Confirm it's G54
+        REQUIRE_FUZZ(settings->parameters[G54_X], 7);
+        REQUIRE_FUZZ(settings->parameters[G54_Y], 8);
+        REQUIRE_FUZZ(settings->parameters[G54_Z], 9);
+        REQUIRE_FUZZ(settings->parameters[G54_A], 10);
+        REQUIRE_FUZZ(settings->parameters[G54_B], 11);
+        REQUIRE_FUZZ(settings->parameters[G54_C], 12);
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 7);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 8);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 9);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 10);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 11);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 12);
+
+        REQUIRE_FUZZ(currentX(settings), -7);
+        REQUIRE_FUZZ(currentY(settings), -8);
+        REQUIRE_FUZZ(currentZ(settings), -9);
+        REQUIRE_FUZZ(currentA(settings), -10);
+        REQUIRE_FUZZ(currentB(settings), -11);
+        REQUIRE_FUZZ(currentC(settings), -12);
+      }
+    }
+    WHEN("Work offsets are specified via G10 L2 for inactive coordinate systems")
+    {
+      REQUIRE_INTERP_OK(test_interp.execute("G54"));
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p2 x7 y8 z9 a10 b11 c12"));
+      REQUIRE_FUZZ(settings->origin_index, 1); // Confirm it's G54
+      THEN("Work offset parameters are updated but the current offset is not (nor is the current position)") {
+        REQUIRE_FUZZ(settings->parameters[G55_X], 7);
+        REQUIRE_FUZZ(settings->parameters[G55_Y], 8);
+        REQUIRE_FUZZ(settings->parameters[G55_Z], 9);
+        REQUIRE_FUZZ(settings->parameters[G55_A], 10);
+        REQUIRE_FUZZ(settings->parameters[G55_B], 11);
+        REQUIRE_FUZZ(settings->parameters[G55_C], 12);
+
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+
+        REQUIRE_FUZZ(currentX(settings), 0);
+        REQUIRE_FUZZ(currentY(settings), 0);
+        REQUIRE_FUZZ(currentZ(settings), 0);
+        REQUIRE_FUZZ(currentA(settings), 0);
+        REQUIRE_FUZZ(currentB(settings), 0);
+        REQUIRE_FUZZ(currentC(settings), 0);
+      }
+    }
+    WHEN("Work offsets are specified via G10 L2 for the active coordinate system")
+    {
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p0 x7 y8 z9 a10 b11 c12"));
+      THEN ("New offset values are stored and immediately applied")
+      {
+        REQUIRE_FUZZ(settings->origin_index, 1); // Confirm it's G54
+        REQUIRE_FUZZ(settings->parameters[G54_X], 7);
+        REQUIRE_FUZZ(settings->parameters[G54_Y], 8);
+        REQUIRE_FUZZ(settings->parameters[G54_Z], 9);
+        REQUIRE_FUZZ(settings->parameters[G54_A], 10);
+        REQUIRE_FUZZ(settings->parameters[G54_B], 11);
+        REQUIRE_FUZZ(settings->parameters[G54_C], 12);
+
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 7);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 8);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 9);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 10);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 11);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 12);
+
+        REQUIRE_FUZZ(currentX(settings), -7);
+        REQUIRE_FUZZ(currentY(settings), -8);
+        REQUIRE_FUZZ(currentZ(settings), -9);
+        REQUIRE_FUZZ(currentA(settings), -10);
+        REQUIRE_FUZZ(currentB(settings), -11);
+        REQUIRE_FUZZ(currentC(settings), -12);
+      }
+    }
+  }
+  GIVEN("G92 offsets active")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+    REQUIRE_INTERP_OK(test_interp.execute("g92 x.1 y.2 z.3"));
+    WHEN("No work offsets are applied") {
+      THEN("Both current position and current offset should only be due to G92")
+          REQUIRE_FUZZ(currentX(settings), 0.1);
+      REQUIRE_FUZZ(currentY(settings), 0.2);
+      REQUIRE_FUZZ(currentZ(settings), 0.3);
+
+      REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
+      REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+    }
+    WHEN("Work offsets are specified via G10 L2 for the active coordinate system with rotation")
+    {
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p0 x7 y8 z9 a10 b11 c12 R30"));
+      THEN ("Current position will be rotated in X/Y")
+      {
+        REQUIRE_FUZZ(settings->origin_index, 1); // Confirm it's G54
+        REQUIRE_FUZZ(settings->parameters[G54_X], 7);
+        REQUIRE_FUZZ(settings->parameters[G54_Y], 8);
+        REQUIRE_FUZZ(settings->parameters[G54_Z], 9);
+        REQUIRE_FUZZ(settings->parameters[G54_A], 10);
+        REQUIRE_FUZZ(settings->parameters[G54_B], 11);
+        REQUIRE_FUZZ(settings->parameters[G54_C], 12);
+
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 7);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 8);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 9);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 10);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 11);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 12);
+
+        REQUIRE_FUZZ(currentX(settings), -9.8755752861);
+        REQUIRE_FUZZ(currentY(settings), -3.3049981495);
+        REQUIRE_FUZZ(currentZ(settings), -8.7);
+        REQUIRE_FUZZ(currentA(settings), -10);
+        REQUIRE_FUZZ(currentB(settings), -11);
+        REQUIRE_FUZZ(currentC(settings), -12);
+      }
+    }
+  }
+}
