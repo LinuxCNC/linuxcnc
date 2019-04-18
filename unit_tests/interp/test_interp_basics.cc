@@ -1,32 +1,11 @@
 #include "catch.hpp"
 
+#include <interp_testing_util.hh> // For core interp stuff and extra REQUIRE macros/ setup
 #include <rs274ngc_interp.hh>
-#include <interp_parameter_def.hh>
 #include <interp_inspection.hh>
 #include <interp_return.hh>
+#include <interp_parameter_def.hh>
 using namespace interp_param_global;
-
-#define INTERP_FUZZ 1e-10
-#define REQUIRE_FUZZ(got, expected) REQUIRE_RANGE(got, expected, INTERP_FUZZ)
-#define REQUIRE_INTERP_OK(val) REQUIRE(val < INTERP_MIN_ERROR)
-
-template <size_t N>
-int execute_lines(Interp &interp, const char* (&lines)[N] )
-{
-  for (auto l : lines) {
-    int res = interp.execute(l);
-    if (res != INTERP_OK) {
-      return res;
-    }
-  }
-  return INTERP_OK;
-}
-
-#define DECL_INIT_TEST_INTERP() \
-    Interp test_interp = Interp(); \
-    setup_struct * const settings = &test_interp._setup; \
-    test_interp.init(); \
-    settings->tool_table[0].toolno = 1; \
 
 TEST_CASE("Interp Init")
 {

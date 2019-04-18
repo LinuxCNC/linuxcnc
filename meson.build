@@ -242,7 +242,7 @@ mock_sai = static_library('mock_sai',
   
 test_interp_ex = executable('test_interp',
     test_interp_srcs,
-    include_directories : [rs274ngc_external_inc, unit_test_inc],
+    include_directories : [test_interp_inc, rs274ngc_external_inc, unit_test_inc],
     dependencies: [
         dl_dep,
         python2_dep,
