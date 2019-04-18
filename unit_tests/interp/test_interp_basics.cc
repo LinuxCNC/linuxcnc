@@ -375,3 +375,46 @@ SCENARIO("Call G10 with G92 active (based on runtest g10-with-g92)")
     }
   }
 }
+
+SCENARIO("Save / restore of G92 parameters")
+{
+  GIVEN("Active G92 Offsets")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+    REQUIRE_INTERP_OK(test_interp.execute("g92 x3 y4 z5"));
+    constexpr double axis_offset_x = -3;
+    constexpr double axis_offset_y = -4;
+    constexpr double axis_offset_z = -5;
+    REQUIRE_FUZZ(settings->parameters[G92_X], axis_offset_x);
+    REQUIRE_FUZZ(settings->parameters[G92_Y], axis_offset_y);
+    REQUIRE_FUZZ(settings->parameters[G92_Z], axis_offset_z);
+
+    WHEN("Offsets are disabled with G92.2") {
+      REQUIRE_INTERP_OK(test_interp.execute("g92.2"));
+      THEN("Current position changes but internal offset parameters are unaffected") {
+        REQUIRE_FUZZ(currentX(settings), 0);
+        REQUIRE_FUZZ(currentY(settings), 0);
+        REQUIRE_FUZZ(currentZ(settings), 0);
+
+        REQUIRE_FUZZ(settings->parameters[G92_X], axis_offset_x);
+        REQUIRE_FUZZ(settings->parameters[G92_Y], axis_offset_y);
+        REQUIRE_FUZZ(settings->parameters[G92_Z], axis_offset_z);
+
+        WHEN("Offsets are re-enabled with G92.3") {
+          REQUIRE_INTERP_OK(test_interp.execute("g92.3"));
+          THEN("Original position and offsets are restored") {
+            REQUIRE_FUZZ(currentX(settings), -axis_offset_x);
+            REQUIRE_FUZZ(currentY(settings), -axis_offset_y);
+            REQUIRE_FUZZ(currentZ(settings), -axis_offset_z);
+
+            REQUIRE_FUZZ(settings->parameters[G92_X], axis_offset_x);
+            REQUIRE_FUZZ(settings->parameters[G92_Y], axis_offset_y);
+            REQUIRE_FUZZ(settings->parameters[G92_Z], axis_offset_z);
+          }
+        }
+      }
+    }
+  }
+}
