@@ -45,6 +45,9 @@ class HandlerClass:
         self.w = widgets
         self.PATHS = paths
         self.STYLEEDITOR = SSE(widgets,paths)
+        self.picked_line = None
+        STATUS.connect('general',self.return_value)
+        STATUS.connect('graphics-line-selected', self.set_picked_line)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -109,6 +112,16 @@ class HandlerClass:
     ########################
     # callbacks from STATUS #
     ########################
+    # process the STATUS return message for run-from-line
+    def return_value(self, obj, message):
+        num = message['RETURN']
+        code = bool(message['ID'] == '_RunFromLine_')
+        name = bool(message['NAME'] == 'CALCULATOR')
+        if num is not None and code and name:
+            ACTION.RUN(int(num))
+
+    def set_picked_line(self, obj, line):
+        self.picked_line = line
 
     #######################
     # callbacks from form #
@@ -134,6 +147,12 @@ class HandlerClass:
     def set_fast_rate(self, state):
         if state:
             ACTION.SET_JOG_RATE(self.w.scrb_jog_linear_fast.value())
+
+    def run_from_line_clicked(self):
+        mess = {'NAME':'CALCULATOR','ID':'_RunFromLine_',
+             'PRELOAD':self.picked_line,
+               'TITLE':'Run From Line Dialog'}
+        STATUS.emit('dialog-request', mess)
 
     #####################
     # general functions #

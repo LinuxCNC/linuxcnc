@@ -336,8 +336,10 @@ int Interp::_execute(const char *command)
           }
       }
       _setup.mdi_interrupt = false;
-     if (MDImode)
+      if (MDImode) {
 	  FINISH();
+          _setup.offset_map.clear();
+      }
       return INTERP_OK;
     }
 

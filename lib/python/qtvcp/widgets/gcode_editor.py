@@ -331,6 +331,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
         STATUS.connect('line-changed', self.highlight_line)
+        STATUS.connect('graphics-line-selected', self.highlight_line)
+
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
 

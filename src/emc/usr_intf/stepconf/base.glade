@@ -26,6 +26,9 @@
       <row>
         <col id="0" translatable="yes">XYUV (Foam)</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">XY(special)</col>
+      </row>
     </data>
   </object>
   <object class="GtkAdjustment" id="dir_h_adjustment">
@@ -107,8 +110,8 @@
                   <object class="GtkLabel" id="label85">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -135,8 +138,8 @@
                   <object class="GtkLabel" id="label86">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -163,8 +166,8 @@
                   <object class="GtkLabel" id="label87">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -191,8 +194,8 @@
                   <object class="GtkLabel" id="label88">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -203,10 +206,10 @@
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Step _Time:</property>
                     <property name="use_underline">True</property>
                     <property name="mnemonic_widget">steptime</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -217,10 +220,10 @@
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Step _Space:</property>
                     <property name="use_underline">True</property>
                     <property name="mnemonic_widget">stepspace</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -231,10 +234,10 @@
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">Direction _Hold:</property>
                     <property name="use_underline">True</property>
                     <property name="mnemonic_widget">dirhold</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -245,10 +248,10 @@
                   <object class="GtkLabel" id="label8">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
                     <property name="label" translatable="yes">_Direction Setup:</property>
                     <property name="use_underline">True</property>
                     <property name="mnemonic_widget">dirsetup</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -263,9 +266,9 @@
           <object class="GtkLabel" id="label25">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">0</property>
             <property name="label" translatable="yes">Driver Timing Settings</property>
             <property name="ellipsize">middle</property>
+            <property name="xalign">0</property>
           </object>
         </child>
       </object>
@@ -299,9 +302,9 @@ Period Jitter </property>
       <object class="GtkLabel" id="label177">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">D_river type:</property>
         <property name="use_underline">True</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -365,9 +368,9 @@ Period Jitter </property>
       <object class="GtkLabel" id="confdir">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="xalign">1</property>
         <property name="label">confdir</property>
         <property name="selectable">True</property>
+        <property name="xalign">1</property>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -409,8 +412,8 @@ Period Jitter </property>
       <object class="GtkLabel" id="label205">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">ns</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">2</property>
@@ -494,8 +497,8 @@ Period Jitter </property>
               <object class="GtkLabel" id="label208">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Min Base Period:</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -507,8 +510,8 @@ Period Jitter </property>
               <object class="GtkLabel" id="baseperiod">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="xalign">0</property>
                 <property name="selectable">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -531,8 +534,8 @@ Period Jitter </property>
               <object class="GtkLabel" id="label209">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="xalign">0</property>
                 <property name="label" translatable="yes">Max step rate:</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -544,8 +547,8 @@ Period Jitter </property>
               <object class="GtkLabel" id="maxsteprate">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="xalign">0</property>
                 <property name="selectable">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -571,10 +574,10 @@ Period Jitter </property>
       <object class="GtkLabel" id="label1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">Machine _Name:</property>
         <property name="use_underline">True</property>
         <property name="mnemonic_widget">machinename</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -585,8 +588,8 @@ Period Jitter </property>
       <object class="GtkLabel" id="label169">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">Configuration directory:</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -597,9 +600,9 @@ Period Jitter </property>
       <object class="GtkLabel" id="label2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">_Axis configuration:</property>
         <property name="use_underline">True</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -610,9 +613,9 @@ Period Jitter </property>
       <object class="GtkLabel" id="label3">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">Reset Default machine _units:</property>
         <property name="use_underline">True</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -635,8 +638,8 @@ Period Jitter </property>
       <object class="GtkLabel" id="label5">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">Driver characteristics: (Multiply by 1000 for times specified in µs or microseconds)</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -648,11 +651,11 @@ Period Jitter </property>
       <object class="GtkLabel" id="label204">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">0</property>
         <property name="label" translatable="yes">Base Period Maximum _Jitter:</property>
         <property name="use_markup">True</property>
         <property name="use_underline">True</property>
         <property name="mnemonic_widget">latency</property>
+        <property name="xalign">0</property>
       </object>
       <packing>
         <property name="left_attach">0</property>

@@ -66,6 +66,9 @@
     <property name="toolDialog_option" stdset="0">
      <bool>true</bool>
     </property>
+    <property name="calculatorDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QFrame" name="frame_main">
     <property name="geometry">
@@ -9343,6 +9346,22 @@ Jog Ovr</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pbtn_gcode_run_from_line</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>run_from_line_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>816</x>
+     <y>456</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>774</x>
+     <y>-8</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>abtn_main_estop_toggled()</slot>
@@ -9534,5 +9553,6 @@ Jog Ovr</string>
   <slot>set_fast_rate()</slot>
   <slot>slow_jog_slider_changed()</slot>
   <slot>fast_jog_slider_changed()</slot>
+  <slot>run_from_line_clicked()</slot>
  </slots>
 </ui>

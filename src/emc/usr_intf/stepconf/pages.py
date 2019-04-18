@@ -873,7 +873,7 @@ class Pages:
 # FINISH PAGE
 #*************
     def finished_prepare(self):
-        pass
+        self.w.label_simulator_warning.set_visible(self.w.createsimconfig.get_active())
     def finished_finish(self):
         self.a.buid_config()
 

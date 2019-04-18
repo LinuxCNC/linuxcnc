@@ -153,6 +153,13 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             line = -1
         STATUS.emit('graphics-line-selected', line)
 
+    def select_fire(self):
+        if STATUS.is_auto_running(): return
+        if not self.select_primed: return
+        x, y = self.select_primed
+        self.select_primed = None
+        self.select(x, y)
+
     # override user plot -One could add gl commands to plot static objects here
     def user_plot(self):
         return
