@@ -62,3 +62,33 @@ double & currentWorkOffsetC(setup_pointer s)
   return s->CC_origin_offset;
 }
 
+double & currentAxisOffsetX(setup_pointer s)
+{
+  return s->axis_offset_x;
+}
+
+double & currentAxisOffsetY(setup_pointer s)
+{
+  return s->axis_offset_y;
+}
+
+double &currentAxisOffsetZ(setup_pointer s)
+{
+  return s->axis_offset_z;
+}
+
+double & currentAxisOffsetA(setup_pointer s)
+{
+  return s->AA_axis_offset;
+}
+
+double & currentAxisOffsetB(setup_pointer s)
+{
+  return s->BB_axis_offset;
+}
+
+double & currentAxisOffsetC(setup_pointer s)
+{
+  return s->CC_axis_offset;
+}
+

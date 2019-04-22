@@ -32,4 +32,10 @@ double &currentWorkOffsetA(setup_pointer s);
 double &currentWorkOffsetB(setup_pointer s);
 double &currentWorkOffsetC(setup_pointer s);
 
+double &currentAxisOffsetX(setup_pointer s);
+double &currentAxisOffsetY(setup_pointer s);
+double &currentAxisOffsetZ(setup_pointer s);
+double &currentAxisOffsetA(setup_pointer s);
+double &currentAxisOffsetB(setup_pointer s);
+double &currentAxisOffsetC(setup_pointer s);
 #endif // INTERP_INSPECTION_HH
