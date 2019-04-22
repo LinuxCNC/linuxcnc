@@ -25,7 +25,7 @@ int execute_lines(Interp &interp, const char* (&lines)[N] )
 }
 
 // Do a bunch of setup / assignments to force reinitialize SAI internals enough that sections won't step on each other
-// KLUDGE the reference-to-pointer is a workaround f
+// KLUDGE the reference-to-pointer is a workaround for makeInterp
 #define DECL_INIT_TEST_INTERP() \
     if (pinterp) { \
         delete pinterp; \
@@ -33,6 +33,7 @@ int execute_lines(Interp &interp, const char* (&lines)[N] )
     } \
     pinterp = makeInterp(); \
     Interp &test_interp = *dynamic_cast<Interp*>(pinterp); \
+    reset_internals(); \
     setup * const settings = &test_interp._setup; \
     test_interp.init(); \
     settings->tool_table[0].toolno = 1; \
