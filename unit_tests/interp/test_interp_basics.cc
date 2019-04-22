@@ -543,3 +543,39 @@ SCENARIO("Convert G20 / G21 ")
     }
   }
 }
+
+SCENARIO("Applying a work offset while active")
+{
+  GIVEN("A 45 deg rotated coordinate system with no offsets")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+    REQUIRE_INTERP_OK(test_interp.execute("g54"));
+    REQUIRE_INTERP_OK(test_interp.execute("g10 l2 p1 x0 y0 z0 r45"));
+    REQUIRE_INTERP_OK(test_interp.execute("g0 g53 x0 y0 z0"));
+    REQUIRE(currentX(settings) == 0.0);
+    REQUIRE(currentY(settings) == 0.0);
+    REQUIRE(currentZ(settings) == 0.0);
+
+    WHEN("Request L20 for an X offset") {
+      REQUIRE_INTERP_OK(test_interp.execute("g10 l20 p1 x-1"));
+      THEN("Actual work offsets are rotated") {
+          REQUIRE_FUZZ(currentWorkOffsetX(settings), sqrt(2)/2);
+          REQUIRE_FUZZ(currentWorkOffsetY(settings), sqrt(2)/2);
+          REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+      }
+
+      WHEN("Move to X0 and request a Y offset") {
+        REQUIRE_INTERP_OK(test_interp.execute("g0 x0"));
+        REQUIRE_INTERP_OK(test_interp.execute("g10 l20 p1 y-1"));
+        THEN("Actual work offsets are rotated") {
+          REQUIRE_FUZZ(currentWorkOffsetX(settings), 0.0);
+          REQUIRE_FUZZ(currentWorkOffsetY(settings), sqrt(2));
+          REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+        }
+      }
+    }
+  }
+}
+
