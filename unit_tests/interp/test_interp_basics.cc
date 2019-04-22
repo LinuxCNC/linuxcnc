@@ -489,4 +489,44 @@ SCENARIO("Convert G20 / G21 ")
       }
     }
   }
+
+  GIVEN("Starting in with an axis offset")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE_INTERP_OK(test_interp.execute("g92 x1 y2 z3 a4 b5 c6"));
+
+    THEN("Initial axis offsets should be in inches") {
+      REQUIRE_FUZZ(currentAxisOffsetX(settings), -1);
+      REQUIRE_FUZZ(currentAxisOffsetY(settings), -2);
+      REQUIRE_FUZZ(currentAxisOffsetZ(settings), -3);
+      REQUIRE_FUZZ(currentAxisOffsetA(settings), -4);
+      REQUIRE_FUZZ(currentAxisOffsetB(settings), -5);
+      REQUIRE_FUZZ(currentAxisOffsetC(settings), -6);
+    }
+    WHEN("Switch to G21") {
+      REQUIRE_INTERP_OK(test_interp.execute("g21"));
+      REQUIRE(settings->length_units == CANON_UNITS_MM);
+      THEN("Axis offsets in mm") {
+        REQUIRE_FUZZ(currentAxisOffsetX(settings), -1 * 25.4);
+        REQUIRE_FUZZ(currentAxisOffsetY(settings), -2 * 25.4);
+        REQUIRE_FUZZ(currentAxisOffsetZ(settings), -3 * 25.4);
+        REQUIRE_FUZZ(currentAxisOffsetA(settings), -4);
+        REQUIRE_FUZZ(currentAxisOffsetB(settings), -5);
+        REQUIRE_FUZZ(currentAxisOffsetC(settings), -6);
+      }
+      WHEN("Switch to back to G20") {
+        REQUIRE_INTERP_OK(test_interp.execute("g20"));
+        REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+        THEN("Axis offsets in inches again") {
+          REQUIRE_FUZZ(currentAxisOffsetX(settings), -1);
+          REQUIRE_FUZZ(currentAxisOffsetY(settings), -2);
+          REQUIRE_FUZZ(currentAxisOffsetZ(settings), -3);
+          REQUIRE_FUZZ(currentAxisOffsetA(settings), -4);
+          REQUIRE_FUZZ(currentAxisOffsetB(settings), -5);
+          REQUIRE_FUZZ(currentAxisOffsetC(settings), -6);
+        }
+      }
+    }
+  }
 }
