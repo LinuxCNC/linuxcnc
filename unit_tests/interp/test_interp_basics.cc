@@ -231,16 +231,17 @@ SCENARIO("Call G10 with G92 active (based on runtest g10-with-g92)")
     REQUIRE_INTERP_OK(test_interp.execute("g20"));
     REQUIRE(settings->length_units == CANON_UNITS_INCHES);
     WHEN("No offsets are applied") {
-      THEN("Both current position and current offset should be zero")
-          REQUIRE_FUZZ(currentX(settings), 0.0);
-      REQUIRE_FUZZ(currentY(settings), 0.0);
-      REQUIRE_FUZZ(currentZ(settings), 0.0);
-      REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
-      REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+      THEN("Both current position and current offset should be zero") {
+        REQUIRE_FUZZ(currentX(settings), 0.0);
+        REQUIRE_FUZZ(currentY(settings), 0.0);
+        REQUIRE_FUZZ(currentZ(settings), 0.0);
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 0);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 0);
+      }
     }
     WHEN("Work offsets are specified via G10 L2 for the active coordinate system")
     {
@@ -413,6 +414,77 @@ SCENARIO("Save / restore of G92 parameters")
             REQUIRE_FUZZ(settings->parameters[G92_Y], axis_offset_y);
             REQUIRE_FUZZ(settings->parameters[G92_Z], axis_offset_z);
           }
+        }
+      }
+    }
+  }
+}
+
+
+SCENARIO("Convert G20 / G21 ")
+{
+  GIVEN("Starting in G20")
+  {
+    DECL_INIT_TEST_INTERP();
+    REQUIRE_INTERP_OK(test_interp.execute("g20"));
+    REQUIRE_INTERP_OK(test_interp.execute("g0 x1 y2 z3 a4 b5 c6"));
+
+    REQUIRE_FUZZ(currentX(settings), 1);
+    REQUIRE_FUZZ(currentY(settings), 2);
+    REQUIRE_FUZZ(currentZ(settings), 3);
+    REQUIRE_FUZZ(currentA(settings), 4);
+    REQUIRE_FUZZ(currentB(settings), 5);
+    REQUIRE_FUZZ(currentC(settings), 6);
+    REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+    WHEN("Convert current position to mm") {
+      REQUIRE_INTERP_OK(test_interp.execute("g21"));
+      REQUIRE(settings->length_units == CANON_UNITS_MM);
+      THEN("urrent position should be in new program units") {
+        REQUIRE_FUZZ(currentX(settings), 1 * 25.4);
+        REQUIRE_FUZZ(currentY(settings), 2 * 25.4);
+        REQUIRE_FUZZ(currentZ(settings), 3 * 25.4);
+        REQUIRE_FUZZ(currentA(settings), 4);
+        REQUIRE_FUZZ(currentB(settings), 5);
+        REQUIRE_FUZZ(currentC(settings), 6);
+      }
+      WHEN("Convert to back to inches") {
+        REQUIRE_INTERP_OK(test_interp.execute("g20"));
+        REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+        THEN("current position returns to inch value") {
+          REQUIRE_FUZZ(currentX(settings), 1);
+          REQUIRE_FUZZ(currentY(settings), 2);
+          REQUIRE_FUZZ(currentZ(settings), 3);
+          REQUIRE_FUZZ(currentA(settings), 4);
+          REQUIRE_FUZZ(currentB(settings), 5);
+          REQUIRE_FUZZ(currentC(settings), 6);
+        }
+      }
+    }
+
+    WHEN("Switch to G21") {
+      REQUIRE_INTERP_OK(test_interp.execute("g10 L2 P1 X1 Y2 Z3 A4 B5 C6"));
+      REQUIRE_INTERP_OK(test_interp.execute("g54"));
+      REQUIRE_INTERP_OK(test_interp.execute("g0 x0.5 y0.5"));
+      REQUIRE_INTERP_OK(test_interp.execute("g21"));
+      REQUIRE(settings->length_units == CANON_UNITS_MM);
+      THEN("Current work offset in mm") {
+        REQUIRE_FUZZ(currentWorkOffsetX(settings), 1 * 25.4);
+        REQUIRE_FUZZ(currentWorkOffsetY(settings), 2 * 25.4);
+        REQUIRE_FUZZ(currentWorkOffsetZ(settings), 3 * 25.4);
+        REQUIRE_FUZZ(currentWorkOffsetA(settings), 4);
+        REQUIRE_FUZZ(currentWorkOffsetB(settings), 5);
+        REQUIRE_FUZZ(currentWorkOffsetC(settings), 6);
+      }
+      WHEN("Switch to back to G20") {
+        REQUIRE_INTERP_OK(test_interp.execute("g20"));
+        REQUIRE(settings->length_units == CANON_UNITS_INCHES);
+        THEN("current work offset returns to inches") {
+          REQUIRE_FUZZ(currentWorkOffsetX(settings), 1);
+          REQUIRE_FUZZ(currentWorkOffsetY(settings), 2);
+          REQUIRE_FUZZ(currentWorkOffsetZ(settings), 3);
+          REQUIRE_FUZZ(currentWorkOffsetA(settings), 4);
+          REQUIRE_FUZZ(currentWorkOffsetB(settings), 5);
+          REQUIRE_FUZZ(currentWorkOffsetC(settings), 6);
         }
       }
     }
