@@ -239,19 +239,19 @@ mock_sai = static_library('mock_sai',
   include_directories : [rs274ngc_inc, rs274ngc_external_inc ],
   )
 
-foreach n : interp_test_files
   
-test_ex = executable(n,
-  join_paths('unit_tests/interp', n+'.cc'),
-  include_directories : [rs274ngc_external_inc, unit_test_inc],
-  dependencies: [
-    dl_dep,
-    python2_dep,
-    librs274ngc_dep,
-    libpyplugin_dep,
-    ],
-  link_with : [librs274ngc, libsaicanon, mock_sai, liblinuxcnchal]
-  )
+test_interp_ex = executable('test_interp',
+    test_interp_srcs,
+    include_directories : [rs274ngc_external_inc, unit_test_inc],
+    dependencies: [
+        dl_dep,
+        python2_dep,
+        librs274ngc_dep,
+        libpyplugin_dep,
+        ],
+    link_with : [librs274ngc, libsaicanon, mock_sai, liblinuxcnchal]
+    )
 
-endforeach
+test('test_interp', test_interp_ex)
+
 

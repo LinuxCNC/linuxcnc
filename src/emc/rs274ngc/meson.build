@@ -24,6 +24,7 @@ rs274ngc_srcs = files([
     'pyinterp1.cc',
     'pyblock.cc',
     'pyarrays.cc',
+    'interp_inspection.cc',
 ])
 
 rs274ngc_inc = include_directories('.')
