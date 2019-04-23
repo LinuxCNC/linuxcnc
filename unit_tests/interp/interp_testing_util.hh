@@ -4,10 +4,14 @@
 #include <stddef.h>
 #include <rs274ngc_interp.hh>
 #include <interp_return.hh>
+#include <catch.hpp>
 
-#define REQUIRE_RANGE(got, expected, tol) REQUIRE( (got) <= (expected + tol)); REQUIRE( (got) >= (expected - tol))
+using Catch::Matchers::WithinAbs;
 #define INTERP_FUZZ 1e-10
-#define REQUIRE_FUZZ(got, expected) REQUIRE_RANGE(got, expected, INTERP_FUZZ)
+
+#define REQUIRE_FUZZ(got, expected) REQUIRE_THAT(got, WithinAbs(expected, INTERP_FUZZ))
+#define CHECK_FUZZ(got, expected) CHECK_THAT(got, WithinAbs(expected, INTERP_FUZZ))
+
 #define REQUIRE_INTERP_OK(val) REQUIRE(val < INTERP_MIN_ERROR)
 
 extern InterpBase *pinterp;
