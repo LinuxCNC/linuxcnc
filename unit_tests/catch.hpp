@@ -13413,7 +13413,7 @@ public:
                 passOrFail = "FAILED - but was ok";
             } else {
                 colour = Colour::Error;
-                passOrFail = "FAILED";
+                passOrFail = "error: FAILED";
             }
             if (_stats.infoMessages.size() == 1)
                 messageLabel = "with message";
@@ -13422,7 +13422,7 @@ public:
             break;
         case ResultWas::ThrewException:
             colour = Colour::Error;
-            passOrFail = "FAILED";
+            passOrFail = "error: FAILED";
             messageLabel = "due to unexpected exception with ";
             if (_stats.infoMessages.size() == 1)
                 messageLabel += "message";
@@ -13431,12 +13431,12 @@ public:
             break;
         case ResultWas::FatalErrorCondition:
             colour = Colour::Error;
-            passOrFail = "FAILED";
+            passOrFail = "error: FAILED";
             messageLabel = "due to a fatal error condition";
             break;
         case ResultWas::DidntThrowException:
             colour = Colour::Error;
-            passOrFail = "FAILED";
+            passOrFail = "error: FAILED";
             messageLabel = "because no exception was thrown where one was expected";
             break;
         case ResultWas::Info:
@@ -13479,22 +13479,22 @@ private:
     void printResultType() const {
         if (!passOrFail.empty()) {
             Colour colourGuard(colour);
-            stream << passOrFail << ":\n";
+            stream << passOrFail << ": ";
         }
     }
     void printOriginalExpression() const {
         if (result.hasExpression()) {
             Colour colourGuard(Colour::OriginalExpression);
-            stream << "  ";
+            stream << " ";
             stream << result.getExpressionInMacro();
-            stream << '\n';
+            stream << ' ';
         }
     }
     void printReconstructedExpression() const {
         if (result.hasExpandedExpression()) {
-            stream << "with expansion:\n";
+            stream << "with expansion: ";
             Colour colourGuard(Colour::ReconstructedExpression);
-            stream << Column(result.getExpandedExpression()).indent(2) << '\n';
+            stream << result.getExpandedExpression() << '\n';
         }
     }
     void printMessage() const {
@@ -13855,9 +13855,9 @@ void ConsoleReporter::printTestCaseAndSectionHeader() {
     if (!lineInfo.empty()) {
         stream << getLineOfChars<'-'>() << '\n';
         Colour colourGuard(Colour::FileName);
-        stream << lineInfo << '\n';
+        stream << lineInfo << ": in test " << m_sectionStack.back().name << ":";
     }
-    stream << getLineOfChars<'.'>() << '\n' << std::endl;
+    stream << std::endl;
 }
 
 void ConsoleReporter::printClosedHeader(std::string const& _name) {
