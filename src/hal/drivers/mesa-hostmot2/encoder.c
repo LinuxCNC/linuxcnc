@@ -1,4 +1,3 @@
-
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
@@ -472,6 +471,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.velocity-rpm", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity_rpm), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.reset", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id);
             if (r < 0) {
@@ -689,6 +695,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
         *hm2->encoder.instance[i].hal.pin.position_latch = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
+        *hm2->encoder.instance[i].hal.pin.velocity_rpm = 0.0;
         *hm2->encoder.instance[i].hal.pin.quadrature_error = 0;
 
         hm2->encoder.instance[i].zero_offset = count;
@@ -944,6 +951,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                 if (dT_s >= e->hal.param.vel_timeout) {
                     *e->hal.pin.velocity = 0.0;
+                    *e->hal.pin.velocity_rpm = 0.0;
                     e->state = HM2_ENCODER_STOPPED;
                     break;
                 }
@@ -962,6 +970,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     vel = dS_pos_units / dT_s;
                     if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
                         *e->hal.pin.velocity = vel;
+                        *e->hal.pin.velocity_rpm = vel * 60.0;
                     }
                 }
 
@@ -1000,6 +1009,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     || (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == -1) && (e->prev_dS_counts > 0))
                 ) {
                     *e->hal.pin.velocity = 0.0;
+                    *e->hal.pin.velocity_rpm = 0.0;
                 } else {
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
@@ -1010,6 +1020,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     if (dT_clocks > 0) {
                         // finally time to do Relative-Time Velocity Estimation
                         *e->hal.pin.velocity = dS_pos_units / dT_s;
+                        *e->hal.pin.velocity_rpm = *e->hal.pin.velocity  * 60.0;
                     }
                 }
 

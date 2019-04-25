@@ -339,6 +339,11 @@ Estimated encoder velocity in position units
 per second.
 
 .TP
+(float out) velocity-rpm
+Estimated encoder velocity in position units
+per minute.
+
+.TP
 (bit in) reset
 When this pin is TRUE, the count and position pins are
 set to 0.  (The value of the velocity pin is not affected by this.)
@@ -630,6 +635,11 @@ parameter.
 (float, out) velocity
 Calculated from the rotational velocity and the 
 velocity\-scale parameter. The default scale is electrical rotations per second. 
+
+.TP
+(float, out) velocity-rpm
+Simply velocity scaled by a factor of 60 for convenience. 
+
 
 .TP
 (s32, out) count
