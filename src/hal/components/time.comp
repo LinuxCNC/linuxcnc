@@ -5,9 +5,11 @@ description
 Time
 
 When the time.N.start bit goes true the cycle timer resets and starts
-to time until time.N.start goes false. If you connect time.N.start to
-halui.is-running as a cycle timer it will reset during a pause. See
-the example connections below to keep the timer timing during a pause.
+to time until time.N.start goes false. When the time.N.pause bit goes
+true timing is paused until time.N.pause goes false. If you connect 
+time.N.start to halui.is-running as a cycle timer it will reset during 
+a pause. See the example connections below to keep the timer timing 
+during a pause.
 
 Time returns the hours, minutes, and seconds that time.N.start is true.
 
@@ -65,6 +67,7 @@ license "GPL";
 
 // Input Pins
 pin in bit start "Timer On";
+pin in bit pause = 0 "Pause";
 
 // Output Pins
 pin out u32 seconds "Seconds";
@@ -85,7 +88,7 @@ FUNCTION(_) {
     rtapi_u32 totalseconds;
     if(start && !old_start) totalnsec = 0;
 
-    if(start){
+    if(start && !pause){
     totalnsec = totalnsec + period;
     totalseconds = totalnsec * 0.000000001;
     seconds = totalseconds % 60;
