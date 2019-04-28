@@ -825,6 +825,12 @@ int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = 0;
 }
 
+int pmCartInfNorm(PmCartesian const * v, double * out)
+{
+    *out = fmax(fabs(v->x),fmax(fabs(v->y),fabs(v->z)));
+    return pmErrno = 0;
+}
+
 int pmCartMag(PmCartesian const * const v, double *d)
 {
     *d = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
@@ -1646,7 +1652,6 @@ int pmLinePoint(PmLine const * const line, double len, PmPose * const point)
 int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmCartesian const * const end)
 {
     int r1 = 0, r2 = 0;
-    double tmag = 0.0;
 
     if (0 == line) {
         return (pmErrno = PM_ERR);
@@ -1659,16 +1664,20 @@ int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmC
         return r1;
     }
 
-    pmCartMag(&line->uVec, &tmag);
-    if (IS_FUZZ(tmag, CART_FUZZ)) {
+    pmCartMag(&line->uVec, &line->tmag);
+    // NOTE: use the same criteria for "zero" length vectors as used by canon
+    double max_xyz=0;
+    pmCartInfNorm(&line->uVec, &max_xyz);
+
+    if (IS_FUZZ(max_xyz, CART_FUZZ)) {
         line->uVec.x = 1.0;
         line->uVec.y = 0.0;
         line->uVec.z = 0.0;
+        line->tmag_zero = 1;
     } else {
-        r2 = pmCartUnit(&line->uVec, &line->uVec);
+        r2 = pmCartUnitEq(&line->uVec);
+        line->tmag_zero = 0;
     }
-    line->tmag = tmag;
-    line->tmag_zero = (line->tmag <= CART_FUZZ);
 
     /* return PM_NORM_ERR if uVec has been set to 1, 0, 0 */
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : 0;
