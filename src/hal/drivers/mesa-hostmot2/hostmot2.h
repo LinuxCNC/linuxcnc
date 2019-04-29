@@ -269,6 +269,7 @@ typedef struct {
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;
+            hal_float_t *velocity_rpm;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *latch_enable;
@@ -408,6 +409,7 @@ typedef struct {
             hal_float_t *angle;
             hal_float_t *position;
             hal_float_t *velocity;
+            hal_float_t *velocity_rpm;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *error;

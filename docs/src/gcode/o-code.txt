@@ -106,9 +106,10 @@ o100 sub
   o110 endif
     (this only gets executed if parameter #2 is not greater than 5)
     (DEBUG, parameter 1 is [#1])
+    (DEBUG, parameter 3 is [#3])
 o100 endsub
 
-o100 call [1] [2]
+o100 call [100] [2] [325]
 ----
 
 Subroutine bodies may not be nested. They may only be called after

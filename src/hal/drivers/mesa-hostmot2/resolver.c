@@ -187,7 +187,17 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
+
+                        rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity-rpm",
+                           hm2->llio->name, i);
+            ret= hal_pin_float_new(name, HAL_OUT,
+                                   &(hm2->resolver.instance[i].hal.pin.velocity_rpm),
+                                   hm2->llio->comp_id);
+            if (ret < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.count", 
                            hm2->llio->name, i);
             ret= hal_pin_s32_new(name, HAL_OUT, 
@@ -400,6 +410,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
                                  * res->hal.param.scale;
         *res->hal.pin.velocity = ((hm2->resolver.velocity_reg[i] / 0x1P32)
                                   * hm2->resolver.kHz * res->hal.param.vel_scale);
+        *res->hal.pin.velocity_rpm = *res->hal.pin.velocity * 60.0;
         *res->hal.pin.error = *hm2->resolver.status_reg & (1 << i);
     }
 }
