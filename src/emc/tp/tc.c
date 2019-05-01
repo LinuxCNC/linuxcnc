@@ -582,6 +582,13 @@ double pmLine9Target(PmLine9 * const line9, int pure_angular)
     } else if (!line9->abc.tmag_zero) {
         return line9->abc.tmag;
     } else {
+        rtapi_print_msg(RTAPI_MSG_DBG,"line can't have zero length! xyz start = %.12e,%.12e,%.12e, end = %.12e,%.12e,%.12e\n",
+                line9->xyz.start.x,
+                line9->xyz.start.y,
+                line9->xyz.start.z,
+                line9->xyz.end.x,
+                line9->xyz.end.y,
+                line9->xyz.end.z);
         return 0.0;
     }
 }
