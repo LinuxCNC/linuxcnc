@@ -2231,11 +2231,13 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.indexrotary = -1;
 
 	int old_feed_mode = feed_mode;
-	if(feed_mode)
+        if(feed_mode) {
 	    STOP_SPEED_FEED_SYNCH();
+        }
 
-        if(vel && acc) 
+        if(vel && acc) {
             interp_list.append(linearMoveMsg);
+        }
 
 	if(old_feed_mode)
         START_SPEED_FEED_SYNCH(uuPerRev_vel, 1);
