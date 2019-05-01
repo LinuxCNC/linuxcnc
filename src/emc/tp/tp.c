@@ -766,8 +766,7 @@ static inline int find_max_element(double arr[], int sz)
     }
     // Assumes at least one element
     int max_idx = 0;
-    int idx;
-    for (idx = 0; idx < sz; ++idx) {
+    for (int idx = 0; idx < sz; ++idx) {
         if (arr[idx] > arr[max_idx]) {
             max_idx = idx;
         }
@@ -1531,8 +1530,12 @@ STATIC int tpFinalizeAndEnqueue(TP_STRUCT * const tp, TC_STRUCT * const tc)
 /**
  * Adds a rigid tap cycle to the motion queue.
  */
-int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
-        double acc, unsigned char enables) {
+int tpAddRigidTap(TP_STRUCT * const tp,
+        EmcPose end,
+        double vel,
+        double ini_maxvel,
+        double acc,
+        unsigned char enables) {
     if (tpErrorCheck(tp)) {
         return TP_ERR_FAIL;
     }
@@ -2392,7 +2395,8 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     double dx = tc->target - tc->progress;
     double maxaccel = tcGetTangentialMaxAccel(tc);
 
-    double maxnewvel = findTrapezoidalDesiredVel(maxaccel, dx, tc_finalvel, tc->currentvel, tc->cycle_time);
+    double maxnewvel = findTrapezoidalDesiredVel(
+		maxaccel, dx, tc_finalvel, tc->currentvel, tc->cycle_time);
 
     // Find bounded new velocity based on target velocity
     // Note that we use a separate variable later to check if we're on final decel
@@ -2491,7 +2495,7 @@ static inline bool spindleReversed(spindle_origin_t origin, double prev_pos, dou
     return origin.direction * (current_pos - prev_pos) < 0;
 }
 
-static inline bool cmdReverseSpindle()
+static inline bool cmdReverseSpindle(void)
 {
     static bool reversed = false;
     // Flip sign on commanded velocity
