@@ -889,7 +889,7 @@ then
     AC_MSG_ERROR([fuser not found])
 fi
 
-AC_PATH_PROG(YAPPS, yapps, "none", $SPATH)
+AC_PATH_PROGS(YAPPS, yapps yapps2, "none", $SPATH)
 if test $YAPPS = "none"
 then
     AC_MSG_ERROR([yapps not found])
@@ -1143,7 +1143,7 @@ fi
 # Checks for header files.
 
 ##############################################################################
-# Section 4.1 - Important headers, functions and gloabl defines.             #
+# Section 4.1 - Important headers, functions and global defines.             #
 #                                                                            #
 ##############################################################################
 
