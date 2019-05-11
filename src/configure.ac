@@ -151,6 +151,34 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
 
+#
+# check for rpc/rpc.h
+#
+AC_CHECK_HEADER([rpc/rpc.h],[], [
+  if ! test -z "$PKG_CONFIG libtirpc"; then
+
+    LIBTIRPC_CFLAGS=`pkg-config libtirpc --cflags`
+    AC_SUBST([LIBTIRPC_CFLAGS])
+
+    LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
+    AC_SUBST([LIBTIRPC_LIBS])
+
+    CFLAGS+=" `pkg-config libtirpc --cflags` "
+  fi
+
+  # Update path
+  AC_CHECK_LIB([tirpc], [get_myaddress], [], [
+    AC_MSG_ERROR([Didn't find tirpc])
+  ])
+
+  # Clear the cached check
+  $as_unset ac_cv_header_rpc_rpc_h
+  AC_CHECK_HEADER([rpc/rpc.h],[],[
+    AC_MSG_ERROR([glibc rpc.h missing, please install libtirpc])
+  ])
+])
+
+
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
@@ -448,6 +476,27 @@ long hidiocgrawinfo = HIDIOCGRAWINFO;
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
+#
+# Check for rpc/rpc.h
+#
+
+AC_MSG_CHECKING([for usability of rpc/rpc.h])
+AC_TRY_LINK(
+    [
+#include <rpc/rpc.h>
+    ],
+    [
+struct sockaddr_in *foo;
+get_myaddress(foo);
+    ],
+    [
+        AC_MSG_RESULT(yes)
+    ],
+    [
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Unable to use rpc.h])
+    ]
+)
 
 #
 # check for libmodbus3
