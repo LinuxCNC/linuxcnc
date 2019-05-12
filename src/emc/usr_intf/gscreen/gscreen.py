@@ -2751,13 +2751,13 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                self.data[name] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data[name].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
                         self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
-
+        print dir(self.data)
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
         if displaytype:
