@@ -727,14 +727,14 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
+        # see if there are user messages in the ini file 
+        self.message_setup()
+
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
-
-        # see if there are user messages in the ini file 
-        self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
