@@ -10,6 +10,12 @@ or add python code for even finer grain customizations. +
 
 .qtdefault - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
+.Qtaxis - Self Adjusting Axis Sample
+image::images/qtaxis.png["QTscreen Qtaxis",align="left"]
+.Blender - 4 Axis Sample
+image::images/blender.png["QTscreen Blender",align="left"]
+.X1mill - 4 Axis Sample
+image::images/x1mill.png["QTscreen x1mill",align="left"]
 
 == Overview
 
