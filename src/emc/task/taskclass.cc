@@ -400,12 +400,12 @@ int return_int(const char *funcname, PyObject *retval)
 	return -1;
     }
     if ((retval != Py_None) &&
-	(PyInt_Check(retval))) {
-	return PyInt_AS_LONG(retval);
+	(PyLong_Check(retval))) {
+	return PyLong_AS_LONG(retval);
     } else {
 	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
-			 PyString_AsString(retval),
+			 PyUnicode_AsUTF8(retval),
 			 retval->ob_type->tp_name);
 	Py_XDECREF(retval);
 	return -1;
@@ -436,9 +436,9 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 //     return status;
 // }
 
-extern "C" void initemctask();
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
+extern "C" PyObject* initemctask();
+extern "C" PyObject* initinterpreter();
+extern "C" PyObject* initemccanon();
 struct _inittab builtin_modules[] = {
     { (char *) "interpreter", initinterpreter },
     { (char *) "emccanon", initemccanon },
@@ -749,6 +749,3 @@ int Task::emcIoPluginCall(int len, const char *msg)
     }
     return 0;
 }
-
-
-
