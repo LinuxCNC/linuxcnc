@@ -119,6 +119,8 @@ ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
+dpi_value = root_window.winfo_fpixels('1i')
+root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
 root_window.iconify()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)

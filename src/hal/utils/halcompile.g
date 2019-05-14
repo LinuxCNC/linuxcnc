@@ -1135,7 +1135,7 @@ def main():
             try:
                 MAX_PERSONALITIES = int(v)
                 print("MAX_PERSONALITIES=%d"%(MAX_PERSONALITIES))
-            except Exception, detail:
+            except Exception as detail:
                 raise SystemExit("Bad value for -P (--personalities)=",v,"\n",detail)
         if k in ("-?", "-h", "--help"):
             usage(0)
