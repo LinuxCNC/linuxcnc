@@ -162,7 +162,7 @@ int Interp::read_named_parameter(
 	*double_ptr = value;
 	return INTERP_OK;
     } else {
-        // do not require named parameters to be defined during a 
+        // do not require named parameters to be defined during a
         // subroutine definition:
         if (_setup.defining_sub)
             return INTERP_OK;
@@ -264,13 +264,13 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	// this is a good idea - a removed pin/signal will not be noticed
 
 	// I dont think that's needed - no change in pins/sigs/params
-	// rtapi_mutex_get(&(hal_data->mutex)); 
+	// rtapi_mutex_get(&(hal_data->mutex));
         // rtapi_mutex_give(&(hal_data->mutex));
 
 	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
             if (pin && !pin->signal) {
 		logOword("%s: no signal connected", hal_name);
-	    } 
+	    }
 	    type = pin->type;
 	    if (pin->signal != 0) {
 		sig = (hal_sig_t *) SHMPTR(pin->signal);
@@ -281,7 +281,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	    goto assign;
 	}
 	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
-	    if (!sig->writers) 
+	    if (!sig->writers)
 		logOword("%s: signal has no writer", hal_name);
 	    type = sig->type;
 	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
@@ -306,7 +306,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     }
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;
-    return INTERP_OK; 
+    return INTERP_OK;
 }
 
 int Interp::find_named_param(
@@ -338,7 +338,7 @@ int Interp::find_named_param(
 	      param.attr = PA_GLOBAL | PA_READONLY | PA_FROM_INI;
 	      _setup.sub_context[0].named_params[strstore(nameBuf)] = param;
 	      return INTERP_OK;
-	  } 
+	  }
       }
       if (FEATURE(HAL_PIN_VARS) && (strncasecmp(nameBuf,"_hal[",5) == 0)) {
 	  fetch_hal_param(nameBuf, &exists, &inivalue);
@@ -347,7 +347,7 @@ int Interp::find_named_param(
 	      *value = inivalue;
 	      *status = 1;
 	      return INTERP_OK;
-	  } 
+	  }
       }
       *value = 0.0;
       *status = 0;
@@ -371,13 +371,13 @@ int Interp::find_named_param(
 	       "named param - pycall(%s):\n%s", nameBuf,
 	       python_plugin->last_exception().c_str());
 	  CHKS(retval.ptr() == Py_None, "Python namedparams.%s returns no value", nameBuf);
-	  if (PyString_Check(retval.ptr())) {
+	  if (PyUnicode_Check(retval.ptr())) {
 	      // returning a string sets the interpreter error message and aborts
 	      *status = 0;
 	      char *msg = bp::extract<char *>(retval);
 	      ERS("%s", msg);
 	  }
-	  if (PyInt_Check(retval.ptr())) { // widen
+	  if (PyLong_Check(retval.ptr())) { // widen
 	      *value = (double) bp::extract<int>(retval);
 	      *status = 1;
 	      return INTERP_OK;
@@ -393,7 +393,7 @@ int Interp::find_named_param(
 	  Py_XDECREF(res_str);
 	  ERS("Python call %s.%s returned '%s' - expected double, int or string, got %s",
 	      NAMEDPARAMS_MODULE, nameBuf,
-	      PyString_AsString(res_str),
+	      PyUnicode_AsUTF8(res_str),
 	      retval.ptr()->ob_type->tp_name);
       } else {
 	  *value = pv->value;
@@ -723,7 +723,7 @@ int Interp::lookup_named_param(const char *nameBuf,
     case NP_REMAP_LEVEL:
 	*value = _setup.remap_level;
 	break;
-	
+
     case NP_TASK:
 	extern int _task;  // zero in gcodemodule, 1 in milltask
 	*value = _task;
