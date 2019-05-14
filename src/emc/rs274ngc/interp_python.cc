@@ -147,7 +147,7 @@ int Interp::pycall(setup_pointer settings,
     case PY_FINISH_BODY:
     case PY_FINISH_EPILOG:
 	logPy("pycall: call generator.next()" );
-	
+
 	// check inputs here, since _read() may not be called
 	read_inputs(&_setup);
 	// handler continuation if a generator was used
@@ -158,7 +158,7 @@ int Interp::pycall(setup_pointer settings,
 	    if (PyErr_Occurred()) {
 		// StopIteration is raised when the generator executes 'return'
 		// instead of another 'yield INTERP_EXECUTE_FINISH
-		// Technically this means a normal end of the handler and hence we 
+		// Technically this means a normal end of the handler and hence we
 		// treat it as INTERP_OK indicating this handler is now done
 		if (PyErr_ExceptionMatches(PyExc_StopIteration)) {
 		    frame->pystuff.impl->py_return_type = RET_STOPITERATION;
@@ -171,10 +171,10 @@ int Interp::pycall(setup_pointer settings,
 		    bp::handle_exception();
 		    PyErr_Clear();
 		    logPy("pycall: call generator - exception: %s",msg.c_str());
-		    
+
 		    ERS("exception during generator call: %s", msg.c_str());
 		}
-	    } else 
+	    } else
 		Error("calling generator: duh");
 	}
 	break;
@@ -213,18 +213,18 @@ int Interp::pycall(setup_pointer settings,
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
 		    frame->pystuff.impl->py_returned_int = bp::extract<int>(frame->pystuff.impl->generator_next());
 		    frame->pystuff.impl->py_return_type = RET_YIELD;
-		
-		} else if (PyString_Check(retval.ptr())) {  
+
+		} else if (PyUnicode_Check(retval.ptr())) {
 		    // returning a string sets the interpreter error message and aborts
 		    char *msg = bp::extract<char *>(retval);
 		    ERM("%s", msg);
 		    frame->pystuff.impl->py_return_type = RET_ERRORMSG;
 		    status = INTERP_ERROR;
-		} else if (PyInt_Check(retval.ptr())) {  
+		} else if (PyLong_Check(retval.ptr())) {
 		    frame->pystuff.impl->py_returned_int = bp::extract<int>(retval);
 		    frame->pystuff.impl->py_return_type = RET_INT;
 		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->pystuff.impl->py_returned_int);
-		} else if (PyFloat_Check(retval.ptr())) { 
+		} else if (PyFloat_Check(retval.ptr())) {
 		    frame->pystuff.impl->py_returned_double = bp::extract<double>(retval);
 		    frame->pystuff.impl->py_return_type = RET_DOUBLE;
 		    logPy("Python call %s.%s returned float: %f", module, funcname, frame->pystuff.impl->py_returned_double);
@@ -234,7 +234,7 @@ int Interp::pycall(setup_pointer settings,
 		    Py_XDECREF(res_str);
 		    ERM("Python call %s.%s returned '%s' - expected generator, int, or float value, got %s",
 			module, funcname,
-			PyString_AsString(res_str),
+			PyUnicode_AsUTF8(res_str),
 			retval.ptr()->ob_type->tp_name);
 		    status = INTERP_ERROR;
 		}
@@ -249,7 +249,7 @@ int Interp::pycall(setup_pointer settings,
 	    // a plain int (INTERP_OK, INTERP_ERROR, INTERP_EXECUTE_FINISH...) is expected
 	    // must have returned an int
 	    if ((retval.ptr() != Py_None) &&
-		(PyInt_Check(retval.ptr()))) {
+		(PyLong_Check(retval.ptr()))) {
 
 // FIXME check new return value convention
 		status = frame->pystuff.impl->py_returned_int = bp::extract<int>(retval);
@@ -260,7 +260,7 @@ int Interp::pycall(setup_pointer settings,
 		res_str = PyObject_Str(retval.ptr());
 		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
 		    funcname,
-		    PyString_AsString(res_str),
+		    PyUnicode_AsUTF8(res_str),
 		    retval.ptr()->ob_type->tp_name);
 		Py_XDECREF(res_str);
 		status = INTERP_ERROR;
