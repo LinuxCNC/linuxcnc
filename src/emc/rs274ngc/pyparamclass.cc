@@ -40,8 +40,8 @@ extern int _task;  // zero in gcodemodule, 1 in milltask
 #include <interp_parameter_def.hh>
 using namespace interp_param_global;
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyUnicode_Type))
+#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyLong_Type))
 
 // access to named and numbered parameters via a pseudo-dictionary
 // either params["paramname"] or params[5400] is valid
