@@ -169,7 +169,7 @@ When the tool change is complete:
    flow during the tool change unless it has been turned off by an 'M9'.
 
 [WARNING]
-The tool length offset is not changed by 'M6', use 'G43' after the
+The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
 The tool change may include axis motion. 
@@ -320,9 +320,15 @@ from 0 (feed hold) to 1 (full speed).
 == M61 Set Current Tool
 (((M61 Set Current Tool)))
 
-* 'M61 Q-' - change the current tool number while in MDI or Manual mode.
-             One use is when you power up LinuxCNC with a tool currently in
-             the spindle you can set that tool number without doing a tool change.
+* 'M61 Q-' - change the current tool number while in MDI or Manual mode without
+             a tool change. One use is when you power up LinuxCNC with a tool
+             currently in the spindle you can set that tool number without
+             doing a tool change.
+
+[WARNING]
+The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' after
+the 'M61' to change the tool length offset.
+
 
 It is an error if:
 
