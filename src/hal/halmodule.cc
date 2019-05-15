@@ -46,12 +46,12 @@ PyObject *to_python(bool b) {
 }
 
 PyObject *to_python(unsigned u) {
-    if(u < LONG_MAX) return PyInt_FromLong(u);
+    if(u < LONG_MAX) return PyLong_FromLong(u);
     return PyLong_FromUnsignedLong(u);
 }
 
 PyObject *to_python(int u) {
-    return PyInt_FromLong(u);
+    return PyLong_FromLong(u);
 }
 
 PyObject *to_python(double d) {
@@ -62,8 +62,8 @@ bool from_python(PyObject *o, double *d) {
     if(PyFloat_Check(o)) {
         *d = PyFloat_AsDouble(o);
         return true;
-    } else if(PyInt_Check(o)) {
-        *d = PyInt_AsLong(o);
+    } else if(PyLong_Check(o)) {
+        *d = PyLong_AsLong(o);
         return true;
     } else if(PyLong_Check(o)) {
         *d = PyLong_AsDouble(o);
@@ -85,8 +85,8 @@ bool from_python(PyObject *o, double *d) {
 bool from_python(PyObject *o, uint32_t *u) {
     PyObject *tmp = 0;
     long long l;
-    if(PyInt_Check(o)) {
-        l = PyInt_AsLong(o);
+    if(PyLong_Check(o)) {
+        l = PyLong_AsLong(o);
         goto got_value;
     }
 
@@ -113,8 +113,8 @@ fail:
 bool from_python(PyObject *o, int32_t *i) {
     PyObject *tmp = 0;
     long long l;
-    if(PyInt_Check(o)) {
-        l = PyInt_AsLong(o);
+    if(PyLong_Check(o)) {
+        l = PyLong_AsLong(o);
         goto got_value;
     }
 
@@ -247,7 +247,7 @@ static void pyhal_exit_impl(halobject *self) {
 static void pyhal_delete(PyObject *_self) {
     halobject *self = (halobject *)_self;
     pyhal_exit_impl(self);
-    self->ob_type->tp_free(self);
+    Py_TYPE(self)->tp_free(self);
 }
 
 static int pyhal_write_common(halitem *pin, PyObject *value) {
@@ -472,7 +472,7 @@ static PyObject *pyhal_exit(PyObject *_self, PyObject *o) {
 
 static PyObject *pyhal_repr(PyObject *_self) {
     halobject *self = (halobject *)_self;
-    return PyString_FromFormat("<hal component %s(%d) with %d pins and params>",
+    return PyBytes_FromFormat("<hal component %s(%d) with %d pins and params>",
             self->name, self->hal_id, (int)self->items->size());
 }
 
@@ -485,13 +485,13 @@ static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
     if(result) return result;
 
     PyErr_Clear();
-    return pyhal_read_common(find_item(self, PyString_AsString(attro)));
+    return pyhal_read_common(find_item(self, PyBytes_AsString(attro)));
 }
 
 static int pyhal_setattro(PyObject *_self, PyObject *attro, PyObject *v) {
     halobject *self = (halobject *)_self;
     EXCEPTION_IF_NOT_LIVE(-1);
-    return pyhal_write_common(find_item(self, PyString_AsString(attro)), v);
+    return pyhal_write_common(find_item(self, PyBytes_AsString(attro)), v);
 }
 
 static Py_ssize_t pyhal_len(PyObject *_self) {
@@ -508,7 +508,7 @@ static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
     if(!self->prefix)
 	Py_RETURN_NONE;
 
-    return PyString_FromString(self->prefix);
+    return PyBytes_FromString(self->prefix);
 }
 
 
@@ -557,7 +557,6 @@ static PyMappingMethods halobject_map = {
 static 
 PyTypeObject halobject_type = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
     "hal.component",           /*tp_name*/
     sizeof(halobject),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -634,9 +633,9 @@ static PyObject *pyhalpin_repr(PyObject *_self) {
     if (pyself->name) name = pyself->name;
 
     if (!self->is_pin)
-	return PyString_FromFormat("<hal param \"%s\" %s-%s>", name,
+	return PyBytes_FromFormat("<hal param \"%s\" %s-%s>", name,
 	    pin_type2name(self->type), param_dir2name(self->dir.paramdir));
-    return PyString_FromFormat("<hal pin \"%s\" %s-%s>", name,
+    return PyBytes_FromFormat("<hal pin \"%s\" %s-%s>", name,
             pin_type2name(self->type), pin_dir2name(self->dir.pindir));
 }
 
@@ -668,15 +667,15 @@ static PyObject * pyhal_pin_get(PyObject * _self, PyObject *) {
 
 static PyObject * pyhal_pin_get_type(PyObject * _self, PyObject *) {
     pyhalitem * self = (pyhalitem *) _self;
-    return PyInt_FromLong(self->pin.type);
+    return PyLong_FromLong(self->pin.type);
 }
 
 static PyObject * pyhal_pin_get_dir(PyObject * _self, PyObject *) {
     pyhalitem * self = (pyhalitem *) _self;
     if (self->pin.is_pin)
-	return PyInt_FromLong(self->pin.dir.pindir);
+	return PyLong_FromLong(self->pin.dir.pindir);
     else
-	return PyInt_FromLong(self->pin.dir.paramdir);
+	return PyLong_FromLong(self->pin.dir.paramdir);
 }
 
 static PyObject * pyhal_pin_is_pin(PyObject * _self, PyObject *) {
@@ -688,7 +687,7 @@ static PyObject * pyhal_pin_get_name(PyObject * _self, PyObject *) {
     pyhalitem * self = (pyhalitem *) _self;
     if (!self->name)
 	Py_RETURN_NONE;
-    return PyString_FromString(self->name);
+    return PyBytes_FromString(self->name);
 }
 
 static PyMethodDef halpin_methods[] = {
@@ -704,7 +703,6 @@ static PyMethodDef halpin_methods[] = {
 static 
 PyTypeObject halpin_type = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
     "hal.item",                /*tp_name*/
     sizeof(pyhalitem),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1093,11 +1091,18 @@ static void pyshm_delete(PyObject *_self) {
     Py_XDECREF(self->comp);
 }
 
-static Py_ssize_t shm_buffer(PyObject *_self, Py_ssize_t segment, void **ptrptr){
+/*static Py_ssize_t shm_buffer(PyObject *_self, Py_ssize_t segment, void **ptrptr){
     shmobject *self = (shmobject *)_self;
     if(ptrptr) *ptrptr = self->buf;
     return self->size;
+}*/
+
+static Py_ssize_t shm_buffer(PyObject *_self, Py_buffer *view, int flags) {
+    shmobject *self = (shmobject *)_self;
+    Py_INCREF(self);
+    return 0;
 }
+
 static Py_ssize_t shm_segcount(PyObject *_self, Py_ssize_t *lenp) {
     shmobject *self = (shmobject *)_self;
     if(lenp) *lenp = self->size;
@@ -1106,7 +1111,7 @@ static Py_ssize_t shm_segcount(PyObject *_self, Py_ssize_t *lenp) {
 
 static PyObject *pyshm_repr(PyObject *_self) {
     shmobject *self = (shmobject *)_self;
-    return PyString_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
+    return PyBytes_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
 	    self->key, self->shm_id, (unsigned long)self->size);
 }
 
@@ -1118,7 +1123,7 @@ static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
 
 static PyObject *shm_getbuffer(PyObject *_self, PyObject *o) {
     shmobject *self = (shmobject *)_self;
-    return (PyObject*)PyBuffer_FromReadWriteObject((PyObject*)self, 0, self->size);
+//    return (PyObject*)PyBuffer_FromReadWriteObject((PyObject*)self, 0, self->size);
 }
 
 static PyObject *set_msg_level(PyObject *_self, PyObject *args) {
@@ -1130,15 +1135,13 @@ static PyObject *set_msg_level(PyObject *_self, PyObject *args) {
 }
 
 static PyObject *get_msg_level(PyObject *_self, PyObject *args) {
-    return PyInt_FromLong(rtapi_get_msg_level());
+    return PyLong_FromLong(rtapi_get_msg_level());
 }
 
 static
 PyBufferProcs shmbuffer_procs = {
-    shm_buffer,
-    shm_buffer,
-    shm_segcount,
-    NULL
+    (getbufferproc) shm_buffer,
+    (releasebufferproc) NULL
 };
 
 static PyMethodDef shm_methods[] = {
@@ -1152,7 +1155,6 @@ static PyMethodDef shm_methods[] = {
 static 
 PyTypeObject shm_type = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
     "hal.shm",                 /*tp_name*/
     sizeof(shmobject),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1236,7 +1238,7 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject *kw) {
     if(r < 0) { errno = -r; PyErr_SetFromErrno(PyExc_IOError); return -1; }
 
     int n = hal_stream_element_count(&self->stream);
-    PyObject *t = PyString_FromStringAndSize(NULL, n);
+    PyObject *t = PyBytes_FromStringAndSize(NULL, n);
     if(!t) {
         if(self->creator)
             hal_stream_destroy(&self->stream);
@@ -1245,7 +1247,7 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject *kw) {
         return -1;
     }
 
-    char *tbuf = PyString_AsString(t);
+    char *tbuf = PyBytes_AsString(t);
 
     for(int i=0; i<n; i++) {
         switch(hal_stream_element_type(&self->stream, i)) {
@@ -1263,7 +1265,7 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject *kw) {
 
 PyObject *stream_read(PyObject *_self, PyObject *unused) {
     streamobj *self = (streamobj *)_self;
-    int n = PyString_Size(self->pyelt);
+    int n = PyBytes_Size(self->pyelt);
     hal_stream_data buf[n];
     if(hal_stream_read(&self->stream, buf, &self->sampleno) < 0)
         Py_RETURN_NONE;
@@ -1273,7 +1275,7 @@ PyObject *stream_read(PyObject *_self, PyObject *unused) {
 
     for(int i=0; i<n; i++) {
         PyObject *o;
-        switch(PyString_AS_STRING(self->pyelt)[i]) {
+        switch(PyBytes_AS_STRING(self->pyelt)[i]) {
         case 'b': o = to_python(buf[i].b); break;
         case 'f': o = to_python(buf[i].f); break;
         case 's': o = to_python(buf[i].s); break;
@@ -1295,7 +1297,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "O!:hal.stream.write", &PyTuple_Type, &data))
         return NULL;
 
-    int n = PyString_Size(self->pyelt);
+    int n = PyBytes_Size(self->pyelt);
     if(n < PyTuple_GET_SIZE(data)) {
         PyErr_SetString(PyExc_ValueError, "Too few elements to unpack");
         return NULL;
@@ -1308,7 +1310,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
     hal_stream_data buf[n];
     for(int i=0; i<n; i++) {
         PyObject *o = PyTuple_GET_ITEM(data, i);
-        switch(PyString_AS_STRING(self->pyelt)[i]) {
+        switch(PyBytes_AS_STRING(self->pyelt)[i]) {
         case 'b': buf[i].b = PyObject_IsTrue(o); break;
         case 'f': if(!from_python(o, &buf[i].f)) return NULL; break;
         case 's': if(!from_python(o, &buf[i].s)) return NULL; break;
@@ -1377,19 +1379,18 @@ static void pystream_delete(PyObject *_self) {
         hal_stream_detach(&self->stream);
     Py_XDECREF(self->pyelt);
     Py_XDECREF(self->comp);
-    self->ob_type->tp_free(self);
+    Py_TYPE(self)->tp_free(self);
 }
 
 static PyObject *pystream_repr(PyObject *_self) {
     streamobj *self = reinterpret_cast<streamobj*>(_self);
-    return PyString_FromFormat("<stream 0x%x%s>", self->key,
+    return PyBytes_FromFormat("<stream 0x%x%s>", self->key,
         self->creator ? " creator" : "");
 }
 
 static
 PyTypeObject stream_type = {
     PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
     "hal.stream",              /*tp_name*/
     sizeof(streamobj),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1480,10 +1481,21 @@ const char *module_doc = "Interface to emc2's hal\n"
 "KeyboardInterrupt exception will be raised."
 ;
 
+static PyModuleDef halmoduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_hal",
+    module_doc,
+    -1,
+    module_methods
+};
+
 extern "C"
-void init_hal(void) {
-    PyObject *m = Py_InitModule3("_hal", module_methods,
-            module_doc);
+PyMODINIT_FUNC PyInit__hal(void) {
+//    PyObject *m = Py_InitModule3("_hal", module_methods,
+//            module_doc);
+
+    PyObject *m;
+    m = PyModule_Create(&halmoduledef);
 
     pyhal_error_type = PyErr_NewException((char*)"hal.error", NULL, NULL);
     PyModule_AddObject(m, "error", pyhal_error_type);
@@ -1531,5 +1543,7 @@ void init_hal(void) {
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"
                  "s.signal(s.SIGTERM, s.default_int_handler))()");
+    
+    return m;
 }
 

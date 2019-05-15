@@ -351,6 +351,7 @@ NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
     forced_type = 0;
     already_deleted = 0;
     cms = (CMS *) NULL;
+//    printf("null cms\n");
     format_chain = (LinkedList *) NULL;
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
@@ -688,6 +689,7 @@ NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
 *************************************************************/
 int NML::reset()
 {
+//    printf("nml::reset\n");
     int cms_copy_ret = 0;
     if (valid()) {
 	return 1;
@@ -981,6 +983,7 @@ int NML::get_space_available()
 int NML::valid()
 {
     if (NULL == cms) {
+//        printf("cms error\n");
 	error_type = NML_INVALID_CONFIGURATION;
 	return (0);
     }
@@ -1001,17 +1004,20 @@ int NML::valid()
     }
 
     if (NULL == cms->data) {
+//        printf("cms->data error\n");
 	error_type = NML_INVALID_CONFIGURATION;
 	return (0);
     }
 
     if (cms->neutral && (NULL == cms->encoded_data) && !cms->isserver) {
+//        printf("cms->neutral error\n");
 	error_type = NML_INVALID_CONFIGURATION;
 	return (0);
     }
 
     if (!ignore_format_chain) {
 	if (NULL == format_chain) {
+//        printf("format_chain error\n");
 	    error_type = NML_INVALID_CONFIGURATION;
 	    return (0);
 	}

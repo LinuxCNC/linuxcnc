@@ -37,7 +37,7 @@ extern int _task;  // zero in gcodemodule, 1 in milltask
 #include "rs274ngc_interp.hh"
 #include "paramclass.hh"
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyUnicode_Type))
+#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyBytes_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyLong_Type))
 
 // access to named and numbered parameters via a pseudo-dictionary

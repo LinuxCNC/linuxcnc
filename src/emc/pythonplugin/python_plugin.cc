@@ -298,7 +298,7 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
-    Py_SetProgramName((char *) abs_path);
+    Py_SetProgramName((wchar_t *) abs_path);
 
     if ((inittab != NULL) &&
 	PyImport_ExtendInittab(inittab)) {
