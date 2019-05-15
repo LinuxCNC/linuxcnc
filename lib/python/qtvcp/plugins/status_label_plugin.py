@@ -61,20 +61,20 @@ class StatusLabelPlugin(QPyDesignerCustomWidgetPlugin):
 
 #*************************************************************************
 class GstatLabelPropertySheetExtension(QExtensionFactory):
-  def __init__(self, parent = None):
+    def __init__(self, parent = None):
 
-      QExtensionFactory.__init__(self, parent)
-      #print 'extension',parent
+        QExtensionFactory.__init__(self, parent)
+        #print 'extension',parent
 
-  def createExtension(self, obj, iid, parent):
+    def createExtension(self, obj, iid, parent):
 
-      if iid != "com.trolltech.Qt.Designer.PropertySheet":
-          return None
+        if iid != "com.trolltech.Qt.Designer.PropertySheet":
+            return None
 
-      if isinstance(obj, StatusLabel):
-          return GstatLabelPropertySheet(obj, parent)
+        if isinstance(obj, StatusLabel):
+            return GstatLabelPropertySheet(obj, parent)
 
-      return None
+        return None
 
 class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
 

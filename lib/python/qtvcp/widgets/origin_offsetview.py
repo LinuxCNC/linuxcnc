@@ -254,8 +254,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
-                qualified = float(data)
-                #qualified = float(locale.atof(data))
+            qualified = float(data)
+            #qualified = float(locale.atof(data))
         except Exception as e:
             LOG.exception(e)
         # now update linuxcnc to the change
@@ -274,7 +274,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                         ACTION.CALL_MDI("G10 L1 P%d %s %10.4f" % (self.current_tool, self.axisletters[col], qualified))
                         ACTION.CALL_MDI('g43')
                 else:
-                        ACTION.CALL_MDI("G10 L2 P%d %s %10.4f" % (row-3, self.axisletters[col], qualified))
+                    ACTION.CALL_MDI("G10 L2 P%d %s %10.4f" % (row-3, self.axisletters[col], qualified))
 
                 ACTION.UPDATE_VAR_FILE()
                 ACTION.RESTORE_RECORDED_MODE()

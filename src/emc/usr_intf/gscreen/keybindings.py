@@ -72,14 +72,14 @@ class Keylookup:
         try:
             return self.keycall[binding]
         except:
-            print "No key function call"
+            print("No key function call")
             return None
 
     def get_binding(self,key):
         try:
             return self.keybinding[key]
         except:
-            print "No key binding"
+            print("No key binding")
             return None
 
     def convert(self,key):
@@ -93,13 +93,13 @@ class Keylookup:
         try:
             self.keybinding[key] = binding
         except:
-            print "Binding for key %s could not be added"% key
+            print("Binding for key %s could not be added"% key)
 
     def add_call(self,binding,function):
         try:
             self.keycall[binding] = function
         except:
-            print "Binding %s could not be added"% binding
+            print("Binding %s could not be added"% binding)
 
     def add_conversion(self,key,binding,function):
         self.add_binding(key,binding)

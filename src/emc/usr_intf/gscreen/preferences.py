@@ -12,9 +12,9 @@
 
 
 
-import os, ConfigParser
+import os, configparser
 
-cp = ConfigParser.RawConfigParser
+cp = configparser.RawConfigParser
 cp.optionxform=str
 class preferences(cp):
     types = {
@@ -36,12 +36,12 @@ class preferences(cp):
         m = self.types.get(type)
         try:
             o = m(self, section, option)
-        except Exception, detail:
-            print detail
+        except Exception as detail:
+            print(detail)
             try:
                 self.set(section, option, default)
-            except ConfigParser.NoSectionError:
-                print 'Adding section %s'%section
+            except configparser.NoSectionError:
+                print('Adding section %s'%section)
                 # Create non-existent section
                 self.add_section(section)
                 self.set(section, option, default)
@@ -55,8 +55,8 @@ class preferences(cp):
     def putpref(self, option, value, type=bool, section="DEFAULT"):
         try:
             self.set(section, option, type(value))
-        except ConfigParser.NoSectionError:
-            print 'Adding section %s'%section
+        except configparser.NoSectionError:
+            print('Adding section %s'%section)
             # Create non-existent section
             self.add_section(section)
             self.set(section, option, type(value))

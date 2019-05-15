@@ -20,11 +20,12 @@ import sys
 import gtk
 import hal
 import gtk.glade
-import gobject
+from gi.repository import GObject as gobject
+
 import getopt
 
-from hal_widgets import _HalWidgetBase
-from led import HAL_LED
+from .hal_widgets import _HalWidgetBase
+from .led import HAL_LED
 from hal_glib import GComponent
 
 from gladevcp.gladebuilder import widget_name
@@ -36,7 +37,7 @@ class GladePanel():
         gtk.main_quit()
 
     def __init__(self,halcomp,xmlname,builder,buildertype):
-        
+
         self.builder = builder
         self.hal = GComponent(halcomp)
         self.widgets = {}
@@ -52,20 +53,20 @@ class GladePanel():
                 self.widgets[idname] = widget
 
         self.timer = gobject.timeout_add(100, self.update)                  
-        
+
 
     def update(self):
-        for obj in self.widgets.values():
+        for obj in list(self.widgets.values()):
             obj.hal_update()
         return True
     def __getitem__(self, item):
         return self.widgets[item]
     def __setitem__(self, item, value):
         self.widgets[item] = value
-    
+
 if __name__ == "__main__":
-    print "Gladevcp_make_pins cannot be run on its own"
-    print "It must be called by gladevcp or a python program"
-    print "that loads and displays the glade panel and creates a HAL component"
+    print("Gladevcp_make_pins cannot be run on its own")
+    print("It must be called by gladevcp or a python program")
+    print("that loads and displays the glade panel and creates a HAL component")
 
 # vim: sts=4 sw=4 et

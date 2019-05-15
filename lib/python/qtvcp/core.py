@@ -2,7 +2,8 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
-import gobject
+from gi.repository import GObject as gobject
+
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
@@ -10,7 +11,7 @@ from hal_glib import _GStat as GladeVcpStat
 from qtvcp.qt_istat import _IStat as IStatParent
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 

@@ -38,8 +38,8 @@ class mdi:
         self.polar = 0
         axisnames = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W']
         for i in range(9):
-           if am & (1<<i):
-               self.axes.append(axisnames[i])
+            if am & (1<<i):
+                self.axes.append(axisnames[i])
 
         self.gcode = 'M2'
 
@@ -99,12 +99,12 @@ class mdi:
 
     def get_description(self, gcode):
         return self.codes[gcode][0]
-    
+
     def get_words(self, gcode):
         self.gcode = gcode
         if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
             return ['P', 'Q']
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]
@@ -159,14 +159,14 @@ class mdi_control:
         self.numwords = 1
         self.selected = 0
         self.gtk = gtk
-        
+
         self.mdi = mdi(emc)
-        
+
         for i in range(self.numlabels):
             self.not_editing(i)
         self.editing(self.selected)
         self.set_text("G")
-            
+
     def not_editing(self, n):
         e = self.eventboxes[n]
         e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse("#ccc"))
@@ -193,11 +193,11 @@ class mdi_control:
             w.set_alignment(1.0, 0.5)
         else:
             w.set_alignment(0.0, 0.5)
-            
+
     def clear(self, b):
         t = self.get_text()
         self.set_text(t.rstrip("0123456789.-"))
-        
+
     def back(self, b):
         t = self.get_text()
         if t[-1:] in "0123456789.-":

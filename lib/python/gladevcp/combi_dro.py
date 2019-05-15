@@ -18,7 +18,8 @@
 
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import os
 import sys
 import pango
@@ -217,7 +218,7 @@ class Combi_DRO(gtk.VBox):
     # Get propertys
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -226,14 +227,14 @@ class Combi_DRO(gtk.VBox):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 self.queue_draw()
                 if name in ('mm_text_template', 'imperial_text_template'):
                     try:
                         v = value % 0.0
-                    except Exception, e:
-                        print "Invalid format string '%s': %s" % (value, e)
+                    except Exception as e:
+                        print("Invalid format string '%s': %s" % (value, e))
                         return False
                 if name == "homed_color":
                     self.homed_color = value
@@ -273,21 +274,21 @@ class Combi_DRO(gtk.VBox):
 
     # get the actual coordinate system to display it on the DRO
     def _get_current_system(self):
-            gcode = self.status.gcodes[1:]
-            for code in gcode:
-                if code >= 540 and code <= 590:
-                    return "G%s" % (code / 10)
-                elif code > 590 and code <= 593:
-                    return "G%s" % (code / 10.0)
-            return "Rel"
+        gcode = self.status.gcodes[1:]
+        for code in gcode:
+            if code >= 540 and code <= 590:
+                return "G%s" % (code / 10)
+            elif code > 590 and code <= 593:
+                return "G%s" % (code / 10.0)
+        return "Rel"
 
     # Get the units used according to gcode
     def _get_current_units(self):
-            gcode = self.status.gcodes[1:]
-            for code in gcode:
-                if code >= 200 and code <= 210:
-                    return (code / 10)
-            return False
+        gcode = self.status.gcodes[1:]
+        for code in gcode:
+            if code >= 200 and code <= 210:
+                return (code / 10)
+        return False
 
     # update the labels
     def _set_labels(self):
@@ -623,9 +624,9 @@ def clicked(self, axis_number, order):
     axis_number = the joint number of the widget
     order = the actual order of the DRO in the widget
     '''
-    print("Click received from ", axis_number)
-    print("Order = ", order)
-    print(self.get_position())
+    print(("Click received from ", axis_number))
+    print(("Order = ", order))
+    print((self.get_position()))
 #    self.set_property("joint_number", 0)
     # other_widget.set_order(order)
     # so they may be mantained consistent

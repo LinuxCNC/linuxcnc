@@ -141,24 +141,24 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
     # Paint specified size a triangle at the top right
     def paintIndicator(self):
-            p = QtGui.QPainter(self)
-            rect = p.window()
-            top_right = rect.topRight()
-            if self.width() < self.height():
-                size = self.width() * self._size
-            else:
-                size = self.height() * self._size
-            if self._indicator_state:
-                color = self._on_color
-            else:
-                color = self._off_color
-            triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
-                                       top_right + QtCore.QPoint(0, size)])
-            p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
-            p.drawLine(triangle.point(1), triangle.point(2))
-            p.setBrush(QtGui.QBrush(color))
-            p.setPen(color)
-            p.drawPolygon(triangle)
+        p = QtGui.QPainter(self)
+        rect = p.window()
+        top_right = rect.topRight()
+        if self.width() < self.height():
+            size = self.width() * self._size
+        else:
+            size = self.height() * self._size
+        if self._indicator_state:
+            color = self._on_color
+        else:
+            color = self._off_color
+        triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
+                                   top_right + QtCore.QPoint(0, size)])
+        p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
+        p.drawLine(triangle.point(1), triangle.point(2))
+        p.setBrush(QtGui.QBrush(color))
+        p.setPen(color)
+        p.drawPolygon(triangle)
 
     def set_indicator(self, data):
         self.draw_indicator = data

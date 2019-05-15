@@ -8,7 +8,8 @@
 
 #import pygtk
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 
 debug = 0
 

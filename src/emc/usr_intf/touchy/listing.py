@@ -36,7 +36,7 @@ class listing:
                 l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
-            
+
             if self.start_line == self.lineoffset + i:
                 e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#66f'))
             elif self.selected == self.lineoffset + i:
@@ -81,26 +81,26 @@ class listing:
         pass
 
     def previous(self, b,count=1):
-	for i in range(count):
-	    while True:
-		if self.start_line <= 0:
-		    break
-		self.start_line -= 1
-		if (self.program[self.start_line][0] == 'N' or
-		    self.program[self.start_line][0] == 'n' ):
-		    break
+        for i in range(count):
+            while True:
+                if self.start_line <= 0:
+                    break
+                self.start_line -= 1
+                if (self.program[self.start_line][0] == 'N' or
+                    self.program[self.start_line][0] == 'n' ):
+                    break
         self.show_line(self.start_line)
 
     def next(self,b,count=1):
         if count < 0: return self.previous(b, -count)
-	for i in range(count):
-	    while True:
-		if self.start_line >= len(self.program)-1:
-		    break
-		self.start_line += 1
-		if (self.program[self.start_line][0] == 'N' or
-		    self.program[self.start_line][0] == 'n' ):
-		    break
+        for i in range(count):
+            while True:
+                if self.start_line >= len(self.program)-1:
+                    break
+                self.start_line += 1
+                if (self.program[self.start_line][0] == 'N' or
+                    self.program[self.start_line][0] == 'n' ):
+                    break
         self.show_line(self.start_line)
 
     def clear_startline(self):

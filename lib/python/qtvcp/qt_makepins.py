@@ -18,7 +18,8 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import gobject
+from gi.repository import GObject as gobject
+
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
 from qtvcp.core import QComponent
@@ -26,7 +27,7 @@ from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QDesktopWidget
 
 # Set up logging
-import logger
+from . import logger
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -124,8 +125,8 @@ class QTPanel():
             go( x,y,w,h)
 
 if __name__ == "__main__":
-    print "qtvcp_make_pins cannot be run on its own"
-    print "It must be called by qtscreen or a python program"
-    print "that loads and displays the QT panel and creates a HAL component"
+    print("qtvcp_make_pins cannot be run on its own")
+    print("It must be called by qtscreen or a python program")
+    print("that loads and displays the QT panel and creates a HAL component")
 
 # vim: sts=4 sw=4 et

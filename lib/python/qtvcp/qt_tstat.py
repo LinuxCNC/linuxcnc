@@ -21,7 +21,7 @@ import hashlib
 
 from qtvcp.core import Info
 # Set up logging
-import logger
+from . import logger
 
 INFO = Info()
 LOG = logger.getLogger(__name__)
@@ -98,7 +98,7 @@ class _TStat(object):
         if self.toolfile == None:
             return None
         if not os.path.exists(self.toolfile):
-            print "Toolfile does not exist"
+            print("Toolfile does not exist")
             return None
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
@@ -137,7 +137,7 @@ class _TStat(object):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                 LOG.error("toolfile integer access: {}".format(self.toolfile))
+                                LOG.error("toolfile integer access: {}".format(self.toolfile))
                         else:
                             try:
                                 if float(word.lstrip(i)) < 0.000001:
@@ -174,7 +174,7 @@ class _TStat(object):
                     test = str(i).lstrip()  # floats
                     line = line + "%s%s "%(KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
-            print >>file,line
+            print(line, file=file)
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()

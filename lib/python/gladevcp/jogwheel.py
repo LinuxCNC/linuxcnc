@@ -20,13 +20,14 @@
 # GNU General Public License for more details.
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import math
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalJogWheelBase
+from .hal_widgets import _HalJogWheelBase
 
 class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     '''
@@ -264,7 +265,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     # Get propertys
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -273,7 +274,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 if name == 'show_counts':
                     self._show_counts = value

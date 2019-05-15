@@ -19,7 +19,8 @@ import gtk                  # base for pygtk widgets and constants
 import gtk.glade
 import sys                  # handle system calls
 import linuxcnc             # to get our own error sytsem
-import gobject              # needed to add the timer for periodic
+from gi.repository import GObject as gobject
+              # needed to add the timer for periodic
 import pygtk
 import gladevcp
 import pango
@@ -70,7 +71,7 @@ class ps_preferences(cp1):
 
 
 class ProbeScreenClass:
-    
+
     def get_preference_file_path(self):
         # we get the preference file, if there is none given in the INI
         # we use toolchange2.pref in the config dir
@@ -203,7 +204,7 @@ class ProbeScreenClass:
 #        print "joint_position=",self.stat.joint_position
 #        print "probed position=",self.stat.probed_position
         for i in range(0, len(probed_position)-1):
-             coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
+            coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
         angl=self.stat.rotation_xy
         res=self.rott00_point(coord[0],coord[1],-angl)
         coord[0]=res[0]
@@ -260,7 +261,7 @@ class ProbeScreenClass:
             s +=  " R%s"%a                      
             self.gcode(s)
             time.sleep(1)
-                
+
 
     # Spin  buttons
 
@@ -521,7 +522,7 @@ class ProbeScreenClass:
         time.sleep(1)
 
 
-       
+
     # --------------  Command buttons -----------------
     #               Measurement outside
     # -------------------------------------------------

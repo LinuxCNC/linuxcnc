@@ -164,7 +164,7 @@ option add *Togl.lathetool #cccccc startupFile
 option add *Togl.lathetool_alpha .1 startupFile
 '''
 
-import commands, sys
+import subprocess, sys
 
 def install(root = None):
     if root is None: root = Tkinter._default_root

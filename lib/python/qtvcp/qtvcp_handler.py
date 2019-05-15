@@ -1,7 +1,7 @@
 import linuxcnc
 
 # Set up logging
-import logger
+from . import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
 #log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -36,7 +36,7 @@ class HandlerClass:
             self.cmnd.state(linuxcnc.STATE_ON)
         else:
             self.cmnd.state(linuxcnc.STATE_OFF)
-                
+
 
     def home_clicked(self):
         log.debug('home click')
@@ -45,4 +45,4 @@ class HandlerClass:
 
 # standard handler call
 def get_handlers(halcomp,widgets):
-     return [HandlerClass(halcomp,widgets)]
+    return [HandlerClass(halcomp,widgets)]

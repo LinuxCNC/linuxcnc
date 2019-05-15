@@ -88,9 +88,9 @@ class StateLED(LED):
             STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
 
     def _flip_state(self, data):
-            if self.invert_state:
-                data = not data
-            self.change_state(data)
+        if self.invert_state:
+            data = not data
+        self.change_state(data)
 
     def joint_homed(self, joint):
         if int(joint) == self.joint_number:

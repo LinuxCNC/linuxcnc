@@ -131,11 +131,11 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             LOG.warning('{} : no option recognised'.format(self.HAL_NAME_))
 
     def _set_text(self, data):
-            tmpl = lambda s: str(self._textTemplate) % s
-            self.setText(tmpl(data))
+        tmpl = lambda s: str(self._textTemplate) % s
+        self.setText(tmpl(data))
     def _set_alt_text(self, data):
-            tmpl = lambda s: str(self._alt_textTemplate) % s
-            self.setText(tmpl(data))
+        tmpl = lambda s: str(self._alt_textTemplate) % s
+        self.setText(tmpl(data))
 
     def _set_feedrate_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:

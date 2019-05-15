@@ -11,10 +11,10 @@ try:
     CONFIGPATH = os.environ['CONFIG_DIR']
     CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
 except:
-    print '**** PANEL COMMAND: no panelui.ini file in config directory'
+    print('**** PANEL COMMAND: no panelui.ini file in config directory')
     CONFIGPATH = os.path.expanduser("~")
     CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
-print "Validating panelui INI file from: ",CONFIGDIR
+print("Validating panelui INI file from: ",CONFIGDIR)
 
 def list_check(value):
     if not isinstance(value, list):
@@ -45,14 +45,14 @@ if result != True:
         # each entry is a tuple
         section_list, key, error = entry
         if key is not None:
-           section_list.append(key)
+            section_list.append(key)
         else:
             section_list.append('[missing section]')
         section_string = ', '.join(section_list)
         if error == False:
             error = 'Missing value or section.'
-        print 'PANELUI:',section_string, ' = ', error
+        print('PANELUI:',section_string, ' = ', error)
 else:
-    print 'PANELUI: validation found no obvious errors'
+    print('PANELUI: validation found no obvious errors')
 shutil.copy2(CONFIGDIR, os.path.join(CONFIGPATH, '_panelui.ini~'))
 config.write()

@@ -187,8 +187,18 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                     STATUS.emit('play-sound', '%s' % self.sound_type)
                 #os.system("beep -f 555 ")
             else:
-                self.hide()
-                LOG.debug('Overlay - Hide')
+                self.bg_color = QColor(0, 0, 0, 150)
+            if text:
+                self.text = text
+            self.show()
+            self.update()
+            LOG.debug('Overlay - Show')
+            if self.play_sound:
+                STATUS.emit('play-alert', '%s' % self.sound_type)
+            #os.system("beep -f 555 ")
+        else:
+            self.hide()
+            LOG.debug('Overlay - Hide')
 
     # Ok paint everything
     def paintEvent(self, event):

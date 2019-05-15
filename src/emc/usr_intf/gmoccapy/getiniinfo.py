@@ -66,7 +66,7 @@ class GetIniInfo:
             else:
                 machinename = machinename.replace(" ", "_")
                 temp = os.path.join(CONFIGPATH, "%s.pref" % machinename)
-        print("**** GMOCCAPY GETINIINFO **** \nPreference file path: %s" % temp)
+        print(("**** GMOCCAPY GETINIINFO **** \nPreference file path: %s" % temp))
         return temp
 
     def get_coordinates(self):
@@ -99,12 +99,12 @@ class GetIniInfo:
         # we will find out the relation between joint and axis.
         # first we look if the kinematics module will be loaded with the coordinates parameter
         temp = self.inifile.find("KINS", "KINEMATICS").split()
-        print("found kinematics module", temp)
+        print(("found kinematics module", temp))
 
         if temp[0].lower() != "trivkins":
             print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
             print("Will use mode to switch between Joints and World mode")
-            print("hopefully supported by the used <<%s>> module\n"%temp[0])
+            print(("hopefully supported by the used <<%s>> module\n"%temp[0]))
             return None
 
         # follow the order given in $ man trivkins
@@ -117,12 +117,12 @@ class GetIniInfo:
         joint_axis_dic = {}
         coordinates = None
         for entry in temp:
-            print("Entry =", entry )
+            print(("Entry =", entry ))
             if "coordinates" in entry.lower():
                 coordinates = entry.split("=")[1].lower()
-                print("found the following coordinates", coordinates )
+                print(("found the following coordinates", coordinates ))
             if "kinstype" in entry.lower():
-                print ("found kinstype", entry.split("=")[1])
+                print(("found kinstype", entry.split("=")[1]))
                 # we will not take care of this one, because linuxcnc will take
                 # care about the differences between KINEMATICS_IDENTITY and others
                 # a additional check is done on some places within the gmoccapy code
@@ -134,8 +134,8 @@ class GetIniInfo:
 
         # at this point we should have the coordinates of the config, we will check if the amount of
         # coordinates does match the [KINS] JOINTS part
-        print("Number of joints = ", self.get_joints())
-        print("%s COORDINATES found = %s" %(len(coordinates), coordinates))
+        print(("Number of joints = ", self.get_joints()))
+        print(("%s COORDINATES found = %s" %(len(coordinates), coordinates)))
 
         # let us check if there are double letters, as that would be a gantry machine
         double_axis_letter = []
@@ -144,7 +144,7 @@ class GetIniInfo:
                 # OK we have a special case here, we need to take care off
                 # i.e. a Gantry XYYZ config
                 double_axis_letter.append(axisletter)
-                print("Fount double letter ", double_axis_letter)
+                print(("Fount double letter ", double_axis_letter))
 
         if self.get_joints() == len(coordinates):
             count = 0
@@ -153,7 +153,7 @@ class GetIniInfo:
                     axisletter = axisletter + str(count)
                     count += 1
                 joint_axis_dic[axisletter] = joint
-                print("axis %s = joint %s" %(axisletter, joint_axis_dic[axisletter]))
+                print(("axis %s = joint %s" %(axisletter, joint_axis_dic[axisletter])))
         else:
             print("\n**** GMOCCAPY GETINIINFO **** ")
             print("Amount of joints from [KINS]JOINTS= is not identical with axisletters")
@@ -295,7 +295,7 @@ class GetIniInfo:
         # and we want to set the default path
         default_path = self.inifile.find("DISPLAY", "PROGRAM_PREFIX")
         if not default_path:
-            print("**** GMOCCAPY GETINIINFO **** \nPath %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
+            print(("**** GMOCCAPY GETINIINFO **** \nPath %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path))
             print("**** GMOCCAPY GETINIINFO **** \nTrying default path...")
             default_path = "~/linuxcnc/nc_files/"
             if not os.path.exists(os.path.expanduser(default_path)):
@@ -413,5 +413,5 @@ class GetIniInfo:
                 if " " in element:
                     print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
-            messages = zip(message_text, message_type, message_pinname)
+            messages = list(zip(message_text, message_type, message_pinname))
             return messages

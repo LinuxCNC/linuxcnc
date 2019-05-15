@@ -23,7 +23,8 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 '''
-import gobject
+from gi.repository import GObject as gobject
+
 import gst
 
 # the player class does the work of playing the audio hints
@@ -58,5 +59,5 @@ class Player:
             # Error ocurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            print ("Error: %s" % err, debug)
+            print(("Error: %s" % err, debug))
             self.loop.quit()

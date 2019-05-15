@@ -26,7 +26,7 @@ from linuxcnc import ini
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Our custom colorizing formatter for the terminal handler
-from lib.colored_formatter import ColoredFormatter
+from .lib.colored_formatter import ColoredFormatter
 
 
 # Global name of the base logger

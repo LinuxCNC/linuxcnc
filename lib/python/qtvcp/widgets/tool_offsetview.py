@@ -152,8 +152,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
             # #TODO make sure we switch to correct units for machine when saving file
             try:
-                    qualified = float(data)
-                    #qualified = float(locale.atof(data))
+                qualified = float(data)
+                #qualified = float(locale.atof(data))
             except Exception as e:
                 LOG.exception(e)
                 qualified = None

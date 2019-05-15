@@ -210,7 +210,8 @@ class Player:
         return setattr(self, item, value)
 
 if __name__ == "__main__":
-    import gobject
+    from gi.repository import GObject as gobject
+
     try:
         test = Player()
         test.play_error()
@@ -222,4 +223,4 @@ if __name__ == "__main__":
     except Exception as e:
         print e
 
- 
+

@@ -29,7 +29,8 @@
 '''
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import os
 import mimetypes
 import gio
@@ -187,7 +188,7 @@ class IconFileSelection(gtk.HBox):
         vbox.pack_start(self.file_label, False, True, 0)
 
         self.store = self._create_store()
-        
+
         self.iconView = gtk.IconView(self.store)
         self.iconView.set_selection_mode(gtk.SELECTION_SINGLE)
 
@@ -215,17 +216,17 @@ class IconFileSelection(gtk.HBox):
         self.iconView.connect("selection-changed",  self._on_selection_changed)
         # will be emitted, when the widget is destroyed
         self.connect("destroy", gtk.main_quit)      
-        
+
         self.add(vbox)
         self.show_all()
 
         # To use the the events, we have to unmask them
         self.iconView.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.iconView.connect("button_press_event", self._button_press)
-        
+
         self._fill_store()
         self._init_button_state()
-        
+
     def _init_button_state(self):    
         # we need this to check for differnces in the button state
         self.button_state["btn_home"] = self.btn_home.get_sensitive()
@@ -235,7 +236,7 @@ class IconFileSelection(gtk.HBox):
         self.button_state["btn_jump_to"] = self.btn_jump_to.get_sensitive()
         self.button_state["btn_select"] = self.btn_select.get_sensitive()
         self.old_button_state = self.button_state.copy()
-        
+
     # With the left mouse button and a dobble click, the file can be selected
     def _button_press(self, widget, event):
         # left button used?
@@ -271,7 +272,7 @@ class IconFileSelection(gtk.HBox):
     def _fill_store(self):
         if self.cur_dir == None:
             return
-        
+
         try:
             self.store.clear()
             number = 0
@@ -300,22 +301,22 @@ class IconFileSelection(gtk.HBox):
                             number += 1
                     except:
                         pass
-    
+
             if self.sortorder not in [_ASCENDING, _DESCENDING, _FOLDERFIRST, _FILEFIRST]:
                 self.sortorder = _FOLDERFIRST
-    
+
             if self.sortorder == _ASCENDING or self.sortorder == _DESCENDING:
                 allobjects = dirs
                 allobjects.extend(files)
                 allobjects.sort(cmp = None, key = None, reverse = not self.sortorder == _ASCENDING)
-    
+
                 for obj in allobjects:
                     if os.path.isdir(os.path.join(self.cur_dir, obj)):
                         self.store.append([obj, self.dirIcon, True])
                     else:
                         icon = self._get_icon(obj)
                         self.store.append([obj, icon, False])
-    
+
             dirs.sort(cmp = None, key = None, reverse = False)
             files.sort(cmp = None, key = None, reverse = False)
             if self.sortorder == _FOLDERFIRST:
@@ -335,7 +336,7 @@ class IconFileSelection(gtk.HBox):
         finally:
             # check the stat of the button and set them as they should be
             self.check_button_state()
-        
+
     def check_button_state(self):
         if self.model.get_iter_first() == None:
             state = False
@@ -360,11 +361,11 @@ class IconFileSelection(gtk.HBox):
         self.btn_select.set_sensitive(not state)
         self.button_state["btn_select"] = not state        
         self.state_changed()
-        
+
     def state_changed(self):
         # find the differnce
-        diff = set(self.button_state.iteritems()) - set(self.old_button_state.iteritems())
-        for key in self.button_state.keys():
+        diff = set(self.button_state.items()) - set(self.old_button_state.items())
+        for key in list(self.button_state.keys()):
             try:
                 if self.button_state[key] != self.old_button_state[key]:
                     self.emit("sensitive",key, self.button_state[key])
@@ -451,7 +452,7 @@ class IconFileSelection(gtk.HBox):
 #        print("This is the row :", row)
 #        print(self.iconView.get_columns())
 
-        
+
 #        self.iconView.item_activated(self.iconView.get_cursor()[0])
 #        print("go down")
 #        print("columns = ",self.iconView.get_columns())
@@ -532,7 +533,7 @@ class IconFileSelection(gtk.HBox):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown iconview get_property %s' % property.name)
@@ -540,7 +541,7 @@ class IconFileSelection(gtk.HBox):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 self.queue_draw()
                 if name == 'icon_size':
@@ -577,7 +578,7 @@ def main():
     window.show_all()
     window.set_size_request(680, 480)
     gtk.main()
-    
+
 
 if __name__ == "__main__":
     main()
