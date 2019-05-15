@@ -29,7 +29,8 @@
 #        calculating the hight of the popup.
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import pango
 
 class Notification(gtk.Window):
@@ -149,7 +150,7 @@ class Notification(gtk.Window):
     # if to long for the frame
     def add_message(self, message, icon_file_name):
         '''Notification.add_message(messagetext, icon_file_name)
-        
+
            messagetext = a string to display
            icon_file_name = a valid absolut path to an icon or None
         '''
@@ -192,7 +193,7 @@ class Notification(gtk.Window):
     def del_message(self, messagenumber):
         '''del_message(messagenumber)
            delete the message with the given number
-           
+
            messagenumber = integer
                            -1 will erase all messages
         '''
@@ -242,7 +243,7 @@ class Notification(gtk.Window):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown notification get_property %s' % property.name)
@@ -250,7 +251,7 @@ class Notification(gtk.Window):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 self.queue_draw()
                 if name == 'icon_size':
@@ -272,7 +273,7 @@ class Notification(gtk.Window):
             else:
                 raise AttributeError('unknown notification set_property %s' % property.name)
         except:
-            print('Attribute error', property, "and", type(value) , value)
+            print(('Attribute error', property, "and", type(value) , value))
             pass
 
 # for testing without glade editor:
@@ -283,7 +284,7 @@ def main():
     notification.add_message('Hallo World ', '/usr/share/gmoccapy/images/std_info.gif')
     notification.show()
     def debug(self, text):
-        print "debug", text
+        print("debug", text)
     notification.connect("message_deleted", debug)
     gtk.main()
 

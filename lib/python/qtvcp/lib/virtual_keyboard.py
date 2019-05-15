@@ -17,7 +17,7 @@ class virt_keyboard():
 
     def _hal_init(self):
         GSTAT.connect('virtual-keyboard', self.command)
-    
+
     def command(self, w, command):
         if command.lower() == 'show':
             self.init_keyboard()

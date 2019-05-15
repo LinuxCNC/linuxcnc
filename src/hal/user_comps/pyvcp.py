@@ -40,15 +40,15 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 import vcpparse
 import hal
-from Tkinter import Tk
+from tkinter import Tk
 import getopt
 
 def usage():
     """ prints the usage message """
-    print "Usage: pyvcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.xml"
-    print "If the component name is not specified, the basename of the xml file is used."
-    print "-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen"
-    print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
+    print("Usage: pyvcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.xml")
+    print("If the component name is not specified, the basename of the xml file is used.")
+    print("-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen")
+    print("use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position")
 
 def main():
     """ creates a HAL component.
@@ -56,8 +56,8 @@ def main():
     """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "c:g:")
-    except getopt.GetoptError, detail:
-        print detail
+    except getopt.GetoptError as detail:
+        print(detail)
         usage()
         sys.exit(1)
     window_geometry = None
@@ -67,7 +67,7 @@ def main():
             component_name = a
         if o == "-g": 
             window_geometry = a
-        
+
 
     try:
         filename=args[0]
@@ -76,13 +76,13 @@ def main():
         sys.exit(1)
 
     if component_name is None:
-	component_name = os.path.splitext(os.path.basename(filename))[0]
+        component_name = os.path.splitext(os.path.basename(filename))[0]
 
     pyvcp0 = Tk()
     pyvcp0.title(component_name)
     if window_geometry:
         pyvcp0.geometry(window_geometry)
-   
+
     vcpparse.filename=filename
     pycomp=vcpparse.create_vcp(compname=component_name, master=pyvcp0)
     pycomp.ready()

@@ -20,13 +20,14 @@
 # GNU General Public License for more details.
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 from math import pi
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalSpeedControlBase
+from .hal_widgets import _HalSpeedControlBase
 
 class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     '''
@@ -125,7 +126,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.btn_minus = gtk.Button("-")
         self.btn_minus.connect("pressed", self.on_btn_minus_pressed)
         self.btn_minus.connect("released", self.on_btn_minus_released)
-        
+
         self.draw = gtk.DrawingArea()
         self.draw.connect("expose-event", self.expose)
 
@@ -154,7 +155,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
         # the scaled value to be handled in hal
         self.hal_pin_scaled_value = self.hal.newpin(self.hal_name+".scaled-value", hal.HAL_FLOAT, hal.HAL_OUT)     
-        
+
         # pins to allow hardware button to be connected to the software button
         self.hal_pin_increase = self.hal.newpin(self.hal_name+".increase", hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin_increase.connect("value-changed", self._on_plus_changed)
@@ -205,13 +206,13 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
         self.cr.set_line_width(linewith)
         self.cr.set_source_rgb(0, 0, 0)
-        
+
         # get the middle points of the corner radius
         tl = [radius, radius]                   # Top Left
         tr = [w - radius, radius]               # Top Right
         bl = [w - radius, self._size - radius]  # Bottom Left
         br = [radius, self._size - radius]      # Bottom Right
-        
+
         # could be written shorter, but this way it is easier to understand
         self.cr.arc(tl[0], tl[1], radius, 2 * (pi/2), 3 * (pi/2))
         self.cr.arc(tr[0], tr[1], radius, 3 * (pi/2), 4 * (pi/2))
@@ -250,7 +251,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     # so it will do also to hal_widget_base
     def get_value(self):
         return self._value
-    
+
     # if the value does change from outside, i.e. changing the adjustment value 
     # we are not sync, so 
     def _on_value_changed(self, widget):
@@ -279,7 +280,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
             gobject.source_remove(self.timer_id)
         except:
             pass
-    
+
     # increase the value    
     def increase(self):
         value = self.adjustment.get_value()
@@ -367,7 +368,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.adjustment.set_page_size(adjustment.get_page_size())
         self._value = self.adjustment.get_value()
         self.set_value(self._value)    
-        
+
     # Hiding the button, the widget can also be used as pure value bar    
     def hide_button(self, state):
         if state:
@@ -386,7 +387,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
             self.btn_minus.set_sensitive(False)
         else:
             self.btn_minus.set_sensitive(True)
-            
+
         if self._value >= self._max:
             self._value = self._max
             self.btn_plus.set_sensitive(False)
@@ -396,12 +397,12 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     # Get properties
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             if name == 'color':
                 col = getattr(self, name)
                 colorstring = col.to_string()
-                print("col = ",col)
-                print("colorstring = ",colorstring)
+                print(("col = ",col))
+                print(("colorstring = ",colorstring))
                 return getattr(self, name)
             return getattr(self, name)
         else:
@@ -411,7 +412,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 if name == "height":
                     self._size = value

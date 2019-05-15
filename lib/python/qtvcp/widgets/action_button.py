@@ -561,11 +561,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     def _set_text(self, data):
-            tmpl = lambda s: str(self._textTemplate) % s
-            self.setText(tmpl(data))
+        tmpl = lambda s: str(self._textTemplate) % s
+        self.setText(tmpl(data))
     def _set_alt_text(self, data):
-            tmpl = lambda s: str(self._alt_textTemplate) % s
-            self.setText(tmpl(data))
+        tmpl = lambda s: str(self._alt_textTemplate) % s
+        self.setText(tmpl(data))
 
     #########################################################################
     # This is how designer can interact with our widget properties.

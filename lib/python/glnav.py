@@ -31,7 +31,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
 
     base = glGenLists(count)
     for i in range(count):
-        ch = unichr(start+i)
+        ch = chr(start+i)
         layout.set_text(ch)
         w, h = layout.get_size()
         context.save()
@@ -106,7 +106,7 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     w.lon = lon
 
 def sub(x, y):
-    return map(lambda a, b: a-b, x, y)
+    return list(map(lambda a, b: a-b, x, y))
 
 def dot(x, y):
     t = 0
@@ -115,8 +115,8 @@ def dot(x, y):
     return t
 
 def glDistFromLine(x, p1, p2):
-    f = map(lambda x, y: x-y, p2, p1)
-    g = map(lambda x, y: x-y, x, p1)
+    f = list(map(lambda x, y: x-y, p2, p1))
+    g = list(map(lambda x, y: x-y, x, p1))
     return dot(g, g) - dot(f, g)**2/dot(f, f)
 
 def v3distsq(a,b):

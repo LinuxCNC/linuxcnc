@@ -121,7 +121,7 @@ class StyleSheetEditor(QDialog):
         if self.tabWidget.currentIndex() == 0:
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
         else:
-           self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
+            self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
 
     @pyqtSlot()
     def on_openButton_clicked(self):

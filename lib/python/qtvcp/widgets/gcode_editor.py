@@ -368,8 +368,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             self.setCursorPosition(self.lines(), 0)
 
     def load_preference(self, w):
-            self.load_text(self.PATHS_.PREFS_FILENAME)
-            self.setCursorPosition(self.lines(), 0)
+        self.load_text(self.PATHS_.PREFS_FILENAME)
+        self.setCursorPosition(self.lines(), 0)
 
     def load_text(self, filename):
         if filename:

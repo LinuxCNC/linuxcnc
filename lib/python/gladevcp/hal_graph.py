@@ -14,14 +14,15 @@
 # GNU General Public License for more details.
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import cairo
 import math
 import gtk.glade
 import time
 from collections import deque
 
-from hal_widgets import _HalWidgetBase, hal
+from .hal_widgets import _HalWidgetBase, hal
 
 MAX_INT = 0x7fffffff
 
@@ -168,7 +169,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         #tw = self.tick_period * w / self.period
         tnow = now = time.time()
         if self.ticks_saved:
-            now = max(map(lambda x: x[0], self.ticks_saved))
+            now = max([x[0] for x in self.ticks_saved])
 
         cr.set_source_rgb(0, 0, 0)
 
@@ -185,7 +186,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         ymin, ymax = self.min, self.max
         yticks = self.yticks
         if self.autoscale:
-            tv = map(lambda x: x[1], self.ticks_saved + list(self.ticks))
+            tv = [x[1] for x in self.ticks_saved + list(self.ticks)]
             if tv:
                 ymin, ymax = min(tv), max(tv)
                 ymin -= abs(ymin) * 0.1
@@ -312,7 +313,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -327,7 +328,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
             if not value:
                 return False
 
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             self.queue_draw()
         else:

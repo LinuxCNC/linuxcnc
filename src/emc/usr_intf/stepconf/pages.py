@@ -31,10 +31,13 @@
 #import gtk
 import os
 from gi.repository import Gtk
-#import gobject
-from gi.repository import GObject
+#from gi.repository import GObject as gobject
+
+from gi.repository import GObject as gobject
+
 import sys
-reload(sys)
+import importlib
+importlib.reload(sys)
 sys.setdefaultencoding('utf8')
 
 class Pages:
@@ -203,7 +206,7 @@ class Pages:
 
     def start_finish(self):
         if self.w.importmach.get_active():
-            print 'Import Mach config'
+            print('Import Mach config')
             from stepconf import import_mach
             self.d.load('/tmp/temp.stepconf', self)
             if not debug:
@@ -262,11 +265,11 @@ class Pages:
         #self.w.ioaddr3.set_text(self.d.ioaddr3)
         #self.w.pp3_direction.set_active(self.d.pp3_direction)
         if self.d.number_pports>2:
-             self.w.radio_pp3.set_active(True)
+            self.w.radio_pp3.set_active(True)
         elif self.d.number_pports>1:
-             self.w.radio_pp2.set_active(True)
+            self.w.radio_pp2.set_active(True)
         else:
-             self.w.radio_pp1.set_active(True)
+            self.w.radio_pp1.set_active(True)
 
     def base_finish(self):
         self.w.drivetime_expander.set_expanded(False)
@@ -304,14 +307,14 @@ class Pages:
         self.w.pp2_direction.set_sensitive(i)
         self.w.ioaddr2.set_sensitive(i)
         if i == 0:
-           self.w.pp3_checkbutton.set_active(i)
-           self.w.ioaddr3.set_sensitive(i)
+            self.w.pp3_checkbutton.set_active(i)
+            self.w.ioaddr3.set_sensitive(i)
 
     def on_pp3_checkbutton_toggled(self, *args): 
         i = self.w.pp3_checkbutton.get_active() 
         if self.w.pp2_checkbutton.get_active() ==0:
-          i=0  
-          self.w.pp3_checkbutton.set_active(0)
+            i=0  
+            self.w.pp3_checkbutton.set_active(0)
         self.w.pp3_direction.set_sensitive(i)
         self.w.ioaddr3.set_sensitive(i)
 
@@ -334,7 +337,7 @@ class Pages:
         self.w.pyvcp.set_active(self.d.pyvcp)
         self.on_pyvcp_toggled()
         if  not self.w.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
+            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                 self.w.radiobutton8.set_active(True)
         self.w.select_axis.set_active(self.d.select_axis)
         self.w.select_gmoccapy.set_active(self.d.select_gmoccapy)
@@ -353,7 +356,7 @@ class Pages:
         self.on_classicladder_toggled()
         self.w.manualtoolchange.set_active(self.d.manualtoolchange)
         if  not self.w.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
+            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
 
     def options_finish(self):
@@ -374,47 +377,47 @@ class Pages:
         self.d.ladderconnect = self.w.ladderconnect.get_active()   
         self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
         if self.d.classicladder:
-           if self.w.radiobutton1.get_active() == True:
-              if self.d.tempexists:
-                   self.d.laddername='TEMP.clp'
-              else:
-                   self.d.laddername= 'blank.clp'
-                   self.d.ladderhaltype = 0
-           if self.w.radiobutton2.get_active() == True:
-              self.d.laddername = 'estop.clp'
-              inputs = self.a.build_input_set()
-              if SIG.ESTOP_IN not in inputs:
-                 self.a.warning_dialog(self._p.MESS_NO_ESTOP,True)
-                 return True # don't advance the page
-              self.d.ladderhaltype = 1
-           if self.w.radiobutton3.get_active() == True:
-                 self.d.laddername = 'serialmodbus.clp'
-                 self.d.modbus = 1
-                 self.w.modbus.set_active(self.d.modbus) 
-                 self.d.ladderhaltype = 0          
-           if self.w.radiobutton4.get_active() == True:
-              self.d.laddername='custom.clp'
-           else:
-               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
-                  if not self.a.warning_dialog(self._p.MESS_CL_REWRITE,False):
-                     return True # don't advance the page
-           if self.w.radiobutton1.get_active() == False:
-              if os.path.exists(os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")):
-                 if not self.a.warning_dialog(self._p.MESS_CL_EDITTED,False):
-                   return True # don't advance the page
+            if self.w.radiobutton1.get_active() == True:
+                if self.d.tempexists:
+                    self.d.laddername='TEMP.clp'
+                else:
+                    self.d.laddername= 'blank.clp'
+                    self.d.ladderhaltype = 0
+            if self.w.radiobutton2.get_active() == True:
+                self.d.laddername = 'estop.clp'
+                inputs = self.a.build_input_set()
+                if SIG.ESTOP_IN not in inputs:
+                    self.a.warning_dialog(self._p.MESS_NO_ESTOP,True)
+                    return True # don't advance the page
+                self.d.ladderhaltype = 1
+            if self.w.radiobutton3.get_active() == True:
+                self.d.laddername = 'serialmodbus.clp'
+                self.d.modbus = 1
+                self.w.modbus.set_active(self.d.modbus) 
+                self.d.ladderhaltype = 0          
+            if self.w.radiobutton4.get_active() == True:
+                self.d.laddername='custom.clp'
+            else:
+                if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
+                    if not self.a.warning_dialog(self._p.MESS_CL_REWRITE,False):
+                        return True # don't advance the page
+            if self.w.radiobutton1.get_active() == False:
+                if os.path.exists(os.path.join(self._p.distdir, "configurable_options/ladder/TEMP.clp")):
+                    if not self.a.warning_dialog(self._p.MESS_CL_EDITTED,False):
+                        return True # don't advance the page
         if self.d.pyvcp == True:
-           if self.w.radiobutton5.get_active() == True:
-              self.d.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
-           if self.w.radiobutton6.get_active() == True:
-              self.d.pyvcpname = "spindle.xml"
-              self.d.pyvcphaltype = 1
-           if self.w.radiobutton8.get_active() == True:
-              self.d.pyvcpname = "custompanel.xml"
-           else:
-              if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
-                 if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
-                   return True
+            if self.w.radiobutton5.get_active() == True:
+                self.d.pyvcpname = "blank.xml"
+                self.pyvcphaltype = 0
+            if self.w.radiobutton6.get_active() == True:
+                self.d.pyvcpname = "spindle.xml"
+                self.d.pyvcphaltype = 1
+            if self.w.radiobutton8.get_active() == True:
+                self.d.pyvcpname = "custompanel.xml"
+            else:
+                if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
+                    if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
+                        return True
 
     # options page callback
     def on_loadladder_clicked(self, *args):
@@ -566,7 +569,7 @@ class Pages:
 
     def on_preselect_button_clicked(self, widget):
         state = self.w.preset_combo.get_active()
-        print state
+        print(state)
         if state == 0:
             self.a.preset_sherline_outputs()
         elif state ==1:
@@ -775,19 +778,19 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
+            self.w[axis + "accunits"].set_text(_("deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
+            self.w[axis + "accunits"].set_text(_("mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_(u"in / s²"))
+            self.w[axis + "accunits"].set_text(_("in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 

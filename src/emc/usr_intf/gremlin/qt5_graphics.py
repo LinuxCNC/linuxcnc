@@ -39,7 +39,7 @@ import tempfile
 import shutil
 import os
 
-import thread
+import _thread
 
 ###################################
 # For stand alone window
@@ -48,7 +48,7 @@ class Window(QWidget):
     def __init__(self, inifile):
         super(Window, self).__init__()
         self.glWidget = Lcnc_3dGraphics()
-  
+
         self.xSlider = self.createSlider()
         self.ySlider = self.createSlider()
         self.zSlider = self.createSlider()
@@ -69,34 +69,34 @@ class Window(QWidget):
         mainLayout.addWidget(self.zSlider)
         mainLayout.addWidget(self.zoomSlider)
         self.setLayout(mainLayout)
-  
+
         self.xSlider.setValue(15 * 16)
         self.ySlider.setValue(345 * 16)
         self.zSlider.setValue(0 * 16)
         self.zSlider.setValue(10)
 
         self.setWindowTitle("Hello GL")
-  
+
     def createSlider(self):
         slider = QSlider(Qt.Vertical)
-  
+
         slider.setRange(0, 360 * 16)
         slider.setSingleStep(16)
         slider.setPageStep(15 * 16)
         slider.setTickInterval(15 * 16)
         slider.setTickPosition(QSlider.TicksRight)
-  
+
         return slider
 
     def createZoomSlider(self):
         slider = QSlider(Qt.Vertical)
-  
+
         slider.setRange(1, 1000000)
         slider.setSingleStep(1)
         slider.setPageStep(10)
         slider.setTickInterval(10)
         slider.setTickPosition(QSlider.TicksRight)
-  
+
         return slider
 
 #################
@@ -149,7 +149,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.get_geometry()
         )
         # start tracking linuxcnc position so we can plot it
-        thread.start_new_thread(self.logger.start, (.01,))
+        _thread.start_new_thread(self.logger.start, (.01,))
         glcanon.GlCanonDraw.__init__(self, linuxcnc.stat(), self.logger)
 
         # set defaults
@@ -201,7 +201,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.xRot = 0
         self.yRot = 0
         self.zRot = 0
-  
+
         # add a 100ms timer to poll linuxcnc stats
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
@@ -258,7 +258,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.set_current_view()
 
     def calculate_gcode_properties(self, canon):
-        def dist((x,y,z),(p,q,r)):
+        def dist(xxx_todo_changeme, xxx_todo_changeme1):
+            (x,y,z) = xxx_todo_changeme
+            (p,q,r) = xxx_todo_changeme1
             return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
         def from_internal_units(pos, unit=None):
             if unit is None:
@@ -318,7 +320,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
                 canon.dwell_time
                 )
- 
+
             props['G0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['gG1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
             if gt > 120:
@@ -346,7 +348,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self._current_file = None
 
         self.font_base, width, linespace = \
-		glnav.use_pango_font('courier bold 16', 0, 128)
+                glnav.use_pango_font('courier bold 16', 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
@@ -481,7 +483,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         #GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0) # rotate on y
         #GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0) # rotate on z
 
-        
+
         try:
             if self.perspective:
                 self.redraw_perspective()
@@ -503,32 +505,32 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         h = self.winfo_height()
         GL.glViewport(0, 0, w, h)
         if self.use_gradient_background:
-                GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-                GL.glMatrixMode(GL.GL_PROJECTION)
-                GL.glMatrixMode(GL.GL_PROJECTION)
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+            GL.glMatrixMode(GL.GL_PROJECTION)
+            GL.glMatrixMode(GL.GL_PROJECTION)
 
-                GL.glPushMatrix()
-                GL.glLoadIdentity()
-    
-                GL.glMatrixMode(GL.GL_MODELVIEW)
-                GL.glLoadIdentity()
-                GL.glDisable(GL.GL_DEPTH_TEST)
-                GL.glBegin(GL.GL_QUADS)
-                #//blue color
-                GL.glColor3f(0.0, 0.0, 1)
-                GL.glVertex3f(-1.0, -1.0, -1.0)
-                GL.glVertex3f(1.0, -1.0, -1.0)
-                #//black color
-                GL.glColor3f(0.0, 0.0, 0.0)
-                GL.glVertex3f(1.0, 1.0, -1.0)
-                GL.glVertex3f(-1.0, 1.0, -1.0)
-               
-                GL.glEnd()
-                GL.glEnable(GL.GL_DEPTH_TEST)
-                GL.glMatrixMode(GL.GL_PROJECTION)
-                GL.glPopMatrix()
-                GL.glMatrixMode(GL.GL_MODELVIEW)
-                GL.glLoadIdentity()
+            GL.glPushMatrix()
+            GL.glLoadIdentity()
+
+            GL.glMatrixMode(GL.GL_MODELVIEW)
+            GL.glLoadIdentity()
+            GL.glDisable(GL.GL_DEPTH_TEST)
+            GL.glBegin(GL.GL_QUADS)
+            #//blue color
+            GL.glColor3f(0.0, 0.0, 1)
+            GL.glVertex3f(-1.0, -1.0, -1.0)
+            GL.glVertex3f(1.0, -1.0, -1.0)
+            #//black color
+            GL.glColor3f(0.0, 0.0, 0.0)
+            GL.glVertex3f(1.0, 1.0, -1.0)
+            GL.glVertex3f(-1.0, 1.0, -1.0)
+
+            GL.glEnd()
+            GL.glEnable(GL.GL_DEPTH_TEST)
+            GL.glMatrixMode(GL.GL_PROJECTION)
+            GL.glPopMatrix()
+            GL.glMatrixMode(GL.GL_MODELVIEW)
+            GL.glLoadIdentity()
         else:
             pass
             # Clear the background and depth buffer.
@@ -638,7 +640,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def makeObject(self):
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
-  
+
         GL.glBegin(GL.GL_QUADS)
 
         # Make a tee section
@@ -666,9 +668,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.extrude(x3, y3, x4, y4)
         self.extrude(x4, y4, y4, x4)
         self.extrude(y4, x4, y3, x3)
-  
+
         NumSectors = 200
-  
+
         # Make a circle
         for i in range(NumSectors):
             angle1 = (i * 2 * math.pi) / NumSectors
@@ -676,39 +678,39 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             y5 = 0.30 * math.cos(angle1)
             x6 = 0.20 * math.sin(angle1)
             y6 = 0.20 * math.cos(angle1)
-  
+
             angle2 = ((i + 1) * 2 * math.pi) / NumSectors
             x7 = 0.20 * math.sin(angle2)
             y7 = 0.20 * math.cos(angle2)
             x8 = 0.30 * math.sin(angle2)
             y8 = 0.30 * math.cos(angle2)
-  
+
             self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
-  
+
             self.extrude(x6, y6, x7, y7)
             self.extrude(x8, y8, x5, y5)
-  
+
         GL.glEnd()
         GL.glEndList()
-  
+
         return genList
-  
+
     def quad(self, x1, y1, x2, y2, x3, y3, x4, y4):
         self.qglColor(self.Green)
-  
+
         GL.glVertex3d(x1, y1, -0.05)
         GL.glVertex3d(x2, y2, -0.05)
         GL.glVertex3d(x3, y3, -0.05)
         GL.glVertex3d(x4, y4, -0.05)
-  
+
         GL.glVertex3d(x4, y4, +0.05)
         GL.glVertex3d(x3, y3, +0.05)
         GL.glVertex3d(x2, y2, +0.05)
         GL.glVertex3d(x1, y1, +0.05)
-  
+
     def extrude(self, x1, y1, x2, y2):
         self.qglColor(self.Green.darker(250 + int(100 * x1)))
-  
+
         GL.glVertex3d(x1, y1, +0.05)
         GL.glVertex3d(x2, y2, +0.05)
         GL.glVertex3d(x2, y2, -0.05)
@@ -729,5 +731,5 @@ if __name__ == '__main__':
     window = Window(inifilename)
     window.show()
     sys.exit(app.exec_())
-  
+
 

@@ -13,7 +13,8 @@
 # GNU General Public License for more details.
 
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import cairo
 import pango
 import math
@@ -39,7 +40,7 @@ import gtk.glade
 # button 'clicked' signal in code.  For this use you want to make sure 'button_halio_pin' is false or the button will remain 'active'
 # after the first click, and calls to get_active() will always return True.
 
-from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 clicked_signal = ('clicked', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
 
@@ -92,13 +93,13 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         super(HAL_LightButton, self).__init__()
 
         self.has_hal_pins = True
-        
+
         # When True, button_pin is HAL_IO.
         # Pressing the button sets the pin True, and it must be reset to False externally
         # When False, button_pin is HAL_OUT, and it's state is toggled by a button press,
         # which means this button becomes a togglebutton.
         self.button_halio_pin = True
-        
+
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
         self.light_on_color = gtk.gdk.Color('green')
@@ -113,14 +114,14 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.font_on_color = gtk.gdk.Color('black')
         self.font_off_color = gtk.gdk.Color('black')
         self.create_enable_pin = False
-        
+
         self.active = False
         self.light_is_on = False
         self.mouseover = False
-        
+
         self.default_pangolayout = self.create_pango_layout(self.button_text)
         self.on_pangolayout = self.create_pango_layout(self.button_on_text)
-        
+
         self.set_size_request(*self._size_request)
         self.set_events(gtk.gdk.EXPOSURE_MASK
                        | gtk.gdk.ENTER_NOTIFY_MASK
@@ -129,19 +130,19 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                        | gtk.gdk.BUTTON_RELEASE_MASK
                        | gtk.gdk.POINTER_MOTION_MASK
                        | gtk.gdk.POINTER_MOTION_HINT_MASK)
- 
+
         self.connect("expose-event", self.expose)
         #self.connect('button-press-event', self.pressed)
         #self.connect('button-release-event', self.released)
         #self.connect('state-changed', self._on_state_changed)
-        
+
     def do_enter_notify_event(self, event):
         self.mouseover = True
         self.queue_draw()
     def do_leave_notify_event(self, event):
         self.mouseover = False
         self.queue_draw()
-        
+
     def do_button_press_event(self, event):
         if event.button == 1:
             if self.is_momentary:
@@ -175,12 +176,12 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             if not self.is_momentary:
                 return True
             if (self.has_hal_pins):
-                    self.set_active(False)
-                    try:
-                        self.button_pin.set(False)
-                        self.button_pin_not.set(True)
-                    except:
-                        pass
+                self.set_active(False)
+                try:
+                    self.button_pin.set(False)
+                    self.button_pin_not.set(True)
+                except:
+                    pass
 
             else:
                 self.set_active(False)
@@ -210,14 +211,14 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             x_center = x + w2/2
             y_center = y + h2/2
             degrees = math.pi / 180.0
-            
+
             cr.new_sub_path()
             cr.arc(x + w2 - self.corner_radius, y + self.corner_radius, self.corner_radius, -90 * degrees, 0 * degrees)
             cr.arc(x + w2 - self.corner_radius, y + h2 - self.corner_radius, self.corner_radius, 0 * degrees, 90 * degrees)
             cr.arc(x + self.corner_radius, y + h2 - self.corner_radius, self.corner_radius, 90 * degrees, 180 * degrees)
             cr.arc(x + self.corner_radius, y + self.corner_radius, self.corner_radius, 180 * degrees, 270 * degrees)
             cr.close_path()
-            
+
             if (self.light_is_on):
                 color = self.light_on_color
                 if self.mouseover:
@@ -235,11 +236,11 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                     color1 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
                     color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
                     linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
-            
+
             cr.set_line_width(linewidth)
             set_color(linecolor)
             cr.stroke_preserve()
-            
+
             if (self.light_is_on == True) or (self.dual_color == True):
                 gradient_radius = (w2 + h2)
                 g1 = cairo.RadialGradient(x_center, y_center, 0, x_center, y_center, gradient_radius)
@@ -252,7 +253,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                 g1.add_color_stop_rgb(1.0, color2.red_float, color2.green_float, color2.blue_float)
             cr.set_source(g1)
             cr.fill()
-        
+
         #Using bitmaps is not implemented. Bitmaps should not be scaled unless you figure out a way to make them scale nicely
         #The main reason to use bitmaps would be if someone wants a different look from the default one
         #The code below is the basic way to do it.  update_widget_size() should use the button size instead of text size
@@ -262,7 +263,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             image = cairo.ImageSurface.create_from_png('resources/k_green.png')
             img_w = image.get_width()
             img_h = image.get_height()
-            print float(w)/img_w, float(h)/img_h
+            print(float(w)/img_w, float(h)/img_h)
             cr.set_source_surface(image, 0, 0)
             cr.paint()
             cr.restore()
@@ -275,13 +276,13 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                 _layout = self.on_pangolayout
         else:
             set_color(self.font_off_color)
- 
+
         fontw, fonth = _layout.get_pixel_size()
         cr.move_to((w - fontw)/2, (h - fonth)/2)
         cr.update_layout(_layout)
         cr.show_layout(_layout)
         return False
-    
+
     def update_font(self):
         if self.font_bold == True:
             fontweight = "bold"
@@ -290,35 +291,35 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.default_pangolayout.set_font_description(pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
         self.on_pangolayout.set_font_description(pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
         self.update_widget_size()
-    
+
     def update_widget_size(self):
         w1, h1 = self.default_pangolayout.get_pixel_size()
         w2, h2 = self.on_pangolayout.get_pixel_size()
         width = max(w1 + self.border_width*2, w2 + self.border_width*2)
         height = max(h1 + self.border_width*2, h2 + self.border_width*2)
         self.set_size_request(int(width), int(height))
-        
+
     # These set_* functions are called by the hal pin callbacks.
     # Set self.has_hal_pins = False if you want to control state with these functions directly
     #**************************************************************
-    
+
     def set_active(self, active):
         self.active = active
         self.queue_draw()
     def get_active(self):
         return self.active
-    
+
     def set_light_on(self, state):
         self.light_is_on = state
         self.queue_draw()
     def get_light_on(self):
         return self.light_is_on
-        
+
     def set_text(self, text):
         self.button_text = text
         self.default_pangolayout.set_text(text)
         self.update_widget_size()
-        
+
     def set_on_text(self, text):
         self.button_on_text = text
         self.on_pangolayout.set_text(text)
@@ -328,7 +329,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -339,7 +340,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             self.set_text(value)
         elif name == 'button_on_text':
             self.set_on_text(value)
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             if name in ['font_face', 'font_bold', 'font_size']:
                 self.update_font()
@@ -367,13 +368,13 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
 
             self.light_pin = self.hal.newpin(self.hal_name+'-light', hal.HAL_BIT, hal.HAL_IN)
             self.light_pin.connect('value-changed', self.light_pin_update)
-            
+
     def button_pin_update(self, hal_pin, data=None):
         self.set_active(bool(self.button_pin.get()))
     def enable_pin_update(self, hal_pin, data=None):
         self.set_sensitive(hal_pin.get())
     def light_pin_update(self, hal_pin, data=None):
         self.set_light_on(bool(self.light_pin.get()))
-    
+
 gobject.type_register(HAL_LightButton)
 

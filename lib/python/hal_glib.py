@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
 
-import _hal, hal, gobject
+import _hal, hal
+from gi.repository import GObject as gobject
 import linuxcnc
 import os
 import math
@@ -47,7 +48,7 @@ class GPin(gobject.GObject, hal.Pin):
                 p.update()
             except:
                 kill.append(p)
-                print "Error updating pin %s; Removing" % p
+                print("Error updating pin %s; Removing" % p)
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
@@ -251,7 +252,7 @@ class _GStat(gobject.GObject):
         try:
             self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
         except RuntimeError:
-             self.old['actual-spindle-speed'] = 0
+            self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
         self.old['mist']= self.stat.mist
         self.old['current-z-rotation'] = self.stat.rotation_xy
@@ -274,9 +275,9 @@ class _GStat(gobject.GObject):
         for i in sorted(self.stat.gcodes[1:]):
             if i == -1: continue
             if i % 10 == 0:
-                    active_gcodes.append("G%d" % (i/10))
+                active_gcodes.append("G%d" % (i/10))
             else:
-                    active_gcodes.append("G%d.%d" % (i/10, i%10))
+                active_gcodes.append("G%d.%d" % (i/10, i%10))
         for i in active_gcodes:
             codes = codes +('%s '%i)
         self.old['g-code'] = codes
@@ -509,7 +510,7 @@ class _GStat(gobject.GObject):
         tool_off_old = old.get('current-tool-offset', None)
         tool_off_new = self.old['current-tool-offset']
         if tool_off_new != tool_off_old:
-               self.emit('current-tool-offset',tool_off_new)
+            self.emit('current-tool-offset',tool_off_new)
         #############################
         # Gcodes
         #############################
@@ -869,19 +870,19 @@ class _GStat(gobject.GObject):
             return JOGJOINT
         if self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
             return JOGTELEOP
-        print "commands.py: unexpected motion_mode",self.stat.motion_mode
+        print("commands.py: unexpected motion_mode",self.stat.motion_mode)
         return JOGTELEOP
 
     def jnum_for_axisnum(self,axisnum):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            print ("\n%s:\n  Joint jogging not supported for"
-                   "non-identity kinematics"%__file__)
+            print(("\n%s:\n  Joint jogging not supported for"
+                   "non-identity kinematics"%__file__))
             return -1 # emcJogCont() et al reject neg joint/axis no.s
         jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
         if jnum > jointcount:
-            print ("\n%s:\n  Computed joint number=%d for axisnum=%d "
+            print(("\n%s:\n  Computed joint number=%d for axisnum=%d "
                    "exceeds jointcount=%d with trajcoordinates=%s"
-                   %(__file__,jnum,axisnum,jointcount,trajcoordinates))
+                   %(__file__,jnum,axisnum,jointcount,trajcoordinates)))
             # Note: primary gui should protect for this misconfiguration
             # decline to jog
             return -1 # emcJogCont() et al reject neg joint/axis no.s
@@ -901,7 +902,7 @@ class _GStat(gobject.GObject):
         g92_offset=list(self.stat.g92_offset)
         tool_offset=list(self.stat.tool_offset)
         for i in range(0, len(probed_position)-1):
-             coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
+            coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
         angl=self.stat.rotation_xy
         res=self._rott00_point(coord[0],coord[1],-angl)
         coord[0]=res[0]

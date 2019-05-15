@@ -36,13 +36,13 @@ fcd.set_current_folder(os.path.expanduser('~/Desktop'))
 fcd.add_filter(filter)
 response = fcd.run()
 if response == gtk.RESPONSE_OK:
-  file_name =  fcd.get_filename()
-  machinename = os.path.splitext(os.path.basename(fcd.get_filename()))[0]
+    file_name =  fcd.get_filename()
+    machinename = os.path.splitext(os.path.basename(fcd.get_filename()))[0]
 fcd.destroy()
 if response == gtk.RESPONSE_CANCEL:
-  quit(1)
-print file_name
-print machinename
+    quit(1)
+print(file_name)
+print(machinename)
 file = open(file_name,'r')
 #convert to string:
 data = file.read()
@@ -75,14 +75,14 @@ else:
 '''
 
 try:
-  xmlTag = dom.getElementsByTagName('Units')[0].toxml()
-  units =xmlTag.replace('<Units>','').replace('</Units>','')
-  if units == "0":
-    units = "1"
-  else:
-    units = "0"
+    xmlTag = dom.getElementsByTagName('Units')[0].toxml()
+    units =xmlTag.replace('<Units>','').replace('</Units>','')
+    if units == "0":
+        units = "1"
+    else:
+        units = "0"
 except IndexError:
-  units = "1"
+    units = "1"
 
 # create the pins dictionary
 dPins = {'1':'unused-output', '2':'unused-output', '2':'unused-output', '3':'unused-output', '4':'unused-output', '5':'unused-output', '6':'unused-output', '7':'unused-output', '8':'unused-output', '9':'unused-output', '10':'unused-input', '11':'unused-input', '12':'unused-input', '13':'unused-input', '14':'unused-output', '15':'unused-input', '16':'unused-output', '17':'unused-output'}
@@ -96,197 +96,197 @@ errors = ''
 xmlTag = dom.getElementsByTagName('Motor0Active')[0].toxml()
 xActive=xmlTag.replace('<Motor0Active>','').replace('</Motor0Active>','')
 if xActive == '1':
-  xmlTag = dom.getElementsByTagName('Motor0StepPin')[0].toxml()
-  xStepPin = xmlTag.replace('<Motor0StepPin>','').replace('</Motor0StepPin>','')
-  dPins[xStepPin] = 'xstep'
-  xmlTag = dom.getElementsByTagName('Motor0DirPin')[0].toxml()
-  xDirPin = xmlTag.replace('<Motor0DirPin>','').replace('</Motor0DirPin>','')
-  dPins[xDirPin] = 'xdir'
-  xmlTag = dom.getElementsByTagName('Motor0StepNeg')[0].toxml()
-  xStepInvert = xmlTag.replace('<Motor0StepNeg>','').replace('</Motor0StepNeg>','')
-  if xStepInvert == "1":
-    dInvert[xStepPin] = 'True'
-  xmlTag = dom.getElementsByTagName('Motor0DirNeg')[0].toxml()
-  xDirInvert = xmlTag.replace('<Motor0DirNeg>','').replace('</Motor0DirNeg>','')
-  if xDirInvert == "1":
-    dInvert[xDirPin] = 'True'
-  xmlTag = dom.getElementsByTagName('M0Max')[0].toxml()
-  xmaxlim = float(str(xmlTag.replace('<M0Max>','').replace('</M0Max>','')))
-  xmlTag = dom.getElementsByTagName('M0Min')[0].toxml()
-  xminlim = float(str(xmlTag.replace('<M0Min>','').replace('</M0Min>','')))
-  try:
-    xmlTag = dom.getElementsByTagName('Steps0')[0].toxml()
-    xscale = float(xmlTag.replace('<Steps0>','').replace('</Steps0>',''))
-    xleadscrew = float(xscale / 200)
-  except IndexError:
-    errors +=  "No X Axis Scale was found!\n"
-    xleadscrew = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Vel0')[0].toxml()
-    xmaxvel = float(xmlTag.replace('<Vel0>','').replace('</Vel0>',''))
-  except IndexError:
-    errors +=  "No X Axis Max Velocity was found!\n"
-    xmaxvel = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Acc0')[0].toxml()
-    xmaxacc = float(xmlTag.replace('<Acc0>','').replace('</Acc0>',''))
-  except IndexError:
-    errors +=  "No X Axis Acceleration was found!\n"
-    xmaxacc = 0.0
+    xmlTag = dom.getElementsByTagName('Motor0StepPin')[0].toxml()
+    xStepPin = xmlTag.replace('<Motor0StepPin>','').replace('</Motor0StepPin>','')
+    dPins[xStepPin] = 'xstep'
+    xmlTag = dom.getElementsByTagName('Motor0DirPin')[0].toxml()
+    xDirPin = xmlTag.replace('<Motor0DirPin>','').replace('</Motor0DirPin>','')
+    dPins[xDirPin] = 'xdir'
+    xmlTag = dom.getElementsByTagName('Motor0StepNeg')[0].toxml()
+    xStepInvert = xmlTag.replace('<Motor0StepNeg>','').replace('</Motor0StepNeg>','')
+    if xStepInvert == "1":
+        dInvert[xStepPin] = 'True'
+    xmlTag = dom.getElementsByTagName('Motor0DirNeg')[0].toxml()
+    xDirInvert = xmlTag.replace('<Motor0DirNeg>','').replace('</Motor0DirNeg>','')
+    if xDirInvert == "1":
+        dInvert[xDirPin] = 'True'
+    xmlTag = dom.getElementsByTagName('M0Max')[0].toxml()
+    xmaxlim = float(str(xmlTag.replace('<M0Max>','').replace('</M0Max>','')))
+    xmlTag = dom.getElementsByTagName('M0Min')[0].toxml()
+    xminlim = float(str(xmlTag.replace('<M0Min>','').replace('</M0Min>','')))
+    try:
+        xmlTag = dom.getElementsByTagName('Steps0')[0].toxml()
+        xscale = float(xmlTag.replace('<Steps0>','').replace('</Steps0>',''))
+        xleadscrew = float(xscale / 200)
+    except IndexError:
+        errors +=  "No X Axis Scale was found!\n"
+        xleadscrew = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Vel0')[0].toxml()
+        xmaxvel = float(xmlTag.replace('<Vel0>','').replace('</Vel0>',''))
+    except IndexError:
+        errors +=  "No X Axis Max Velocity was found!\n"
+        xmaxvel = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Acc0')[0].toxml()
+        xmaxacc = float(xmlTag.replace('<Acc0>','').replace('</Acc0>',''))
+    except IndexError:
+        errors +=  "No X Axis Acceleration was found!\n"
+        xmaxacc = 0.0
 else:
-  xmaxlim = 0.0
-  xminlim = 0.0
-  xleadscrew = 1.0
-  xmaxvel = 0.0
-  xmaxacc = 0.0
+    xmaxlim = 0.0
+    xminlim = 0.0
+    xleadscrew = 1.0
+    xmaxvel = 0.0
+    xmaxacc = 0.0
 
 # Y Axis
 xmlTag = dom.getElementsByTagName('Motor1Active')[0].toxml()
 yActive=xmlTag.replace('<Motor1Active>','').replace('</Motor1Active>','')
 if yActive == '1':
-  xmlTag = dom.getElementsByTagName('Motor1StepPin')[0].toxml()
-  yStepPin = xmlTag.replace('<Motor1StepPin>','').replace('</Motor1StepPin>','')
-  dPins[yStepPin] = 'ystep'
-  xmlTag = dom.getElementsByTagName('Motor1DirPin')[0].toxml()
-  yDirPin = xmlTag.replace('<Motor1DirPin>','').replace('</Motor1DirPin>','')
-  dPins[yDirPin] = 'ydir'
-  xmlTag = dom.getElementsByTagName('Motor1StepNeg')[0].toxml()
-  yStepInvert = xmlTag.replace('<Motor1StepNeg>','').replace('</Motor1StepNeg>','')
-  if yStepInvert == "1":
-    dInvert[yStepPin] = 'True'
-  xmlTag = dom.getElementsByTagName('Motor1DirNeg')[0].toxml()
-  yDirInvert = xmlTag.replace('<Motor1DirNeg>','').replace('</Motor1DirNeg>','')
-  if yDirInvert == "1":
-    dInvert[yDirPin] = 'True'
-  xmlTag = dom.getElementsByTagName('M1Max')[0].toxml()
-  ymaxlim = float(str(xmlTag.replace('<M1Max>','').replace('</M1Max>','')))
-  xmlTag = dom.getElementsByTagName('M1Min')[0].toxml()
-  yminlim = float(str(xmlTag.replace('<M1Min>','').replace('</M1Min>','')))
-  try:
-    xmlTag = dom.getElementsByTagName('Steps1')[0].toxml()
-    yscale = float(xmlTag.replace('<Steps1>','').replace('</Steps1>',''))
-    yleadscrew = float(yscale / 200)
-  except IndexError:
-    errors +=  "No Y Axis Scale was found!\n"
-    yleadscrew = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Vel1')[0].toxml()
-    ymaxvel = float(xmlTag.replace('<Vel1>','').replace('</Vel1>',''))
-  except IndexError:
-    errors +=  "No Y Axis Max Velocity was found!\n"
-    ymaxvel = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Acc1')[0].toxml()
-    ymaxacc = float(xmlTag.replace('<Acc1>','').replace('</Acc1>',''))
-  except IndexError:
-    errors +=  "No Y Axis Acceleration was found!\n"
-    ymaxacc = 0.0
+    xmlTag = dom.getElementsByTagName('Motor1StepPin')[0].toxml()
+    yStepPin = xmlTag.replace('<Motor1StepPin>','').replace('</Motor1StepPin>','')
+    dPins[yStepPin] = 'ystep'
+    xmlTag = dom.getElementsByTagName('Motor1DirPin')[0].toxml()
+    yDirPin = xmlTag.replace('<Motor1DirPin>','').replace('</Motor1DirPin>','')
+    dPins[yDirPin] = 'ydir'
+    xmlTag = dom.getElementsByTagName('Motor1StepNeg')[0].toxml()
+    yStepInvert = xmlTag.replace('<Motor1StepNeg>','').replace('</Motor1StepNeg>','')
+    if yStepInvert == "1":
+        dInvert[yStepPin] = 'True'
+    xmlTag = dom.getElementsByTagName('Motor1DirNeg')[0].toxml()
+    yDirInvert = xmlTag.replace('<Motor1DirNeg>','').replace('</Motor1DirNeg>','')
+    if yDirInvert == "1":
+        dInvert[yDirPin] = 'True'
+    xmlTag = dom.getElementsByTagName('M1Max')[0].toxml()
+    ymaxlim = float(str(xmlTag.replace('<M1Max>','').replace('</M1Max>','')))
+    xmlTag = dom.getElementsByTagName('M1Min')[0].toxml()
+    yminlim = float(str(xmlTag.replace('<M1Min>','').replace('</M1Min>','')))
+    try:
+        xmlTag = dom.getElementsByTagName('Steps1')[0].toxml()
+        yscale = float(xmlTag.replace('<Steps1>','').replace('</Steps1>',''))
+        yleadscrew = float(yscale / 200)
+    except IndexError:
+        errors +=  "No Y Axis Scale was found!\n"
+        yleadscrew = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Vel1')[0].toxml()
+        ymaxvel = float(xmlTag.replace('<Vel1>','').replace('</Vel1>',''))
+    except IndexError:
+        errors +=  "No Y Axis Max Velocity was found!\n"
+        ymaxvel = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Acc1')[0].toxml()
+        ymaxacc = float(xmlTag.replace('<Acc1>','').replace('</Acc1>',''))
+    except IndexError:
+        errors +=  "No Y Axis Acceleration was found!\n"
+        ymaxacc = 0.0
 else:
-  ymaxlim = 0.0
-  yminlim = 0.0
-  yleadscrew = 1.0
-  ymaxvel = 0.0
-  ymaxacc = 0.0
+    ymaxlim = 0.0
+    yminlim = 0.0
+    yleadscrew = 1.0
+    ymaxvel = 0.0
+    ymaxacc = 0.0
 
 # Z Axis
 xmlTag = dom.getElementsByTagName('Motor2Active')[0].toxml()
 zActive=xmlTag.replace('<Motor2Active>','').replace('</Motor2Active>','')
 if zActive == '1':
-  xmlTag = dom.getElementsByTagName('Motor2StepPin')[0].toxml()
-  zStepPin = xmlTag.replace('<Motor2StepPin>','').replace('</Motor2StepPin>','')
-  dPins[zStepPin] = 'zstep'
-  xmlTag = dom.getElementsByTagName('Motor2DirPin')[0].toxml()
-  zDirPin = xmlTag.replace('<Motor2DirPin>','').replace('</Motor2DirPin>','')
-  dPins[zDirPin] = 'zdir'
-  xmlTag = dom.getElementsByTagName('Motor2StepNeg')[0].toxml()
-  zStepInvert = xmlTag.replace('<Motor2StepNeg>','').replace('</Motor2StepNeg>','')
-  if zStepInvert == "1":
-    dInvert[zStepPin] = 'True'
-  xmlTag = dom.getElementsByTagName('Motor2DirNeg')[0].toxml()
-  zDirInvert = xmlTag.replace('<Motor2DirNeg>','').replace('</Motor2DirNeg>','')
-  if zDirInvert == "1":
-    dInvert[zStepPin] = 'True'
-  xmlTag = dom.getElementsByTagName('M2Max')[0].toxml()
-  zmaxlim = float(str(xmlTag.replace('<M2Max>','').replace('</M2Max>','')))
-  xmlTag = dom.getElementsByTagName('M2Min')[0].toxml()
-  zminlim = float(str(xmlTag.replace('<M2Min>','').replace('</M2Min>','')))
-  try:
-    xmlTag = dom.getElementsByTagName('Steps2')[0].toxml()
-    zscale = float(xmlTag.replace('<Steps2>','').replace('</Steps2>',''))
-    zleadscrew = float(zscale / 200)
-  except IndexError:
-    errors +=  "No Z Axis Scale was found!\n"
-    zleadscrew = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Vel2')[0].toxml()
-    zmaxvel = float(xmlTag.replace('<Vel2>','').replace('</Vel2>',''))
-  except IndexError:
-    errors +=  "No Z Axis Max Velocity was found!\n"
-    zmaxvel = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Acc2')[0].toxml()
-    zmaxacc = float(xmlTag.replace('<Acc2>','').replace('</Acc2>',''))
-  except IndexError:
-    errors +=  "No Z Axis Acceleration was found!\n"
-    zmaxacc = 0.0
+    xmlTag = dom.getElementsByTagName('Motor2StepPin')[0].toxml()
+    zStepPin = xmlTag.replace('<Motor2StepPin>','').replace('</Motor2StepPin>','')
+    dPins[zStepPin] = 'zstep'
+    xmlTag = dom.getElementsByTagName('Motor2DirPin')[0].toxml()
+    zDirPin = xmlTag.replace('<Motor2DirPin>','').replace('</Motor2DirPin>','')
+    dPins[zDirPin] = 'zdir'
+    xmlTag = dom.getElementsByTagName('Motor2StepNeg')[0].toxml()
+    zStepInvert = xmlTag.replace('<Motor2StepNeg>','').replace('</Motor2StepNeg>','')
+    if zStepInvert == "1":
+        dInvert[zStepPin] = 'True'
+    xmlTag = dom.getElementsByTagName('Motor2DirNeg')[0].toxml()
+    zDirInvert = xmlTag.replace('<Motor2DirNeg>','').replace('</Motor2DirNeg>','')
+    if zDirInvert == "1":
+        dInvert[zStepPin] = 'True'
+    xmlTag = dom.getElementsByTagName('M2Max')[0].toxml()
+    zmaxlim = float(str(xmlTag.replace('<M2Max>','').replace('</M2Max>','')))
+    xmlTag = dom.getElementsByTagName('M2Min')[0].toxml()
+    zminlim = float(str(xmlTag.replace('<M2Min>','').replace('</M2Min>','')))
+    try:
+        xmlTag = dom.getElementsByTagName('Steps2')[0].toxml()
+        zscale = float(xmlTag.replace('<Steps2>','').replace('</Steps2>',''))
+        zleadscrew = float(zscale / 200)
+    except IndexError:
+        errors +=  "No Z Axis Scale was found!\n"
+        zleadscrew = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Vel2')[0].toxml()
+        zmaxvel = float(xmlTag.replace('<Vel2>','').replace('</Vel2>',''))
+    except IndexError:
+        errors +=  "No Z Axis Max Velocity was found!\n"
+        zmaxvel = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Acc2')[0].toxml()
+        zmaxacc = float(xmlTag.replace('<Acc2>','').replace('</Acc2>',''))
+    except IndexError:
+        errors +=  "No Z Axis Acceleration was found!\n"
+        zmaxacc = 0.0
 else:
-  zmaxlim = 0.0
-  zmaxlim = 0.0
-  zleadscrew = 1.0
-  zmaxvel = 0.0
-  zmaxacc = 0.0
+    zmaxlim = 0.0
+    zmaxlim = 0.0
+    zleadscrew = 1.0
+    zmaxvel = 0.0
+    zmaxacc = 0.0
 
 # A Axis
 xmlTag = dom.getElementsByTagName('Motor3Active')[0].toxml()
 aActive=xmlTag.replace('<Motor3Active>','').replace('</Motor3Active>','')
 if aActive == '1':
-  xmlTag = dom.getElementsByTagName('Motor3StepPin')[0].toxml()
-  aStepPin = xmlTag.replace('<Motor3StepPin>','').replace('</Motor3StepPin>','')
-  dPins[aStepPin] = 'astep'
-  xmlTag = dom.getElementsByTagName('Motor3DirPin')[0].toxml()
-  aDirPin = xmlTag.replace('<Motor3DirPin>','').replace('</Motor3DirPin>','')
-  dPins[aDirPin] = 'adir'
-  xmlTag = dom.getElementsByTagName('Motor3StepNeg')[0].toxml()
-  aStepInvert = xmlTag.replace('<Motor3StepNeg>','').replace('</Motor3StepNeg>','')
-  if aStepInvert == "1":
-    dInvert[aStepPin] = 'True'
-  xmlTag = dom.getElementsByTagName('Motor3DirNeg')[0].toxml()
-  aDirInvert = xmlTag.replace('<Motor3DirNeg>','').replace('</Motor3DirNeg>','')
-  if aDirInvert == "1":
-    dInvert[aDirPin] = 'True'
-  xmlTag = dom.getElementsByTagName('M3Max')[0].toxml()
-  amaxlim = float(str(xmlTag.replace('<M3Max>','').replace('</M3Max>','')).rstrip('.'))
-  xmlTag = dom.getElementsByTagName('M3Min')[0].toxml()
-  aminlim = float(str(xmlTag.replace('<M3Min>','').replace('</M3Min>','')).rstrip('.'))
-  try:
-    xmlTag = dom.getElementsByTagName('Steps3')[0].toxml()
-    ascale = float(xmlTag.replace('<Steps3>','').replace('</Steps3>',''))
-    aleadscrew = float(ascale / 200)
-  except IndexError:
-    errors +=  "No A Axis Scale was found!\n"
-    aleadscrew = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Vel3')[0].toxml()
-    amaxvel = str(xmlTag.replace('<Vel3>','').replace('</Vel3>',''))
-    amaxvel = amaxvel.rsplit(".",1)
-    amaxvel = float(amaxvel[0])
-  except IndexError:
-    errors +=  "No A Axis Max Velocity was found!\n"
-    amaxvel = 0.0
-  try:
-    xmlTag = dom.getElementsByTagName('Acc3')[0].toxml()
-    amaxacc = str(xmlTag.replace('<Acc3>','').replace('</Acc3>',''))
-    amaxacc = amaxacc.rsplit(".",1)
-    amaxacc = float(amaxacc[0])
-  except IndexError:
-    errors +=  "No A Axis Acceleration was found!\n"
-    amaxacc = 0.0
+    xmlTag = dom.getElementsByTagName('Motor3StepPin')[0].toxml()
+    aStepPin = xmlTag.replace('<Motor3StepPin>','').replace('</Motor3StepPin>','')
+    dPins[aStepPin] = 'astep'
+    xmlTag = dom.getElementsByTagName('Motor3DirPin')[0].toxml()
+    aDirPin = xmlTag.replace('<Motor3DirPin>','').replace('</Motor3DirPin>','')
+    dPins[aDirPin] = 'adir'
+    xmlTag = dom.getElementsByTagName('Motor3StepNeg')[0].toxml()
+    aStepInvert = xmlTag.replace('<Motor3StepNeg>','').replace('</Motor3StepNeg>','')
+    if aStepInvert == "1":
+        dInvert[aStepPin] = 'True'
+    xmlTag = dom.getElementsByTagName('Motor3DirNeg')[0].toxml()
+    aDirInvert = xmlTag.replace('<Motor3DirNeg>','').replace('</Motor3DirNeg>','')
+    if aDirInvert == "1":
+        dInvert[aDirPin] = 'True'
+    xmlTag = dom.getElementsByTagName('M3Max')[0].toxml()
+    amaxlim = float(str(xmlTag.replace('<M3Max>','').replace('</M3Max>','')).rstrip('.'))
+    xmlTag = dom.getElementsByTagName('M3Min')[0].toxml()
+    aminlim = float(str(xmlTag.replace('<M3Min>','').replace('</M3Min>','')).rstrip('.'))
+    try:
+        xmlTag = dom.getElementsByTagName('Steps3')[0].toxml()
+        ascale = float(xmlTag.replace('<Steps3>','').replace('</Steps3>',''))
+        aleadscrew = float(ascale / 200)
+    except IndexError:
+        errors +=  "No A Axis Scale was found!\n"
+        aleadscrew = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Vel3')[0].toxml()
+        amaxvel = str(xmlTag.replace('<Vel3>','').replace('</Vel3>',''))
+        amaxvel = amaxvel.rsplit(".",1)
+        amaxvel = float(amaxvel[0])
+    except IndexError:
+        errors +=  "No A Axis Max Velocity was found!\n"
+        amaxvel = 0.0
+    try:
+        xmlTag = dom.getElementsByTagName('Acc3')[0].toxml()
+        amaxacc = str(xmlTag.replace('<Acc3>','').replace('</Acc3>',''))
+        amaxacc = amaxacc.rsplit(".",1)
+        amaxacc = float(amaxacc[0])
+    except IndexError:
+        errors +=  "No A Axis Acceleration was found!\n"
+        amaxacc = 0.0
 else:
-  amaxlim = 0.0
-  aminlim = 0.0
-  aleadscrew = 1.0
-  amaxvel = 0.0
-  amaxacc = 0.0
+    amaxlim = 0.0
+    aminlim = 0.0
+    aleadscrew = 1.0
+    amaxvel = 0.0
+    amaxacc = 0.0
 
 
 # open the stepconf file for writing
@@ -441,9 +441,9 @@ sc.close()
 
 rm = open("README", "wb")
 if len(errors) > 0:
-  rm.write("The following errors were found during processing.\n")
-  rm.write(errors+"\n")
-  print errors
+    rm.write("The following errors were found during processing.\n")
+    rm.write(errors+"\n")
+    print(errors)
 rm.write("This file can be deleted after running the Stepconf Wizard once.\n")
 rm.write("Copy the generated .stepconf file to the linuxcnc/configs directory.\n")
 rm.write("Run the Stepconf Wizard from the CNC menu.\n")
@@ -455,4 +455,4 @@ rm.write("Allow the test to run for at least a hour then enter the largest Max J
 rm.write("Go through each screen and check for correctness then save when done.")
 rm.close()
 
-print 'Mach import/conversion done'
+print('Mach import/conversion done')

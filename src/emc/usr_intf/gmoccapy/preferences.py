@@ -12,9 +12,9 @@
 
 
 
-import os, ConfigParser
+import os, configparser
 
-cp = ConfigParser.RawConfigParser
+cp = configparser.RawConfigParser
 class preferences(cp):
     types = {
         bool: cp.getboolean,
@@ -35,8 +35,8 @@ class preferences(cp):
         m = self.types.get(type)
         try:
             o = m(self, "DEFAULT", option)
-        except Exception, detail:
-            print detail
+        except Exception as detail:
+            print(detail)
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
             if type in(bool, float, int):

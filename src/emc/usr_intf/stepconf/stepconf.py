@@ -28,10 +28,13 @@
 #import gtk
 #import gtk.glade
 import gi
+import importlib
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-#import gobject
-from gi.repository import GObject
+#from gi.repository import GObject as gobject
+
+from gi.repository import GObject as gobject
+
 from gi.repository import Gdk
 
 import sys
@@ -43,12 +46,12 @@ import hashlib
 import math
 import errno
 import textwrap
-import commands
+import subprocess
 import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
-reload(sys)
+importlib.reload(sys)
 sys.setdefaultencoding('utf8')
 
 import traceback
@@ -78,7 +81,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+gettext.install(domain, localedir=LOCALEDIR, str=True)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -89,7 +92,7 @@ wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
+    print("cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir))
     sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
@@ -119,7 +122,7 @@ debug = False
 def makedirs(d):
     try:
         os.makedirs(d)
-    except os.error, detail:
+    except os.error as detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
@@ -351,21 +354,21 @@ class Data:
             self[p] = 0
 
         for i in ('x','y','z','u','v'):
-             self[i+'steprev'] = 200
-             self[i+'microstep'] = 2
-             self[i+'pulleynum'] = 1
-             self[i+'pulleyden'] = 1
-             self[i+'leadscrew'] = 20
-             self[i+'maxvel'] = 0
-             self[i+'maxacc'] = 0
+            self[i+'steprev'] = 200
+            self[i+'microstep'] = 2
+            self[i+'pulleynum'] = 1
+            self[i+'pulleyden'] = 1
+            self[i+'leadscrew'] = 20
+            self[i+'maxvel'] = 0
+            self[i+'maxacc'] = 0
 
-             self[i+'homepos'] = 0
-             self[i+'minlim'] =  0
-             self[i+'maxlim'] =  0
-             self[i+'homesw'] =  0
-             self[i+'homevel'] = 0
-             self[i+'latchdir'] = 0
-             self[i+'scale'] = 0
+            self[i+'homepos'] = 0
+            self[i+'minlim'] =  0
+            self[i+'maxlim'] =  0
+            self[i+'homesw'] =  0
+            self[i+'homevel'] = 0
+            self[i+'latchdir'] = 0
+            self[i+'scale'] = 0
 
         # set xyzuv axes defaults depending on units true = imperial
         self.set_axis_unit_defaults(True)
@@ -480,7 +483,7 @@ class Data:
         elif self.axes == 4:
             pps = max(xhz, yhz)
         else:
-            print 'error in ideal period calculation - number of axes unrecognized'
+            print('error in ideal period calculation - number of axes unrecognized')
             return
         if self.doublestep():
             base_period = 1e9 / pps
@@ -526,7 +529,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print filename
+        print(filename)
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -600,12 +603,12 @@ class Data:
                 dialog.destroy()
             else:
                 for para in warnings:
-                    for line in textwrap.wrap(para, 78): print line
-                    print
-                print
+                    for line in textwrap.wrap(para, 78): print(line)
+                    print()
+                print()
                 if force: return
-                response = raw_input(_("Continue? "))
-                if response[0] not in _("yY"): raise SystemExit, 1
+                response = input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit(1)
 
         for p in (10,11,12,13,15):
             pin = "pin%d" % p
@@ -619,33 +622,33 @@ class Data:
         self.md5sums = []
 
         if self.classicladder: 
-           if not self.laddername == "custom.clp":
+            if not self.laddername == "custom.clp":
                 filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
                 original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
                 if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  print "copied ladder program to usr directory"
-                  print"%s" % filename
+                    if os.path.exists(original):
+                        print("custom file already exists")
+                        shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
+                        print("made backup of existing custom")
+                    shutil.copy( filename,original)
+                    print("copied ladder program to usr directory")
+                    print("%s" % filename)
                 else:
-                     print "Master or temp ladder files missing from configurable_options dir"
+                    print("Master or temp ladder files missing from configurable_options dir")
 
         if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
-           originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  print "copied PYVCP program to usr directory"
-                  print"%s" % panelname
-           else:
-                  print "Master PYVCP files missing from configurable_options dir"
+            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
+            originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
+            if os.path.exists(panelname):     
+                if os.path.exists(originalname):
+                    print("custom PYVCP file already exists")
+                    shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
+                    print("made backup of existing custom")
+                shutil.copy( panelname,originalname)
+                print("copied PYVCP program to usr directory")
+                print("%s" % panelname)
+            else:
+                print("Master PYVCP files missing from configurable_options dir")
 
         filename = "%s.stepconf" % base
 
@@ -653,7 +656,7 @@ class Data:
                             None, "stepconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.iteritems()):
+        for k, v in sorted(self.__dict__.items()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -666,12 +669,12 @@ class Data:
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
+
         d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-        print("%s" % base)
+        print(("%s" % base))
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
@@ -687,18 +690,18 @@ class Data:
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
-            print >>file,"Icon=%s"% linuxcncicon
+            print("[Desktop Entry]", file=file)
+            print("Version=1.0", file=file)
+            print("Terminal=false", file=file)
+            print("Name=" + _("launch %s") % self.machinename, file=file)
+            print("Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename ), file=file)
+            print("Type=Application", file=file)
+            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf"), file=file)
+            print("Icon=%s"% linuxcncicon, file=file)
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
+            os.chmod(filename,0o775)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -714,11 +717,11 @@ class Widgets:
         self._xml = xml
     def __getattr__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise AttributeError, "No widget %r" % attr
+        if r is None: raise AttributeError("No widget %r" % attr)
         return r
     def __getitem__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise IndexError, "No widget %r" % attr
+        if r is None: raise IndexError("No widget %r" % attr)
         return r
 
 class StepconfApp:
@@ -799,7 +802,7 @@ class StepconfApp:
     def dbg(self,str):
         global debug
         if not debug: return
-        print "DEBUG: %s"%str
+        print("DEBUG: %s"%str)
 
     # Check for realtime-capable LinuxCNC.
     # Returns True if the running version of LinuxCNC is realtime-capable
@@ -819,8 +822,8 @@ class StepconfApp:
                 else:
                     is_realtime_capable = True
         except:
-            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
-            print sys.exc_info()
+            print('STEPCONF WARNING: check-for-realtime function failed - continuing anyways.')
+            print(sys.exc_info())
             return True
 
         if is_realtime_capable or debug:
@@ -831,13 +834,13 @@ class StepconfApp:
     # pop up dialog
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = Gtk.MessageDialog(app.w.window1,
-                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
-           dialog.show_all()
-           result = dialog.run()
-           dialog.destroy()
-           return True
+            dialog = Gtk.MessageDialog(app.w.window1,
+                 Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                 Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
+            dialog.show_all()
+            result = dialog.run()
+            dialog.destroy()
+            return True
         else:   
             dialog = Gtk.MessageDialog(self.w.window1,
                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
@@ -1181,7 +1184,7 @@ class StepconfApp:
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.w.radiobutton5.get_active() == True:
-            print 'no sample requested'
+            print('no sample requested')
             return True
         if self.w.radiobutton6.get_active() == True:
             panel = "spindle.xml"
@@ -1220,9 +1223,9 @@ class StepconfApp:
                  })
         if self.w.radiobutton1.get_active() == True:
             if self.d.tempexists:
-               self.d.laddername='TEMP.clp'
+                self.d.laddername='TEMP.clp'
             else:
-               self.d.laddername= 'blank.clp'
+                self.d.laddername= 'blank.clp'
         if self.w.radiobutton2.get_active() == True:
             self.d.laddername= 'estop.clp'
         if self.w.radiobutton3.get_active() == True:
@@ -1261,9 +1264,9 @@ class StepconfApp:
         scale = self.d[axis + "scale"]
         maxvel = 1.5 * vel
         if self.d.doublestep():
-                period = int(1e9 / maxvel / scale)
+            period = int(1e9 / maxvel / scale)
         else:
-                period = int(.5e9 / maxvel / scale)
+            period = int(.5e9 / maxvel / scale)
 
         steptime = self.w.steptime.get_value()
         stepspace = self.w.stepspace.get_value()
@@ -1293,16 +1296,16 @@ class StepconfApp:
 
         port3name=port2name=port2dir=port3dir=""
         if self.d.number_pports>2:
-             port3name = ' '+self.d.ioaddr3
-             if self.d.pp3_direction: # Input option
+            port3name = ' '+self.d.ioaddr3
+            if self.d.pp3_direction: # Input option
                 port3dir =" in"
-             else: 
+            else: 
                 port3dir =" out"
         if self.d.number_pports>1:
-             port2name = ' '+self.d.ioaddr2
-             if self.d.pp2_direction: # Input option
+            port2name = ' '+self.d.ioaddr2
+            if self.d.pp2_direction: # Input option
                 port2dir =" in"
-             else: 
+            else: 
                 port2dir =" out"
         halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
         halrun.write("""
@@ -1388,7 +1391,7 @@ class StepconfApp:
 
         if axis == "a":
             self.w.testvelunit.set_text(_("deg / s"))
-            self.w.testaccunit.set_text(_(u"deg / s²"))
+            self.w.testaccunit.set_text(_("deg / s²"))
             self.w.testampunit.set_text(_("deg"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1402,7 +1405,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(10)
         elif self.d.units:
             self.w.testvelunit.set_text(_("mm / s"))
-            self.w.testaccunit.set_text(_(u"mm / s²"))
+            self.w.testaccunit.set_text(_("mm / s²"))
             self.w.testampunit.set_text(_("mm"))
             self.w.testvel.set_increments(1,5)
             self.w.testacc.set_increments(1,5)
@@ -1416,7 +1419,7 @@ class StepconfApp:
             self.w.testamplitude.set_value(15)
         else:
             self.w.testvelunit.set_text(_("in / s"))
-            self.w.testaccunit.set_text(_(u"in / s²"))
+            self.w.testaccunit.set_text(_("in / s²"))
             self.w.testampunit.set_text(_("in"))
             self.w.testvel.set_increments(.1,5)
             self.w.testacc.set_increments(1,5)
@@ -1441,7 +1444,7 @@ class StepconfApp:
         self.w.dialog1.show_all()
         result = self.w.dialog1.run()
         self.w.dialog1.hide()
-        
+
         if amp_signals:
             for pin in amp_signals:
                 amp,amp_port = pin

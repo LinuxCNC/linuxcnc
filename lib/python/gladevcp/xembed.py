@@ -16,7 +16,7 @@ def reparent(window, parent):
     if not parent:
         return window
 
-    plug = gtk.Plug(long(parent))
+    plug = gtk.Plug(int(parent))
     plug.show()
 
     d = display.Display()
@@ -41,7 +41,7 @@ def add_plug(window):
     """Replace top level with a plug so it can be reparented.
     This doesn't actually reparent the widget
     """
-    plug = gtk.Plug(0l)
+    plug = gtk.Plug(0)
     plug.show()
     for c in window.get_children():
         window.remove(c)

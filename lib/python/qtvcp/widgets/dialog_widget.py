@@ -291,12 +291,12 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
 
     # this also is called from Destop Dialog
     def _pin_change(self,answer):
-                if answer:
-                    self.changed.set(True)
-                else:
-                    ACTION.ABORT()
-                    STATUS.emit('update-machine-log', 'tool change Aorted', 'TIME')
-                STATUS.emit('focus-overlay-changed', False, None, None)
+        if answer:
+            self.changed.set(True)
+        else:
+            ACTION.ABORT()
+            STATUS.emit('update-machine-log', 'tool change Aorted', 'TIME')
+        STATUS.emit('focus-overlay-changed', False, None, None)
 
     def calculate_placement(self):
         geometry_parsing(self,'ToolChangeDialog-geometry')
@@ -1115,48 +1115,48 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
 # was. If all else fails it uses it's natural Designer stated
 # geometry
 def geometry_parsing(widget, prefname):
-        def go(x,y,w,h):
-            widget.setGeometry(x,y,w,h)
-        try:
-            if widget._geometry_string.replace(' ','').isdigit():
-                widget._geometry_string = widget.PREFS_.getpref(prefname, '', str, 'DIALOG_OPTIONS')
-            # If there is a preference file object use it to load the geometry
-            if widget._geometry_string in('default',''):
-                x,y,w,h = widget._default_geometry
-                go(x,y,w,h)
-            elif 'center' in widget._geometry_string.lower():
-                geom = widget.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                widget.setGeometry(geom)
-                return
-            elif 'bottomleft' in widget._geometry_string.lower():
-                # move to botton left of parent
-                ph = widget.topParent.geometry().height()
-                px = widget.topParent.geometry().x()
-                py = widget.topParent.geometry().y()
-                dw = widget.geometry().width()
-                dh = widget.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            elif 'onwindow' in widget._geometry_string.lower():
-                # move relative to parent position
-                px = widget.topParent.geometry().x()
-                py = widget.topParent.geometry().y()
-                # remove everything except digits and spaces
-                temp =  filter(lambda x: (x.isdigit() or x == ' '), widget._geometry_string)
-                # remove lead and trailing spaces and then slit on spaces
-                temp = temp.strip(' ').split(' ')
-                go(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
-            else:
-                temp = widget._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except Exception as e:
-            LOG.error('Calculating geometry of {} using natural placement.'.format(widget.HAL_NAME_))
-            LOG.debug('Dialog gometry python error: {}'.format(e))
-            x = widget.geometry().x()
-            y = widget.geometry().y()
-            w = widget.geometry().width()
-            h = widget.geometry().height()
-            go( x,y,w,h)
+    def go(x,y,w,h):
+        widget.setGeometry(x,y,w,h)
+    try:
+        if widget._geometry_string.replace(' ','').isdigit():
+            widget._geometry_string = widget.PREFS_.getpref(prefname, '', str, 'DIALOG_OPTIONS')
+        # If there is a preference file object use it to load the geometry
+        if widget._geometry_string in('default',''):
+            x,y,w,h = widget._default_geometry
+            go(x,y,w,h)
+        elif 'center' in widget._geometry_string.lower():
+            geom = widget.frameGeometry()
+            geom.moveCenter(QDesktopWidget().availableGeometry().center())
+            widget.setGeometry(geom)
+            return
+        elif 'bottomleft' in widget._geometry_string.lower():
+            # move to botton left of parent
+            ph = widget.topParent.geometry().height()
+            px = widget.topParent.geometry().x()
+            py = widget.topParent.geometry().y()
+            dw = widget.geometry().width()
+            dh = widget.geometry().height()
+            go(px, py+ph-dh, dw, dh)
+        elif 'onwindow' in widget._geometry_string.lower():
+            # move relative to parent position
+            px = widget.topParent.geometry().x()
+            py = widget.topParent.geometry().y()
+            # remove everything except digits and spaces
+            temp =  filter(lambda x: (x.isdigit() or x == ' '), widget._geometry_string)
+            # remove lead and trailing spaces and then slit on spaces
+            temp = temp.strip(' ').split(' ')
+            go(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
+        else:
+            temp = widget._geometry_string.split(' ')
+            go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+    except Exception as e:
+        LOG.error('Calculating geometry of {} using natural placement.'.format(widget.HAL_NAME_))
+        LOG.debug('Dialog gometry python error: {}'.format(e))
+        x = widget.geometry().x()
+        y = widget.geometry().y()
+        w = widget.geometry().width()
+        h = widget.geometry().height()
+        go( x,y,w,h)
 
 def record_geometry(widget, prefname):
     if widget.PREFS_ :

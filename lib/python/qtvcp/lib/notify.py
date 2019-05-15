@@ -38,7 +38,7 @@ class Notify:
         try:
             n = self.show_notification(title, message, icon, timeout)
         except Exception as e:
-               log.warning('show_noficication error:', exc_info=e)
+            log.warning('show_noficication error:', exc_info=e)
         return n
 
     # 
@@ -47,7 +47,7 @@ class Notify:
         try:
             n = self.build_error_notification(icon)
         except Exception as e:
-               log.warning('New_critical error:', exc_info=e)
+            log.warning('New_critical error:', exc_info=e)
         return n
 
 
@@ -55,13 +55,13 @@ class Notify:
         try:
             self.show_yn_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_noficication_yn error:', exc_info=e)
+            log.warning('show_noficication_yn error:', exc_info=e)
 
     def notify_ok(self, title, message,icon, timeout, function_callback):
         try:
             self.show_ok_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_noficication_ok error:', exc_info=e)
+            log.warning('show_noficication_ok error:', exc_info=e)
 
     def build_error_notification(self, icon=None):
         n = sys_notify.Notification('', '', icon)

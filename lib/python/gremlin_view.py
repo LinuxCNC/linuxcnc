@@ -80,7 +80,8 @@ import time
 import subprocess
 import gettext
 import datetime
-import gobject
+from gi.repository import GObject as gobject
+
 import glib # for glib.GError
 
 g_ui_dir          = linuxcnc.SHARE + "/linuxcnc"
@@ -91,7 +92,7 @@ g_progname        = os.path.basename(sys.argv[0])
 g_verbose         = False
 
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gettext.install("linuxcnc", localedir=LOCALEDIR, str=True)
 
 def ini_check ():
     """set environmental variable and change directory"""
@@ -104,10 +105,10 @@ def ini_check ():
         os.environ['INI_FILE_NAME'] = ini_filename # need for hal_gremlin
         os.chdir(os.path.dirname(ini_filename))
         if g_verbose:
-            print('ini_check: INI_FILENAME= %s' % ini_filename)
-            print('ini_check:       curdir= %s' % os.path.curdir)
+            print(('ini_check: INI_FILENAME= %s' % ini_filename))
+            print(('ini_check:       curdir= %s' % os.path.curdir))
         return True # success
-    print(_('%s:linuxcnc ini file  not available') % g_progname)
+    print((_('%s:linuxcnc ini file  not available') % g_progname))
     return False # exit here crashes glade-gtk2
 
 def get_linuxcnc_ini_file():
@@ -118,8 +119,8 @@ def get_linuxcnc_ini_file():
     p,e = ps.communicate()
 
     if ps.returncode:
-        print(_('get_linuxcnc_ini_file: stdout= %s') % p)
-        print(_('get_linuxcnc_ini_file: stderr= %s') % e)
+        print((_('get_linuxcnc_ini_file: stdout= %s') % p))
+        print((_('get_linuxcnc_ini_file: stderr= %s') % e))
         return None
 
     ans = p.split()[p.split().index('-ini')+1]
@@ -148,9 +149,9 @@ class GremlinView():
         bldr = gtk.Builder()
         try:
             bldr.add_from_file(glade_file)
-        except glib.GError,detail:
-            print('\nGremlinView:%s\n' % detail)
-            raise glib.GError,detail # re-raise
+        except glib.GError as detail:
+            print(('\nGremlinView:%s\n' % detail))
+            raise glib.GError(detail) # re-raise
 
         # required objects:
         self.topwindow = bldr.get_object('gremlin_view_window')
@@ -181,7 +182,7 @@ class GremlinView():
                 else:
                     obj.set_group(found_view)
         if found_view is None:
-            print('%s:Expected to find "select_*_view"' % __file__)
+            print(('%s:Expected to find "select_*_view"' % __file__))
 
         check_button_objects = ['enable_dro'
                                ,'show_machine_speed'
@@ -198,8 +199,8 @@ class GremlinView():
                 obj.set_active(True)
             else:
                 if g_verbose:
-                    print('%s: Optional object omitted <%s>'
-                          % (__file__,objname))
+                    print(('%s: Optional object omitted <%s>'
+                          % (__file__,objname)))
 
         # show_metric: use ini file
 #FIXME  show_metric,lunits s/b mandatory?
@@ -209,7 +210,7 @@ class GremlinView():
             lunits = self.halg.inifile.find('TRAJ','LINEAR_UNITS')
         except AttributeError:
             if g_verbose:
-                print('%s: Problem for <%s>' % (__file__,objname))
+                print(('%s: Problem for <%s>' % (__file__,objname)))
 
         if linuxcnc_running:
             if   lunits == 'inch':
@@ -217,7 +218,7 @@ class GremlinView():
             elif lunits == 'mm':
                 self.halg.metric_units = True
             else:
-                raise AttributeError,('%s: unknown [TRAJ]LINEAR_UNITS] <%s>'
+                raise AttributeError('%s: unknown [TRAJ]LINEAR_UNITS] <%s>'
                                      % (__file__,lunits))
 
         if self.halg.get_show_metric():
@@ -271,9 +272,9 @@ class GremlinView():
         if linuxcnc_running:
             try:
                 self.preview_file(None)
-            except linuxcnc.error,detail:
+            except linuxcnc.error as detail:
                 print('linuxcnc.error')
-                print('        detail=',detail)
+                print(('        detail=',detail))
 
         try:
             self.last_file = self.halg._current_file
@@ -370,9 +371,9 @@ class GremlinView():
         # handle exception in case glade is running
         try:
             self.halg.load(filename or None)
-        except Exception, detail:
+        except Exception as detail:
             if self.alive:
-                print "file load fail:",Exception,detail
+                print("file load fail:",Exception,detail)
             pass
         getattr(self.halg,'set_view_%s' % self.my_view)()
         self.halg.show()
@@ -509,7 +510,7 @@ def standalone_gremlin_view():
     #---------------------------------------
     def usage(msg=None):
 
-        print("""\n
+        print(("""\n
 Usage:   %s [options]\n
 Options: [-h | --help]
          [-v | --verbose]
@@ -518,9 +519,9 @@ Options: [-h | --help]
          [-f | --file]   glade_file
 
 Note: linuxcnc must be running on same machine
-""") % g_progname
+""") % g_progname)
         if msg:
-            print('\n%s' % msg)
+            print(('\n%s' % msg))
     #---------------------------------------
 
     glade_file  = None
@@ -536,9 +537,9 @@ Note: linuxcnc must be running on same machine
                                            ,'height='
                                            ]
                                          )
-    except getopt.GetoptError,msg:
+    except getopt.GetoptError as msg:
         usage()
-        print('GetoptError: %s' % msg)
+        print(('GetoptError: %s' % msg))
         sys.exit(1)
     for opt,arg in options:
         if opt in ('-h','--help'):
@@ -559,9 +560,9 @@ Note: linuxcnc must be running on same machine
                        ,height=height
                        )
         gtk.main()
-    except linuxcnc.error,detail:
+    except linuxcnc.error as detail:
         gtk.main()
-        print('linuxcnc.error:',detail)
+        print(('linuxcnc.error:',detail))
         usage()
 
 # vim: sts=4 sw=4 et

@@ -229,20 +229,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.emit('error',kind,text)
 
     def process_error(self, w, kind, text):
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='ERROR:', message=text)
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
-                if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='OPERATOR TEXT:', message=text)
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
-                if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
-            if self.play_sounds and self.mchnMsg_play_sound:
-                STATUS.emit('play-alert', '%s' % self.mchnMsg_sound_type)
-                if self.mchnMsg_speak_errors:
-                    STATUS.emit('play-alert', 'SPEAK %s ' % text)
-            STATUS.emit('update-machine-log', text, 'TIME')
+        if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            if self.desktop_notify:
+                NOTICE.update(self.desktop_dialog, title='ERROR:', message=text)
+        elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+            if self.desktop_notify:
+                NOTICE.update(self.desktop_dialog, title='OPERATOR TEXT:', message=text)
+        elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+            if self.desktop_notify:
+                NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
+        if self.play_sounds and self.mchnMsg_play_sound:
+            STATUS.emit('play-alert', '%s' % self.mchnMsg_sound_type)
+            if self.mchnMsg_speak_errors:
+                STATUS.emit('play-alert', 'SPEAK %s ' % text)
+        STATUS.emit('update-machine-log', text, 'TIME')
 
 
     def closeEvent(self, event):

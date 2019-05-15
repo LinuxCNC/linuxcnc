@@ -27,7 +27,7 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
         pass
 
     def btnstate(self,b):
-       if b.isChecked() == True:
+        if b.isChecked() == True:
             ACTION.SET_SELECTED_AXIS(self.joint)
 
     def setAxis(self, data):

@@ -226,7 +226,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             print int(INFO.MAX_ANGULAR_JOG_VEL)
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
         else:
-           LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
+            LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
         # If there is a preference file object use it to load the hi/low toggle points
         if self.PREFS_:
@@ -255,7 +255,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         elif self.jograte_angular:
             ACTION.SET_JOG_RATE_ANGULAR(value)
         else:
-           LOG.error('{} no action recognised'.format(self.HAL_NAME_))
+            LOG.error('{} no action recognised'.format(self.HAL_NAME_))
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor

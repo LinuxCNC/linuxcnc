@@ -224,7 +224,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # that doubles each time - binary coded. thsi is so we can specify
         # multiple selectors  code 1 give ud1, code 2 gives ud2, code 3 gives
         # ud1 and ud2 etc
- 
+
         # Joint number selection
         self.ud1 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
@@ -786,10 +786,10 @@ class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
         super(QPyDesignerTaskMenuExtension, self).__init__(parent)
         self.widget = widget
         self.editStateAction = QtWidgets.QAction(
-          self.tr("Set Actions"), self)
+            self.tr("Set Actions"), self)
         self.editStateAction.triggered.connect(self.updateOptions)
         self.editIndicatorAction = QtWidgets.QAction(
-          self.tr("Set Indicator Actions"), self)
+            self.tr("Set Indicator Actions"), self)
         self.editIndicatorAction.triggered.connect(self.indicatorOptions)
 
     def preferredEditAction(self):

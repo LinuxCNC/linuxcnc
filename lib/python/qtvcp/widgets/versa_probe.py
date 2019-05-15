@@ -421,7 +421,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.emit('update-machine-log', c, 'TIME')
 
     def check_probe(self):
-            self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
     def probe(self, name):
         if name == 'down':

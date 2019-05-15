@@ -8,7 +8,7 @@ from vismach import *
 import hal
 import sys
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 #compname must be the same as given in 'loadusr -W' or the comp
 #will never be ready

@@ -16,13 +16,14 @@
 
 import os, time
 
-import gobject, gtk
+from gi.repository import GObject as gobject
+, gtk
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from hal_actions import _EMC_ActionBase, _EMC_Action
-from hal_filechooser import _EMC_FileChooser
+from .hal_actions import _EMC_ActionBase, _EMC_Action
+from .hal_filechooser import _EMC_FileChooser
 
 import gtksourceview2 as gtksourceview
 
@@ -105,7 +106,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         if path:
             self.lm.set_search_path(path)
         self.buf.set_language(self.lm.get_language(lang))
-        
+
     def set_style_scheme(self, style, path = None):
         if path:
             self.sm.set_search_path(path)
@@ -271,7 +272,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         if self.buf.can_redo():
             self.buf.redo()
 
-def safe_write(filename, data, mode=0644):
+def safe_write(filename, data, mode=0o644):
     import os, tempfile
     fd, fn = tempfile.mkstemp(dir=os.path.dirname(filename), prefix=os.path.basename(filename))
     try:

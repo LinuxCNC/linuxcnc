@@ -64,7 +64,7 @@ tooltip = Capture()
 # "hand" - the part the finger is attached to
 link6 = Collection([
     finger1,
-	Box(-25, -25, -10, 25, 25, 0)])
+        Box(-25, -25, -10, 25, 25, 0)])
 link6 = Translate([link6],0,0,-50)
 link6 = Collection([tooltip,link6])
 # assembly fingers, and make it rotate
@@ -72,23 +72,23 @@ link6 = HalRotate([link6],c,"joint6",1,0,0,1)
 
 # moving part of wrist joint
 link5 = Collection([
-	CylinderZ( 27, 30, 35, 30),
-	CylinderX(-13, 25, 13, 25),
-	Box(-11, -25, 0, 11, 25, 27)])
+        CylinderZ( 27, 30, 35, 30),
+        CylinderX(-13, 25, 13, 25),
+        Box(-11, -25, 0, 11, 25, 27)])
 # move gripper to end of wrist and attach D6=95
 link5 = Collection([
-	link5,
-	Translate([link6],0,0,95)])
+        link5,
+        Translate([link6],0,0,95)])
 # make wrist bend
 link5 = HalRotate([link5],c,"joint5",1,1,0,0)
 
 # fixed part of wrist joint (rotates on end of arm)
 link4 = Collection([
-	CylinderX(-13, 22, -27, 22),
-	CylinderX( 13, 22,  27, 22),
-	Box(-15, -22, -30, -25, 22, 0),
-	Box( 15, -22, -30,  25, 22, 0),
-	Box(-25, -25, -45,  25, 25, -30)])
+        CylinderX(-13, 22, -27, 22),
+        CylinderX( 13, 22,  27, 22),
+        Box(-15, -22, -30, -25, 22, 0),
+        Box( 15, -22, -30,  25, 22, 0),
+        Box(-25, -25, -45,  25, 25, -30)])
 # attach wrist, move whole assembly forward so joint 4 is at origin
 link4 = Translate([link4,link5], 0, 0, 0)
 # make joint 4 rotate
@@ -96,16 +96,16 @@ link4 = HalRotate([link4],c,"joint4",1,0,0,1)
 
 # next chunk  link length is D4=400
 link3 = Collection([
-	CylinderY(-50,35,25,35),
-	CylinderZ(0.0, 35, 400-45, 25)])
+        CylinderY(-50,35,25,35),
+        CylinderZ(0.0, 35, 400-45, 25)])
 link3 = Translate([link3],0,50,0)
 link3 = Collection([
     link3,
     CylinderX(-50,40,40,40)])
 # move link4 forward and sideways (A3=50) and attach
 link3 = Collection([
-	link3,
-	Translate([link4],0.0, 50, 400)])
+        link3,
+        Translate([link4],0.0, 50, 400)])
 # move whole assembly over so joint 3 is at origin (D3=100)
 link3 = Translate([link3],100, 0, 0.0)
 # rotate to J3 zero position
@@ -119,13 +119,13 @@ link2 = CylinderX(-50,50,50,50)
 link2 = Translate([link2],0.0,0.0,400)
 # rest of upper arm (A2 = 400)
 link2 = Collection([
-	link2,
-	CylinderZ(400, 40, 0, 50),
-	CylinderX(-70,85,70,85)])
+        link2,
+        CylinderZ(400, 40, 0, 50),
+        CylinderX(-70,85,70,85)])
 # move link 3 into place and attach
 link2 = Collection([
-	link2,
-	Translate([link3], 0,0.0,400)])
+        link2,
+        Translate([link3], 0,0.0,400)])
 # rotate into zero J2 position
 link2 = Rotate([link2],90,1,0,0)
 # make joint 2 rotate
@@ -133,12 +133,12 @@ link2 = HalRotate([link2],c,"joint2",1,1,0,0)
 
 # shoulder stuff
 link1 = Collection([
-	CylinderX(-70,70,70,70),
-	Box(-70,-70,0,70,70,-100)])
+        CylinderX(-70,70,70,70),
+        Box(-70,-70,0,70,70,-100)])
 # move link2 to end and attach
 link1 = Collection([
-	link1,
-	link2])
+        link1,
+        link2])
 # move whole assembly up so joint 1 is at origin
 link1 = Translate([link1],0.0, 0.0, 100)
 # make joint 1 rotate
@@ -146,13 +146,13 @@ link1 = HalRotate([link1],c,"joint1",1,0,0,1)
 
 # stationary base
 link0 = Collection([
-	CylinderZ(750, 75, 800, 75),
-	CylinderZ(25, 90, 750, 50),
-	CylinderZ(0, 200, 35, 200)])
+        CylinderZ(750, 75, 800, 75),
+        CylinderZ(25, 90, 750, 50),
+        CylinderZ(0, 200, 35, 200)])
 # move link1 to top and attach
 link0 = Collection([
-	link0,
-	Translate([link1],0.0,0.0,800)])
+        link0,
+        Translate([link1],0.0,0.0,800)])
 
 # add a floor
 floor = Box(-500,-500,-10,500,500,0.0)

@@ -33,12 +33,12 @@ class Widgets:
     def __getattr__(self, attr):
         widget = self._builder.get_object(attr)
         if widget is None:
-            raise AttributeError, "No widget %s" % attr
+            raise AttributeError("No widget %s" % attr)
         return widget
 
     def __getitem__(self, attr):
         widget = self._builder.get_object(attr)
         if widget is None:
-            raise IndexError, "No widget %s" % attr
+            raise IndexError("No widget %s" % attr)
         return widget
 

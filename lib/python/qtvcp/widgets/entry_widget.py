@@ -295,18 +295,18 @@ class TouchInterface(QtCore.QObject):
                 event.child().installEventFilter(self)
 
     def eventFilter(self, widget, event):
-      try:
-        if self._PARENT_WIDGET.focusWidget() == widget and event.type() == QtCore.QEvent.MouseButtonPress:
-            if hasattr(widget, 'keyboard_type'):
-                if widget.keyboard_type.lower() == 'alpha':
-                    self._input_panel_alpha.show_input_panel(widget)
-                elif widget.keyboard_type.lower() == 'numeric':
-                    self._input_panel_numeric.show_input_panel(widget)
-                else:
-                    self._input_panel_full.show_input_panel(widget)
-        return False
-      except:
-        return False
+        try:
+            if self._PARENT_WIDGET.focusWidget() == widget and event.type() == QtCore.QEvent.MouseButtonPress:
+                if hasattr(widget, 'keyboard_type'):
+                    if widget.keyboard_type.lower() == 'alpha':
+                        self._input_panel_alpha.show_input_panel(widget)
+                    elif widget.keyboard_type.lower() == 'numeric':
+                        self._input_panel_numeric.show_input_panel(widget)
+                    else:
+                        self._input_panel_full.show_input_panel(widget)
+            return False
+        except:
+            return False
 
 class TouchInputWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):

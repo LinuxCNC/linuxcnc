@@ -33,7 +33,7 @@ import gremlin
 import rs274.glcanon
 import gcode
 
-from hal_actions import _EMC_ActionBase
+from .hal_actions import _EMC_ActionBase
 from hal_glib import GStat
 
 def get_linuxcnc_ini_file():
@@ -45,7 +45,7 @@ def get_linuxcnc_ini_file():
     p,e = ps.communicate()
 
     if ps.returncode:
-        print(_('\nhal_gremlin: cannot find inifile\n'))
+        print((_('\nhal_gremlin: cannot find inifile\n')))
         return None
 
     ans = p.split()[p.split().index('-ini')+1]
@@ -135,16 +135,16 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         self._reload_filename=f
         try:
             self._load(f)
-        except AttributeError,detail:
+        except AttributeError as detail:
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
-            print 'hal_gremlin: continuing after',detail
+            print('hal_gremlin: continuing after',detail)
 
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name == 'view':
             return self.current_view
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -167,7 +167,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             self.enable_dro = value
         elif name == 'metric_units':
             self.metric_units = value
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -177,88 +177,88 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-            if not self.enable_dro:
-                return limit, homed, [''], ['']
+        if not self.enable_dro:
+            return limit, homed, [''], ['']
 
-            if self.metric_units:
-                format = "% 6s:% 9.3f"
-                if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.3f"
-                else:
-                    droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
-                rotformat = "% 5s %1s:% 9.3f"
-            else:
-                format = "% 6s:% 9.4f"
-                if self.show_dtg:
-                    droformat = " " + format + "  DTG %1s:% 9.4f"
-                else:
-                    droformat = " " + format
-                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
-                rotformat = "% 5s %1s:% 9.4f"
-            diaformat = " " + format
-
-            posstrs = []
-            droposstrs = []
-            for i in range(9):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    posstrs.append(format % (a, positions[i]))
-                    if self.show_dtg:
-                        droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
-                    else:
-                        droposstrs.append(droformat % (a, positions[i]))
-            droposstrs.append("")
-
-            for i in range(9):
-                index = s.g5x_index
-                if index<7:
-                    label = "G5%d" % (index+3)
-                else:
-                    label = "G59.%d" % (index-6)
-
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
-            droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
-
-            droposstrs.append("")
-            for i in range(9):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
-
-            # if its a lathe only show radius or diameter as per property
-            if self.is_lathe():
-                posstrs[0] = ""
-                if self.show_lathe_radius:
-                    posstrs.insert(1, format % ("Rad", positions[0]))
-                else:
-                    posstrs.insert(1, format % ("Dia", positions[0]*2.0))
-                droposstrs[0] = ""
-                if self.show_dtg:
-                    if self.show_lathe_radius:
-                        droposstrs.insert(1, droformat % ("Rad", positions[0], "R", axisdtg[0]))
-                    else:
-                        droposstrs.insert(1, droformat % ("Dia", positions[0]*2.0, "D", axisdtg[0]*2.0))
-                else:
-                    if self.show_lathe_radius:
-                        droposstrs.insert(1, droformat % ("Rad", positions[0]))
-                    else:
-                        droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
-
-            if self.show_velocity:
-                posstrs.append(format % ("Vel", spd))
-                pos=0
-                for i in range(9):
-                    if s.axis_mask & (1<<i): pos +=1
-                if self.is_lathe:
-                    pos +=1
-                droposstrs.insert(pos, " " + format % ("Vel", spd))
-
+        if self.metric_units:
+            format = "% 6s:% 9.3f"
             if self.show_dtg:
-                posstrs.append(format % ("DTG", dtg))
-            return limit, homed, posstrs, droposstrs
+                droformat = " " + format + "  DTG %1s:% 9.3f"
+            else:
+                droformat = " " + format
+            offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
+            rotformat = "% 5s %1s:% 9.3f"
+        else:
+            format = "% 6s:% 9.4f"
+            if self.show_dtg:
+                droformat = " " + format + "  DTG %1s:% 9.4f"
+            else:
+                droformat = " " + format
+            offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
+            rotformat = "% 5s %1s:% 9.4f"
+        diaformat = " " + format
+
+        posstrs = []
+        droposstrs = []
+        for i in range(9):
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                posstrs.append(format % (a, positions[i]))
+                if self.show_dtg:
+                    droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+                else:
+                    droposstrs.append(droformat % (a, positions[i]))
+        droposstrs.append("")
+
+        for i in range(9):
+            index = s.g5x_index
+            if index<7:
+                label = "G5%d" % (index+3)
+            else:
+                label = "G59.%d" % (index-6)
+
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
+        droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+
+        droposstrs.append("")
+        for i in range(9):
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+
+        # if its a lathe only show radius or diameter as per property
+        if self.is_lathe():
+            posstrs[0] = ""
+            if self.show_lathe_radius:
+                posstrs.insert(1, format % ("Rad", positions[0]))
+            else:
+                posstrs.insert(1, format % ("Dia", positions[0]*2.0))
+            droposstrs[0] = ""
+            if self.show_dtg:
+                if self.show_lathe_radius:
+                    droposstrs.insert(1, droformat % ("Rad", positions[0], "R", axisdtg[0]))
+                else:
+                    droposstrs.insert(1, droformat % ("Dia", positions[0]*2.0, "D", axisdtg[0]*2.0))
+            else:
+                if self.show_lathe_radius:
+                    droposstrs.insert(1, droformat % ("Rad", positions[0]))
+                else:
+                    droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
+
+        if self.show_velocity:
+            posstrs.append(format % ("Vel", spd))
+            pos=0
+            for i in range(9):
+                if s.axis_mask & (1<<i): pos +=1
+            if self.is_lathe:
+                pos +=1
+            droposstrs.insert(pos, " " + format % ("Vel", spd))
+
+        if self.show_dtg:
+            posstrs.append(format % ("DTG", dtg))
+        return limit, homed, posstrs, droposstrs
 
     # Override gremlin's / glcannon.py function so we can emit a GObject signal
     def update_highlight_variable(self,line):

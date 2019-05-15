@@ -23,7 +23,8 @@ import sys
 import os
 import gtk
 import gremlin_view
-import gobject
+from gi.repository import GObject as gobject
+
 
 #-----------------------------------------------------------------------------
 # determine if glade interface designer is running
@@ -38,7 +39,7 @@ if 'glade' in sys.argv[0] and 'gladevcp' not in sys.argv[0]:
             break
 g_alive = not g_is_glade
 #-----------------------------------------------------------------------------
-import hal_actions
+from . import hal_actions
 class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
     """HAL_GremlinPlus: gladevcp widget for gremlin_view.GremlinView
        Provides hal_gremlin with some buttons
@@ -89,7 +90,7 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
 
         # put default property values in self.property_dict[]
         self.property_dict = {}
-        for name in self.__gproperties.keys():
+        for name in list(self.__gproperties.keys()):
             gtype = self.__gproperties[name][0]
             if (   gtype == gobject.TYPE_BOOLEAN
                 or gtype == gobject.TYPE_STRING):
@@ -102,7 +103,7 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
 
     def do_get_property(self,property):
         name = property.name.replace('-', '_')
-        if name in self.property_dict.keys():
+        if name in list(self.property_dict.keys()):
             return self.property_dict[name]
         else:
             raise AttributeError(_('%s:unknown property %s')
@@ -110,10 +111,8 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
 
     def do_set_property(self,property,value):
         name = property.name.replace('-','_')
-        if name not in self.__gproperties.keys():
-            raise(AttributeError
-                 ,_('%s:do_set_property: unknown <%s>')
-                 % (g_progname,name))
+        if name not in list(self.__gproperties.keys()):
+            raise AttributeError
         else:
             self.property_dict[name] = value
 

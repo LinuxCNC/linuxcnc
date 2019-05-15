@@ -25,6 +25,7 @@ import array
 import gcode
 import os
 import re
+from functools import reduce
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -226,7 +227,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         if self.suppress > 0: return
         l = self.rotate_and_translate(x,y,z,a,b,c,u,v,w)
         if not self.first_move:
-                self.traverse_append((self.lineno, self.lo, l, [self.xo, self.yo, self.zo]))
+            self.traverse_append((self.lineno, self.lo, l, [self.xo, self.yo, self.zo]))
         self.lo = l
 
     def rigid_tap(self, x, y, z):
@@ -433,7 +434,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                        print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
                     else:
                         self.dro_in = temp
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
@@ -441,7 +442,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                        print("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
                     else:
                         self.dro_mm = temp
         except:
@@ -452,8 +453,8 @@ class GlCanonDraw:
         self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display)
+            print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -528,7 +529,7 @@ class GlCanonDraw:
         glDeleteLists(base, count)
 
     def __del__(self):
-        for base, count in self._dlists.values():
+        for base, count in list(self._dlists.values()):
             glDeleteLists(base, count)
 
     def update_highlight_variable(self,line):
@@ -868,20 +869,28 @@ class GlCanonDraw:
         if self.canon and self.canon.grid: return self.canon.grid
         return 5./25.4
 
-    def comp(self, (sx, sy), (cx, cy)):
+    def comp(self, xxx_todo_changeme, xxx_todo_changeme4):
+        (sx, sy) = xxx_todo_changeme
+        (cx, cy) = xxx_todo_changeme4
         return -(sx*cx + sy*cy) / (sx*sx + sy*sy)
 
-    def param(self, (x1, y1), (dx1, dy1), (x3, y3), (dx3, dy3)):
+    def param(self, xxx_todo_changeme5, xxx_todo_changeme6, xxx_todo_changeme7, xxx_todo_changeme8):
+        (x1, y1) = xxx_todo_changeme5
+        (dx1, dy1) = xxx_todo_changeme6
+        (x3, y3) = xxx_todo_changeme7
+        (dx3, dy3) = xxx_todo_changeme8
         den = (dy3)*(dx1) - (dx3)*(dy1)
         if den == 0: return 0
         num = (dx3)*(y1-y3) - (dy3)*(x1-x3)
         return num * 1. / den
 
-    def draw_grid_lines(self, space, (ox, oy), (dx, dy), lim_min, lim_max,
+    def draw_grid_lines(self, space, xxx_todo_changeme9, xxx_todo_changeme10, lim_min, lim_max,
             inverse_permutation):
         # draw a series of line segments of the form
         #   dx(x-ox) + dy(y-oy) + k*space = 0
         # for integers k that intersect the AABB [lim_min, lim_max]
+        (ox, oy) = xxx_todo_changeme9
+        (dx, dy) = xxx_todo_changeme10
         lim_pts = [
                 (lim_min[0], lim_min[1]),
                 (lim_max[0], lim_min[1]),
@@ -982,14 +991,14 @@ class GlCanonDraw:
         rotation = math.radians(self.stat.rotation_xy % 90)
         if rotation != 0 and view != z and self.get_show_relative(): return
         permutations = [
-                lambda (x, y, z): (z, y, x),  # YZ X
-                lambda (x, y, z): (z, x, y),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
+                lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
+                lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
         ]
         inverse_permutations = [
-                lambda (z, y, x): (x, y, z),  # YZ X
-                lambda (z, x, y): (x, y, z),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
+                lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
+                lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
         ]
         self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
@@ -1096,7 +1105,7 @@ class GlCanonDraw:
         except:
             pass
         if self.get_show_live_plot() or self.get_show_program():
-    
+
             alist = self.dlist(('axes', self.get_view()), gen=self.draw_axes)
             glPushMatrix()
             if self.get_show_relative() and (s.g5x_offset[0] or s.g5x_offset[1] or s.g5x_offset[2] or
@@ -1136,7 +1145,7 @@ class GlCanonDraw:
                 glTranslatef(*g5x_offset)
                 glRotatef(s.rotation_xy, 0, 0, 1)
 
-                
+
                 if  self.get_show_offsets() and (g92_offset[0] or g92_offset[1] or g92_offset[2]):
                     glBegin(GL_LINES)
                     glVertex3f(0,0,0)
@@ -1533,66 +1542,66 @@ class GlCanonDraw:
             # N.B. no conversion here because joint positions are unitless
             #      joint_mode and display_joint
             posstrs = ["  %s:% 9.4f" % i for i in
-                zip(range(self.get_num_joints()), s.joint_actual_position)]
+                zip(list(range(self.get_num_joints())), s.joint_actual_position)]
             droposstrs = posstrs
         return limit, homed, posstrs, droposstrs
 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-            if self.get_show_metric():
-                format = "% 6s:" + self.dro_mm
-                droformat = " " + format + "  DTG %1s:" + self.dro_mm
-                offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
-                rotformat = "% 5s %1s:" + self.dro_mm
+        if self.get_show_metric():
+            format = "% 6s:" + self.dro_mm
+            droformat = " " + format + "  DTG %1s:" + self.dro_mm
+            offsetformat = "% 5s %1s:" + self.dro_mm + "  G92 %1s:" + self.dro_mm
+            rotformat = "% 5s %1s:" + self.dro_mm
+        else:
+            format = "% 6s:" + self.dro_in
+            droformat = " " + format + "  DTG %1s:" + self.dro_in
+            offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
+            rotformat = "% 5s %1s:" + self.dro_in
+        diaformat = " " + format
+
+        posstrs = []
+        droposstrs = []
+        used_letters = []
+        for i in range(linuxcnc.MAX_AXIS):
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                posstrs.append(format % (a, positions[i]))
+                droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+
+        droposstrs.append("")
+
+        for i in range(linuxcnc.MAX_AXIS):
+            index = s.g5x_index
+            if index<7:
+                label = "G5%d" % (index+3)
             else:
-                format = "% 6s:" + self.dro_in
-                droformat = " " + format + "  DTG %1s:" + self.dro_in
-                offsetformat = "% 5s %1s:" + self.dro_in + "  G92 %1s:" + self.dro_in
-                rotformat = "% 5s %1s:" + self.dro_in
-            diaformat = " " + format
+                label = "G59.%d" % (index-6)
 
-            posstrs = []
-            droposstrs = []
-            used_letters = []
-            for i in range(linuxcnc.MAX_AXIS):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    posstrs.append(format % (a, positions[i]))
-                    droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
+        droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
 
-            droposstrs.append("")
+        droposstrs.append("")
+        for i in range(linuxcnc.MAX_AXIS):
+            a = "XYZABCUVW"[i]
+            if s.axis_mask & (1<<i):
+                droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
 
-            for i in range(linuxcnc.MAX_AXIS):
-                index = s.g5x_index
-                if index<7:
-                    label = "G5%d" % (index+3)
-                else:
-                    label = "G59.%d" % (index-6)
+        if self.is_lathe():
+            posstrs[0] = format % ("Rad", positions[0])
+            posstrs.insert(1, format % ("Dia", positions[0]*2.0))
+            droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
+            droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
-            droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+        if self.get_show_machine_speed():
+            posstrs.append(format % ("Vel", spd))
+            droposstrs.append(diaformat % ("Vel", spd))
 
-            droposstrs.append("")
-            for i in range(linuxcnc.MAX_AXIS):
-                a = "XYZABCUVW"[i]
-                if s.axis_mask & (1<<i):
-                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+        if self.get_show_distance_to_go():
+            posstrs.append(format % ("DTG", dtg))
 
-            if self.is_lathe():
-                posstrs[0] = format % ("Rad", positions[0])
-                posstrs.insert(1, format % ("Dia", positions[0]*2.0))
-                droposstrs[0] = droformat % ("Rad", positions[0], "R", axisdtg[0])
-                droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
-
-            if self.get_show_machine_speed():
-                posstrs.append(format % ("Vel", spd))
-                droposstrs.append(diaformat % ("Vel", spd))
-
-            if self.get_show_distance_to_go():
-                posstrs.append(format % ("DTG", dtg))
-
-            return limit, homed, posstrs, droposstrs
+        return limit, homed, posstrs, droposstrs
 
     def draw_small_origin(self, n):
         glNewList(n, GL_COMPILE)

@@ -62,7 +62,8 @@ import datetime
 import subprocess
 import linuxcnc
 import hashlib
-import gobject
+from gi.repository import GObject as gobject
+
 import glob
 import shutil
 import popupkeyboard
@@ -88,13 +89,13 @@ g_alive = not g_is_glade
 
 import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gettext.install("linuxcnc", localedir=LOCALEDIR, str=True)
 
 try:
     import pygtk
     pygtk.require('2.0')
-except ImportError,msg:
-    print('import pygtk failed: %s',msg)
+except ImportError as msg:
+    print(('import pygtk failed: %s',msg))
     pass
 #------------------------------------------------------------------------------
 g_debug             = False
@@ -155,27 +156,27 @@ bg_dvalue_color = gtk.gdk.color_parse('darkseagreen2')
 #------------------------------------------------------------------------------
 
 def exception_show(ename,detail,src=''):
-    print('\n%s:' % src )
-    print('Exception: %s' % ename )
-    print('   detail: %s' % detail )
+    print(('\n%s:' % src ))
+    print(('Exception: %s' % ename ))
+    print(('   detail: %s' % detail ))
     if type(detail) == exceptions.ValueError:
         for x in detail:
             if type(x) in (StringType, UnicodeType):
-                print('detail(s):',x)
+                print(('detail(s):',x))
             else:
                 for y in x:
-                    print('detail(d):',y,)
+                    print(('detail(d):',y,))
     elif type(detail) == StringType:
-        print('detail(s):',detail)
+        print(('detail(s):',detail))
     elif type(detail) == ListType:
         for x in detail:
-            print('detail(l):',x)
+            print(('detail(l):',x))
     else:
-        print(ename,detail)
+        print((ename,detail))
 
     if g_debug:
         #print(sys.exc_info())
-        print( traceback.format_exc())
+        print(( traceback.format_exc()))
 
 def save_a_copy(fname,archive_dir='/tmp/old_ngc'):
     if fname is None:
@@ -185,12 +186,12 @@ def save_a_copy(fname,archive_dir='/tmp/old_ngc'):
             os.mkdir(archive_dir)
         shutil.copyfile(fname
               ,os.path.join(archive_dir,dt() + '_' + os.path.basename(fname)))
-    except IOError,msg:
-        print(_('save_a_copy: IOError copying file to %s') % archive_dir)
+    except IOError as msg:
+        print((_('save_a_copy: IOError copying file to %s') % archive_dir))
         print(msg)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,src='save_a_copy')
-        print(traceback.format_exc())
+        print((traceback.format_exc()))
         sys.exit(1)
 
 def get_linuxcnc_ini_file():
@@ -200,8 +201,8 @@ def get_linuxcnc_ini_file():
     p,e = ps.communicate()
 
     if ps.returncode:
-        print(_('get_linuxcnc_ini_file: stdout= %s') % p)
-        print(_('get_linuxcnc_ini_file: stderr= %s') % e)
+        print((_('get_linuxcnc_ini_file: stdout= %s') % p))
+        print((_('get_linuxcnc_ini_file: stderr= %s') % e))
         return None
 
     ans = p.split()[p.split().index('-ini')+1]
@@ -235,11 +236,11 @@ def send_to_axis(filename): # return True for success
                          )
     p,e = s.communicate()
     if s.returncode:
-        print(_('%s:send_to_axis: stdout= %s') % (g_progname,p))
-        print(_('%s:send_to_axis: stderr= %s') % (g_progname,e))
+        print((_('%s:send_to_axis: stdout= %s') % (g_progname,p)))
+        print((_('%s:send_to_axis: stderr= %s') % (g_progname,e)))
         return False
-    if p: print(_('%s:send_to_axis: stdout= %s') % (g_progname,p))
-    if e: print(_('%s:send_to_axis: stderr= %s') % (g_progname,e))
+    if p: print((_('%s:send_to_axis: stdout= %s') % (g_progname,p)))
+    if e: print((_('%s:send_to_axis: stderr= %s') % (g_progname,e)))
     return True
 
 def file_save(fname,title_message='Save File'):
@@ -251,8 +252,8 @@ def file_save(fname,title_message='Save File'):
        ,buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL
                 ,gtk.STOCK_OK,     gtk.RESPONSE_OK
                 )
-       ,backend=None
-       )
+        ,backend=None
+        )
     fc.set_current_folder(start_dir)
     fc.set_do_overwrite_confirmation(True)
     filter = gtk.FileFilter()
@@ -270,11 +271,11 @@ def file_save(fname,title_message='Save File'):
     if ans == gtk.RESPONSE_OK:
         fname = fc.get_filename()
     elif ans == gtk.RESPONSE_CANCEL:
-        print(_('file_save:canceled'))
+        print((_('file_save:canceled')))
     elif ans == gtk.RESPONSE_DELETE_EVENT: # window close
-        print(_('file_save:window closed'))
+        print((_('file_save:window closed')))
     else:
-        raise IOError,_('file_save:unexpected')
+        raise IOError(_('file_save:unexpected'))
     fc.destroy()
     return(fname)
 
@@ -394,7 +395,7 @@ def find_positional_parms(s):
                 dvalue = int(dvalue)
             if r.group(4): comment = r.group(4)
         if n > 4:
-            print('find_positional_parametrs unexpected n>4',s,)
+            print(('find_positional_parametrs unexpected n>4',s,))
             comment = r.group(4)
         if comment is None:
             print('find_positional_parameters:NOCOMMENT') # can't happen
@@ -495,18 +496,18 @@ def show_dir(x,tag=''):
             l.append('%-8s %s = %s' % ('1 Obj',name,s))
 
     print('\n')
-    print('%s----------------------------------------------------------' % tag)
+    print(('%s----------------------------------------------------------' % tag))
     for i in sorted(l):
         print(i)
-    print('%s==========================================================' % tag)
+    print(('%s==========================================================' % tag))
 
 def dprint(txt):
     if g_debug:
-        print(':' + txt)
+        print((':' + txt))
 
 def vprint(txt):
     if g_verbose:
-        print('::' + txt)
+        print(('::' + txt))
 
 def spath_from_inifile(fname):
     if not fname:
@@ -612,7 +613,7 @@ def show_parent(w,ct=0):
     if w is None:
         print('show_parent: None')
         return
-    print('show_parent:',ct,w)
+    print(('show_parent:',ct,w))
     if w.is_toplevel():
         print('TOP\n')
         return
@@ -628,15 +629,15 @@ def all_coords(iterable):
 def show_position():
     g_stat.poll()
     print('POSITION-----------------------------------------------------')
-    print('       ap',all_coords(g_stat.actual_position))
-    print('        p',all_coords(g_stat.position))
+    print(('       ap',all_coords(g_stat.actual_position)))
+    print(('        p',all_coords(g_stat.position)))
     l = []
     p = g_stat.actual_position
     for i in range(9): l.append(p[i]
                                - g_stat.g5x_offset[i]
                                - g_stat.tool_offset[i]
                                )
-    print('offset ap',all_coords(l))
+    print(('offset ap',all_coords(l)))
 
     l = []
     p = g_stat.position
@@ -644,7 +645,7 @@ def show_position():
                                - g_stat.g5x_offset[i]
                                - g_stat.tool_offset[i]
                                )
-    print('offset  p',all_coords(l))
+    print(('offset  p',all_coords(l)))
     print('POSITION=====================================================')
 
 def coord_value(char):
@@ -716,7 +717,7 @@ def mod_font_by_category(obj,mode='control'):
     if mode == 'control':
         font = g_control_font
     else:
-        print('mod_font_by_category:unknown mode %s' % mode)
+        print(('mod_font_by_category:unknown mode %s' % mode))
         return
 
     targetobj = None
@@ -733,10 +734,10 @@ def mod_font_by_category(obj,mode='control'):
         elif hasattr(obj,'modify_font'):
             targetobj = obj
         else:
-            raise ValueError,'mod_font_by_category: no child'
+            raise ValueError('mod_font_by_category: no child')
             return
     else:
-        raise ValueError,'mod_font_by_category: unsupported:',type(obj)
+        raise ValueError('mod_font_by_category: unsupported:').with_traceback(type(obj))
         return
 
     if targetobj is None:
@@ -761,7 +762,7 @@ def clean_tmpgcmc(odir):
         odir = g_searchpath[0]
     savedir = os.path.join("/tmp", g_gcmc_funcname) # typ /tmp/tmpgcmc
     if not os.path.isdir(savedir):
-        os.mkdir(savedir,0755)
+        os.mkdir(savedir,0o755)
     for f in glob.glob(os.path.join(odir,g_gcmc_funcname + "*.ngc")):
         # rename ng across file systems
         shutil.move(f,os.path.join(savedir,os.path.basename(f)))
@@ -912,8 +913,8 @@ class CandidateFiles():
             # as the number of columns
             try:
                 mtime = datetime.datetime.fromtimestamp(os.path.getmtime(dir))
-            except OSError,detail:
-                print(_('%s:make_tree:%s' % (g_progname,detail) ))
+            except OSError as detail:
+                print((_('%s:make_tree:%s' % (g_progname,detail) )))
                 continue # try to skip this dir with message
             mtime = mtime.strftime(g_dtfmt) # truncate fractional seconds
             iter = self.treestore.append(None, [dir,"Directory",mtime])
@@ -992,13 +993,13 @@ class LinuxcncInterface():
             g_stat.poll() # poll faults if linuxcnc not running
             self.lrunning = True
             l_ini_file = get_linuxcnc_ini_file()
-        except linuxcnc.error,msg:
+        except linuxcnc.error as msg:
             g_stat = None
-            print('INTFC:err:',msg)
-            print('INTFC:' + _('Warning: linuxcnc not running'))
+            print(('INTFC:err:',msg))
+            print(('INTFC:' + _('Warning: linuxcnc not running')))
 
-        print('%s:INTFC:linuxcnc running=%d' % (g_progname,self.lrunning))
-        print('%s:INTFC:ini_file=<%s>' % (g_progname,l_ini_file))
+        print(('%s:INTFC:linuxcnc running=%d' % (g_progname,self.lrunning)))
+        print(('%s:INTFC:ini_file=<%s>' % (g_progname,l_ini_file)))
 
         # cmdline_ini_file can be specified on cmdline and from intfc:
         # if neither ok: if no cmdline subfile, make custom page
@@ -1066,10 +1067,9 @@ class LinuxcncInterface():
 
     def addto_spath(self,pathtoadd):
         if type(pathtoadd) != ListType:
-            raise ValueError,(
+            raise ValueError(
                 'addto_spath: List required not: %s %s'
-                % (pathtoadd,type(pathtoadd))
-                )
+                % (pathtoadd,type(pathtoadd)))
         # dont add duplicates
         if pathtoadd not in self.subroutine_path:
             self.subroutine_path.extend(pathtoadd)
@@ -1107,12 +1107,12 @@ class LinuxcncInterface():
                 foundlist.append(f)
 
         if len(foundlist) > 1:
-            print(_('find_file_in_path:Multiple Results: %s') % foundlist)
-            print(_('      Search path: %s') % self.subroutine_path)
+            print((_('find_file_in_path:Multiple Results: %s') % foundlist))
+            print((_('      Search path: %s') % self.subroutine_path))
         if foundfilename:
             vprint('find_file_in_path:%s' % foundfilename)
             return(foundfilename,'FOUND')
-        print('find_file_in_path<%s> NOTFOUND' % fname)
+        print(('find_file_in_path<%s> NOTFOUND' % fname))
         return(fname,'NOTFOUND')
 
     def get_subfiles(self):
@@ -1217,7 +1217,7 @@ class SubFile():
     """SubFile: subfile data"""
     def __init__(self,thefile):
         self.sub_file = thefile
-        self.min_num = sys.maxint
+        self.min_num = sys.maxsize
         self.max_num = 0
         self.pdict = {} # named items:   pdict[keyword] = value
         self.ndict = {} # ordinal items: ndict[idx] = (name,dvalue,comment)
@@ -1266,7 +1266,7 @@ class SubFile():
             "marked (not_a_subfile)\nNot intended for use as a subfile")
 
     def re_read(self):
-        if self.pdict.has_key('isgcmc'):
+        if 'isgcmc' in self.pdict:
             self.read_gcmc()
         else:
             self.read_ngc()
@@ -1317,9 +1317,9 @@ class SubFile():
             if subname is None and ename is not None:
                 self.flagerror("endsub before sub %s" % ename)
             if subname is not None and ename is not None:
-               endsubname = ename
-               if endsubname != subname:
-                   self.flagerror("endsubname different from subname")
+                endsubname = ename
+                if endsubname != subname:
+                    self.flagerror("endsubname different from subname")
 
             label = check_for_label(l)
             if label: self.ldict[idx] = label
@@ -1332,7 +1332,7 @@ class SubFile():
                                ,self.min_num,self.max_num)
                 if pparm > g_max_parm:
                     self.flagerror(
-                      _('parm #%s exceeds config limit on no. of parms= %d\n')
+                        _('parm #%s exceeds config limit on no. of parms= %d\n')
                         % (pparm,g_max_parm))
                 if pparm:
                     self.min_num = min
@@ -1373,7 +1373,7 @@ class SubFile():
                                  % os.path.basename(self.sub_file)
                         ,msg = self.errlist)
             self.errlist.append('SUBERROR')
-            raise ValueError,self.errlist
+            raise ValueError(self.errlist)
 
     def read_gcmc(self):
         self.gcmc_opts = [] # list of options for gcmc
@@ -1409,7 +1409,7 @@ class SubFile():
                 name = r2.group(1)
                 dvalue = r2.group(2)
             elif r1:
-                print 'r1-1 opt read_gcmc:g1:',r1.group(1)
+                print('r1-1 opt read_gcmc:g1:',r1.group(1))
                 name = r1.group(1)
 
             if dvalue:
@@ -1498,10 +1498,10 @@ class OneParmEntry():
 
     def grabit(self,*args,**kwargs):
         #print 'grabit',self,args,kwargs
-        print '\ngrabit:can_get_focus:',self.en.get_can_focus()
+        print('\ngrabit:can_get_focus:',self.en.get_can_focus())
         self.en.grab_focus()
-        print 'grabit:has_focus',self.en.has_focus()
-        print 'grabit: is_focus',self.en.is_focus()
+        print('grabit:has_focus',self.en.has_focus())
+        print('grabit: is_focus',self.en.is_focus())
 
     def popkeyboard(self,widget,v):
         origtxt = self.en.get_text()
@@ -1526,7 +1526,7 @@ class OneParmEntry():
                     w.set_text("%.4f" % coord_value(char))
                 except TypeError:
                     pass
-                except Exception, detail:
+                except Exception as detail:
                     exception_show(Exception,detail,'entry_changed')
                     pass
 
@@ -1601,7 +1601,7 @@ class EntryFields():
     """EntryFields: Positional Parameters entry fields in a frame """
     def __init__(self,nparms=INTERP_SUB_PARAMS):
         if nparms > g_max_parm:
-            raise ValueError,(_(
+            raise ValueError(_(
                   'EntryFields:nparms=%d g_max_parm=%d')
                   % (nparms,g_max_parm))
         self.ebox = gtk.Frame()
@@ -1640,9 +1640,9 @@ class EntryFields():
             type(self.columnbox) # test for existence
             # destroy prior VBoxes packed in self.boxofcolumns
             for c in self.boxofcolumns.children():
-                 self.boxofcolumns.remove(c)
-                 c.destroy()
-                 del(c)
+                self.boxofcolumns.remove(c)
+                c.destroy()
+                del(c)
         except AttributeError:
             # first-time: create initial VBox for entries
             self.columnbox = gtk.VBox(homogeneous=0,spacing=2)
@@ -1681,7 +1681,7 @@ class EntryFields():
         self.pentries[idx].make_pentry(ll,en,lr,emode)
 
     def getstuff_byidx(self,idx):
-        print("1getstuff idx=",idx)
+        print(("1getstuff idx=",idx))
         self.pentries[idx].getstuff()
 
     def get_box(self):
@@ -1743,47 +1743,47 @@ class TestButtons():
         if   v == 'info':
             p = m.nset
             print('INFO--------------------------------------------------')
-            print('       sys.argv = %s' % sys.argv)
-            print('            cwd = %s' % os.getcwd())
-            print('       sys.path = %s' % sys.path)
-            print('       ini_file = %s' % p.intfc.get_ini_file())
-            print('      auto_file = %s' % p.auto_file)
-            print('subroutine_path = %s' % p.intfc.get_subroutine_path())
-            print('    user_m_path = %s' % p.intfc.get_user_m_path())
-            print('       pre_file = %s' % p.intfc.get_preamble())
-            print('        sublist = %s' % p.intfc.get_subfiles())
-            print('       pst_file = %s' % p.intfc.get_postamble())
-            print('  startpage_idx = %s' % p.startpage_idx)
+            print(('       sys.argv = %s' % sys.argv))
+            print(('            cwd = %s' % os.getcwd()))
+            print(('       sys.path = %s' % sys.path))
+            print(('       ini_file = %s' % p.intfc.get_ini_file()))
+            print(('      auto_file = %s' % p.auto_file))
+            print(('subroutine_path = %s' % p.intfc.get_subroutine_path()))
+            print(('    user_m_path = %s' % p.intfc.get_user_m_path()))
+            print(('       pre_file = %s' % p.intfc.get_preamble()))
+            print(('        sublist = %s' % p.intfc.get_subfiles()))
+            print(('       pst_file = %s' % p.intfc.get_postamble()))
+            print(('  startpage_idx = %s' % p.startpage_idx))
             print('')
-            print('      __file__  = %s' % __file__)
-            print('g_send_function = %s' % g_send_function)
-            print('       g_popkbd = %s' % g_popkbd)
-            print('         g_stat = %s' % g_stat)
-            print('     g_progname = %s' % g_progname)
-            print('      g_verbose = %s' % g_verbose)
-            print('        g_debug = %s' % g_debug)
-            print('        g_tmode = %s' % g_tmode)
-            print('     g_label_id = %s' % g_label_id)
+            print(('      __file__  = %s' % __file__))
+            print(('g_send_function = %s' % g_send_function))
+            print(('       g_popkbd = %s' % g_popkbd))
+            print(('         g_stat = %s' % g_stat))
+            print(('     g_progname = %s' % g_progname))
+            print(('      g_verbose = %s' % g_verbose))
+            print(('        g_debug = %s' % g_debug))
+            print(('        g_tmode = %s' % g_tmode))
+            print(('     g_label_id = %s' % g_label_id))
         elif v  == 'ent':
             print('ENTRIES--------------------------------------------------')
             x = m.efields.pentries
             pmax = m.fset.sub_data.pdict['lastparm']
             print('efields.pentries[]')
             for pidx in range(1,pmax+1):
-                print("%2d: %4s %-8s %-20s" % (pidx
+                print(("%2d: %4s %-8s %-20s" % (pidx
                                            ,x[pidx].ll.get_text()
                                            ,x[pidx].en.get_text()
                                            ,x[pidx].lr.get_text()
-                                           ))
+                                           )))
             print('ENTRIES==================================================')
         elif v == 'intfc': d = m.nset.intfc;    show_dir(d,tag='intfc')
         elif v == 'page':
             d = m;               show_dir(d,tag='mypg')
             x=self.mypg.efields.pentries[1].en
-            print 'x=',x
-            print '            has_focus:',x.has_focus()
-            print '             is_focus:',x.is_focus()
-            print '        get_can_focus:',x.get_can_focus()
+            print('x=',x)
+            print('            has_focus:',x.has_focus())
+            print('             is_focus:',x.is_focus())
+            print('        get_can_focus:',x.get_can_focus())
         elif v == 'pre':   d = m.fset.pre_data; show_dir(d,tag='pre_data')
         elif v == 'sub':   d = m.fset.sub_data; show_dir(d,tag='sub_data')
         elif v == 'pst':   d = m.fset.pst_data; show_dir(d,tag='pst_data')
@@ -1796,8 +1796,8 @@ class TestButtons():
         elif v == 'hal':   show_dir(hal,tag='hal')
         elif v == 'pos':   show_position()
         elif v == 'tst':
-            print('cpanel size:',m.cpanel.box.size_request())
-            print('mtable size:',m.mtable.size_request())
+            print(('cpanel size:',m.cpanel.box.size_request()))
+            print(('mtable size:',m.mtable.size_request()))
         elif v == 'nb':
             print('NB--------------------------------------------------')
             for pno in range(m.nset.startpage_idx
@@ -1805,9 +1805,9 @@ class TestButtons():
                 npage = m.mynb.get_nth_page(pno)
                 pg    = m.nset.pg_for_npage[npage]
                 ltxt  = pg.the_lbl.get_text()
-                print('%10s %s' % (ltxt,pg))
+                print(('%10s %s' % (ltxt,pg)))
             print('NB==================================================')
-        else: print('btest unknown:',v)
+        else: print(('btest unknown:',v))
 
     def delete(self):
         gtk.main_quit()
@@ -1823,12 +1823,12 @@ class ControlPanel():
                 ,pst_file=''
                 ):
         self.mypg = mypg
- 
+
         frame = gtk.Frame()
         frame.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         frame.set_border_width(2)
         self.box = frame
-        
+
         cpbox  = gtk.VBox()
         # fixed width so it doesn't change when switching tabs
         # fixed height to allow room for buttons below image
@@ -2056,9 +2056,9 @@ class ControlPanel():
         self.set_message(_('Toggle expandsub %s') % str(self.mypg.expandsub))
 
     def checkb_toggle(self, widget, var):
-        print('1T',var,type(var))
+        print(('1T',var,type(var)))
         var = (0,1)[widget.get_active()]
-        print('2T',var,type(var))
+        print(('2T',var,type(var)))
 
     def create_feature(self):
         m=self.mypg
@@ -2090,7 +2090,7 @@ class ControlPanel():
         p.sub_data = SubFile(m.sub_file) # error for ''
         p.pst_data = PstFile(m.pst_file) # may be ''
 
-        if p.sub_data.pdict.has_key('isgcmc'):
+        if 'isgcmc' in p.sub_data.pdict:
             stat = self.savesection_gcmc()
         else:
             stat = self.savesection_ngc()
@@ -2187,7 +2187,7 @@ class ControlPanel():
                 xcmd.append(str(splitopts[1])) # presumes only one token
 
 
-        for k in p.sub_data.ndict.keys():
+        for k in list(p.sub_data.ndict.keys()):
             #print 'k=',k,p.sub_data.ndict[k]
             name,dvalue,comment = p.sub_data.ndict[k]
             # make all entry box values explicitly floating point
@@ -2202,7 +2202,7 @@ class ControlPanel():
             xcmd.append('--define=' + name + '=' + fvalue)
 
         xcmd.append(m.sub_file)
-        print "xcmd=",xcmd
+        print("xcmd=",xcmd)
         e_message = ".*Runtime message\(\): *(.*)"
         e_warning = ".*Runtime warning\(\): *(.*)"
         e_error   = ".*Runtime error\(\): *(.*)"
@@ -2282,7 +2282,7 @@ class ControlPanel():
         if len(mypg.savesec) == 0:
             msg = 'finalize_features: Unexpected: No features'
             self.set_message(_('No features'))
-            raise ValueError,msg
+            raise ValueError(msg)
             return
         txt = ''
         plist = []
@@ -2335,7 +2335,7 @@ class ControlPanel():
                   or ans == gtk.REXPONSE_DELETE_EVENT): # window close
                 return # do nothing
             else:
-                raise ValueError, 'finalize_features:unknown ans<%d>'%ans
+                raise ValueError('finalize_features:unknown ans<%d>'%ans)
 
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
@@ -2383,15 +2383,15 @@ class ControlPanel():
                 user_must_save = False
                 self.set_message(_('Finalize: Sent file'))
                 save_a_copy(tmpname)
-                print('%s:SENT: %s' % (g_progname,tmpname))
-                print('%s:SENT:using: %s' % (g_progname,g_send_function.__name__))
+                print(('%s:SENT: %s' % (g_progname,tmpname)))
+                print(('%s:SENT:using: %s' % (g_progname,g_send_function.__name__)))
             else:
                 title_message = (
-                  _('Sending file failed using function: <%s>, user must save')
+                    _('Sending file failed using function: <%s>, user must save')
                   % g_send_function.__name__)
                 self.set_message(_('Finalize: Sent file failed'))
-                print('%s:SAVEDFILE: after send failed: %s'
-                     % (g_progname,tmpname))
+                print(('%s:SAVEDFILE: after send failed: %s'
+                     % (g_progname,tmpname)))
 
         if user_must_save:
             fname  = os.path.abspath(nset.auto_file)
@@ -2418,11 +2418,11 @@ class ControlPanel():
             for l in pg.savesec[i].sdata:
                 if l.find("#<_feature:>") == 0:
                     file.write(
-                      "(%s: feature line added) #<_feature:> = %d\n"\
+                        "(%s: feature line added) #<_feature:> = %d\n"\
                       % (g_progname,featurect))
                     featurect += 1
                     file.write(
-                      "(%s: remaining_features line added) "
+                        "(%s: remaining_features line added) "
                       " #<_remaining_features:> = %d\n"\
                       % (g_progname,features_total - featurect))
                 else:
@@ -2451,7 +2451,7 @@ class ControlPanel():
             else:
                 self.mypg.cpanel.set_message(_('file_choose OTHER'))
                 mydiag.destroy()
-                raise ValueError,_('file_choose OTHER %s') % str(response)
+                raise ValueError(_('file_choose OTHER %s') % str(response))
                 return None
 
             if fname == 'TRYAGAIN':
@@ -2466,11 +2466,11 @@ class ControlPanel():
         if   ftype == 'pre':
             self.mypg.fset.pre_file = fname
         elif ftype == 'sub':
-             self.mypg.fset.sub_file = fname
+            self.mypg.fset.sub_file = fname
         elif ftype == 'pst':
-             self.mypg.fset.pst_file = fname
+            self.mypg.fset.pst_file = fname
         else:
-            raise ValueError,"file_choose ftype?",ftype
+            raise ValueError("file_choose ftype?").with_traceback(ftype)
 
         # None for no file selected, null out field could be useful
         if not fname:
@@ -2496,7 +2496,7 @@ class ControlPanel():
             self.pst_entry.set_text(os.path.basename(fname))
             self.mypg.update_onepage('pst',fname)
         else:
-            raise ValueError,'file_choose:Unexpected ftype <%s>' %ftype
+            raise ValueError('file_choose:Unexpected ftype <%s>' %ftype)
 
         self.mypg.cpanel.set_message(_('Read %s') % os.path.basename(fname))
         return
@@ -2613,7 +2613,7 @@ class OnePg():
         elif g_tab_controls_loc == 'bottom':
             op_box.pack_end(tabarrange_buttons,expand=0,fill=0,padding=0)
         else:
-            raise ValueError,(g_progname
+            raise ValueError(g_progname
                   + ' unknown tab_controls_loc %s' % g_tab_controls_loc)
 
         op_box.pack_start(self.linfof, expand=0,fill=0,padding=0)
@@ -2662,12 +2662,12 @@ class OnePg():
                 else:
                     #print(i,'SAME md5',o_file,o_md5)
                     o_entry.modify_text(gtk.STATE_NORMAL,black_color)
-        except OSError, detail:
-            print(_('%s:periodic_check:OSError:%s') % detail)
+        except OSError as detail:
+            print((_('%s:periodic_check:OSError:%s') % detail))
             pass # continue without checks after showing message
-        except Exception, detail:
+        except Exception as detail:
             exception_show(Exception,detail,'periodic_check')
-            raise Exception, detail # reraise
+            raise Exception(detail) # reraise
         if self.garbagecollect:
             return False # False to norepeat (respond to del for self)
         return True      # True to repeat
@@ -2795,9 +2795,9 @@ class OnePg():
                                ,sub_file=self.sub_file
                                ,pst_file=self.pst_file
                                )
-        except OSError,detail:
-            print(_('%s:make_fileset:%s' % (g_progname,detail) ))
-            raise OSError,detail # reraise
+        except OSError as detail:
+            print((_('%s:make_fileset:%s' % (g_progname,detail) )))
+            raise OSError(detail) # reraise
 
     def fill_entrypage(self,emode='initial'):
         self.efields.set_parm_entries(self.fset,emode)
@@ -2824,15 +2824,15 @@ class OnePg():
         if   type == 'pre':
             foundname,stat = self.nset.intfc.find_file_in_path(fname)
             if stat == 'NOTFOUND':
-                 self.clear_entries('pre')
-                 return
+                self.clear_entries('pre')
+                return
             self.pre_file = foundname
             self.fset.pre_data = PreFile(self.pre_file)
         elif type == 'sub':
             foundname,stat = self.nset.intfc.find_file_in_path(fname)
             if stat == 'NOTFOUND':
-                 self.clear_entries('sub')
-                 return
+                self.clear_entries('sub')
+                return
             self.sub_file = foundname
             try:
                 self.make_fileset()
@@ -2844,18 +2844,18 @@ class OnePg():
                 lbltxt = self.nset.make_unique_tab_name(lbltxt)
                 self.the_lbl.set_text(lbltxt)
                 return True
-            except Exception, detail:
+            except Exception as detail:
                 exception_show(Exception,detail,'update_onepage')
                 return False
         elif type == 'pst':
             foundname,stat = self.nset.intfc.find_file_in_path(fname)
             if stat == 'NOTFOUND':
-                 self.clear_entries('pst')
-                 return
+                self.clear_entries('pst')
+                return
             self.pst_file = foundname
             self.fset.pst_data = PstFile(self.pst_file)
         else:
-            raise ValueError,'update_onepage unexpected type <%s>' % type
+            raise ValueError('update_onepage unexpected type <%s>' % type)
 
         return
 
@@ -2874,7 +2874,7 @@ class OnePg():
             self.cpanel.pst_entry.set_text('')
             self.fset.pst_data.clear()
         else:
-            raise ValueError,'clear_entries:unexpected fmode= %s' % fmode
+            raise ValueError('clear_entries:unexpected fmode= %s' % fmode)
 
     def move_left(self):
         page_idx = self.mynb.get_current_page()
@@ -2961,7 +2961,7 @@ class NgcGui():
             if g_send_function == None:
                 g_send_function = dummy_send
         except AttributeError:
-            print 'INVALID send_function, using dummy'
+            print('INVALID send_function, using dummy')
             g_send_function = dummy_send
 
         if max_parm is not None:
@@ -2971,13 +2971,13 @@ class NgcGui():
         if image_width is not None:
             global g_image_width
             if image_width > g_image_width:
-                raise ValueError,(_('NgcGui image_width=%d too big, max=%d')
+                raise ValueError(_('NgcGui image_width=%d too big, max=%d')
                                  % (image_width,g_image_width))
             g_image_width = image_width
 
         if g_max_parm > INTERP_SUB_PARAMS:
-            raise ValueError,(_('max_parms=%d exceeds INTERP_SUB_PARAMS=%d')
-                            %  (g_max_parm,INTERP_SUB_PARAMS) )
+            raise ValueError(_('max_parms=%d exceeds INTERP_SUB_PARAMS=%d')
+                            %  (g_max_parm,INTERP_SUB_PARAMS))
 
         ct_of_pages = 0
         try:
@@ -2992,14 +2992,14 @@ class NgcGui():
                              )
                 global g_entry_height
                 g_entry_height = g_big_height # bigger for popupkeyboard
-        except ImportError, msg:
-            print('\nImportError:\n%s', msg)
-            print('keyboardfile=%s' % keyboardfile)
+        except ImportError as msg:
+            print(('\nImportError:\n%s', msg))
+            print(('keyboardfile=%s' % keyboardfile))
             print('popup keyboard unavailable\n')
-        except glib.GError, msg:
+        except glib.GError as msg:
             # can occur for toohigh version in ui file
-            print('\nglib.GError:\n%s' % msg)
-            print('keyboardfile=%s' % keyboardfile)
+            print(('\nglib.GError:\n%s' % msg))
+            print(('keyboardfile=%s' % keyboardfile))
             print('popup keyboard unavailable\n')
 
         self.last_file = None
@@ -3029,7 +3029,7 @@ class NgcGui():
             self.nb = w
             self.startpage_idx = self.nb.get_n_pages()
         else:
-            raise ValueError,'NgcGui:bogus w= %s' % type(w)
+            raise ValueError('NgcGui:bogus w= %s' % type(w))
 
         self.nb.set_scrollable(True)
         self.set_theme(w,tname=gtk_theme_name)
@@ -3142,9 +3142,9 @@ class NgcGui():
                 try:
                     self.add_page(pre_file,sub_file,pst_file)
                     ct_of_pages += 1
-                except Exception,detail:
+                except Exception as detail:
                     exception_show(Exception,detail,src='NgcGui init')
-                    print(_('CONTINUING without %s') % sub_file)
+                    print((_('CONTINUING without %s') % sub_file))
         else:
             if not sub_files:
                 vprint('NgcGui: no ini_file with sublist '
@@ -3164,7 +3164,7 @@ class NgcGui():
 
         if ct_of_pages == 0:
             usage()
-            print(_('No valid subfiles specified'))
+            print((_('No valid subfiles specified')))
             sys.exit(1)
         return
 
@@ -3191,7 +3191,7 @@ class NgcGui():
                 w.deiconify()
                 w.show_all()
             self.current_page = mypg
-        except KeyError,msg:
+        except KeyError as msg:
             # can occur when embedded in providers notebook
             # print('page_switched: Caught KeyError')
             pass
@@ -3218,7 +3218,7 @@ class NgcGui():
         eb_lbl = gtk.EventBox()
         mylbl  = gtk.Label(ltxt)
         if g_popkbd is not None:
-             mylbl.set_size_request(-1,g_big_height)
+            mylbl.set_size_request(-1,g_big_height)
         eb_lbl.add(mylbl)
         mylbl.show()
         eb_lbl.set_style(g_lbl_style_default)
@@ -3302,7 +3302,7 @@ class SaveSection():
                 value = str(float(value.lower() ))
 
             parmlist.append(value)
-            if sub_info.pdict.has_key('isgcmc'):
+            if 'isgcmc' in sub_info.pdict:
                 # just print value of gcmc parm embedded in gcmc result
                 # the call requires no parms
                 pass
@@ -3319,9 +3319,9 @@ class SaveSection():
             raise ValueError
         calltxt = calltxt + '\n'
         # expandsub not honored for gcmc
-        if (mypg.expandsub and sub_info.pdict.has_key('isgcmc')):
-            print(_('expandsub not honored for gcmc file: %s')%
-                     os.path.basename(sub_info.sub_file))
+        if (mypg.expandsub and 'isgcmc' in sub_info.pdict):
+            print((_('expandsub not honored for gcmc file: %s')%
+                     os.path.basename(sub_info.sub_file)))
             mypg.expandsub = 0
         #---------------------------------------------------------------------
         if (not mypg.expandsub) and (not force_expand):
@@ -3352,7 +3352,7 @@ class SaveSection():
                     if r:
                         modline = r.group(2) + '\n'
                     else:
-                        print('SaveSection__init__:unexpected:',line)
+                        print(('SaveSection__init__:unexpected:',line))
                     self.sdata.append('%11s %s' % (modlabel,modline))
                 else:
                     theline = '%11s %s' % (blank,line)
@@ -3377,7 +3377,7 @@ class SaveSection():
 
 
 def usage():
-    print("""
+    print(("""
 Usage:
 %s [Options] [sub_filename]
 Options requiring values:
@@ -3405,7 +3405,7 @@ Notes:
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
          search for a running linuxcnc and use its inifile
-    """ % g_progname)
+    """ % g_progname))
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
 
@@ -3467,11 +3467,11 @@ def standalone_pyngcgui():
                             ,'nom2'
                             ]
                           )
-    except getopt.GetoptError,msg:
+    except getopt.GetoptError as msg:
         usage()
-        print('\nGetoptError:%s' % msg)
+        print(('\nGetoptError:%s' % msg))
         sys.exit(1)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,'__main__')
         sys.exit(1)
     for opt,arg in options:
@@ -3509,17 +3509,17 @@ def standalone_pyngcgui():
     if not keyboard: keyboardfile=None
 
     if (dbg):
-        print(g_progname + ' BEGIN-----------------------------------------------')
-        print('    __file__= %s' % __file__)
-        print('    ini_file= %s' % ini_file)
-        print('    sys.argv= %s' % sys.argv)
-        print('   os.getcwd= %s' % os.getcwd())
-        print('    sys.path= %s' % sys.path)
-        print('        demo= %s' % demo)
-        print(' prefilename= %s' % prefilename)
-        print('subfilenames= %s' % subfilenames)
-        print(' pstfilename= %s' % pstfilename)
-        print('    keyboard= %s, keyboardfile= <%s>' % (keyboard,keyboardfile))
+        print((g_progname + ' BEGIN-----------------------------------------------'))
+        print(('    __file__= %s' % __file__))
+        print(('    ini_file= %s' % ini_file))
+        print(('    sys.argv= %s' % sys.argv))
+        print(('   os.getcwd= %s' % os.getcwd()))
+        print(('    sys.path= %s' % sys.path))
+        print(('        demo= %s' % demo))
+        print((' prefilename= %s' % prefilename))
+        print(('subfilenames= %s' % subfilenames))
+        print((' pstfilename= %s' % pstfilename))
+        print(('    keyboard= %s, keyboardfile= <%s>' % (keyboard,keyboardfile)))
     try:
         if demo == 0:
             top.hide()
@@ -3552,10 +3552,10 @@ def standalone_pyngcgui():
                   )
             top.set_title('Create OnePg inside an existing notebook')
         else:
-            print('unknown demo',demo)
+            print(('unknown demo',demo))
             usage()
             sys.exit(1)
-    except Exception, detail:
+    except Exception as detail:
         exception_show(Exception,detail,'__main__')
         print('in main()')
         sys.exit(11)

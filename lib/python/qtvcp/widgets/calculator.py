@@ -22,7 +22,7 @@ class Button(QToolButton):
 
 class Calculator(QDialog):
     NumDigitButtons = 10
-    
+
     def __init__(self, parent=None):
         super(Calculator, self).__init__(parent)
 
@@ -44,7 +44,7 @@ class Calculator(QDialog):
         self.display.setFont(font)
 
         self.digitButtons = []
-        
+
         for i in range(Calculator.NumDigitButtons):
             self.digitButtons.append(self.createButton(str(i),
                     self.digitClicked))

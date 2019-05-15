@@ -1,13 +1,14 @@
 # vim: sts=4 sw=4 et
 import gtk
-import gobject
+from gi.repository import GObject as gobject
+
 import cairo
 import math
 import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
+from .hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
 
 class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gtype_name__ = 'HAL_LED'
@@ -45,7 +46,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gproperties = __gproperties__
 
     def post_create(self, obj, reason):
-                print "\nhola\n"
+        print("\nhola\n")
 
     def __init__(self):
         super(HAL_LED, self).__init__()
@@ -109,7 +110,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
             #cr.fill()
             cr.fill_preserve()
-            
+
             # now make it shiny
             if self.led_shiny:
                 #cr.rectangle(0, 0, w, h)
@@ -132,7 +133,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
             #cr.fill()
             cr.fill_preserve()
-            
+
             # now make it shiny
             if self.led_shiny:
                 #cr.rectangle(0, 0, w, h)
@@ -155,7 +156,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
             #cr.fill()
             cr.fill_preserve()
-            
+
             # now make it shiny
             if self.led_shiny:
                 #cr.rectangle(0, 0, w, h)
@@ -180,7 +181,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 radius = self._dia
                 linewidth = math.sqrt(radius) * 1.25
                 cr.set_line_width(linewidth)
-                
+
                 #cr.arc(0, 0, radius-(linewidth/4), 0, 2*math.pi)
                 cr.arc(0, 0, radius, 0, 2*math.pi)
                 r0 = cairo.RadialGradient(0, 0, radius-(linewidth/2), 0, 0, radius+(linewidth/2))
@@ -188,14 +189,14 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 r0.add_color_stop_rgb(1.0, .15, .15, .15)
                 cr.set_source(r0)
                 cr.stroke_preserve()
-        
+
                 r1 = cairo.RadialGradient(0, 0, radius/8, 0, 0, radius)
                 r1.add_color_stop_rgb(0.4, color.red/65535., color.green/65535., color.blue/65535.)
                 r1.add_color_stop_rgb(0.95, color.red/65535.*0.85, color.green/65535.*0.85, color.blue/65535.*0.85)
                 r1.add_color_stop_rgb(1.0, color.red/65535., color.green/65535., color.blue/65535.)
                 cr.set_source(r1)
                 cr.fill()
-                
+
                 cr.arc(0, 0, radius, 0, 2*math.pi)
                 if self.is_on or self.led_bicolor:
                     r2 = cairo.RadialGradient(0, 0, 0, 0, 0, radius)
@@ -216,7 +217,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 cr.stroke_preserve()        
                 cr.set_source_rgba(color.red/65535., color.green/65535., color.blue/65535., alpha)
                 cr.fill()
-            
+
         # round led
         else:
             if self.led_shiny:
@@ -228,7 +229,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 radius = self._dia
                 linewidth = math.sqrt(radius) * 1.25
                 cr.set_line_width(linewidth)
-                
+
                 #cr.arc(0, 0, radius-(linewidth/4), 0, 2*math.pi)
                 cr.arc(0, 0, radius, 0, 2*math.pi)
                 r0 = cairo.RadialGradient(0, 0, radius-(linewidth/2), 0, 0, radius+(linewidth/2))
@@ -236,14 +237,14 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 r0.add_color_stop_rgb(1.0, .15, .15, .15)
                 cr.set_source(r0)
                 cr.stroke_preserve()
-        
+
                 r1 = cairo.RadialGradient(0, 0, radius/8, 0, 0, radius)
                 r1.add_color_stop_rgb(0.4, color.red/65535., color.green/65535., color.blue/65535.)
                 r1.add_color_stop_rgb(0.95, color.red/65535.*0.85, color.green/65535.*0.85, color.blue/65535.*0.85)
                 r1.add_color_stop_rgb(1.0, color.red/65535., color.green/65535., color.blue/65535.)
                 cr.set_source(r1)
                 cr.fill()
-                
+
                 cr.arc(0, 0, radius, 0, 2*math.pi)
                 if self.is_on or self.led_bicolor:
                     r2 = cairo.RadialGradient(0, 0, 0, 0, 0, radius)
@@ -270,7 +271,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 cr.fill()    
 
         return False
-      
+
     # This sets the LED on or off color
     # and then redraws it
     # Usage: ledname.set_active(True) 
@@ -341,7 +342,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         name = property.name.replace('-', '_')
         if name == 'led_size':
             return self._dia
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -355,7 +356,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             try:
                 self.set_color(mode, value)
             except:
-                print "Invalid %s color value: %s" % (mode, value)
+                print("Invalid %s color value: %s" % (mode, value))
                 return False
         elif name in ['pick_color_on', 'pick_color_off','pick_color_blink']:
             mode = name.split('_')[-1]
@@ -368,7 +369,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             self._blink_invert = value
         if name == 'led_size':
             self._dia = value
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)

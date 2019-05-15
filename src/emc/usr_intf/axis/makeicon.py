@@ -25,7 +25,7 @@ for f in sys.argv[1:]:
 icon = "".join(icon)
 
 icon = icon.encode("hex")
-print "icon = ("
+print("icon = (")
 for i in range(0, len(icon), 72):
-	print repr(icon[i:i+72])
-print ").decode('hex')"
+    print(repr(icon[i:i+72]))
+print(").decode('hex')")

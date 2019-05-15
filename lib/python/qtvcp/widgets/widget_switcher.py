@@ -46,7 +46,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
     def _hal_init(self):
         wlist = self.property("widget_list")
         if wlist is None:
-                LOG.warning('No widget names found for switching.')
+            LOG.warning('No widget names found for switching.')
         else:
             for i in wlist:
                 LOG.debug('Widget specified in list: {}'.format(i))
@@ -55,7 +55,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
         total = len(self._widgetNames)
         count = self.count()
         if count < total +1:
-                LOG.error('Not enough pages for widget total +1, widget count = {} page count = {}'.format(total,count))
+            LOG.error('Not enough pages for widget total +1, widget count = {} page count = {}'.format(total,count))
 
     # add the widget info so switcher will know what to switch
     # makes a list of: widget object, widget's layout, position in the layout
@@ -68,7 +68,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
     def search(self, widget):
         for i in widget.parent().findChildren(QLayout):
             if i.indexOf(widget) > -1:
-                #print i.layout(), widget.objectName(), i.objectName()
+            #print i.layout(), widget.objectName(), i.objectName()
                 return i.layout(), i.indexOf(widget)
         print widget.parent()
         LOG.error('No layout found for {}'.format(widget))

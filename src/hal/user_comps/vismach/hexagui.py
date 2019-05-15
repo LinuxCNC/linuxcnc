@@ -12,7 +12,7 @@ from vismach import *
 import hal
 import sys
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 #compname must be the same as given in 'loadusr -W' or
 #else the comp will never be ready
@@ -45,7 +45,7 @@ minitetra = 1
 #stolen from genhexkins.h 
 # you must change these if you are not using minitetra
 # positions of base strut ends in base (world) coordinates	
-base_offsets = range(6)
+base_offsets = list(range(6))
 base_offsets[0] = (-22.950, 13.250, 0)
 base_offsets[1] = (22.950, 13.250, 0)
 base_offsets[2] = (22.950, 13.250, 0)
@@ -54,7 +54,7 @@ base_offsets[4] = (0, -26.5, 0)
 base_offsets[5] = (-22.950, 13.250, 0)
 
 # position of platform strut end in platform coordinate system 
-plat_offsets = range(6)
+plat_offsets = list(range(6))
 plat_offsets[0] = (-1, 11.5, 0)
 plat_offsets[1] = (1, 11.5, 0)
 plat_offsets[2] = (10.459, -4.884, 0)
@@ -101,53 +101,53 @@ base_joints = []
 plat_joints = []
 
 for i in range(6):
-  #the end-cap is so we can always see where the cylinder is
-  inner = CylinderZ(0, 0.8*strut_radius, strut_length, 0.8*strut_radius)
-  endcap = CylinderZ(strut_length-1,1.2*strut_radius,strut_length,1.2*strut_radius)
-  inner = Collection([inner, endcap])
-  outer = CylinderZ(0, 1*strut_radius, strut_length, 1*strut_radius)
-  #account for joint offset
-  inner = Translate([inner],0,0,-30)
-  # make strut extend and retract
-  hal_pin = "joint." + str(i)
-  inner = HalTranslate([inner],c,hal_pin,0,0,scale)
-  inner = Translate([inner],0,0,strut_length)
-  strut = Collection([inner, outer])
-  
-  #build platform  
+    #the end-cap is so we can always see where the cylinder is
+    inner = CylinderZ(0, 0.8*strut_radius, strut_length, 0.8*strut_radius)
+    endcap = CylinderZ(strut_length-1,1.2*strut_radius,strut_length,1.2*strut_radius)
+    inner = Collection([inner, endcap])
+    outer = CylinderZ(0, 1*strut_radius, strut_length, 1*strut_radius)
+    #account for joint offset
+    inner = Translate([inner],0,0,-30)
+    # make strut extend and retract
+    hal_pin = "joint." + str(i)
+    inner = HalTranslate([inner],c,hal_pin,0,0,scale)
+    inner = Translate([inner],0,0,strut_length)
+    strut = Collection([inner, outer])
+
+    #build platform  
 #  plat_joint_coords += [Capture()]
-  plat_joint_coords = Capture()
-  plat_joint = BoxCentered(1,1,2)
-  plat_joint = Collection([plat_joint, plat_joint_coords])
-  #put the joints at weird locations to make an octahedron
-  if(minitetra):
-    plat_joint = Rotate([plat_joint],-120*(i%2)+60*i, 0,0,1)
-    x,y,z = plat_offsets[i]
-    plat_joint = Translate([plat_joint],x,y,z) 
-  else:
-    plat_joint = Translate([plat_joint], 0.8*plat_radius,0,-plat_thickness)
-    plat_joint = Rotate([plat_joint], angles[i]-120*(i%2)+60, 0,0,1)
-  plat_joints += [plat_joint]
-  
-  #build base
+    plat_joint_coords = Capture()
+    plat_joint = BoxCentered(1,1,2)
+    plat_joint = Collection([plat_joint, plat_joint_coords])
+    #put the joints at weird locations to make an octahedron
+    if(minitetra):
+        plat_joint = Rotate([plat_joint],-120*(i%2)+60*i, 0,0,1)
+        x,y,z = plat_offsets[i]
+        plat_joint = Translate([plat_joint],x,y,z) 
+    else:
+        plat_joint = Translate([plat_joint], 0.8*plat_radius,0,-plat_thickness)
+        plat_joint = Rotate([plat_joint], angles[i]-120*(i%2)+60, 0,0,1)
+    plat_joints += [plat_joint]
+
+    #build base
 #  base_joint_coords += [Capture()]
-  base_joint_coords = Capture()
-  base_joint = BoxCentered(2,3,1.5)
-  base_joint = Collection([base_joint, base_joint_coords])
-  #put the joints at weird locations to make an octahedron
-  if(minitetra):
-    base_joint = Rotate([base_joint],-120*(i%2)+60*i, 0,0,1)
-    x,y,z = base_offsets[i]
-    base_joint = Translate([base_joint],x,y,z)
-  else:
-    base_joint = Translate([base_joint], 0.8*base_radius,0,0)
-    base_joint = Rotate([base_joint], angles[i], 0,0,1)
-  base_joints += [base_joint]
-  
-  #point strut at platform - this also translates the strut to the base joint
-  #because i couldnt figure out how to rotate it around the base of the strut
-  strut = Track([strut],base_joint_coords, plat_joint_coords, world_coords)
-  struts += [strut]
+    base_joint_coords = Capture()
+    base_joint = BoxCentered(2,3,1.5)
+    base_joint = Collection([base_joint, base_joint_coords])
+    #put the joints at weird locations to make an octahedron
+    if(minitetra):
+        base_joint = Rotate([base_joint],-120*(i%2)+60*i, 0,0,1)
+        x,y,z = base_offsets[i]
+        base_joint = Translate([base_joint],x,y,z)
+    else:
+        base_joint = Translate([base_joint], 0.8*base_radius,0,0)
+        base_joint = Rotate([base_joint], angles[i], 0,0,1)
+    base_joints += [base_joint]
+
+    #point strut at platform - this also translates the strut to the base joint
+    #because i couldnt figure out how to rotate it around the base of the strut
+    strut = Track([strut],base_joint_coords, plat_joint_coords, world_coords)
+    struts += [strut]
 
 
 base = Translate([base],0,0,-base_thickness)

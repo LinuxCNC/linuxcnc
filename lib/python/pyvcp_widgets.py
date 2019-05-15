@@ -47,7 +47,7 @@
 """
 
 
-from Tkinter import *
+from tkinter import *
 from hal import *
 import math
 import bwidget
@@ -74,7 +74,7 @@ class pyvcp_dial(Canvas):
             [ <halpin>"anaout"</halpin> ]
             [ <param_pin>1</param_pin>] creates param pin if > 0, set to initval, value can then be set externally, ArcEye 2013
         </dial>
-                
+
                 key bindings:
                     <Button-4>              untested no wheel mouse
                     <Button-5>              untested no wheel mouse
@@ -86,7 +86,7 @@ class pyvcp_dial(Canvas):
                     <Double-1> divides scale by 10
                     <Double-2> resets scale to original value
                     <Double-3> multiplies scale by 10
-        
+
                     <Shift-1>   shift-click resets original analog value 
 
                 features:
@@ -96,27 +96,27 @@ class pyvcp_dial(Canvas):
     # FIXME:
     # -jogging should be enabled only when the circle has focus
     #   TJP nocando:   only widgets have events, not thier 'items', the circle is an item
-    
+
     # -circle should maintain focus when mouse over dot
     #   TJP nocando:   ditto, the circle is an item, so focus & event are not aligned to it
-    
+
     # -jogging by dragging with the mouse could work better
-    
+
     # -add a scaled output, scale changes when alt/ctrl/shift is held down
     #   TJP dblLeftClick divides scale by 10 , dblRightClcik muxs by 10
-    
-    
+
+
     n=0
     #TJP TODO: let some artists look at it, butt ugly!
     #TJP cpr is overloaded, now it means "chgs per rev" not "counts per rev"
     #TJP the tik marks could get very fine, avoid high cpr to size ratios (easily seen)
-    
-   
+
+
     def __init__(self,root,pycomp,halpin=None,halparam=None,param_pin=0,size=200,cpr=40,dialcolor="", \
             edgecolor="",dotcolor="grey",min_=None,max_=None, \
             text=None,initval=0,resolution=0.1, \
             **kw):
-        
+
         pad=size/10
 
         self.counts = int(round(initval/resolution))
@@ -132,7 +132,7 @@ class pyvcp_dial(Canvas):
 
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)             # dial circle
         self.itemconfig(self.circle,fill=dialcolor,activefill=dialcolor)
-        
+
         self.itemconfig(self.circle)
         self.mid=size/2
         self.r=(size-2*pad)/2
@@ -142,7 +142,7 @@ class pyvcp_dial(Canvas):
 
         self.funit=resolution          
         self.origFunit=self.funit        # allow restoration
-        
+
         self.mymin=min_            
         self.mymax=max_
 
@@ -170,10 +170,10 @@ class pyvcp_dial(Canvas):
         self.delta=self.create_text([self.mid,self.mid+self.txtroom], 
                         text='x '+ str(self.funit),font=('Arial',-self.txtroom))
 
-        
+
         self.bind('<Button-4>',self.wheel_up)            # untested no wheel mouse
         self.bind('<Button-5>',self.wheel_down)          # untested no wheel mouse
-        
+
         self.bind('<Button1-Motion>',self.motion)        #during drag
         self.bind('<ButtonPress>',self.bdown)                #begin of drag
         self.bind('<ButtonRelease>',self.bup)                #end of drag 
@@ -183,7 +183,7 @@ class pyvcp_dial(Canvas):
         self.bind('<Double-3>',self.chgScaleUp)         # doubleclick scales up
 
         self.bind('<Shift-1>',self.resetValue)          # shift resets value
-        
+
         self.draw_ticks(cpr)
 
         self.dragstartx=0
@@ -219,7 +219,7 @@ class pyvcp_dial(Canvas):
         self.update_scale()
         self.update_dro()
         self.update_dot()
-    
+
     def chgScaleUp(self,event):
         # increases the scale by 10x
         self.funit=self.funit*10.0
@@ -228,14 +228,14 @@ class pyvcp_dial(Canvas):
         self.update_scale()
         self.update_dro()
         self.update_dot()
-    
+
     def resetScale(self,event):
         # reset scale to original value
         self.funit=self.origFunit
         self.counts = int(round(self.out / self.funit))
         self.out = self.counts * self.funit
         self.update_scale()
-    
+
     def resetValue(self,event):
         # reset output to orifinal value
         self.counts = int(round(self.origValue / self.funit))
@@ -318,18 +318,18 @@ class pyvcp_dial(Canvas):
 
     def draw_ticks(self,cpr):
         for n in range(0,cpr,2):
-           for i in range(0,2):
-            startx=self.mid+self.r*math.cos((n+i)*self.d_alfa)
-            starty=self.mid+self.r*math.sin((n+i)*self.d_alfa)
-            if i == 0:
-               length = 1.15
-               width = 2
-            else:
-               length = 1.1
-               width = 1
-            stopx=self.mid+length*self.r*math.cos((n+i)*self.d_alfa)
-            stopy=self.mid+length*self.r*math.sin((n+i)*self.d_alfa)
-            self.create_line(startx,starty,stopx,stopy,width=width)
+            for i in range(0,2):
+                startx=self.mid+self.r*math.cos((n+i)*self.d_alfa)
+                starty=self.mid+self.r*math.sin((n+i)*self.d_alfa)
+                if i == 0:
+                    length = 1.15
+                    width = 2
+                else:
+                    length = 1.1
+                    width = 1
+                stopx=self.mid+length*self.r*math.cos((n+i)*self.d_alfa)
+                stopy=self.mid+length*self.r*math.sin((n+i)*self.d_alfa)
+                self.create_line(startx,starty,stopx,stopy,width=width)
 
     def update(self,pycomp):
         self.pycomp[self.halpin] = self.out
@@ -403,19 +403,19 @@ class pyvcp_meter(Canvas):
             pyvcp_meter.n += 1
         pycomp.newpin(self.halpin, HAL_FLOAT, HAL_IN)
         self.value = pycomp[self.halpin]
-    
+
     def rad2deg(self, rad): return rad*180/math.pi
 
     def value2angle(self, value):
             #returns angle for a given value
-            scale = (self.max_-self.min_)/(self.max_alfa-self.min_alfa)
-            alfa = self.min_alfa + (value-self.min_)/scale
-            if alfa > self.max_alfa:
-                alfa = self.max_alfa
-            elif alfa < self.min_alfa:
-                alfa = self.min_alfa            
-            return alfa
-    
+        scale = (self.max_-self.min_)/(self.max_alfa-self.min_alfa)
+        alfa = self.min_alfa + (value-self.min_)/scale
+        if alfa > self.max_alfa:
+            alfa = self.max_alfa
+        elif alfa < self.min_alfa:
+            alfa = self.min_alfa            
+        return alfa
+
     def p2c(self, radius, angle): 
         #returns the cathesian coordinates (x,y) for given polar coordinates 
         #radius in percent of self.r; angle in radians
@@ -427,16 +427,17 @@ class pyvcp_meter(Canvas):
         x,y = self.p2c(0.8, self.alfa)
         self.coords(self.line,self.mid,self.mid,x,y)
 
-    def draw_region(self, (start, end, color)):
-            #Draws a colored region on the canvas between start and end
-            start = self.value2angle(start)
-            start = -self.rad2deg(start)
-            end = self.value2angle(end)
-            end = -self.rad2deg(end)
-            extent = end-start
-            halfwidth = math.floor(0.1*self.r/2)+1
-            xy = self.pad+halfwidth, self.pad+halfwidth, self.size-self.pad-halfwidth, self.size-self.pad-halfwidth
-            self.create_arc(xy, start=start, extent=extent, outline=color, width=(halfwidth-1)*2, style="arc")
+    def draw_region(self, xxx_todo_changeme):
+        #Draws a colored region on the canvas between start and end
+        (start, end, color) = xxx_todo_changeme
+        start = self.value2angle(start)
+        start = -self.rad2deg(start)
+        end = self.value2angle(end)
+        end = -self.rad2deg(end)
+        extent = end-start
+        halfwidth = math.floor(0.1*self.r/2)+1
+        xy = self.pad+halfwidth, self.pad+halfwidth, self.size-self.pad-halfwidth, self.size-self.pad-halfwidth
+        self.create_arc(xy, start=start, extent=extent, outline=color, width=(halfwidth-1)*2, style="arc")
 
     def draw_ticks(self):
         value = self.min_
@@ -459,7 +460,7 @@ class pyvcp_meter(Canvas):
                     self.create_line(xy1, xy2)
                 value = value + self.minorscale
 
-             
+
 # -------------------------------------------
 
 class pyvcp_jogwheel(Canvas):
@@ -490,8 +491,8 @@ class pyvcp_jogwheel(Canvas):
         self.alfa=0
         self.d_alfa=2*math.pi/cpr
         self.size=size
-        
-        
+
+
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill="black")
         self.line = self.create_line( self.mid+(self.r*1)*math.cos(self.alfa), \
@@ -518,14 +519,14 @@ class pyvcp_jogwheel(Canvas):
         self.halpin=halpin
         pycomp[self.halpin] = self.count
         self.pycomp=pycomp
-                 
+
     def dot_coords(self):
         DOTR=0.06*self.size
         DOTPOS=0.85
         midx = self.mid+DOTPOS*self.r*math.cos(self.alfa)
         midy = self.mid+DOTPOS*self.r*math.sin(self.alfa)
         return midx-DOTR, midy-DOTR,midx+DOTR,midy+DOTR
-    
+
     def bdown(self,event):
         self.dragstartx=event.x
         self.dragstarty=event.y
@@ -540,10 +541,10 @@ class pyvcp_jogwheel(Canvas):
         elif delta<=-self.d_alfa:
             self.down()
             self.dragstart=math.atan2((event.y-self.mid),(event.x-self.mid))
-    
+
     def wheel_up(self,event):
         self.up()
-        
+
     def wheel_down(self,event):
         self.down()
 
@@ -552,7 +553,7 @@ class pyvcp_jogwheel(Canvas):
         self.count-=1
         self.pycomp[self.halpin] = self.count
         self.update_dot()       
-    
+
     def up(self):
         self.alfa+=self.d_alfa
         self.count+=1
@@ -577,7 +578,7 @@ class pyvcp_jogwheel(Canvas):
         # this is stupid, but required for updating pin
         # when first connected to a signal
         self.pycomp[self.halpin] = self.count
-        
+
 # -------------------------------------------
 ## ArcEye - added - no example given and the one in docs misses out initval  ##
 
@@ -604,7 +605,7 @@ class pyvcp_radiobutton(Frame):
         if halpin == None:
             halpin = "radiobutton."+str(pyvcp_radiobutton.n)
             pyvcp_radiobutton.n += 1
-        
+
         self.halpins=[]
         n=0
         for c in choices:
@@ -638,7 +639,7 @@ class pyvcp_radiobutton(Frame):
     def changed(self):
         index=math.log(self.v.get(),2)
         index=int(index)
-        print "active:",self.halpins[index]
+        print("active:",self.halpins[index])
 
 
 
@@ -663,14 +664,14 @@ class pyvcp_label(Label):
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
-        
+
     def update(self,pycomp):
         if self.disable_pin: 
             is_disabled = pycomp[self.halpin_disable]     
             if is_disabled == 1: Label.config(self,state=DISABLED)
             else: Label.config(self,state=NORMAL)
         else:pass
-       
+
 
 
 # -------------------------------------------
@@ -688,16 +689,16 @@ class pyvcp_multilabel(Label):
             <halpin>None</halpin>   Optional alternative name base for pins
         </multilabel>
     """
-    
+
     n=0
     def __init__(self,master,pycomp,halpin=None,disable_pin=False,legends=[],initval=0,**kw):
         Label.__init__(self,master,**kw)
         self.disable_pin=disable_pin
-        
+
         if halpin == None:
             halpin = "multilabel."+str(pyvcp_multilabel.n)
             pyvcp_multilabel.n += 1
-        
+
         self.halpins=[]
         n=0
         for c in legends:
@@ -710,7 +711,7 @@ class pyvcp_multilabel(Label):
                 break
         self.legends = legends
         self.num_pins = n
-        
+
         if disable_pin:
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
@@ -721,7 +722,7 @@ class pyvcp_multilabel(Label):
             val = initval
         else :
             val = 0
-            
+
         Label.config(self,text= legends[val])
         pycomp[self.halpins[val]] = 1
         self.pin_index = val
@@ -733,21 +734,21 @@ class pyvcp_multilabel(Label):
                 Label.config(self,state=DISABLED)
             else: 
                 Label.config(self,state=NORMAL)
-                
+
         # no telling how people will use this, so just break at first
         # set pin that is not the existing set one
         # if several pins are set one after another, the legend for the
         # last one set will end up being displayed
         index = -1
-        for x in xrange(0, self.num_pins):
+        for x in range(0, self.num_pins):
             state = pycomp[self.halpins[x]]
             if state == 1 :
                 index = x
                 if index != self.pin_index :
                     break
-                
+
         if index > -1 and index != self.pin_index:
-            for x in xrange(0, self.num_pins):
+            for x in range(0, self.num_pins):
                 pycomp[self.halpins[x]] = 0
 
             pycomp[self.halpins[index]] = 1
@@ -880,7 +881,7 @@ class pyvcp_spinbox(Spinbox):
         </spinbox>
     """
     # FIXME: scale resolution when shift/ctrl/alt is held down?
- 
+
     n=0
     def __init__(self,master,pycomp,halpin=None, halparam=None,param_pin=0,
                     min_=0,max_=100,initval=0,resolution=1,format="2.1f",**kw):
@@ -891,10 +892,10 @@ class pyvcp_spinbox(Spinbox):
         if 'format' not in kw: kw['format'] = "%" + format
         kw['command'] = self.command
         Spinbox.__init__(self,master,textvariable=self.v,**kw)
-        
+
         if halpin == None:
             halpin = "spinbox."+str(pyvcp_spinbox.n)
-            
+
         self.halpin=halpin
 
         if halparam == None:
@@ -905,7 +906,7 @@ class pyvcp_spinbox(Spinbox):
                 pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
 
         pyvcp_spinbox.n += 1
-        
+
         if initval < min_:
             self.value=min_
         elif initval > max_:
@@ -918,14 +919,14 @@ class pyvcp_spinbox(Spinbox):
             self.init=self.value
             self.oldinit=self.init
             pycomp[self.halparam] = self.init
-            
+
         self.format = "%(b)"+format
         self.max_=max_
         self.min_=min_
         self.resolution=resolution
         self.v.set( str( self.format  % {'b':self.value} ) )
         pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
-        
+
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
         self.bind('<Return>',self.return_pressed)
@@ -953,18 +954,18 @@ class pyvcp_spinbox(Spinbox):
                 self.v.set( str( self.format  % {'b':self.init} ) )
                 self.oldinit=self.init    
                 self.value=self.init
-          
+
     def wheel_up(self,event):
         self.value += self.resolution
         if self.value > self.max_:
             self.value = self.max_
-          
-     
+
+
     def wheel_down(self,event):
         self.value -= self.resolution
         if self.value < self.min_:
             self.value = self.min_
-          
+
 
 
 # -------------------------------------------
@@ -1016,7 +1017,7 @@ class pyvcp_u32(Label):
             dummy = "%(b)"+self.format
             self.v.set( str( dummy  % {'b':newvalue} ) )
 
- 
+
 class pyvcp_s32(Label):
     """ (indicator) shows a s32 as text """
     n=0
@@ -1151,21 +1152,21 @@ class pyvcp_bar(Canvas):
         self.format = "%" + format
 
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
-        
+
         self.value=0.0 # some dummy value to start with  
-             
+
         pycomp[self.halpin] = self.value
-        
+
         # the border
         border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
         self.itemconfig(border,fill=bgcolor)
-        
+
         # the bar
         tmp=self.bar_coords()
         start=tmp[0]
         end=tmp[1]
         self.bar=self.create_rectangle(start,2,end,self.bh-1)
-	    # default fill unless overriden
+            # default fill unless overriden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text
@@ -1183,19 +1184,22 @@ class pyvcp_bar(Canvas):
             self.ranges = True
         else:
             self.ranges = False
-        
-    def set_fill(self, (start1, end1, color1),(start2, end2, color2), (start3, end3, color3)):
+
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
         if self.value:
-    	    if (self.value > start1) and (self.value <= end1):
-    		self.itemconfig(self.bar,fill=color1)	
-    	    else:
-    		if (self.value > start2) and (self.value <= end2):
-    		    self.itemconfig(self.bar,fill=color2)	
-		else:
-		    if (self.value > start3) and (self.value <= end3):
-    			self.itemconfig(self.bar,fill=color3)	
-	
-	
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)	
+            else:
+                if (self.value > start2) and (self.value <= end2):
+                    self.itemconfig(self.bar,fill=color2)	
+                else:
+                    if (self.value > start3) and (self.value <= end3):
+                        self.itemconfig(self.bar,fill=color3)	
+
+
     def bar_coords(self):
         """ calculates the coordinates in pixels for the bar """
         # the bar should start at value = zero 
@@ -1213,8 +1217,8 @@ class pyvcp_bar(Canvas):
             bar_start = min_pixels
 
         return [bar_start, bar_end]
-    
-			
+
+
     def update(self,pycomp):
         # update value
         newvalue=pycomp[self.halpin]
@@ -1267,7 +1271,7 @@ class pyvcp_led(Canvas):
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)       
-        
+
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
@@ -1296,7 +1300,7 @@ class pyvcp_rectled(Canvas):
             <disable_pin>True</disable_pin>               Optional halpin sets led to disable_color
             <disable_color>"somecolor"</disable_color>   Default color light gray
         </rectled>"""
-    
+
     n=0
     def __init__(self,master,pycomp, halpin=None,disable_pin=False,     
                     off_color="red",on_color="green",disabled_color="gray80",height=10,width=30,**kw):
@@ -1317,7 +1321,7 @@ class pyvcp_rectled(Canvas):
             halpin_disable = halpin+".disable"
             self.halpin_disable = halpin_disable
             pycomp.newpin(halpin_disable, HAL_BIT, HAL_IN)   
-        
+
 
     def update(self,pycomp):
         newstate = pycomp[self.halpin]
@@ -1356,34 +1360,34 @@ class pyvcp_checkbutton(Checkbutton):
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
-	self.halpin=halpin
-	pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-	changepin = halpin + ".changepin"
-	self.changepin=changepin
-	pycomp.newpin(changepin, HAL_BIT, HAL_IN)
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        changepin = halpin + ".changepin"
+        self.changepin=changepin
+        pycomp.newpin(changepin, HAL_BIT, HAL_IN)
         pycomp[self.changepin] = 0
 
-	pyvcp_checkbutton.n += 1
-		
+        pyvcp_checkbutton.n += 1
+
         if initval >= 0.5:
             self.value=1
         else:
             self.value=0
         self.v.set(self.value)
         self.reset = 0
-		
+
     def update(self,pycomp):
         # prevent race condition if connected to permanently on pin
-	if pycomp[self.changepin] and not(self.reset):
-	    self.v.set(not(self.v.get()))
-	    self.reset = 1
-    	    pycomp[self.changepin] = 0 # try to reset, but may not work
-	    
-	if not(pycomp[self.changepin]) and(self.reset):
-    	    self.reset = 0 
-    	    pycomp[self.changepin] = 0   # make sure is reset now
-	
-	pycomp[self.halpin]=self.v.get()
+        if pycomp[self.changepin] and not(self.reset):
+            self.v.set(not(self.v.get()))
+            self.reset = 1
+            pycomp[self.changepin] = 0 # try to reset, but may not work
+
+        if not(pycomp[self.changepin]) and(self.reset):
+            self.reset = 0 
+            pycomp[self.changepin] = 0   # make sure is reset now
+
+        pycomp[self.halpin]=self.v.get()
 
 
 
@@ -1483,13 +1487,13 @@ class pyvcp_scale(Scale):
                 pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
 
         pyvcp_scale.n += 1       
-        
+
         pycomp.newpin(halpin+"-i", HAL_S32, HAL_OUT)
         pycomp.newpin(halpin+"-f", HAL_FLOAT, HAL_OUT)
-        
+
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
-        
+
 
         if initval < min_:
             self.value=min_
@@ -1499,7 +1503,7 @@ class pyvcp_scale(Scale):
             self.value=initval
 
         self.set(self.value)
-        
+
         if self.param_pin == 1:       
             self.oldInit=self.value
             self.init=self.value
@@ -1508,7 +1512,7 @@ class pyvcp_scale(Scale):
     def update(self,pycomp):
         pycomp[self.halpin+"-f"]=self.get()
         pycomp[self.halpin+"-i"]=int(self.get())
-        
+
         if self.param_pin == 1:
             self.init = pycomp[self.halparam]
             if self.init != self.oldInit :
@@ -1577,7 +1581,7 @@ class pyvcp_table(Frame):
             self.sticky = child.sticky
             return
         r, c = self._r, self._c
-        while self.occupied.has_key((r, c)):
+        while (r, c) in self.occupied:
             c = c + 1
         rs, cs = self.span
         child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
@@ -1604,7 +1608,7 @@ class pyvcp_tablesticky:
     def __init__(self, master, pycomp, sticky):
         self.sticky = sticky
     def update(self, pycomp): pass
-    
+
 class pyvcp_include(Frame):
     def __init__(self, master, pycomp, src, expand="yes", fill="both", anchor="center", prefix=None, **kw):
         Frame.__init__(self,master,**kw)
@@ -1621,9 +1625,9 @@ class pyvcp_include(Frame):
 
         try:
             doc = xml.dom.minidom.parse(src) 
-        except xml.parsers.expat.ExpatError, detail:
-            print "Error: could not open",src,"!"
-            print detail
+        except xml.parsers.expat.ExpatError as detail:
+            print("Error: could not open",src,"!")
+            print(detail)
             sys.exit(1)
 
         # find the pydoc element
@@ -1632,7 +1636,7 @@ class pyvcp_include(Frame):
                 break
 
         if e.localName != "pyvcp":
-            print "Error: no pyvcp element in file!"
+            print("Error: no pyvcp element in file!")
             sys.exit()
         pyvcproot=e
         vcpparse.nodeiterator(pyvcproot,self)
@@ -1672,7 +1676,7 @@ class pyvcp_image(_pyvcp_dummy):
 class _pyvcp_image(Label):
     def __init__(self, master, pycomp, images, halpin=None, **kw):
         Label.__init__(self, master, **kw)
-        if isinstance(images, basestring): images = images.split()
+        if isinstance(images, str): images = images.split()
         self.images = images
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
@@ -1688,7 +1692,7 @@ class _pyvcp_image(Label):
             try:
                 self.configure(image=self.images[l])
             except (IndexError, KeyError):
-                print >>sys.stderr, "Unknown image #%d on %s" % (l, self.halpin)
+                print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
 class pyvcp_image_bit(_pyvcp_image):
@@ -1699,11 +1703,11 @@ class pyvcp_image_u32(_pyvcp_image):
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
-for _key in globals().keys():
+for _key in list(globals().keys()):
     if _key.startswith("pyvcp_"):
         elements.append(_key[6:])
         __all__.append(_key)
 
 if __name__ == '__main__':
-    print "You can't run pyvcp_widgets.py by itself..."
+    print("You can't run pyvcp_widgets.py by itself...")
 # vim:sts=4:sw=4:et:

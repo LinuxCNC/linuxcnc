@@ -173,22 +173,22 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
             LOG.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
 
     def _status_response(self, data, text, color):
-            if data:
-                if color:
-                    self.bg_color = color
-                else:
-                    self.bg_color = QColor(0, 0, 0, 150)
-                if text:
-                    self.text = text
-                self.show()
-                self.update()
-                LOG.debug('Overlay - Show')
-                if self.play_sound:
-                    STATUS.emit('play-alert', '%s' % self.sound_type)
-                #os.system("beep -f 555 ")
+        if data:
+            if color:
+                self.bg_color = color
             else:
-                self.hide()
-                LOG.debug('Overlay - Hide')
+                self.bg_color = QColor(0, 0, 0, 150)
+            if text:
+                self.text = text
+            self.show()
+            self.update()
+            LOG.debug('Overlay - Show')
+            if self.play_sound:
+                STATUS.emit('play-alert', '%s' % self.sound_type)
+            #os.system("beep -f 555 ")
+        else:
+            self.hide()
+            LOG.debug('Overlay - Hide')
 
     # Ok paint everything
     def paintEvent(self, event):
