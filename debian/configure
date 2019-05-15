@@ -94,6 +94,11 @@ PYTHON_PACKAGING=dh_pysupport
 PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
 
 case $DISTRIB_NAME in
+Ubuntu-16.*|LinuxMint-18.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+        PYTHON_PACKAGING=dh_python2
+        ;;
 Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,python-support
 	TCLTK_VERSION=8.6
@@ -123,7 +128,7 @@ Debian-testing)
         PYTHON_PACKAGING=dh_python2
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
 	;;
-Debian-9.*)
+Debian-9.*|Ubuntu-18.*|LinuxMint-19.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
