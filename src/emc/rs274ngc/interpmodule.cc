@@ -52,8 +52,8 @@ extern void export_EmcTypes();
 namespace pp = pyplusplus::containers::static_sized;
 #include "interp_array_types.hh"
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyBytes_Type))
+#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyLong_Type))
 
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);

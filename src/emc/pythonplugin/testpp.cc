@@ -39,7 +39,7 @@ void analyze(const char *what,bp::object retval)
     PyObject *res_str = PyObject_Str(retval.ptr());
     Py_XDECREF(res_str);
     printf("analyze: %s returned '%s' - '%s'\n",what,
-	   PyString_AsString(res_str),
+	   PyBytes_AsString(res_str),
 	   retval.ptr()->ob_type->tp_name);
 }
 

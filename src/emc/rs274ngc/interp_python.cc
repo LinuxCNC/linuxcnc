@@ -68,8 +68,8 @@ extern    PythonPlugin *python_plugin;
         }                                                      \
     } while(0)
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyBytes_Type))
+#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyLong_Type))
 
 // decode a Python exception into a string.
 std::string handle_pyerror()
@@ -213,14 +213,14 @@ int Interp::pycall(setup_pointer settings,
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
 		    frame->pystuff.impl->py_returned_int = bp::extract<int>(frame->pystuff.impl->generator_next());
 		    frame->pystuff.impl->py_return_type = RET_YIELD;
-
-		} else if (PyUnicode_Check(retval.ptr())) {
+		
+		} else if (PyBytes_Check(retval.ptr())) {  
 		    // returning a string sets the interpreter error message and aborts
 		    char *msg = bp::extract<char *>(retval);
 		    ERM("%s", msg);
 		    frame->pystuff.impl->py_return_type = RET_ERRORMSG;
 		    status = INTERP_ERROR;
-		} else if (PyLong_Check(retval.ptr())) {
+		} else if (PyLong_Check(retval.ptr())) {  
 		    frame->pystuff.impl->py_returned_int = bp::extract<int>(retval);
 		    frame->pystuff.impl->py_return_type = RET_INT;
 		    logPy("Python call %s.%s returned int: %d", module, funcname, frame->pystuff.impl->py_returned_int);
@@ -234,7 +234,7 @@ int Interp::pycall(setup_pointer settings,
 		    Py_XDECREF(res_str);
 		    ERM("Python call %s.%s returned '%s' - expected generator, int, or float value, got %s",
 			module, funcname,
-			PyUnicode_AsUTF8(res_str),
+			PyBytes_AsString(res_str),
 			retval.ptr()->ob_type->tp_name);
 		    status = INTERP_ERROR;
 		}
@@ -260,7 +260,7 @@ int Interp::pycall(setup_pointer settings,
 		res_str = PyObject_Str(retval.ptr());
 		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
 		    funcname,
-		    PyUnicode_AsUTF8(res_str),
+		    PyBytes_AsString(res_str),
 		    retval.ptr()->ob_type->tp_name);
 		Py_XDECREF(res_str);
 		status = INTERP_ERROR;
