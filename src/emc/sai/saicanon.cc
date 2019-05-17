@@ -617,16 +617,16 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT0("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int tool_index, int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-    _tools[pocket].toolno = toolno;
-    _tools[pocket].offset = offset;
-    _tools[pocket].diameter = diameter;
-    _tools[pocket].frontangle = frontangle;
-    _tools[pocket].backangle = backangle;
-    _tools[pocket].orientation = orientation;
+    _tools[tool_index].toolno = toolno;
+    _tools[tool_index].offset = offset;
+    _tools[tool_index].diameter = diameter;
+    _tools[tool_index].frontangle = frontangle;
+    _tools[tool_index].backangle = backangle;
+    _tools[tool_index].orientation = orientation;
     PRINT14("SET_TOOL_TABLE_ENTRY(%d, %d, %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f, %.4f, %.4f, %d)\n",
-            pocket, toolno,
+            tool_index, toolno,
             offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w,
             frontangle, backangle, orientation);
 }

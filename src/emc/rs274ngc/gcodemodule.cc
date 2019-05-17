@@ -377,7 +377,7 @@ void COMMENT(const char *comment) {
     Py_XDECREF(result);
 }
 
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int tool_index, int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
 }
 

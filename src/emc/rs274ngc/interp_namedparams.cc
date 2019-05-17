@@ -665,13 +665,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_POCKET:
-    if(_setup.random_toolchanger){//random changers already report the real pocket number
-	    *value = _setup.current_pocket;
-    }
-    else{//non random get it from the tool table
-        *value = _setup.tool_table[_setup.current_pocket].pocketno;
-    }
-	break;
+		// No difference btw. random/!random
+		// current pocket is always the currently loaded tools original pocket it came from
+        *value = _setup.current_pocket;
+    break;
 
     case NP_SELECTED_TOOL:
 	*value = _setup.selected_tool;

@@ -1972,7 +1972,7 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int tool_index, int pocket, int toolno, EmcPose offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     EMC_TOOL_SET_OFFSET o;
     flush_segments();
@@ -2951,11 +2951,11 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
 int GET_EXTERNAL_TOOL_SLOT()
 {
     int toolno = emcStatus->io.tool.toolInSpindle;
-    int pocket;
+    int index;
 
-    for (pocket = 1; pocket < CANON_POCKETS_MAX; pocket++) {
-        if (emcStatus->io.tool.toolTable[pocket].toolno == toolno) {
-            return pocket;
+    for (index = 1; index < CANON_POCKETS_MAX; index++) {
+        if (emcStatus->io.tool.toolTable[index].toolno == toolno) {
+            return emcStatus->io.tool.toolTable[index].pocketno;
         }
     }
 
