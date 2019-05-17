@@ -110,7 +110,8 @@ function _;
 
 FUNCTION(_) {
     rtapi_u32 totalseconds;
-    if(start && !old_start) totalnsec = 0;
+    int running = start | pause;
+    if(running && !old_start) totalnsec = 0;
 
     if(start && !pause){
     totalnsec = totalnsec + period;
@@ -119,6 +120,6 @@ FUNCTION(_) {
 	minutes = (totalseconds / 60) % 60;
 	hours = (totalseconds / 3600);
 	}
-	old_start = start;
+	old_start = running;
 }
 
