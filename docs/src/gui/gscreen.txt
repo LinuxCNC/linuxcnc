@@ -16,7 +16,10 @@ Gscreen you use the Glade editor. Gscreen is not restricted to adding a custom
 panel on the right or a custom tab it is fully editable.
 
 .Gscreen Default Screen
-image::images/gscreen-mill.png[align="center", alt="Gscreen Mill Base Screen"]
+image::images/gscreen-mill.png[align="center", alt="Gscreen Mill Based Screen"]
+
+.Gscreen Silverdragon Screen
+image::images/silverdragon.png[align="center", alt="Gscreen's Silverdragon Screen"]
 
 .Gscreen Spartan Screen
 image::images/spartan.png[align="center", alt="Gscreen's Spartan Screen"]
