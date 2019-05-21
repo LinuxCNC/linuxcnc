@@ -164,8 +164,11 @@ Debian-7.*|Raspbian-7) # Wheezy
         EXTRA_BUILD=libgnomeprintui2.2-dev
         PYTHON_PACKAGING_DEPENDS=python-support
         PYTHON_PACKAGING=dh_pysupport
-	TCLTK_VERSION=8.5
-	;;
+        TCLTK_VERSION=8.5
+        ;;
+Ubuntu-18.*) # Bionic Beaver
+        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+        ;;
 Ubuntu-1[456].*|LinuxMint-1[78]*) # Trusty through Xenial, LinuxMint 17 and 18
 	;;
 Ubuntu-1[12].*) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
