@@ -78,13 +78,13 @@ md5sum linuxcnc-2.7.14-wheezy.iso
 or
 +
 ----
-sha256sum linuxcnc-2.7-wheezy.iso
+sha256sum linuxcnc-2.7.14-wheezy.iso
 ----
 . Then compare to these checksums
 +
 -----
-md5sum: 978ca074c51194e72f93e8c8d7110cfa
-sha256sum: a3c29850cbc44da7b1ecdbe584a915f158c0b84428acfbcf3271df85c24e34aa
+md5sum: bdd85ad00f05d7c67e5037a72bae4934
+sha256sum: 079ba1fae48861b0814187b8048d6f2f299f943427d8c4806b65519f3a560d48
 -----
 
 .Verify md5sum on Windows or Mac
@@ -111,7 +111,7 @@ a computer.  The image is too large to fit on a CD.
   then use this command:
 +
 -----
-dd if=linuxcnc-2.7-wheezy.iso of=/dev/sde
+dd if=linuxcnc-2.7.14-wheezy.iso of=/dev/sde
 -----
 
 .Writing the image to a DVD in Linux
