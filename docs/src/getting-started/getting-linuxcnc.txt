@@ -34,7 +34,7 @@ Image.
 
 Download the Live/Install CD by clicking here:
 
-http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso
+http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
 
 
 === Download using zsync
@@ -55,7 +55,7 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/linuxcnc-2.7-wheezy.iso.zsync
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso.zsync
 ----
 
 .zsync in Windows
@@ -72,7 +72,7 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 +
 ----
-md5sum linuxcnc-2.7-wheezy.iso
+md5sum linuxcnc-2.7.14-wheezy.iso
 ----
 +
 or
