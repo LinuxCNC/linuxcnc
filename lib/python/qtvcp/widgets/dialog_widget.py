@@ -30,17 +30,20 @@ from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.widgets.calculator import Calculator
 from qtvcp.lib.notify import Notify
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # ACTION gives commands to linuxcnc
-# INFO holds INI dile details
+# INFO holds INI file details
+# TOOL gives tool file access
+# NOTICE is for the desktop notify system
 # LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+TOOL = Tool()
 NOTICE = Notify()
 LOG = logger.getLogger(__name__)
 
@@ -269,8 +272,10 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
     def tool_change(self, change):
         if change:
             MORE = 'Please Insert Tool %d' % self.tool_number.get()
+            tool_table_line = TOOL.GET_TOOL_INFO(self.tool_number.get())
+            comment = str(tool_table_line[TOOL.COMMENTS])
             MESS = 'Manual Tool Change Request'
-            DETAILS = ' Tool Info:'
+            DETAILS = ' Tool Info: %s'% comment
 
             STATUS.emit('focus-overlay-changed', True, MESS, self._color)
             if self.speak:
