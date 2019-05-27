@@ -167,15 +167,29 @@ on different systems) +
 
 You will require super user privileges to copy the file to the folder. +
 
-then you must link the qtvcp_plugin.py to the folder that designer will search. +
+then you must add a link to the qtvcp_plugin.py to the folder that designer will search. +
 
+In a RIP version of linuxcnc qtvcp_plugin.py will be in: +
+'~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py' +
+
+installed version should be: +
+'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' +
+
+Designer searches in these two place for links (pick one): +
 This can be: +
 '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' +
 or +
 '~/.designer/plugins/python' +
 
-open a terminal, set the environment for linuxcnc '. scripts/rip-environment' +
-then load designer with : designer -qt=5 +
+To start Designer: +
+
+for a RIP installed: +
+open a terminal, set the environment for linuxcnc with the command: '. scripts/rip-environment' +
+then load designer with : 'designer -qt=5' +
+
+otherwise for an installed version, just open Designer +
+
+If all goes right you will see the selectable linuxcnc widgets on the left hand side +
 
 === build the screen .ui file
 
