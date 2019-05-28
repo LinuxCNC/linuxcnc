@@ -2851,7 +2851,7 @@ class Gscreen:
     def restart_dialog_return(self,widget,result,calc):
         value = 0
         if not result == gtk.RESPONSE_REJECT:
-            value = calc.get_value()
+            value = int(calc.get_value())
             if value == None:value = 0
         self.widgets.gcode_view.set_line_number(value)
         self.add_alarm_entry(_("Ready to Restart program from line %d"%value))
