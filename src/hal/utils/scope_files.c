@@ -402,7 +402,6 @@ static int parse_command(char *in)
 	break;
     default:
 	return -1;
-	break;
     }
     /* commands return NULL on success, an error msg on fail */
     if ( rv != NULL ) {

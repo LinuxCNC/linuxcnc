@@ -38,6 +38,7 @@
 
 /* import the shared declarations */
 #include "scope_shm.h"
+#include <gtk/gtk.h>
 
 /***********************************************************************
 *                         TYPEDEFS AND DEFINES                         *
