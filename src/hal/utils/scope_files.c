@@ -93,6 +93,11 @@ typedef enum {
   STRING
 } arg_type_t;
 
+typedef enum {
+    LEGACY_LOGFILE,
+    CSV_FILE,
+} file_type_t;
+
 typedef struct {
   const char* name;
   arg_type_t arg_type;
@@ -234,21 +239,135 @@ void write_config_file (char *filename)
     fclose(fp);
 }
 
-/* writes captured data to disk */
+file_type_t get_file_type (char *filename)
+{
+    long l = (long)strlen(filename);
+    if ( filename
+         && l > 4
+         && strcmp(filename + l - 4, ".csv") == 0) {
+        return CSV_FILE;
+    } else {
+        return LEGACY_LOGFILE;
+    }
+}
+
+int write_csv_header(FILE *fp, scope_chan_t *channels, int num_channels)
+{
+    if (!fp || !channels) {
+        return -1;
+    }
+
+    // Write all channel names as CSV column headers
+    fprintf(fp, "\"time_ns\",");
+    int chan_num = 0;
+    for (chan_num=0; chan_num < num_channels; chan_num++) {
+        fprintf( fp, "\"%s\",", channels[chan_num].name ?: "UNKNOWN");
+    }
+    fprintf( fp, "\n");
+    return 0;
+}
+
+int write_csv_body(FILE *fp, hal_type_t* chan_types, long sample_period_ns, long samples, int num_channels)
+{
+    if (!fp || !chan_types) {
+        return -1;
+    }
+    scope_data_t *dptr = NULL;
+    scope_data_t *start = ctrl_usr->disp_buf;
+    int chan_num = 0;
+    int n = 0;
+
+    long long time_ns = 0;
+    while (n <= samples) {
+        fprintf(fp, "%lld,", time_ns);
+        for (chan_num=0; chan_num<num_channels; chan_num++) {
+            dptr=start+n;
+            write_sample_csv( fp, dptr, chan_types[chan_num]);
+            /* point to next sample */
+            n++;
+        }
+        fprintf( fp, "\n");
+        time_ns += sample_period_ns;
+    }
+    return 0;
+}
+
+/**
+ * Writes a single CSV-formatted sample based on HAL type
+ * @pre file pointer fp must be currently open
+ */
+void write_sample_csv(FILE *fp, scope_data_t *dptr, hal_type_t type)
+{
+    double data_value = 0.0;
+    switch (type) {
+    case HAL_BIT:
+        if (dptr->d_u8) {
+            data_value = 1.0;
+        } else {
+            data_value = 0.0;
+        };
+        fprintf(fp, "%d,", (int)data_value);
+        break;
+    case HAL_FLOAT:
+        data_value = dptr->d_real;
+        fprintf(fp, "%0.17g,", data_value);
+        break;
+    case HAL_S32:
+        data_value = dptr->d_s32;
+    case HAL_U32:
+        data_value = dptr->d_u32;
+        fprintf(fp, "%lld,", (long long)data_value);
+        break;
+    case HAL_TYPE_UNSPECIFIED:
+        break;
+    }
+}
+
+void write_log_body(FILE *fp, log_order_t log_order, char **label, hal_type_t* type, long sample_period_ns, long samples, int sample_len)
+{
+    scope_data_t *dptr = NULL, *start = ctrl_usr->disp_buf;
+    int chan_num = 0, n = 0;
+
+    switch (log_order) {
+        case INTERLACED:
+                while (n <= samples) {
+
+                    for (chan_num=0; chan_num<sample_len; chan_num++) {
+                        dptr=start+n;
+                        if ((n%sample_len)==0){
+                        fprintf( fp, "\n");
+                        }
+                        write_sample( fp, label[chan_num], dptr, type[chan_num]);
+                        /* point to next sample */
+                        n++;
+                    }
+                 }
+                break;
+        case NOT_INTERLACED:
+                for (chan_num=0; chan_num<sample_len; chan_num++) {
+                    n=chan_num;
+                    while (n <= samples) {
+                        dptr=start+n;
+                        write_sample( fp, label[chan_num], dptr, type[chan_num]);
+                        fprintf( fp, "\n");
+                        /* point to next sample */
+                        n += sample_len;
+                    }
+                 }
+                break;
+    }
+}
 
 void write_log_file (char *filename)
 {
-	scope_data_t *dptr, *start;
 	scope_horiz_t *horiz;
-	int sample_len, chan_num, sample_period_ns, samples, n;
+    int sample_len, chan_num, sample_period_ns, samples;
 	char *label[16];
     //scope_disp_t *disp;
 	scope_log_t *log;
     scope_chan_t *chan;
     hal_type_t type[16];
     FILE *fp;
-	
-
 
     fp = fopen(filename, "w");
     if ( fp == NULL ) {
@@ -265,7 +384,6 @@ void write_log_file (char *filename)
 	/* sample_len is really the number of channels, don't let it fool you */
 	sample_len = ctrl_shm->sample_len;
     //disp = &(ctrl_usr->disp);
-	n=0;
 	samples = ctrl_usr->samples*sample_len ;
 	//fprintf(stderr, "maxsamples = %p \n", maxsamples);
 	log = &(ctrl_usr->log);
@@ -275,40 +393,21 @@ void write_log_file (char *filename)
 	//for testing, this will be a check box or something eventually
 	log->order=INTERLACED;
 
-    /* write data */
-    fprintf(fp, "Sampling period is %i nSec \n", sample_period_ns );
-
 	/* point to the first sample in the display buffer */
-	start = ctrl_usr->disp_buf ;
+    file_type_t file_type = get_file_type(filename);
 
-	switch (log->order) {
-		case INTERLACED:
-				while (n <= samples) {
-				
-					for (chan_num=0; chan_num<sample_len; chan_num++) {	
-						dptr=start+n;	
-						if ((n%sample_len)==0){
-						fprintf( fp, "\n");
-						}
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
-						/* point to next sample */
-						n++;
-					}
-   				 }
-				break;
-		case NOT_INTERLACED:
-				for (chan_num=0; chan_num<sample_len; chan_num++) {
-					n=chan_num;
-					while (n <= samples) {
-						dptr=start+n;
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
-						fprintf( fp, "\n");
-						/* point to next sample */
-						n += sample_len;
-					}
-   				 }
-				break;
-	}
+    switch (file_type) {
+    case CSV_FILE:
+        // Writes comma-delimited format with quoted text
+        write_csv_header(fp, ctrl_usr->chan, sample_len);
+        write_csv_body(fp, type, sample_period_ns, samples, sample_len);
+        break;
+    case LEGACY_LOGFILE:
+        // Write legacy log format
+        fprintf(fp, "Sampling period is %i nSec \n", sample_period_ns );
+        write_log_body(fp, log->order, label, type, sample_period_ns, samples, sample_len);
+        break;
+    }
     
     fclose(fp);
     fprintf(stderr, "Log file '%s' written.\n", filename );
