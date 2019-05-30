@@ -154,8 +154,45 @@ PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
 TCLTK_VERSION=8.6
 
 case $DISTRIB_NAME in
+Ubuntu-16.*|LinuxMint-18.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+        PYTHON_PACKAGING=dh_python2
+        ;;
+Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,python-support
+	TCLTK_VERSION=8.6
+	;;
+Ubuntu-11.04|Ubuntu-12.04|Ubuntu-12.10) # Natty Narwhal, Precise Pangolin (LTS), Quantal Quetzal
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev,python-support
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-10.04)
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,libgnomeprintui2.2-dev,python-support
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-9.10)
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-8.04)
+        LIBREADLINE_DEV=libreadline5-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
+	TCLTK_VERSION=8.4
+	;;
+Debian-testing)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+        PYTHON_PACKAGING=dh_python2
+        PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+	;;
 Debian-9.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*) # Stretch
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
+	TCLTK_VERSION=8.6
+        PYTHON_PACKAGING=dh_python2
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         ;;
 Debian-8.*|Raspbian-8.*) # Jessie

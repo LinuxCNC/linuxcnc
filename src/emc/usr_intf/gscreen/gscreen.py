@@ -775,14 +775,14 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
+        # see if there are user messages in the ini file 
+        self.message_setup()
+
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
-
-        # see if there are user messages in the ini file 
-        self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
@@ -3688,13 +3688,13 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                self.data[name] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data[name].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
                         self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
-
+        print dir(self.data)
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
         if displaytype:
