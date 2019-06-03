@@ -303,9 +303,6 @@ halcmd::
      (((halcmd))) Command line tool for configuration and tuning. See
     section <<sec:halcmd>> 
 
-halgui::
-    GUI tool for configuration and tuning (not implemented yet).
-
 halmeter::
      (((halmeter))) A handy multimeter for HAL signals. See section <<sec:halmeter>>. 
 
