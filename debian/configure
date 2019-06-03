@@ -124,7 +124,7 @@ Ubuntu-8.04)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
 	TCLTK_VERSION=8.4
 	;;
-Debian-testing|Debian-10.*)
+Debian-testing|Debian-10|Debian-10.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
