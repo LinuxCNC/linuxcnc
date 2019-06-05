@@ -1,8 +1,20 @@
 linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
-  * Upcoming release, any year now!  Watch this space!
-
- -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
+  * docs: many updates and improvements
+  * packaging: add python-yapps package
+  * packaging: use correct package names for python imaging debs
+  * hal: time componet improvements
+  * program: remove unused program halgui
+  * hy_gy_vfd: fix modbus byte timeout
+  * mb2hal: add support for libmodbus 3.1.2 and newer
+  * tcl/show_errors.tcl: fix linuxcnc_info file name
+  * gscreen: fix error when selecting run-from-line startpoint
+  * stepconf: fix timing for g540 with 3.3v parport
+  * docs: fix pyvcp pin names
+  * bug: fix python-gst hard coded version for ubuntu 18
+  * stepconf: don't require MDI commands when selecting HALUI
+  * pyvcp: add width and height to bar display
+  * qtvcp: many updates and improvements
 
 linuxcnc (1:2.7.14) unstable; urgency=medium
 
