@@ -1,20 +1,29 @@
 linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
-  * docs: many updates and improvements
-  * packaging: add python-yapps package
+  * packaging: add buster support for python-yapps package
   * packaging: use correct package names for python imaging debs
-  * hal: time componet improvements
-  * program: remove unused program halgui
   * hy_gy_vfd: fix modbus byte timeout
   * mb2hal: add support for libmodbus 3.1.2 and newer
-  * tcl/show_errors.tcl: fix linuxcnc_info file name
+  * gladevcp: add horizontal and vertical bar LEDs
+  * gmoccapy: several bug fixes and enhanments
+  * gscreen: several bug fixes and enhanments
+  * gscreen: add silverdragon screen
+  * gscreen: add a dark theme
   * gscreen: fix error when selecting run-from-line startpoint
+  * qtvcp: add new GUI
   * stepconf: fix timing for g540 with 3.3v parport
-  * docs: fix pyvcp pin names
+  * stepconf: add XY config option
+  * pncconf: fix timing for g540 with 3.3v parport
+  * time.comp: add pause pin to pause timing
+  * pyvcp: add width and height to bar widget
+  * halcmd: support line extends with backslash (\)
+  * encoder/resolvers: add RPM pin
+  * halcompile: increase MAX_PERSONALITIES from 16 to 64
+  * halcompile: more names for realtime comps
   * bug: fix python-gst hard coded version for ubuntu 18
-  * stepconf: don't require MDI commands when selecting HALUI
-  * pyvcp: add width and height to bar display
-  * qtvcp: many updates and improvements
+  * docs: many updates and improvements
+  * program: remove unused program halgui
+  * tcl/show_errors.tcl: fix linuxcnc_info file name
 
 linuxcnc (1:2.7.14) unstable; urgency=medium
 
