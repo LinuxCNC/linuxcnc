@@ -33,7 +33,7 @@ When linuxcnc is in machine off state the function self.on_state_off will be cal
 
 == INFO
 
-IINFO is a library to collect and filters data from the INI file. +
+INFO is a library to collect and filters data from the INI file. +
 
 The available data and defaults: +
 ----
