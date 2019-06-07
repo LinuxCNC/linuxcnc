@@ -119,13 +119,13 @@ M3
 ----
 Will start all three spindles simultaneously at different speeds
 
-[source,{ngc]]
+[source,{ngc}]
 ----
 M4 $1
 ----
 Will then reverse spindle 1 but leave the other spindles rotating forwards.
 
-[source,{ngc]]
+[source,{ngc}]
 ----
 M5 $2
 ----
