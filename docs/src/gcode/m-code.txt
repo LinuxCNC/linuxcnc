@@ -102,9 +102,9 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 == M3, M4, M5 Spindle Control
 (((M3, M4, M5 Spindle Control)))
 
-* 'M3 ($n)' - start the selected spindle clockwise at the 'S' speed.
-* 'M4 ($n)' - start the selected spindle counterclockwise at the 'S' speed.
-* 'M5 ($n)' - stop the selected spindle.
+* 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
+* 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
+* 'M5 [$n]' - stop the selected spindle.
 
 Use $ to operate on specific spindles. If $ is omitted then the commands
 operate on all spindles. 
