@@ -111,7 +111,7 @@ operate on all spindles.
 
 For example 
 [source,{ngc}]
----
+----
 S100 $0
 S200 $1
 S300 $2 
