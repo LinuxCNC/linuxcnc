@@ -78,10 +78,14 @@ class Paths():
         # look for custom handler files:
         handler_fn = "{}_handler.py".format(self.BASENAME)
         if self.IS_SCREEN:
-            local_handler_path = os.path.join(self.CONFIGPATH, handler_fn)
             default_handler_path = os.path.join(self.SCREENDIR, self.BASENAME, handler_fn)
+            local_handler_path = 'None Found'
+            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+                if handler_fn in(files):
+                    local_handler_path = os.path.join(root, handler_fn)
+                    break
         else:
-            local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
+            local_handler_path = os.path.join(self.WORKINGDIR, self.BASENAME, handler_fn)
             default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
         log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
 
@@ -98,12 +102,17 @@ class Paths():
                 log.info("No handler file found")
 
         # look for custom ui file
+        ui_fn = "{}.ui".format(self.BASENAME)
         if self.IS_SCREEN:
-            localui = os.path.join(self.CONFIGPATH,"%s.ui"% self.BASENAME)
-            defaultui = os.path.join(self.SCREENDIR,"%s/%s.ui"%(self.BASENAME,self.BASENAME))
+            defaultui = os.path.join(self.SCREENDIR, self.BASENAME, ui_fn)
+            localui = 'None Found'
+            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+                if ui_fn in(files):
+                    localui = os.path.join(root, ui_fn)
+                    break
         else:
-            localui = os.path.join(self.WORKINGDIR, "%s.ui"% self.BASENAME)
-            defaultui = os.path.join(self.PANELDIR, self.BASENAME, "%s.ui"% self.BASENAME)
+            localui = os.path.join(self.WORKINGDIR, self.BASENAME, ui_fn)
+            defaultui = os.path.join(self.PANELDIR, self.BASENAME, ui_fn)
         log.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
             log.info("Using specified ui file from yellow<{}>".format(localui))
@@ -120,8 +129,13 @@ class Paths():
                 sys.exit(0)
 
         # check for qss file
-        localqss = os.path.join(self.CONFIGPATH,"%s.qss"% self.BASENAME)
-        defaultqss = os.path.join(self.SCREENDIR,"%s/%s.qss"%(self.BASENAME,self.BASENAME))
+        qss_fn = "{}.qss".format(self.BASENAME)
+        defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
+        localqss = 'None Found'
+        for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+            if qss_fn in(files):
+                localqss = os.path.join(root, qss_fn)
+                break
         log.debug("Checking for .qss in: yellow<{}>".format(localqss))
         if os.path.exists(localqss):
             log.info("Using specified qss file from yellow<{}>".format(localqss))
