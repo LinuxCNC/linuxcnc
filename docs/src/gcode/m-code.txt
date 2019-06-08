@@ -309,7 +309,12 @@ When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
 to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
-from 0 (feed hold) to 1 (full speed).
+from -1 (programmed speed in reverse) to 1 (full speed). 0 is equivalent
+to feed-hold.
+[NOTE]
+The use of negative adaptive-feed for reverse run is a new
+feature and is not very well tested as yet. The intended use is for plasma
+cutters and wire spark eroders but it is not limited to such applications.
 
 [[mcode:m53]]
 == M53 Feed Stop Control
