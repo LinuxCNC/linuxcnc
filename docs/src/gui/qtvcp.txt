@@ -122,8 +122,8 @@ qtvcp can also be customized with Qt stylesheets using css. +
 If present, local UI files in the configuration folder will be loaded instead +
 of the stock UI files. Local UI files allow you to use your customized +
 designs rather then the default screens. +
-qtvcp will look for MYNAME.ui and MYNAME_handler.py in the launched configuration folder. +
-
+qtvcp will look for MYNAME.ui, MYNAME_handler.py and MYNAME.qss in the launched configuration folder. +
+You can put these files in a arbitrary named folder - qtvcp will search all folders in your config folder. +
 
 === Modifying Stock Screens
 
