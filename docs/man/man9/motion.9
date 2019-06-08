@@ -45,6 +45,7 @@ Time (in CPU clocks) for the motion module motion-controller
 .TP
 \fBmotion.adaptive\-feed\fR IN FLOAT
 When adaptive feed is enabled with M52 P1, the commanded velocity is multiplied by this value. This effect is multiplicative with the NML-level feed override value and motion.feed\-hold.
+Negative values are valid and will run the G\-code path in reverse.
 
 .TP
 \fBmotion.analog\-in\-\fINN\fR IN FLOAT

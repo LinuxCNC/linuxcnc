@@ -86,6 +86,9 @@ l'option num_aio au chargement de motmod.
     effet est
      multiplicatif avec 'motion.feed-hold' et la valeur du correcteur de
     vitesse du niveau NML.
+    Les valeurs de 'motion.adaptive-feed' doivent être dans comprises
+    entre -1 (pleine vitesse arrière) et 1 (pleine vitesse). Une valeur du nulle
+    correspond à l'arrêt du mouvement.
 
 * 'motion.analog-in-00' - 
      (float, in) Ces pins (00, 01, 02, 03 ou plus si configurées) sont
