@@ -253,8 +253,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
-   'mini', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
