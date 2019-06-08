@@ -167,6 +167,8 @@ struct PM_CARTESIAN;
 #define EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE         ((NMLTYPE) 517)
 #define EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE          ((NMLTYPE) 518)
 #define EMC_TASK_PLAN_OPTIONAL_STOP_TYPE             ((NMLTYPE) 519)
+#define EMC_TASK_PLAN_REVERSE_TYPE                   ((NMLTYPE) 520)
+#define EMC_TASK_PLAN_FORWARD_TYPE                   ((NMLTYPE) 521)
 
 #define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
 
@@ -411,6 +413,8 @@ extern int emcTrajEnable();
 extern int emcTrajDisable();
 extern int emcTrajAbort();
 extern int emcTrajPause();
+extern int emcTrajReverse();
+extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);

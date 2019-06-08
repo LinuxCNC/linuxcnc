@@ -154,6 +154,7 @@ typedef struct {
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion maskable with g53 P1*/
     hal_bit_t *feed_inhibit;	/* RPI: set TRUE to stop motion (non maskable)*/
     hal_bit_t *homing_inhibit;	/* RPI: set TRUE to inhibit homing*/
+    hal_bit_t *tp_reverse;	/* Set true if trajectory planner is running in reverse*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
     hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */

@@ -37,7 +37,7 @@ import array, time, atexit, tempfile, shutil, errno, thread, select, re, getopt
 import traceback
 
 # Print Tk errors to stdout. python.org/sf/639266
-import Tkinter 
+import Tkinter
 OldTk = Tkinter.Tk
 class Tk(OldTk):
     def __init__(self, *args, **kw):
@@ -603,6 +603,18 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
+        i = 0
+        for ts in t:
+            if i < len(homed) and homed[i]:
+                t[i] += "*"
+            else:
+                t[i] += " "
+            if i < len(homed) and limit[i]:
+                t[i] += "!" # !!!1!
+            else:
+                t[i] += " "
+            i+=1
+
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
@@ -739,7 +751,7 @@ class LivePlotter:
 
     def error_task(self):
         error = e.poll()
-        while error: 
+        while error:
             kind, text = error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = "error"
@@ -1272,7 +1284,7 @@ tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
 tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
-widgets = nf.Widgets(root_window, 
+widgets = nf.Widgets(root_window,
     ("help_window", Toplevel, ".keys"),
     ("about_window", Toplevel, ".about"),
     ("text", Text, pane_bottom + ".t.text"),
@@ -1431,7 +1443,7 @@ def set_hal_jogincrement():
 def jogspeed_listbox_change(dummy, value):
     global jogincr_index_last
     # pdb.set_trace()
-    # FJ: curselection is not always up to date here, so 
+    # FJ: curselection is not always up to date here, so
     #     do a linear search by hand
     iterator = root_window.call(widgets.jogincr._w, "list", "get", "0", "end")
     idx = 0
@@ -1471,7 +1483,7 @@ def jogspeed_incremental(dir=1):
             jogincr_index_last -= 1
         if jogincr_index_last < 1:
             jogincr_index_last = 1
-    root_window.call(widgets.jogincr._w, "select", jogincr_index_last)   
+    root_window.call(widgets.jogincr._w, "select", jogincr_index_last)
     set_hal_jogincrement()
 
 
@@ -1648,7 +1660,7 @@ class _prompt_float:
             else:
                 self.w.set(value)
 
-        if ok: 
+        if ok:
             self.ok.configure(state="normal")
         else:
             self.ok.configure(state="disabled")
@@ -1715,7 +1727,7 @@ class _prompt_touchoff(_prompt_float):
             mb.configure(takefocus=1)
             l.pack(side="left")
             mb.pack(side="left")
-        f.pack(side="top") 
+        f.pack(side="top")
         self.buttons.tkraise()
         if not tool_only:
             for i in [1,2,3,4,5,6,7,8,9]:
@@ -1738,7 +1750,7 @@ class _prompt_touchoff(_prompt_float):
     def result(self):
         if self.u.get(): return self.v.get(), self.c.get()
         return None, None
-        
+
 def prompt_touchoff(title, text, default, tool_only, system=None):
     t = _prompt_touchoff(title=title,
                          text_pattern=text,
@@ -1936,7 +1948,7 @@ class TclCommands(nf.TclCommands):
 
     def toggle_tto_g11(event=None):
         ap.putpref("tto_g11", vars.tto_g11.get())
-        
+
     def toggle_optional_stop(event=None):
         c.set_optional_stop(vars.optional_stop.get())
         ap.putpref("optional_stop", vars.optional_stop.get())
@@ -1990,7 +2002,7 @@ class TclCommands(nf.TclCommands):
                 sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
                 o.canon.dwell_time
                 )
- 
+
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
             if gt > 120:
@@ -2282,6 +2294,22 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_AUTO)
         c.auto(linuxcnc.AUTO_PAUSE)
 
+    def task_reverse(*event):
+        s.poll()
+        if s.task_mode != linuxcnc.MODE_AUTO:
+            return
+
+        ensure_mode(linuxcnc.MODE_AUTO)
+        c.auto(linuxcnc.AUTO_REVERSE)
+
+    def task_forward(*event):
+        s.poll()
+        if s.task_mode != linuxcnc.MODE_AUTO:
+            return
+
+        ensure_mode(linuxcnc.MODE_AUTO)
+        c.auto(linuxcnc.AUTO_FORWARD)
+
     def task_resume(*event):
         s.poll()
         if not s.paused:
@@ -2394,7 +2422,7 @@ class TclCommands(nf.TclCommands):
                     if history_size != -1:
                         for idx in range(history_size - 1):
                             f.write("%s\n" % widgets.mdi_history.get(idx, idx))
-                finally:    
+                finally:
                     f.close()
             except IOError:
                 print >>sys.stderr, "Can't open MDI history file [%s] for writing" % file_name
@@ -2660,7 +2688,7 @@ class TclCommands(nf.TclCommands):
         s.poll()
         o.tkRedraw()
         reload_file(False)
-        
+
     def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
@@ -2898,7 +2926,7 @@ class TclCommands(nf.TclCommands):
 
 commands = TclCommands(root_window)
 
-vars = nf.Variables(root_window, 
+vars = nf.Variables(root_window,
     ("linuxcnctop_command", StringVar),
     ("emcini", StringVar),
     ("mdi_command", StringVar),
@@ -3022,6 +3050,8 @@ root_window.bind("o", commands.open_file)
 root_window.bind("s", commands.task_resume)
 root_window.bind("t", commands.task_step)
 root_window.bind("p", commands.task_pause)
+root_window.bind("R", commands.task_reverse)
+root_window.bind("F", commands.task_forward)
 root_window.bind("v", commands.cycle_view)
 root_window.bind("<Alt-p>", "#nothing")
 root_window.bind("r", commands.task_run)
@@ -3113,7 +3143,7 @@ try:
                 history_size += 1
             else:
                 skip -= 1
-    finally:    
+    finally:
         f.close()
 except IOError:
     pass
@@ -3604,7 +3634,7 @@ if increments:
     root_window.call(widgets.jogincr._w, "list", "delete", "1", "end")
     root_window.call(widgets.jogincr._w, "list", "insert", "end", *increments)
 widgets.jogincr.configure(command= jogspeed_listbox_change)
-root_window.call(widgets.jogincr._w, "select", 0)   
+root_window.call(widgets.jogincr._w, "select", 0)
 
 vcp = inifile.find("DISPLAY", "PYVCP")
 
@@ -3728,7 +3758,7 @@ def get_coordinate_font(large):
         coordinate_font = "courier bold 20"
     else:
         coordinate_font = "courier bold 11"
-    
+
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = \
             glnav.use_pango_font(coordinate_font, 0, 128)
@@ -3744,7 +3774,7 @@ init()
 
 #right click menu for the program
 def rClicker(e):
-    
+
     def select_run_from(e):
         commands.task_run_line()
 
