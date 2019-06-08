@@ -3,7 +3,9 @@
 = GMOCCAPY
 
 == Introduction
+
 test
+
 'GMOCCAPY' is a GUI for LinuxCNC, designed to be used with a touch screen,
 but can also be used on normal screens with a mouse or hardware buttons and MPG
 wheels, as it presents HAL Pins for the most common needs. Please find more
