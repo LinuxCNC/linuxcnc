@@ -52,17 +52,19 @@ class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
 
 This is where we import libraries that our widget class needs. +
 In this case we need access to pyqt's QtWidgets library, linuxcnc's hal library +
-and qtvcp's widget baseclass _HalSensitiveBase for automatic HAL pin setup. +
+and qtvcp's widget baseclass _HalSensitiveBase for automatic HAL pin setup and +
+to disable/enable the widget (also known as input sensitivity) +
+There is also _HalToggleBase, and _HalScaleBase functions available in the library. +
 
 === In the 'WIDGET' section
-Ok here is our custom widget based on pyQT's QGridLaayout widget. +
+Ok here is our custom widget based on pyQT's QGridLayout widget. +
 grid layout allows one to place objects in a grid fashion. +
 But this grid_layout also will enable and disable all widgets inside it +
 based on the state of a HAL pin. +
 Line by Line: +
 [source,python]
 ----
-class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase): +
+class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
 ----
 This defines the class name and the libraries in inherits from. +
 this class named Lcnc_GridLayout inheriets the functions of QWidget and _HalSensitiveBase. +
@@ -71,12 +73,12 @@ meaning it has all the functions of _HalWidgetBase plus the functions of _HalSen
 It adds the function to make the widget be enabled or disabled based on a HAL input BIT pin. +
 [source,python]
 ----
-def __init__(self, parent = None): +
+def __init__(self, parent = None):
 ----
 This is the function called when the widget is first made (said instantiated)- this is pretty standard. +
 [source,python]
 ----
-super(GridLayout, self).__init__(parent) +
+super(GridLayout, self).__init__(parent)
 ----
 This function initializes our widget's 'Super' classes. +
 'Super' just means the inherited baseclasses; QWidget and _HalSensitiveBase +
@@ -336,28 +338,28 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         ACTION.SET_USER_SYSTEM('54')
 
     def G55(self):
-        ACTION.SET_USER_SYSTEM(55)
+        ACTION.SET_USER_SYSTEM('55')
 
     def G56(self):
-        ACTION.SET_USER_SYSTEM('G56')
+        ACTION.SET_USER_SYSTEM('56')
 
     def G57(self):
-        ACTION.SET_USER_SYSTEM('G57')
+        ACTION.SET_USER_SYSTEM('57')
 
     def G58(self):
-        ACTION.SET_USER_SYSTEM('G58')
+        ACTION.SET_USER_SYSTEM('58')
 
     def G59(self):
-        ACTION.SET_USER_SYSTEM('G59')
+        ACTION.SET_USER_SYSTEM('59')
 
     def G59_1(self):
-        ACTION.SET_USER_SYSTEM('G59.1')
+        ACTION.SET_USER_SYSTEM('59.1')
 
     def G59_2(self):
-        ACTION.SET_USER_SYSTEM('G59.2')
+        ACTION.SET_USER_SYSTEM('59.2')
 
     def G59_3(self):
-        ACTION.SET_USER_SYSTEM('G59.3')
+        ACTION.SET_USER_SYSTEM('59.3')
 
     def _set_user_system_text(self, w, data):
         convert = { 1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}

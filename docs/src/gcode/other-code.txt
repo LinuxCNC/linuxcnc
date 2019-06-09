@@ -18,12 +18,15 @@ is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> Section.
 == S: Set Spindle Speed
 (((S: Set Spindle Speed)))
 
-'Sx' - set the speed of the spindle to 'x' revolutions per minute (RPM).
+'Sx [$n]' - set the speed of the spindle to 'x' revolutions per minute (RPM)
+with the optional $ set the spindle speed for a specific spindle. Without the $
+all spindles will be set at the S speed.
 
-The spindle will turn at that speed when a 'M3' or 'M4' is in effect.
-It is OK to program an S word whether the spindle is turning or not.
-If the speed override switch is enabled and not set at 100%, 
-the speed will be different from what is programmed. 
+The spindle(s) or selected spindle will turn at that speed when a 'M3' or 'M4'
+is in effect. It is OK to program an S word whether the spindle is turning or
+not. If the speed override switch is enabled and not set at 100%, the speed will
+be different from what is programmed. 
+
 It is OK to program S0, the spindle will not turn if that is done.
 
 It is an error if:
