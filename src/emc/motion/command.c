@@ -1243,6 +1243,20 @@ void emcmotCommandHandler(void *arg, long period)
 	    emcmotStatus->paused = 1;
 	    break;
 
+	case EMCMOT_REVERSE:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "REVERSE");
+	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE);
+	    break;
+
+	case EMCMOT_FORWARD:
+	    /* run motion in reverse*/
+	    /* only allowed during a pause */
+	    rtapi_print_msg(RTAPI_MSG_DBG, "FORWARD");
+	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD);
+	    break;
+
 	case EMCMOT_RESUME:
 	    /* resume paused motion */
 	    /* can happen at any time */

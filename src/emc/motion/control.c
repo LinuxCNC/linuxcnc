@@ -305,7 +305,7 @@ void emcmotController(void *arg, long period)
 static void process_inputs(void)
 {
     int joint_num, spindle_num;
-    double abs_ferror, tmp, scale;
+    double abs_ferror, scale;
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
@@ -337,14 +337,33 @@ static void process_inputs(void)
         }
     }
     if ( enables & AF_ENABLED ) {
-	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */
-	tmp = *emcmot_hal_data->adaptive_feed;
-	if ( tmp > 1.0 ) {
-	    tmp = 1.0;
-	} else if ( tmp < 0.0 ) {
-	    tmp = 0.0;
-	}
-	scale *= tmp;
+        /* read and clamp adaptive feed HAL pin */
+        double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
+        // Clip range to +/- 1.0
+        if ( adaptive_feed_in > 1.0 ) {
+            adaptive_feed_in = 1.0;
+        } else if (adaptive_feed_in < -1.0) {
+            adaptive_feed_in = -1.0;
+        }
+        // Handle case of negative adaptive feed
+        // Actual scale factor is always positive by default
+        double adaptive_feed_out = fabs(adaptive_feed_in);
+        // Case 1: positive to negative direction change
+        if ( adaptive_feed_in < 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_FORWARD) {
+            // User commands feed in reverse direction, but we're not running in reverse yet
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        } else if (adaptive_feed_in > 0.0 && emcmotDebug->coord_tp.reverse_run == TC_DIR_REVERSE ) {
+            // User commands feed in forward direction, but we're running in reverse
+            if (tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD) != TP_ERR_OK) {
+                // Need to decelerate to a stop first
+                adaptive_feed_out = 0.0;
+            }
+        }
+        //Otherwise, if direction and sign match, we're ok
+        scale *= adaptive_feed_out;
     }
     if ( enables & FH_ENABLED ) {
 	/* read feed hold HAL pin */
@@ -1902,6 +1921,7 @@ static void output_to_hal(void)
     }
 
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
+    *(emcmot_hal_data->tp_reverse) = emcmotStatus->reverse_run;
     *(emcmot_hal_data->motion_type) = emcmotStatus->motionType;
     *(emcmot_hal_data->distance_to_go) = emcmotStatus->distance_to_go;
     if(GET_MOTION_COORD_FLAG()) {
@@ -2126,6 +2146,8 @@ static void update_status(void)
     emcmotStatus->depth = tpQueueDepth(&emcmotDebug->coord_tp);
     emcmotStatus->activeDepth = tpActiveDepth(&emcmotDebug->coord_tp);
     emcmotStatus->id = tpGetExecId(&emcmotDebug->coord_tp);
+    //KLUDGE add an API call for this
+    emcmotStatus->reverse_run = emcmotDebug->coord_tp.reverse_run;
     emcmotStatus->motionType = tpGetMotionType(&emcmotDebug->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotDebug->coord_tp.queue);
 
