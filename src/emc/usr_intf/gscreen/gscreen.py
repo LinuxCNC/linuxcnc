@@ -2757,7 +2757,7 @@ class Gscreen:
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
                         self.halcomp.newpin(name+"-response", hal.HAL_BIT, hal.HAL_OUT)
-        print dir(self.data)
+
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
         if displaytype:
