@@ -10,4 +10,4 @@ Comment=Integrator Information
 StartupNotify=false
 Categories=X-CNC;
 Keywords=cnc;linuxcnc;
-Name[en_US]=linuxcnc-integratorinfo
+Name[en_US]=Integrator Info
