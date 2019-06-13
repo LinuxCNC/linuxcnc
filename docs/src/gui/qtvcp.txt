@@ -174,12 +174,17 @@ In a RIP version of linuxcnc qtvcp_plugin.py will be in: +
 
 installed version should be: +
 'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' +
+or
+'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py' +
+
+make a link file to the above file and move it to one of the places Designer searches: +
 
 Designer searches in these two place for links (pick one): +
 This can be: +
 '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' +
 or +
 '~/.designer/plugins/python' +
+You may need to add the plugins/python folders +
 
 To start Designer: +
 
@@ -187,7 +192,7 @@ for a RIP installed: +
 open a terminal, set the environment for linuxcnc with the command: '. scripts/rip-environment' +
 then load designer with : 'designer -qt=5' +
 
-otherwise for an installed version, just open Designer +
+otherwise for an installed version, open a terminal and type 'designer -qt=5' +
 
 If all goes right you will see the selectable linuxcnc widgets on the left hand side +
 
