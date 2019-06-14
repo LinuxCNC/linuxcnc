@@ -156,16 +156,16 @@ PYTHON_IMAGING="python${PYTHON_VERSION}-imaging | python-imaging | python-pil"
 PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk"
 
 case $DISTRIB_NAME in
-    Debian-10|Debian-10.*)
+    Debian-10|Debian-10.*|Devuan-3|Devuan3.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         EXTRA_BUILD=python-yapps
         ;;
-Debian-9.*|Debian-10|Debian-10.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*|Ubuntu-18.*)
+Debian-9.*|Debian-10|Debian-10.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*|Ubuntu-18.*|Devuan-2.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
         ;;
-Debian-8.*|Raspbian-8.*) # Jessie
+Debian-8.*|Raspbian-8.*|Devuan-1.*) # Jessie
         ;;
 Debian-7.*|Raspbian-7) # Wheezy
         EXTRA_BUILD=libgnomeprintui2.2-dev
