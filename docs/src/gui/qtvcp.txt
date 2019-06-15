@@ -6,7 +6,7 @@ Qtvcp is an infrastructure to display a custom CNC screen or control panel in Li
 It displays a UI file built with the QTDesigner screen editor or combines this +
 with python programming to create a GUI screen for running a CNC machine. +
 Qtvcp is completely customizable - you can add different buttons and status LEDs etc. +
-or add python code for even finer grain customizations. +
+or add python code for even finer grain customization. +
 
 .qtdefault - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
@@ -16,6 +16,8 @@ image::images/qtaxis.png["QTscreen Qtaxis",align="left"]
 image::images/blender.png["QTscreen Blender",align="left"]
 .X1mill - 4 Axis Sample
 image::images/x1mill.png["QTscreen x1mill",align="left"]
+.cam_align - Camera alignment VCP
+image::images/qtvcp-cam-align.png["QTscreen x1mill",align="left"]
 
 == Overview
 
@@ -26,7 +28,7 @@ A handler file which is a text file with python code. +
 Normally qtvcp uses the stock UI and handler file. +
 You can specify qtvcp to use 'local' UI and handler files. +
 A 'local' file is one that is in the configuration folder that defines the +
-rest of the machine's requirments. +
+rest of the machine's requirements. +
 One is not restricted to adding a custom panel on the right or a custom tab. +
 qtvcp leverages 'QT Designer' (the editor) and 'PyQT5' (the widget toolkit). +
 QTvcp has some special widgets and actions added just for LinuxCNC. +
