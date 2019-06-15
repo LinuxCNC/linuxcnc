@@ -62,6 +62,10 @@ class Paths():
             # path to the configuration the user requested
             self.CONFIGPATH = os.environ['CONFIG_DIR']
             sys.path.insert(0, self.CONFIGPATH)
+        else:
+            # VCP panels don't usually have config paths but QTVCP looks for one.
+            # TODO this fixes the error but maybe it should be something else
+            self.CONFIGPATH = self.WORKINGDIR
 
         # Linuxcnc project base directory
         self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
