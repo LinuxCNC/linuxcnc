@@ -507,10 +507,13 @@ class ActionButtonDialog(QtWidgets.QDialog):
               QtCore.QVariant(self.MDISpinBox.value()))
             formWindow.cursor().setProperty('template_label_option',
               QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
+            # block signal so button text doesn't change when selecting action
+            self.widget._designer_block_signal = True
             formWindow.cursor().setProperty('textTemplate',
               QtCore.QVariant(self.textTemplateEditBox.text()))
             formWindow.cursor().setProperty('alt_textTemplate',
               QtCore.QVariant(self.altTextTemplateEditBox.text()))
+            self.widget._designer_block_signal = False
         self.accept()
 
     ##############################

@@ -193,7 +193,11 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _tool_file_info(self, tool_entry, index):
         toolnum = tool_entry[0]
         tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
-        self._set_text(str(tool_table_line[index]))
+        try:
+            self._set_text(str(tool_table_line[index]))
+        except:
+            LOG.warning('Problem with tool file info')
+            self._set_text('')
 
     def _set_tool_offset_text(self, w, offsets):
         self._set_text(offsets[self._index])

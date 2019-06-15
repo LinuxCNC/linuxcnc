@@ -154,7 +154,7 @@ it. To customize it we need the Glade file loaded in the Glade editor.
 
 If you have LinuxCNC 2.6+ installed on Ubuntu 10.04 just start the Glade editor
 from the applications menu or from the terminal. Newer versions of Linux will
-require you to install Glade 3.8.0
+require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself).
 
 .RIP compiled commands
 
@@ -202,8 +202,8 @@ RIP package run it from a terminal after using . scripts/rip-environment ).
 .Things to note:
 * The top level window must be called the default name, 'window1' - Gscreen
   relies on this.
-* Add actions by clicking the one you want and then clicking somewhere on the
-  window, they don't add anything visual to the window but are added to the
+* Add actions by right clicking, and selecting 'add as toplevel widget'
+  they don't add anything visual to the window but are added to the
   right most action list. Add all the ones you see on the top right.
 * After adding the actions we must link the buttons to the actions for them to
   work (see below).
