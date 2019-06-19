@@ -506,6 +506,41 @@ They could be transformed into pairs of lines like this:
 MAX_VELOCITY = 7.5
 -----
 
+=== [TRAJ] settings
+
+In 2.7.x versions, trajectory planning ([TRAJ]) settings included:
+
+----
+[TRAJ]
+DEFAULT_ACCELERATION
+MAX_ACCELERATION
+----
+
+Interim work prepared for distinct linear and angular items by
+renaming these items as:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCEL
+MAX_LINEAR_ACCEL
+----
+
+As these abbreviated names were inconsistent with other name
+conventions and the implementation of the update_ini script,
+the interim naming has been corrected to use:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCELERATION
+MAX_LINEAR_ACCELERATION
+----
+
+[NOTE]
+
+Support for specifying trajectory planning angular default and maximum
+accelerations has not been implemented.
+
+
 == Hal Changes (updates for joints_axes)
 
 === Wheel or MPG (manual pulse generator) jogging
