@@ -355,15 +355,23 @@ if version == "$Revision$" or version < "1.0":
             if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
                 lock_mask |= 1 << j
                 newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
-
+                
+            hs = ini.find("AXIS_%i" % axisnum, "HOME_SEQUENCE")
+            if hs == "-1" or hs == None: # -1 used to exclude a joint now we use no entry
+                sequence = ""
+            elif len(L2J[L]) > 1:  # tandem axis
+                sequence = "HOME_SEQUENCE = -%s" % hs
+            else:
+                sequence = "HOME_SEQUENCE = %s" % hs
             for J in L2J[L]:
                 # Take the coordinates index as the JOINT_Number
-                newini.write("\n[JOINT_%i]\n" % J)
+                newini.write("\n[JOINT_%i]" % J)
                 section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
                 if not section:
                     section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
                 if section:
-                    newini.write(section.group(1))
+                    section = re.sub("HOME_SEQUENCE.*", sequence, section.group(1))
+                    newini.write(section)
                     if not '\[AXIS_%i\]' % axisnum in subs:
                         subs.update({'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
                         subs2.update({'joint\.%i\.' % axisnum : 'joint.%i.' % J})
