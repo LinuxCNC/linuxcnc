@@ -139,7 +139,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             return
         if not cmd:
             return
-        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        ensure_mode(self.gstat.stat, self.linuxcnc, linuxcnc.MODE_MDI)
 
         self.linuxcnc.mdi(cmd)
         self.entry.set_text('')

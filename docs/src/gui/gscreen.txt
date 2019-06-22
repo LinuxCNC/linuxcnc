@@ -306,7 +306,7 @@ If you add these in you handler file Gscreen will call them instead of gscreen's
 You can also add you own functions to be called in this file. Usually you
 would add a signal to a widget to call your function.
 
-=== Adding Features
+=== Adding Keybindings Functions
 
 Our tester example would be more useful if it responded to keyboard commands. +
 There is a function called keybindings() that tries to set this up. +
@@ -325,7 +325,7 @@ Add these command to the handler file:
       self.widgets.togglebutton1.emit('activate')
       self.gscreen.audio.set_sound(self.data.alert_sound)
       self.gscreen.audio.run()
-      return True # do not let the signal continue to ther widgets
+      return True # stop progression of signal to other widgets
   def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
     if state:
       self.widgets.togglebutton2.emit('activate')
@@ -344,13 +344,13 @@ If we used self.[FUNCTION NAME]() it would call the function in our handler file
 
 Lets add another key binding that loads halmeter when F4 is pressed. +
  +
-In the handler file under def initialize_widgets(self): change to:
+In the handler file under 'def initialize_widgets(self):' change to:
 ----
   def initialize_widgets(self):
     self.gscreen.init_show_windows()
     self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')
 ----
-Then add these functions under the HandlerClass class:
+Then add these functions under the 'HandlerClass' class:
 ----
   def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):
     if state:
@@ -361,7 +361,33 @@ Then add these functions under the HandlerClass class:
 This adds a keybinding conversion that directs gscreen to call on_keycall_HALMETER when F4 is pressed. +
 Then we add the function to the handle file to call a Gscreen builtin function to start halmeter. +
 
-==== Jogging
+=== Linuxcnc State Status
+
+The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes. +
+You can register messages to act on specific state changes. +
+As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file. +
+First we must import the module and instantiate it: +
+In the import section of the handler file add: +
+----
+from hal_glib import GStat
+GSTAT = GStat()
+----
+
+In the handler file under 'def \_\_init__(self):' add: +
+----
+GSTAT.connect('file-loaded', self.update_filepath)
+----
+
+Then in the 'HandlerClass', add the function: +
+----
+self.update_filepath(self, obj, path):
+    self.widgets.my_path_label.set_text(path)
+----
+
+When linuxcnc loads a new file, Gstat will send a callback message to the funciton 'update_filepath'. +
+In this example whe update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file. +
+
+=== Jogging Keys
 
 There are no special widgets to do screen-button jogging, so we must do it with python code. +
 Under the connect_signals function add this code: +
