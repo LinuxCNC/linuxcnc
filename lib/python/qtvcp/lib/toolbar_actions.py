@@ -206,7 +206,7 @@ class ToolBarActions():
         elif action == 'quit':
             function = (self.actOnQuit)
 
-        else:
+        elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
         # Call an external function when triggered. If it's checkable; add state
