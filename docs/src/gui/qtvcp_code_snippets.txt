@@ -7,19 +7,21 @@ Here is how to load and save at closing time a number and some text: +
 You must have included a preference file option in the screenoptions widget. +
 
 under the 'def initialized__(self):' function add:
+[source,python]
 ----
         if self.w.PREFS_:
             # variable name                     (entry name, default value, type, section name)
-            self.int_value = self.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES)
+            self.int_value = self.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
             self.string_value = self.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
 ----
 
 under the 'def closing_cleanup__(self):' function add:
+[source,python]
 ----
         if self.w.PREFS_:
             #                     entry name, variable name, type, section name)
             self.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
-            self.PREFS_.putpref('String_value'', self.string_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.PREFS_.putpref('String_value', self.string_value, int, 'CUSTOM_FORM_ENTRIES')
 
 ----
 
@@ -27,12 +29,14 @@ under the 'def closing_cleanup__(self):' function add:
 Being able to edit a style on a running screen is convienant. +
 
 In the 'IMPORT SECTION': +
+[source,python]
 ----
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 ----
 
 In the 'INITIALIZE SECTION'
-Under the '/__init__.(self, halcomp,widgets,paths):' function +
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
 ----
         self.STYLEEDITOR = SSE(widgets,paths)
         KEYBIND.add_call('Key_F12','on_keycall_F12')
@@ -40,6 +44,7 @@ Under the '/__init__.(self, halcomp,widgets,paths):' function +
 
 Finally lets make f12 launch it. +
 In the 'KEYBINDING SECTION' add: +
+[source,python]
 ----
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
@@ -52,6 +57,7 @@ prebuilt dialogs keep track of their last position and include options for focus
 To get information back from the dialog requires using a STATUS general message. +
 
 In the 'IMPORT SECTION' make sure there is an entry similar to this: +
+[source,python]
 ----
 from qtvcp.core import Status
 STATUS = Status()
@@ -59,13 +65,15 @@ STATUS = Status()
 This loads and initializes the STATUS library. +
 
 In the 'INITIALIZE SECTION'
-Under the '/__init__.(self, halcomp,widgets,paths):' function +
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
 ----
         STATUS.connect('general',self.return_value)
 ----
 This registers STATUS to call the function 'self.return_value' when a general message is sent. +
 
 In the 'GENERAL FUNCTIONS SECTION'
+[source,python]
 ----
     def request_number(self):
         mess = {'NAME':'ENTRY','ID':'FORM__NUMBER', 'TITLE':'Set Tool Offset'}
@@ -77,6 +85,7 @@ The ID should be a unique key. TITLE sets the dialog title. You can also add arb
 the dialog will ignore them but send them back to the return code. +
 
 In the 'CALLBACKS FROM STATUS SECTION'
+[source,python]
 ----
    # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
@@ -93,13 +102,15 @@ Entry or Calculator dialogs return a float number. +
 This requires the 'espeak' library installed on the system. +
 
 In the 'IMPORT SECTION' make sure there is an entry similar to this: +
+[source,python]
 ----
 from qtvcp.core import Status
 STATUS = Status()
 ----
 
 In the 'INITIALIZE SECTION'
-Under the '/__init__.(self, halcomp,widgets,paths):' function +
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
 ----
         STATUS.emit('play-alert','SPEAK Please remember to oil the ways.')
 ----
@@ -119,21 +130,22 @@ Using the action editor menu, right click and select edit. Edit the object name,
 In this example the submenu name must be : 'menuRecent'. The actions must be 'actionAbout', 'actionQuit', 'actionMyFunction' +
 
 In the 'IMPORT SECTION' add: +
+[source,python]
 ----
 from qtvcp.lib.toolbar_actions import ToolBarActions
 ----
 Loads the toolbar library.
 
 in the 'INSTANTIATE LIBRARY' Section add:
-
+[source,python]
 ----
 TOOLBAR = None
 ----
 Make a global variable
 
 In the 'INITIALIZE SECTION'
-Under the 'def /__init__.(self, halcomp,widgets,paths):' function add: +
-
+Under the 'def \_\_init__.(self, halcomp, widgets, paths):' function add: +
+[source,python]
 ----
         global TOOLBAR
         TOOLBAR = ToolBarActions(path=paths)
@@ -141,6 +153,7 @@ Under the 'def /__init__.(self, halcomp,widgets,paths):' function add: +
 
 In the 'SPECIAL FUNCTIONS SECTION'
 Under the 'def initialized__(self):' function add: +
+[source,python]
 ----
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_action(self.w.actionAbout, 'about')
@@ -150,6 +163,7 @@ Under the 'def initialized__(self):' function add: +
 Configures the action.
 
 In the 'GENERAL FUNCTIONS SECTION' ADD: +
+[source,python]
 ----
    def my_function(self, widget, state):
         print 'My function State = ()'.format(state)
