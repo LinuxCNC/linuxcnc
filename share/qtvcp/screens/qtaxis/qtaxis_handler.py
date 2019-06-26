@@ -83,6 +83,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
+        TOOLBAR.configure_action(self.w.actionShutdown, 'system_shutdown')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
         TOOLBAR.configure_action(self.w.actionCalibration, 'load_calibration')
         TOOLBAR.configure_action(self.w.actionStatus, 'load_status')

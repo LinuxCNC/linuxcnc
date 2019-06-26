@@ -1748,10 +1748,17 @@
     <addaction name="actionAbout"/>
     <addaction name="actionQuickRef"/>
    </widget>
+   <widget class="QMenu" name="menuStstem">
+    <property name="title">
+     <string>System</string>
+    </property>
+    <addaction name="actionShutdown"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMachine"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuStstem"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -2079,6 +2086,14 @@
    </property>
    <property name="text">
     <string>Touchoff Fixture</string>
+   </property>
+  </action>
+  <action name="actionShutdown">
+   <property name="text">
+    <string>Shutdown</string>
+   </property>
+   <property name="toolTip">
+    <string>Shutdown System Immediately</string>
    </property>
   </action>
  </widget>

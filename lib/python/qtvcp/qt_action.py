@@ -315,6 +315,14 @@ class _Lcnc_Action(object):
                 'rotate-down', 'rotate-cw','rotate-ccw'):
             STATUS.emit('view-changed',view)
 
+    def SHUT_SYSTEM_DOWN_PROMPT(self):
+        import subprocess
+        subprocess.call('''gnome-session-quit --power-off''', shell=True)
+
+    def SHUT_SYSTEM_DOWN_NOW(self):
+        import subprocess
+        subprocess.call('shutdown now')
+
     ######################################
     # Action Helper functions
     ######################################
