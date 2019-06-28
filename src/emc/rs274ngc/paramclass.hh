@@ -18,13 +18,12 @@
 
 #ifndef PARAM_CLASS_HH
 #define PARAM_CLASS_HH
+#include <interp_fwd.hh>
 
 #ifndef BOOST_PYTHON_NAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4
 #endif
 #include <boost/python/list.hpp>
-struct Interp;
-typedef struct context_struct context;
 
 struct ParamClass {
 

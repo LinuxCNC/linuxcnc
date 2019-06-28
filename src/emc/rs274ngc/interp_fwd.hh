@@ -14,6 +14,8 @@
 #ifndef INTERP_FWD_HH
 #define INTERP_FWD_HH
 
+struct Interp;
+
 struct block_struct;
 typedef struct block_struct *block_pointer;
 typedef struct block_struct block;
