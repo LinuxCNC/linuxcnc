@@ -1,0 +1,4 @@
+# outputs
+net plasmac:state           plasmac.state-out       =>  plasmac_stats.state
+net plasmac:pierce-count    plasmac.pierce-count    =>  plasmac_stats.pierce-count
+net plasmac:motion-type     motion.motion-type      =>  plasmac_stats.motion-type

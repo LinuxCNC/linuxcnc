@@ -1,0 +1,48 @@
+;material change
+
+G21
+G64 P0.01
+M52 P1 ;to enable reverse-run
+
+G0 X15 Y25
+M190 P1 ; tool #1
+M66 P3 L3 Q1 ; wait for tool ready
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+G41.1 D[#<_hal[plasmac_run.kerf-width-f]> * 3] ; with cutter compensation
+G1 X25 Y25
+M3S1
+G1 X125
+M5
+G40 ; cutter compensation off
+
+G0 Y50
+M190 P2 ; tool #2
+M66 P3 L3 Q1
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+M3S1
+G1 X25
+M5
+
+G0 X15 Y75
+M190 P3 ; tool #3
+M66 P3 L3 Q1
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+G42.1 D#<_hal[plasmac_run.kerf-width-f]> ; with cutter compensation
+G1 X25 Y75
+M3S1
+G1 X125
+M5
+G40 ; cutter compensation off
+
+G0 Y100
+M190 P4 ; tool #4
+M66 P3 L3 Q1
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+M3S1
+G1 X25
+M5
+
+G0 X0 Y0
+M190 P0 ; tool #0
+M2
+

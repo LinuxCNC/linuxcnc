@@ -1,0 +1,24 @@
+;circles
+
+#1 = 50  (Scale)
+#2 = 3   (Iterations)
+#3 = 762 (Feed Rate)
+#4 = 0.5
+#5 = [#1*#2*#4]
+
+G21
+G64 P0.005
+M52 P1 ;to enable reverse-run
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+
+o100 repeat [#2]
+  G0 X[#5+-#4*#1] Y[#5+0]
+  M3S1
+  G0z0
+  G2 I[#4*#1]
+  M5
+  #4 = [#4+0.5]
+o100 endrepeat
+
+G0 X0 Y0
+M2

@@ -1,0 +1,30 @@
+;skip ihs with thc disabled
+
+G20
+G64 P0.0004
+M52 P1 ;to enable reverse-run
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+
+G0 X1 Y1
+M3S1
+G1 X5
+M5
+
+G0 X1 Y2
+M3S1
+G1 X5
+M5
+
+G0 X1 Y3
+M3S1
+G1 X5
+M5
+
+G0 X1 Y4
+M3S1
+G1 X5
+M5
+
+G0 X0 Y0
+M2
+
