@@ -490,7 +490,7 @@ void SPINDLE_RETRACT()
 {PRINT("SPINDLE_RETRACT()\n");}
 
 void ORIENT_SPINDLE(int spindle, double orientation, int mode)
-{PRINT("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
+{PRINT("ORIENT_SPINDLE(%d, %.4f, %d)\n", spindle, orientation, mode);
 }
 
 void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout)
