@@ -320,7 +320,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.cursorPositionChanged.connect(self.line_changed)
         if self.auto_show_mdi:
             STATUS.connect('mode-mdi', self.load_mdi)
-            STATUS.connect('reload-mdi-history', self.load_mdi)
+            STATUS.connect('mdi-history-changed', self.load_mdi)
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)

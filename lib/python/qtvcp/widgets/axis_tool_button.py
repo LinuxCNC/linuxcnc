@@ -62,7 +62,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         setlowButton.triggered.connect(self.Last)
         SettingMenu.addAction(setlowButton)
         self.setMenu(SettingMenu)
-        self.clicked.connect(self.SelectAxis)
+        self.clicked.connect(self.SelectJoint)
 
     def _hal_init(self):
         def homed_on_test():
@@ -76,7 +76,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
         STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
-        STATUS.connect('axis-selection-changed', lambda w,x,data: self.ChangeState(data))
+        STATUS.connect('joint-selection-changed', lambda w,x,data: self.ChangeState(data))
         if self._halpin_option and self._joint != -1:
             self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
         STATUS.connect('general',self.return_value)
@@ -130,7 +130,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def _a_from_j(self, jnum):
         if jnum == -1:
-            jnum = STATUS.get_selected_axis()
+            jnum = STATUS.get_selected_joint()
         j = "XYZABCUVW"
         try:
             axis = j[jnum]
@@ -142,10 +142,10 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             r = INFO.convert_units_9(r)
         return axis, r[jnum]
 
-    def SelectAxis(self):
+    def SelectJoint(self):
         if self._block_signal or self._joint == -1: return
         if self.isChecked() == True:
-            ACTION.SET_SELECTED_AXIS(self._joint)
+            ACTION.SET_SELECTED_JOINT(self._joint)
         if self._halpin_option:
             self.hal_pin.set(self.isChecked())
 

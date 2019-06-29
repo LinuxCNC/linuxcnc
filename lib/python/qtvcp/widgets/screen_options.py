@@ -239,9 +239,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
             if self.play_sounds and self.mchnMsg_play_sound:
-                STATUS.emit('play-alert', '%s' % self.mchnMsg_sound_type)
+                STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
-                    STATUS.emit('play-alert', 'SPEAK %s ' % text)
+                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
             STATUS.emit('update-machine-log', text, 'TIME')
 
 
@@ -262,7 +262,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 event.ignore()
                 return
             if self.play_sounds and self.play_shutdown_sounds:
-                STATUS.emit('play-alert', self.shutdown_exit_sound_type)
+                STATUS.emit('play-sound', self.shutdown_exit_sound_type)
             event.accept()
 
         # [0] = tool number

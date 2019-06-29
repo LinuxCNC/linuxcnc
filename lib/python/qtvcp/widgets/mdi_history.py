@@ -59,7 +59,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.MDILine.line_up = self.line_up
         self.MDILine.line_down = self.line_down
 
-        STATUS.connect('reload-mdi-history', self.reload)
+        STATUS.connect('mdi-history-changed', self.reload)
 
         # add widgets
         lay.addWidget(self.list)

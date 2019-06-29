@@ -147,7 +147,7 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self.buttonClicked.connect(self.msgbtn)
         STATUS.emit('focus-overlay-changed', True, self.focus_text, color)
         if play_alert:
-            STATUS.emit('play-alert', play_alert)
+            STATUS.emit('play-sound', play_alert)
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
         LOG.debug("Value of pressed button: {}".format(retval))
@@ -279,9 +279,9 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
 
             STATUS.emit('focus-overlay-changed', True, MESS, self._color)
             if self.speak:
-                STATUS.emit('play-alert', 'speak %s' % MORE)
+                STATUS.emit('play-sound', 'speak %s' % MORE)
             if self.play_sound:
-                STATUS.emit('play-alert', self.sound_type)
+                STATUS.emit('play-sound', self.sound_type)
 
             # desktop notify dialog
             if self.useDesktopDialog:
@@ -369,7 +369,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         self.setWindowTitle('Open')
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
-            STATUS.emit('play-alert', self.sound_type)
+            STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
         fname = None
         if (self.exec_()):
@@ -391,7 +391,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         self.setWindowTitle('Save')
         STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
         if self.play_sound:
-            STATUS.emit('play-alert', self.sound_type)
+            STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
         fname = None
         if (self.exec_()):
@@ -1006,7 +1006,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
         self.setWindowTitle(self.title);
         if self.play_sound:
-            STATUS.emit('play-alert', self.sound_type)
+            STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
@@ -1084,7 +1084,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
         self.setWindowTitle(self.title);
         if self.play_sound:
-            STATUS.emit('play-alert', self.sound_type)
+            STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
         if preload is not None:
             self.display.setText(str(preload))

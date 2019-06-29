@@ -62,7 +62,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
-        STATUS.connect('view-changed', self.set_view_signal)
+        STATUS.connect('graphics-view-changed', self.set_view_signal)
 
     def set_view_signal(self, w, view):
         v = view.lower()
