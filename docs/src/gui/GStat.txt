@@ -162,7 +162,7 @@ Sent when the tool has changed.
 *tool-info-changed* :: '(returns python object)' -
 Sent when current tool info changes.
 
-*line-changed* :: '(returns python object)' -
+*current-tool-offset* :: '(returns python object)' -
 Sent when the current tool offsets change.
 
 *motion-mode-changed* :: '(returns integer)' -
