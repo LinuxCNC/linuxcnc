@@ -473,7 +473,7 @@ FUNCTION(_) {
             program_pause = TRUE;
             stop_type = PAUSE;
             probe_required = TRUE;
-            rtapi_print_msg(RTAPI_MSG_ERR,"ohmic_probe activated\n"
+            rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe activated\n"
                                           "program is paused.");
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
@@ -999,10 +999,10 @@ FUNCTION(_) {
                                     program_pause = TRUE;
                                     if(offset_counts + pid_output <= offset_min){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while THC moving down.\n"
-                                                                      "program is paused...");
+                                                                      "program is paused.");
                                     }else{
                                         rtapi_print_msg(RTAPI_MSG_ERR,"top limit reached while THC moving up.\n"
-                                                                      "program is paused...");
+                                                                      "program is paused.");
                                     }
                                     pid_output = 0;
                                     state = MAX_HEIGHT;
@@ -1039,7 +1039,7 @@ FUNCTION(_) {
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
                                 rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while THC moving down.\n"
-                                                              "program is stopped...");
+                                                              "program is paused.");
                                 state = MAX_HEIGHT;
                             }else{ /* move down at requested velocity */
                                 offset_counts -= thc_velocity;
@@ -1051,7 +1051,7 @@ FUNCTION(_) {
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
                                 rtapi_print_msg(RTAPI_MSG_ERR,"top limit reached while THC moving up.\n"
-                                                              "program is stopped.");
+                                                              "program is paused.");
                                 state = MAX_HEIGHT;
                             }else{ /* move up at requested velocity */
                                 offset_counts += thc_velocity;

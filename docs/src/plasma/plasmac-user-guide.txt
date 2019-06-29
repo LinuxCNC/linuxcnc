@@ -638,6 +638,99 @@ Probing may be with either ohmic sensing or a float switch, it is also possible 
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
+== Error Messages
+
+There are a number of error messages printed by plasmac. They could probably be split into two groups, 'Critical' and 'Warning'.
+
+=== Critical Errors
+
+Critical errors will cause the program to pause, the operator needs to clear the cause of the error.
+
+If the error was during cutting then foward or reverse motion is allowed to enable the machine to be positioned to recommence the cut.
+
+When the error is cleared the program may be resumed.
+
+These errors indicate the corresponding sensor was activated during cutting.
+
+* 'breakaway switch activated program is paused'
+
+* 'float switch activated program is paused'
+
+* 'ohmic probe activated program is paused'
+
+* 'valid arc lost program is paused'
+
+These errors indicate the corresponding sensor was activated before probing commenced.
+
+* 'ohmic probe detected before moving to probe height program is paused'
+
+* 'float switch detected before moving to probe height program is paused'
+
+* 'breakaway switch detected before moving to probe height program is paused'
+
+These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height.
+
+WARNING: Probe height is the height above the Z axis minimum limit.
+
+* 'float switch detected while moving to probe height program is paused'
+
+* 'ohmic probe detected while moving to probe height program is paused'
+
+The Z axis reached the bottom limit before the workpiece was detected.
+
+* 'bottom limit reached while probing down program is paused'
+
+The workpiece is too high for any safe rapid removes.
+
+* 'material too high for safe traverse program is paused'
+
+One of these values in Cut Parameters in the Run tab/panel is invalid.
+
+* 'invalid pierce height or invalid cut height or invalid cut volts'
+
+No arc has been detected after attempting to start the number of times indicated by Arc Start Attempts in the Config tab.
+
+* 'no arc detected after <n>d start attempts program is paused'
+
+THC has caused the bottom limit to be reached while cutting.
+
+* 'bottom limit reached while THC moving down program is paused'
+
+THC has caused the top limit to be reached while cutting.
+
+* top limit reached while THC moving up program is paused'
+
+
+=== Warning errors
+
+Warning errors have no effect on a running program and are informational only.
+
+These errors indicate the corresponding sensor was activated before a probe test commenced.
+
+* 'ohmic probe detected before moving to probe height'
+
+* 'float switch detected before moving to probe height'
+
+* 'breakaway switch detected before moving to probe height'
+
+These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height during a probe test.
+
+* 'float switch detected while moving to probe height'
+
+* 'ohmic probe detected while moving to probe height'
+
+This indicates that probe contact was lost before probing up tt the zero point.
+
+* 'probe trip error while probing'
+
+This indicates the bottom limit was reached during a probe test.
+
+* 'bottom limit reached while probe testing'
+
+This indicates that the safe height has been reduced due to THC raising the Z axis during cutting.
+
+* 'safe traverse height has been reduced'
+
 == INI File
 
 plasmac requires some specific ini file variables as follows:
@@ -1029,7 +1122,7 @@ The THCAD-10 example above would be:
 Use the formula:
 
 ----
-0V_frequency/3210
+0V_frequency/32
 ----
 
 This result will be used for setting 'Voltage Offset' in the Config tab when setting up the configuration.
@@ -1037,5 +1130,5 @@ This result will be used for setting 'Voltage Offset' in the Config tab when set
 The THCAD-10 example above would be:
 
 ----
-121100/32/10 = 3784.375
+121100/32 = 3784.375
 ----
