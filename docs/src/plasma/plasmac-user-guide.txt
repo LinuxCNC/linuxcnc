@@ -333,7 +333,8 @@ image::images/plasmac_config.png[width=400]
 [width="100%",cols="4,2,14"]
 |===
 |*Name*|*Modes*|*Description*
-|Safe Height|0,1,2|This is the height above the work surface that the Z axis will retract to for rapid moves.
+|Safe Height|0,1,2|This is the height above the work surface that the Z axis will retract to for rapid moves. +
+                   If set to zero then Z axis maximum height will be used for the safe height.
 |Float Travel|0,1,2|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
 |Probe Speed|0,1,2|This is the speed the Z axis will probe down at after it moves to Probe Height.
 |Probe Height|0,1,2|This is the height above the Z axis bottom limit that probing begins from.

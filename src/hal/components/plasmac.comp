@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.53.1 - 2019/03/16
+.I VERSION: 0.54 - 2019/03/16
 
 .I SUMMARY:
 .br
@@ -130,6 +130,9 @@ If a value is set in skip_ihs_distance the IHS skipping is performed in one of t
 .RE
 This feature is disabled after any error. For example if there is a arc failure while cutting then IHS will be performed regardless of where the cut is.
 
+.I SAFE HEIGHT
+.br
+If plasmac.safe-height is zero then Z axis maximum limit will be used as the safe height and the safe height reduced error will be disabled.
 
 .I NOTES
 .RS 1
@@ -736,7 +739,11 @@ FUNCTION(_) {
                 safe_preferred = safe_height / offset_scale;
                 offset_min = offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
                 offset_max = offset_counts + (axis_z_max_limit - axis_z_position - (1 * units_per_mm)) / offset_scale;
-                if(offset_counts + safe_min >= offset_max){
+                if(safe_height == 0){
+                    safe_target = offset_max;
+                    ohmic_enable = FALSE;
+                    state = ZERO_HEIGHT;
+                }else if(offset_counts + safe_min >= offset_max){
                     safe_target = offset_max;
                     rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
                                                    "program is paused.");
