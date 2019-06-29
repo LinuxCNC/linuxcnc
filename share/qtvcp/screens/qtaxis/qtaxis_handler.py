@@ -187,8 +187,8 @@ class HandlerClass:
 
     def tool_offset_clicked(self):
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        axis = STATUS.get_selected_axis()
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[axis],
+        joint = STATUS.get_selected_joint()
+        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[joint],
             'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
@@ -227,7 +227,6 @@ class HandlerClass:
             self.w['ras_%s'%i].hide()
 
     def _set_user_system_text(self, w, data):
-        print data
         convert = { 1:"G54 ", 2:"G55 ", 3:"G56 ", 4:"G57 ", 5:"G58 ", 6:"G59 ", 7:"G59.1 ", 8:"G59.2 ", 9:"G59.3 "}
         unit = convert[int(data)]
         for i in ('x','y','z'):

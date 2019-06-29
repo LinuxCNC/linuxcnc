@@ -505,7 +505,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # If direction = 0 (button release) and distance is not 0, then we are
     # doing a jog increment so don't stop jog on release.
     def jog_selected_action(self, direction):
-        number = STATUS.get_selected_axis()
+        number = STATUS.get_selected_joint()
         if direction == 0:
             if number in (3,4,5): # angualr axis
                 if STATUS.get_jog_increment_angular() != 0: return
