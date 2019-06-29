@@ -422,7 +422,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self._toggle_state = self._toggle_state * -1
         elif self.view_change:
             try:
-                STATUS.emit('view-changed', '%s' % self.view_type)
+                STATUS.emit('graphics-view-changed', '%s' % self.view_type)
             except:
                 pass
         elif self.spindle_fwd:
