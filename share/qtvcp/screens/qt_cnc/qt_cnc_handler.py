@@ -65,7 +65,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
+        STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
