@@ -343,7 +343,7 @@ image::images/plasmac_config.png[width=400]
 |Max. Speed|0,1,2|Display only of the maximum speed the Z axis is capable of.
 |Setup Speed|0,1,2|The Z axis speed for setup moves. e.g. Pierce Height, Cut Height etc.
 |PID I Gain|0,1|PID I gain for THC
-|PID P Gain|0,|PID D gain for THC
+|PID P Gain|0,1|PID D gain for THC
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
@@ -503,13 +503,13 @@ When forwarding, motion can continue until the end of the path.
 
 === Statistics Panel
 
-This provides some statistics such as number of pierces, cut distance etc.
+This provides some statistics to help in keeping track of consumable wear and job times.
 
-They are shown for the current run and are also totalled.
+They are shown for the current job and are also as a running total.
+
+Job statistics are reset when the current program is run.
 
 The total values may be reset either individually or all together.
-
-At this stage, this panel probably needs a bit (lot) more work...
 
 image::images/plasmac_stats.png[width=400]
 
