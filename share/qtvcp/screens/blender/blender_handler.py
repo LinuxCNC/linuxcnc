@@ -53,7 +53,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        STATUS.emit('play-alert','SPEAK This is the blender screen for Qt V C P')
+        STATUS.emit('play-sound','SPEAK This is the blender screen for Qt V C P')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
