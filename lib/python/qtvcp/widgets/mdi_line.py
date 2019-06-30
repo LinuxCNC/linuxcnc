@@ -77,7 +77,7 @@ class MDI(QLineEdit):
                 fp.close()
             except:
                 pass
-            STATUS.emit('reload-mdi-history')
+            STATUS.emit('mdi-history-changed')
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):

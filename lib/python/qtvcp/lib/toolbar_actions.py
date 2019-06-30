@@ -328,31 +328,31 @@ class ToolBarActions():
         AUX_PRGM.load_ladder()
 
     def actOnZoomIn(self,widget, state=None):
-        STATUS.emit('view-changed', 'zoom-in')
+        STATUS.emit('graphics-view-changed', 'zoom-in')
 
     def actOnZoomOut(self,widget, state=None):
-        STATUS.emit('view-changed', 'zoom-out')
+        STATUS.emit('graphics-view-changed', 'zoom-out')
 
     def actOnViewX(self,widget, state=None):
-        STATUS.emit('view-changed', 'x')
+        STATUS.emit('graphics-view-changed', 'x')
 
     def actOnViewY(self,widget, state=None):
-        STATUS.emit('view-changed', 'y')
+        STATUS.emit('graphics-view-changed', 'y')
 
     def actOnViewY2(self,widget, state=None):
-        STATUS.emit('view-changed', 'y2')
+        STATUS.emit('graphics-view-changed', 'y2')
 
     def actOnViewZ(self,widget, state=None):
-        STATUS.emit('view-changed', 'z')
+        STATUS.emit('graphics-view-changed', 'z')
 
     def actOnViewZ2(self,widget, state=None):
-        STATUS.emit('view-changed', 'z2')
+        STATUS.emit('graphics-view-changed', 'z2')
 
     def actOnViewp(self,widget, state=None):
-        STATUS.emit('view-changed', 'p')
+        STATUS.emit('graphics-view-changed', 'p')
 
     def actOnViewClear(self,widget, state=None):
-        STATUS.emit('view-changed', 'clear')
+        STATUS.emit('graphics-view-changed', 'clear')
 
     def actOnQuit(self,widget, state=None):
         STATUS.emit('shutdown')
