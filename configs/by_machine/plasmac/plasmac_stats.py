@@ -122,7 +122,7 @@ class HandlerClass:
             self.probeStart = time.time()
             self.probeOn = True
             print 'PROBE: ON', self.probe_time
-        elif halpin.get() > self.ZERO_HEIGHT and (self.oldState >= self.PROBE_HEIGHT and self.oldState <= self.PROBE_UP):
+        elif (halpin.get() > self.ZERO_HEIGHT or halpin.get() == self.IDLE) and self.probeOn:
             self.PROBE_TIME += (time.time() - self.probeStart)
             self.probe_time += (time.time() - self.probeStart)
             self.display_time('probe-timeT', self.PROBE_TIME)
