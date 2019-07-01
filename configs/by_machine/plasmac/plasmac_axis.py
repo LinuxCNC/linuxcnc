@@ -295,7 +295,7 @@ w('DynamicHelp::add',foverride + '.reset','-text','Set height override to 0')
 w('DynamicHelp::add',foverride + '.height-override','-text','Voltage value of height override')
 
 # new paused motion frame
-w('labelframe',fpausedmotion,'-text','Paused Motion Speed:','-relief','flat')
+w('labelframe',fpausedmotion,'-text','Paused Motion Speed: %','-relief','flat')
 w('Button',fpausedmotion + '.reverse','-text','Rev','-takefocus','0','-width','3')
 w('bind',fpausedmotion + '.reverse','<Button-1>','paused_motion -1')
 w('bind',fpausedmotion + '.reverse','<ButtonRelease-1>','paused_motion 0')
@@ -465,7 +465,7 @@ def torch_pulse(value):
 def paused_motion(direction):
     if w(fpausedmotion + '.forward','cget','-state') == 'normal' or\
        w(fpausedmotion + '.reverse','cget','-state') == 'normal':
-        speed = float(w(fpausedmotion + '.paused-motion-speed','get'))
+        speed = float(w(fpausedmotion + '.paused-motion-speed','get')) * 0.01
         hal.set_p('plasmac.paused-motion-speed','%f' % (speed * int(direction)))
 
 def height_lower():
@@ -720,7 +720,7 @@ def user_hal_pins():
 
 def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
-    w(fpausedmotion + '.paused-motion-speed','configure','-from','.01','-to','1','-resolution','0.01') #0
+    w(fpausedmotion + '.paused-motion-speed','configure','-from','0','-to','100','-resolution','1')
 
 
 
@@ -769,8 +769,10 @@ wLeds =[\
     fmonitor + '.led-kerf-locked',\
     ]
 configure_widgets()
-w(fpausedmotion + '.paused-motion-speed','set',inifile.find('PLASMAC','PAUSED_MOTION_SPEED') or '0.5')
-w(ftorch + '.torch-pulse-time','set',inifile.find('PLASMAC','TORCH_PULSE_TIME') or '0.5')
+w(fpausedmotion + '.paused-motion-speed','set',inifile.find('PLASMAC','PAUSED_MOTION_SPEED') or '50')
+w(ftorch + '.torch-pulse-time','set',inifile.find('PLASMAC','TORCH_PULSE_TIME') or '1')
+hal.set_p('plasmac.torch-pulse-time',inifile.find('PLASMAC','TORCH_PULSE_TIME') or '1')
+
 for widget in wLabels:
     w(widget,'configure','-anchor','w','-width',lwidth)
 widgetValues={}

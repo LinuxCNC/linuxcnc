@@ -495,7 +495,7 @@ This pulses the torch on for the amount of time set in the corresponding slider.
 
 ==== Paused Motion
 
-When a program is paused, this allows x/y motion to follow the programmed path in the reverse or forward direction at the speed set in the corresponding slider.
+When a program is paused, this allows x/y motion to follow the programmed path in the reverse or forward direction at the percentage of the current feed rate shown in the adjustment.
 
 When reversing, motion will stop when it reaches a spindle on command.
 
