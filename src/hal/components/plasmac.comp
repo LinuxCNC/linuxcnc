@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.54 - 2019/03/16
+.I VERSION: 0.55 - 01 Jul 2019
 
 .I SUMMARY:
 .br
@@ -183,6 +183,7 @@ pin in  float   height_override             "height override adjustment (volts)"
 pin in  float   height_per_volt             "torch height change per volt (machine units)";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
+pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  s32     mode                        "operating mode";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
@@ -493,7 +494,11 @@ FUNCTION(_) {
 
     /* calculate arc voltage */
     arc_voltage = (arc_voltage_in - arc_voltage_offset) * arc_voltage_scale;
-    arc_voltage_out = arc_voltage;
+    if(lowpass_frequency){
+        arc_voltage_out += (arc_voltage - arc_voltage_out) * (1 - pow(2.71828, -(2 * M_PI * lowpass_frequency) * fperiod));
+    }else{
+        arc_voltage_out = arc_voltage;
+    }
 
     /* set arc ok from either arc ok input of from actual arc voltage
      * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */

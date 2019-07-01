@@ -595,6 +595,8 @@ class configurator:
                 'loadrt  debounce                cfg=3\n'\
                 'setp    debounce.0.delay        5\n'\
                 'addf    debounce.0              servo-thread\n\n'\
+                '#***** lowpass cutoff frequency ******\n'\
+                '#setp plasmac.lowpass-frequency 0\n\n'\
                 '# the next line needs to be the joint associated with the Z axis\n')
             outFile.write('net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position\n\n'.format(self.zJoint))
             if self.arcVoltPin.get_text() and (self.mode == 0 or self.mode == 1):

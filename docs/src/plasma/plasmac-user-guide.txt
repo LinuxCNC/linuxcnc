@@ -1,4 +1,5 @@
 :lang: en
+:toclevels: 4
 
 [[cha:plasmac-user-guide]]
 
@@ -189,9 +190,7 @@ You could then point this to an ini file and open a configuration. This command 
 $ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/plasmac/plasmac.ini
 ----
 
-[[sec:testing-linuxcnc]]
-
-=== Testing LinuxCNC Installation
+=== Testing LinuxCNC Installation[[sec:testing-linuxcnc]]
 
 The LinuxCNC Configuration Selector should open.
 
@@ -310,6 +309,18 @@ See <<config-panel,Config Panel>>
 IMPORTANT: If using a Mesa THCAD then up until now the 'Voltage Scale' value was obtained mathematically. If you intend to use cut voltages from manufactures cut charts then it would be advisable to do measurements of actual voltages and fine tune the 'Voltage Scale' and 'Voltage Offset'.
 
 CAUTION: Plasma cutting voltages can be lethal, if you are not experienced in doing these measurements get some qualified help.
+
+==== Lowpass Filter[[lowpass]]
+
+The plasmac HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
+
+It is suggested that if you wish to use the filter then the entry for it should be in the {machine_name}_connections.hal file in your configuration directory.
+
+----
+setp plasmac.lowpass-frequency 100
+----
+
+Would give a cutoff frequency of 100Hz.
 
 == plasmac GUI Panels
 
@@ -1133,3 +1144,5 @@ The THCAD-10 example above would be:
 ----
 121100/32 = 3784.375
 ----
+
+There is a <<lowpass,lowpass filter>> available which may be usefull if using a THCAD.
