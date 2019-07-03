@@ -119,6 +119,7 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'tool-prep-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'tool-info-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'current-tool-offset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
 
@@ -235,6 +236,11 @@ class _GStat(gobject.GObject):
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
+        try:
+            if hal.get_value('iocontrol.0.tool-prepare'):
+                self.old['tool-prep-number'] = hal.get_value('iocontrol.0.tool-prep-number')
+        except RuntimeError:
+             self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
@@ -248,7 +254,7 @@ class _GStat(gobject.GObject):
         self.old['optional-stop']= self.stat.optional_stop
         self.old['spindle-speed']= self.stat.spindle[0]['speed']
         try:
-            self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
+            self.old['actual-spindle-speed'] = hal.get_value('spindle.0.speed-in') * 60
         except RuntimeError:
              self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
@@ -396,6 +402,10 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         if tool_new != tool_old:
             self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_old = old.get('tool-prep-number')
+        tool_num_new = self.old['tool-prep-number']
+        if tool_num_new != tool_num_old:
+            self.emit('tool-prep-changed', tool_num_new)
 
         motion_mode_old = old.get('motion-mode', None)
         motion_mode_new = self.old['motion-mode']
@@ -661,6 +671,8 @@ class _GStat(gobject.GObject):
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_new = self.old['tool-prep-number']
+        self.emit('tool-prep-changed', tool_num_new)
 
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']
