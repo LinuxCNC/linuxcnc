@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1756</width>
-    <height>876</height>
+    <height>943</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -783,7 +783,7 @@
                     <enum>QLayout::SetFixedSize</enum>
                    </property>
                    <item>
-                    <widget class="QLabel" name="label_5">
+                    <widget class="ImageSwitcher" name="imageswitcher">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -793,7 +793,7 @@
                      <property name="minimumSize">
                       <size>
                        <width>0</width>
-                       <height>0</height>
+                       <height>200</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -802,17 +802,18 @@
                        <height>200</height>
                       </size>
                      </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="pixmap">
-                      <pixmap>../../images/no_tool.png</pixmap>
-                     </property>
                      <property name="scaledContents">
                       <bool>true</bool>
                      </property>
-                     <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                     <property name="image_number" stdset="0">
+                      <number>0</number>
+                     </property>
+                     <property name="image_list" stdset="0">
+                      <stringlist>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/no_tool.png</string>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/tool_7-.png</string>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/b4_endmill.png</string>
+                      </stringlist>
                      </property>
                     </widget>
                    </item>
@@ -2066,6 +2067,11 @@
    <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
+   <class>ImageSwitcher</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.image_switcher</header>
+  </customwidget>
+  <customwidget>
    <class>AxisToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.axis_tool_button</header>
@@ -2155,7 +2161,7 @@
   <slot>percent(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

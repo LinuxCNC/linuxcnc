@@ -54,6 +54,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         STATUS.emit('play-sound','SPEAK This is the blender screen for Qt V C P')
+        STATUS.connect('tool-prep-changed', lambda w, data: self.change_tool_image(data))
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -108,6 +109,9 @@ class HandlerClass:
     ########################
     # callbacks from STATUS #
     ########################
+    def change_tool_image(self, num):
+        if num < 0:num = 0
+        self.w.imageswitcher.show_image_by_number(num)
 
     #######################
     # callbacks from form #

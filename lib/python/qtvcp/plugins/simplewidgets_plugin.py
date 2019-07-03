@@ -14,6 +14,7 @@ from qtvcp.widgets.xembed import XEmbed
 from qtvcp.widgets.radio_axis_selector import RadioAxisSelector
 from qtvcp.widgets.axis_tool_button import AxisToolButton
 from qtvcp.widgets.file_manager import FileManager
+from qtvcp.widgets.image_switcher import ImageSwitcher
 from qtvcp.widgets.qtvcp_icons import Icon
 ICON = Icon()
 
@@ -441,3 +442,35 @@ class FileManagerPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="FileManager" name="filemanager" />\n'
     def includeFile(self):
         return "qtvcp.widgets.file_manager"
+
+####################################
+# ImageSwitcher
+####################################
+class ImageSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(ImageSwitcherPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return ImageSwitcher(parent)
+    def name(self):
+        return "ImageSwitcher"
+    def group(self):
+        return "Linuxcnc - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('imageswitcher')))
+    def toolTip(self):
+        return "Label that switches between different images"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '''<widget class="ImageSwitcher" name="imageswitcher"></widget>'''
+    def includeFile(self):
+        return "qtvcp.widgets.image_switcher"
