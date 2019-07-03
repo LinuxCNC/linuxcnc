@@ -153,7 +153,8 @@ static void flush_segments(void);
 static void rotate(double &x, double &y, double theta) {
     double xx, yy;
     double t = D2R(theta);
-    xx = x, yy = y;
+    xx = x;
+    yy = y;
     x = xx * cos(t) - yy * sin(t); 
     y = xx * sin(t) + yy * cos(t);
 }
