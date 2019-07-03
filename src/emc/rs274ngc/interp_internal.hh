@@ -283,6 +283,8 @@ enum GCodes
     G_99 = 990,
 };
 
+std::string toString(GCodes g);
+
 // name of parameter file for saving/restoring interpreter variables
 #define RS274NGC_PARAMETER_FILE_NAME_DEFAULT "rs274ngc.var"
 #define RS274NGC_PARAMETER_FILE_BACKUP_SUFFIX ".bak"

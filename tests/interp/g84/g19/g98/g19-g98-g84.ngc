@@ -4,6 +4,7 @@ g98 ; "retract to previous Z" mode (though in G19 it should mean "previous X")
 g90 ; absolute coordinates mode
 g20 ; imperial
 
+M3 S1000
 f10
 
 ; starting position
