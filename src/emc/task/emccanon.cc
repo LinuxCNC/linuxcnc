@@ -145,7 +145,6 @@ static void flush_segments(void);
   defined here that are used for convenience but no longer have decls
   in the 6-axis canon.hh. So, we declare them here now.
 */
-void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
