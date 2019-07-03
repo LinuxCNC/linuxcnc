@@ -45,8 +45,6 @@ StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
 char               _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];
 
-static double            _spindle_speed;
-static CANON_DIRECTION   _spindle_turning;
 /* where to print */
 FILE * _outfile=nullptr;      /* where to print, set in main */
 static bool fo_enable=true, so_enable=true;
@@ -463,27 +461,27 @@ void SET_SPINDLE_MODE(int spindle, double arg) {
 void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed)
 {
   PRINT("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
-  _sai._spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
+  _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
 void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed)
 {
   PRINT("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
-  _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
+  _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
                                                    CANON_COUNTERCLOCKWISE);
 }
 
 void SET_SPINDLE_SPEED(int spindle, double rpm)
 {
   PRINT("SET_SPINDLE_SPEED(%i, %.4f)\n", spindle, rpm);
-  _spindle_speed = rpm;
+  _sai._spindle_speed[spindle] = rpm;
 }
 
 void STOP_SPINDLE_TURNING(int spindle)
 {
   PRINT("STOP_SPINDLE_TURNING(%i)\n", spindle);
-  _spindle_turning = CANON_STOPPED;
+  _sai._spindle_turning[spindle] = CANON_STOPPED;
 }
 
 void SPINDLE_RETRACT()
@@ -889,13 +887,13 @@ extern int GET_EXTERNAL_QUEUE_EMPTY()
 /* Returns the system value for spindle speed in rpm */
 double GET_EXTERNAL_SPEED(int spindle)
 {
-  return _spindle_speed;
+  return _sai._spindle_speed[spindle];
 }
 
 /* Returns the system value for direction of spindle turning */
 extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle)
 {
-  return _spindle_turning;
+  return _sai._spindle_turning[spindle];
 }
 
 /* Returns the system value for the carousel slot in which the tool
@@ -1128,7 +1126,7 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _program_position_x(0),
   _program_position_y(0),
   _program_position_z(0),
-  _spindle_speed(0),
+  _spindle_speed{0},
   _spindle_turning{CANON_STOPPED},
   _pockets_max(CANON_POCKETS_MAX),
   _tools{},

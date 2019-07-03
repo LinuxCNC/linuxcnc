@@ -53,7 +53,7 @@ struct StandaloneInterpInternals
   double _program_position_x;
   double _program_position_y;
   double _program_position_z;
-  double _spindle_speed;
+  double _spindle_speed[EMCMOT_MAX_SPINDLES];
   CANON_DIRECTION _spindle_turning[EMCMOT_MAX_SPINDLES];
   int _pockets_max;
   CANON_TOOL_TABLE _tools[CANON_POCKETS_MAX];
