@@ -53,6 +53,8 @@ include::common/linux-faq.txt[]
 
 include::lathe/lathe-user.txt[]
 
+include::plasma/plasma-cnc-primer.txt[]
+
 :leveloffset: 1
 
 = User Interfaces
