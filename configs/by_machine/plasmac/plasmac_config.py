@@ -38,7 +38,7 @@ class HandlerClass:
 
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
-        
+
     def configure_widgets(self):
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
@@ -52,8 +52,8 @@ class HandlerClass:
         self.builder.get_object('arc-max-starts-adj').configure(3,1,9,1,0,0)
         self.builder.get_object('arc-restart-delay').set_digits(0)
         self.builder.get_object('arc-restart-delay-adj').configure(1,1,60,1,0,0)
-        self.builder.get_object('arc-voltage-offset').set_digits(1)
-        self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.1,0,0)
+        self.builder.get_object('arc-voltage-offset').set_digits(2)
+        self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.01,0,0)
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
         self.builder.get_object('max-offset-velocity-in').set_label(str(int(self.thcFeedRate)))
@@ -71,9 +71,9 @@ class HandlerClass:
             self.builder.get_object('height-per-volt').set_digits(3)
             self.builder.get_object('height-per-volt-adj').configure(0.1,0.025,0.2,0.01,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(0)
-            self.builder.get_object('probe-feed-rate-adj').configure(1000,1,self.thcFeedRate,1,0,0)
+            self.builder.get_object('probe-feed-rate-adj').configure(300,1,self.thcFeedRate,1,0,0)
             self.builder.get_object('probe-start-height').set_digits(0)
-            self.builder.get_object('probe-start-height-adj').configure(20,1,self.maxHeight,1,0,0)
+            self.builder.get_object('probe-start-height-adj').configure(38,1,self.maxHeight,1,0,0)
             self.builder.get_object('safe-height').set_digits(0)
             self.builder.get_object('safe-height-adj').configure(20,0,self.maxHeight,1,0,0)
             self.builder.get_object('setup-feed-rate').set_digits(0)
@@ -86,9 +86,9 @@ class HandlerClass:
             self.builder.get_object('height-per-volt').set_digits(4)
             self.builder.get_object('height-per-volt-adj').configure(0.004,0.001,0.008,0.001,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(1)
-            self.builder.get_object('probe-feed-rate-adj').configure(40,0.1,self.thcFeedRate,.1,0,0)
+            self.builder.get_object('probe-feed-rate-adj').configure(12,0.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('probe-start-height').set_digits(2)
-            self.builder.get_object('probe-start-height-adj').configure(0.75,.1,self.maxHeight,0.01,0,0)
+            self.builder.get_object('probe-start-height-adj').configure(1.5,.1,self.maxHeight,0.01,0,0)
             self.builder.get_object('safe-height').set_digits(2)
             self.builder.get_object('safe-height-adj').configure(0.75,0,self.maxHeight,0.01,0,0)
             self.builder.get_object('setup-feed-rate').set_digits(1)
