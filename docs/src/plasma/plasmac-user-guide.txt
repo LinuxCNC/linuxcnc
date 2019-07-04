@@ -97,6 +97,8 @@ This will give you a machine with the current stable (v2.7) branch of LinuxCNC, 
 
 You can choose between a standard package installation from the 'buildbot' or you can compile you own 'run in place' installation.
 
+[[buildbot-install]]
+
 ==== Buildbot Installation
 
 For more information on the buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
@@ -133,6 +135,8 @@ $ sudo apt-get install linuxcnc
 ----
 
 Go to <<sec:testing-linuxcnc,testing the linuxCNC installation>>
+
+[[rip-install]]
 
 ==== Run In Place Installation
 
@@ -240,6 +244,8 @@ CAUTION: Do *NOT* proceed until this has been done
 
 If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad,Mesa THCAD>> before proceeding
 
+[[buildbot-configure]]
+
 ==== Add To A Buildbot Installation
 
 Now you can run the configurator by double clicking on 'configurator.py' in the /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac directory or by running from a terminal with the following command:
@@ -247,6 +253,8 @@ Now you can run the configurator by double clicking on 'configurator.py' in the 
 ----
 $ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ----
+
+[[rip-configure]]
 
 ==== Add To A Run In Place Installation
 
@@ -1027,7 +1035,20 @@ If you wish to use this in your own sim configuration then you will need to crea
 
 == Upgrade An Existing Configuration
 
-Upgrading is first done by updating your clone of the plasmac git repo.
+Upgrading is done one of two different ways:
+
+=== Upgrade A Buildbot Installation
+
+From a terminal:
+
+----
+$ sudo apt-get update
+$ sudo apt-get dist-upgrade
+----
+
+=== Upgrade A Run In Place Installation
+
+From a terminal:
 
 ----
 $ cd ~/linuxcnc-dev
@@ -1036,15 +1057,13 @@ $ cd src
 $ make
 ----
 
-Now you can run the configurator to upgrade your configuration.
+Normally there is no reason to run the configurator after an upgrade.
 
-Run the configurator by double clicking on 'configurator.py' in the configs/by_machine/plasmac directory or by running from a terminal with the following command:
+If you have decided to change the type of installation:
 
-----
-$ python /path/to/configs/by_machine/plasmac/configurator.py
-----
+* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install,buildbot installation>> then do a <<buildbot-configure,buildbot configure>> and select upgrade.
 
-NOTE: If this does not run make sure that the permissions for the above file allow executable.
+* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install,run in place installation>> then do a <<rip-configure,run in place configure>> and select upgrade.
 
 This brings up the selection window:
 
