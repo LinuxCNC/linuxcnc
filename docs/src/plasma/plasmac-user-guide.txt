@@ -240,13 +240,23 @@ CAUTION: Do *NOT* proceed until this has been done
 
 If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad,Mesa THCAD>> before proceeding
 
-Now you can run the configurator by double clicking on 'configurator.py' in the configs/by_machine/plasmac directory or by running from a terminal with the following command:
+==== Add To A Buildbot Installation
+
+Now you can run the configurator by double clicking on 'configurator.py' in the /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac directory or by running from a terminal with the following command:
 
 ----
-$ python /path/to/configs/by_machine/plasmac/configurator.py
+$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ----
 
-NOTE: If this does not run make sure that the permissions for the above file allow executable.
+==== Add To A Run In Place Installation
+
+Now you can run the configurator by double clicking on 'configurator.py' in the ~/linuxcnc-dev/configs/by_machine/plasmac directory or by running from a terminal with the following command:
+
+----
+$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
+----
+
+NOTE: If the configurator does not run make sure that the file permissions allow executable.
 
 This brings up the selection window:
 
