@@ -1,6 +1,7 @@
 ; MACROCOMMAND=Finish Diameter,SFM,DOC,FPR,Finish Length,Radius,Angle,Tool Number
 ; MACRODEFAULTS=1,500,.02,.007,-2,0,0,1
 ; MACROSVG=LatheMacro.svg,1
+; MACROOPTIONS=load:yes,save:yes,default:default.txt,path:~/macros
 ; O<boring> call [${bore.x-f}] [${bore.sf-f}] [${bore.cut-f}] [${bore.feed-f}] [${bore.z-f}] [${bore.rad-f}] [${bore.angle-f}] [${bore.tool-s}] 
 
 ; #1 finish diameter

@@ -340,6 +340,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import FileDialog
         w = self.QTVCP_INSTANCE_
         w.fileDialog_ = FileDialog()
+        w.fileDialog_.setObjectName('fileDialog_')
         w.fileDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.fileDialog_, w, w.PATHS, self.PREFS_)
         w.fileDialog_.overlay_color = self._fileDialogColor
@@ -363,6 +364,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import MacroTabDialog
         w = self.QTVCP_INSTANCE_
         w.macroTabDialog_ = MacroTabDialog()
+        w.macroTabDialog_.setObjectName('macroTabDialog_')
         w.macroTabDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.macroTabDialog_, w, w.PATHS, self.PREFS_)
         w.macroTabDialog_.overlay_color = self._macroTabDialogColor
