@@ -351,21 +351,33 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.play_sound = False
 
     def _external_request(self, w, message):
+        ext = message.get('EXTENTIONS')
+        pre = message.get('FILENAME')
+        dir = message.get('DIRECTORY')
         if message.get('NAME') == self._load_request_name:
             # if there is an ID then a file name response is expected
             if message.get('ID'):
-                message['RETURN'] = self.load_dialog(True)
+                print message.get('ID')
+                message['RETURN'] = self.load_dialog(ext, pre, dir, True)
                 STATUS.emit('general', message)
             else:
-                self.load_dialog()
+                self.load_dialog(extentions = ext)
         elif message.get('NAME') == self._save_request_name:
             if message.get('ID'):
-                message['RETURN'] = self.save_dialog()
+                message['RETURN'] = self.save_dialog(ext, pre, dir)
                 STATUS.emit('general', message)
 
-    def load_dialog(self, return_path=False):
+    def load_dialog(self, extentions = None, preselect = None, directory = None, return_path=False):
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
+        if extentions:
+            self.setNameFilter(extentions)
+        if preselect:
+            self.selectFile(preselect)
+        else:
+            self.selectFile('')
+        if directory:
+            self.setDirectory(directory)
         self.setWindowTitle('Open')
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
@@ -385,9 +397,17 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
 
-    def save_dialog(self):
+    def save_dialog(self, extentions = None, preselect = None, directory = None):
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
+        if extentions:
+            self.setNameFilter(extensions)
+        if preselect:
+            self.selectFile(preselect)
+        else:
+            self.selectFile('')
+        if directory:
+            self.setDirectory(directory)
         self.setWindowTitle('Save')
         STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
         if self.play_sound:
@@ -758,10 +778,10 @@ class CamViewDialog(QDialog, _HalWidgetBase):
 class MacroTabDialog(QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MacroTabDialog, self).__init__(parent)
+        self.setWindowTitle('Qtvcp Macro Menu')
         self._color = QColor(0, 0, 0, 150)
         self._state = False
         self._request_name = 'MACROTAB'
-
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
@@ -772,8 +792,10 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
         # original methods (Gotta do before instantiation)
         MacroTab.closeChecked = self._close
         MacroTab.runChecked = self._run
+        MacroTab.setTitle = self._setTitle
         # ok now instantiate patched class
         self.tab = MacroTab()
+        self.tab.setObjectName('macroTabInternal_')
         l = QVBoxLayout()
         self.setLayout(l)
         l.addWidget(self.tab)
@@ -812,6 +834,9 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
     def _run(self):
         self.tab.runMacro()
         self.close()
+
+    def _setTitle(self, string):
+        self.setWindowTitle(string)
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Lathe Macro Dialog', self._color)
