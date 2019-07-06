@@ -202,6 +202,7 @@ class _GStat(gobject.GObject):
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
         self.old = {}
+        self.old['tool-prep-number'] = 0
         try:
             self.stat.poll()
             self.merge()
