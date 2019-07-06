@@ -79,8 +79,11 @@ IMPORTANT: These pins will be entered later into the configurator, they should *
 
 === Getting LinuxCNC With The Plasmac Add-Ons
 
-plasmac currently requires the master branch (v2.9) of LinuxCNC.
+=======
+The minimum requirement for plasmac is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
 
+LinuxCNC v2.9 or later provide full functionality.
+ 
 === If You Do Not Have Linux Installed
 
 Download an iso image from one of the following and write it to a bootable device:
@@ -530,6 +533,8 @@ When reversing, motion will stop when it reaches a spindle on command.
 
 When forwarding, motion can continue until the end of the path.
 
+NOTE: Paused motion is only available in LinuxCNC version 2.9 or later.
+
 === Statistics Panel
 
 This provides some statistics to help in keeping track of consumable wear and job times.
@@ -783,6 +788,8 @@ TORCH-PULSE-TIME    = n (torch on time when manual pulse requested)
 BUTTON_n_NAME       = {NAME} (the name of a custom user buttons)
 BUTTON_n_CODE       = {CODE} (the code run by a custom user button)
 -----
+
+NOTE: PAUSED-MOTION-SPEED is only valid for LinuxCNC version 2.9 or later
 
 ==== [FILTER] Section
 

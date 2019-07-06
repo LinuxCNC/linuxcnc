@@ -307,10 +307,12 @@ w('bind',fpausedmotion + '.forward','<ButtonRelease-1>','paused_motion 0')
 w('pack',fpausedmotion + '.reverse','-side','left','-fill','y')
 w('pack',fpausedmotion + '.paused-motion-speed','-side','left','-fill','x','-expand','1')
 w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
-w('grid',fpausedmotion,'-column','0','-row','4','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
 w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
 w('DynamicHelp::add',fpausedmotion + '.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
+# only show paused motion if LinuxCNC version 2.9 or later
+if int(linuxcnc.version.split('.')[0] + linuxcnc.version.split('.')[1]) >= 29:
+    w('grid',fpausedmotion,'-column','0','-row','4','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
 
 # hide bottom pane until modified
 w('pack','forget','.pane.bottom.t.text')

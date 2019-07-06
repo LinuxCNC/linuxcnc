@@ -30,11 +30,8 @@ import gladevcp
 class HandlerClass:
 
     def configure_widgets(self):
-        pass
-        # set_digits = number of digits after decimal
-        # configure  = (value, lower limit, upper limit, step size, 0, 0)
-        #self.builder.get_object('torchPulseTime').set_digits(1)
-        #self.builder.get_object('torchPulseTimeAdj').configure(.5,.1,5,0.1,0,0)
+        if int(linuxcnc.version.split('.')[0] + linuxcnc.version.split('.')[1]) < 29:
+            self.builder.get_object('pausedmotion-frame').hide()
 
     def periodic(self):
         self.s.poll()
