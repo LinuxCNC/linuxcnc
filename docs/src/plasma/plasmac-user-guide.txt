@@ -79,7 +79,6 @@ IMPORTANT: These pins will be entered later into the configurator, they should *
 
 === Getting LinuxCNC With The Plasmac Add-Ons
 
-=======
 The minimum requirement for plasmac is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
 
 LinuxCNC v2.9 or later provide full functionality.
