@@ -8,7 +8,7 @@ GStat is a python class used to send messages from linuxcnc to other python prog
 It uses GObject to deliver messages, making it easy to listen for specific information. +
 This is referred to as event-driven programming, which is more efficient then every program +
 polling linuxcnc at the same time. +
-GladeVCP, Gscreen and Gmoccapy use GStat extensively. +
+GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively. +
 GStat is in the hal_glib module
 
 == Overview
@@ -18,11 +18,32 @@ Then it 'connects' to the messages it wishes to monitor. +
 GStat checks linuxcnc's status every 100ms and if there are differences from +
 the last check, it will send a callback message to all the connected programs +
 with the current status. +
+When GStat calls the registered function, it sends the GStat object plus any return codes from the message. +
+typical code signatures: +
+[source,python]
+----
+GSTAT.connect('MESSGAE-TO-LISTEN-FOR', FUNCTION_TO_CALL)
 
-== Sample code pattern
-Here is the basic pattern for using GStat. +
-If using GStat with Gladevcp or Qtvcp, the gobject commands are not needed, +
+def FUNCTION_TO_CALL(gstat_object, return_codes):
+----
+
+Often LAMBDA is used to strip the GSTAT object and manipulate the return codes): +
+
+[source,python]
+----
+GSTAT.connect('MESSGAE-TO-LISTEN-FOR', lambda o, return: FUNCTION_TO_CALL(not return))
+
+def FUNCTION_TO_CALL(return_codes):
+----
+
+== Sample GStat Code
+
+There are some basic patterns for using GStat, depending on what library +
+You are using them in. +
+If using GStat with Gladevcp or Qtvcp, the gobject library is not needed, +
 Those toolkits already set up Gobject. +
+
+=== Sample HAL component code pattern
 This program creates two HAL pins that output the status +
 of G20/G21.
 
@@ -59,7 +80,47 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-===  Messages
+=== Sample GladeVCP python extention code pattern
+This file assumes there are three GTK labels named: +
+state_label +
+e_state_label +
+interp_state_label +
+
+[source,python]
+----
+#!/usr/bin/env python
+
+from hal_glib import GStat
+GSTAT = GStat()
+
+class HandlerClass:
+
+    def __init__(self, halcomp, builder, useropts):
+        self.builder = builder
+
+        GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
+        GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
+
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
+
+        GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
+        GSTAT.connect("interp-run",lambda w: self.update_interp_label('Run'))
+        GSTAT.connect("interp-idle",lambda w: self.update_interp_label('Idle'))
+
+    def update_state_label(self,text):
+        self.builder.get_object('state_label').set_label("State: %s" % (text))
+
+    def update_estate_label(self,text):
+        self.builder.get_object('e_state_label').set_label("E State: %s" % (text))
+
+    def update_interp_label(self,text):
+        self.builder.get_object('interp_state_label').set_label("Interpeter State: %s" % (text))
+
+def get_handlers(halcomp,builder,useropts):
+    return [HandlerClass(halcomp,builder,useropts)]
+----
+==  Messages
 
 *periodic* :: '(returns nothing)' -
 sent every 100 ms.
@@ -340,7 +401,7 @@ This depends on the widget/libraries used. +
 
 *general* :: '(returns python dict)' -
 intended to be sent when message must be sent that is not covered by a more specific message. +
-General message should be used a sparsely as possible because all object connected to it will have to parse it. +
+General message should be used a sparsely as reasonable because all object connected to it will have to parse it. +
 It uses a python dict for communication. +
 The dict should include and be checked for a unique id  keyname pair: +
 * ID: 'UNIQUE_ID_CODE' +
