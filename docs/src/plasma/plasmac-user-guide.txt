@@ -13,9 +13,7 @@ plasmac and all its related software is released under GPLv2.
 
 plasmac is a LinuxCNC configuration for plasma cutting incorporating the plasmac HAL component with GUI configurations for both <<cha:axis-gui,Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
 
-////
-If you are new user, it may be worthwhile having a read through <<cha:plasma-primer,this>> document which is a generic introduction to CNC plasma cutting.
-////
+If you are new user, it may be worthwhile having a read through the <<cha:plasma-primer,Plasma CNC Primer>> document which is a generic introduction to CNC plasma cutting.
 
 plasmac uses one of three different operating modes.
 
@@ -81,8 +79,7 @@ IMPORTANT: These pins will be entered later into the configurator, they should *
 
 The minimum requirement for plasmac is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
 
-LinuxCNC v2.9 or later provide full functionality.
- 
+LinuxCNC v2.9 or later provides full functionality.
 
 === If You Do Not Have Linux Installed
 
@@ -663,7 +660,7 @@ To use cutter compensation you will need to use G41.1, G42.1 and G40 with the ke
 
 IHS may be skipped in one of two different ways:
 
-If THC is disabled then skip IHS if start of cut less than 'plasmac.skip-ihs-distance' from last succesful probe.
+If THC is disabled then skip IHS if start of cut less than 'plasmac.skip-ihs-distance' from last successful probe.
 
 If THC is enabled then skip IHS if start of cut less than 'plasmac.skip-ihs-distance' from end of last cut.
 
@@ -681,7 +678,7 @@ There are a number of error messages printed by plasmac. They could probably be 
 
 Critical errors will cause the program to pause, the operator needs to clear the cause of the error.
 
-If the error was during cutting then foward or reverse motion is allowed to enable the machine to be positioned to recommence the cut.
+If the error was during cutting then forward or reverse motion is allowed to enable the machine to be positioned to recommence the cut.
 
 When the error is cleared the program may be resumed.
 
@@ -754,7 +751,7 @@ These errors indicate the corresponding sensor was activated while the Z axis is
 
 * 'ohmic probe detected while moving to probe height'
 
-This indicates that probe contact was lost before probing up tt the zero point.
+This indicates that probe contact was lost before probing up to the zero point.
 
 * 'probe trip error while probing'
 
@@ -1124,7 +1121,7 @@ Divider ratio equals the selected internal divider ratio.
 
 ==== THCAD-10
 
-A common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle overvoltages up to 500V so this is not a problem.
+A common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
 
 IMPORTANT: If you are using a HF start plasma power supply then each of these resistances should be made up of several high voltage resistors.
 
@@ -1181,4 +1178,4 @@ The THCAD-10 example above would be:
 121100/32 = 3784.375
 ----
 
-There is a <<lowpass,lowpass filter>> available which may be usefull if using a THCAD.
+There is a <<lowpass,lowpass filter>> available which may be useful if using a THCAD.
