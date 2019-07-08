@@ -283,7 +283,7 @@ image::images/plasmac_configurator_new.png[width=400]
       0 if using an arc voltage signal for Arc Voltage and Arc OK +
       1 if using external arc ok for Arc OK +
       2 if using up/down from an external THC +
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/{name} directory and you ini file will be {name}.ini
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your ini file will be <name>.ini
 |Ini File|this is the ini file you created for your base machine config
 |HAL File|this is the HAL file you created for your base machine config
 |Arc OK|Modes 1 and 2 only +
@@ -307,12 +307,12 @@ image::images/plasmac_configurator_new.png[width=400]
                Run Panel = the run frame is a panel at the side of the GUI
 |===
 
-Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working plasmac configuration in ~/linuxcnc/configs/{your-machine-name}
+Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working plasmac configuration in ~/linuxcnc/configs/<machine-name>
 
 This can be run as follows:
 
 ----
-$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/{your-machine-name}.{your-machine-name}.ini
+$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine-name>.<machine-name>.ini
 ----
 
 After creating a new configuration some initial setup is required.
@@ -332,7 +332,7 @@ CAUTION: Plasma cutting voltages can be lethal, if you are not experienced in do
 
 The plasmac HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
 
-It is suggested that if you wish to use the filter then the entry for it should be in the {machine_name}_connections.hal file in your configuration directory.
+It is suggested that if you wish to use the filter then the entry for it should be in the <machine_name>_connections.hal file in your configuration directory.
 
 ----
 setp plasmac.lowpass-frequency 100
@@ -782,8 +782,8 @@ MODE                = 0 (use external arc voltage in for Arc Voltage)
 CONFIG_DISABLE      = 0 (0=enable or 1=disable the plasmac config panel)
 PAUSED-MOTION-SPEED = n (multiply cut-feed-rate by this value for paused motion speed)
 TORCH-PULSE-TIME    = n (torch on time when manual pulse requested)
-BUTTON_n_NAME       = {NAME} (the name of a custom user buttons)
-BUTTON_n_CODE       = {CODE} (the code run by a custom user button)
+BUTTON_n_NAME       = <NAME> (the name of a custom user buttons)
+BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 -----
 
 NOTE: PAUSED-MOTION-SPEED is only valid for LinuxCNC version 2.9 or later
@@ -808,13 +808,13 @@ USER_M_PATH           = ./ (for M190 material change)
 
 -----
 TWOPASS = on (needed for multiple HAL files)
-HALFILE = {MACHINE_NAME}.hal (your base machine hal)
+HALFILE = <MACHINE_NAME>.hal (your base machine hal)
 HALFILE = plasmac.hal (the standard plasmac HAL file )
-HALFILE = {MACHINE_NAME}_connections.hal (plasmac connections to the machine)
+HALFILE = <MACHINE_NAME>_connections.hal (plasmac connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
 
-NOTE: You could place custom HAL commands in {MACHINE_NAME}_connections.hal as this file is not overwritten by an upgrade.
+NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
 
 ==== [AXIS_Z] Section
 
@@ -840,18 +840,18 @@ MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 -----
 USER_COMMAND_FILE = plasmac_axis.py.py
 EMBED_TAB_NAME    = Statistics
-EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x {XID} -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
 use one of the next two
 
 run panel in tab behind preview
 EMBED_TAB_NAME    = Plasma Run
-EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 
 run panel in panel on left side
 GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
 EMBED_TAB_NAME    = Plasma Config
-EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x {XID} -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
 -----
 
 === Gmoccapy GUI Specific
@@ -861,31 +861,31 @@ EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x {XID} -u ./plasmac_config.py -
 -----
 EMBED_TAB_NAME     = plasmac_buttons
 EMBED_TAB_LOCATION = box_cooling
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x {XID} -u ./plasmac_buttons.py -H ./plasmac_buttons.hal plasmac_buttons.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_buttons -x <XID> -u ./plasmac_buttons.py -H ./plasmac_buttons.hal plasmac_buttons.glade
 EMBED_TAB_NAME     = plasmac_control
 EMBED_TAB_LOCATION = box_spindle
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x {XID} -u ./plasmac_control.py -H ./plasmac_control.hal plasmac_control.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_control -x <XID> -u ./plasmac_control.py -H ./plasmac_control.hal plasmac_control.glade
 EMBED_TAB_NAME     = Statistics
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x {XID} -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
 EMBED_TAB_NAME     = Plasma Run
 
 use one of the next two
 
 run panel in tab behind preview
 EMBED_TAB_LOCATION  = ntb_preview
-EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
+EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 
 run panel in panel on left side
 #EMBED_TAB_LOCATION = box_left
-#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
 EMBED_TAB_NAME     = Plasma Config
 EMBED_TAB_LOCATION = ntb_preview
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x {XID} -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
 EMBED_TAB_NAME     = plasmac_monitor
 EMBED_TAB_LOCATION = box_tool_and_code_info
-EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x {XID} -u plasmac_monitor.py -H plasmac_monitor.hal plasmac_monitor.glade
+EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u plasmac_monitor.py -H plasmac_monitor.hal plasmac_monitor.glade
 -----
 
 == Custom User Buttons[[custom-user-buttons]]
@@ -940,11 +940,11 @@ To run an existing subroutine.
 BUTTON_n_CODE = o<my_subroutine> call
 ----
 
-Ini file variables can be entered by using {} (you must put a space after the })
+Ini file variables can be entered by using <> (you must put a space after the >)
 
 ----
-BUTTON_n_CODE = G0 X{JOINT_0 HOME} Y1
-BUTTON_n_CODE = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
+BUTTON_n_CODE = G0 X<JOINT_0 HOME> Y1
+BUTTON_n_CODE = G53 G0 Z[<AXIS_Z MAX_LIMIT> - 1.001]
 ----
 
 Multiple codes can be run by separating the codes with a \
@@ -1007,19 +1007,19 @@ Files in the example configurations are:
 The configurator creates the following files:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* ({MACHINE} = name of machine in ini file)
-|{MACHINE}.ini|your new ini file
-|{MACHINE}.hal|your new hal file
-|{MACHINE}_connections.hal|connections to your i/o hal pins
+|*Filename*|*Function* (<MACHINE> = name of machine in ini file)
+|<MACHINE>.ini|your new ini file
+|<MACHINE>.hal|your new hal file
+|<MACHINE>_connections.hal|connections to your i/o hal pins
 |===
 
 After running a new working configuration the first time the following will be created:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* ({MACHINE} = name of machine in ini file)
-|{MACHINE}_config.cfg|configuration settings for the config tab
-|{MACHINE}_run.cfg|configuration settings for the Run tab/panel
-|{MACHINE}_material.cfg|material file for cut parameters
+|*Filename*|*Function* (<MACHINE> = name of machine in ini file)
+|<MACHINE>_config.cfg|configuration settings for the config tab
+|<MACHINE>_run.cfg|configuration settings for the Run tab/panel
+|<MACHINE>_material.cfg|material file for cut parameters
 |plasmac_stats.var|saved statistics
 |===
 
@@ -1091,8 +1091,22 @@ If you have a format you would like converted place a request in https://forum.l
 Materialverter may be run from a GUI file manager by double clicking on 'materialverter.py' in your configuration directory or may be run from a terminal with the following command:
 
 ----
-$ python ~/linuxcnc/configs/{config-name}/materialverter.py
+$ python ~/linuxcnc/configs/<machine-name>/materialverter.py
 ----
+
+This will bring up the materialverter dialog:
+
+image::images/plasmac_materialverter.png[width=400]
+
+For the Input File, select the tool table file you wish to convert.
+
+For the Output File, select the file that you wish to write to. This would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+
+Select whether you would like a metric or imperial output file.
+
+Click Convert and your new material file will be written.
+
+NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
 
 == Mesa THCAD[[mesa-thcad]]
 
