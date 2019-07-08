@@ -3,19 +3,19 @@
 
 [[cha:plasmac-user-guide]]
 
-= plasmac User Guide
+= PlasmaC User Guide
 
 == License
 
-plasmac and all its related software is released under GPLv2.
+PlasmaC and all its related software is released under GPLv2.
 
 == Introduction
 
-plasmac is a LinuxCNC configuration for plasma cutting incorporating the plasmac HAL component with GUI configurations for both <<cha:axis-gui,Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
+PlasmaC is a LinuxCNC configuration for plasma cutting incorporating the PlasmaC HAL component with GUI configurations for both <<cha:axis-gui,Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
 
 If you are new user, it may be worthwhile having a read through the <<cha:plasma-primer,Plasma CNC Primer>> document which is a generic introduction to CNC plasma cutting.
 
-plasmac uses one of three different operating modes.
+PlasmaC uses one of three different operating modes.
 
 [width="100%",cols="4,16"]
 |===
@@ -27,15 +27,15 @@ plasmac uses one of three different operating modes.
    Use external up/down for THC
 |===
 
-No Z axis motion is required in GCode, the standard plasmac configurations will comment out any Z commands during program load.
+No Z axis motion is required in GCode, the standard PlasmaC configurations will comment out any Z commands during program load.
 
-For reliable use of plasmac you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
+For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
 
 Normally it is best to touch off your Z axis to roughly the top of your stock then bring the Z axis to almost the top of travel before starting your cuts.
 
 == I/O Requirements
 
-This section only touches on the I/O required for plasmac itself, base machine requirements such as limit switches, home switches etc. are in addition to these.
+This section only touches on the I/O required for PlasmaC itself, base machine requirements such as limit switches, home switches etc. are in addition to these.
 
 [width="100%",cols="4,2,14"]
 |===
@@ -69,15 +69,15 @@ If 'ohmic probe' is used then 'ohmic enable' is required.
 
 'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, the could be combined and connected as a 'float switch'
 
-NOTE: The minimum I/O requirement for a plasmac configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, plasmac treats the float switch as a breakaway switch when it is not probing.
+NOTE: The minimum I/O requirement for a PlasmaC configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, PlasmaC treats the float switch as a breakaway switch when it is not probing.
 
 IMPORTANT: These pins will be entered later into the configurator, they should *NOT* be used in your base machine HAL file.
 
 == Installation
 
-=== Getting LinuxCNC With The Plasmac Add-Ons
+=== Getting LinuxCNC With The PlasmaC Add-Ons
 
-The minimum requirement for plasmac is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
+The minimum requirement for PlasmaC is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
 
 LinuxCNC v2.9 or later provides full functionality.
 
@@ -204,7 +204,7 @@ Select either Axis or Gmoccapy.
 
 Select either metric or imperial.
 
-You now have all the requirements to run plasmac, the next step is to create a working configuration for your machine.
+You now have all the requirements to run PlasmaC, the next step is to create a working configuration for your machine.
 
 === Make A Working Base Machine Configuration
 
@@ -212,7 +212,7 @@ Base machine configuration means a complete working system. All axes should be w
 
 You should be able to home your machine, touch off and run some test GCode without any errors.
 
-When this stage is completed you can configure plasmac on top of your working machine.
+When this stage is completed you can configure PlasmaC on top of your working machine.
 
 You can create a base machine manually or you may use existing configuration helpers:
 
@@ -236,7 +236,7 @@ https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC
 If you have a dual motor gantry configuration you may need to hand edit your configuration to suit: +
 https://forum.linuxcnc.org/49-basic-configuration/33079-how-to-2-or-more-motors-on-one-axis-gantry-linuxcnc-2-8-master?start=0[This LinuxCNC forum thread] may help.
 
-=== Add plasmac To Base Machine
+=== Add PlasmaC To Base Machine
 
 You need to have a fully tested and working base machine configuration before proceeding.
 
@@ -307,7 +307,7 @@ image::images/plasmac_configurator_new.png[width=400]
                Run Panel = the run frame is a panel at the side of the GUI
 |===
 
-Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working plasmac configuration in ~/linuxcnc/configs/<machine-name>
+Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
 
 This can be run as follows:
 
@@ -319,7 +319,7 @@ After creating a new configuration some initial setup is required.
 
 === Initial Setup
 
-LinuxCNC should now be running with the plasmac panels visible.
+LinuxCNC should now be running with the PlasmaC panels visible.
 Open the 'Plasma Config' tab/panel and ensure every one of these settings suits your machine.
 
 See <<config-panel,Config Panel>>
@@ -330,7 +330,7 @@ CAUTION: Plasma cutting voltages can be lethal, if you are not experienced in do
 
 ==== Lowpass Filter[[lowpass]]
 
-The plasmac HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
+The PlasmaC HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
 
 It is suggested that if you wish to use the filter then the entry for it should be in the <machine_name>_connections.hal file in your configuration directory.
 
@@ -340,9 +340,9 @@ setp plasmac.lowpass-frequency 100
 
 Would give a cutoff frequency of 100Hz.
 
-== plasmac GUI Panels
+== PlasmaC GUI Panels
 
-plasmac adds several panels to the GUI some are panels on permanent display and others are tabs behind the preview tab.
+PlasmaC adds several panels to the GUI some are panels on permanent display and others are tabs behind the preview tab.
 
 Some functions are only used for particular modes and are not displayed if not required.
 
@@ -544,11 +544,11 @@ The total values may be reset either individually or all together.
 
 image::images/plasmac_stats.png[width=400]
 
-== Using plasmac
+== Using PlasmaC
 
-The only mandatory GCode requirement for a plasmac configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
+The only mandatory GCode requirement for a PlasmaC configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
 
-plasmac will read the cut parameters from the Run tab/panel and use them where required.
+PlasmaC will read the cut parameters from the Run tab/panel and use them where required.
 
 === Material Handling
 
@@ -558,12 +558,12 @@ There is a material file with its name derived from '[EMC]MACHINE' in the in fil
 
 It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run tab/panel/panel. It is also not a requirement to use the automatic material changes, just omit them from the GCode file.
 
-The following codes may be used for a plasmac configuration:
+The following codes may be used for a PlasmaC configuration:
 
 * 'M190 Pn' - changes the material to number n.
 * 'M66 P3 L3' - Q1 waits for material change to be confirmed.
 * 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run tab/panel/panel.
-* 'M3 S1' - starts the plasmac component.
+* 'M3 S1' - starts the PlasmaC component.
 
 NOTE: F#<_hal[plasmac.cut-feed-rate]> could be replaced with Fnnn, see THC notes below.
 
@@ -591,7 +591,7 @@ M5
 
 Material numbers do not need to be consecutive nor do they need to be in numerical order.
 
-When a material is changed it only changes the cut parameters in the Run tab/panel, LinuxCNC knows nothing of the material nor does plasmac know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
+When a material is changed it only changes the cut parameters in the Run tab/panel, LinuxCNC knows nothing of the material nor does PlasmaC know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
 
 Materials can be selected manually with the either the Cut Parameters combobox or via MDI with M190 Pn.
 
@@ -603,9 +603,9 @@ THC can be controlled from the THC frame of the Run tab/panel, off = disabled, o
 
 THC can also be enabled or disabled directly from GCode provided that THC is not disabled in the Run tab/panel.
 
-plasmac uses a control voltage dependent on the state of the Use Auto Volts checkbox in the Run tab/panel:
+PlasmaC uses a control voltage dependent on the state of the Use Auto Volts checkbox in the Run tab/panel:
 
-. If Use Auto Volts is checked then the actual cut voltage is sampled after the cut begins and this is then used as the control voltage. To allow the arc voltage to stabilise, plasmac waits for the amount of time displayed as Delay in the THC frame of the Run tab/panel before taking the sample.
+. If Use Auto Volts is checked then the actual cut voltage is sampled after the cut begins and this is then used as the control voltage. To allow the arc voltage to stabilise, PlasmaC waits for the amount of time displayed as Delay in the THC frame of the Run tab/panel before taking the sample.
 . If Use Auto Volts is not checked then the voltage displayed as Cut Volts in the Cut Parameters frame of the Run tab/panel is used as the control voltage.
 
 THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'.
@@ -646,7 +646,7 @@ NOTE: Another way of achieving the same result is to use 'F#<_hal[plasmac.cut-fe
 F[#<_hal[plasmac.cut-feed-rate] * 0.6]
 ----
 
-WARNING: If Cut Feed Rate in the Run tab/panel is set to 0 then plasmac will use 'motion.requested-velocity' for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
+WARNING: If Cut Feed Rate in the Run tab/panel is set to 0 then PlasmaC will use 'motion.requested-velocity' for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
 
 === Cutter Compensation
 
@@ -672,7 +672,7 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 
 == Error Messages
 
-There are a number of error messages printed by plasmac. They could probably be split into two groups, 'Critical' and 'Warning'.
+There are a number of error messages printed by PlasmaC. They could probably be split into two groups, 'Critical' and 'Warning'.
 
 === Critical Errors
 
@@ -765,7 +765,7 @@ This indicates that the safe height has been reduced due to THC raising the Z ax
 
 == INI File
 
-plasmac requires some specific ini file variables as follows:
+PlasmaC requires some specific ini file variables as follows:
 
 === Common
 
@@ -779,7 +779,7 @@ MODE                = 0 (use external arc voltage in for Arc Voltage)
                     = 2 (Use external arc ok in for Arc OK)
                         (use external up/down for THC)
 
-CONFIG_DISABLE      = 0 (0=enable or 1=disable the plasmac config panel)
+CONFIG_DISABLE      = 0 (0=enable or 1=disable the PlasmaC config panel)
 PAUSED-MOTION-SPEED = n (multiply cut-feed-rate by this value for paused motion speed)
 TORCH-PULSE-TIME    = n (torch on time when manual pulse requested)
 BUTTON_n_NAME       = <NAME> (the name of a custom user buttons)
@@ -809,8 +809,8 @@ USER_M_PATH           = ./ (for M190 material change)
 -----
 TWOPASS = on (needed for multiple HAL files)
 HALFILE = <MACHINE_NAME>.hal (your base machine hal)
-HALFILE = plasmac.hal (the standard plasmac HAL file )
-HALFILE = <MACHINE_NAME>_connections.hal (plasmac connections to the machine)
+HALFILE = plasmac.hal (the standard PlasmaC HAL file )
+HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
 
@@ -961,7 +961,7 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 
 ==== Button Special Commands
 
-There are two special commands which provide plasmac specific functions
+There are two special commands which provide PlasmaC specific functions
 
 ===== Probe Test
 
@@ -969,7 +969,7 @@ There are two special commands which provide plasmac specific functions
 BUTTON_n_CODE = probe-test 30
 ----
 
-plasmac will begin a probe and when the probe is detected, the Z axis will rise to the Pierce Height currently displayed in the Run tab/panel. It will then wait in this state for the time specified (in this case 30 seconds) then it will return the Z axis to the top.
+PlasmaC will begin a probe and when the probe is detected, the Z axis will rise to the Pierce Height currently displayed in the Run tab/panel. It will then wait in this state for the time specified (in this case 30 seconds) then it will return the Z axis to the top.
 
 ===== Ohmic Test
 
@@ -977,11 +977,11 @@ plasmac will begin a probe and when the probe is detected, the Z axis will rise 
 BUTTON_n_CODE = ohmic-test
 ----
 
-plasmac will enable the Ohmic Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
+PlasmaC will enable the Ohmic Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
 
 == Example Configurations
 
-There are example configuration files for both the Axis and Gmoccapy GUIs which use the plasmac HAL component to simulate plasma cutting machines.
+There are example configuration files for both the Axis and Gmoccapy GUIs which use the PlasmaC HAL component to simulate plasma cutting machines.
 
 * metric_plasmac.ini
 * imperial_plasmac.ini
@@ -991,9 +991,9 @@ Files in the example configurations are:
 |===
 |*Filename*|*Function*
 |xxx_plasmac_ini|configuration file
-|plasmac.hal|hal connections for the plasmac component
+|plasmac.hal|hal connections for the PlasmaC component
 |plasmac_connections.hal|hal connections to the i/o HAL pins
-|plasmac_xxx.glade|a gladevcp panel connecting to the plasmac component
+|plasmac_xxx.glade|a gladevcp panel connecting to the PlasmaC component
 |plasmac_xxx.hal|hal connections for the panel
 |plasmac_xxx.py|python code for the panel
 |xxx_startup.ngc|startup GCode commands
@@ -1001,7 +1001,7 @@ Files in the example configurations are:
 |plasmac_axis.py|python code to customise the Axis GUI
 |M190|for GCode changing of materials
 |materialverter.py|tool table file converter
-|configurator.py|configure a new or upgrade an existing plasmac configuration
+|configurator.py|configure a new or upgrade an existing PlasmaC configuration
 |===
 
 The configurator creates the following files:
@@ -1077,11 +1077,11 @@ Select 'Upgrade' from the selection window, this shows an info dialog, select 'C
 
 image::images/plasmac_configurator_upgrade.png[width=400]
 
-Select the ini file of the plasmac configuration you wish to upgrade, click 'Upgrade' and your plasmac configuration will be upgraded.
+Select the ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
 
 == Materialverter
 
-This application is used to convert existing tool tables into plasmac material files.
+This application is used to convert existing tool tables into PlasmaC material files.
 
 At this stage the only conversion available is from SheetCam.
 
@@ -1121,7 +1121,7 @@ setp  hm2_7i76e.0.encoder.00.scale -1
 setp  hm2_7i76e.0.encoder.00.counter-mode 1
 ----
 
-You then need to note that the 'Arc Voltage HAL pin' needed to enter into the plasmac configurator will be:
+You then need to note that the 'Arc Voltage HAL pin' needed to enter into the PlasmaC configurator will be:
 
 ----
 hm2_7i76e.0.encoder.00.velocity
