@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.55.1 - 02 Jul 2019
+.I VERSION: 0.56 - 09 Jul 2019
 
 .I SUMMARY:
 .br
@@ -288,7 +288,7 @@ variable float  probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable float  probe_offset;               /* offset for active probe */
 variable float  probe_required = 1;         /* a probe sequence is required */
-variable float  probe_start_target;         /* probe start height target */
+variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
 variable float  probe_velocity;             /* probe down velocity */
 variable float  puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
@@ -656,10 +656,9 @@ FUNCTION(_) {
                 }
             }else if(offset_counts - setup_velocity > probe_start_target){
                 offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < probe_start_target){
-                offset_counts += setup_velocity;
-            }else{
+            }else if(offset_counts > probe_start_target){
                 offset_counts = probe_start_target;
+            }else{
                 if(float_detected){
                     if(!float_switch){
                         float_detected = FALSE;
@@ -1233,7 +1232,7 @@ FUNCTION(_) {
             break;
         case DEBUG:
             /* holding state for debugging */
-            rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here.");
+            rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here...\n");
             break;
     }
 }
