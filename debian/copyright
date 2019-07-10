@@ -18,10 +18,6 @@ Files: src/hal/classicladder/*
 Copyright: the LinuxCNC developers
 License: LGPL-2.1+
 
-Files: src/hal/utils/yapps.py
-Copyright: 1999-2003 Amit J. Patel <amitp@cs.stanford.edu>
-License: MIT
-
 Files: src/libnml/*
 Copyright: the LinuxCNC developers
 License: LGPL-2
