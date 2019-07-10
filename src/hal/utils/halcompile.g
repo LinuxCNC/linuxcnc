@@ -18,10 +18,6 @@
 
 from __future__ import print_function
 
-import os, sys, tempfile, shutil, getopt, time
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-
 %%
 parser Hal:
     ignore: "//.*"
@@ -102,6 +98,10 @@ parser Hal:
     rule OptSValue: SValue {{ return SValue }}
                 | {{ return 1 }}
 %%
+
+import os, sys, tempfile, shutil, getopt, time
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
