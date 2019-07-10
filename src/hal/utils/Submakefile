@@ -97,6 +97,6 @@ endif
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 TARGETS += ../bin/halcompile ../bin/elbpcom
-objects/%.py: %.g ../bin/yapps
+objects/%.py: %.g
 	@mkdir -p $(dir $@)
-	$(Q)../bin/yapps $< $@
+	$(Q)$(YAPPS) $< $@
