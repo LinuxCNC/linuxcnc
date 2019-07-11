@@ -58,13 +58,13 @@ static void extra_cleanup(void);
 
 #include <asm/io.h>
 #define SHIFT 4
-static inline void WRITE(int value, hal_u32_t base, int offset) { 
+static inline void pci_8255_outb(int value, hal_u32_t base, int offset) { 
     // int *mem = (int*) base;
     outb(value, base + SHIFT*offset);
     // mem[offset] = value;
 }
 
-static inline int READ(hal_u32_t base, int offset) {
+static inline int pci_8255_inb(hal_u32_t base, int offset) {
     return inb(base + SHIFT*offset);
     // int *mem = (int*) base;
     // return mem[offset];
@@ -142,7 +142,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     rtapi_print_msg(RTAPI_MSG_DBG, "registering %s ... %x %x\n", prefix,
 	(dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr);
 
-    WRITE((dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr, 3);
+    pci_8255_outb((dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr, 3);
 
     return 0;
 }
@@ -154,9 +154,9 @@ static void write_relay(struct state *inst, long period) {
     int val = (!*inst->relay) ^ (!inst->relay_invert);
     // relay is active low
     if(val) {
-	WRITE(0, inst->ioaddr, 3);
+	pci_8255_outb(0, inst->ioaddr, 3);
     } else {
-	WRITE(0x10, inst->ioaddr, 3);
+	pci_8255_outb(0x10, inst->ioaddr, 3);
     }
 }
 
@@ -193,11 +193,11 @@ int rtapi_app_main(void) {
 
     for(i=0; i<count; i++) {
 	// PIB reset low, 15 cycle operation
-	WRITE(0x30, io[i], 0);
+	pci_8255_outb(0x30, io[i], 0);
 	// relay off (active-high), cs low
-	WRITE(0x10, io[i]+3, 0);
+	pci_8255_outb(0x10, io[i]+3, 0);
 	// relay, CS# as outputs
-	WRITE(0x11, io[i]+2, 0);
+	pci_8255_outb(0x11, io[i]+2, 0);
 
 	for(j=0; j<3; j++) {
 	    rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.%d", i, j);
@@ -273,7 +273,7 @@ static int extra_setup(void) {
          + ((dir_ & 4) ? (1<<3) : 0)
          + ((dir_ & 2) ? (1<<1) : 0)
          + ((dir_ & 1) ? (1<<0) : 0);
-    WRITE(byte, ioaddr, 3);
+    pci_8255_outb(byte, ioaddr, 3);
     return 0;
 }
 #endif
@@ -300,7 +300,7 @@ static void write(struct port *inst, long period) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
             if(t) byte |= 1 << i;
         }
-        WRITE(byte, ioaddr, 2);
+        pci_8255_outb(byte, ioaddr, 2);
 	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2a %02x\n", byte);
     } else if((p & 5) == 4) {
         int byte = 0;
@@ -308,7 +308,7 @@ static void write(struct port *inst, long period) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
             if(t) byte |= 1 << i;
         }
-        WRITE(byte, ioaddr, 2);
+        pci_8255_outb(byte, ioaddr, 2);
 	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2b %02x\n", byte);
     } else if((p & 5) == 1) {
         int byte = 0;
@@ -316,7 +316,7 @@ static void write(struct port *inst, long period) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
             if(t) byte |= 1 << i;
         }
-        WRITE(byte, ioaddr, 2);
+        pci_8255_outb(byte, ioaddr, 2);
 	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2c %02x\n", byte);
     }
 
@@ -326,7 +326,7 @@ static void write(struct port *inst, long period) {
             int t = (b(i) != 0) ^ (bi_invert(i) != 0);
             if(t) byte |= 1 << i;
         }
-        WRITE(byte, ioaddr, 1);
+        pci_8255_outb(byte, ioaddr, 1);
 	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 1 %02x\n", byte);
     }
 
@@ -336,7 +336,7 @@ static void write(struct port *inst, long period) {
             int t = (a(i) != 0) ^ (ai_invert(i) != 0);
             if(t) byte |= 1 << i;
         }
-        WRITE(byte, ioaddr, 0);
+        pci_8255_outb(byte, ioaddr, 0);
 	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 0 %02x\n", byte);
     }
     first = 0;
@@ -346,21 +346,21 @@ static void read(struct port *inst, long period) {
     int p = dir_;
     int i;
     if((p & 5) == 5) {
-        int byte = READ(ioaddr, 2);
+        int byte = pci_8255_inb(ioaddr, 2);
         for(i=0; i<8; i++) {
             int t = (byte & (1<<i)) != 0;
             c(i) = t;
             ci_not(i) = !t;
         }
     } else if((p & 5) == 4) {
-        int byte = READ(ioaddr, 2);
+        int byte = pci_8255_inb(ioaddr, 2);
         for(i=4; i<8; i++) {
             int t = (byte & (1<<i)) != 0;
             c(i) = t;
             ci_not(i) = !t;
         }
     } else if((p & 5) == 1) {
-        int byte = READ(ioaddr, 2);
+        int byte = pci_8255_inb(ioaddr, 2);
         for(i=0; i<4; i++) {
             int t = (byte & (1<<i)) != 0;
             c(i) = t;
@@ -369,7 +369,7 @@ static void read(struct port *inst, long period) {
     }
 
     if(p & 2) {
-        int byte = READ(ioaddr, 1);
+        int byte = pci_8255_inb(ioaddr, 1);
         for(i=0; i<8; i++) {
             int t = (byte & (1<<i)) != 0;
             b(i) = t;
@@ -378,7 +378,7 @@ static void read(struct port *inst, long period) {
     }
 
     if(p & 8) {
-        int byte = READ(ioaddr, 0);
+        int byte = pci_8255_inb(ioaddr, 0);
         for(i=0; i<8; i++) {
             int t = (byte & (1<<i)) != 0;
             a(i) = t;
