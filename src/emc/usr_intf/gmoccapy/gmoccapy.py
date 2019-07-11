@@ -275,6 +275,8 @@ class gmoccapy(object):
 
         self._get_pref_data()
 
+        self.tool_measure_OK = self._check_toolmeasurement()
+
         # make all widgets we create dynamically
         self._make_DRO()
         self._make_ref_axis_button()
@@ -792,12 +794,9 @@ class gmoccapy(object):
     def _on_btn_previous_touch_clicked(self, widget):
         self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
 
-        if self._check_toolmeasurement():
-            correct = 1
-
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"])
 
-        if self._check_toolmeasurement():
+        if self.tool_measure_OK:
             end = 4
         else:
             end = 5
@@ -812,7 +811,7 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["next_button"])
         self.touch_button_dic["next_button"].show()
 
-        if self._check_toolmeasurement():
+        if self.tool_measure_OK:
             self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["block_height"])
 
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"])
@@ -854,7 +853,7 @@ class gmoccapy(object):
         num_elements = len(dic)
         end = 7
 
-        if self._check_toolmeasurement():
+        if self.tool_measure_OK:
             # we will have 3 buttons on the right side
             end -= 1
 
@@ -900,7 +899,7 @@ class gmoccapy(object):
         # if there is space left, fill it with space labels
         start = self.widgets.hbtb_touch_off.child_get_property(btn,"position")
         for count in range(start + 1 , end):
-            print("Count = ", count)
+#            print("Count = ", count)
             lbl = self._get_space_label("lbl_space_{0}".format(count))
             self.widgets.hbtb_touch_off.pack_start(lbl)
             lbl.show()
@@ -912,15 +911,13 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(btn)
         btn.show()
 
-        if self._check_toolmeasurement():
+        if self.tool_measure_OK:
             btn = gtk.Button(_(" Block\nHeight"))
             btn.connect("clicked", self.on_btn_block_height_clicked)
             btn.set_property("tooltip-text", _("Press to enter new value for block height"))
             btn.set_property("name", "block_height")
             self.widgets.hbtb_touch_off.pack_start(btn)
             btn.show()
-
-        print("tool measurement OK = ",self._check_toolmeasurement())
 
         btn = gtk.Button(_("    set\nselected"))
         btn.connect("clicked", self._on_btn_set_selected_clicked)
