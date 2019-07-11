@@ -1,3 +1,6 @@
+ver 3.0.3.1
+- double function place in table
+
 ver 3.0.3
 - fullsize preview button now stays synchronized
 

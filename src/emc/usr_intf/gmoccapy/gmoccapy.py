@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.3"
+_RELEASE = " 3.0.3.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -576,7 +576,7 @@ class gmoccapy(object):
             dro.set_property("actual", self.dro_actual)
             dro.connect("clicked", self._on_DRO_clicked)
             self.dro_dic[dro.name] = dro
-            print dro.name
+#            print dro.name
 
     def _get_joint_from_joint_axis_dic(self, value):
         # if the selected axis is a double axis we will get the joint from the
@@ -584,41 +584,6 @@ class gmoccapy(object):
         if value in self.double_axis_letter:
             value = value + "0"
         return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
-
-    def _place_in_table(self, rows, cols, dro_size):
-        print("gmoccapy build_gui INFO")
-        print ("we are in place in table")
-
-        self.widgets.tbl_DRO.resize(rows, cols)
-        col = 0
-        row = 0
-
-        # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
-        if "Combi_DRO_9" in self.dro_dic.keys():
-            children = self.widgets.tbl_DRO.get_children()
-            print (children)
-            dro_order = ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
-                         "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]
-        else:
-            dro_order = sorted(self.dro_dic.keys())
-
-        for dro, dro_name in enumerate(dro_order):
-            # as a lathe might not have all Axis, we check if the key is in directory
-            if dro_name not in self.dro_dic.keys():
-                continue
-            self.dro_dic[dro_name].set_property("font_size", dro_size)
-
-            self.widgets.tbl_DRO.attach(self.dro_dic[dro_name],
-                                        col, col+1, row, row + 1, ypadding = 0)
-            if cols > 1:
-                # calculate if we have to place in the first or the second column
-                if (dro % 2 == 1):
-                    col = 0
-                    row +=1
-                else:
-                    col += 1
-            else:
-                row += 1
 
     def _make_ref_axis_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1160,7 +1125,7 @@ class gmoccapy(object):
 
                 self.jog_button_dic[name] = btn
 
-        print self.jog_button_dic
+#        print self.jog_button_dic
 
     def _make_joints_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1183,7 +1148,7 @@ class gmoccapy(object):
 
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
-        print("**** GMOCCAPY build_GUI INFO ****")
+        print("**** GMOCCAPY INFO ****")
         print("**** Entering make macro button")
 
         macros = self.get_ini_info.get_macros()
@@ -1199,7 +1164,7 @@ class gmoccapy(object):
 
         if num_macros > 16:
             message = _("**** GMOCCAPY INFO ****\n")
-            message += _("**** found more than 14 macros, will use only the first 14 ****")
+            message += _("**** found more than 16 macros, will use only the first 16 ****")
             print(message)
 
             num_macros = 16
