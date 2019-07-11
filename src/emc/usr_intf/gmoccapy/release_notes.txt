@@ -1,3 +1,6 @@
+ver 3.0.3
+- fullsize preview button now stays synchronized
+
 ver 3.0.2
 - minor code style changes
 - get rid of the screen2 stuff, as screens can be displayed using hal commands

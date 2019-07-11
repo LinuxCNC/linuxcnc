@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.2"
+_RELEASE = " 3.0.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -373,7 +373,7 @@ class gmoccapy(object):
         self.widgets.rbt_view_y2.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
-        self.widgets.tbtn_fullsize_preview.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_fullsize_preview0.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_fullsize_preview1.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_mist.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_optional_blocks.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -2623,7 +2623,7 @@ class gmoccapy(object):
             self.widgets.ntb_jog_JA.set_page(1)
             state = False
         else:
-            if not self.widgets.tbtn_fullsize_preview.get_active():
+            if not self.widgets.tbtn_fullsize_preview0.get_active():
                 self.widgets.gremlin.set_property("enable_dro", False)
             self.widgets.gremlin.use_joints_mode = False
             self.widgets.tbtn_switch_mode.set_active(False)
@@ -3517,10 +3517,10 @@ class gmoccapy(object):
     def on_tbtn_user_tabs_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.ntb_main.set_current_page(2)
-            self.widgets.tbtn_fullsize_preview.set_sensitive(False)
+            self.widgets.tbtn_fullsize_preview0.set_sensitive(False)
         else:
             self.widgets.ntb_main.set_current_page(0)
-            self.widgets.tbtn_fullsize_preview.set_sensitive(True)
+            self.widgets.tbtn_fullsize_preview0.set_sensitive(True)
 
 # =========================================================
 # The homing functions
@@ -3591,6 +3591,13 @@ class gmoccapy(object):
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
+        name = gtk.Buildable.get_name(widget)
+        if name[-1] == "0":
+            name_2 = name[:-1] + "1"
+        else:
+            name_2 = name[:-1] + "0"
+        print("tbtn_fullsize_toggled", name, name_2)
+        state = widget.get_active()
         if widget.get_active():
             self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
@@ -3604,6 +3611,7 @@ class gmoccapy(object):
             self.widgets.vbx_jog.show()
             if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property("enable_dro", False)
+        self.widgets[name_2].set_active(state)
         
 # =========================================================
 # this are hal-tools copied from gsreen function
@@ -3916,7 +3924,7 @@ class gmoccapy(object):
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
-            if self.widgets.tbtn_fullsize_preview1.get_active():
+            if self.widgets.tbtn_fullsize_preview0.get_active():
                 self.widgets.vbx_jog.set_visible(False)
         elif self.widgets.ntb_button.get_current_page() == _BB_LOAD_FILE:  # File selection mode
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
@@ -4319,9 +4327,9 @@ class gmoccapy(object):
         self.command.wait_complete()
 
     def on_btn_tool_clicked(self, widget, data=None):
-        if self.widgets.tbtn_fullsize_preview.get_active():
-            self.widgets.tbtn_fullsize_preview.set_active(False)
-            self.widgets.tbtn_full1size_preview1.set_active(False)
+        if self.widgets.tbtn_fullsize_preview0.get_active():
+            self.widgets.tbtn_fullsize_preview0.set_active(False)
+#            self.widgets.tbtn_fullsize_preview1.set_active(False)
         self.widgets.ntb_button.set_current_page(_BB_TOOL)
         self._show_tooledit_tab(True)
 
@@ -4525,8 +4533,8 @@ class gmoccapy(object):
     def on_btn_load_clicked(self, widget, data=None):
         self.widgets.ntb_button.set_current_page(_BB_LOAD_FILE)
         self.widgets.ntb_preview.set_current_page(3)
-        self.widgets.tbtn_fullsize_preview.set_active(True)
-        self.widgets.tbtn_fullsize_preview1.set_active(True)
+        self.widgets.tbtn_fullsize_preview0.set_active(True)
+#        self.widgets.tbtn_fullsize_preview1.set_active(True)
         self._show_iconview_tab(True)
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
@@ -4554,8 +4562,8 @@ class gmoccapy(object):
         if path:
             self.widgets.hal_action_open.load_file(path)
             self.widgets.ntb_preview.set_current_page(0)
-            self.widgets.tbtn_fullsize_preview.set_active(False)
-            self.widgets.tbtn_fullsize_preview1.set_active(False)
+            self.widgets.tbtn_fullsize_preview0.set_active(False)
+#            self.widgets.tbtn_fullsize_preview1.set_active(False)
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
             self._show_iconview_tab(False)
 
@@ -4564,8 +4572,8 @@ class gmoccapy(object):
 
     def on_IconFileSelection1_exit(self, widget):
         self.widgets.ntb_preview.set_current_page(0)
-        self.widgets.tbtn_fullsize_preview.set_active(False)
-        self.widgets.tbtn_fullsize_preview1.set_active(False)
+        self.widgets.tbtn_fullsize_preview0.set_active(False)
+#        self.widgets.tbtn_fullsize_preview1.set_active(False)
         self._show_iconview_tab(False)
 
     # edit a program or make a new one
@@ -4634,9 +4642,9 @@ class gmoccapy(object):
         elif self.widgets.ntb_preview.get_current_page() == 3:
             self._show_iconview_tab(False)
 
-        if self.widgets.tbtn_fullsize_preview.get_active():
-            self.widgets.tbtn_fullsize_preview.set_active(False)
-            self.widgets.tbtn_fullsize_preview1.set_active(False)
+#        if self.widgets.tbtn_fullsize_preview0.get_active() or self.widgets.tbtn_fullsize_preview1.get_active():
+#            self.widgets.tbtn_fullsize_preview0.set_active(False)
+#            self.widgets.tbtn_fullsize_preview1.set_active(False)
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT or self.widgets.ntb_preview.get_current_page() == _BB_HOME:
             self.widgets.ntb_preview.show()
             self.widgets.tbl_DRO.show()

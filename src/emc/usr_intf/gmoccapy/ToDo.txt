@@ -1,5 +1,11 @@
  - ToDo:
 
+* touch off button near the DRO to reduce clicks
+
+* keyboard jogging for all axis, not only XYZ
+
+* reload file on first side in auto mode
+
 * code rework for previous and next button of touch and home
 
 * Macro button with images
