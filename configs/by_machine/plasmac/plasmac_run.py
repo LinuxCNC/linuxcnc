@@ -368,7 +368,7 @@ class HandlerClass:
                     if item in tmpDict:
                         self.builder.get_object(item).set_active(int(self.configDict.get(item)))
                     else:
-                        self.builder.get_object(item).set_active(False)
+#                        self.builder.get_object(item).set_active(False)
                         print('*** {} missing from {}'.format(item,self.configFile))
             if convertFile:
                 print('*** converting {} to new format'.format(self.configFile))
