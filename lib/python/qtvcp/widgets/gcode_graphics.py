@@ -62,7 +62,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
-        STATUS.connect('view-changed', self.set_view_signal)
+        STATUS.connect('graphics-view-changed', self.set_view_signal)
 
     def set_view_signal(self, w, view):
         v = view.lower()
@@ -152,6 +152,13 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         if line is None:
             line = -1
         STATUS.emit('graphics-line-selected', line)
+
+    def select_fire(self):
+        if STATUS.is_auto_running(): return
+        if not self.select_primed: return
+        x, y = self.select_primed
+        self.select_primed = None
+        self.select(x, y)
 
     # override user plot -One could add gl commands to plot static objects here
     def user_plot(self):

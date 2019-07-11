@@ -30,6 +30,8 @@ def writeifexists(file, section, src_item, dest_item = "None"):
 
 force = 0
 dialogs = 0
+subs = {}
+subs2 = {}
 
 filename = None
 for opt in sys.argv[1:]:
@@ -174,7 +176,6 @@ if version == "$Revision$" or version < "1.0":
     
     inistring = open(filename,'r').read()
     newini = open(filename, 'w')
-
     # Get a list of all sections
     all_sections = re.findall("^\s*\[(.+)\]", inistring, re.MULTILINE)
 
@@ -224,42 +225,23 @@ if version == "$Revision$" or version < "1.0":
     copysection("HAL")
     copysection("HALUI")
 
-    # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
-    all_sections.remove("TRAJ")
-    section = re.search("\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
-    if section: section = section.group(1)
-    newini.write("\n[TRAJ]\n")
-    if section != None:
-        if not re.search("MAX_LINEAR_VELOCITY", section):
-            if re.search("MAX_VELOCITY", section):
-                section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
-            else:
-                mv = re.findall("MAX_VELOCITY[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
-                section = ("\n# this value based on fastest single axis" +
-                          "\nMAX_LINEAR_VELOCITY = %s" % max(mv)[0] + section)
-        if not re.search("DEFAULT_LINEAR_VELOCITY", section):
-            section = re.sub("DEFAULT_VELOCITY", "DEFAULT_LINEAR_VELOCITY", section)
-        if not re.search("MAX_LINEAR_ACCELERATION", section):
-            section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
-        if not re.search("DEFAULT_ACCELERATION", section):
-            section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
-        section = re.sub("CYCLE_TIME.*?\n", "", section)
-        newini.write(section)
-
-    copysection("EMCIO")
-
-    # Insert the new-fangled [KINS] section
+    # We need info from TRAJ to get KINS right
 
     joints = ini.find("TRAJ", "JOINTS")
+    coordinates = ini.find("TRAJ", "COORDINATES").replace(" ","")
+    if coordinates != None: joints = len(coordinates)
     if joints == None: joints = ini.find("TRAJ", "AXES")
     if joints == None: joints = "3"
     joints = int(joints)
+    if coordinates == None: coordinates = "XYZABCUVW"
+
+    coordinates = list(coordinates)
 
     # Search the Halfiles to find the kinematics.
     kins = None
     kinstype = None
-    coordinates = list("XYZABCUVW")
     coords_entry = False
+    if coordinates != "XYZABCUVW"[:joints]: coords_entry = True
     for halfile in halpaths:
         hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
         for line in hal.readlines():
@@ -291,13 +273,42 @@ if version == "$Revision$" or version < "1.0":
                     if j > joints: joints = j
                     a = int(match.group(2))
                     coordinates[j] = 'XYZABCUVW'[a]
-    coordinates = ''.join(coordinates)
+
     if kins == "gentrivkins":
         kins = "trivkins" #trivkins has the same defaults as gentrivkins
 
+    # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
+    all_sections.remove("TRAJ")
+    section = re.search("\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("\n[TRAJ]\n")
+    if section != None:
+        if not re.search("MAX_LINEAR_VELOCITY", section):
+            if re.search("MAX_VELOCITY", section):
+                section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
+            else:
+                mv = re.findall("MAX_VELOCITY[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
+                section = ("\n# this value based on fastest single axis" +
+                          "\nMAX_LINEAR_VELOCITY = %s" % max(mv)[0] + section)
+        if not re.search("DEFAULT_LINEAR_VELOCITY", section):
+            section = re.sub("DEFAULT_VELOCITY", "DEFAULT_LINEAR_VELOCITY", section)
+        if not re.search("MAX_LINEAR_ACCELERATION", section):
+            section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
+        if not re.search("DEFAULT_ACCELERATION", section):
+            section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
+        print "COORDINATES = %s\n" % ''.join(coordinates)
+        section = re.sub("COORDINATES.*", "COORDINATES = %s" % ''.join(coordinates[: joints]), section)
+        section = re.sub("CYCLE_TIME.*?\n", "", section)
+        section = re.sub("AXES *=.*\n", "", section)
+        newini.write(section)
+
+    copysection("EMCIO")
+
+    # Insert the new-fangled [KINS] section
+
     newini.write("\n\n[KINS]\n")
     newini.write("KINEMATICS = %s" % kins)
-    if coords_entry: newini.write(" coordinates=%s" % coordinates[: joints])
+    if coords_entry: newini.write(" coordinates=%s" % ''.join(coordinates[: joints]))
     if kinstype: newini.write(" kinstype=%s" % kinstype)
     newini.write("\n")
     newini.write("#This is a best-guess at the number of joints, it should be checked\n")
@@ -305,43 +316,73 @@ if version == "$Revision$" or version < "1.0":
 
     j = 0
     lock_mask = 0x0
+    L2J={}
     while 1:
          # Search preferentially in "[JOINT_N] in case the file is part-converted already
         if re.search("^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
             if re.search("^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
                 copysection("AXIS_%s" % "XYZABCUVW"[j])
-                copysection("JOINT_%i" % j)
-            else:
-                newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
+            #    copysection("JOINT_%i" % j)
+            elif j < len(coordinates):
+                newini.write("\n[AXIS_%s]\n" % coordinates[j])
                 writeifexists(newini, "JOINT_%i" % j, "HOME")
                 writeifexists(newini, "JOINT_%i" % j, "MIN_LIMIT")
                 writeifexists(newini, "JOINT_%i" % j, "MAX_LIMIT")
                 writeifexists(newini, "JOINT_%i" % j, "MAX_VELOCITY")
                 writeifexists(newini, "JOINT_%i" % j, "MAX_ACCELERATION")
                 copysection("[JOINT_%i]" % j)
-        elif  re.search("^\[AXIS_%i\]" % j, inistring, re.MULTILINE): #Looks like an [AXIS_0] style layout
-                newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
-                writeifexists(newini, "AXIS_%i" % j, "MIN_LIMIT")
-                writeifexists(newini, "AXIS_%i" % j, "MAX_LIMIT")
-                writeifexists(newini, "AXIS_%i" % j, "MAX_VELOCITY")
-                writeifexists(newini, "AXIS_%i" % j, "MAX_ACCELERATION")
-                if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
-                    lock_mask |= 1 << j
-                    newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
-                newini.write("\n[JOINT_%i]\n" % j)
-                section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % j, inistring, re.DOTALL)
-                all_sections.remove("AXIS_%i" % j)
-                if section:
-                    newini.write(section.group(1))
-                else:
-                    print "File parsing error, found an [AXIS_%i] section, but no content" % j
-                    exit()
+        elif j < len(coordinates):
+            # in this "elif" j is an index in to coordinates. 
+            if coordinates[j] in L2J: # duplicate axis letter
+                L2J[coordinates[j]].append(j) # = [L2J[coordinates[j]], j]
+            else:
+                L2J.update({coordinates[j] : [j]})
         elif j >= 9:
             break
         else:
             pass
 
         j += 1
+
+    for L in list("XYZABCUVW"):
+        if L in L2J:
+            axisnum = "XYZABCUVW".index(L)
+            newini.write("\n[AXIS_%s]\n" % L)
+            writeifexists(newini, "AXIS_%i" % axisnum, "MIN_LIMIT")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_LIMIT")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_VELOCITY")
+            writeifexists(newini, "AXIS_%i" % axisnum, "MAX_ACCELERATION")
+            if ini.find("AXIS_%i" % j, "LOCKING_INDEXER"):
+                lock_mask |= 1 << j
+                newini.write("LOCKING_INDEXER_JOINT = %i\n" % j)
+                
+            hs = ini.find("AXIS_%i" % axisnum, "HOME_SEQUENCE")
+            if hs == "-1" or hs == None: # -1 used to exclude a joint now we use no entry
+                sequence = ""
+            elif len(L2J[L]) > 1:  # tandem axis
+                sequence = "HOME_SEQUENCE = -%s" % hs
+            else:
+                sequence = "HOME_SEQUENCE = %s" % hs
+            for J in L2J[L]:
+                # Take the coordinates index as the JOINT_Number
+                newini.write("\n[JOINT_%i]" % J)
+                section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
+                if not section:
+                    section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
+                if section:
+                    section = re.sub("HOME_SEQUENCE.*", sequence, section.group(1))
+                    newini.write(section)
+                    if not '\[AXIS_%i\]' % axisnum in subs:
+                        subs.update({'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
+                        subs2.update({'joint\.%i\.' % axisnum : 'joint.%i.' % J})
+                    else:
+                        subs.update({'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
+                else:
+                    print "File parsing error, found an [AXIS_%i] section, but no content" % J
+                    exit()
+    # We no longer need the [AXIS_N] data
+    for j in range(0,8):
+         if ("AXIS_%i" % j) in all_sections: all_sections.remove("AXIS_%i" % j)
 
     # If there were any custom sections, tag them on the end.
     while all_sections:
@@ -361,9 +402,7 @@ if version == "$Revision$" or version < "1.0":
     # Now change all the pin names etc in the linked HAL files.
     # Any machine can be jogged in world mode (in theory) but joint-mode jog-enable
     # is not auto-linked for safety.
-    
-subs = {}
-subs2 = {}
+
 if version == "$Revision$" or version < "1.0":
     
     subs.update({'axis.(.).active':'joint.\\1.active',
@@ -428,7 +467,7 @@ if version == "$Revision$" or version < "1.0":
     'halui.joint.selected.on-soft-limit':'halui.joint.selected.on-soft-max-limit',
     'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
-    '\[AXIS_(.)\]':               '[JOINT_\\1]',
+
     '(setp +gantrykins.+)':       '# \\1',
     '(.+servo_period_ns.+)':      '\\1 %s' % lock_string
     })
@@ -437,15 +476,15 @@ if version == "$Revision$" or version < "1.0":
     subs2.update({
     '^\s*setp\s+(joint\S+)\s+(axis\S+)\s+(\S+)\s*$':
                                  'setp \\1 \\3\nsetp \\2 \\3\n',
-    '@ax0@':                     'axis.%s' % coordinates[0].lower(),
-    '@ax1@':                     'axis.%s' % coordinates[1].lower(),
-    '@ax2@':                     'axis.%s' % coordinates[2].lower(),
-    '@ax3@':                     'axis.%s' % coordinates[3].lower(),
-    '@ax4@':                     'axis.%s' % coordinates[4].lower(),
-    '@ax5@':                     'axis.%s' % coordinates[5].lower(),
-    '@ax6@':                     'axis.%s' % coordinates[6].lower(),
-    '@ax7@':                     'axis.%s' % coordinates[7].lower(),
-    '@ax8@':                     'axis.%s' % coordinates[8].lower()
+    '@ax0@':                     'axis.x',
+    '@ax1@':                     'axis.y',
+    '@ax2@':                     'axis.z',
+    '@ax3@':                     'axis.a',
+    '@ax4@':                     'axis.b',
+    '@ax5@':                     'axis.c',
+    '@ax6@':                     'axis.u',
+    '@ax7@':                     'axis.v',
+    '@ax8@':                     'axis.w',
     })
     
 if version < "1.1":

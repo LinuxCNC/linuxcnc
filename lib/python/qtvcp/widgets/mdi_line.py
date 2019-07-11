@@ -65,7 +65,7 @@ class MDI(QLineEdit):
         elif text == 'HALSCOPE':
             AUX_PRGM.load_halscope()
         elif text == 'CALIBRATION':
-            AUX_PRGM.load_calibration(self.inifile)
+            AUX_PRGM.load_calibration()
         elif text == 'PREFERENCE':
             STATUS.emit('show-preference')
         else:
@@ -77,7 +77,7 @@ class MDI(QLineEdit):
                 fp.close()
             except:
                 pass
-            STATUS.emit('reload-mdi-history')
+            STATUS.emit('mdi-history-changed')
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):

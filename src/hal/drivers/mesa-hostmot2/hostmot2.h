@@ -269,6 +269,7 @@ typedef struct {
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *velocity;
+            hal_float_t *velocity_rpm;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *latch_enable;
@@ -299,6 +300,10 @@ typedef struct {
     rtapi_s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
 
     rtapi_u32 prev_control;
+
+    hal_bit_t prev_quadrature_error_enable; // shadow for detecting rising edge on the quadrature_error_enable
+    hal_bit_t reset_quadrature_error; // bit to indicate if we want to reset the quadrature error
+
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
     rtapi_s32 prev_event_rawcounts;
@@ -408,6 +413,7 @@ typedef struct {
             hal_float_t *angle;
             hal_float_t *position;
             hal_float_t *velocity;
+            hal_float_t *velocity_rpm;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *error;

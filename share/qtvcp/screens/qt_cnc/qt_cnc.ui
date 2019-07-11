@@ -413,71 +413,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="ToolDialog" name="tooldialog">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>760</y>
-      <width>316</width>
-      <height>121</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="FocusOverlay" name="focusoverlay">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1027</width>
-      <height>847</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-    <property name="show_image_option" stdset="0">
-     <bool>true</bool>
-    </property>
-    <property name="image_path" stdset="0">
-     <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
-    </property>
-   </widget>
-   <widget class="LcncDialog" name="lcncdialog">
-    <property name="geometry">
-     <rect>
-      <x>340</x>
-      <y>770</y>
-      <width>336</width>
-      <height>104</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="FileDialog" name="filedialog">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>240</y>
-      <width>635</width>
-      <height>448</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-    <property name="color" stdset="0">
-     <color alpha="150">
-      <red>0</red>
-      <green>0</green>
-      <blue>255</blue>
-     </color>
-    </property>
-   </widget>
    <widget class="StateLED" name="led_home_x">
     <property name="geometry">
      <rect>
@@ -679,6 +614,44 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
       <height>16</height>
      </rect>
     </property>
+    <property name="focusOverlay_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toolDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="tool_overlay_color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="fileDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="file_overlay_color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>255</blue>
+     </color>
+    </property>
+    <property name="versaProbeDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="macroTabDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="camViewDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toolOffsetDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="originOffsetDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
@@ -694,32 +667,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     </property>
     <property name="jogincr_status" stdset="0">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="MacroTabDialog" name="macrotabdialog">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>230</y>
-      <width>600</width>
-      <height>400</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="OriginOffsetDialog" name="originoffsetdialog">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>40</y>
-      <width>800</width>
-      <height>500</height>
-     </rect>
-    </property>
-    <property name="state">
-     <bool>false</bool>
     </property>
    </widget>
    <widget class="StatusStacked" name="StatusStacked">
@@ -947,16 +894,6 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="linear_option" stdset="0">
           <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="CamViewDialog" name="camviewdialog">
-         <property name="geometry">
-          <rect>
-           <x>480</x>
-           <y>310</y>
-           <width>700</width>
-           <height>400</height>
-          </rect>
          </property>
         </widget>
        </widget>
@@ -2512,19 +2449,6 @@ View</string>
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="VersaProbeDialog" name="versaprobedialog">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>60</y>
-       <width>622</width>
-       <height>475</height>
-      </rect>
-     </property>
-     <property name="state">
-      <bool>false</bool>
-     </property>
-    </widget>
    </widget>
    <widget class="QFrame" name="frame_auto_4">
     <property name="geometry">
@@ -2963,11 +2887,11 @@ View</string>
     <property name="textTemplate" stdset="0">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
-    <property name="tool_number_status" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="tool_diameter_status" stdset="0">
      <bool>true</bool>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="StatusLabel" name="state_label_10">
@@ -3015,9 +2939,12 @@ View</string>
      <rect>
       <x>200</x>
       <y>4</y>
-      <width>819</width>
-      <height>454</height>
+      <width>831</width>
+      <height>461</height>
      </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
     <property name="widget_list" stdset="0">
      <stringlist>
@@ -3026,7 +2953,7 @@ View</string>
       <string>dro_frame</string>
      </stringlist>
     </property>
-    <widget class="QWidget" name="page">
+    <widget class="QWidget" name="page_0">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -3357,28 +3284,35 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
             <height>200</height>
            </size>
           </property>
-          <widget class="ToolOffsetDialog" name="tooloffsetdialog">
-           <property name="geometry">
-            <rect>
-             <x>130</x>
-             <y>30</y>
-             <width>800</width>
-             <height>247</height>
-            </rect>
-           </property>
-           <property name="state">
-            <bool>false</bool>
-           </property>
-          </widget>
          </widget>
         </item>
        </layout>
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="page_1">
+     <layout class="QVBoxLayout" name="verticalLayout_8">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_7"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="page_2">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_3"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="page_3">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_5"/>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <zorder>widgetswitcher</zorder>
-   <zorder>lcncdialog</zorder>
    <zorder>frame_auto_5</zorder>
    <zorder>state_label_4</zorder>
    <zorder>StatusLabel</zorder>
@@ -3403,8 +3337,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <zorder>state_label_3</zorder>
    <zorder>state_label_5</zorder>
    <zorder>state_label_6</zorder>
-   <zorder>tooldialog</zorder>
-   <zorder>filedialog</zorder>
    <zorder>led_home_x</zorder>
    <zorder>led_home_y</zorder>
    <zorder>led_home_z</zorder>
@@ -3413,14 +3345,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <zorder>actionbutton_11</zorder>
    <zorder>ScreenOptions</zorder>
    <zorder>StatusLabel_2</zorder>
-   <zorder>macrotabdialog</zorder>
-   <zorder>originoffsetdialog</zorder>
    <zorder>StatusStacked</zorder>
    <zorder>mcodes_label</zorder>
    <zorder>frame_auto_8</zorder>
    <zorder>gcodes_label</zorder>
    <zorder>state_label_10</zorder>
-   <zorder>focusoverlay</zorder>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
@@ -3434,16 +3363,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CamViewDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>LcncDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>MDILine</class>
@@ -3462,29 +3381,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>FileDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>VersaProbeDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>MacroTabDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
    <class>StateLED</class>
    <extends>LED</extends>
    <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>StateEnableGridLayout</class>
@@ -3497,11 +3396,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <extends>QStackedWidget</extends>
    <header>qtvcp.widgets.status_stacked</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ToolOffsetDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>JogIncrements</class>
@@ -3551,17 +3445,6 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
-  </customwidget>
-  <customwidget>
-   <class>FocusOverlay</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.overlay_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ToolDialog</class>
-   <extends>LcncDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>

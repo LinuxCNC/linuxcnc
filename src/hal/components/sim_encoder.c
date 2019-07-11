@@ -139,7 +139,7 @@ int rtapi_app_main(void)
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if (names[i] == NULL) {
+            if ( (names[i] == NULL) || (*names[i] == 0) ){
                 break;
             }
             howmany = i + 1;

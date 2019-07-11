@@ -1178,7 +1178,16 @@ print s.paused
 commands.set_view_z()
 ----
 
-=== Creating new HAL Pins
+=== Creating new AXISUI HAL Pins
+
+[source,python]
+----
+def user_hal_pins():
+    comp.newpin('my-new-in-pin', hal.HAL_BIT, hal.HAL_IN)
+    comp.ready()
+----
+
+=== Creating new HAL Component and Pins
 
 [source,python]
 ----

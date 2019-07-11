@@ -62,6 +62,24 @@ proc joints_for_trivkins {coords} {
   }
 } ;# joints_for_trivkins
 
+proc consistent_coords_for_trivkins {trivcoords} {
+  set m {" " "" "\t" ""} ;# mapping to remove whitespace
+  set trivcoords [string map $m $trivcoords]
+  if {"$trivcoords" == "XYZABCUVW"} {
+     return ;# unspecified trivkins coordinates
+             # allows use of any coordinates
+  }
+  set trajcoords ""
+  if [info exists ::TRAJ(COORDINATES)] {
+    set trajcoords [string map $m [lindex $::TRAJ(COORDINATES) 0]]
+  }
+  if {"$trivcoords" != "$trajcoords"} {
+    lappend ::wmsg "INCONSISTENT coordinates specifications:
+               trivkins coordinates=$trivcoords
+               \[TRAJ\]COORDINATES=$trajcoords"
+  }
+} ;# consistent_coords_for_trivkins
+
 proc validate_identity_kins_limits {} {
   set emsg ""
   for {set j 0} {$j < $::KINS(JOINTS)} {incr j} {
@@ -165,8 +183,10 @@ switch $::kins(module) {
   }
 }
 
+
 #parray ::kins
 set emsg [validate_identity_kins_limits]
+consistent_coords_for_trivkins $::kins(coordinates)
 if [info exists ::wmsg] {warnings $::wmsg}
 
 if {"$emsg" == ""} {exit 0}

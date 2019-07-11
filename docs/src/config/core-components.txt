@@ -136,6 +136,23 @@ These pins, parameters, and functions are created by the realtime
 * 'motion.motion-enabled' - 
     (bit, out) TRUE when in 'machine on' state.
 
+* 'motion.motion-type' - 
+    (s32, out) These values are from src/emc/nml_intf/motion_types.h
+
+ - 0: Idle (no motion)
+
+ - 1: Traverse
+
+ - 2: Linear feed
+
+ - 3: Arc feed
+
+ - 4: Tool change
+
+ - 5: Probing
+
+ - 6: Rotary axis indexing
+
 * 'motion.on-soft-limit' - 
     (bit, out) TRUE when the machine is on a soft limit.
 

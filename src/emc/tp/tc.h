@@ -24,6 +24,13 @@
 
 double tcGetMaxTargetVel(TC_STRUCT const * const tc,
         double max_scale);
+
+double tcGetOverallMaxAccel(TC_STRUCT const * tc);
+double tcGetTangentialMaxAccel(TC_STRUCT const * const tc);
+
+int tcSetKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc, double kink_vel, double accel_reduction);
+int tcInitKinkProperties(TC_STRUCT *tc);
+int tcRemoveKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc);
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
@@ -38,7 +45,7 @@ int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
 
 int tcCanConsume(TC_STRUCT const * const tc);
 
-int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+int tcSetTermCond(TC_STRUCT * prev_tc, TC_STRUCT * tc, int term_cond);
 
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_start,
@@ -93,6 +100,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
         double acc);
 
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
+
+int tcUpdateCircleAccRatio(TC_STRUCT * tc);
 
 int tcFinalizeLength(TC_STRUCT * const tc);
 

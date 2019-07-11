@@ -319,16 +319,16 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 canon.dwell_time
                 )
  
-            props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
-            props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
+            props['G0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
+            props['gG1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
             if gt > 120:
-                props['run'] = _("%.1f minutes") % (gt/60)
+                props['Run'] = _("%.1f Minutes") % (gt/60)
             else:
-                props['run'] = _("%d seconds") % (int(gt))
+                props['Run'] = _("%d Ceconds") % (int(gt))
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
-            for (i, c) in enumerate("xyz"):
+            for (i, c) in enumerate("XYZ"):
                 a = min_extents[i]
                 b = max_extents[i]
                 if a != b:

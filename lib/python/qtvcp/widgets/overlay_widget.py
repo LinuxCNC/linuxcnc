@@ -16,8 +16,8 @@
 
 import os
 
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton
-from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty
+from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton, QDialog
+from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent
 from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -142,13 +142,22 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # STATUS messages
     # adjust image path name at runtime
     def _hal_init(self):
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: 
+                        self._status_response(data, text, color))
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('overlay_play_sound', False, bool, 'SCREEN_OPTIONS')
             self.sound_type = self.PREFS_.getpref('overlay_sound_type', 'RING', str, 'SCREEN_OPTIONS')
         else:
             self.play_sound = False
+
+        # reparent on top window
         self.top_level = self.QTVCP_INSTANCE_
         self.newParent()
+
+        # adjust size and location to top window
+        self.setGeometry(self.top_level.geometry())
+        self.hide()
+
         # look for special path names and change to real path
         if 'STD_IMAGE_DIR/' in self._image_path:
             t = self._image_path.split('STD_IMAGE_DIR/', )[1]
@@ -162,7 +171,6 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
             self._image = QImage(d)
         else:
             LOG.debug('Focus Overlay image path runtime error: {}'.format(self._image_path))
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: self._status_response(data, text, color))
 
     def _status_response(self, data, text, color):
             if data:
@@ -176,7 +184,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 self.update()
                 LOG.debug('Overlay - Show')
                 if self.play_sound:
-                    STATUS.emit('play-alert', '%s' % self.sound_type)
+                    STATUS.emit('play-sound', '%s' % self.sound_type)
                 #os.system("beep -f 555 ")
             else:
                 self.hide()

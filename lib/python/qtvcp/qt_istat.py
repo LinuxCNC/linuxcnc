@@ -1,5 +1,6 @@
 import os
 import linuxcnc
+import collections
 
 # Set up logging
 import logger
@@ -25,8 +26,10 @@ class _IStat(object):
         self.MACHINE_IS_METRIC = False
         self.MACHINE_UNIT_CONVERSION = 1
         self.MACHINE_UNIT_CONVERSION_9 = [1]*9
-        self.AVAILABLE_AXES = ('X','Y','Z')
-        self.AVAILABLE_AXES_INT = (0,1,2)
+        self.AVAILABLE_AXES = ['X','Y','Z']
+        self.AVAILABLE_JOINTS = [0,1,2]
+        self.GET_NAME_FROM_JOINT = {0:'X',1:'Y',2:'Z'}
+        self.GET_JOG_FROM_NAME = {'X':0,'Y':1,'Z':2}
         self.NO_HOME_REQUIRED = False
         self.JOG_INCREMENTS = None
         self.ANGULAR_INCREMENTS = None
@@ -75,12 +78,35 @@ class _IStat(object):
         if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
             axes = axes.replace(" ", "")
             log.debug('TRAJ COORDINATES: {}'.format(axes))
-            conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
             self.AVAILABLE_AXES = []
-            self.AVAILABLE_AXES_INT = []
-            for letter in axes:
-                self.AVAILABLE_AXES.append(letter.upper())
-                self.AVAILABLE_AXES_INT.append(conversion[letter.upper()])
+            self.GET_NAME_FROM_JOINT = {}
+            self.AVAILABLE_JOINTS = []
+            self.GET_JOG_FROM_NAME = {}
+            temp = []
+            for num, letter in enumerate(axes):
+                temp.append(letter)
+
+                # list of available axes
+                if letter not in self.AVAILABLE_AXES:
+                    self.AVAILABLE_AXES.append(letter.upper())
+
+                # map of axis designation from joint number
+                # This allows calling joints x2 or y2 etc
+                count = collections.Counter(temp)
+                if count[letter]>1: c = letter+str(count[letter])
+                else: c = letter
+                self.GET_NAME_FROM_JOINT[num] = c
+
+                # map of axis designation to joint-to-jog when in axis mode.
+                # so then you can jog either joint of an axis to move the axis
+                if count[letter]>1:
+                    self.GET_JOG_FROM_NAME[c] = self.GET_JOG_FROM_NAME[letter]
+                else:
+                    self.GET_JOG_FROM_NAME[c] = num
+
+                # list of availble joint numbers
+                self.AVAILABLE_JOINTS.append(num)
+
                 # AXIS sanity check
                 av = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_VELOCITY') or None
                 aa = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_ACCELERATION') or None
@@ -130,7 +156,8 @@ class _IStat(object):
         self.MAX_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_OVERRIDE",1)) * 100
         self.MIN_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_OVERRIDE",0.5)) * 100
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_FEED_OVERRIDE",1.5)) * 100
-
+        self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ","MAX_LINEAR_VELOCITY",
+                                    self.get_error_safe_setting("AXIS_X","MAX_VELOCITY", 5) )) * 60
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
         self.USRMESS_TEXT = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
@@ -150,12 +177,30 @@ class _IStat(object):
             self.ZIPPED_USRMESS = zip(self.USRMESS_BOLDTEXT,self.USRMESS_TEXT,self.USRMESS_DETAILS,self.USRMESS_TYPE,self.USRMESS_PINNAME)
         except:
             self.ZIPPED_USRMESS = None
+
+        # XEmbed tabs
         self.TAB_NAMES = (self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")) or None
-        self.TAB_LOCATION = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or None
-        self.TAB_CMD   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        self.TAB_LOCATIONS = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
+        self.TAB_CMDS   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
+            log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
+        if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
+            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCACTION - guessng default.')
+            for num,i in enumerate(self.TAB_NAMES):
+                try:
+                    if self.TAB_LOCATIONS[num]:
+                        continue
+                except:
+                    self.TAB_LOCATIONS.append("default")
+        try:
+            self.ZIPPED_TABS = zip(self.TAB_NAMES,self.TAB_LOCATIONS,self.TAB_CMDS)
+        except:
+            self.ZIPPED_TABS = None
+
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
-        self.TOOL_FILE_PATH = (self.inifile.find("EMCIO", "TOOL_TABLE")) or None
+        self.TOOL_FILE_PATH = str(self.get_error_safe_setting("EMCIO", "TOOL_TABLE"))
         self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
+
     ###################
     # helper functions
     ###################
@@ -165,7 +210,7 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.warning('INI Parcing Error, No Entry: {}, Using: {}'.format(detail, default))
+            log.warning('INI Parcing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
     def convert_metric_to_machine(self, data):
@@ -215,13 +260,15 @@ class _IStat(object):
         all_extensions = [("G code (*.ngc)")]
         try:
             for k, v in self.PROGRAM_FILTERS:
-                k = k.replace('.','*.')
-                all_extensions.append( ( ';;%s(%s)'%(v,k)) )
+                k = k.replace('.',' *.')
+                k = k.replace(',',' ')
+                all_extensions.append( ( ';;%s (%s)'%(v,k)) )
+            all_extensions.append((';;All (*)'))
             temp =''
             for i in all_extensions:
                 temp = '%s %s'%(temp ,i)
             return temp
         except:
-            return all_extensions[0]
+            return ('All (*)')
 
 

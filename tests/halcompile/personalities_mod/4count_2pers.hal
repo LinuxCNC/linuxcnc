@@ -1,0 +1,10 @@
+# personalities are used modulo the number of
+# halcompiled personalities
+
+# 4 count, 2 personalities
+loadrt logic    count=4 personality=0x102,0x204
+loadrt lincurve count=4 personality=2,3
+loadrt bitslice count=4 personality=2,3
+
+show pin
+show parameter

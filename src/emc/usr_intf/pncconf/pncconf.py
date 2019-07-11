@@ -720,10 +720,10 @@ class Data:
             self[temp+"FF2"]= 0
             self[temp+"bias"]= 0
             self[temp+"deadband"]= 0
-            self[temp+"steptime"]= 1000
-            self[temp+"stepspace"]= 1000
-            self[temp+"dirhold"]= 1000
-            self[temp+"dirsetup"]= 1000
+            self[temp+"steptime"]= 5000
+            self[temp+"stepspace"]= 5000
+            self[temp+"dirhold"]= 10000
+            self[temp+"dirsetup"]= 10000
             self[temp+"homepos"]= 0
             self[temp+"homesw"]=  0
             self[temp+"homefinalvel"]= 0

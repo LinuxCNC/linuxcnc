@@ -153,7 +153,7 @@ class Private_Data:
                             ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
                             ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
                             ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-                            ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
+                            ["gecko540", _("Gecko 540"),  5000, 5000, 10000, 10000],
                             ["l297", _("L297"), 500,  4000, 4000, 1000],
                             ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
                             ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
@@ -477,6 +477,8 @@ class Data:
             pps = max(xhz, zhz)
         elif self.axes == 3:
             pps = max(xhz, yhz, uhz, vhz)
+        elif self.axes == 4:
+            pps = max(xhz, yhz)
         else:
             print 'error in ideal period calculation - number of axes unrecognized'
             return

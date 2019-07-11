@@ -30,7 +30,7 @@ proc popup_msg {msg} {
 }
 
 proc create_report {} {
-  set   info_file   /tmp/linuxcnc.info   ;# created by linuxcnc_info
+  set   info_file   /tmp/linuxcnc_info.txt ;# created by linuxcnc_info
   set   report_file /tmp/linuxcnc.report ;# created by this script
   exec  linuxcnc_info -s                 ;# -s: suppress opening by a viewer
 

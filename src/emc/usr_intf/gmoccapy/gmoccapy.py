@@ -32,11 +32,9 @@ import hal_glib            # needed to make our own hal pins
 import gtk                 # base for pygtk widgets and constants
 import sys                 # handle system calls
 import os                  # needed to get the paths and directories
-import pango               # needed for font settings and changing
 import gladevcp.makepins   # needed for the dialog"s calculator widget
 import atexit              # needed to register child's to be closed on closing the GUI
 import subprocess          # to launch onboard and other processes
-import vte                 # To get the embedded terminal
 import tempfile            # needed only if the user click new in edit mode to open a new empty file
 import linuxcnc            # to get our own error system
 import gobject             # needed to add the timer for periodic
@@ -3936,14 +3934,15 @@ class gmoccapy(object):
 
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
-        self.widgets.offsetpage1.edit_button.set_active(state)
-        widgetlist = ["btn_set_value_x", "btn_set_value_y", "btn_set_value_z", 
-                      "btn_set_selected", "ntb_jog", "btn_set_selected", 
-                      "btn_zero_g92","rbt_mdi","rbt_auto","tbtn_setup"
-                      ]
+        self.widgets.offsetpage1.edit_button.set_active( state )
+        widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
+                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92",
+                      "rbt_mdi","rbt_auto","tbtn_setup"
+        ]
+
         if self.widgets.tbtn_user_tabs.get_sensitive():
             widgetlist.append("tbtn_user_tabs")
-        self._sensitize_widgets(widgetlist, not state)
+        self._sensitize_widgets( widgetlist, not state )
 
         if state:
             self.widgets.ntb_preview.set_current_page(1)

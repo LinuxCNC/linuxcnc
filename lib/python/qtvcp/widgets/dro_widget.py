@@ -14,11 +14,13 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+import linuxcnc
 import sys
 import os
 
 from PyQt5 import QtCore, QtWidgets
 
+from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
 from qtvcp import logger
@@ -35,9 +37,11 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
+class DROLabel(ScaledLabel, _HalWidgetBase):
     def __init__(self, parent=None):
         super(DROLabel, self).__init__(parent)
+        self._mode = False
+        self._joint_type = 1
         self.diameter = False
         self.reference_type = 0
         self.joint_number = 0
@@ -47,76 +51,116 @@ class DROLabel(QtWidgets.QLabel, _HalWidgetBase):
         self.angular_text_template = '%9.2f'
         self.setText('--------------')
         self.allow_reference_change_requests = True
+        self._scale = 1
 
     def _hal_init(self):
+        super(DROLabel, self)._hal_init()
         # get position update from STATUS every 100 ms
-        STATUS.connect('current-position', self.update)
-        STATUS.connect('metric-mode-changed', self._switch_units)
-        STATUS.connect('diameter-mode', self._switch_modes)
-        if self.allow_reference_change_requests:
-            STATUS.connect('dro-reference-change-request', self._status_reference_change)
+        if self.joint_number == 10:
+            STATUS.connect('current-z-rotation', self.update_rotation)
+        else:
+            STATUS.connect('motion-mode-changed',self.motion_mode)
+            STATUS.connect('current-position', self.update)
+            STATUS.connect('metric-mode-changed', self._switch_units)
+            STATUS.connect('diameter-mode', self._switch_modes)
+            if self.allow_reference_change_requests:
+                STATUS.connect('dro-reference-change-request', self._status_reference_change)
+            self._joint_type  = STATUS.stat.joint[self.joint_number]['jointType']
 
-    def update(self, widget, absolute, relative, dtg):
+        if self._joint_type == linuxcnc.ANGULAR:
+            self._current_text_template =  self.angular_text_template
+        elif self.display_units_mm:
+            self._current_text_template = self.metric_text_template
+        else:
+            self._current_text_template = self.imperial_text_template
+
+    def motion_mode(self, w, mode):
+        if mode == linuxcnc.TRAJ_MODE_COORD:
+            pass
+        # Joint mode
+        elif mode == linuxcnc.TRAJ_MODE_FREE:
+            self._mode = False
+        # axis 
+        elif mode == linuxcnc.TRAJ_MODE_TELEOP:
+            self._mode = True
+
+    def update_rotation(self, widget, rotation):
+        degtmpl = lambda s: self.angular_text_template % s
+        self.setText(degtmpl(rotation))
+
+    def update(self, widget, absolute, relative, dtg, joint):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             absolute = INFO.convert_units_9(absolute)
             relative = INFO.convert_units_9(relative)
             dtg = INFO.convert_units_9(dtg)
 
-        if self.display_units_mm:
-            tmpl = lambda s: self.metric_text_template % s
-        else:
-            tmpl = lambda s: self.imperial_text_template % s
-        degtmpl = lambda s: self.angular_text_template % s
-        # only joint 0 (X) can use diameter mode
-        if self.diameter and self.joint_number == 0:
-            scale = 2.0
-        else:
-            scale = 1
+        tmpl = lambda s: self._current_text_template % s
+
         try:
             if self.reference_type == 0:
-                if self.joint_number in (3,4,5):
-                    self.setText(degtmpl(absolute[self.joint_number]*scale))
+                if not self._mode and STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+                    self.setText(tmpl(joint[self.joint_number]))
                 else:
-                    self.setText(tmpl(absolute[self.joint_number]*scale))
+                    self.setText(tmpl(absolute[self.joint_number]*self._scale))
             elif self.reference_type == 1:
-                if self.joint_number in (3,4,5):
-                    self.setText(degtmpl(relative[self.joint_number]*scale))
-                else:
-                    self.setText(tmpl(relative[self.joint_number]*scale))
+                self.setText(tmpl(relative[self.joint_number]*self._scale))
             elif self.reference_type == 2:
-                if self.joint_number in (3,4,5):
-                    self.setText(degtmpl(dtg[self.joint_number]*scale))
-                else:
-                    self.setText(tmpl(dtg[self.joint_number]*scale))
+                self.setText(tmpl(dtg[self.joint_number]*self._scale))
         except:
             pass
-        return True
 
     def _status_reference_change(self,w ,value):
         self.reference_type = value
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
+        self.update_units()
+
+    def update_units(self):
+        if self._joint_type == linuxcnc.ANGULAR:
+            self._current_text_template =  self.angular_text_template
+        elif self.display_units_mm:
+            self._current_text_template = self.metric_text_template
+        else:
+            self._current_text_template = self.imperial_text_template
 
     def _switch_modes(self, w, mode):
         self.diameter = mode
+        # only joint 0 (X) can use diameter mode
+        if mode and self.joint_number == 0:
+            self._scale = 2.0
+        else:
+            self._scale = 1
 
     def set_to_inch(self):
         self.display_units_mm = 0
+        if self._joint_type == linuxcnc.ANGULAR:
+            self._current_text_template =  self.angular_text_template
+        else:
+            self._current_text_template = self.imperial_text_template
 
     def set_to_mm(self):
         self.display_units_mm = 1
+        if self._joint_type == linuxcnc.ANGULAR:
+            self._current_text_template =  self.angular_text_template
+        else:
+            self._current_text_template = self.metric_text_template
 
     def set_to_diameter(self):
         self.diameter = True
+        if self.joint_number == 0:
+            self._scale = 2.0
 
     def set_to_radius(self):
         self.diameter = False
+        self._scale = 1.0
 
 # property getter/setters
 
     # JOINT Number
     def setjoint_number(self, data):
+        if data >10: data = 10
+        if data < 0: data = 0
         self.joint_number = data
     def getjoint_number(self):
         return self.joint_number

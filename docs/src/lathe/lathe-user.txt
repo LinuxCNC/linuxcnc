@@ -61,23 +61,23 @@ The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
 .Lathe Tool Orientations
 
-image::images/tool_positions.png[align="center", alt="Lathe Tool Orientations"]
+image::images/tool-positions_en.svg[align="center", alt="Lathe Tool Orientations"]
 
 In AXIS the following figures show what the Tool Positions look like, as entered in the tool table.
 
 .Tool Positions 1, 2, 3 & 4
 
-image:images/tool_pos_1.png[alt="Tool Position 1"]
-image:images/tool_pos_2.png[alt="Tool Position 2"]
-image:images/tool_pos_3.png[alt="Tool Position 3"]
-image:images/tool_pos_4.png[alt="Tool Position 4"]
+image:images/tool-pos-1_en.svg[alt="Tool Position 1"]
+image:images/tool-pos-2_en.svg[alt="Tool Position 2"]
+image:images/tool-pos-3_en.svg[alt="Tool Position 3"]
+image:images/tool-pos-4_en.svg[alt="Tool Position 4"]
 
 .Tool Positions 5, 6, 7 & 8
 
-image:images/tool_pos_5.png[alt="Tool Position 5"]
-image:images/tool_pos_6.png[alt="Tool Position 6"]
-image:images/tool_pos_7.png[alt="Tool Position 7"]
-image:images/tool_pos_8.png[alt="Tool Position 8"]
+image:images/tool-pos-5_en.svg[alt="Tool Position 5"]
+image:images/tool-pos-6_en.svg[alt="Tool Position 6"]
+image:images/tool-pos-7_en.svg[alt="Tool Position 7"]
+image:images/tool-pos-8_en.svg[alt="Tool Position 8"]
 
 == Tool Touch Off
 
@@ -247,7 +247,7 @@ as you might assume.
 
 .Control Point
 
-image::images/control_point.png[align="center", alt="Control Point"]
+image::images/control-point_en.svg[align="center", alt="Control Point"]
 
 === Cutting Angles without Cutter Comp
 
@@ -258,7 +258,7 @@ as we are moving in an X or Z direction only.
 
 .Ramp Entry
 
-image::images/ramp_entry.png[align="center", alt="Ramp Entry"]
+image::images/ramp-entry_en.svg[align="center", alt="Ramp Entry"]
 
 Now as the control point progresses along the programmed path the
 actual cutter edge does not follow the programmed path as shown in the
@@ -267,7 +267,7 @@ adjusting your programmed path to compensate for tip radius.
 
 .Ramp Path
 
-image::images/ramp_cut.png[align="center", alt="Ramp Path"]
+image::images/ramp-cut_en.svg[align="center", alt="Ramp Path"]
 
 In the above example it is a simple exercise to adjust the programmed
 path to give the desired actual path by moving the programmed path for
@@ -282,7 +282,7 @@ path and the tool is touching the OD of the part.
 
 .Turning Cut
 
-image::images/radius_1.png[align="center", alt="Turning Cut"]
+image::images/radius-1_en.svg[align="center", alt="Turning Cut"]
 
 In this next figure you can see as the tool approaches the end of the
 part the control point still follows the path but the tool tip has left
@@ -291,14 +291,14 @@ has been programmed the part will actually end up with a square corner.
 
 .Radius Cut
 
-image::images/radius_2.png[align="center", alt="Radius Cut"]
+image::images/radius-2_en.svg[align="center", alt="Radius Cut"]
 
 Now you can see as the control point follows the radius programmed the
 tool tip has left the part and is now cutting air.
 
 .Radius Cut
 
-image::images/radius_3.png[align="center", alt="Radius Cut"]
+image::images/radius-3_en.svg[align="center", alt="Radius Cut"]
 
 In the final figure we can see the tool tip will finish cutting the
 face but leave a square corner instead of a nice radius. Notice also
@@ -309,7 +309,7 @@ past center at least the nose radius of the tool.
 
 .Face Cut
 
-image::images/radius_4.png[align="center", alt="Face Cut"]
+image::images/radius-4_en.svg[align="center", alt="Face Cut"]
 
 === Using Cutter Comp
 

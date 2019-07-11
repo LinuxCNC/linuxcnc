@@ -5380,7 +5380,7 @@ msgstr "Referenzfahrt aufhe_ben"
 
 #: share/axis/tcl/axis.tcl:200 ../share/axis/tcl/axis.tcl:198
 msgid "_Zero coordinate system"
-msgstr "Koordinatens_ystem"
+msgstr "Koordinatens_ystem nullen"
 
 #: share/axis/tcl/axis.tcl:204 ../share/axis/tcl/axis.tcl:202
 msgid "P1  G5_4"

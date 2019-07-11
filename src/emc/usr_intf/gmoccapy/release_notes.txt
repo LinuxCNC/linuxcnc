@@ -13,6 +13,9 @@ ver 3.0.0
 - support up to 16 macros
 - if an angular axis is used it will display an additional jog vel slider
 
+ver 2.3.5.1
+- removed unused import statements vte and pango from gmoccapy.py file
+
 ver 2.3.5
 - jogging a not homed machine did change the button state of MDI and AUTO to be
   sensitive, what is not correct.

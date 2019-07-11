@@ -86,7 +86,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g52,G52>>                  |Local Coordinate System Offset
 |<<gcode:g53,G53>>                  |Move in Machine Coordinates
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
-|<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
+|<<gcode:g61,G61>>                  |Exact Path Mode
+|<<gcode:g61.1,G61.1>>              |Exact Stop Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
@@ -216,14 +217,14 @@ If the arc is circular,
 it lies in a plane parallel to the selected plane.
 
 To program a helix, include the axis word perpendicular to the arc
-plane: for example, if in the 'G17' plane, include a 'Z' word. This
+plane, for example, if in the 'G17' plane, include a 'Z' word. This
 will cause the 'Z' axis to move to the programmed value during the
 circular 'XY' motion. 
 
 To program an arc that gives more than one full turn, use the 'P' word
 specifying the number of full turns plus the programmed arc. The 'P' word
 must be an integer. If 'P' is unspecified, the behavior is as if 'P1' was
-given: that is, only one full or partial turn will result. For example, if a
+given that is, only one full or partial turn will result. For example, if a
 180 degree arc is programmed with a P2, the resulting motion will be 1 1/2
 rotations. For each P increment above 1 an extra full circle is added to the
 programmed arc. Multi turn helical arcs are supported and give motion useful
@@ -360,7 +361,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2.png[align="center", alt="G2 Example"]
+image::images/g2_en.svg[align="center", alt="G2 Example"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -378,7 +379,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3.png[align="center", alt="G2-G3 Example"]
+image::images/g2-3_en.svg[align="center", alt="G2-G3 Example"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -920,11 +921,11 @@ G30 parameters will be used to move the tool when a M6 is programmed
 if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the ini file.
 
 * 'G30' - makes a <<gcode:g0,rapid move>> from the current
-  position to the 'absolute' position of the values in parameters 5181-5186.
+  position to the 'absolute' position of the values in parameters 5181-5189.
 
 * 'G30 axes' - makes a rapid move to the position specified
   by 'axes' including any offsets, then will make a rapid move to the
-  'absolute' position of the values in parameters 5181-5186 for all 'axes'
+  'absolute' position of the values in parameters 5181-5189 for all 'axes'
   specified. Any 'axis' not specified will not move.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
@@ -1275,7 +1276,7 @@ It is an error if:
 
 
 [[gcode:g43.1]]
-== G43.1: Dynamic Tool Length Offset
+== G43.1 Dynamic Tool Length Offset
 (((G43.1 Dynamic Tool Length Offset)))
 
 ----
@@ -1303,7 +1304,7 @@ It is an error if:
 NOTE: G43.1 does not write to the tool table.
 
 [[gcode:g43.2]]
-== G43.2: Apply additional Tool Length Offset
+== G43.2 Apply additional Tool Length Offset
 (((G43.2 Apply additional Tool Length Offset)))
 
 ----
@@ -1337,7 +1338,7 @@ It is an error if:
 NOTE: G43.2 does not write to the tool table.
 
 [[gcode:g49]]
-== G49: Cancel Tool Length Compensation
+== G49 Cancel Tool Length Compensation
 (((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
@@ -1429,13 +1430,16 @@ It is an error if:
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
 
-[[gcode:g61-g61.1]]
-== G61, G61.1 Exact Path Mode
+[[gcode:g61]]
+== G61 Exact Path Mode
 (((G61 G61.1 G64 Path Mode)))
 
 * 'G61' - Exact path mode, movement exactly as programed. Moves will slow or
 stop as needed to reach every programed point. If two sequential moves are
 exactly co-linear movement will not stop.
+
+[[gcode:g61.1]]
+==  G61.1 Exact Stop Mode
 
 * 'G61.1' - Exact stop mode, movement will stop at the end of each programed
 segment.
@@ -1541,7 +1545,7 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     8. Restore Feed and Speed override enables to previous state
 
-The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+The length of the dwell is specified by a 'P-' word in the G74 block. Thread pitch is F divided by S.
 In example S100 F125 gives pitch of 1.25MM per revolution.
 
 [[gcode:g76]]
@@ -1554,7 +1558,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L- $-
 
 .G76 Threading
 
-image::images/g76-threads.png[align="center", alt="G76 Threading"]
+image::images/g76-threads_en.svg[align="center", alt="G76 Threading"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1741,7 +1745,7 @@ times', Omitting the L word is equivalent to specifying L=1.
 
 The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
-the retract mode: either to the original Z position (if that is above
+the retract mode, either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<gcode:g98-g99,G98 G99>> Section.
 
@@ -1817,7 +1821,7 @@ The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
 specified.
 
-image::images/eight.png[align="center"]
+image::images/eight-holes_en.svg[align="center"]
 
 
 .Twelve Holes in a Square
@@ -1841,7 +1845,7 @@ N1090 Z0
 N1100 M2 (program end)
 ----
 
-image::images/twelve.png[align="center"]
+image::images/twelve-holes_en.svg[align="center"]
 
 The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control
@@ -1912,7 +1916,7 @@ being able to point a reader to a specific line of code.
 
 .G80 Cycle
     
-image::images/G81mult.png[align="center", alt="G80 Cycle"]
+image::images/g81mult_en.svg[align="center", alt="G80 Cycle"]
 
 The use of G80 in line N200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80 as shown in 
@@ -1971,7 +1975,7 @@ The following moves take place:
 
 . a rapid move parallel to the Z-axis to (Z3)
 
-image::images/G81ex1.png[align="center"]
+image::images/g81ex1_en.svg[align="center"]
 
 .Example 2 - Relative Position G81
 
@@ -2019,7 +2023,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 . a rapid move parallel to the Z-axis to (X13, Y17, Z4.8)
 
-image::images/G81ex2.png[align="center"]
+image::images/g81ex2_en.svg[align="center"]
 
 .Example 3 - Relative Position G81
 
@@ -2035,7 +2039,7 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image::images/G81.png[align="center"]
+image::images/g81_en.svg[align="center"]
 
 .Example 4 - Absolute G81 R > Z
 
@@ -2050,7 +2054,7 @@ initial Z0 and R1.8 and rapid moves to that location. After that initial Z
 move, the repeat feature works the same as it did in example 3 with the
 final Z depth being 0.6 below the R value.
 
-image::images/G81a.png[align="center"]
+image::images/g81a_en.svg[align="center"]
 
 .Example 5 - Relative position R > Z
 
@@ -2343,8 +2347,8 @@ Use 'G92.3' near the beginning of the second program. That will restore
 the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
-== G93, G94, G95: Feed Rate Mode
-(((G93, G94, G95: Feed Rate Mode)))
+== G93, G94, G95 Feed Rate Mode
+(((G93, G94, G95 Feed Rate Mode)))
 
 * 'G93' - is Inverse Time Mode. In inverse time feed rate mode, an F word
   means the move should be completed in [one divided by the F number]

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.18"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkTable" id="table1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkFrame" id="buttonsFrame">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0.5</property>
+            <property name="shadow_type">out</property>
+            <child>
+              <object class="GtkAlignment" id="alignmentR60">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkTable" id="table2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="n_rows">5</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="HAL_Button" id="button2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text" translatable="yes">user button 2
+configured from the ini file</property>
+                        <signal name="pressed" handler="on_button2_pressed" swapped="no"/>
+                        <signal name="released" handler="on_button2_released" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_padding">4</property>
+                        <property name="y_padding">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="button3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text" translatable="yes">user button 3
+configured from the ini file</property>
+                        <signal name="pressed" handler="on_button3_pressed" swapped="no"/>
+                        <signal name="released" handler="on_button3_released" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="x_padding">4</property>
+                        <property name="y_padding">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="button1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text" translatable="yes">user button 1
+configured from the ini file</property>
+                        <signal name="pressed" handler="on_button1_pressed" swapped="no"/>
+                        <signal name="released" handler="on_button1_released" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_padding">4</property>
+                        <property name="y_padding">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Button" id="button4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="has_tooltip">True</property>
+                        <property name="tooltip_text" translatable="yes">user button 4
+configured from the ini file</property>
+                        <signal name="pressed" handler="on_button4_pressed" swapped="no"/>
+                        <signal name="released" handler="on_button4_released" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="top_attach">4</property>
+                        <property name="bottom_attach">5</property>
+                        <property name="x_padding">4</property>
+                        <property name="y_padding">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LightButton" id="torch-enable">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">enable/disable torch output</property>
+                        <property name="border_width">2</property>
+                        <property name="button_halio_pin">False</property>
+                        <property name="button_on_text" translatable="yes">Torch Enabled</property>
+                        <property name="button_text" translatable="yes">Torch Disabled</property>
+                        <property name="corner_radius">2</property>
+                        <property name="font_off_color">#000000000000</property>
+                        <property name="font_on_color">#000000000000</property>
+                        <property name="light_off_color">#ffff00000000</property>
+                        <property name="light_on_color">#0000ffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="x_padding">4</property>
+                        <property name="y_padding">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="labelR61">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Buttons&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x_padding">1</property>
+            <property name="y_padding">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

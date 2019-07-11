@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Manual Pages
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
+Icon=linuxcncicon
+X-GNOME-DocPath=
+Terminal=false
+Comment=Integrator Information
+StartupNotify=false
+Categories=X-CNC;
+Keywords=cnc;linuxcnc;
+Name[en_US]=Manual Pages

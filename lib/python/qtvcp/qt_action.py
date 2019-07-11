@@ -123,12 +123,35 @@ class _Lcnc_Action(object):
 
     def OPEN_PROGRAM(self, fname):
         self.ensure_mode(linuxcnc.MODE_AUTO)
+        old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
-        if not flt:
-            self.cmd.program_open(str(fname))
-        else:
+
+        if flt:
+            log.debug('get {} filtered program {}'.format(flt,fname))
             self.open_filter_program(str(fname), flt)
-        self.RELOAD_DISPLAY()
+        else:
+            log.debug( 'Load program {}'.format(fname))
+            self.cmd.program_open(str(fname))
+
+            # STATUS can't tell if we are loading the same file.
+            # for instance if you edit a file then load it again.
+            # so we check for it and force an update:
+            if old == fname:
+                STATUS.emit('file-loaded',fname)
+
+    def SAVE_PROGRAM(self, source, fname):
+        if source == '': return
+        if '.' not in fname:
+            fname += '.ngc'
+        name, ext = fname.rsplit('.')
+        try:
+            outfile = open(name + '.' + ext.lower(),'w')
+            outfile.write(source)
+            STATUS.emit('update-machine-log', 'Saved: ' + fname, 'TIME')
+        except Exception as e:
+            print e
+        finally:
+            outfile.close()
 
     def SET_AXIS_ORIGIN(self,axis,value):
         m = "G10 L20 P0 %s%f"%(axis,value)
@@ -138,12 +161,23 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
-    def RUN(self):
+    def SET_TOOL_OFFSET(self,axis,value,fixture = False):
+        lnum = 10+int(fixture)
+        m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
+    def RUN(self, line=0):
         self.ensure_mode(linuxcnc.MODE_AUTO)
-        if STATUS.is_auto_paused():
+        if STATUS.is_auto_paused() and line ==0:
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
-        self.cmd.auto(linuxcnc.AUTO_RUN,0)
+        self.cmd.auto(linuxcnc.AUTO_RUN,line)
 
     def ABORT(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -156,6 +190,8 @@ class _Lcnc_Action(object):
             log.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
+    def SET_MAX_VELOCITY_RATE(self, rate):
+        self.cmd.maxvel(rate/60.0)
     def SET_RAPID_RATE(self, rate):
         self.cmd.rapidrate(rate/100.0)
     def SET_FEED_RATE(self, rate):
@@ -194,6 +230,15 @@ class _Lcnc_Action(object):
     def ZERO_ROTATIONAL_OFFSET(self):
         self.CALL_MDI("G10 L2 P0 R 0")
         self.RELOAD_DISPLAY()
+    def ZERO_G5X_OFFSET(self, num):
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        clear_command = "G10 L2 P%d R0" % num
+        for a in INFO.AVAILABLE_AXES:
+            clear_command += " %c0" % a
+        self.cmd.mdi('%s'% clear_command)
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
 
     def RECORD_CURRENT_MODE(self):
         mode = STATUS.get_current_mode()
@@ -203,23 +248,24 @@ class _Lcnc_Action(object):
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
 
-    def SET_SELECTED_AXIS(self, data):
-        STATUS.set_selected_axis(data)
+    def SET_SELECTED_JOINT(self, data):
+        STATUS.set_selected_joint(data)
 
-    # jog based on STATUS's rate and distace
-    def DO_JOG(self, axisnum, direction):
-        if axisnum in (3,4,5):
+    # jog based on STATUS's rate and distance
+    # use joint number for joint or axis joging
+    def DO_JOG(self, jointnum, direction):
+        if STATUS.stat.joint[jointnum]['jointType'] == linuxcnc.ANGULAR:
             distance = STATUS.get_jog_increment_angular()
             rate = STATUS.get_jograte_angular()/60
         else:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
-        self.JOG(axisnum, direction, rate, distance)
+        self.JOG(jointnum, direction, rate, distance)
 
-    # jog based on given varaibles
+    # jog based on given variables
     # checks for jog joint mode first
-    def JOG(self, axisnum, direction, rate, distance=0):
-        jjogmode,j_or_a = STATUS.get_jog_info(axisnum)
+    def JOG(self, jointnum, direction, rate, distance=0):
+        jjogmode,j_or_a = self.get_jog_info(jointnum)
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
@@ -269,9 +315,36 @@ class _Lcnc_Action(object):
                 'rotate-down', 'rotate-cw','rotate-ccw'):
             STATUS.emit('view-changed',view)
 
+    def SHUT_SYSTEM_DOWN_PROMPT(self):
+        import subprocess
+        subprocess.call('''gnome-session-quit --power-off''', shell=True)
+
+    def SHUT_SYSTEM_DOWN_NOW(self):
+        import subprocess
+        subprocess.call('shutdown now')
+
     ######################################
     # Action Helper functions
     ######################################
+
+    # In free (joint) mode we use the plain joint number.
+    # In axis mode we convert the joint number to the equivalent
+    # axis number - so in a dual-joint axis - jogging either will
+    # jog the axis
+    def get_jog_info (self,num):
+        if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            return True, self.jnum_check(num)
+        return False, INFO.GET_JOG_FROM_NAME[INFO.GET_NAME_FROM_JOINT[num]]
+
+    def jnum_check(self,num):
+        if STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
+            log.warning("Joint jogging not supported for non-identity kinematics")
+            #return -1
+        if num > INFO.JOINT_COUNT:
+            log.error("Computed joint number={} exceeds jointcount={}".format(num,INFO.JOINT_COUNT))
+            # decline to jog
+            return -1
+        return num
 
     def ensure_mode(self, *modes):
         truth, premode = STATUS.check_for_modes(modes)
@@ -283,15 +356,22 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
+        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))
-        print 'temp',tmp
         flt = FilterProgram(flt, fname, tmp, lambda r: r or self._load_filter_result(tmp))
 
     def _load_filter_result(self, fname):
-        if fname:
-            self.cmd.program_open(fname)
+        old = STATUS.stat.file
+        log.debug( 'Load filtered program {}'.format(fname))
+        self.cmd.program_open(str(fname))
+
+        # STATUS can't tell if we are loading the same file.
+        # for instance if you edit a file then load it again.
+        # so we check for it and force an update:
+        if old == fname:
+            STATUS.emit('file-loaded',fname)
 
     def _mktemp(self):
         if self.tmp:
@@ -361,12 +441,18 @@ class FilterProgram:
         if self.callback:
             self.callback(r)
 
+    # pop a (probable) dialog box
     def error(self, exitcode, stderr):
-        dialog = gtk.MessageDialog(None, 0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
-                _("The program %(program)r exited with code %(code)d.  "
-                "Any error messages it produced are shown below:")
-                    % {'program': self.program_filter, 'code': exitcode})
-        dialog.format_secondary_text(stderr)
-        dialog.run()
-        dialog.destroy()
+        message = _('The filter program %(program)r exited with an error')% {'program': self.program_filter}
+        more = _("Any error messages it produced are shown below:")
+        mess = {'NAME':'MESSAGE','ID':'ACTION_ERROR__',
+            'MESSAGE':message,
+            'MORE': more,
+            'DETAILS':stderr,
+            'ICON':'CRITICAL',
+            'FOCUS_TEXT': _('Filter program Error'),
+            'TITLE':'Program Filter Error'}
+        STATUS.emit('dialog-request', mess)
+        log.error('Filter Program Error:{}'.format (stderr))
+
 

@@ -141,7 +141,7 @@ Dialogs (AKA pop up windows) are placed on the screen in Designer. +
 It doesn't matter where on the layout but to make them hidden, +
 cycle the 'state' property to true then false. +
 By default, if there is a preference file, the dialogs will +
-rember their last size/placement. It is possible to override +
+remember their last size/placement. It is possible to override +
 this so they open in the same location each time. +
 
 === Styles (Themes)
@@ -149,5 +149,5 @@ this so they open in the same location each time. +
 While it is possible to set styles in designer, it is more +
 convenient to change them later if they are all set in a +
 separate .qss file. The file should be put in the same +
-location as the handler file.+
+location as the handler file. +
 

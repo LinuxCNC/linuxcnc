@@ -13,9 +13,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+import os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
+from qtvcp.widgets.dialog_widget import LcncDialog as Dialog
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -25,16 +28,24 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
+_DIALOG = Dialog()
 
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+CONFIGDIR = os.environ['CONFIG_DIR']
 
 class ToolBarActions():
-    def __init__(self):
+    def __init__(self, path=None):
+        self.path = path
         self.recentNum = 0
-        self.gcode_propeties = None
+        self.gcode_properties = None
+        self.maxRecent = 5
+        self.selected_line = 0
+        self._viewActiongroup = QtWidgets.QActionGroup(None)
+        self._touchoffActiongroup = QtWidgets.QActionGroup(None)
 
     def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
@@ -49,6 +60,8 @@ class ToolBarActions():
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
         def update_properties(d):
             self.gcode_properties = d
+        def update_selected(line):
+            self.selected_line = line
 
         if action == 'estop':
             STATUS.connect('state-estop', lambda w: widget.setChecked(True))
@@ -86,10 +99,10 @@ class ToolBarActions():
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
-            STATUS.connect('interp-paused', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(True))
+            STATUS.connect('interp-paused', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(homed_on_test()))
             function = (self.actOnRun)
         elif action == 'pause':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
@@ -121,114 +134,323 @@ class ToolBarActions():
             STATUS.connect('mode-manual', lambda w: widget.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(False))
             function = (self.actOnOptionalStop)
-        elif action == 'zoom_in':
-            function = (self.actOnZoomIn)
-        elif action == 'zoom_out':
-            function = (self.actOnZoomOut)
-        elif action == 'view_x':
-            function = (self.actOnViewX)
-        elif action == 'view_y':
-            function = (self.actOnViewY)
-        elif action == 'view_y2':
-            function = (self.actOnViewY2)
-        elif action == 'view_z':
-            function = (self.actOnViewZ)
-        elif action == 'view_z2':
-            function = (self.actOnViewZ2)
-        elif action == 'view_p':
-            function = (self.actOnViewp)
-        elif action == 'view_clear':
-            function = (self.actOnViewClear)
-        elif action == 'quit':
-            function = (self.actOnQuit)
-        elif action == 'recent_submenu':
+        elif action == 'touchoffworkplace':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setChecked(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(d, widget))
             function = None
+            self._touchoffActiongroup.addAction(widget)
+            self._touchoffActiongroup.setExclusive(True)
+        elif action == 'touchofffixture':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            function = None
+            self._touchoffActiongroup.addAction(widget)
+            self._touchoffActiongroup.setExclusive(True)
+        elif action == 'runfromline':
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-mdi', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-manual', lambda w: widget.setEnabled(False))
+            STATUS.connect('mode-auto', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('all-homed', lambda w: widget.setChecked(homed_on_test()))
+            STATUS.connect('gcode-line-selected', lambda w, line: update_selected(line))
+            function = (self.actOnRunFromLine)
+        elif action == 'load_calibration':
+            function = (self.actOnLoadCalibration)
+        elif action == 'load_halmeter':
+            function = (self.actOnLoadHalmeter)
+        elif action == 'load_halshow':
+            function = (self.actOnLoadHalshow)
+        elif action == 'load_status':
+            function = (self.actOnLoadStatus)
+        elif action == 'load_halscope':
+            function = (self.actOnLoadHalscope)
+        elif action == 'about':
+            function = (self.actOnAbout)
+        elif action == 'zoom_in':
+            function = (self.actOnZoomIn)
+        elif action == 'zoom_out':
+            function = (self.actOnZoomOut)
+        elif action == 'view_x':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewX)
+        elif action == 'view_y':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewY)
+        elif action == 'view_y2':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewY2)
+        elif action == 'view_z':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewZ)
+        elif action == 'view_z2':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewZ2)
+        elif action == 'view_p':
+            self._viewActiongroup.addAction(widget)
+            self._viewActiongroup.setExclusive(True)
+            function = (self.actOnViewp)
+        elif action == 'view_clear':
+            function = (self.actOnViewClear)
+        elif action == 'quit':
+            function = (self.actOnQuit)
+        elif action == 'system_shutdown':
+            function = (self.actOnSystemShutdown)
 
-        else:
+        elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
+        # Call an external function when triggered. If it's checkable; add state
         if extFunction:
-            widget.triggered.connect(extFunction)
-        elif function:
-            widget.triggered.connect(function)
+            if widget.isCheckable():
+                widget.triggered.connect(lambda state: extFunction(widget, state))
+            else:
+                widget.triggered.connect(lambda: extFunction(widget))
 
-    def actOnEstop(self, state):
+        # Call a function when triggered. If it's checkable; add state
+        elif function:
+            if widget.isCheckable():
+                widget.triggered.connect(lambda state: function(widget, state))
+            else:
+                widget.triggered.connect(lambda: function(widget))
+
+    def configure_submenu(self, widget, submenu):
+        submenu = submenu.lower()
+        if submenu == 'home_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            self.addHomeActions(widget)
+        elif submenu == 'unhome_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            self.addUnHomeActions(widget)
+        elif submenu == 'recent_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
+        elif submenu == 'zero_systems_submenu':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            self.addZeroSystemsActions(widget)
+        else:
+            LOG.warning('Unrecogzied sunmenu command: {}'.format(submenu))
+
+    #########################################################
+    # Standard Actions
+    #########################################################
+    def actOnEstop(self, widget, state):
         ACTION.SET_ESTOP_STATE(state)
 
-    def actOnPower(self, state):
+    def actOnPower(self, widget, state):
         ACTION.SET_MACHINE_STATE(state)
 
-    def actOnLoad(self):
-        STATUS.emit('load-file-request')
+    def actOnLoad(self,widget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'LOAD'})
 
-    def actOnReload(self):
+    def actOnReload(self,widget, state=None):
         STATUS.emit('reload-display')
 
-    def actOnProperties(self):
-        for i in self.gcode_properties:
-            print i, self.gcode_properties[i]
+    def actOnProperties(self,widget, state=None):
+        mess = ''
+        if self.gcode_properties:
+            for i in self.gcode_properties:
+                mess +='<b>%s</b>: %s<br>'%( i, self.gcode_properties[i])
+        else:
+            mess = 'No properties to display'
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setText(mess)
+        msg.setWindowTitle("Gcode Properties")
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
 
-    def actOnRun(self):
+    def actOnRun(self,widget, state=None):
         ACTION.RUN()
-
-    def actOnPause(self):
+    def actOnPause(self,widget, state=None):
         ACTION.PAUSE()
 
-    def actOnAbort(self):
+    def actOnAbort(self,widget, state=None):
         ACTION.ABORT()
 
-    def actOnBlockDelete(self, state):
+    def actOnBlockDelete(self, widget,  state):
         if state:
             ACTION.SET_BLOCK_DELETE_ON()
         else:
             ACTION.SET_BLOCK_DELETE_OFF()
 
-    def actOnOptionalStop(self, state):
+    def actOnOptionalStop(self, widget, state):
         if state:
             ACTION.SET_OPTIONAL_STOP_ON()
         else:
             ACTION.SET_OPTIONAL_STOP_OFF()
 
-    def actOnZoomIn(self):
-        STATUS.emit('view-changed', 'zoom-in')
+    def actOnLoadCalibration(self,widget, state=None):
+        AUX_PRGM.load_calibration()
 
-    def actOnZoomOut(self):
-        STATUS.emit('view-changed', 'zoom-out')
+    def actOnLoadHalmeter(self,widget, state=None):
+        AUX_PRGM.load_halmeter()
 
-    def actOnViewX(self):
-        STATUS.emit('view-changed', 'x')
+    def actOnLoadStatus(self,widget, state=None):
+        AUX_PRGM.load_status()
 
-    def actOnViewY(self):
-        STATUS.emit('view-changed', 'y')
+    def actOnLoadHalshow(self,widget, state=None):
+        AUX_PRGM.load_halshow()
 
-    def actOnViewY2(self):
-        STATUS.emit('view-changed', 'y2')
+    def actOnLoadHalscope(self,widget, state=None):
+        AUX_PRGM.load_halscope()
 
-    def actOnViewZ(self):
-        STATUS.emit('view-changed', 'z')
+    def actOnLoadExtTooledit(self,widget, state=None):
+        AUX_PRGM.load_tooledit()
 
-    def actOnViewZ2(self):
-        STATUS.emit('view-changed', 'z2')
+    def actOnLoadClassicladder(self,widget, state=None):
+        AUX_PRGM.load_ladder()
 
-    def actOnViewp(self):
-        STATUS.emit('view-changed', 'p')
+    def actOnZoomIn(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'zoom-in')
 
-    def actOnViewClear(self):
-        STATUS.emit('view-changed', 'clear')
+    def actOnZoomOut(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'zoom-out')
 
-    def actOnQuit(self):
+    def actOnViewX(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'x')
+
+    def actOnViewY(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'y')
+
+    def actOnViewY2(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'y2')
+
+    def actOnViewZ(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'z')
+
+    def actOnViewZ2(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'z2')
+
+    def actOnViewp(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'p')
+
+    def actOnViewClear(self,widget, state=None):
+        STATUS.emit('graphics-view-changed', 'clear')
+
+    def actOnQuit(self,widget, state=None):
         STATUS.emit('shutdown')
 
-    def actOnRecent(self):
-        pass
+    def actOnSystemShutdown(self, widget, state=None):
+        ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
-    def updateRecent(self, filename, widget):
+    def actOnAbout(self,widget, state=None):
+        msg = QtWidgets.QMessageBox()
+
+        mess =''
+        path = os.path.join(CONFIGDIR, 'README')
+        if os.path.exists(path):
+            for line in open(path):
+                mess += line
+            msg.setWindowTitle("README")
+        else:
+            msg.setWindowTitle("About")
+            mess = 'This is a QtVCP based screen for Linuxcnc'
+        msg.setText(mess)
+
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.show()
+        retval = msg.exec_()
+
+    def actOnRunFromLine(self, widget, state=False):
+        ACTION.RUN(self.selected_line)
+
+    #########################################################
+    # Sub menus
+    #########################################################
+    def addHomeActions(self,widget):
+        def home(joint):
+            ACTION.SET_MACHINE_HOMING(joint)
+
+        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        homeAct = QtWidgets.QAction('Home ALL', widget)
+        homeAct.triggered.connect(lambda: home(-1))
+        widget.addAction(homeAct)
+        for i in INFO.AVAILABLE_AXES:
+            homeAct = QtWidgets.QAction('Home %s'%i, widget)
+            homeAct.triggered.connect(lambda: home(conversion[i]))
+            widget.addAction(homeAct)
+
+    def addUnHomeActions(self,widget):
+        def unHome(joint):
+            ACTION.SET_MACHINE_UNHOMED(joint)
+
+        conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
+        homeAct = QtWidgets.QAction('Unhome ALL', widget)
+        homeAct.triggered.connect(lambda: unHome(-1))
+        widget.addAction(homeAct)
+        for i in INFO.AVAILABLE_AXES:
+            homeAct = QtWidgets.QAction('Unhome %s'%i, widget)
+            homeAct.triggered.connect(lambda: unHome(conversion[i]))
+            widget.addAction(homeAct)
+
+    def addZeroSystemsActions(self, widget):
+        # no idea why I can't use a for loop to build this like above
+        # but it never returned the right system index
+        zeroSysAct = QtWidgets.QAction('G54', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(1))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G55', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(2))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G56', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(3))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G57', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(4))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G58', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(5))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(6))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.1', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(7))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.2', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(8))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G59.3', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G5X_OFFSET(9))
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('G92', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_G92_OFFSET())
+        widget.addAction(zeroSysAct)
+        zeroSysAct = QtWidgets.QAction('Rotaional', widget)
+        zeroSysAct.triggered.connect(lambda: ACTION.ZERO_ROTATIONAL_OFFSET())
+        widget.addAction(zeroSysAct)
+
+
+
+    def updateRecent(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 
@@ -254,7 +476,7 @@ class ToolBarActions():
 
         # are we past 5 files? remove the lowest
         # else update cuurrent number
-        if self.recentNum  >5:
-            widget.removeAction(alist[5])
+        if self.recentNum  >self.maxRecent:
+            widget.removeAction(alist[self.maxRecent])
         else:
             self.recentNum +=1

@@ -44,6 +44,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         self.spindle = False
         self.jograte = False
         self.jograte_angular = False
+        self.max_velocity = False
 
     def _hal_init(self):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -63,7 +64,9 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
-
+        elif self.max_velocity:
+            STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_TRAJ_VELOCITY))
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -81,6 +84,8 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             ACTION.SET_JOG_RATE(value)
         elif self.jograte_angular:
             ACTION.SET_JOG_RATE_ANGULAR(value)
+        elif self.max_velocity:
+            ACTION.SET_MAX_VELOCITY_RATE(value)
         else:
             LOG.error('{} : no action recognised'.format(self.HAL_NAME_))
 
@@ -93,11 +98,12 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular')
+        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular',
+                'max-velocity')
 
         for i in data:
             if not i == picked:
-                self[i+'_action'] = False
+                self[i+'_rate'] = False
 
     def setrapid(self, data):
         self.rapid = data
@@ -144,11 +150,21 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def resetjograte_angular(self):
         self.jograte_angular = False
 
+    def setmax_velocity(self, data):
+        self.max_velocity = data
+        if data:
+            self._toggle_properties('max_velocity')
+    def getmax_velocity(self):
+        return self.max_velocity
+    def resetmax_velocity(self):
+        self.max_velocity = False
+
     rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
     spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
     jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
     jograte_angular_rate = pyqtProperty(bool, getjograte_angular, setjograte_angular, resetjograte_angular)
+    max_velocity_rate = pyqtProperty(bool, getmax_velocity, setmax_velocity, resetmax_velocity)
     ##############################
     # required class boiler code #
     ##############################

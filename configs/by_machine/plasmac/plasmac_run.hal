@@ -1,0 +1,24 @@
+
+#***** plasmac component ***********************************************
+net plasmac:axis-max-limit          ini.z.max_limit                     =>  plasmac.axis-z-max-limit
+net plasmac:axis-min-limit          ini.z.min_limit                     =>  plasmac.axis-z-min-limit
+
+#***** run page ********************************************************
+# outputs
+net plasmac:cornerlock-enable       plasmac_run.cornerlock-enable       =>  plasmac.cornerlock-enable
+net plasmac:cornerlock-threshold    plasmac_run.cornerlock-threshold-f  =>  plasmac.cornerlock-threshold
+net plasmac:cut-feed-rate           plasmac_run.cut-feed-rate-f         =>  plasmac.cut-feed-rate
+net plasmac:cut-height              plasmac_run.cut-height-f            =>  plasmac.cut-height
+net plasmac:cut-volts               plasmac_run.cut-volts-f             =>  plasmac.cut-volts
+net plasmac:kerfcross-enable        plasmac_run.kerfcross-enable        =>  plasmac.kerfcross-enable
+net plasmac:kerfcross-override      plasmac_run.kerfcross-override-f    =>  plasmac.kerfcross-override
+net plasmac:pid-p-gain              plasmac_run.pid-p-gain-f            =>  plasmac.pid-p-gain
+net plasmac:pierce-delay            plasmac_run.pierce-delay-f          =>  plasmac.pierce-delay
+net plasmac:pierce-height           plasmac_run.pierce-height-f         =>  plasmac.pierce-height
+net plasmac:puddle-jump-delay       plasmac_run.puddle-jump-delay-f     =>  plasmac.puddle-jump-delay
+net plasmac:puddle-jump-height      plasmac_run.puddle-jump-height-f    =>  plasmac.puddle-jump-height
+net plasmac:thc-enable              plasmac_run.thc-enable-out          =>  plasmac.thc-enable
+net plasmac:thc-delay               plasmac_run.thc-delay-f             =>  plasmac.thc-delay
+net plasmac:thc-threshold           plasmac_run.thc-threshold-f         =>  plasmac.thc-threshold
+net plasmac:use-auto-volts          plasmac_run.use-auto-volts          =>  plasmac.use-auto-volts
+

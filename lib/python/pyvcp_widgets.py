@@ -1116,20 +1116,30 @@ class pyvcp_bar(Canvas):
         <range2>(101,129,"orange")</range2>
         <range3>(130,150,"red")</range3>
         <fillcolor>"green"</fillcolor>
+        <canvas_width>200</canvas_width>
+        <canvas_height>50</canvas_height>
+        <bar_height>30</bar_height>
+        <bar_width>150</bar_width>
+        <format>"3.1f"</format>
     </bar>
     """
     n=0
 
     def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
                halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
-               range3=None,format='3.1f', **kw):
+               range3=None,format='3.1f', canvas_width=200,
+               canvas_height=50, bar_height=30, bar_width=150,**kw):
 
-        self.cw=200    # canvas width
-        self.ch=50     # canvas height
-        self.bh=30     # bar height
-        self.bw=150    # bar width
+        self.cw=canvas_width
+        self.ch=canvas_height
+        self.bh=bar_height
+        self.bw=bar_width
+        #self.cw=200    # canvas width
+        #self.ch=50     # canvas height
+        #self.bh=30     # bar height
+        #self.bw=150    # bar width
         self.pad=((self.cw-self.bw)/2)
-		
+
         Canvas.__init__(self,master,width=self.cw,height=self.ch)
 
         if halpin == None:
@@ -1514,8 +1524,33 @@ class pyvcp_scale(Scale):
 
 
 class pyvcp_table(Frame):
-    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows=""):
-        Frame.__init__(self, master)
+    """ Grid layout widget with rows and columns.
+        * flexible_columns - list of column indexes that should be flexible width
+        * flexible_rows - list of row indexes that should be flexible width
+        * uniform_columns - string of characters for each column, in order. Columns with the same character will be the same width.
+        * uniform_rows - string of characters for each row, in order. Rows with the same character will be the same height.
+        * (also accepts Tk options for Frame)
+
+        <table flexible_rows="[3]" flexible_columns="[3]" uniform_columns="aab" uniform_rows="aab" highlightthickness="10" highlightbackground="#CCCCCC">
+            <tablesticky sticky="nwes"/>
+            <!-- row 1 -->
+            <tablerow/>
+            <label text="AAAAAAAAA" />
+            <label text="BBBBBBBBB" />
+            <label text="CCCCCCCCC" />
+            <!-- row 2 -->
+            <tablerow/>
+            <label text="A" />
+            <label text="B" />
+            <label text="C" />
+            <!-- row 3 -->
+            <tablerow/>
+            <tablespan columns="3"/>
+            <label text="Merged columns" />
+        </table>
+    """
+    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows="", **kw):
+        Frame.__init__(self, master, **kw)
         for r in flexible_rows:
             self.grid_rowconfigure(r, weight=1)
         for c in flexible_columns:

@@ -232,7 +232,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Sections <<gcode:g61-g61.1,G61/G61.1>> and <<gcode:g64,G64>>.
+Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 
 == Interpreter Interaction with Switches
 

@@ -1,0 +1,238 @@
+Windows
+
+    GtkDialog — Create popup windows
+    GtkInvisible — A widget which is not displayed
+    GtkMessageDialog — A convenient message window
+    GtkWindow — Toplevel which can contain other widgets
+    GtkWindowGroup — Limit the effect of grabs
+    GtkAboutDialog — Display information about an application
+    GtkAssistant — A widget used to guide users through multi-step operations
+
+Display Widgets
+
+    GtkAccelLabel — A label which displays an accelerator key on the right of the text
+    GtkImage — A widget displaying an image
+    GtkLabel — A widget that displays a small to medium amount of text
+    GtkProgressBar — A widget which indicates progress visually
+    GtkStatusbar — Report messages of minor importance to the user
+    GtkStatusIcon — Display an icon in the system tray
+
+Buttons and Toggles
+
+    GtkButton — A widget that creates a signal when clicked on
+    GtkCheckButton — Create widgets with a discrete toggle button
+    GtkRadioButton — A choice from multiple check buttons
+    GtkToggleButton — Create buttons which retain their state
+    GtkLinkButton — Create buttons bound to a URL
+    GtkScaleButton — A button which pops up a scale
+    GtkVolumeButton — A button which pops up a volume control
+
+Numeric/Text Data Entry
+
+    GtkEntry — A single line text entry field
+    GtkEntryCompletion — Completion functionality for GtkEntry
+    GtkHScale — A horizontal slider widget for selecting a value from a range
+    GtkVScale — A vertical slider widget for selecting a value from a range
+    GtkSpinButton — Retrieve an integer or floating-point number from the user
+    GtkEditable — Interface for text-editing widgets
+
+Multiline Text Editor
+
+    Text Widget Overview — Overview of GtkTextBuffer, GtkTextView, and friends
+    GtkTextIter — Text buffer iterator
+    GtkTextMark — A position in the buffer preserved across buffer modifications
+    GtkTextBuffer — Stores attributed text for display in a GtkTextView
+    GtkTextTag — A tag that can be applied to text in a GtkTextBuffer
+    GtkTextTagTable — Collection of tags that can be used together
+    GtkTextView — Widget that displays a GtkTextBuffer
+
+Tree, List and Icon Grid Widgets
+
+    Tree and List Widget Overview — Overview of GtkTreeModel, GtkTreeView, and friends
+    GtkTreeModel — The tree interface used by GtkTreeView
+    GtkTreeSelection — The selection object for GtkTreeView
+    GtkTreeViewColumn — A visible column in a GtkTreeView widget
+    GtkTreeView — A widget for displaying both trees and lists
+    GtkTreeView drag-and-drop — Interfaces for drag-and-drop support in GtkTreeView
+    GtkCellView — A widget displaying a single row of a GtkTreeModel
+    GtkIconView — A widget which displays a list of icons in a grid
+    GtkTreeSortable — The interface for sortable models used by GtkTreeView
+    GtkTreeModelSort — A GtkTreeModel which makes an underlying tree model sortable
+    GtkTreeModelFilter — A GtkTreeModel which hides parts of an underlying tree model
+    GtkCellLayout — An interface for packing cells
+    GtkCellRenderer — An object for rendering a single cell on a GdkDrawable
+    GtkCellEditable — Interface for widgets which can are used for editing cells
+    GtkCellRendererAccel — Renders a keyboard accelerator in a cell
+    GtkCellRendererCombo — Renders a combobox in a cell
+    GtkCellRendererPixbuf — Renders a pixbuf in a cell
+    GtkCellRendererProgress — Renders numbers as progress bars
+    GtkCellRendererSpin — Renders a spin button in a cell
+    GtkCellRendererText — Renders text in a cell
+    GtkCellRendererToggle — Renders a toggle button in a cell
+    GtkListStore — A list-like data structure that can be used with the GtkTreeView
+    GtkTreeStore — A tree-like data structure that can be used with the GtkTreeView
+
+Menus, Combo Box, Toolbar
+
+    GtkComboBox — A widget used to choose from a list of items
+    GtkComboBoxEntry — A text entry field with a dropdown list
+    GtkMenu — A menu widget
+    GtkMenuBar — A subclass widget for GtkMenuShell which holds GtkMenuItem widgets
+    GtkMenuItem — The widget used for item in menus
+    GtkImageMenuItem — A menu item with an icon
+    GtkRadioMenuItem — A choice from multiple check menu items
+    GtkCheckMenuItem — A menu item with a check box
+    GtkSeparatorMenuItem — A separator used in menus
+    GtkTearoffMenuItem — A menu item used to tear off and reattach its menu
+    GtkToolbar — Create bars of buttons and other widgets
+    GtkToolItem — The base class of widgets that can be added to GtkToolbar
+    GtkSeparatorToolItem — A toolbar item that separates groups of other toolbar items
+    GtkToolButton — A GtkToolItem subclass that displays buttons
+    GtkMenuToolButton — A GtkToolItem containing a button with an additional dropdown menu
+    GtkToggleToolButton — A GtkToolItem containing a toggle button
+    GtkRadioToolButton — A toolbar item that contains a radio button
+
+Action-based menus and toolbars
+
+    GtkUIManager — Constructing menus and toolbars from an XML description
+    GtkActionGroup — A group of actions
+    GtkAction — An action which can be triggered by a menu or toolbar item
+    GtkToggleAction — An action which can be toggled between two states
+    GtkRadioAction — An action of which only one in a group can be active
+    GtkRecentAction — An action of which represents a list of recently used files
+
+Selectors (File/Font/Color/Input Devices)
+
+    GtkColorButton — A button to launch a color selection dialog
+    GtkColorSelection — A widget used to select a color
+    GtkColorSelectionDialog — A standard dialog box for selecting a color
+    GtkFileSelection — Prompt the user for a file or directory name
+    GtkFileChooser — File chooser interface used by GtkFileChooserWidget and GtkFileChooserDialog
+    GtkFileChooserButton — A button to launch a file selection dialog
+    GtkFileChooserDialog — A file chooser dialog, suitable for "File/Open" or "File/Save" commands
+    GtkFileChooserWidget — File chooser widget that can be embedded in other widgets
+    GtkFileFilter — A filter for selecting a file subset
+    GtkFontButton — A button to launch a font selection dialog
+    GtkFontSelection — A widget for selecting fonts
+    GtkFontSelectionDialog — A dialog box for selecting fonts
+    GtkInputDialog — Configure devices for the XInput extension
+
+Layout Containers
+
+    GtkAlignment — A widget which controls the alignment and size of its child
+    GtkAspectFrame — A frame that constrains its child to a particular aspect ratio
+    GtkHBox — A horizontal container box
+    GtkVBox — A vertical container box
+    GtkHButtonBox — A container for arranging buttons horizontally
+    GtkVButtonBox — A container for arranging buttons vertically
+    GtkFixed — A container which allows you to position widgets at fixed coordinates
+    GtkHPaned — A container with two panes arranged horizontally
+    GtkVPaned — A container with two panes arranged vertically
+    GtkLayout — Infinite scrollable area containing child widgets and/or custom drawing
+    GtkNotebook — A tabbed notebook container
+    GtkTable — Pack widgets in regular patterns
+    GtkExpander — A container which can hide its child
+
+Ornaments
+
+    GtkFrame — A bin with a decorative frame and optional label
+    GtkHSeparator — A horizontal separator
+    GtkVSeparator — A vertical separator
+
+Scrolling
+
+    GtkHScrollbar — A horizontal scrollbar
+    GtkVScrollbar
+    GtkScrolledWindow — Adds scrollbars to its child widget
+
+Printing
+
+    GtkPrintOperation — High-level Printing API
+    GtkPrintContext — Encapsulates context for drawing pages
+    GtkPrintSettings — Stores print settings
+    GtkPageSetup — Stores page setup information
+    GtkPaperSize — Support for named paper sizes
+    GtkPrinter — Represents a printer
+    GtkPrintJob — Represents a print job
+    GtkPrintUnixDialog — A print dialog
+    GtkPageSetupUnixDialog — A page setup dialog
+
+Miscellaneous
+
+    GtkAdjustment — A GtkObject representing an adjustable bounded value
+    GtkArrow — Displays an arrow
+    GtkCalendar — Displays a calendar and allows the user to select a date
+    GtkDrawingArea — A widget for custom user interface elements
+    GtkEventBox — A widget used to catch events for widgets which do not have their own window
+    GtkHandleBox — a widget for detachable window portions
+    GtkIMContextSimple — An input method context supporting table-based input methods
+    GtkIMMulticontext — An input method context supporting multiple, loadable input methods
+    GtkSizeGroup — Grouping widgets so they request the same size
+    GtkTooltip — Add tips to your widgets
+    GtkTooltips — Add tips to your widgets
+    GtkViewport — An adapter which makes widgets scrollable
+    GtkAccessible — Accessibility support for widgets
+
+Abstract Base Classes
+
+    GtkBin — A container with just one child
+    GtkBox — Base class for box containers
+    GtkButtonBox — Base class for GtkHButtonBox and GtkVButtonBox
+    GtkContainer — Base class for widgets which contain other widgets
+    GtkItem — Abstract base class for GtkMenuItem, GtkListItem and GtkTreeItem
+    GtkMenuShell — A base class for menu objects
+    GtkMisc — Base class for widgets with alignments and padding
+    GtkObject — The base class of the GTK+ type hierarchy
+    GtkPaned — Base class for widgets with two adjustable panes
+    GtkRange — Base class for widgets which visualize an adjustment
+    GtkScale — Base class for GtkHScale and GtkVScale
+    GtkScrollbar — Base class for GtkHScrollbar and GtkVScrollbar
+    GtkSeparator — Base class for GtkHSeparator and GtkVSeparator
+    GtkWidget — Base class for all widgets
+    GtkIMContext — Base class for input method contexts
+
+Cross-process Embedding
+
+    GtkPlug — Toplevel for embedding into other processes
+    GtkSocket — Container for widgets from other processes
+
+Special-purpose features
+
+    GtkCurve — Allows direct editing of a curve
+    GtkGammaCurve — A subclass of GtkCurve for editing gamma curves
+    GtkRuler — Base class for horizontal or vertical rulers
+    GtkHRuler — A horizontal ruler
+    GtkVRuler — A vertical ruler
+
+Recently Used Documents
+
+    GtkRecentManager — Managing Recently Used Files
+    GtkRecentChooser — Interface implemented by widgets displaying recently used files
+    GtkRecentChooserDialog — Displays recently used files in a dialog
+    GtkRecentChooserMenu — Displays recently used files in a menu
+    GtkRecentChooserWidget — Displays recently used files
+    GtkRecentFilter — A filter for selecting a subset of recently used files
+
+Interface builder
+
+    GtkBuildable — Interface for objects that can be built by GtkBuilder
+    GtkBuilder — Build an interface from an XML UI definition
+
+Deprecated
+
+    GtkCList — A multi-columned scrolling list widget
+    GtkCTree — A widget displaying a hierarchical tree
+    GtkCombo — A text entry field with a dropdown list
+    GtkItemFactory — A factory for menus
+    GtkList — Widget for packing a list of selectable items
+    GtkListItem — An item in a GtkList
+    GtkOldEditable — Base class for text-editing widgets
+    GtkOptionMenu — A widget used to choose from a list of valid choices
+    GtkPixmap — A widget displaying a graphical image or icon
+    GtkPreview — A widget to display RGB or grayscale data
+    GtkProgress — Base class for GtkProgressBar
+    GtkText — A text widget
+    GtkTipsQuery — Displays help about widgets in the user interface
+    GtkTree — A tree widget
+    GtkTreeItem — The widget used for items in a GtkTree
+

@@ -1,4 +1,3 @@
-
 //
 //    Copyright (C) 2007-2008 Sebastian Kuzminsky
 //
@@ -110,32 +109,36 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
             e->hal.param.filter,
             HM2_ENCODER_FILTER
         );
+        do_flag(
+            &hm2->encoder.control_reg[i],
+            e->reset_quadrature_error,
+            HM2_ENCODER_QUADRATURE_ERROR
+        );
     }
 }
 
 
 static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
     int i;
-    static int last_error_enable = 0;
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
 
         if (*e->hal.pin.quadrature_error_enable) {
-            if (!last_error_enable) {
+            e->reset_quadrature_error=0;
+            if(!e->prev_quadrature_error_enable){ // detect rising edge of pin quadrature_error_enable
+                e->reset_quadrature_error = 1;
                 hm2_encoder_force_write(hm2);
-                last_error_enable = 1;
-            } else {
-                int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
-                if ((*e->hal.pin.quadrature_error == 0) && state) {
-                    HM2_ERR("Encoder %d: quadrature count error", i);
-                }
-                *e->hal.pin.quadrature_error = (hal_bit_t) state;
             }
-        } else {
+            int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+            if ((*e->hal.pin.quadrature_error == 0) && state) {
+                HM2_ERR("Encoder %d: quadrature count error\n", i);
+            }
+            *e->hal.pin.quadrature_error = (hal_bit_t) state;
+        } else{ // quadrature error disabled, set reported error to 0
             *e->hal.pin.quadrature_error = 0;
-            last_error_enable = 0;
         }
+        e->prev_quadrature_error_enable = *e->hal.pin.quadrature_error_enable;
 
         *e->hal.pin.input_a = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_A;
         *e->hal.pin.input_b = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_B;
@@ -155,7 +158,9 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (hm2->encoder.has_skew) {
-        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
+        rtapi_u32 divisor = (1e9/hm2->encoder.clock_frequency);
+        // Unsigned division rounding for integers. This is only valid for unsigned division 
+        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew + (divisor/2))/divisor;
         
         if (skew > 15) {
             skew = 15;
@@ -472,6 +477,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.velocity-rpm", hm2->llio->name, i);
+            r = hal_pin_float_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.velocity_rpm), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.reset", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.reset), hm2->llio->comp_id);
             if (r < 0) {
@@ -689,6 +701,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
         *hm2->encoder.instance[i].hal.pin.position = 0.0;
         *hm2->encoder.instance[i].hal.pin.position_latch = 0.0;
         *hm2->encoder.instance[i].hal.pin.velocity = 0.0;
+        *hm2->encoder.instance[i].hal.pin.velocity_rpm = 0.0;
         *hm2->encoder.instance[i].hal.pin.quadrature_error = 0;
 
         hm2->encoder.instance[i].zero_offset = count;
@@ -944,6 +957,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                 if (dT_s >= e->hal.param.vel_timeout) {
                     *e->hal.pin.velocity = 0.0;
+                    *e->hal.pin.velocity_rpm = 0.0;
                     e->state = HM2_ENCODER_STOPPED;
                     break;
                 }
@@ -962,6 +976,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     vel = dS_pos_units / dT_s;
                     if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
                         *e->hal.pin.velocity = vel;
+                        *e->hal.pin.velocity_rpm = vel * 60.0;
                     }
                 }
 
@@ -1000,6 +1015,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     || (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == -1) && (e->prev_dS_counts > 0))
                 ) {
                     *e->hal.pin.velocity = 0.0;
+                    *e->hal.pin.velocity_rpm = 0.0;
                 } else {
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
@@ -1010,6 +1026,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     if (dT_clocks > 0) {
                         // finally time to do Relative-Time Velocity Estimation
                         *e->hal.pin.velocity = dS_pos_units / dT_s;
+                        *e->hal.pin.velocity_rpm = *e->hal.pin.velocity  * 60.0;
                     }
                 }
 

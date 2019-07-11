@@ -253,8 +253,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
-   'mini', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
@@ -583,6 +582,12 @@ time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
+
+* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
+* 'ON_ABORT_COMMAND=O <on_abort> call'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
