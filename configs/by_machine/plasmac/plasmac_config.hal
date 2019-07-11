@@ -9,6 +9,7 @@ net plasmac:arc-voltage-scale       plasmac_config.arc-voltage-scale-f      =>  
 net plasmac:float-switch-travel     plasmac_config.float-switch-travel-f    =>  plasmac.float-switch-travel
 net plasmac:height-per-volt         plasmac_config.height-per-volt-f        =>  plasmac.height-per-volt
 net plasmac:ohmic-max-attempts      plasmac_config.ohmic-max-attempts-s     =>  plasmac.ohmic-max-attempts
+net plasmac:ohmic-probe-enable      plasmac_config.ohmic-probe-enable          =>  plasmac.ohmic-probe-enable
 net plasmac:pid-d-gain              plasmac_config.pid-d-gain-f             =>  plasmac.pid-d-gain
 net plasmac:pid-i-gain              plasmac_config.pid-i-gain-f             =>  plasmac.pid-i-gain
 net plasmac:probe-feed-rate         plasmac_config.probe-feed-rate-f        =>  plasmac.probe-feed-rate

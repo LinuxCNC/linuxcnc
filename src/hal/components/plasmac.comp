@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.55.1 - 02 Jul 2019
+.I VERSION: 0.57 - 11 Jul 2019
 
 .I SUMMARY:
 .br
@@ -188,6 +188,7 @@ pin in  s32     mode                        "operating mode";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  float   offset_current              "current z axis offset, connect to axis.z.eoffset";
+pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
 pin in  bit     ohmic_probe                 "ohmic probe input";
 pin in  bit     ohmic_test                  "test for shorted torch";
@@ -275,6 +276,7 @@ variable float  offset_datum;               /* datum for safe height calcs */
 variable float  offset_min;                 /* minimum allowed offset */
 variable float  offset_max;                 /* maximum allowed offset */
 variable float  ohmic_attempts;             /* current ohmic probe attempts */
+variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable float  setup_velocity;             /* velocity for setup moves */
 variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
@@ -288,7 +290,7 @@ variable float  probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable float  probe_offset;               /* offset for active probe */
 variable float  probe_required = 1;         /* a probe sequence is required */
-variable float  probe_start_target;         /* probe start height target */
+variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
 variable float  probe_velocity;             /* probe down velocity */
 variable float  puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
@@ -409,8 +411,12 @@ FUNCTION(_) {
         }
     }
 
+    /* set THC state*/
     thc_enabled = (thc_enable && !thc_disable ? 1:0);
 
+    /* set ohmic probe state */
+    ohmic_detected = ohmic_probe && ohmic_probe_enable;
+    
     /* set adaptive feed reduction if no paused motion */
     if(state != PAUSED_MOTION){
         if(feed_reduction < 10 && state == CUTTING){
@@ -472,7 +478,7 @@ FUNCTION(_) {
                                           "program is paused.");
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
-        }else if(state > PIERCE_HEIGHT && ohmic_probe){
+        }else if(state > PIERCE_HEIGHT && ohmic_detected){
             torch_on = FALSE;
             program_pause = TRUE;
             stop_type = PAUSE;
@@ -531,7 +537,7 @@ FUNCTION(_) {
 /* state machine */
     switch(state){
         case IDLE:
-            if(probe_inhibit && !float_switch && !breakaway && !ohmic_probe){
+            if(probe_inhibit && !float_switch && !breakaway && !ohmic_detected){
                 probe_inhibit = FALSE;
             }else if(!probe_inhibit){
                 /* if we get a paused motion request and we are paused */
@@ -565,7 +571,7 @@ FUNCTION(_) {
                         state = PIERCE_HEIGHT;
                     }else{
                         ohmic_enable = TRUE;
-                        if(ohmic_probe && !probe_inhibit){
+                        if(ohmic_detected && !probe_inhibit){
                             ohmic_enable = FALSE;
                             probe_inhibit = TRUE;
                             if(probe_testing){
@@ -643,7 +649,7 @@ FUNCTION(_) {
                     rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected while moving to probe height.\n"
                                                   "program is paused.");
                 }
-            }else if(ohmic_probe){
+            }else if(ohmic_detected){
                 if(probe_testing){
                     rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected while moving to probe height.");
                     state = PROBE_TEST;
@@ -656,10 +662,9 @@ FUNCTION(_) {
                 }
             }else if(offset_counts - setup_velocity > probe_start_target){
                 offset_counts -= setup_velocity;
-            }else if(offset_counts + setup_velocity < probe_start_target){
-                offset_counts += setup_velocity;
-            }else{
+            }else if(offset_counts > probe_start_target){
                 offset_counts = probe_start_target;
+            }else{
                 if(float_detected){
                     if(!float_switch){
                         float_detected = FALSE;
@@ -682,14 +687,14 @@ FUNCTION(_) {
                     offset_counts -= probe_velocity;
                 }else{
                     target_sensed = 0;
-                    if(float_switch || ohmic_probe){
+                    if(float_switch || ohmic_detected){
                         state = PROBE_UP;
                     }else{
                         rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.");
                         state = IDLE;
                     }
                 }
-            }else if(!float_switch && !ohmic_probe){
+            }else if(!float_switch && !ohmic_detected){
                 if(axis_z_position - (probe_velocity * offset_scale) <= axis_z_min_limit){
                     if(!probe_test){
                         rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probing down.\n"
@@ -715,7 +720,7 @@ FUNCTION(_) {
                     ohmic_attempts += 1;
                     float_detected = TRUE;
                 }
-            }else if(ohmic_probe){
+            }else if(ohmic_detected){
                 probe_type = OHMIC;
                 target_sensed = TRUE;
                 probe_force = probe_force_val;
@@ -728,7 +733,7 @@ FUNCTION(_) {
                 state = PROBE_TEST;
                 break;
             }
-            if(float_switch || ohmic_probe){
+            if(float_switch || ohmic_detected){
                 offset_counts += 1;
             }else{
                 if(probe_type == OHMIC){
@@ -1233,7 +1238,7 @@ FUNCTION(_) {
             break;
         case DEBUG:
             /* holding state for debugging */
-            rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here.");
+            rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here...\n");
             break;
     }
 }

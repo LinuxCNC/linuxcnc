@@ -57,6 +57,7 @@ class HandlerClass:
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
         self.builder.get_object('max-offset-velocity-in').set_label(str(int(self.thcFeedRate)))
+        self.builder.get_object('ohmic-probe-enable').set_active(1)
         self.builder.get_object('ohmic-max-attempts').set_digits(0)
         self.builder.get_object('ohmic-max-attempts-adj').configure(0,0,10,1,0,0)
         self.builder.get_object('pid-i-gain').set_digits(0)
@@ -208,7 +209,7 @@ class HandlerClass:
                     if item in tmpDict:
                         self.builder.get_object(item).set_active(int(self.configDict.get(item)))
                     else:
-                        self.builder.get_object(item).set_active(False)
+#                        self.builder.get_object(item).set_active(False)
                         print('*** {} missing from {}'.format(item,self.configFile))
             if convertFile:
                 print('*** converting {} to new format'.format(self.configFile))
