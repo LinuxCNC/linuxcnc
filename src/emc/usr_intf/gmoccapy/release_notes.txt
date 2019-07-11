@@ -1,3 +1,8 @@
+ver 3.0.4
+- changed combi_DRO to emit two signals, if clicked on the left side in the range 
+  of the axis letter, the signal will open the set_axis_value dialog, clicking
+  on the right will toggle the DRO readout
+
 ver 3.0.3.2
 - tool measurement check, just once, not from several sides, store it as self.tool_measure_OK
 

@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.3.1"
+_RELEASE = " 3.0.4"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -577,6 +577,7 @@ class gmoccapy(object):
             dro.set_property("unhomed_color", gtk.gdk.color_parse(self.unhomed_color))
             dro.set_property("actual", self.dro_actual)
             dro.connect("clicked", self._on_DRO_clicked)
+            dro.connect('axis_clicked', self._on_DRO_axis_clicked)
             self.dro_dic[dro.name] = dro
 #            print dro.name
 
@@ -882,6 +883,8 @@ class gmoccapy(object):
             btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
             btn.connect("clicked", self._on_btn_set_value_clicked)
 
+            print("Touch button Name = ",name)
+
             self.widgets.hbtb_touch_off.pack_start(btn)
             
             if pos > end - 2:
@@ -899,7 +902,6 @@ class gmoccapy(object):
         # if there is space left, fill it with space labels
         start = self.widgets.hbtb_touch_off.child_get_property(btn,"position")
         for count in range(start + 1 , end):
-#            print("Count = ", count)
             lbl = self._get_space_label("lbl_space_{0}".format(count))
             self.widgets.hbtb_touch_off.pack_start(lbl)
             lbl.show()
@@ -3280,6 +3282,11 @@ class gmoccapy(object):
             self.dro_dic[dro].set_order(order)
         return
 
+    def _on_DRO_axis_clicked(self, widget, axisletter):
+        print("DRO Axisletter has been clicked", axisletter)
+           # should be named touch_x, touch_y etc.
+        self._on_btn_set_value_clicked(None, data=axisletter)
+
     def _offset_changed(self, pin, tooloffset):
         joint = None
         for axis in ("x", "z"):
@@ -3948,8 +3955,15 @@ class gmoccapy(object):
         self.widgets.btn_touch.emit("clicked")
 
     def _on_btn_set_value_clicked(self, widget, data=None):
-        print("touch button clicked ", widget.name)
-        axis = widget.name[-1]
+        if not self.stat.task_state == linuxcnc.STATE_ON or not (self.all_homed or self.no_force_homing):
+            return
+
+        if widget:
+            axis = widget.name[-1]
+        else:
+            axis = data
+
+        print("touch button clicked ", axis)
 
         if self.lathe_mode and axis =="x":
             if self.diameter_mode:

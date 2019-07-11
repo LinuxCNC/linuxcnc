@@ -1,7 +1,5 @@
  - ToDo:
 
-* touch off button near the DRO to reduce clicks
-
 * keyboard jogging for all axis, not only XYZ
 
 * reload file on first side in auto mode

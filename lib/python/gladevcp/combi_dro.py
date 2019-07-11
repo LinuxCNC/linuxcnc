@@ -91,6 +91,7 @@ class Combi_DRO(gtk.VBox):
                     'clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
                     'units_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
                     'system_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+                    'axis_clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
                     'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
 
@@ -214,10 +215,15 @@ class Combi_DRO(gtk.VBox):
         return attr
 
     # if the eventbox has been clicked, we like to toggle the DRO's
+    # or just emit a signal to allow GUI to do what ever they want with that
+    # signal- gmoccapy uses this signal to open the touch off dialog
     def _on_eventbox_clicked(self, widget, event):
-        if not self.toggle_readout:
-            return
-        self.toogle_readout()
+        if event.x <= self.lbl_axisletter.get_allocation().width + self.lbl_sys_main.get_allocation().width:
+            self.emit('axis_clicked', self.lbl_axisletter.get_text().lower())
+        else:
+            if not self.toggle_readout:
+                return
+            self.toogle_readout()
 
     # Get propertys
     def do_get_property(self, property):
