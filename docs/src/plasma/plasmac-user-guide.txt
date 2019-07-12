@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 :toclevels: 4
 
 [[cha:plasmac-user-guide]]
@@ -27,7 +28,7 @@ PlasmaC uses one of three different operating modes.
    Use external up/down for THC
 |===
 
-No Z axis motion is required in GCode, the standard PlasmaC configurations will comment out any Z commands during program load.
+No Z axis motion is required in G-Code, the standard PlasmaC configurations will comment out any Z commands during program load.
 
 For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
 
@@ -63,7 +64,7 @@ This section only touches on the I/O required for PlasmaC itself, base machine r
              Connected to the down output of the external THC control
 |===
 
-Only one of 'float switch' or 'ohmic probe' is required. If both are used then 'float switch' will be a fallback if 'ohmic probe' is not sensed.
+Only one of either 'float switch' or 'ohmic probe' is required. If both are used then 'float switch' will be a fallback if 'ohmic probe' is not sensed.
 
 If 'ohmic probe' is used then 'ohmic enable' is required.
 
@@ -210,7 +211,7 @@ You now have all the requirements to run PlasmaC, the next step is to create a w
 
 Base machine configuration means a complete working system. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
-You should be able to home your machine, touch off and run some test GCode without any errors.
+You should be able to home your machine, touch off and run some test G-Code without any errors.
 
 When this stage is completed you can configure PlasmaC on top of your working machine.
 
@@ -342,7 +343,7 @@ Would give a cutoff frequency of 100Hz.
 
 == PlasmaC GUI Panels
 
-PlasmaC adds several panels to the GUI some are panels on permanent display and others are tabs behind the preview tab.
+PlasmaC adds several panels to the GUI, some are panels on permanent display and others are tabs behind the preview tab.
 
 Some functions are only used for particular modes and are not displayed if not required.
 
@@ -362,7 +363,7 @@ image::images/plasmac_config.png[width=400]
 [width="100%",cols="4,2,14"]
 |===
 |*Name*|*Modes*|*Description*
-|Safe Height|0,1,2|This is the height above the work surface that the Z axis will retract to for rapid moves. +
+|Safe Height|0,1,2|This is the height above the work surface that the Z axis will retract to on rapid moves. +
                    If set to zero then Z axis maximum height will be used for the safe height.
 |Float Travel|0,1,2|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
 |Probe Speed|0,1,2|This is the speed the Z axis will probe down at after it moves to Probe Height.
@@ -430,8 +431,8 @@ image::images/plasmac_run.png[width=400]
 |===
 |*Name*|*Modes*|*Description*
 |State|0,1,2|Disabled = permanently off +
-             Auto = decide by THC Enable and GCode +
-             Enabled = on unless disabled by GCode
+             Auto = decide by THC Enable and G-Code +
+             Enabled = on unless disabled by G-Code
 |Use Auto Volts|0,1|On = THC control voltage is sampled from arc voltage +
                     Off = THC control voltage is from Cut Volts
 |Delay|0,1|Delay from cut start until sample voltage is taken
@@ -540,7 +541,7 @@ NOTE: Paused motion is only available in LinuxCNC version 2.9 or later.
 
 === Statistics Panel
 
-This provides some statistics to help in keeping track of consumable wear and job times.
+This provides statistics to allow tracking of consumable wear and job times.
 
 They are shown for the current job and are also as a running total.
 
@@ -552,7 +553,7 @@ image::images/plasmac_stats.png[width=400]
 
 == Using PlasmaC
 
-The only mandatory GCode requirement for a PlasmaC configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
+The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
 
 PlasmaC will read the cut parameters from the Run tab/panel and use them where required.
 
@@ -562,7 +563,7 @@ Material handling has nothing at all to do with the LinuxCNC tool table. In fact
 
 There is a material file with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
-It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run tab/panel/panel. It is also not a requirement to use the automatic material changes, just omit them from the GCode file.
+It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run tab/panel/panel. It is also not a requirement to use the automatic material changes, just omit them from the G-Code file.
 
 The following codes may be used for a PlasmaC configuration:
 
@@ -573,7 +574,7 @@ The following codes may be used for a PlasmaC configuration:
 
 NOTE: F#<_hal[plasmac.cut-feed-rate]> could be replaced with Fnnn, see THC notes below.
 
-For manual material handling all you need in the GCode is:
+For manual material handling all you need in the G-Code is:
 
 ----
 F#<_hal[plasmac.cut-feed-rate]>
@@ -584,7 +585,7 @@ M5
 
 For automatic material handling, the codes MUST be in the order shown.
 You could have other codes between them.
-In your GCode you need:
+In your G-Code you need:
 
 ----
 M190 Pn
@@ -607,7 +608,7 @@ NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run t
 
 THC can be controlled from the THC frame of the Run tab/panel, off = disabled, on = enabled and auto means abide by the THC Enable checkbox in the cut parameters.
 
-THC can also be enabled or disabled directly from GCode provided that THC is not disabled in the Run tab/panel.
+THC can also be enabled or disabled directly from G-Code provided that THC is not disabled in the Run tab/panel.
 
 PlasmaC uses a control voltage dependent on the state of the Use Auto Volts checkbox in the Run tab/panel:
 
@@ -616,9 +617,9 @@ PlasmaC uses a control voltage dependent on the state of the Use Auto Volts chec
 
 THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'.
 
-==== GCode THC
+==== G-Code THC
 
-THC may be disabled and enabled directly from GCode provided THC is not disabled in the Run tab/panel, by setting or resetting the 'motion.digital-out-02' pin with the MCodes M62-M65:
+THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run tab/panel, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
 
 * 'M62 P2' will disable THC (synchronised with motion)
 * 'M63 P2' will enable THC(synchronised with motion)
@@ -633,7 +634,7 @@ This percentage is displayed as Threshold % in the CornerLock frame of the Run t
 
 Velocity based THC prevents the torch height being changed when velocity is reduced for a sharp corner or a small hole.
 
-There is a HAL pin available named 'motion.analog-out-03' that can be changed in GCode with the M67/M68 commands. This pin will reduce the velocity to the percentage specified in the command.
+There is a HAL pin available named 'motion.analog-out-03' that can be changed in G-Code with the M67/M68 commands. This pin will reduce the velocity to the percentage specified in the command.
 
 * 'M67 E3 Q0' would set the velocity to 100% of 'CutFeedRate'.
 * 'M67 E3 Q40' would set the velocity to 40% of 'CutFeedRate'.
@@ -644,7 +645,7 @@ The minimum percentage allowed is 10%, values below this will be set to 100%.
 
 The maximum percentage allowed is 100%, values above this will be set to 100%.
 
-If you intend to use this feature it would be prudent to add 'M68 E3 Q0' to your GCode preamble and postamble so you start and end at a known state.
+If you intend to use this feature it would be prudent to add 'M68 E3 Q0' to your G-Code preamble and postamble so you start and end at a known state.
 
 NOTE: Another way of achieving the same result is to use 'F#<_hal[plasmac.cut-feed-rate]' with a multiplier.
 
@@ -798,13 +799,13 @@ NOTE: PAUSED-MOTION-SPEED is only valid for LinuxCNC version 2.9 or later
 
 -----
 PROGRAM_EXTENSION = .ngc (filter *.ngc files)
-ngc               = ./plasmac_gcode.py (this parses the GCode file and comments out any Z axis motion)
+ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments out any Z axis motion)
 -----
 
 ==== [RS274NGC] Section
 
 -----
-RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup GCode)
+RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
 SUBROUTINE_PATH       = ./:../../nc_files/subroutines (./ must be in this path)
 FEATURES              = 12 (for reading ini and hal variables)
 USER_M_PATH           = ./ (for M190 material change)
@@ -831,9 +832,11 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 -----
 
+PlasmaC relies on the External Offsets feature for all Z axis motion, for more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the Linuxcnc documentation.
+
 === Axis GUI Specific
 
-==== Axis [PLASMAC] Section
+==== [PLASMAC] Section
 
 -----
 FONT      = sans 11 (valid font sizes are from 10 to 15)
@@ -841,7 +844,7 @@ THEME     = Clearlooks (any installed theme)
 MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 -----
 
-==== Axis [DISPLAY] Section[[axis-display-section]]
+==== [DISPLAY] Section[[axis-display-section]]
 
 -----
 USER_COMMAND_FILE = plasmac_axis.py.py
@@ -860,9 +863,14 @@ EMBED_TAB_NAME    = Plasma Config
 EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
 -----
 
+The Run Window can be displayed as one of:
+
+- A panel on the right side of the Axis GUI which is suitable for widescreen displays.
+- A tab behind the Preview tab which is suitable for 4:3 ratio displays.
+
 === Gmoccapy GUI Specific
 
-==== Gmoccapy [DISPLAY] section[[gmoccapy-display-section]]
+==== [DISPLAY] section[[gmoccapy-display-section]]
 
 -----
 EMBED_TAB_NAME     = plasmac_buttons
@@ -894,6 +902,11 @@ EMBED_TAB_LOCATION = box_tool_and_code_info
 EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u plasmac_monitor.py -H plasmac_monitor.hal plasmac_monitor.glade
 -----
 
+The Run Window can be displayed as one of:
+
+- A panel on the left side of the Gmoccapy GUI which is suitable for widescreen displays.
+- A tab behind the Preview tab which is suitable for 4:3 ratio displays.
+
 == Custom User Buttons[[custom-user-buttons]]
 
 There are buttons available that are programmable in the ini file.
@@ -922,7 +935,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run GCode, external commands or two special functions, probe test and ohmic test.
+Buttons can run G-Code, external commands or two special functions, probe test and ohmic test.
 
 ==== Button External Commands
 
@@ -932,9 +945,9 @@ To run an external command, the command is preceded by a % character.
 BUTTON_n_CODE = %halshow
 ----
 
-==== Button GCode
+==== Button G-Code
 
-To run GCode, just enter the code to be run.
+To run G-Code, just enter the code to be run.
 
 ----
 BUTTON_n_CODE = G0 X100
@@ -959,7 +972,7 @@ Multiple codes can be run by separating the codes with a \
 BUTTON_n_CODE = G0 X0 Y0 \ G1 X5 \ G1 Y5
 ----
 
-External commands and Gcode may be mixed on the same button.
+External commands and G-Code may be mixed on the same button.
 
 ----
 BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
@@ -1002,10 +1015,10 @@ Files in the example configurations are:
 |plasmac_xxx.glade|a gladevcp panel connecting to the PlasmaC component
 |plasmac_xxx.hal|hal connections for the panel
 |plasmac_xxx.py|python code for the panel
-|xxx_startup.ngc|startup GCode commands
-|plasmac_gcode.py|removes z axis moves from the opened GCode file
+|xxx_startup.ngc|startup G-Code commands
+|plasmac_gcode.py|removes z axis moves from the opened G-Code file
 |plasmac_axis.py|python code to customise the Axis GUI
-|M190|for GCode changing of materials
+|M190|for G-Code changing of materials
 |materialverter.py|tool table file converter
 |configurator.py|configure a new or upgrade an existing PlasmaC configuration
 |===
@@ -1035,7 +1048,7 @@ The .cfg files are plain text and may be edited with any text editor.
 
 == NGC Samples
 
-There are some sample GCode files in nc_files/plasmac.
+There are some sample G-Code files in nc_files/plasmac.
 
 == Test Panel
 
@@ -1106,7 +1119,7 @@ image::images/plasmac_materialverter.png[width=400]
 
 For the Input File, select the tool table file you wish to convert.
 
-For the Output File, select the file that you wish to write to. This would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+For the Output File, select the file that you wish to write. This would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
 
 Select whether you would like a metric or imperial output file.
 
