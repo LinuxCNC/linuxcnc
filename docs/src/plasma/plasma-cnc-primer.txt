@@ -339,23 +339,25 @@ Power up your controller and open Halshow (Axis: Show Homing Configuration), Dri
 
 There is no doubt the THCAD-10 is the more flexible device and its easy to alter the scaling. However, there is one caveat that can come into play with some cheaper plasma cutters with an inbuilt voltage divider. That is, the internal resistors may be sensed by the THCAD as being part of its own external resistance and return erroneous results. For example, the 16:1 divider on the Everlast plasma cutters needs to be treated as 24:1 (and 50:1 becomes 75:1). This is not a problem with more reputable brands (eg. Thermal Dynamics, Hypertherm, ESAB etc). So if you are seeing lower than expected cutting voltages, it might be preferable to reconfigure the THCAD to read raw arc voltage (making sure to deduct any internal resistance from the required scaling resistor value. Compare the voltages from this method with those from the divided arc voltage input.
 
+Remembering that plasma arc voltages are potentially lethal, here are some suggested criteria. 
 
-Remembering that plasma arc voltages are potentially lethal, here are some suggested criteria.
+.Pilot Arc Start
 
-==== HF Start Machines:
+Because there is not likely to be any significant EMI, you should be able to safely install the THCAD in your control panel if you have followed our construction guidelines. 
 
-Install the THCAD at the inverter as the frequency signal is far more immune to EMI noise.
+* If you do not have a voltage divider, either install scaling resistors inside the plasma cutter and install the THCAD in the control panel or follow the suggestions for HF start machines.
 
-. If you do not have a voltage divider and you have room inside the plasma cutter, install a THCAD-300 inside the plasma cutter.
-. If you do not have a voltage divider and you do not have room inside the plasma cutter, install a THCAD-10 in a metal case outside the plasma cutter and install 50% of the scaling resistance on each of the IN+ and IN- inside the plasma cutter case so no lethal voltages come out of the case.
-. If you have a voltage divider, install a THCAD-10 in a metal case outside the plasma cutter
+* If you have a voltage divider, install a THCAD-10 in your control panel. We’ve had no problems with this configuration with a 120 amp Thermal Dynamics plasma cutter.
 
-==== Pilot Arc Start
+.HF Start
 
-Because there is not likely to be any significant EMI, you should be able to safely install the THCAD in your control panel if you have followed our construction guidelines
+Install the THCAD at the inverter as the frequency signal is far more immune to EMI noise. 
 
-. If you do not have a voltage divider, either install scaling resistors inside the plasma cutter and install the THCAD in the control panel or follow the suggestions for HF start machines.
-. If you have a voltage divider, install a THCAD-10 in your control panel. We’ve had no problems with this configuration with a 120 amp Thermal Dynamics plasma cutter.
+* If you do not have a voltage divider and you have room inside the plasma cutter, install a THCAD-300 inside the plasma cutter.
+
+* If you do not have a voltage divider and you do not have room inside the plasma cutter, install a THCAD-10 in a metal case outside the plasma cutter and install 50% of the scaling resistance on each of the IN+ and IN- inside the plasma cutter case so no lethal voltages come out of the case.
+
+* If you have a voltage divider, install a THCAD-10 in a metal case outside the plasma cutter
 
 == Post Processors And Nesting
 
