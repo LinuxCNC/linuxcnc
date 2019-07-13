@@ -1,10 +1,7 @@
-:lang: en
-:toc:
-:toclevels: 4
-
 [[cha:plasmac-user-guide]]
 
 = PlasmaC User Guide
+:toc:
 
 == License
 
@@ -96,11 +93,11 @@ This will give you a machine with the current stable (v2.7) branch of LinuxCNC, 
 
 === If You Have LinuxCNC v2.7
 
-You can choose between a standard package installation from the 'buildbot' or you can compile you own 'run in place' installation.
+You can choose between a standard package installation from the <<buildbot-install,buildbot>> or you can compile you own <<rip-install,run in place>> installation.
 
 [[buildbot-install]]
 
-==== Buildbot Installation
+.Buildbot Installation
 
 For more information on the buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
 
@@ -139,7 +136,7 @@ Go to <<sec:testing-linuxcnc,testing the linuxCNC installation>>
 
 [[rip-install]]
 
-==== Run In Place Installation
+.Run In Place Installation
 
 For more information on a run in place installation, see http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html[Building LinuxCNC]
 
@@ -195,7 +192,9 @@ You could then point this to an ini file and open a configuration. This command 
 $ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/plasmac/plasmac.ini
 ----
 
-=== Testing LinuxCNC Installation[[sec:testing-linuxcnc]]
+[[sec:testing-linuxcnc]]
+
+=== Testing LinuxCNC Installation
 
 The LinuxCNC Configuration Selector should open.
 
@@ -245,24 +244,21 @@ CAUTION: Do *NOT* proceed until this has been done
 
 If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad,Mesa THCAD>> before proceeding
 
-[[buildbot-configure]]
+[[configurator]]
 
-==== Add To A Buildbot Installation
+The type of installation determines where the configurator (configurator.py) will installed:
 
-Now you can run the configurator by double clicking on 'configurator.py' in the /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac directory or by running from a terminal with the following command:
+[width="100%",cols="4,16"]
+|===
+|*Type*|*Location*
+|BuildBot|/user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+|Run In Place|~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
+|===
 
-----
-$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
-----
-
-[[rip-configure]]
-
-==== Add To A Run In Place Installation
-
-Now you can run the configurator by double clicking on 'configurator.py' in the ~/linuxcnc-dev/configs/by_machine/plasmac directory or by running from a terminal with the following command:
+The configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
 
 ----
-$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
+$ python <path>/<to>/configurator.py
 ----
 
 NOTE: If the configurator does not run make sure that the file permissions allow executable.
@@ -329,7 +325,9 @@ IMPORTANT: If using a Mesa THCAD then up until now the 'Voltage Scale' value was
 
 CAUTION: Plasma cutting voltages can be lethal, if you are not experienced in doing these measurements get some qualified help.
 
-==== Lowpass Filter[[lowpass]]
+[[lowpass]]
+
+=== Lowpass Filter
 
 The PlasmaC HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
 
@@ -347,7 +345,9 @@ PlasmaC adds several panels to the GUI, some are panels on permanent display and
 
 Some functions are only used for particular modes and are not displayed if not required.
 
-=== Config Panel[[config-panel]]
+[[config-panel]]
+
+=== Config Panel
 This panel is for configuration parameters that are modified infrequently.
 
 It is possible to disable this panel so machine settings cannot be modified by unauthorised personnel. This is achieved by setting a variable in the ini file:
@@ -407,7 +407,7 @@ See <<axis-display-section,Axis [DISPLAY] Section>> or <<gmoccapy-display-sectio
 
 image::images/plasmac_run.png[width=400]
 
-==== Cut Parameters
+.Cut Parameters
 
 [width="100%",cols="4,16"]
 |===
@@ -425,7 +425,7 @@ image::images/plasmac_run.png[width=400]
 |P-Jump Delay|The puddle jump delay for the currently selected material
 |===
 
-==== THC
+.THC
 
 [width="100%",cols="4,2,14"]
 |===
@@ -440,7 +440,7 @@ image::images/plasmac_run.png[width=400]
 |Speed|0,1,2|THC correction speed
 |===
 
-==== Corner Lock
+.Corner Lock
 
 [width="100%",cols="4,16"]
 |===
@@ -450,7 +450,7 @@ image::images/plasmac_run.png[width=400]
 |Threshold|Percentage of Cut Feed Rate velocity needs to fall below to lock THC
 |===
 
-==== Kerf Crossing
+.Kerf Crossing
 
 [width="100%",cols="4,2,14"]
 |===
@@ -497,11 +497,11 @@ Both GUIs have a 'Torch Enable' button and all other buttons are user programmab
 
 See <<custom-user-buttons,Custom User Buttons>>
 
-Axis:
+.Axis:
 
 image::images/plasmac_buttons_a.png[width=400]
 
-Gmoccapy:
+.Gmoccapy:
 
 image::images/plasmac_buttons_g.png[width=100]
 
@@ -517,19 +517,19 @@ The control panel allows the control of some functions, both GUI's are similar e
 
 These functions are enabled and disable automatically depending on the status of the machine.
 
-Axis:
+.Axis:
 
 image::images/plasmac_control_a.png[width=300]
 
-Gmoccapy:
+.Gmoccapy:
 
 image::images/plasmac_control_g.png[width=300]
 
-==== Torch Pulse
+.Torch Pulse
 
 This pulses the torch on for the amount of time set in the corresponding slider.
 
-==== Paused Motion
+.Paused Motion
 
 When a program is paused, this allows x/y motion to follow the programmed path in the reverse or forward direction at the percentage of the current feed rate shown in the adjustment.
 
@@ -617,7 +617,7 @@ PlasmaC uses a control voltage dependent on the state of the Use Auto Volts chec
 
 THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'.
 
-==== G-Code THC
+.G-Code THC
 
 THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run tab/panel, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
 
@@ -626,7 +626,7 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 * 'M64 P2' will disable THC (immediately)
 * 'M65 P2' will enable THC(immediately)
 
-==== Velocity Based THC
+.Velocity Based THC
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
 
@@ -663,7 +663,9 @@ To use cutter compensation you will need to use G41.1, G42.1 and G40 with the ke
 * 'G42.1 D#<_hal[plasmac_run.kerf-width-f]>' for right of programmed path
 * 'G40' to turn compensation off
 
-=== IHS Skip[[ihs-skip]]
+[[ihs-skip]]
+
+=== IHS Skip
 
 IHS may be skipped in one of two different ways:
 
@@ -776,7 +778,7 @@ PlasmaC requires some specific ini file variables as follows:
 
 === Common
 
-==== [PLASMAC] Section
+.[PLASMAC] Section
 
 -----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
@@ -795,14 +797,14 @@ BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 
 NOTE: PAUSED-MOTION-SPEED is only valid for LinuxCNC version 2.9 or later
 
-==== [FILTER] Section
+.[FILTER] Section
 
 -----
 PROGRAM_EXTENSION = .ngc (filter *.ngc files)
 ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments out any Z axis motion)
 -----
 
-==== [RS274NGC] Section
+.[RS274NGC] Section
 
 -----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
@@ -811,7 +813,7 @@ FEATURES              = 12 (for reading ini and hal variables)
 USER_M_PATH           = ./ (for M190 material change)
 -----
 
-==== [HAL] Section
+.[HAL] Section
 
 -----
 TWOPASS = on (needed for multiple HAL files)
@@ -823,7 +825,7 @@ HALFILE = HALUI   = halui (required)
 
 NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
 
-==== [AXIS_Z] Section
+.[AXIS_Z] Section
 
 -----
 MIN_LIMIT        = the top of your slats or just below
@@ -836,7 +838,7 @@ PlasmaC relies on the External Offsets feature for all Z axis motion, for more i
 
 === Axis GUI Specific
 
-==== [PLASMAC] Section
+.[PLASMAC] Section
 
 -----
 FONT      = sans 11 (valid font sizes are from 10 to 15)
@@ -844,7 +846,9 @@ THEME     = Clearlooks (any installed theme)
 MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 -----
 
-==== [DISPLAY] Section[[axis-display-section]]
+[[axis-display-section]]
+
+.[DISPLAY] Section
 
 -----
 USER_COMMAND_FILE = plasmac_axis.py.py
@@ -870,7 +874,9 @@ The Run Window can be displayed as one of:
 
 === Gmoccapy GUI Specific
 
-==== [DISPLAY] section[[gmoccapy-display-section]]
+[[gmoccapy-display-section]]
+
+.[DISPLAY] section
 
 -----
 EMBED_TAB_NAME     = plasmac_buttons
@@ -907,7 +913,9 @@ The Run Window can be displayed as one of:
 - A panel on the left side of the Gmoccapy GUI which is suitable for widescreen displays.
 - A tab behind the Preview tab which is suitable for 4:3 ratio displays.
 
-== Custom User Buttons[[custom-user-buttons]]
+[[custom-user-buttons]]
+
+== Custom User Buttons
 
 There are buttons available that are programmable in the ini file.
 
@@ -935,9 +943,11 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run G-Code, external commands or two special functions, probe test and ohmic test.
+Buttons can run <<button-cmds,External Commands>>, <<button-code,G-Code>> or two special functions, <<button-probe,Probe Test>> and <<button-ohmic,Ohmic Test>>.
 
-==== Button External Commands
+[[button-cmds]]
+
+.External Commands
 
 To run an external command, the command is preceded by a % character.
 
@@ -945,7 +955,9 @@ To run an external command, the command is preceded by a % character.
 BUTTON_n_CODE = %halshow
 ----
 
-==== Button G-Code
+[[button-code]]
+
+.G-Code
 
 To run G-Code, just enter the code to be run.
 
@@ -978,11 +990,9 @@ External commands and G-Code may be mixed on the same button.
 BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 ----
 
-==== Button Special Commands
+[[button-probe]]
 
-There are two special commands which provide PlasmaC specific functions
-
-===== Probe Test
+.Probe Test
 
 ----
 BUTTON_n_CODE = probe-test 30
@@ -990,7 +1000,9 @@ BUTTON_n_CODE = probe-test 30
 
 PlasmaC will begin a probe and when the probe is detected, the Z axis will rise to the Pierce Height currently displayed in the Run tab/panel. It will then wait in this state for the time specified (in this case 30 seconds) then it will return the Z axis to the top.
 
-===== Ohmic Test
+[[button-ohmic]]
+
+.Ohmic Test
 
 ----
 BUTTON_n_CODE = ohmic-test
@@ -1084,9 +1096,9 @@ Normally there is no reason to run the configurator after an upgrade.
 
 If you have decided to change the type of installation:
 
-* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install,buildbot installation>> then do a <<buildbot-configure,buildbot configure>> and select upgrade.
+* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install,buildbot installation>> then do a <<configurator,buildbot configure>> and select upgrade.
 
-* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install,run in place installation>> then do a <<rip-configure,run in place configure>> and select upgrade.
+* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install,run in place installation>> then do a <<configurator,run in place configure>> and select upgrade.
 
 This brings up the selection window:
 
@@ -1127,7 +1139,9 @@ Click Convert and your new material file will be written.
 
 NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
 
-== Mesa THCAD[[mesa-thcad]]
+[[mesa-thcad]]
+
+== Mesa THCAD
 
 The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
@@ -1148,11 +1162,11 @@ hm2_7i76e.0.encoder.00.velocity
 
 === Obtaining The Divider Ratio
 
-==== Using A CNC Port On The Plasma Power Supply
+.Using A CNC Port On The Plasma Power Supply
 
 Divider ratio equals the selected internal divider ratio.
 
-==== THCAD-10
+.THCAD-10
 
 A common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
 
@@ -1160,7 +1174,7 @@ IMPORTANT: If you are using a HF start plasma power supply then each of these re
 
 To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 +100000) / 100000 giving a ratio of 21.
 
-==== THCAD-300
+.THCAD-300
 
 Divider ratio = 29
 
@@ -1179,7 +1193,7 @@ Or similar values, these are the frequencies generated by the THCAD for 0 volts 
 
 For our calculations, we will use 32 from the jumper setting 'F/32' and 10 which is the full scale reading of the THCAD card itself.
 
-==== Voltage Scale
+.Voltage Scale
 
 Use the formula:
 
@@ -1195,7 +1209,7 @@ The THCAD-10 example above would be:
 21/((925300-121100)/32/10) = 0.00835613
 ----
 
-==== Voltage Offset
+.Voltage Offset
 
 Use the formula:
 
