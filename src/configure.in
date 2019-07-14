@@ -920,6 +920,13 @@ AC_ARG_WITH(insmod,
             INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
 
+AC_PATH_PROGS(YAPPS, [yapps yapps2])
+if test -z "$YAPPS"; then
+  AC_MSG_ERROR([yapps is required to build LinuxCNC
+install with "sudo apt-get install yapps2"])
+fi
+AC_SUBST(YAPPS)
+
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
