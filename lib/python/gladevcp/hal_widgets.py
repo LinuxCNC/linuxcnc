@@ -49,12 +49,12 @@ class _HalToggleBase(_HalWidgetBase):
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
-        
         self.hal_pin.set(self.get_value())
-
+        self.hal_pin_s.set(int(self.get_value()))
 
 class _HalIOScaleBase(_HalWidgetBase):
     def _hal_init(self):
