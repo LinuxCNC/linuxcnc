@@ -1,3 +1,4 @@
+#                                                     -*-makefile-gmake-*-
 # Makefile.modinc includes rules for building HAL realtime modules outside
 # the LinuxCNC source tree.  It has three useful targets:
 #
