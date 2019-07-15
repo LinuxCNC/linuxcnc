@@ -225,6 +225,7 @@ case $TARGET in
 	KERNEL_DEPENDS=libudev-dev,iptables
 	KERNEL_HEADERS=
 	KERNEL_VERSION=uspace
+        MODUTILS_DEPENDS=
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
 	DISTRIB_NAME=uspace-$DISTRIB_NAME

@@ -15,7 +15,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python-vte | gir1.2-vte-2.91,
     @PYTHON_GST@,
     python-xlib, python-gtkglext1, python-configobj,
-    tclreadline, procps, psmisc, module-init-tools | kmod, tclx,
+    tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt
 Description: motion controller for CNC machines and robots
  LinuxCNC is the next-generation Enhanced Machine Controller which
