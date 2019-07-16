@@ -234,11 +234,11 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     hal_type_t type = HAL_TYPE_UNINITIALIZED;
     hal_data_u* ptr;
     bool conn;
-    char hal_name[LINELEN];
+    char hal_name[HAL_NAME_LEN];
 
     *status = 0;
     if (!comp_id) {
-	char hal_comp[LINELEN];
+	char hal_comp[HAL_NAME_LEN];
 	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
 	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
 	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
