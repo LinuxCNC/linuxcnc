@@ -336,8 +336,10 @@ int Interp::_execute(const char *command)
           }
       }
       _setup.mdi_interrupt = false;
-     if (MDImode)
+      if (MDImode) {
 	  FINISH();
+          _setup.offset_map.clear();
+      }
       return INTERP_OK;
     }
 
@@ -839,6 +841,7 @@ int Interp::init()
   _setup.value_returned = 0;
   _setup.remap_level = 0; // remapped blocks stack index
   _setup.call_state = CS_NORMAL;
+  _setup.num_spindles = 1;
 
   // default arc radius tolerances
   // we'll try to override these from the ini file below
@@ -862,6 +865,7 @@ int Interp::init()
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
+          inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
 
           if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
               _setup.a_indexer_jnum = atol(inistring);
@@ -1168,7 +1172,7 @@ int Interp::init()
   _setup.sequence_number = 0;   /*DOES THIS NEED TO BE AT TOP? */
 //_setup.speed set in Interp::synch
   _setup.speed_feed_mode = CANON_INDEPENDENT;
-  _setup.spindle_mode = CONSTANT_RPM;
+// setup.spindle_mode  set in interp_synch;
 //_setup.speed_override set in Interp::synch
 //_setup.spindle_turning set in Interp::synch
 //_setup.stack does not need initialization
@@ -1982,33 +1986,35 @@ int Interp::synch()
 {
 
   char file_name[LINELEN];
-
-  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.current_x  = GET_EXTERNAL_POSITION_X();
+  _setup.current_y  = GET_EXTERNAL_POSITION_Y();
+  _setup.current_z  = GET_EXTERNAL_POSITION_Z();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
+  _setup.u_current  = GET_EXTERNAL_POSITION_U();
+  _setup.v_current  = GET_EXTERNAL_POSITION_V();
+  _setup.w_current  = GET_EXTERNAL_POSITION_W();
+
+  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
-  _setup.current_x = GET_EXTERNAL_POSITION_X();
-  _setup.current_y = GET_EXTERNAL_POSITION_Y();
-  _setup.current_z = GET_EXTERNAL_POSITION_Z();
-  _setup.u_current = GET_EXTERNAL_POSITION_U();
-  _setup.v_current = GET_EXTERNAL_POSITION_V();
-  _setup.w_current = GET_EXTERNAL_POSITION_W();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
   _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
-  _setup.speed = GET_EXTERNAL_SPEED();
-  _setup.spindle_turning = GET_EXTERNAL_SPINDLE();
   _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-  _setup.speed_override = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
   _setup.feed_hold = GET_EXTERNAL_FEED_HOLD_ENABLE();
-
+  for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++){
+	  _setup.speed[s] = GET_EXTERNAL_SPEED(s);
+	  _setup.spindle_turning[s] = GET_EXTERNAL_SPINDLE(s);
+	  _setup.speed_override[s] = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(s);
+	  _setup.spindle_mode[s] = CONSTANT_RPM;
+  }
   GET_EXTERNAL_PARAMETER_FILE_NAME(file_name, (LINELEN - 1));
   save_parameters(((file_name[0] ==
                              0) ?
@@ -2020,6 +2026,12 @@ int Interp::synch()
   // read_inputs(&_setup); // input/probe/toolchange
 
   write_settings(&_setup);
+
+#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
+  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
+    return INTERP_ERROR;
+  }
+#endif
 
   return INTERP_OK;
 }

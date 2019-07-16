@@ -21,6 +21,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,10 +79,10 @@ static int read_configfile (char *fname, struct cfg_cfg *cfg)
 	char	*val;
 	int	i;
 	
-	 printf("INFO CLASSICLADDER---Reading MODBUS config file -%s\n",fname);
+	 printf(_("INFO CLASSICLADDER---Reading MODBUS config file -%s\n"),fname);
 	fp = fopen (fname, "r");
 	if (fp == NULL) {
-		fprintf (stderr, "Cannot open %s file !!!\n", fname);
+		fprintf (stderr, _("Cannot open %s file !!!\n"), fname);
 		return -1;
 	}
 	
@@ -110,7 +113,7 @@ static int read_configfile (char *fname, struct cfg_cfg *cfg)
 				break;
 			}	
 			default:
-				fprintf (stderr, "Unknown configtype for %s: %d\n", line, cfg[i].type);
+				fprintf (stderr, _("Unknown configtype for %s: %d\n"), line, cfg[i].type);
 				break;
 			}	
 			break;	

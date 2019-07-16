@@ -339,6 +339,11 @@ Estimated encoder velocity in position units
 per second.
 
 .TP
+(float out) velocity-rpm
+Estimated encoder velocity in position units
+per minute.
+
+.TP
 (bit in) reset
 When this pin is TRUE, the count and position pins are
 set to 0.  (The value of the velocity pin is not affected by this.)
@@ -406,7 +411,7 @@ guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
 
 .TP
-(s32 r/w) hm2_XiXX.N.encoder.MM.timer\-num (default: \-1)
+(s32 r/w) hm2_XiXX.N.encoder.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch encoder counts.  A setting
 of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
 as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
@@ -529,7 +534,7 @@ This parameter sets the SSI clock frequency. The units are kHz, so 500 will give
 a clock frequency of 500,000 Hz. 
 
 .TP 
-(s32 r/w) hm2_XiXX.N.ssi.MM.timer\-num
+(s32 r/w) hm2_XiXX.N.ssi.timer-number\-num
 This parameter allocates the SSI module to a specific hm2dpll timer instance.
 This pin is only of use in firmwares which contain a hm2dpll function and will
 default to 1 in cases where there is such a function, and 0 if there is not. 
@@ -630,6 +635,11 @@ parameter.
 (float, out) velocity
 Calculated from the rotational velocity and the 
 velocity\-scale parameter. The default scale is electrical rotations per second. 
+
+.TP
+(float, out) velocity-rpm
+Simply velocity scaled by a factor of 60 for convenience. 
+
 
 .TP
 (s32, out) count
@@ -1010,7 +1020,7 @@ the dmesg output) on the first phase of the step sequence, and table\-data\-4 =
 stage of the step sequence. 
 
 .TP
-(s32 r/w) hm2_XiXX.N.stepgen.MM.timer\-num (default: \-1)
+(s32 r/w) hm2_XiXX.N.stepgen.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch stepgen counts.  A setting
 of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
 as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main

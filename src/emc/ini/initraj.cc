@@ -69,8 +69,8 @@ static int loadKins(EmcIniFile *trajInifile)
   ANGULAR_UNITS <float>           units per degree
   DEFAULT_LINEAR_VELOCITY <float> default linear velocity
   MAX_LINEAR_VELOCITY <float>     max linear velocity
-  DEFAULT_LINEAR_ACCEL <float>    default linear acceleration
-  MAX_LINEAR_ACCEL <float>        max linear acceleration
+  DEFAULT_LINEAR_ACCELERATION <float> default linear acceleration
+  MAX_LINEAR_ACCELERATION <float>     max linear acceleration
 
   calls:
 
@@ -90,6 +90,19 @@ static int loadTraj(EmcIniFile *trajInifile)
     double acc;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
+
+    try{
+		int spindles = 1;
+		trajInifile->Find(&spindles, "SPINDLES", "TRAJ");
+		if (0 != emcTrajSetSpindles(spindles)) {
+			return -1;
+		}
+    }
+
+    catch (EmcIniFile::Exception &e) {
+        e.Print();
+        return -1;
+    }
 
     try{
 	int axismask = 0;
@@ -168,7 +181,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
 
         acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "DEFAULT_LINEAR_ACCEL", "TRAJ");
+        trajInifile->Find(&acc, "DEFAULT_LINEAR_ACCELERATION", "TRAJ");
         if (0 != emcTrajSetAcceleration(acc)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAcceleration\n");
@@ -178,7 +191,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         old_inihal_data.traj_default_acceleration = acc;
 
         acc = 1e99; // let the axis values apply
-        trajInifile->Find(&acc, "MAX_LINEAR_ACCEL", "TRAJ");
+        trajInifile->Find(&acc, "MAX_LINEAR_ACCELERATION", "TRAJ");
         if (0 != emcTrajSetMaxAcceleration(acc)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetMaxAcceleration\n");

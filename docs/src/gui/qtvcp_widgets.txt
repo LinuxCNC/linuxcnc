@@ -1,0 +1,520 @@
+= QTvcp Widgets
+
+Qtscreen uses QTvcp widgets for linuxcnc integration. +
+Widget is the general name for the UI objects such as buttons and labels in QTpy. +
+You are free to use any available widgets in the QTDesigner editor. +
+There are also special widgets made for linuxcnc that make integration easier. +
+This are split in two heading on the right side of the editor. +
+One is for HAL only widgets. +
+The other is for cnc control widgets. +
+you are free to mix them in any way on your panel. +
+
+== HAL Only Widgets
+
+These Widgets usually have HAL pins and don't react to the machine Controller
+
+=== XEmbed Widget
+
+Allows one to embed program into the widget. +
+only programs that utilize the xembed protocol will work such as: +
+
+* gladevcp virtual control panels
+* Onboard virtual keyboard
+* qtvcp virtual control panels
+* mplayer video player
+
+=== Slider Widget
+
+Allows one to adjust a HAL pins using a sliding pointer. +
+
+=== LED Widget
+
+An indicator that follows a HAL pin's logic
+
+=== Checkbox Widget
+
+This widget allows the user to check a box to set a HAL pin true or false. +
+
+It is based on pyQT's QCheckButton
+
+=== Radio Button Widget
+
+This widget allows a user to set HAL pins true or false. +
+Only one widget of a group can be true at a time. +
+
+It is based on pyQT's QRadioButton
+
+=== Push Button Widget
+
+This widget allows a user to set a HAL pin true or false. +
+as an option it can be a toggle button. +
+
+It is based on pyQT's QpushButton
+
+=== Focus Overlay Widget
+
+This widget places a coloured overlay over the screen usually while a dialog is showing. +
+Used to create a 'focused' feel and to draw attention to critical information. +
+It can also show a translucent image. +
+It can also display message text and buttons. +
+This widget can be controller with STATUS messages. +
+
+=== Grid Layout Widget
+
+This widget controls if the widgets inside it are enabled or disabled. +
+disabled widgets are typically a different colour and do not respond to actions. +
+
+It is based on pyQT's QGridLayout
+
+=== LCD Number Widget
+
+This widget displays HAL float values in a LCD looking way. +
+
+It is based on pyQT's QLCDNumber
+
+=== CamView Widget
+
+This widget displays a image from a web camera. +
+It overlays an adjustable circular and cross hair target over the image. +
+Camview was built with precision visually positioning in mind. +
+
+=== GeneralHALInput Widget
+
+This widget is used to connect an arbitrary QT widget to HAL using signals/slots. +
+It is used for widgets that should respond to HAL pin changes. +
+
+=== GeneralHALOutput Widget
+
+This widget is used to connect an arbitrary QT widget to HAL using signals/slots. +
+It is used for widgets that should control HAL pins. +
+
+=== WidgetSwitcher Widget
+
+This is used to switch the view of a multi-widget layout to  show just one widget. +
+This might be used to flip between a large view of a widget or a smaller multi widget view. +
+I'ts different from a stacked widget as it can pull a widget from anywhere in the screen and +
+place it in it's page with a different layout then it originally had. +
+The original widget must be in a layout for switcher to put it back. +
+ +
+In Designer you will add the widgetswitcher widget on screen. +
+Right click the widgetswitcher and add a page, 
+Then populate it with widgets/layouts you wish to see in a default form. +
+Then add as many pages as there are views to switch to. +
+on each page add a layout widget. +
+After adding the layout you must right click the widget switcher again +
+and set the layout option. +
+click on the widgetswitcher widget and then scroll to the botton of the property editor. +
+you are looking for the dynamic property 'widget_list'. +
+double click the to the right of the widget_list property. +
+A dialog will pop up allowing you to add the names of the widgets to move to the pages you added to the widgetswitcher. +
+ +
+There are function calls to display specific widgets: +
+
+ * [WidgetSwitcherName].show_id_widget(number)
+ * [WidgetSwitcherName].show_named_widget(widget_name)
+ * [WidgetSwitcherName].show_default()
+ * [WidgetSwitcherName].show_next()
+
+By calling one of these functions, you control what widget +
+is currently displayed. show_default() shows the page 0 +
+layout, and puts all other widgets back to where they were as initially built in Designer. +
+
+
+
+It is based on the QStack widget. +
+
+== Machine Controller Widgets
+
+These widgets interact to the Machine Controller state.
+
+=== Action Button Widget
+
+These buttons are used to control action of the machine controller. +
+
+[NOTE]
+If you right click on this widget you can launch a dialog +
+to set any of these action. The dialogs will help to set the +
+right related data to the selected action. +
+You can also change these properties directly in the property editor. +
+
+You can select one of these actions: +
+'Estop' +
+'Machine On' +
+'Auto' +
+'mdi' +
+'manual' +
+'run' +
+'abort' +
+'pause' +
+'load dialog' (requires a dialog widget present) +
+'Camview dialog' (requires camview dialog widget present) +
+'origin offset dialog' (requires origin offset dialog widget present) +
+'macro dialog' (requires macro dialog widget present) +
+'Launch Halmeter' +
+'Launch Status' +
+'Launch Halshow' +
+'Home' (set the joint number to -1 for all-home) +
+'zero axis' +
+'jog joint positive' (set the joint number) +
+'jog joint negative' (set the joint number) +
+'jog selected positive' (selected with a different widget or STATUS) +
+'jog selected negative' (selected with a different widget or STATUS) +
+'jog increment' (set metric/imperial/angular numbers) +
+'jog rate' (set the float/alt float number) +
+'feed override' (set the float/alt float number) +
+'rapid override' (set the float/alt float number) +
+'spindle override' (set the float/alt float number) +
+'spindle fwd' +
+'spindle backward' +
+'spindle stop' +
+'spindle up' +
+'spindle down' +
+'view change' (set view_type_string) +
+'limits override' +
+'flood' +
+'mist' +
+'block delete' +
+'optional stop' +
+'mdi command' (set command_string) +
+'INI mdi number' (set ini_mdi_number) +
+'dro absolute' +
+'dro relative' +
+'dro dtg' +
+
+These set attributes of the selected action. Availability depends on the widget. +
+ +
+'toggle float option' - allows jog rate and overrides to toggle between two rates +
+'joint number' - selects the joint/axis that the button controls +
+'incr imperial number' - sets the imperial jog increment (set negative to ignore) +
+'incr mm number' -sets the metric jog increment (set negative to ignore) +
+'incr angular number' -sets the angular jog increment (set negative to ignore) +
+'float number' - used for jograte and overrides +
+'float alternate number' -for jograte and overrides that can toggle between two float numbers +
+'view type string' - can be p, x, y, y2, z, z2, clear, zoom-in, zoom-out, pan-up, pan-down, +
+ pan-left, pan-right, rotate-up, rotate-down, rotate-cw, rotate-ccw +
+'command string' - MDI command string that will be invoked if the MDI command action is selected. +
+'ini_mdi_number' - a reference to the INI file [MDI_COMMAND_LIST] section. +
+Set an integer of select one line under the INI's MDI_COMMAND line starting at 0. +
+Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
+'MDI_COMMAND=<some command>' +
+
+Action buttons are subclasssed from indicated_PushButton +
+
+Indicated PushButtons have three options: +
+
+* indicator_option
+* indicator_HAL_pin_option
+* checked_state_text_option
+* python_command_option
+
+Indicator_option puts a triangle 'LED' on the top right corner of the button. +
+It will indicated the current state of the button. Use the properties +
+'on_state_color', 'off_state_color', and 'indicator_size' to customized the indicator. +
+
+Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
+button indicator state. +
+
+Checked_state_text_option allows a checkable button to change the text based +
+on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
+to specify the text for each state. +
+
+Python_command_option allow small snippets of python code to be run from the push of a button, +
+with out having to edit the handler file. (though it can call functions in the handler file) +
+When using the command_string properties. +
+'true_python_cmd_string' - a python command that will be called when the button is toggled true +
+'false_python_cmd_string' - a python command that will be called when the button is toggled false +
+ +
+The capitalized word 'INSTANCE' will give access to the widgets instances and handler functions. +
+eg. 'INSTANCE.my_handler_function_call(True)' +
+The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
+eg. 'ACTION.TOGGLE_FLOOD()' +
+The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
+eg. 'PROGRAM_LOADER.load_halshow()' +
+
+Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
+
+=== RoundButton
+
+Round buttons work the same as ActionButtons other then the button is cropped round. +
+They are intended only to be visually different. +
+They have two path properties for displaying images on true and false. +
+
+=== Axis Tool Button
+This allows one to select and set an AXIS.
+If the button is set checkable, it will indicate which axis is selected. +
+If you press and hold the button a pop up menu will show allowing one to: +
+
+* Zero the axis
+* divide the axis by 2
+* set the axis arbitrarily
+* reset the axis to the last number recorded
+
+You select the axis by setting the joint number +
+You can select a halpin option that is set true when the axis is selected +
+
+It is based on pyQT's QToolButton
+
+=== Camview Widget
+This is used to align the work piece or zero part features using a webcam. +
+It uses opencv vision library. +
+
+===  DRO Widget
+This will display the current position of an axis. +
+
+It is based on pyQT's
+
+=== GcodeEditor Widget
+This displays Gcode in text form. It will highlight the currently running line. +
+This can also display MDI history when linuxcnc is in MDI mode. +
+This can also display log entries when linuxcnc is in MANUAL mode. +
+This will also display preference file entries if you enter 'PREFERENCE' in capitals +
+into the MDILine widget. +
+
+It is based on pyQT's QsciScintilla +
+
+=== GCodeGraphics Widget
+This Displays the current Gcode in a graphical form. +
+
+todo +
+It is based on pyQT's opengl widget. +
+
+===  StateLabel Widget
+This will display a label based on true/false states of the machine controller. +
+You can select different text based on true or false. +
+You can use Rich text for different fonts/colours etc. +
+These states are selectable: +
+CSS Mode +
+Diameter Mode +
+FPR Mode +
+Metric Mode +
+
+It is based on pyQT's QLabel
+
+===  StatusLabel Widget
+This will display a label based on variable states of the machine controller. +
+You can change how the state will be display by substituting  +
+You can use Rich text for different fonts/colors etc. +
+These states are selectable: +
+CSS Mode +
+Feed Override  +
+Rapid Override  +
+Spindle Override  +
+Jograte  +
+Jogincr  +
+Tool Number  +
+Current Feedrate  +
+Requested Spindle Speed  +
+User System  +
+
+It is based on pyQT's QLabel
+
+===  StatusStacked
+This widget displays on of three panels based on linuxcnc's mode. +
+This allows you to automatically display different widgets on Manual, MDI and Auto modes. +
+
+todo +
+It is based on pyQT's QStacked widget.
+
+===  Jog Increments Widget
+
+This widget allows the user to select jog increment values for jogging. +
+The jogging values come from the INI file under: '[DISPLAY]', "INCREMENTS" +
+This will be available to all widgets through STATUS. +
+
+It is based on pyQT's combobox
+
+=== ScreenOption widget
+
+This widget doesn't add anything visually to a screen but sets up important +
+options. this is the proffered way to use these options +
+
+.These include: 
+* monitoring the linuxcnc error channel.
+* Hooking into the desktop notification bubbles for error and messages
+* catching the close event to pop up a 'are you sure' prompt
+* playing sounds
+* user defined pop up message dialogs
+* setting up a preference file
+* adding common dialog widgets (File, Entry, and manual toolchange)
+* adding the focus-overlay widget (colors/darkens the main screen when dialogs are up)
+
+=== StatusSlider Widget
+
+This widget allow the user to adjust linuxcnc setting via a slide. +
+
+.The widget can adjust:
+* Jog rate
+* Angular jog rate
+* Feed rate
+* spindle override rate
+* Rapid override rate
+
+It is based on pyQT's QSlider
+
+===  Led State Widget
+
+This widget gives status on linuxcnc's state. +
+
+It is based on the LED widget 
+
+=== StatusAdjustmentBar
+
+This widget allows setting values using buttons while displaying a bar. +
+It also has an optional hi/low toggle button that can be held down to set the +
+levels.
+
+.The widget can adjust:
+* Jog rate
+* angular jog rate
+* Feed rate
+* Spindle override rate
+* Rapid override rate
+
+It is based on pyQT's QProgressBar
+
+=== SystemToolButton
+This widget allows you to manually select a user system by pressing and holding. +
+If you don't set the button text it will automatically update to the current system. +
+
+It is based on pyQT's QToolButton
+
+===  Macro Widget
+
+This Widget allows a user to select and adjust special macro programs for 
+doing small jobs. +
+It uses svg images for visual representation of the macro and for an icon. +
+The macros are Oword subroutine with special comments to work with the launcher. +
+
+=== MDILine Widget
+
+One can enter MDI commands here. A popup keyboard is available +
+There are also embedded commands available from this Widget. +
+Type, in all capitols, any of these commands to load the respective program: +
+
+* HALMETER +
+* HALSHOW +
+* HALSCOPE +
+* STATUS +
+* CALIBRATION +
+* CLASSICLADDER +
+* PREFERENCDE - Loads the preference file onto the gcodeEditor+
+
+It is based on pyQT's QLineEdit +
+
+===  OriginOffsetView Widget
+This widget allows one to modify User System origin offsets directly +
+It will update the table for changes made internally by linuxcnc. +
+It is based on pyQT's
+
+=== State Enable Gridlayout Widgets
+
+This is a container that other widgets can be placed in. +
+It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
+It can selectably react to machine on, interpreter idle, estop off, all-homed +
+It is based on pyQT's QGridLayout +
+
+
+
+
+== Dialog Widgets
+
+===  Lcnc_Dialog
+
+This is a general dialog widget. +
+If there is an Focus Overlay widget present, it can signal it to display. +
+If the sound library is set up it can play sounds. +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog Tool Change Widget
+This is used as a manual tool change prompt. +
+It has HAL pins to connect to the machine controller +
+The pins are named the same as the original AXIS manual tool prompt and works +
+the same. +
+If there is a Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog File Chooser Widget
+This is used to load Gcode files +
+If there is a Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog Origin Offset Widget
+This widget allows one to modify User System origin offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QDialog
+
+===  Dialog tool Offset Widget
+This widget allows one to modify Tool offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QDialog
+
+===  Dialog MacroTab
+
+This is a dialog for displaying the macrotab widget. +
+Macrotab displays a choice of macro programs to run using icons. +
+If there is a Focus Overlay widget present, it will signal it to display. +
+
+===  Dialog camview
+
+This is a dialog to display the camview object for Webcam part alignment. +
+It is based on pyQT's QDialog
+
+===  Dialog entry
+
+This is a dialog to display an edit line for information entry, such as origin offset. +
+It returns the entry via STATUS messages using a python DICT. +
+The DICT contains at minimum, the name of the dialog requested and an id code. +
+The code name for this dialog is 'ENTRY' +
+ +
+To set this up first register to catch the 'general' message from STATUS:
+[source,python]
+----
+STATUS.connect('general',self.return_value)
+----
+
+Add a function to call a dialog: +
+This function must build a message DICT to send to the dialog. +
+This message will be passed back in the general message with the addition +
+of the RETURN varaible. It is possible to add extra user information to the message. +
+The dialog will ignore these and pass them back. +
+'NAME' = code name of dialog to show. +
+'ID' = a unique id so we process only an entry that we requested. +
+'TITLE' = the title to use on the dialog
+
+[source,python]
+----
+        def show_dialog(self):
+            mess = {'NAME':'ENTRY','ID':'__test1__',
+                    'TITLE':'Test Entry'}
+            STATUS.emit('dialog-request', mess)
+----
+
+Add a callback function that processes the general message:
+This function should check the the name and id is the same as +
+we sent, then it can extract the return value and any user variables. +
+Keep in mind this function will get all general messages so the DICT keynames +
+are not guaranteed to be there. Using the .get() function and or using try/except +
+is advisable.
+[source,python]
+----
+    # process the STATUS return message
+    def return_value(self, w, message):
+        rtn = message.get('RETURN')
+        code = bool(message.get('ID') == '__test1__')
+        name = bool(message.get('NAME') == 'ENTRY')
+        if rtn and code and name:
+            Print ('Entry return value from {} = {}').format(code, rtn)
+
+
+----
+
+It is based on pyQT's QDialog
+
+

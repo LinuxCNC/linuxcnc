@@ -187,7 +187,7 @@ que les arrosages soient arrêtés ou non.
 0 et 360 degrés.
 
 * 'Q' - Durée d'attente en secondes pour compléter l'orientation. Si
-'motion.spindle.is_oriented' n'est pas devenue vraie dans le temps imparti par Q,
+'spindle.N.is-oriented' n'est pas devenue vraie dans le temps imparti par Q,
 une erreur de timeout se produira.
 
 * 'P' - Direction de rotation vers la position cible.
@@ -207,32 +207,32 @@ ORIENT_OFFSET = 0 à 360 (offset fixe en degrés, ajouté au mot R de M19)
 
 Broches de HAL
 
-* 'motion.spindle-orient-angle' (sortie float)
+* 'spindle.N.orient-angle' (sortie float)
 Orientation souhaitée pour M19. Valeur du paramètre R de M19 plus la valeur du
 paramètre d'ini [RS274NGC]ORIENT_OFFSET.
 
 M19 est une commande du groupe modal 7, comme M3, M4 et M5.
 
-* 'motion.spindle-orient-mode' (sortie s32)
+* 'spindle.N.orient-mode' (sortie s32)
 Mode de rotation de la broche souhaité. Reflète le mot P de M19, Défaut = 0
 
-* 'motion.spindle-orient' (sortie bit)
+* 'spindle.N.orient' (sortie bit)
 Indique le début du cycle d'orientation de la broche. Positionné par M19.
 Remis à zéro par M3,M4 ou M5.
 Si 'spindle-orient-fault' n'est pas à zéro alors que 'spindle-orient' est vraie
 la commande M19 échoue avec un message d'erreur.
 
-* 'motion.spindle-is-oriented' (entrée bit)
+* 'spindle.N.is-oriented' (entrée bit)
 Pin de confirmation de l'orientation de la broche. Termine le cycle
 d'orientation. Si 'spindle-orient' est vraie quand 'spindle-is-oriented' est
 activée, la pin 'spindle-orient' est mise à zéro et la pin 'spindle-locked'
 est activée. La pin 'spindle-brake' est également activée.
 
-* 'motion.spindle-orient-fault' (entrée s32)
+* 'spindle.N.orient-fault' (entrée s32)
 Entrée de code d'erreur pour le cycle d'orientation. Toute valeur, autre que
 zéro, provoquera l'abandon du cycle d'orientation.
 
-* 'motion.spindle-locked' (sortie bit)
+* 'spindle.N.locked' (sortie bit)
 Pin indiquant que le cycle de rotation est terminé. Désactivée par M3,M4 ou M5.
 
 

@@ -789,14 +789,14 @@ proc usage {} {
   puts "  --base      nS   (base  thread interval, default:   $::LH(base,period,ns), min:  $::LH(base,period,ns,min))"
   puts "  --servo     nS   (servo thread interval, default: $::LH(servo,period,ns), min: $::LH(servo,period,ns,min))"
 
-  puts "  --bbinsize  nS   (base  bin size,  default: $::LH(base,binsize,ns)"
-  puts "  --sbinsize  nS   (servo bin size, default: $::LH(servo,binsize,ns)"
+  puts "  --bbinsize  nS   (base  bin size,  default: $::LH(base,binsize,ns))"
+  puts "  --sbinsize  nS   (servo bin size, default: $::LH(servo,binsize,ns))"
 
-  puts "  --bbins     n    (base  bins, default: $::LH(base,maxbins)"
-  puts "  --sbins     n    (servo bins, default: $::LH(servo,maxbins)"
+  puts "  --bbins     n    (base  bins, default: $::LH(base,maxbins))"
+  puts "  --sbins     n    (servo bins, default: $::LH(servo,maxbins))"
 
   puts "  --logscale  0|1  (y axis log scale, default: $::LH(y,logscale))"
-  puts "  --text      note (additional note, default: \"$::LH(note,txt)\" )"
+  puts "  --text      note (additional note, default: \"$::LH(note,txt)\")"
   puts "  --show           (show count of undisplayed bins)"
   puts "  --nobase         (servo thread only)"
   puts "  --verbose        (progress and debug)"

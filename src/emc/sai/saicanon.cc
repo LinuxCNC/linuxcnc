@@ -74,8 +74,8 @@ static double            _program_position_c = 0; /*CC*/
 static double            _program_position_x = 0;
 static double            _program_position_y = 0;
 static double            _program_position_z = 0;
-static double            _spindle_speed;
-static CANON_DIRECTION   _spindle_turning;
+static double            _spindle_speed[EMCMOT_MAX_SPINDLES];
+static CANON_DIRECTION   _spindle_turning[EMCMOT_MAX_SPINDLES] ;
 int                      _pockets_max = CANON_POCKETS_MAX; /*Not static. Driver reads  */
 CANON_TOOL_TABLE         _tools[CANON_POCKETS_MAX]; /*Not static. Driver writes */
 /* optional program stop */
@@ -345,9 +345,9 @@ void STRAIGHT_TRAVERSE( int line_number,
 }
 
 /* Machining Attributes */
-void SET_FEED_MODE(int mode)
+void SET_FEED_MODE(int spindle, int mode)
 {
-  PRINT1("SET_FEED_MODE(%d)\n", mode);
+  PRINT2("SET_FEED_MODE(%d, %d)\n", spindle, mode);
   _feed_mode = mode;
 }
 void SET_FEED_RATE(double rate)
@@ -554,7 +554,7 @@ void STRAIGHT_PROBE(int line_number,
 }
 
 
-void RIGID_TAP(int line_number, double x, double y, double z)
+void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
 
 
@@ -572,46 +572,46 @@ void DWELL(double seconds)
 void SPINDLE_RETRACT_TRAVERSE()
 {PRINT0("SPINDLE_RETRACT_TRAVERSE()\n");}
 
-void SET_SPINDLE_MODE(double arg) {
-  PRINT1("SET_SPINDLE_MODE(%.4f)\n", arg);
+void SET_SPINDLE_MODE(int spindle, double arg) {
+  PRINT2("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
 }
 
-void START_SPINDLE_CLOCKWISE(int wait_for_atspeed)
+void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed)
 {
-  PRINT0("START_SPINDLE_CLOCKWISE()\n");
-  _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
+  PRINT1("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
+  _spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed)
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed)
 {
-  PRINT0("START_SPINDLE_COUNTERCLOCKWISE()\n");
-  _spindle_turning = ((_spindle_speed == 0) ? CANON_STOPPED :
+  PRINT1("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
+  _spindle_turning[spindle] = ((_spindle_speed == 0) ? CANON_STOPPED :
                                                    CANON_COUNTERCLOCKWISE);
 }
 
-void SET_SPINDLE_SPEED(double rpm)
+void SET_SPINDLE_SPEED(int spindle, double rpm)
 {
-  PRINT1("SET_SPINDLE_SPEED(%.4f)\n", rpm);
-  _spindle_speed = rpm;
+  PRINT2("SET_SPINDLE_SPEED(%i, %.4f)\n", spindle, rpm);
+  _spindle_speed[spindle] = rpm;
 }
 
-void STOP_SPINDLE_TURNING()
+void STOP_SPINDLE_TURNING(int spindle)
 {
-  PRINT0("STOP_SPINDLE_TURNING()\n");
-  _spindle_turning = CANON_STOPPED;
+  PRINT1("STOP_SPINDLE_TURNING(%i)\n", spindle);
+  _spindle_turning[spindle] = CANON_STOPPED;
 }
 
 void SPINDLE_RETRACT()
 {PRINT0("SPINDLE_RETRACT()\n");}
 
-void ORIENT_SPINDLE(double orientation, int mode)
-{PRINT2("ORIENT_SPINDLE(%.4f, %d)\n", orientation,mode);
+void ORIENT_SPINDLE(int spindle, double orientation, int mode)
+{PRINT3("ORIENT_SPINDLE(%i, %.4f, %d)\n", spindle, orientation,mode);
 }
 
-void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) 
+void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout)
 {
-  PRINT1("SPINDLE_WAIT_ORIENT_COMPLETE(%.4f)\n", timeout);
+  PRINT2("SPINDLE.%i.WAIT_ORIENT_COMPLETE(%.4f)\n", spindle, timeout);
 }
 
 void USE_NO_SPINDLE_FORCE()
@@ -679,8 +679,8 @@ void DISABLE_FEED_HOLD()
 void DISABLE_FEED_OVERRIDE()
 {PRINT0("DISABLE_FEED_OVERRIDE()\n"); fo_enable = false; }
 
-void DISABLE_SPEED_OVERRIDE()
-{PRINT0("DISABLE_SPEED_OVERRIDE()\n"); so_enable = false; }
+void DISABLE_SPEED_OVERRIDE(int spindle)
+{PRINT1("DISABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = false; }
 
 void ENABLE_ADAPTIVE_FEED()
 {PRINT0("ENABLE_ADAPTIVE_FEED()\n");}
@@ -691,8 +691,8 @@ void ENABLE_FEED_HOLD()
 void ENABLE_FEED_OVERRIDE()
 {PRINT0("ENABLE_FEED_OVERRIDE()\n"); fo_enable = true; }
 
-void ENABLE_SPEED_OVERRIDE()
-{PRINT0("ENABLE_SPEED_OVERRIDE()\n"); so_enable = true; }
+void ENABLE_SPEED_OVERRIDE(int spindle)
+{PRINT1("ENABLE_SPEED_OVERRIDE(%i)\n", spindle); so_enable = true; }
 
 void FLOOD_OFF()
 {
@@ -805,8 +805,8 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return so_enable;}
-void START_SPEED_FEED_SYNCH(double sync, bool vel)
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {return so_enable;}
+void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel)
 {PRINT2("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;
 
@@ -999,15 +999,15 @@ extern int GET_EXTERNAL_QUEUE_EMPTY()
 }
 
 /* Returns the system value for spindle speed in rpm */
-double GET_EXTERNAL_SPEED()
+double GET_EXTERNAL_SPEED(int spindle)
 {
-  return _spindle_speed;
+  return _spindle_speed[spindle];
 }
 
 /* Returns the system value for direction of spindle turning */
-extern CANON_DIRECTION GET_EXTERNAL_SPINDLE()
+extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle)
 {
-  return _spindle_turning;
+  return _spindle_turning[spindle];
 }
 
 /* Returns the system value for the carousel slot in which the tool
@@ -1149,6 +1149,24 @@ int GET_EXTERNAL_TC_REASON()
 {
     return _toolchanger_reason;
 }
+
+int GET_EXTERNAL_OFFSET_APPLIED() {
+    return 0;
+};
+
+EmcPose GET_EXTERNAL_OFFSETS() {
+    EmcPose e;
+    e.tran.x = 0;
+    e.tran.y = 0;
+    e.tran.z = 0;
+    e.a      = 0;
+    e.b      = 0;
+    e.c      = 0;
+    e.u      = 0;
+    e.v      = 0;
+    e.w      = 0;
+    return e;
+};
 
 /* Sends error message */
 void CANON_ERROR(const char *fmt, ...)

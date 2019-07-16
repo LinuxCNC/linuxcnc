@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -113,7 +116,7 @@ char * CreateVarName(int Type, int Offset)
 			sprintf(Buffer,"???");
 			break;
 	}
-printf("infogene display symbols=&i\n",InfosGene->DisplaySymbols);
+printf(_("infogene display symbols=&i\n"),InfosGene->DisplaySymbols);
 	if ( InfosGene->DisplaySymbols )
 	{ 
 		// verify if a symbol has been defined for the variable...
@@ -171,7 +174,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 		if ( VarNameFromSymbol==NULL )
 		{
 			IsOk = FALSE;
-			ErrorMessageVarParser = "Unknown symbol for variable name";
+			ErrorMessageVarParser = _("Unknown symbol for variable name");
 		}
 		else
 		{
@@ -191,7 +194,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_BITS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -213,7 +216,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,MaxNbr,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -222,7 +225,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -237,7 +240,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'Q':
@@ -248,7 +251,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'R':
@@ -259,7 +262,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'P':
@@ -270,7 +273,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -285,7 +288,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_MONOSTABLES-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -294,7 +297,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -312,7 +315,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -327,7 +330,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_COUNTERS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -336,7 +339,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -360,7 +363,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -375,7 +378,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_INPUTS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -385,7 +388,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_OUTPUTS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -395,7 +398,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_WORDS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -406,7 +409,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_STEPS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -422,7 +425,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						else
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+							ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 						}
 					}
 				}
@@ -431,7 +434,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 	
 			default:
 				IsOk = FALSE;
-				ErrorMessageVarParser = "Unknown variable (on first character following %)";
+				ErrorMessageVarParser = _("Unknown variable (on first character following %)");
 		}
 		if (IsOk)
 		{
@@ -445,7 +448,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 		else
 		{
 			if ( ErrorMessageVarParser==NULL )
-				ErrorMessageVarParser = "Unknown variable (global error)";
+				ErrorMessageVarParser = _("Unknown variable (global error)");
 		}
 	}
 	return IsOk;
@@ -614,7 +617,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				bVerifCoherenceOk = FALSE;
 		}
 		if ( bVerifCoherenceOk==FALSE )
-			ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+			ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 
 		if (bVerifCoherenceOk)
 		{

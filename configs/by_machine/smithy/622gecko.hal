@@ -31,8 +31,8 @@ addf stepgen.update-freq servo-thread
 addf pwmgen.update servo-thread
 addf match8.0 servo-thread
 
-net spindle-cmd motion.spindle-speed-out pwmgen.0.value
-net spindle-enable motion.spindle-on pwmgen.0.enable
+net spindle-cmd spindle.0.speed-out pwmgen.0.value
+net spindle-enable spindle.0.on pwmgen.0.enable
 
 net coolant-flood parport.0.pin-01-out iocontrol.0.coolant-flood
 net xdir parport.0.pin-02-out stepgen.0.dir
@@ -48,9 +48,9 @@ net adir parport.0.pin-08-out stepgen.3.dir
 net astep parport.0.pin-09-out stepgen.3.step
 setp parport.0.pin-09-out-reset 1
 #PMDX-110
-net spindle-dir parport.0.pin-14-out motion.spindle-reverse
+net spindle-dir parport.0.pin-14-out spindle.0.reverse
 #PMDX-131
-#net spindle-dir parport.0.pin-14-out motion.spindle-forward
+#net spindle-dir parport.0.pin-14-out spindle.0.forward
 net spindle-pwm parport.0.pin-16-out pwmgen.0.pwm
 net charge-pump parport.0.pin-17-out charge-pump.out
 net estop-in parport.0.pin-10-in-not iocontrol.0.emc-enable-in

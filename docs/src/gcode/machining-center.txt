@@ -51,6 +51,9 @@ to Y, and C rotates around a line parallel to Z.
 A CNC machine typically has a spindle which holds one cutting tool,
 probe, or the material in the case of a lathe. The spindle may or may
 not be controlled by the CNC software.
+LinuxCNC offers suport for up to 8 spindles, which can be individually
+controlled and can run simultaneously at different speeds and in different
+directions. 
 
 === Coolant (((coolant)))
 
@@ -229,7 +232,7 @@ follows the programmed path as exactly as possible, slowing or stopping
 if necessary at sharp corners of the path. In continuous mode, sharp
 corners of the path may be rounded slightly so that the feed rate may
 be kept up (but by no more than the tolerance, if specified). See
-Sections <<gcode:g61-g61.1,G61/G61.1>> and <<gcode:g64,G64>>.
+Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 
 == Interpreter Interaction with Switches
 

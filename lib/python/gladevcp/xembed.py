@@ -37,6 +37,20 @@ def reparent(window, parent):
 
     return plug
 
+def add_plug(window):
+    """Replace top level with a plug so it can be reparented.
+    This doesn't actually reparent the widget
+    """
+    plug = gtk.Plug(0l)
+    plug.show()
+    for c in window.get_children():
+        window.remove(c)
+        plug.add(c)
+
+    # Hide window if it's displayed
+    window.unmap()
+    return plug
+
 def keyboard_forward(window, forward):
     """ XXX: Keyboard events forwardind
         This is kind of hack needed to properly function inside Tk windows.

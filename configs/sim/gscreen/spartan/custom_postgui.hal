@@ -7,7 +7,7 @@ setp gscreen.led_fault true
 setp gscreen.led_aux true
 
 net spindle-cw gscreen.led_spindle_fwd
-net spindle-ccw gscreen.led_spindle_rev motion.spindle-reverse
+net spindle-ccw gscreen.led_spindle_rev spindle.0.reverse
 net spindle-cmd-rpm-abs gscreen.spindle-spd-disp
 
 net tool-change gscreen.change-tool iocontrol.0.tool-change 

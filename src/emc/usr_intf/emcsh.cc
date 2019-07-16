@@ -138,7 +138,9 @@
   emc_lube_level
   Returns the lubricant level sensor reading as "ok" or "low".
 
-  emc_spindle (none) | forward | reverse | increase | decrease | constant | off
+  emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
+  With no spindle_number defaults to spindle 0. This is a little different
+  from the default behaviour elsewhere where specifyin no spindle affects all spindles.
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
   command. Note that "increase" and "decrease" will cause a speed change in
@@ -911,92 +913,117 @@ static int emc_spindle(ClientData clientdata,
 		       Tcl_Interp * interp, int objc,
 		       Tcl_Obj * CONST objv[])
 {
-    char *objstr;
+    char *objstr = NULL;
+    int spindle = 0;
 
     CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->motion.spindle.increasing > 0) {
-	    setresult(interp,"increase");
-	} else if (emcStatus->motion.spindle.increasing < 0) {
-	    setresult(interp,"decrease");
-	} else if (emcStatus->motion.spindle.direction > 0) {
-	    setresult(interp,"forward");
-	} else if (emcStatus->motion.spindle.direction < 0) {
-	    setresult(interp,"reverse");
-	} else {
-	    setresult(interp,"off");
-	}
-	return TCL_OK;
-    }
 
-    if (objc == 2) {
-	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "forward")) {
-	    sendSpindleForward();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "reverse")) {
-	    sendSpindleReverse();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "increase")) {
-	    sendSpindleIncrease();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "decrease")) {
-	    sendSpindleDecrease();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "constant")) {
-	    sendSpindleConstant();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "off")) {
-	    sendSpindleOff();
-	    return TCL_OK;
-	}
+    if (objc >= 2) {
+        if (Tcl_GetIntFromObj(interp, objv[1], &spindle) != TCL_OK){ // not a likely spindle index first, then
+            spindle = 0;
+            objstr = Tcl_GetStringFromObj(objv[1], 0);
+        } else {
+            if (spindle < 0 || spindle > EMCMOT_MAX_SPINDLES){ // should really be num_spindles, but not sure we know that here
+                setresult(interp,"invalid spindle index number");
+                return TCL_ERROR;
+            }
+            objstr = Tcl_GetStringFromObj(objv[2], 0);
+        }
     }
-
-    setresult(interp,"emc_spindle: need 'on', 'off', or no args");
+    if (objstr) {
+        if (!strcmp(objstr, "forward")) {
+            sendSpindleForward(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "reverse")) {
+            sendSpindleReverse(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "increase")) {
+            sendSpindleIncrease(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "decrease")) {
+            sendSpindleDecrease(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "constant")) {
+            sendSpindleConstant(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "off")) {
+            sendSpindleOff(spindle);
+            return TCL_OK;
+        }
+    }
+    else
+    {
+    // no arg-- return status
+        if (emcUpdateType == EMC_UPDATE_AUTO) {
+            updateStatus();
+        }
+        if (emcStatus->motion.spindle[spindle].increasing > 0) {
+            setresult(interp,"increase");
+        } else if (emcStatus->motion.spindle[spindle].increasing < 0) {
+            setresult(interp,"decrease");
+        } else if (emcStatus->motion.spindle[spindle].direction > 0) {
+            setresult(interp,"forward");
+        } else if (emcStatus->motion.spindle[spindle].direction < 0) {
+            setresult(interp,"reverse");
+        } else {
+            setresult(interp,"off");
+        }
+        return TCL_OK;
+    }
+    setresult(interp,"emc_spindle: need 'on', 'off', a spindle index or no args");
     return TCL_ERROR;
 }
 
 static int emc_brake(ClientData clientdata,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
-    char *objstr;
+    char *objstr = NULL;
+    int spindle = 0;
 
     CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->motion.spindle.brake == 1) {
-	    setresult(interp,"on");
-	} else {
-	    setresult(interp,"off");
-	}
-	return TCL_OK;
+
+    if (objc >= 2) {
+        if (Tcl_GetIntFromObj(interp, objv[1], &spindle) != TCL_OK){ // not a likely spindle index first, then
+            spindle = 0;
+            objstr = Tcl_GetStringFromObj(objv[1], 0);
+        } else {
+            if (spindle < 0 || spindle > EMCMOT_MAX_SPINDLES){ // FIXME: should really be num_spindles, but not sure we know that here
+                setresult(interp,"invalid spindle index number");
+                return TCL_ERROR;
+            }
+            objstr = Tcl_GetStringFromObj(objv[2], 0);
+        }
     }
 
-    if (objc == 2) {
-	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "on")) {
-	    sendBrakeEngage();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "off")) {
-	    sendBrakeRelease();
-	    return TCL_OK;
-	}
+    if (objstr) {
+        if (!strcmp(objstr, "on")) {
+            sendBrakeEngage(spindle);
+            return TCL_OK;
+        }
+        if (!strcmp(objstr, "off")) {
+            sendBrakeRelease(spindle);
+            return TCL_OK;
+        }
     }
-
-    setresult(interp,"emc_brake: need 'on', 'off', or no args");
+    else
+    {
+        // no arg-- return status
+        if (emcUpdateType == EMC_UPDATE_AUTO) {
+            updateStatus();
+        }
+        if (emcStatus->motion.spindle[spindle].brake == 1) {
+            setresult(interp,"on");
+        } else {
+            setresult(interp,"off");
+        }
+    return TCL_OK;
+    }
+    setresult(interp,"emc_brake: need 'on', 'off', spindle index or no args");
     return TCL_ERROR;
 }
 
@@ -1931,29 +1958,38 @@ static int emc_spindle_override(ClientData clientdata,
 			     Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *feedobj;
+    int spindle = 0;
     int percent;
 
     CHECKEMC
     if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	feedobj =
-	    Tcl_NewIntObj((int)
-			  (emcStatus->motion.traj.spindle_scale * 100.0 + 0.5));
-	Tcl_SetObjResult(interp, feedobj);
-	return TCL_OK;
+		// no arg-- return status
+		if (emcUpdateType == EMC_UPDATE_AUTO) {
+			updateStatus();
+		}
+		feedobj = Tcl_NewIntObj((int)(emcStatus->motion.spindle[spindle].spindle_scale * 100.0 + 0.5));
+		Tcl_SetObjResult(interp, feedobj);
+		return TCL_OK;
     }
 
-    if (objc != 2) {
-	setresult(interp,"emc_spindle_override: need percent");
-	return TCL_ERROR;
+    if (objc == 2){
+		if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &percent)) {
+		sendSpindleOverride(spindle, ((double) percent) / 100.0);
+		return TCL_OK;
+		}
     }
 
-    if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &percent)) {
-	sendSpindleOverride(((double) percent) / 100.0);
-	return TCL_OK;
+    if (objc == 3){ // spindle number included
+		if (TCL_OK != Tcl_GetIntFromObj(0, objv[1], &spindle)) {
+		    setresult(interp,"emc_spindle_override: malformed spindle number");
+		    return TCL_ERROR;
+		}
+		if (TCL_OK != Tcl_GetIntFromObj(0, objv[2], &percent)) {
+		    setresult(interp,"emc_spindle_override: need percent");
+		    return TCL_ERROR;
+		}
+		sendSpindleOverride(spindle, ((double) percent) / 100.0);
+		return TCL_OK;
     }
 
     setresult(interp,"emc_spindle_override: need percent");

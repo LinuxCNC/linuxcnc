@@ -1,6 +1,6 @@
 = gmoccapy
 
-[[cha:gmoccapy]]
+[[cha:gmoccapy-hu]]
 
 == Bevezetés
 

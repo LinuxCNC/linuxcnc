@@ -1,3 +1,41 @@
+ver 2.3.5.1
+- removed unused import statements vte and pango from gmoccapy.py file
+
+ver 2.3.5
+- jogging a not homed machine did change the button state of MDI and AUTO to be
+  sensitive, what is not correct.
+- it was not possible to jog a unhomed machine over the given limits, what is 
+  not a correct behavior.
+
+ver 2.3.4.2
+- introduced new keyboard shortcuts (not case sensitive)
+  R = run program
+  P = pause program
+  S = resume program
+  This keys will only work in auto mode, not being in edit mode and 
+  a program must be loaded. Pause and resume do only work if a 
+  program is running and / or paused.
+
+ver 2.3.4.1
+- Philippe mentioned that a change of the DRO Size on settings page will be
+  saved as expected, but after new start of the GUI, the value did note be
+  restored properly. I have corrected the behavior
+
+ver 2.3.4
+- Leon82 mentioned, that offset page did close after editing a column and leaving
+  the edited cell. This was caused due to a hidden mode change to MDI because
+  leaving the cell would apply the change using MDI commands from 
+  offset page_widget.py. Gmoccapy now checks the state of the "EDIT OFFSETS" 
+  toggle button and does not react to MDI Mode switch if that button is active.
+  at the same time, the mode buttons etc. are disabled!
+  
+  Same changes as with gmoccapy 1.5.11
+
+ver 2.3.3.4
+- a merge of 2.7 to master resulted in a call of a widget, that does not longer
+  exist in master (adj_max_velocity) causing an exception on halui pin changes.
+  Thanks to COlger81 and Chris Morley for reporting the bug
+
 ver 2.3.3.3
 - editing offsets, leaded to a error output in the console, due to missing
   widget btn_zero_x
@@ -399,6 +437,28 @@ ver. 2.0.1
 
 ver. 2.0.0
 - initial push of beta gmoccapy with 5 axis
+
+ver. 1.5.11
+- Leon82 mentioned, that offset page did close after editing a column and leaving
+  the edited cell. This was caused due to a hidden mode change to MDI because
+  leaving the cell would apply the change using MDI commands from 
+  offset page_widget.py. Gmoccapy now checks the state of the "EDIT OFFSETS" 
+  toggle button and does not react to MDI Mode switch if that button is active.
+  at the same time, the mode buttons etc. are disabled!
+
+ver. 1.5.10
+- fixed a misbehavior of the turtle button
+  If machine and system units was not identical, the turtle button destroyed
+  the values set on the jog vel slider
+  thanks to sliptonic from linuxcnc forum
+- while moving the max vel slider and units of machine and system not being 
+  identical, results in a jumping slider, as the factor has not been taken in 
+  account on the halui pin checking
+
+ver. 1.5.9
+- fixed a bug on import gst, leading to an exception if gst is not installed
+- fixed a bug, not taking care of Y-DRO (D) in lathe mode if the user changed
+  the size of the DRO
 
 ver. 1.6.0
 - changed the initial sound files to fit freedesktop path

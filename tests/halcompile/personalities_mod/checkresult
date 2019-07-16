@@ -1,0 +1,13 @@
+#!/bin/bash
+cd $(dirname $1)
+RETVAL=0
+for EXPECTED in *.expected ; do
+    BASE=$(basename $EXPECTED .expected)
+    RESULT=$BASE.result
+    diff -u $EXPECTED $RESULT
+    if [ $? -ne 0 ]; then
+        RETVAL=1
+    fi
+done
+exit $RETVAL
+

@@ -185,7 +185,7 @@ setp thc.vel-scale 0.00037866834
 setp thc.correction-vel 0.0001
 
 # spindle on starts the arc
-net spindle-on motion.spindle-on => parport.0.pin-16-out
+net spindle-on spindle.0.on => parport.0.pin-16-out
 
 net spindle-on thc.torch-on
 

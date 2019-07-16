@@ -24,8 +24,8 @@ addf encoder.update-counters servo-thread
 loadrt thc
 addf thc servo-thread
 
-net spindle-cmd <= motion.spindle-speed-out
-net spindle-on <= motion.spindle-on
+net spindle-cmd <= spindle.0.speed-out
+net spindle-on <= spindle.0.on
 
 net xstep => parport.0.pin-02-out
 setp parport.0.pin-02-out-reset 1
@@ -96,7 +96,7 @@ setp thc.vel-scale 0.00037866834
 setp thc.correction-vel 0.0001
 
 # spindle on starts the arc
-net spindle-on motion.spindle-on => parport.0.pin-16-out
+net spindle-on spindle.0.on => parport.0.pin-16-out
 
 net spindle-on thc.torch-on
 

@@ -5,6 +5,8 @@
 
 hm2_pktuart_setup \- setup a Hostmot2 PktUART instance
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)
 

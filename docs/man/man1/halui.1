@@ -90,63 +90,63 @@ current selected tool
 
 .SS spindle
 .TP
-.B halui.spindle.brake\-is\-on\fR bit out \fR
+.B halui.spindle.N.brake\-is\-on\fR bit out \fR
 status pin that tells us if brake is on
 .TP
-.B halui.spindle.brake\-off\fR bit in \fR
+.B halui.spindle.N.brake\-off\fR bit in \fR
 pin for deactivating the spindle brake
 .TP
-.B halui.spindle.brake\-on\fR bit in \fR
+.B halui.spindle.N.brake\-on\fR bit in \fR
 pin for activating the spindle brake
 .TP
-.B halui.spindle.decrease\fR bit in \fR
+.B halui.spindle.N.decrease\fR bit in \fR
 a rising edge on this pin decreases the current spindle speed by 100
 .TP
-.B halui.spindle.forward\fR bit in \fR
+.B halui.spindle.N.forward\fR bit in \fR
 a rising edge on this pin makes the spindle go forward
 .TP
-.B halui.spindle.increase\fR bit in \fR
+.B halui.spindle.N.increase\fR bit in \fR
 a rising edge on this pin increases the current spindle speed by 100
 .TP
-.B halui.spindle.is\-on\fR bit out \fR
+.B halui.spindle.N.is\-on\fR bit out \fR
 status pin telling if the spindle is on
 .TP
-.B halui.spindle.reverse\fR bit in \fR
+.B halui.spindle.N.reverse\fR bit in \fR
 a rising edge on this pin makes the spindle go reverse
 .TP
-.B halui.spindle.runs\-backward\fR bit out \fR
+.B halui.spindle.N.runs\-backward\fR bit out \fR
 status pin telling if the spindle is running backward
 .TP
-.B halui.spindle.runs\-forward\fR bit out \fR
+.B halui.spindle.N.runs\-forward\fR bit out \fR
 status pin telling if the spindle is running forward
 .TP
-.B halui.spindle.start\fR bit in \fR
+.B halui.spindle.N.start\fR bit in \fR
 a rising edge on this pin starts the spindle
 .TP
-.B halui.spindle.stop\fR bit in \fR
+.B halui.spindle.N.stop\fR bit in \fR
 a rising edge on this pin stops the spindle
 
 .SS spindle override
 .TP
-.B halui.spindle\-override.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
+.B halui.spindle.N.override.count\-enable\fR bit in \fR (default: \fBTRUE\fR)
 When TRUE, modify spindle override when counts changes.
 .TP
-.B halui.spindle\-override.counts\fR s32 in \fR
+.B halui.spindle.N.override.counts\fR s32 in \fR
 counts X scale = spindle override percentage
 .TP
-.B halui.spindle\-override.decrease\fR bit in \fR
+.B halui.spindle.N.override.decrease\fR bit in \fR
 pin for decreasing the SO (\-=scale)
 .TP
-.B halui.spindle\-override.direct\-value\fR bit in \fR
+.B halui.spindle.N.override.direct\-value\fR bit in \fR
 pin to enable direct spindle override value input
 .TP
-.B halui.spindle\-override.increase\fR bit in \fR
+.B halui.spindle.N.override.increase\fR bit in \fR
 pin for increasing the SO (+=scale)
 .TP
-.B halui.spindle\-override.scale\fR float in \fR
+.B halui.spindle.N.override.scale\fR float in \fR
 pin for setting the scale of counts for SO
 .TP
-.B halui.spindle\-override.value\fR float out \fR
+.B halui.spindle.N.override.value\fR float out \fR
 current FO value
 
 .SS program
@@ -432,7 +432,7 @@ Feedback axis position in machine coordinates
 .B halui.axis.L.pos\-relative\fR float out \fR float out \fR
 Commanded axis position in relative coordinates
 
-.SS axis jogging \fR(\fBL\fR = axis index (0:x 1:y 2:z 3:a 4:b 5:c 6:u 7:v 8:w)
+.SS axis jogging \fR(\fBL\fR = axis letter (xyzabcuvw)
 .TP
 .B halui.axis.jog\-deadband\fR float in \fR
 pin for setting jog analog deadband (jog analog inputs smaller/slower than

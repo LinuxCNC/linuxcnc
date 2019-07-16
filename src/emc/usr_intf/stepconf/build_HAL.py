@@ -76,7 +76,7 @@ class HAL:
             print >>file, "loadrt stepgen step_type=0,0,0"
         elif self.d.axes in(1,3):
             print >>file, "loadrt stepgen step_type=0,0,0,0"
-        elif self.d.axes == 2:
+        elif self.d.axes in(2,4):
             print >>file, "loadrt stepgen step_type=0,0"
 
 
@@ -158,26 +158,26 @@ class HAL:
             offset = x1 - y1 / scale
             print >>file
             print >>file, "net spindle-cmd-rpm => pwmgen.0.value"
-            print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
+            print >>file, "net spindle-on <= spindle.0.on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
             print >>file, "setp pwmgen.0.pwm-freq %s" % self.d.spindlecarrier        
             print >>file, "setp pwmgen.0.scale %s" % scale
             print >>file, "setp pwmgen.0.offset %s" % offset
             print >>file, "setp pwmgen.0.dither-pwm true"
 
-        print >>file, "net spindle-cmd-rpm     <= motion.spindle-speed-out"
-        print >>file, "net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs"
-        print >>file, "net spindle-cmd-rps     <= motion.spindle-speed-out-rps"
-        print >>file, "net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs"
-        print >>file, "net spindle-at-speed    => motion.spindle-at-speed"
+        print >>file, "net spindle-cmd-rpm     <= spindle.0.speed-out"
+        print >>file, "net spindle-cmd-rpm-abs <= spindle.0.speed-out-abs"
+        print >>file, "net spindle-cmd-rps     <= spindle.0.speed-out-rps"
+        print >>file, "net spindle-cmd-rps-abs <= spindle.0.speed-out-rps-abs"
+        print >>file, "net spindle-at-speed    => spindle.0.at-speed"
         if SIG.ON in outputs and not pwm:
-            print >>file, "net spindle-on <= motion.spindle-on"
+            print >>file, "net spindle-on <= spindle.0.on"
         if SIG.CW in outputs:
-            print >>file, "net spindle-cw <= motion.spindle-forward"
+            print >>file, "net spindle-cw <= spindle.0.forward"
         if SIG.CCW in outputs:
-            print >>file, "net spindle-ccw <= motion.spindle-reverse"
+            print >>file, "net spindle-ccw <= spindle.0.reverse"
         if SIG.BRAKE in outputs:
-            print >>file, "net spindle-brake <= motion.spindle-brake"
+            print >>file, "net spindle-brake <= spindle.0.brake"
 
         if SIG.MIST in outputs:
             print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
@@ -194,9 +194,9 @@ class HAL:
             else:
                 print >>file, "setp encoder.0.position-scale %f" \
                     % ( 4.0 * int(self.d.spindlecpr))
-            print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
-            print >>file, "net spindle-velocity-feedback-rps encoder.0.velocity => motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
+            print >>file, "net spindle-position encoder.0.position => spindle.0.revs"
+            print >>file, "net spindle-velocity-feedback-rps encoder.0.velocity => spindle.0.speed-in"
+            print >>file, "net spindle-index-enable encoder.0.index-enable <=> spindle.0.index-enable"
             print >>file, "net spindle-phase-a encoder.0.phase-A"
             print >>file, "net spindle-phase-b encoder.0.phase-B"
             print >>file, "net spindle-index encoder.0.phase-Z"
@@ -241,7 +241,7 @@ class HAL:
             print >>file, "setp lut5.0.function 0x10000"
             print >>file, "net all-limit-home => lut5.0.in-4"
             print >>file, "net all-limit <= lut5.0.out"
-            if self.d.axes == 2:
+            if self.d.axes in(2,4):
                 print >>file, "net homing-x <= joint.0.homing => lut5.0.in-0"
                 print >>file, "net homing-z <= joint.1.homing => lut5.0.in-1"
             elif self.d.axes == 0:
@@ -276,6 +276,9 @@ class HAL:
             self.connect_joint(file, 1, 'y')
             self.connect_joint(file, 2, 'u')
             self.connect_joint(file, 3, 'v')
+        elif self.d.axes == 4:
+            self.connect_joint(file, 0, 'x')
+            self.connect_joint(file, 1, 'y')
 
         print >>file
         print >>file, "net estop-out <= iocontrol.0.user-enable-out"
@@ -475,6 +478,8 @@ class HAL:
                 print >>f1, "net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos"
                 print >>f1, "net Ujoint-pos-fb      joint.2.pos-fb      sim-hardware.Ucurrent-pos"
                 print >>f1, "net Vjoint-pos-fb      joint.3.pos-fb      sim-hardware.Vcurrent-pos"
+            if self.d.axes == 4: # XY
+                print >>f1, "net Yjoint-pos-fb      joint.1.pos-fb      sim-hardware.Ycurrent-pos"
             print >>f1
             print >>f1, "setp sim-hardware.Xmaxsw-upper 1000"
             print >>f1, "setp sim-hardware.Xmaxsw-lower [JOINT_0]MAX_LIMIT"
@@ -527,6 +532,13 @@ class HAL:
                 print >>f1, "setp sim-hardware.Vminsw-upper [JOINT_3]MIN_LIMIT"
                 print >>f1, "setp sim-hardware.Vminsw-lower -1000"
                 print >>f1, "setp sim-hardware.Vhomesw-pos [JOINT_3]HOME_OFFSET"
+                print >>f1
+            if self.d.axes == 4: # XY
+                print >>f1, "setp sim-hardware.Ymaxsw-upper 1000"
+                print >>f1, "setp sim-hardware.Ymaxsw-lower [JOINT_1]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-upper [JOINT_1]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-lower -1000"
+                print >>f1, "setp sim-hardware.Yhomesw-pos [JOINT_1]HOME_OFFSET"
                 print >>f1
             for port in range(0,self.d.number_pports):
                 print >>f1
@@ -639,7 +651,7 @@ class HAL:
             signame ='{0:<20}'.format(signame)
         else:
             signame ='{0:<15}'.format(p)
-        if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
+        if i and not fake: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
         print >>file, "net %s => parport.%d.pin-%02d-out%s" % (signame, port, num, ending)
         if self.a.doublestep() and not fake:
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP, SIG.USTEP, SIG.VSTEP):

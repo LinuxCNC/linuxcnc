@@ -177,6 +177,8 @@ void do_homing_sequence(void)
         //drop through----drop through----drop through----drop through
 
     case HOME_SEQUENCE_START:
+        // Request to home all joints or a single sequence
+        // A negative joint->home_sequence means sync final move
         if (!sequence_is_set) {
             // sequence_is_set not otherwise established: home-all 
             for (i=0; i < EMCMOT_MAX_JOINTS; i++) {
@@ -184,31 +186,18 @@ void do_homing_sequence(void)
                 joint_in_sequence[i] = 1;
                 // unspecified joints have an unrealizable home_sequence:
                 if (joint->home_sequence >100) {
-#if 1
                    // docs: 'If HOME_SEQUENCE is not specified then this joint
                    //        will not be homed by the HOME ALL sequence'
                    joint_in_sequence[i] = 0;  // per docs
-#else
-                   // legacy behavior
-                   joint->home_sequence = 0;  // per rtest
-#endif
                 }
             }
             sequence_is_set = 1;
             home_sequence = 0;
         }
-        /* Request to home all joints  or a single sequence
-        *  A negative joint->home_sequence means sync final move
-        *
-        * Initializations
-        */
+        /* Initializations */
         for(i=0; i < MAX_HOME_SEQUENCES; i++) {
             sync_final_move[i] = 0; //reset to allow a rehome
         }
-        /*
-        *  Force all joints having identical ABS(joint->home_sequence)
-        *  to agree, e.g., if any one is negative make them all negative
-        */
         for(i=0; i < emcmotConfig->numJoints; i++) {
             if (!joint_in_sequence[i]) continue;
             joint = &joints[i];

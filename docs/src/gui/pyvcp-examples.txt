@@ -174,20 +174,20 @@ To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
 ----
-# connect the X PyVCP buttons 
-net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus 
-net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
+# connect the X PyVCP buttons
+net my-jogxminus halui.axis.x.minus <= pyvcp.x-minus
+net my-jogxplus halui.axis.x.plus <= pyvcp.x-plus
 
-# connect the Y PyVCP buttons 
-net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus 
-net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
+# connect the Y PyVCP buttons
+net my-jogyminus halui.axis.y.minus <= pyvcp.y-minus
+net my-jogyplus halui.axis.y.plus <= pyvcp.y-plus
 
-# connect the Z PyVCP buttons 
-net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus 
-net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
+# connect the Z PyVCP buttons
+net my-jogzminus halui.axis.z.minus <= pyvcp.z-minus
+net my-jogzplus halui.axis.z.plus <= pyvcp.z-plus
 
-# connect the PyVCP jog speed slider  
-  net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
+# connect the PyVCP jog speed slider
+net my-jogspeed halui.axis.jog-speed <= pyvcp.jog-speed-f
 ----
 
 After resetting the E-Stop and putting it into jog mode and moving the

@@ -77,9 +77,9 @@ class CMS_UPDATER {
   * more conveniently and allowed the CMS_UPDATER functions to be pulled out
   * of CMS with fewer changes.
   *********************************************/
-    void *(&encoded_data);	/* pointer to local copy of encoded data */
-    void *(&encoded_header);	/* pointer to local copy of encoded header */
-    void *(&encoded_queuing_header);	/* pointer to local copy of encoded
+    void *&encoded_data;	/* pointer to local copy of encoded data */
+    void *&encoded_header;	/* pointer to local copy of encoded header */
+    void *&encoded_queuing_header;	/* pointer to local copy of encoded
 					   queue info */
       CMS_STATUS & status;
     long &size;

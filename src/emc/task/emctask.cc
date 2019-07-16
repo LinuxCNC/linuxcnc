@@ -35,7 +35,6 @@
 #include "taskclass.hh"
 #include "motion.h"
 
-
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
@@ -194,9 +193,19 @@ int emcTaskAbort()
     stepping = 0;
     steppingWait = 0;
 
+#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
+    if (GET_EXTERNAL_OFFSET_APPLIED()) {
+        emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+    } else {
+        // now queue up command to resynch interpreter
+        EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
+        emcTaskQueueCommand(&taskPlanSynchCmd);
+    }
+#else
     // now queue up command to resynch interpreter
     EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
     emcTaskQueueCommand(&taskPlanSynchCmd);
+#endif
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later
@@ -260,7 +269,7 @@ int emcTaskSetState(int state)
     case EMC_TASK_STATE_OFF:
         emcMotionAbort();
 	// turn the machine servos off-- go into READY state
-        emcSpindleAbort();
+    for (t = 0; t < emcStatus->motion.traj.spindles; t++)  emcSpindleAbort(t);
 	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
 	    emcJointDisable(t);
 	}
@@ -268,8 +277,7 @@ int emcTaskSetState(int state)
 	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
 	emcLubeOff();
 	emcTaskAbort();
-        emcSpindleAbort();
-        emcJointUnhome(-2); // only those joints which are volatile_home
+    emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
 	emcTaskPlanSynch();
 	break;
@@ -277,8 +285,8 @@ int emcTaskSetState(int state)
     case EMC_TASK_STATE_ON:
 	// turn the machine servos on
 	emcTrajEnable();
-	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
-	    emcJointEnable(t);
+	for (t = 0; t < emcStatus->motion.traj.joints; t++){
+		emcJointEnable(t);
 	}
 	emcLubeOn();
 	break;
@@ -289,14 +297,14 @@ int emcTaskSetState(int state)
 	emcLubeOff();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
-        emcSpindleAbort();
+    for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP_RESET);
 	emcTaskPlanSynch();
 	break;
 
     case EMC_TASK_STATE_ESTOP:
         emcMotionAbort();
-        emcSpindleAbort();
+	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
 	// go into estop-- do both IO estop and machine servos off
 	emcAuxEstopOn();
 	for (t = 0; t < emcStatus->motion.traj.joints; t++) {
@@ -306,7 +314,7 @@ int emcTaskSetState(int state)
 	emcLubeOff();
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
-        emcSpindleAbort();
+	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
         emcJointUnhome(-2); // only those joints which are volatile_home
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
@@ -498,9 +506,13 @@ int emcTaskPlanSetBlockDelete(bool state)
     return 0;
 }
 
+
 int emcTaskPlanSynch()
 {
     int retval = interp.synch();
+    if (retval == INTERP_ERROR) {
+        emcTaskAbort();
+    }
 
     if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanSynch() returned %d\n", retval);
@@ -669,7 +681,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 
     if(oldstate == EMC_TASK_STATE_ON && oldstate != stat->state) {
 	emcTaskAbort();
-        emcSpindleAbort();
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
         emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
 	emcAbortCleanup(EMC_ABORT_TASK_STATE_NOT_ON);
     }

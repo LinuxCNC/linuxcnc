@@ -36,7 +36,7 @@ net estop-out => iocontrol.0.emc-enable-in
 
 # commented out till we resolve this issue
 # connect it to the iocontroller
-#linksp spindle_on motion.spindle-on
+#linksp spindle_on spindle.0.on
 # connect it to a physical pin
 #linksp spindle_on parport.0.pin-01-out
 

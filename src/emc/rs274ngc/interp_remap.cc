@@ -313,9 +313,10 @@ int Interp::add_parameters(setup_pointer settings,
 	}
     }
     // ^...require positive speed
+    //FIXME: How do we decide which spindle they want to use? (andypugh 17/7/16)
     if (strchr(required,'^')) {
-	if (settings->speed > 0.0) {
-	    STORE("s",settings->speed);
+	if (settings->speed[0] > 0.0) {
+	    STORE("s",settings->speed[0]);
 	} else {
 	    strcat(tail,"S>0,");
 	    errored = true;

@@ -1,0 +1,323 @@
+[[cha:external-offsets]]
+
+= External Axis Offsets
+
+External axis offsets are supported during teleop (world) jogs
+and coordinated (gcode) motion.  External axis offsets are
+enabled on a per-axis basis by ini file settings and controlled
+dynamically by hal input pins.  The hal interface is similar to
+that used for wheel jogging.  This type of interface is
+typically implemented with a manual-pulse-generator (mpg)
+connected to an encoder hal component that counts pulses.
+
+== Ini file Settings
+
+For each axis letter (*L* in xyzabcuvw):
+
+----
+[AXIS_L]OFFSET_AV_RATIO = value (controls accel/vel for external offsets)
+----
+
+. Allowed values: 0 <= value <= 0.9
+. Disallowed values are replaced with 0.1 with message to stdout
+. Default value:  0 (disables external offset).
+  Consequence: omitted [AXIS_L]OFFSET_AV_RATIO disables external offset for the axis.
+. If nonzero, the  OFFSET_AV_RATIO (*r*), adjusts the conventional (planning) max
+ velocity and acceleration to preserve [AXIS_L] constraints:
+
+  planning max velocity        = (1-r) * MAX_VELOCITY
+  external offset velocity     = (  r) * MAX_VELOCITY
+
+  planning max acceleration    = (1-r) * MAX_ACCELERATIOIN
+  external offset acceleration = (  r) * MAX_ACCELERATION
+
+== Hal Pins
+
+=== Per-Axis Motion Hal Pins
+
+For each  axis letter (*L* in xyzabcuvw)
+
+. *axis.L.eoffset-enable*  Input(bit): enable
+. *axis.L.eoffset-scale*   Input(float): scale factor
+. *axis.L.eoffset-counts*  Input(s32): input to counts register
+. *axis.L.eoffset-clear*   Input(bit): clear requested offset
+. *axis.L.eoffset*         Output(float): current external offset
+. *axis.L.eoffset-request* Output(float): requested external offset
+
+=== Other Motion Hal Pins
+
+. *motion.eoffset-active*   Output(bit): non-zero external offsets applied
+. *motion.eoffset-limited*  Output(bit): motion inhibited due to soft limit
+
+== Usage
+
+The axis input hal pins (enable,scale,counts) are similar to the
+pins used for wheel jogging.
+
+=== Offset Computation
+
+At each servo period, the 'axis.L.eoffset-counts' pin is compared to
+its value in the prior period.  The increase or decrease (positive
+or negative delta) of the 'axis.L.eoffset-counts' pin is multiplied
+by the current 'axis.L.eoffset-scale' pin value.  This product is
+accumulated in an internal register and exported to the
+'axis.L.eoffset-request' hal pin.  The accumulation register is reset
+to zero at each machine-on.
+
+The requested offset value is used to plan the movement for the
+offset that is applied to the 'L' coordinate and represented
+by the 'axis.L.eoffset' hal pin.  The planned motion respects the
+allocated velocity and acceleration constraints and may be limited
+if the net motion (offset plus teleop jogging or coordinated motion)
+reaches a soft limit for the 'L' coordinate.
+
+For many applications, the 'axis.L.eoffset-scale' pin is constant
+and the net 'axis.L.eoffset-request' response to
+'axis.L.eoffset-counts' is equivalent to the product of the
+accumulated value of 'axis.L.eoffset-counts' and the (constant)
+'axis.L.eoffset-scale' pin values.
+
+=== Machine-off/Machine-on
+
+When the machine is turned off, the *current position with
+external offsets is maintained* so that there is no
+unexpected motion at turn off or turn on.
+
+At each startup (machine-on), the internal counts register for
+each hal pin 'axis.L.eoffset-counts' is zeroed and the
+corresponding hal output pin 'axis.L.eoffset' is reset to zero.
+
+In other words, external offsets are *defined as ZERO at
+each startup* (machine-on) regardless of the value of
+the 'axis.L.eoffset-counts' pins.  To avoid confusion, it is
+recommended that all 'axis.L.eoffset-counts' pins are set to
+zero when the machine is off.
+
+=== Soft Limits
+
+External axis offset movements are independently planned with
+velocity and acceleration settings specified by the
+'[AXIS_L]OFFSET_AV_RATIO'.  The offsetting motion is not
+coordinated with teleop jogs nor with coordinated (gcode)
+motion.  During teleop  jogging and coordinated (gcode) motion,
+axis soft limits ('[AXIS_L]MIN_LIMIT,MAX_LIMIT') restrict
+movement of the axis.
+
+When external offsets are applied and motion reaches a soft limit
+(by external offset increases or teleop jogging or coordinated
+motion), the hal pin 'motion.eoffset-limited' is asserted and the
+axis value is held nominally to the soft limit.  This hal pin can
+be used by associated hal logic to truncate additional eoffset
+counts or to stop the machine (connect to 'halui.machine.off' for
+instance).  If the axis is moved within the soft limit, the
+'motion.eoffset-limited' pin is reset.
+
+When operating at a soft limit during coordinated motion that
+continues to change the planned axis value, the hal output pin
+'axis.L.eoffset' will indicate the current offset -- the
+distance needed to reach the limit instead of the computed
+offset request.  This indicated value will change as the
+planned axis value changes.
+
+The hal pin 'axis.L.eoffset-request' indicates the current
+requested offset that is the product of the internal counts
+register and the eoffset-scale.  In general, the 'axis.L.eoffset'
+pin value lags the 'axis.L.eoffset-request' value since the
+external offset is subject to an acceleration limit.
+When operating at a soft limit, additional updates to the
+'axis.L.eoffset-counts' will continue to affect the requested
+external offset as reflected in the 'axis.L.eoffset-request' hal
+pin.
+
+When teleop jogging with external offsets enabled *and*
+non-zero values applied, encountering a soft limit will stop
+motion in the offending axis *without a deacceleration interval*.
+Similarly, during coordinated motion with external offsets
+enabled, reaching a soft limit will stop motion with no
+deacceleration phase.  For this case, it does not matter if the
+offsets are zero.
+
+When motion is stopped with no deacceleration phase, system
+*acceleration limits may be violated* and lead to: 1) a following
+error (and/or a thump) for a servo motor system, 2) a loss of
+steps for a stepper motor system.  In general, it is recommeneded
+that external offsets are applied in a manner to avoid
+approaching soft limits.
+
+=== Notes
+
+External offsets apply to axis coordinate letters (xyzabcuvw).
+All joints must be homed before external axis offsets are
+honored.
+
+If an 'axis.L.eoffset-enable' hal pin is reset when its offset is
+non-zero, the offset is maintained.  The offset may be cleared by:
+
+. a 'Machine-off/Machine on' toggle
+. reactivating the enable pin and incrementing/decrementing the 'axis.L.eoffset-counts'
+hal pin to return the offset to zero.
+. pulsing the 'axis.L.eoffset-clear' hal pin
+
+External-offsets are intended for use with 'small' offsets that
+are applied within the soft-limit bounds.
+
+Soft limits are respected for both teleop jogging and coordinated
+motion when external offsets are applied.  However, when a soft
+limit is reached during coordinated motion, reducing the
+offending external offset *may not move away* from the soft limit
+*if planned motion continues in the same direction*.  This
+circumstance can occur since the rate of correcting offset
+removal (as set by '[AXIS_L]OFFSET_AV_RATIO') may be less than the
+opposing planned rate of motion.  In such cases, *pausing* (or
+stopping) the planned, coordinated motion will allow movement
+away from the soft limit when correcting changes are made in the
+offending external offset.
+
+=== Warning
+
+The use of external offsets can alter machine motion in a
+significant manner.  The control of external offsets with hal
+components and connections and any associated user interfaces
+should be carefully designed and tested before deployment.
+
+== Related Hal Components
+
+=== eoffset_per_angle.comp
+
+Component to compute an external offset from a function based
+on a measured angle (rotary coordinate or spindle).  See the
+man page for details (*$ man eoffset_per_angle*).
+
+== Testing
+
+The external axis offset capability is enabled by adding
+an '[AXIS_L]' setting for each candidate axis.  For example:
+
+----
+[AXIS_Z]
+OFFSET_AV_RATIO = 0.2
+----
+
+For testing, it is convenient to simulate a jog wheel interface using the
+*sim_pin* gui.  For example, in a terminal:
+
+----
+$ sim_pin axis.z.eoffset-enable axis.z.eoffset-scale axis.z.eoffset-counts
+----
+
+The use of external offsets is aided by displaying information
+related to the current offsets: the current eoffset value and the
+requested eoffset value, the axis pos-cmd, and (for an identity
+kinematics machine) the corresponding joint motor pos-cmd and
+motor-offset.  The provided sim configuration (see below)
+demonstrates an example pyvcp panel for the axis gui.
+
+In the absence of a custom display, *halshow* can be started as
+an auxiliary application with a custom watch list.
+
+Example ini file settings to simulate the hal pin
+eoffset connections and display eoffset information for the
+z axis (for identity kinematics with z==joint2):
+
+----
+[APPLICATIONS]
+APP = sim_pin \
+      axis.z.eoffset-enable \
+      axis.z.eoffset-scale \
+      axis.z.eoffset-counts \
+      axis.z.eoffset-clear
+
+APP = halshow --fformat "%0.5f" ./z.halshow
+----
+
+Where the file z.halshow (in the configuration directory) is:
+
+----
+pin+joint.2.motor-pos-cmd
+pin+joint.2.motor-offset
+pin+axis.z.pos-cmd
+pin+axis.z.eoffset
+pin+axis.z.eoffset-request
+pin+motion.eoffset-limited
+----
+
+== Examples
+
+Provided simulation configurations demonstrate the use of
+external offsets in order to provide a starting point for user
+customization for real hardware
+
+The sim configurations utilize the ini setting '[HAL]HALFILE =
+LIB:basic_sim.tcl' to configure all routine hal connections for
+the axes specified in the ini file '[TRAJ]COORDINATES=' setting.
+The hal logic needed to demonstrate external offset functionality
+and the gui hal pin connections for a pyvcp panel are made in
+separate hal files.   A non-simulation configuration should
+replace the 'LIB:basic_sim.tcl' item HALFILEs appropriate to the
+machine.  The provided pyvcp files (.hal and .xml) could be a
+starting point for application-specific gui interfaces.
+
+=== eoffsets_demo.ini
+
+The sim config 'sim/configs/axis/external_offsets/eoffsets_demo.ini'
+demonstrates a cartesian XYZ machine with controls to enable external
+offsets on any axis.
+
+Displays are provided to show all important position and offset 
+values.
+
+A sim_pin gui provides controls for the axis offset pins: eoffset-scale
+& eoffset-counts (via signal e:<L>counts), eoffset-clear
+(via signal e:clearall)
+
+A script (eoffsets_monitor.tcl) is used to set 'axis.L.counts' pins to
+zero at Machine-off
+
+=== jwp_z.ini
+
+The sim config 'sim/configs/axis/external_offsets/jwp_z.ini'
+demonstrates a jog-while-pause capability for a single (Z) coordinate:
+
+Panel LEDs are provided to show important status items.
+
+Controls are provided to set the eoffset scale factor and to 
+increment/decrement/clear the eoffset counts.
+
+=== dynamic_offsets.ini
+
+This sim config 'sim/configs/axis/external_offsets/dynamic_offsets.ini'
+demonstrates dynamically applied offsets by connecting a sinusoidal waveform
+to the z coordinate external offset inputs.
+
+Panel LEDs are provided to show important status items.
+
+Controls are provided to alter ini file settings for the Z axis
+max velocity and max acceleration.
+
+Controls are provided to set the waveform generator parameters
+
+A halscope app is started to show the applied waveform, the
+offset response, and the motor cmd response.
+
+Note: changes to the z coordinate max-acceleration and max-velocity
+are not acknowledged while a program is running.
+
+=== opa.ini (eoffset_per_angle)
+
+The opa.ini configuration uses the hal component eoffset_per_angle
+(*$ man eoffset_per_angle*) to demonstrate an XZC machine with functional
+offsets computed from the C coordinate (angle) and applied to
+the transvers (X) coordinate.  Offset computations are based on
+a specified reference radius typically set by a program (or MDI)
+M68 command to control a *motion.analog-out-NN* pin.
+
+Panel LEDs are provided to show important status items.
+
+Functions are provided for inside and outside polygons (nsides >= 3),
+sine waves and square waves.  The functions can be multiplied in
+frequency using the fmul pin and modified in amplitude using the rfrac
+pin (fraction of reference radius).
+
+Controls are provided to start/stop offset waveforms and to
+set the function type and its parameters.
+

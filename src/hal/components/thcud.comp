@@ -32,7 +32,7 @@ net torch-up thcud.torch-up <= parport.0.pin-12-in
 .br
 net torch-down thcud.torch-down <= parport.0.pin-13-in
 .br
-net torch-on motion.spindle-on => parport.0.pin-16-out (start the arc)
+net torch-on spindle.0.on => parport.0.pin-16-out (start the arc)
 .br
 net arc-ok thcud.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
@@ -70,7 +70,7 @@ pin in bit torch_up "Connect to an input pin";
 pin in bit torch_down "Connect to input pin";
 pin in float current_vel "Connect to motion.current-vel";
 pin in float requested_vel "Connect to motion.requested-vel";
-pin in bit torch_on "Connect to motion.spindle-on";
+pin in bit torch_on "Connect to spindle.N.on";
 pin in bit arc_ok "Arc Ok from Plasma Torch";
 pin in bit enable "Enable the THC, if not enabled Z position is passed through";
 pin in float z_pos_in "Z Motor Position Command in from axis.n.motor-pos-cmd";

@@ -253,8 +253,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
-   'mini', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
@@ -551,6 +550,10 @@ if __name__ == "__main__":
     current directory for the ini file or as absolute paths. The list must
     contain no intervening whitespace.
 
+* 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
+
+* 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
+
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories for user defined
    functions. Directories are specified relative to the current directory
@@ -579,6 +582,12 @@ time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
+
+* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
+* 'ON_ABORT_COMMAND=O <on_abort> call'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
@@ -873,6 +882,9 @@ to start.
 Finally, no amount of tweaking will speed up a toolpath with lots of 
 small, tight corners, since you're limited by cornering acceleration. 
 
+* 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
+   number matches the "num_spindles" parameter passed to the motion module.
+
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code.  It is permitted to write an axis name twice
@@ -884,7 +896,7 @@ small, tight corners, since you're limited by cornering acceleration.
    trivkins and other kinematics modules.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).
+    Possible choices are mm or inch.
     This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
@@ -997,6 +1009,16 @@ The <letter> specifies one of: X Y Z A B C U V W
     Example: loadrt motmod ... unlock_joints_mask=0x38
     creates  unlock  pins for joints 3,4,5
 
+* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of
+   hal input pins for external axis offsets:
+
+   'axis.<letter>.eoffset-enable'
+   'axis.<letter>.eoffset-counts'
+   'axis.<letter>.eoffset-scale'
+
+See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for
+usage information.
+
 [[sec:joint-section]](((INI File, JOINT Section)))
 
 === [JOINT_<num>] Section
@@ -1050,31 +1072,56 @@ For more information on kinematics modules see the manpage: '$ man kins'
     can be used to make up for small deficiencies in the hardware used to
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
-    MAX_ACCELERATION for the joint.
+    MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
+    axis to jerk as it changes direction. If a COMP_FILE is specificed for an
+    axis BACKLASH is not used.
+
+// add a link to machine units
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) A file holding compensation structure for the joint.
-    The file could be named joint0screw.comp (or xscrew.comp for the X axis
-    for aa config with identity kinematics). File
-    names are case sensitive and can contain letters and/or numbers. The
-    values are triplets per line separated by a space. The first value is
-    nominal (where it should be). The second and third values depend on the
-    setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
-    triplets per joint. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units.
+    (((Compensation))) The compensation file consists of map of position
+    information for the joint. Compensation file values are in machine units.
+    Each set of values are are on one line separated by a space. The first value
+    is the nominal value (the commanded position). The second and third values
+    depend on the setting of COMP_FILE_TYPE. Points in between nominal values
+    are interpolated between the two nominals. Compensation files must start
+    with the smallest nominal and be in ascending order to the largest value of
+    nominals. File names are case sensitive and can contain letters and/or
+    numbers. Currently the limit inside LinuxCNC is for 256 triplets per axis.
+    +
+    +
+    If COMP_FILE is specified for an axis, BACKLASH is not used. A 
+    'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
-* 'COMP_FILE_TYPE = 0 or 1' -
-** 'If 0:' The second and third values specify
-    the forward position (where the joint is while traveling forward) and
-    the reverse position (where the joint is while traveling reverse),
-    positions which correspond to the nominal position.'
-** 'If 1:' The second and third values specify
-    the forward trim (how far from nominal while traveling forward) and
-    the reverse trim (how far from nominal while traveling in reverse),
-    positions which correspond to the nominal position.
+* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
+   first value is the nominal (commanded) position for both types.
 
-    Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
-    Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
+** 'Type 0:' The second value specifies the actual position as the axis is moving
+    in the positive direction (increasing value) and the third value specifies
+    the actual position as the axis is moving in the negative direction
+    (decreasing value).
+    +
+    +
+Type 0 Example
++
+----
+-1.000 -1.005 -0.995
+0.000 0.002 -0.003
+1.000 1.003 0.998
+----
+
+** 'Type 1:' The second value specifies positive offset from nominal while
+    traveling in the positive direction. The third value specifies the negitive
+    offset from nominal while traveling in a negitive direction.
+    +
+    +
+Type 1 Example
++
+----
+-1.000 0.005 -0.005
+0.000 0.002 -0.003
+1.000 0.003 -0.004
+----
 
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis

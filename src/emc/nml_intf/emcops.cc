@@ -69,7 +69,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     paused = OFF;
     scale = 0.0;
     rapid_scale = 0.0;
-    spindle_scale = 0.0;
 
     ZERO_EMC_POSE(position);
     ZERO_EMC_POSE(actualPosition);
@@ -90,7 +89,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT))
     motion_type = 0;
     current_vel = 0.0;
     feed_override_enabled = OFF;
-    spindle_override_enabled = OFF;
     adaptive_feed_enabled = OFF;
     feed_hold_enabled = OFF;
 }
@@ -163,6 +161,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = 0;
+    toolTable[t].pocketno = 0;
         ZERO_EMC_POSE(toolTable[t].offset);
 	toolTable[t].diameter = 0.0;
 	toolTable[t].orientation = 0;
@@ -185,6 +184,9 @@ EMC_SPINDLE_STAT_MSG(EMC_SPINDLE_STAT_TYPE, sizeof(EMC_SPINDLE_STAT))
     brake = 1;
     increasing = 0;
     enabled = 0;
+    spindle_scale = 1.0;
+    spindle_override_enabled = 0;
+
 }
 
 EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
@@ -212,6 +214,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 
     for (t = 0; t < CANON_POCKETS_MAX; t++) {
 	toolTable[t].toolno = s.toolTable[t].toolno;
+    toolTable[t].pocketno = s.toolTable[t].pocketno;
 	toolTable[t].offset = s.toolTable[t].offset;
 	toolTable[t].diameter = s.toolTable[t].diameter;
 	toolTable[t].frontangle = s.toolTable[t].frontangle;

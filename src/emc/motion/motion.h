@@ -138,6 +138,7 @@ extern "C" {
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
+	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
@@ -232,6 +233,7 @@ extern "C" {
 	double tolerance;	/* tolerance for path deviation in CONTINUOUS mode */
 	int joint;		/* which joint index to use for below */
 	int axis;		/* which axis index to use for below */
+	int spindle; 	/* which spindle to use */
 	double scale;		/* velocity scale or spindle_speed scale arg */
 	double offset;		/* input, output, or home offset arg */
 	double home;		/* joint home position */
@@ -268,6 +270,8 @@ extern "C" {
         double arcBlendRampFreq;
         double arcBlendTangentKinkRatio;
         double maxFeedScale;
+	double ext_offset_vel;	/* velocity for an external axis offset */
+	double ext_offset_acc;	/* acceleration for an external axis offset */
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -462,8 +466,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
     typedef enum {
 	EMCMOT_ORIENT_NONE = 0,
-	EMCMOT_ORIENT_IN_PROGRESS,
 	EMCMOT_ORIENT_COMPLETE,
+	EMCMOT_ORIENT_IN_PROGRESS,
 	EMCMOT_ORIENT_FAULTED,
     } orient_state_t;
 
@@ -593,6 +597,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 
     typedef struct {
 	double speed;		// spindle speed in RPMs
+	double scale; 		// spindle override value
+	double net_scale;   // scale or zero if inhibited
 	double css_factor;
 	double xoffset;
 	int direction;		// 0 stopped, 1 forward, -1 reverse
@@ -600,7 +606,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int locked;             // spindle lock engaged after orient
 	int orient_fault;       // fault code from motion.spindle-orient-fault
 	int orient_state;       // orient_state_t
-    } spindle_status;
+    int spindle_index_enable;  /* hooked to a canon encoder index-enable */
+    double spindleRevs;     /* position of spindle in revolutions */
+    double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
+    int at_speed;
+	int fault; /* amplifier fault */
+    } spindle_status_t;
     
     typedef struct {
 	double pos_cmd;		/* commanded axis position */
@@ -615,6 +626,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int kb_ajog_active;	/* non-zero during a keyboard jog */
 	int wheel_ajog_active;	/* non-zero during a wheel jog */
 	int locking_joint;	/* locking_joint number, -1 ==> notused*/
+
+	double      ext_offset_vel_limit;	/* upper limit of axis speed for ext offset */
+	double      ext_offset_acc_limit;	/* upper limit of axis accel for ext offset */
+	int         old_eoffset_counts;
+	simple_tp_t ext_offset_tp;/* planner for external coordinate offsets*/
     } emcmot_axis_t;
 
     typedef struct {
@@ -649,12 +665,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* these are config info, updated when a command changes them */
 	double feed_scale;	/* velocity scale factor for all motion but rapids */
 	double rapid_scale;	/* velocity scale factor for rapids */
-	double spindle_scale;	/* velocity scale factor for spindle speed */
 	unsigned char enables_new;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for new moves */
 	/* the rest are updated every cycle */
 	double net_feed_scale;	/* net scale factor for all motion */
-	double net_spindle_scale;	/* net scale factor for spindle */
 	unsigned char enables_queued;	/* flags for FS, SS, etc */
 		/* the above set is the enables in effect for the
 		   currently executing move */
@@ -668,7 +682,10 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int homing_active;	/* non-zero if any joint is homing */
 	home_sequence_state_t homingSequenceState;
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
-        emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
+    emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
+    int spindleSync;    /* spindle used for syncronised moves. -1 = none */
+    spindle_status_t spindle_status[EMCMOT_MAX_SPINDLES]; /* all spindle data */
+
 
 	int on_soft_limit;	/* non-zero if any joint is on soft limit */
 
@@ -680,12 +697,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         unsigned char probe_type;
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
-        int spindle_index_enable;  /* hooked to a canon encoder index-enable */
-        int spindleSync;        /* we are doing spindle-synced motion */
-        double spindleRevs;     /* position of spindle in revolutions */
-        double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
 
-	spindle_status spindle;	/* data types for spindle status */
 	
 	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by g-code */
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */
@@ -712,17 +724,18 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
 
-        int motionType;
-        double distance_to_go;  /* in this move */
-        EmcPose dtg;
-        double current_vel;
-        double requested_vel;
+	int motionType;
+	double distance_to_go;  /* in this move */
+	EmcPose dtg;
+	double current_vel;
+	double requested_vel;
 
-        unsigned int tcqlen;
-        EmcPose tool_offset;
-        int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
-        int spindle_is_atspeed; /* hal input */
+	unsigned int tcqlen;
+	EmcPose tool_offset;
+	int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
 	unsigned char tail;	/* flag count for mutex detect */
+	int external_offsets_applied;
+	EmcPose eoffset_pose;
         
     } emcmot_status_t;
 
@@ -757,6 +770,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int numJoints;		/* The number of joints in the system (which
 				   must be between 1 and EMCMOT_MAX_JOINTS,
 				   inclusive). Can be changed at insmod time */
+	int numSpindles; /* The number of spindles, 1 to EMCMOT_MAX_SPINDLES */
+
 	KINEMATICS_TYPE kinType;
 
         int numDIO;             /* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 

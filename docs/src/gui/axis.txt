@@ -494,7 +494,7 @@ manual controls are unavailable.
 Many of the items described below are not useful on all machines. 
 When AXIS detects that a particular pin is not connected in HAL, 
 the corresponding item in the Manual Control tab is removed. 
-For instance, if the HAL pin 'motion.spindle-brake' is not connected, 
+For instance, if the HAL pin 'spindle.0.brake' is not connected, 
 then the 'Brake' button will not appear on the screen. 
 If the environment variable 'AXIS_NO_AUTOCONFIGURE' is set, 
 this behavior is disabled and all the items will appear. 
@@ -521,23 +521,40 @@ By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 See the <<sec:display-section,DISPLAY Section>> for more information on setting
 the increments.
 
-.Homing
+.Homing (Identity Kinematics)
 
-If your machine has home switches and a homing sequence defined for
-all axes the button will read 'Home All'. The 'Home All' button or the
-Ctrl-HOME key will home all axes using the homing sequence. Pressing
-the HOME key will home the current axis, even if a homing sequence is
-defined.
+The inifile setting [KINS]JOINTS defines the total number of
+joints for the system.  A joint may be configured with
+a home switch or for 'immediate' homing.  Joints may specify
+a home sequence that organizes the order for homing groups
+of joints.
 
-If your machine has home switches and no homing sequence is defined or
-not all axes have a homing sequence the button will read 'Home' and
-will home the selected axis only. Each axis must be selected and homed
+If *all* joints are configured for homing and have valid
+home sequences, the homing button will show 'Home All'.  Pressing
+the 'Home All' button (or the Ctrl-HOME key) will initiate homing
+for all joints using their defined home sequences.  Pressing the
+HOME key will home the joint corresponding to the currently
+selected axis even if no homing sequence is defined.
+
+If not all axes have valid home sequences, the homing button will
+show 'Home Axis' and will home the joint for the currently
+selected axis only.  Each axis must be selected and homed
 separately.
 
-If your machine does not have home switches defined in the
-configuration the 'Home' button will set the current selected axis
-current position to be the absolute position 0 for that axis and will
-set the 'is-homed' bit for that axis.
+The dropdown menu Machine/Homing provides an alternate method to
+home axes. The dropdown menu Machine/Unhoming provides means to
+unhome axes.
+
+See the <<cha:homing-configuration,Homing Configuration Chapter>> for more
+information.
+
+.Homing (Non-Identity Kinematics)
+
+Operation is similar to that for Identity Kinematics but, prior to
+homing, the selection radiobuttons select joints by number.  The
+homing button will show 'Home All' if all joints are configured
+for homing and have valid home sequences.  Otherwise, the homing
+button will show 'Home Joint'.
 
 See the <<cha:homing-configuration,Homing Configuration Chapter>> for more
 information.
@@ -571,8 +588,8 @@ on an axis is to Unhome it._
 
 The buttons on the first row select the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. Counterclockwise will
-only show up if the pin 'motion.spindle-reverse' is in the HAL file (it
-can be 'net trick-axis motion.spindle-reverse' ). The buttons on the
+only show up if the pin 'spindle.0.reverse' is in the HAL file (it
+can be 'net trick-axis spindle.0.reverse' ). The buttons on the
 next row increase or decrease the rotation
 speed. The checkbox on the third row allows the spindle brake to be
 engaged or released. Depending on your machine configuration, not all
@@ -616,7 +633,7 @@ then the resulting feed rate will be 72.
 By moving this slider, the programmed spindle speed can be
 modified. For instance, if a program requests S8000 and the slider is
 set to 80%, then the resulting spindle speed will be 6400. This item
-only appears when the HAL pin 'motion.spindle-speed-out' is connected.
+only appears when the HAL pin 'spindle.0.speed-out' is connected.
 
 === Jog Speed
 
@@ -749,7 +766,7 @@ The hal_manualtoolchange component includes a hal pin for a button that
 can be connected to a physical button to complete the tool change and
 remove the window prompt (hal_manualtoolchange.change_button).
 
-The HAL configuration file 'configs/sim/axis_manualtoolchange.hal'
+The HAL configuration file 'lib/hallib/axis_manualtoolchange.hal'
 shows the HAL commands necessary to use this component.
 
 hal_manualtoolchange can be used even when AXIS is not used as the GUI. 
@@ -949,6 +966,18 @@ python script to make custom, periodic actions.  The details of what may
 be accomplished in this function are dependent on the axis gui
 implementation and subject to change during the development cycle.
 
+=== user_hal_pins()
+
+The axis gui includes a no-op (placeholder) function named
+'user_hal_pins()'. +
+It is executed just after the .axisrc file is called and 
+just before any gladevcp panels / embedded tabs are initialized. +
+This function may be implemented
+within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
+python script to make custom HAL pins that use the 'axisui.' prefix. +
+Use 'comp' as the HAL component instance reference. +
+HAL comp.ready() is called just after this function returns.
+
 === External Editor
 
 The menu options File > Edit... and File > Edit Tool Table... become
@@ -1032,4 +1061,400 @@ Axis has a Hal input pin that disables/enables the 'Pause/Resume' funtion.
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit
+----
+
+== Axis Customization Hints
+
+Axis is a fairly large and difficult-to-penetrate code base, this is helpful 
+To keep the code stable but makes it difficult to customize. +
+Here we will show code snippets to modify behaviours or visuals of the screen.
+Keep in mind the internal code of AXIS can change from time to time. +
+these snippets are not guaranteed to continue to work - they may need adjustment.
+
+=== The update function
+
+There is a function in Axis named user_live_update that is called
+every time Axis updates itself. You can use this to update your own functions. 
+[source,python]
+----
+
+# continuous update function
+def user_live_update():
+    print 'i am printed every update...' 
+----
+
+=== Disable the Close Dialog
+
+[source,python]
+----
+# disable the do you want to close dialog
+root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
+----
+=== Change the Text Font 
+
+[source,python]
+----
+# change the font
+
+font = 'sans 11'
+fname,fsize = font.split()
+root_window.tk.call('font','configure','TkDefaultFont','-family',fname,'-size',fsize)
+
+# redo the text in tabs so they resize for the new default font
+
+root_window.tk.call('.pane.top.tabs','itemconfigure','manual','-text',' Manual - F3 ')
+root_window.tk.call('.pane.top.tabs','itemconfigure','mdi','-text',' MDI - F5 ')
+root_window.tk.call('.pane.top.right','itemconfigure','preview','-text',' Preview ')
+root_window.tk.call('.pane.top.right','itemconfigure','numbers','-text',' DRO ')
+
+
+# gcode font is independent
+
+root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue')
+#root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue','-font',font)
+#root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue','-font',font,'-height','12')
+----
+
+=== Modify Rapid Rate with Keyboard Shortcuts
+
+[source,python]
+----
+# use control + ` or 1-0 as keyboard shortcuts for rapidrate and keep ` or 1-0 for feedrate
+# also adds text to quick reference in help
+
+help1.insert(10,("Control+ `,1..9,0", _("Set Rapid Override from 0% to 100%")),)
+
+root_window.bind('<Control-Key-quoteleft>',lambda event: set_rapidrate(0))
+root_window.bind('<Control-Key-1>',lambda event: set_rapidrate(10))
+root_window.bind('<Control-Key-2>',lambda event: set_rapidrate(20))
+root_window.bind('<Control-Key-3>',lambda event: set_rapidrate(30))
+root_window.bind('<Control-Key-4>',lambda event: set_rapidrate(40))
+root_window.bind('<Control-Key-5>',lambda event: set_rapidrate(50))
+root_window.bind('<Control-Key-6>',lambda event: set_rapidrate(60))
+root_window.bind('<Control-Key-7>',lambda event: set_rapidrate(70))
+root_window.bind('<Control-Key-8>',lambda event: set_rapidrate(80))
+root_window.bind('<Control-Key-9>',lambda event: set_rapidrate(90))
+root_window.bind('<Control-Key-0>',lambda event: set_rapidrate(100))
+root_window.bind('<Key-quoteleft>',lambda event: set_feedrate(0))
+root_window.bind('<Key-1>',lambda event: set_feedrate(10))
+root_window.bind('<Key-2>',lambda event: set_feedrate(20))
+root_window.bind('<Key-3>',lambda event: set_feedrate(30))
+root_window.bind('<Key-4>',lambda event: set_feedrate(40))
+root_window.bind('<Key-5>',lambda event: set_feedrate(50))
+root_window.bind('<Key-6>',lambda event: set_feedrate(60))
+root_window.bind('<Key-7>',lambda event: set_feedrate(70)
+root_window.bind('<Key-8>',lambda event: set_feedrate(80))
+root_window.bind('<Key-9>',lambda event: set_feedrate(90))
+root_window.bind('<Key-0>',lambda event: set_feedrate(100))
+----
+
+=== Read the INI file
+
+[source,python]
+----
+# read an ini file item
+
+machine = inifile.find('EMC','MACHINE')
+print 'machine name =',machine
+----
+
+
+=== Read linuxcnc Status
+
+[source,python]
+----
+# linuxcnc status can be read from s.
+
+print s.actual_position 
+print s.paused 
+----
+=== Change the current view
+
+[source,python]
+----
+# set the view of the preview
+# valid views are view_x view_y view_y2 view_z view_z2 view_p
+
+commands.set_view_z()
+----
+
+=== Creating new AXISUI HAL Pins
+
+[source,python]
+----
+def user_hal_pins():
+    comp.newpin('my-new-in-pin', hal.HAL_BIT, hal.HAL_IN)
+    comp.ready()
+----
+
+=== Creating new HAL Component and Pins
+
+[source,python]
+----
+# create a component
+
+mycomp = hal.component('my_component')
+mycomp.newpin('idle-led',hal.HAL_BIT,hal.HAL_IN)
+mycomp.newpin('pause-led',hal.HAL_BIT,hal.HAL_IN)
+mycomp.ready()
+
+# connect pins
+
+hal.new_sig('idle-led',hal.HAL_BIT)
+hal.connect('halui.program.is-idle','idle-led')
+hal.connect('my_component.idle-led','idle-led')
+
+# set a pin
+
+hal.set_p('my_component.pause-led','1')
+
+# get a pin 2,8+ branch
+
+value = hal.get_value('halui.program.is-idle')
+print 'value is a',type(value),'value of',value
+----
+
+=== Switch Tabs with HAL Pins
+
+[source,python]
+----
+# hal pins from a GladeVCP panel will not be ready when user_live_update is run
+# to read them you need to put them in a try/except block
+
+# the following example assumes 5 HAL buttons in a GladeVCP panel used to switch
+# the tabs in the Axis screen.
+# button names are 'manual-tab', 'mdi-tab', 'preview-tab', 'dro-tab', 'user0-tab'
+# the user_0 tab if it exists would be the first GladeVCP embedded tab
+
+# for linuxCNC 2.8+ branch
+
+def user_live_update():
+    try:
+        if hal.get_value('gladevcp.manual-tab'):
+            root_window.tk.call('.pane.top.tabs','raise','manual')
+        elif hal.get_value('gladevcp.mdi-tab'):
+            root_window.tk.call('.pane.top.tabs','raise','mdi')
+        elif hal.get_value('gladevcp.preview-tab'):
+            root_window.tk.call('.pane.top.right','raise','preview')
+        elif hal.get_value('gladevcp.numbers-tab'):
+            root_window.tk.call('.pane.top.right','raise','numbers')
+        elif hal.get_value('gladevcp.user0-tab'):
+            root_window.tk.call('.pane.top.right','raise','user_0')
+    except:
+        pass
+----
+
+=== Add Buttons
+
+==== Add a GOTO Home button 
+
+[source,python]
+----
+def goto_home(axis):
+    if s.interp_state == linuxcnc.INTERP_IDLE:
+        home = inifile.find('JOINT_' + str(inifile.find('TRAJ', 'COORDINATES').upper().index(axis)), 'HOME')
+        mode = s.task_mode
+        if s.task_mode != linuxcnc.MODE_MDI:
+            c.mode(linuxcnc.MODE_MDI)
+        c.mdi('G53 G0 ' + axis + home)
+
+# make a button to home y axis
+root_window.tk.call('button','.pane.top.tabs.fmanual.homey','-text','Home Y','-command','goto_home Y','-height','2')
+
+# place the button
+root_window.tk.call('grid','.pane.top.tabs.fmanual.homey','-column','1','-row','7','-columnspan','2','-padx','4','-sticky','w')
+
+# any function called from tcl needs to be added to TclCommands
+TclCommands.goto_home = goto_home
+commands = TclCommands(root_window)
+----
+
+==== Add Button to manual frame
+
+[source,python]
+----
+# make a new button and put it in the manual frame
+
+root_window.tk.call('button','.pane.top.tabs.fmanual.mybutton','-text','My Button','-command','mybutton_clicked','-height','2')
+root_window.tk.call('grid','.pane.top.tabs.fmanual.mybutton','-column','1','-row','6','-columnspan','2','-padx','4','-sticky','w')
+
+# the above send the "mybutton_clicked" command when clicked
+# other options are to bind a press or release (or both) commands to the button
+# these can be in addition to or instead of the clicked command
+# if instead of then delete '-command','mybutton_clicked', from the first line
+
+# Button-1 = left mouse button, 2 = right or 3 = middle
+
+root_window.tk.call('bind','.pane.top.tabs.fmanual.mybutton','<Button-1>','mybutton_pressed')
+root_window.tk.call('bind','.pane.top.tabs.fmanual.mybutton','<ButtonRelease-1>','mybutton_released')
+
+# functions called from the buttons
+
+def mybutton_clicked():
+    print 'mybutton was clicked'
+def mybutton_pressed():
+    print 'mybutton was pressed'
+def mybutton_released():
+    print 'mybutton was released'
+
+# any function called from tcl needs to be added to TclCommands
+
+TclCommands.mybutton_clicked = mybutton_clicked
+TclCommands.mybutton_pressed = mybutton_pressed
+TclCommands.mybutton_released = mybutton_released
+commands = TclCommands(root_window)
+----
+
+=== Reading Internal Variables
+
+[source,python]
+----
+# the following variables may be read from the vars instance
+
+print vars.machine.get()
+print vars.emcini.get()
+
+----
+
+    active_codes            = StringVar
+    block_delete            = BooleanVar
+    brake                   = BooleanVar
+    coord_type              = IntVar
+    display_type            = IntVar
+    dro_large_font          = IntVar
+    emcini                  = StringVar
+    exec_state              = IntVar
+    feedrate                = IntVar
+    flood                   = BooleanVar
+    grid_size               = DoubleVar
+    has_editor              = IntVar
+    has_ladder              = IntVar
+    highlight_line          = IntVar
+    interp_pause            = IntVar
+    interp_state            = IntVar
+    ja_rbutton              = StringVar
+    jog_aspeed              = DoubleVar
+    jog_speed               = DoubleVar
+    kinematics_type         = IntVar
+    linuxcnctop_command     = StringVar
+    machine                 = StringVar
+    max_aspeed              = DoubleVar
+    max_maxvel              = DoubleVar
+    max_queued_mdi_commands = IntVar
+    max_speed               = DoubleVar
+    maxvel_speed            = DoubleVar
+    mdi_command             = StringVar
+    metric                  = IntVar
+    mist                    = BooleanVar
+    motion_mode             = IntVar
+    on_any_limit            = BooleanVar
+    optional_stop           = BooleanVar
+    override_limits         = BooleanVar
+    program_alpha           = IntVar
+    queued_mdi_commands     = IntVar
+    rapidrate               = IntVar
+    rotate_mode             = BooleanVar
+    running_line            = IntVar
+    show_distance_to_go     = IntVar
+    show_extents            = IntVar
+    show_live_plot          = IntVar
+    show_machine_limits     = IntVar
+    show_machine_speed      = IntVar
+    show_program            = IntVar
+    show_pyvcppanel         = IntVar
+    show_rapids             = IntVar
+    show_tool               = IntVar
+    show_offsets            = IntVar
+    spindledir              = IntVar
+    spindlerate             = IntVar
+    task_mode               = IntVar
+    task_paused             = IntVar
+    task_state              = IntVar
+    taskfile                = StringVar
+    teleop_mode             = IntVar
+    tool                    = StringVar
+    touch_off_system        = StringVar
+    trajcoordinates         = StringVar
+    tto_g11                 = BooleanVar
+    view_type               = IntVar
+
+=== Hide Widgets
+
+[source,python]
+----
+# hide a widget
+# use 'grid' or 'pack' depending on how it was originally placed
+
+root_window.tk.call('grid','forget','.pane.top.tabs.fmanual.jogf.zerohome.tooltouch')
+----
+
+=== Change a label
+
+[source,python]
+----
+# change label of a widget
+root_window.tk.call('setup_widget_accel','.pane.top.tabs.fmanual.mist','Downdraft')
+
+# make sure it appears (only needed in this case if the mist button was hidden)
+root_window.tk.call('grid','.pane.top.tabs.fmanual.mist','-column','1','-row','5','-columnspan','2','-padx','4','-sticky','w')
+----
+
+=== Redirect an existing command
+
+[source,python]
+----
+# hijack an existing command
+# originally the mist button calls the mist function
+
+root_window.tk.call('.pane.top.tabs.fmanual.mist','configure','-command','hijacked_command')
+
+# The new function
+
+def hijacked_command():
+    print 'hijacked mist command'
+
+# add the function to TclCommands
+
+TclCommands.hijacked_command = hijacked_command
+commands = TclCommands(root_window)
+----
+
+=== Change the DRO color
+
+[source,python]
+----
+# change dro screen
+
+root_window.tk.call('.pane.top.right.fnumbers.text','configure','-foreground','green','-background','black')
+----
+
+=== Change the Toolbar Buttons
+
+[source,python]
+----
+# change the toolbar buttons
+
+buW = '3'
+buH = '2'
+boW = '3'
+
+root_window.tk.call('.toolbar.machine_estop','configure','-image','','-text','ESTOP','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.machine_power','configure','-image','','-text','POWER','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.file_open','configure','-image','','-text','OPEN','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.reload','configure','-image','','-text','RELOAD','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_run','configure','-image','','-text','RUN','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_step','configure','-image','','-text','STEP','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_pause','configure','-image','','-text','PAUSE','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_stop','configure','-image','','-text','STOP','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_blockdelete','configure','-image','','-text','Skip /','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.program_optpause','configure','-image','','-text','M1','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_zoomin','configure','-image','','-text','Zoom+','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_zoomout','configure','-image','','-text','Zoom-','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_z','configure','-image','','-text','Top X','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_z2','configure','-image','','-text','Top Y','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_x','configure','-image','','-text','Right','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_y','configure','-image','','-text','Front','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
+root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----

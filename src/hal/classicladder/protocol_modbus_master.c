@@ -25,6 +25,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -270,13 +273,13 @@ int TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 
 	if ( RespFrame[ 0 ]&MODBUS_FC_EXCEPTION_BIT )
 	{
-		printf("ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n", RespFrame[ 0 ], RespFrame[ 1 ]);
+		printf(_("ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"), RespFrame[ 0 ], RespFrame[ 1 ]);
 	}
 	else
 	{
 		if ( RespFrame[0]!=CurrentFuncCode )
 		{
-			printf("ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not the same as requested!\n");
+			printf(_("ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not the same as requested!\n"));
 		}
 		else
 		{
@@ -360,10 +363,10 @@ int TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 				case MODBUS_FC_DIAGNOSTICS://function 8
 					if ( ((RespFrame[3]<<8) | RespFrame[4])== 257 )
 					{	
-					printf("INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct (data=257).\n",ModbusMasterReq[ CurrentReq ].SlaveAdr);
+					printf(_("INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct (data=257).\n"),ModbusMasterReq[ CurrentReq ].SlaveAdr);
 					cError = 0;
 					}else{
-					printf("ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n",ModbusMasterReq[ CurrentReq ].SlaveAdr);
+					printf(_("ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"),ModbusMasterReq[ CurrentReq ].SlaveAdr);
 					}
 					break;
 			}
@@ -412,12 +415,12 @@ int GetModbusResponseLenghtToReceive( void )
 					LgtResp = 5;
 					break;
                                 default:
-                                        printf("INFO CLASSICLADDER-   MODBUS function code not reconized");
+                                        printf(_("INFO CLASSICLADDER-   MODBUS function code not reconized"));
                                         break;
 		}
 	}
 	if ( ModbusDebugLevel>=3 )
-		printf("INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n",LgtResp);
+		printf(_("INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"),LgtResp);
 	return LgtResp;
 }
 
@@ -551,11 +554,11 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  ", LgtAskFrame );
+			printf(_("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  "), LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-                           if (DebugFrame==0) {   printf("Slave address-%X  ", Question[ DebugFrame]);   
-                           }else{   if (DebugFrame==1) {   printf("Function code-%X  Data-", Question[ DebugFrame]);   
+                           if (DebugFrame==0) {   printf(_("Slave address-%X  "), Question[ DebugFrame]);   
+                           }else{   if (DebugFrame==1) {   printf(_("Function code-%X  Data-"), Question[ DebugFrame]);   
 				       }else{            printf("%X ", Question[ DebugFrame ] );     }}
 			}
 			printf("\n");
@@ -570,11 +573,11 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 	char RepOk = FALSE;
 	if ( ModbusDebugLevel>=1 )
 	{
-		printf("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> ", LgtResponse );
+		printf(_("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> "), LgtResponse );
 		for( DebugFrame=0; DebugFrame<LgtResponse; DebugFrame++ )
 		{
-			if (DebugFrame==0) {   printf("(Slave address-%X - ", Response[ DebugFrame]);   
-                        }else{   if (DebugFrame==1) {   printf("Function code-%X ) ", Response[ DebugFrame]);
+			if (DebugFrame==0) {   printf(_("(Slave address-%X - "), Response[ DebugFrame]);   
+                        }else{   if (DebugFrame==1) {   printf(_("Function code-%X ) "), Response[ DebugFrame]);
 				    }else{            printf("%X ", Response[ DebugFrame ] );     }}
 		}
 		printf("\n");
@@ -602,7 +605,7 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 				}
 				else
 				{
-					printf("ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n", CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
+					printf(_("ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"), CalcCRC, (Response[ LgtResponse-2 ]<<8)|Response[ LgtResponse-1 ] );
 				}
 			}
 			else
@@ -625,13 +628,13 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 			}
 			else
 			{
-				printf("ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n");
+				printf(_("ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"));
 				ErrorCnt++;
 			}
 		}
 		else
 		{
-			printf("ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n");
+			printf(_("ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"));
                         //set error coil 0 on 'MODBUS ERROR'
                         
 			ErrorCnt++;
@@ -691,7 +694,7 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
                            }
                       break;
                 default:
-                        printf("ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping ");
+                        printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "));
                       break;
                         
 	}
@@ -738,7 +741,7 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 			          break;
                             }
                 default:
-                        printf("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping ");
+                        printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "));
                         
                       break;
 			

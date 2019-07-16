@@ -162,10 +162,10 @@ if the extra zeros were not there.
 Numbers used for specific purposes in RS274/NGC are often restricted
 to some finite set of values or some to some range of values. In many
 uses, decimal numbers must be close to integers; this includes the
-values of indexes (for parameters and carousel slot numbers, for
+values of indices (for parameters and carousel slot numbers, for
 example), M codes, and G codes multiplied by ten. A decimal number
-which is supposed be close to an integer is considered close enough if
-it is within 0.0001 of an integer.
+which is intended to represent an integer is considered close enough if
+it is within 0.0001 of an integer value.
 
 
 [[gcode:parameters]](((Parameters)))
@@ -555,15 +555,15 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Mode | return value
-|G54| 0
-|G55| 1
-|G56| 2
-|G57| 3
-|G58| 4
-|G59| 5
-|G59.1|6
-|G59.2|7
-|G59.3|8
+|G54| 554
+|G55| 550
+|G56| 560
+|G57| 570
+|G58| 580
+|G59| 590
+|G59.1|591
+|G59.2|592
+|G59.3|593
 |====
 
 * '#<_tool_offset>' -
@@ -686,6 +686,11 @@ can be added easily without changes to the source code.
 * '#<_remap_level>' -
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
+
+[NOTE]
+Additional system parameters can be enabled by using 'FEATURES' in the
+[RS274NGC] section of the ini file. More information
+<<remap:ini-features, here>>.
 
 [[gcode:expressions]]
 

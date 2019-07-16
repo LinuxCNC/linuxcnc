@@ -1,0 +1,971 @@
+#!/usr/bin/tclsh
+
+#-----------------------------------------------------------------------
+# Copyright: 2018
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#-----------------------------------------------------------------------
+
+set hallib_dir [exec linuxcnc_var HALLIB_DIR]
+source [file join $hallib_dir hal_procs_lib.tcl]
+package require Hal
+
+#-----------------------------------------------------------------------
+# Notes:
+#   1) supports components made by halcompile and numerous
+#      legacy components
+#   2) Known unhandled components:
+#        at_pid   -- naming conflicts with pid, seldom used
+#        boss_plc -- no manpage or docs (any users?)
+#        watchdog -- seldom used (no users in-tree)
+#   3) deprecated/obsolete components
+#        counter
+#        supply
+
+set ::HR(separator) \
+"-----------------------------------------------------------------------"
+
+#-----------------------------------------------------------------------
+# Identificaion of functions used according to pin name.
+# Default handling works for components that:
+#   1) use names=|count= (.comp components created with halcompile)
+#   2) have a *single* function
+
+# Lists of other known components by category:
+
+# motion module
+set ::HR(comps,motion)       [list motion axis joint spindle]
+
+# kinematics modules that export hal pins:
+# (kinematics are invoked by motion module (motmod))
+set ::HR(comps,kinematics)   [list tripodkins scarakins rotatekins maxkins \
+                                   genserkins genhexkins \
+                                   xyzbc-trt-kins xyzac-trt-kins \
+                                   rosekins 5axiskins pumakins \
+                                   rotarydeltakins lineardeltakins \
+                             ]
+# Legacy components that:
+#  1) do not use names=|count=
+#  2) support multiple numbered instances
+#  3) have a single,fixed function name numbered per instance
+set ::HR(comps,legacy_comp) [list debounce mux-gen sampler streamer]
+
+# userspace components including vismach guis
+set ::HR(comps,userspace)    [list ini iocontrol halui hal_manualtoolchange \
+                                   axisui touchy gscreen gmoccapy panelui \
+                                   pyvcp gladevcp \
+                                   xhc-hb04 \
+                                   pumagui puma560gui scaragui hexagui \
+                                   5axisgui max5gui maho600gui hbmgui\
+                                   xyzac-trt-gui xyzbc-trt-gui \
+                                   lineardelta rotarydelta \
+                                   3axis-tutorial \
+                             ]
+
+
+# components marked deperecated/obsolete in docs
+set ::HR(comps,deprecated)   [list counter supply]
+
+#-----------------------------------------------------------------------
+# The following ::HR(COMPONENT_NAME,pins,FUNCT) identify
+# component pins that are handled by different functions
+# usually requiring multiple thread types (typ: base,servo)
+set ::HR(encoder,pins,update-counters) [list \
+  phase-A \
+  phase-B \
+  phase-Z \
+  rawcounts \
+  x4-mode \
+  latch-input \
+  latch-rising \
+  latch-falling \
+  counter-mode \
+]
+set ::HR(encoder,pins,capture-position) [list \
+  reset \
+  min-speed-estimate \
+  velocity \
+  counts \
+  counts-latched \
+  position \
+  position-interpolated \
+  position-latched \
+  position-scale \
+  index-enable \
+]
+
+set ::HR(sim-encoder,pins,make-pulses) [list \
+  phase-A \
+  phase-B \
+  phase-Z \
+  rawcounts \
+  ppr \
+]
+set ::HR(sim-encoder,pins,update-speed) [list \
+  scale \
+  speed \
+]
+
+set ::HR(pwmgen,pins,make-pulses) [list \
+  pwm \
+  up \
+  down \
+]
+set ::HR(pwmgen,pins,update) [list \
+  curr-dc \
+  dither-pwm \
+  enable \
+  max-dc \
+  min-dc \
+  offset \
+  pwm-freq \
+  scale \
+  value \
+]
+
+set ::HR(stepgen,pins,make-pulses) [list \
+  counts \
+  dir \
+  step \
+]
+# slow: stepgen.update-freq & stepgen.capture-position
+set ::HR(stepgen,pins,slow) [list \
+  enable \
+  position-cmd \
+  position-fb \
+]
+
+# all output pins, slow
+set ::HR(encoder-ratio,pins,update) [list \
+  error \
+]
+# all input pins, fast:
+set ::HR(encoder-ratio,pins,sample) [list \
+  master-ppr \
+  master-teeth \
+  slave-ppr \
+  slave-teeth \
+  master-A \
+  master-B \
+  slave-A \
+  slave-B \
+]
+
+#-----------------------------------------------------------------------
+proc unadded_functs {} {
+  set header_len 2
+  set ans [hal show funct]
+  set lines [split $ans \n]
+  set lines [lreplace $lines 0 [expr $header_len -1]]
+  set lines [lreplace $lines end end]
+  set ct 0
+  set not_added {}
+  foreach line $lines {
+    if {"$line" == ""} continue
+      set users [lindex $line 4]
+      set fname [lindex $line 5]
+      if {$users == 0} {lappend not_added $fname}
+  }
+  return $not_added
+} ;# unadded_functs
+
+proc make_addf_list {} {
+  set ::HR(pin_list) [hal list pin]
+  set ::HR(threads) [hal list thread]
+  set ::HR(addf) {}
+  foreach thd $::HR(threads) {
+    set header_len 3
+    set ans [hal show thread $thd]
+    set lines [split $ans \n]
+    set lines [lreplace $lines 0 [expr $header_len -1]]
+    set lines [lreplace $lines end end]
+    set ct 0
+    foreach line $lines {
+      if {"$line" == ""} continue
+      lappend ::HR(addf) "[lindex $line 1] $thd"
+    }
+  }
+} ;# make_addf_list
+
+proc make_pin_alias_list {a_to_pin_name pin_to_a_name} {
+  upvar $a_to_pin_name a_to_pin
+  upvar $pin_to_a_name pin_to_a
+  set header_len 2
+  set ans [hal show alias]
+  set lines [split $ans \n]
+  set lines [lreplace $lines 0 [expr $header_len -1]]
+  set lines [lreplace $lines end end]
+  set ct 0
+  foreach line $lines {
+    if {"$line" == ""} continue
+    if {[string first Parameter $line] == 0} break
+    set line [string trim $line]
+    set a_to_pin([lindex $line 0]) [lindex $line 1]
+    set pin_to_a([lindex $line 1]) [lindex $line 0]
+  }
+} ;# make_pin_alias_list
+
+proc find_pin {p} {
+  if {[lsearch $::HR(pin_list) $p] >= 0} {return 1}
+  return 0
+} ;# find_pin
+
+proc find_standard_pin {pin_prefix instance candidate} {
+  foreach try [list "${pin_prefix}.${candidate}" \
+                    "${pin_prefix}.${instance}.${candidate}"] {
+    if [find_pin "$try"] {return 1}
+  }
+  return 0
+} ;# find_standard_pin
+
+proc form_for_pin {pin_prefix instance psuffix} {
+  if {[find_pin ${pin_prefix}.$psuffix]              } {return names}
+  if {[find_pin ${pin_prefix}.${instance}.${psuffix}]} {return count}
+  return ""
+} ;#form_for_pin
+
+proc find_funct {pin_prefix instance args} {
+  set DOT "."
+  if {$args == "{}" } {
+    set DOT ""
+  }
+  foreach candidate $args {
+    foreach try [list "${pin_prefix}${DOT}${candidate}" \
+                      "${pin_prefix}.${instance}${DOT}${candidate}"] {
+      if {[lsearch $::HR(functs) "$try"] >= 0} {return $try}
+    }
+  }
+  return ""
+} ;# find_funct
+
+#-----------------------------------------------------------------------
+proc funct_for_userspace_comps {pname} {
+  # known userspace components that export pins
+  foreach prefix $::HR(comps,userspace) {
+    if {[string first ${prefix}. $pname] == 0} {
+      lappend ans [list "notRT" "---" "$prefix"]
+      return $ans
+    }
+  }
+  return ""
+} ;# funct_for_userspace_comps
+
+proc funct_for_motion {pname dir pin_prefix instance pin_suffix} {
+  # 1) find by assumed unique pin_prefix per list
+  # 3) fixed-name functions: motion-command-handler,motion-controller
+  foreach prefix $::HR(comps,motion) {
+    if {[string first ${prefix}. $pname] == 0} {
+      return [list motion-command-handler motion-controller]
+    }
+  }
+  return ""
+} ;# funct_for_motion
+
+proc funct_for_kinematics {pname dir pin_prefix pin_suffix nstance} {
+  if {[lsearch $::HR(comps,kinematics) ${pin_prefix}] >= 0} {
+    return [list motion-command-handler motion-controller]
+  }
+  return ""
+} ;#funct_for_kinematics
+
+proc funct_for_pid {pname dir pin_prefix instance pin_suffix} {
+  # 1) num_chan=|count=
+  # 2) find by unique pin name: *.do-pid-calcs.time
+  # 3) fixed funct name: .do-pid-calcs
+  # NB: pid name clash/ambiguous with at_pid (seldom used)
+  set lidx   [string last . $pname]
+  set fnames [string range $pname 0 [expr $lidx -1]]
+  if {[hal list pin ${fnames}.do-pid-calcs.time] != ""} {
+    return ${fnames}.do-pid-calcs
+  }
+  return ""
+} ;# funct_for_pid
+
+proc funct_for_legacy_comp {pname dir pin_prefix instance pin_suffix} {
+  # 1) fixed pin name prefix per list
+  # 2) funct by rule: pin==xxx.N.yyy.zzz, funct=xxx.N
+  foreach prefix $::HR(comps,legacy_comp) {
+    if {[string first ${prefix}. $pname] < 0} {continue}
+    set p_list [split $pname .]
+    return "[lindex $p_list 0].[lindex $p_list 1]"
+  }
+  return ""
+} ;# funct_for_legacy_comp
+
+proc funct_for_weighted_sum {pname dir pin_prefix instance pin_suffix} {
+  # 1) wsum_sizes=size[,size,...]
+  # 2) find by unique pin_prefix: wsum.
+  # 3) fixed funct name: process_wsums
+  if {[string first wsum. $pname] == 0} {
+    return process_wsums
+  }
+  return ""
+} ;# funct_for_weighted_sum
+
+proc funct_for_offset {pname dir pin_prefix instance pin_suffix} {
+  # NB: the offset component reads the offset pin on *both* functs
+  # 1) count=|names=
+  # 2) find by reqd_pin
+  # 3) funct names by rules for form and pin_suffix
+  set reqd_pin   fb-out
+  set form [form_for_pin $pin_prefix $instance $reqd_pin]
+  switch $form {
+       names   {set fprefix $pin_prefix}
+       count   {set fprefix ${pin_prefix}.${instance}}
+       default {return ""}
+  }
+  set fnames ""
+  switch "$pin_suffix" {
+    fb-out -
+    fb-in    {set fnames "${fprefix}.update-feedback"}
+    out    -
+    in       {set fnames "${fprefix}.update-output"}
+    offset   {set fnames [list ${fprefix}.update-feedback \
+                               ${fprefix}.update-output]}
+  }
+  return "$fnames"
+} ;# funct_for_offset
+
+proc funct_for_ppmc {pname dir pin_prefix instance pin_suffix} {
+  # 1) find by unique pin name prefix: ppmc.
+  # 2) funct names by rule for dir
+  if {[string first "ppmc." $pname] >= 0} {
+    set fidx [string first . $pname]
+    set fprefix [string range $pname 0 [expr $fidx +1]]
+    switch $dir {
+      IN  {set fnames ${fprefix}.write}
+      OUT {set fnames ${fprefix}.read}
+      *   {return -code error "funct_for_ppmc: unexpected $dir $pname"}
+    }
+    return $fnames
+  }
+  return ""
+} ;# funct_for_ppmc
+
+proc funct_for_stepgen {pname dir pin_prefix instance pin_suffix} {
+  # 1) step_type-type0[,type1 ...]
+  # 2) funct names by rule for pin name
+  if {"$pin_prefix" != "stepgen"} return
+  if {[lsearch $::HR(stepgen,pins,make-pulses) $pin_suffix] >= 0} {
+    return "stepgen.make-pulses"
+  }
+  if {[lsearch $::HR(stepgen,pins,slow) $pin_suffix] >= 0} {
+    return [list stepgen.update-freq stepgen.capture-position]
+  }
+  return ""
+} ;# funct_for_stepgen
+
+proc funct_for_pwmgen {pname dir pin_prefix instance pin_suffix} {
+  # 1) output_type=type0[,type1 ...]
+  # 2) funct by rule per pin name suffix
+  if {"$pin_prefix" != "pwmgen"} return
+  if {[lsearch $::HR(pwmgen,pins,make-pulses) $pin_suffix] >= 0} {
+    return "pwmgen.make-pulses"
+  }
+  if {[lsearch $::HR(pwmgen,pins,update) $pin_suffix] >= 0} {
+    return "pwmgen.update"
+  }
+  return ""
+} ;# funct_for_pwmgen
+
+proc funct_for_matrix_kb {pname dir pin_prefix instance pin_suffix} {
+  # 1) config= [names=]  (no num_chan= or count=)
+  # 2) find by unique reqd_pin
+  # 3) funct names per form
+  set reqd_pin   keycode
+  if {[find_pin ${pin_prefix}.$reqd_pin]} {
+    return ${pin_prefix} ;# form: names
+  } elseif {[find_pin ${pin_prefix}.${instance}.$reqd_pin]} {
+    return ${pin_prefix}.${instance} ;# form: num_chan
+  }
+  return ""
+} ;# funct_for_matrix_kb
+
+proc funct_for_encoder {pname dir pin_prefix instance pin_suffix} {
+  # 0) encoder or sim_encoder
+  # 1) num_chan=|names=
+  # 2) find by unique reqd_pin
+  # 3) funct names per pin_suffix
+  if {[string first counter $pname] == 0} {return ""} ;# reject counter
+  set reqd_pin phase-B ;# encoder,sim_encoder,counter(deprecated)
+  if ![find_standard_pin $pin_prefix $instance $reqd_pin] {return ""}
+
+  set is_sim 0
+  if {   [find_pin ${pin_prefix}.ppr] \
+      || [find_pin ${pin_prefix}.${instance}.ppr] } {
+    set is_sim 1
+  }
+  if $is_sim {
+    if {[lsearch $::HR(sim-encoder,pins,make-pulses) $pin_suffix] >= 0} {
+      return "sim-encoder.make-pulses"
+    }
+    if {[lsearch $::HR(sim-encoder,pins,update-speed) $pin_suffix] >= 0} {
+      return "sim-encoder.update-speed"
+    }
+  } else {
+    if {[lsearch $::HR(encoder,pins,update-counters) $pin_suffix] >= 0} {
+      return "encoder.update-counters"
+    }
+    if {[lsearch $::HR(encoder,pins,capture-position) $pin_suffix] >= 0} {
+      return "encoder.capture-position"
+    }
+  }
+  return ""
+} ;# funct_for_encoder
+
+proc funct_for_encoder_ratio {pname dir pin_prefix instance pin_suffix} {
+  # 0) encoder or sim_encoder
+  # 1) num_chan=|names=
+  # 2) find by unique reqd_pin
+  # 3) funct names per pin_suffix
+  if {[string first counter $pname] == 0} {return ""}
+  set reqd_pin master-A
+  if ![find_standard_pin $pin_prefix $instance $reqd_pin] {return ""}
+
+  if {[lsearch $::HR(encoder-ratio,pins,sample) $pin_suffix] >= 0} {
+    return "encoder-ratio.sample"
+  }
+  if {[lsearch $::HR(encoder-ratio,pins,update) $pin_suffix] >= 0} {
+    return "encoder-ratio.update"
+  }
+  return ""
+} ;# funct_for_encoder_ratio
+
+proc funct_for_parport {pname dir pin_prefix instance pin_suffix} {
+  # 1) cfg=
+  # 2) find by reqd_pin
+  # 3) funct names by dir and rule
+  set reqd_pin pin-16-out
+  if ![find_standard_pin $pin_prefix $instance $reqd_pin] {return ""}
+
+  switch $dir {
+    IN  { set fnames [find_funct $pin_prefix $instance write write-all]
+          if {"$fnames" == ""} {
+            return -code error "funct_for_parport: problem $dir $pname"
+          }
+        }
+    OUT { set fnames [find_funct $pin_prefix $instance read read-all]
+          if {"$fnames" == ""} {
+            return -code error "funct_for_parport: problem $dir $pname"
+          }
+        }
+  }
+  return $fnames
+} ;# funct_for_parport
+
+proc funct_for_hm2 {pname dir pin_prefix instance pin_suffix} {
+  # 1) config=
+  # 2) find by unique pin name prefix: hm2_*
+  # 3) funct names by rule for dir and gpio in pin name
+  # NB: not handled funct_name == read-request
+  # NB: not handled funct_name == trigger-encoders
+  # pin   names: hm2_<BoardType>.<BoardNum>.*
+  # funct names: hm2_<BoardType>.<BoardNum>.function_name
+  set fnames ""
+  if {[string first hm2_ $pname] == 0} {
+    set pname_parse [string map {. " "} $pname]
+    set BoardType    [lindex "$pname_parse" 0]
+    set BoardNum     [lindex "$pname_parse" 1]
+    set funct_prefix "${BoardType}.${BoardNum}"
+    switch $dir {
+       IN {
+            if {   ([string first .gpio. $pname] >=0 ) \
+                && ([lsearch $::HR(functs) "${funct_prefix}.read_gpio"] >= 0)} {
+              return ${funct_prefix}.write_gpio
+            } elseif {[lsearch $::HR(functs) "${funct_prefix}.read"] >= 0} {
+              return ${funct_prefix}.write
+            } else {
+              return -code error "funct_for_hm2 $dir $pname"
+            }
+          }
+      OUT {
+            if {   ([string first .gpio. $pname] >=0 ) \
+                && ([lsearch $::HR(functs) "${funct_prefix}.write_gpio"] >= 0)} {
+              return ${funct_prefix}.read_gpio
+            } elseif {[lsearch $::HR(functs) "${funct_prefix}.write"] >= 0} {
+              return ${funct_prefix}.read
+            } else {
+              return -code error "funct_for_hm2 $dir $pname"
+            }
+          }
+        * {return -code error "funct_for_hm2: $dir $pname" }
+    }
+  }
+  return ""
+} ;# funct_for_hm2
+
+proc funct_for_deprecated {pname dir pin_prefix instance pin_suffix} {
+ # 1) marked obsolete or deprecated:
+ # 2) return "" and warn message
+ foreach prefix $::HR(comps,deprecated) {
+   if {[string first "${prefix}." $pname] >= 0} {
+     if ![info exists ::HR(warnings,$prefix)] {
+       lappend ::HR(warnings,$prefix) \
+           "$prefix component is deprecated/obsolete ($ man $prefix)"
+     }
+     return ""
+   }
+ }
+} ;# funct_for_deprecated
+
+proc funct_for_std_forms {pname dir pin_prefix instance pin_suffix} {
+  # typical for halcompile with names= or count= option
+  set fnames [find_funct $pin_prefix $instance ""]
+  if {"$fnames" != ""} {return $fnames}
+
+  # alternate function name: update
+  set fnames [find_funct $pin_prefix $instance update]
+  if {"$fnames" != ""} {return $fnames}
+  return ""
+} ;# funct_for_std_forms
+
+proc funct_for_pin {pname dir} {
+  # find funct name based on pin name and direction using
+  # a search of known component categories
+
+  # use real pin name when aliased:
+  if [info exists ::ALIAS_TO_PIN($pname)] {set pname $::ALIAS_TO_PIN($pname)}
+
+  set ans [funct_for_userspace_comps $pname]
+  if {"$ans" != ""} {return $ans}
+
+  set p_list     [split  $pname    .]
+  set pin_prefix [lindex $p_list   0]
+  set instance   [lindex $p_list   1]
+  set pin_suffix [lindex $p_list end]
+
+  # try to find function for pname by categories
+  # break when fnames found, else fnames == ""
+  foreach funct [list funct_for_motion \
+                      funct_for_deprecated \
+                      funct_for_pid \
+                      funct_for_hm2 \
+                      funct_for_ppmc \
+                      funct_for_matrix_kb \
+                      funct_for_encoder \
+                      funct_for_encoder_ratio \
+                      funct_for_pwmgen \
+                      funct_for_stepgen \
+                      funct_for_parport \
+                      funct_for_offset \
+                      funct_for_legacy_comp \
+                      funct_for_weighted_sum \
+                      funct_for_kinematics \
+                      funct_for_std_forms \
+                ] {
+    set fnames [$funct $pname $dir $pin_prefix $instance $pin_suffix]
+    if {"$fnames" != ""} break
+  }
+
+  if {"$fnames" == ""} {
+    # fnames not found, make guess by looking for loaded functions
+    # on all threads # that match pin_prefix:
+    #     pin=xxx.yyy.zzz,  funct candidate(s): xxx.yyy.*
+    foreach tname $::HR(thread_names) {
+      foreach f_candidate $::HR(funct_list,$tname) {
+        if {[string first $pin_prefix $f_candidate] == 0} {
+          lappend guess $f_candidate
+        }
+      }
+    } ;# for tname
+
+    set ufmt "%-30s funct: %s"
+    if [info exists guess] {
+      set fnames $guess
+      foreach fname $fnames {
+        set ftag "?-$fname"
+        lappend ::HR(pins,unknown_funct) \
+                    [format "$ufmt" $pname $ftag]
+      }
+    } else {
+      # fnames not found and no guess
+      # some guis create userspace pins (no ordered function)
+      # but are not readily distinguished by name
+      if [info exists ::HR(ini,gui)] {
+        set ftag "?-gui:$::HR(ini,gui)"
+        lappend ans [list "notRT" "---" "$ftag"]
+        lappend ::HR(pins,unknown_funct) \
+                    [format "$ufmt" $pname $ftag]
+      } else {
+        set ftag "Unknown"
+        lappend ans [list "" "" "$ftag"] ;# unhandled component
+        lappend ::HR(pins,unknown_funct) \
+                    [format "$ufmt" $pname $ftag]
+      }
+      return $ans
+    }
+  }
+
+  # found fnames: find thread and position
+  foreach fname $fnames {
+    if {[lsearch $::HR(functs) "$fname"] < 0} {
+      lappend ans [list "???" "???" "!!$fname"]
+    } else {
+      foreach tname $::HR(thread_names) {
+        set pos [array names ::HR pos,$tname,$fname]
+        if {"$pos" != ""} {
+          set tag ""
+          if [info exists guess] {set tag "?-"}
+          lappend ans [list $tname $::HR($pos) $tag${fname}]
+        }
+      }
+    }
+  }
+
+  # no fname found and signal created using pin but no thread started
+  if ![info exists ans] {
+    foreach tname $::HR(thread_names) {
+      if {[lsearch $::HR(addf) {$fname $tname}] >= 0} {
+        set found_t
+        break
+      }
+    }
+    if [info exists found_t] {
+      lappend ans [list "!!Unexpected" "---" "$fname"]
+    } else {
+      lappend ans [list "!!NO_Thread"  "---" "$fname"]
+    }
+    return $ans
+  }
+  return $ans ;# {threadname order functname} {...}
+} ;# funct_for_pin
+
+proc make_report {fd} {
+  make_addf_list
+  make_pin_alias_list ::ALIAS_TO_PIN ::PIN_TO_ALIAS
+  #parray ::ALIAS_TO_PIN
+  #parray ::PIN_TO_ALIAS
+  set ::HR(date) [clock format [clock seconds] -format "%d%b%y %H:%M:%S"]
+  set which_linuxcnc [exec which linuxcnc]
+  set this_script [info script]
+
+  set linuxcncversion ""
+  catch {set linuxcncversion [exec linuxcnc_var LINUXCNCVERSION]}
+
+  puts $fd "$::HR(date)  $this_script\n"
+  puts $fd "This report:      $::HR(report_file)"
+  puts $fd "LinuxCNC:         $which_linuxcnc"
+  puts $fd "LinuxCNC Version: $linuxcncversion"
+  if {[string first /usr/bin $which_linuxcnc] < 0} {
+    set restore_dir [pwd]
+    cd [file dirname $this_script]
+    catch {puts $fd "git commit (RIP): [exec git rev-parse --short HEAD]" }
+    cd $restore_dir
+  }
+  puts $fd "uname -r:         [exec uname -r]"
+  puts $fd "lsb_release -d:   [exec lsb_release -d]"
+  if [info exists ::HR(INI_FILE_NAME)] {
+    puts $fd "INI_FILE_NAME:    $::HR(INI_FILE_NAME)"
+  }
+  if [info exists ::HR(ini,gui)] {
+    puts $fd "INI gui:          $::HR(ini,gui)"
+  }
+  puts $fd $::HR(separator)
+  puts $fd "
+The following report shows each signal (SIG:) and its
+output, input, and io pins (OUT:,IN:,IO:) followed by
+the function name, thread_name, and the addf-order for
+the function.
+
+For critcal signal paths (e.g., pid loops), the signal OUT
+pin should be numerically lower in order than the order of
+any timing-critcal IN pins for the signal."
+
+  set ::HR(thread_names) [hal list thread]
+  set ::HR(functs)       [hal list funct]
+  foreach tname $::HR(thread_names) {
+    lappend ::HR(funct_list,$tname) {}
+    set ct 1
+    foreach item $::HR(addf) {
+      set position ""
+      set function [lindex $item 0]
+      set thread   [lindex $item 1]
+      if {"$thread" != "$tname"} continue
+      if {"$position" != ""} {
+        puts $fd "UNHANDLED addf position for $thread $function $position"
+      }
+      set ::HR(pos,$thread,$function) [format %03d $ct]
+      lappend ::HR(funct_list,$thread) "$function"
+      incr ct
+    }
+  }
+  set maxlenp 0
+  foreach pname [hal list pin] {
+    set lenp [string len $pname]
+    set lena 0
+    if [info exists ::PIN_TO_ALIAS($pname)] {
+      set lena [string len $::PIN_TO_ALIAS($pname)
+    }
+    if {$lenp > $maxlenp} {set maxlenp $lenp;set maxp $pname}
+    set lena [expr $lena +3] ;# (=)
+    if {$lena > $maxlenp} {set maxlenp $lena;set maxp $pname}
+    # the pin with max len might not be displayed
+  }
+  set maxlenf 0
+  foreach f [hal list funct] {
+    set lenf [string len $f]
+    if {$lenf > $maxlenf} {set maxlenf $lenf; set maxf $f}
+  }
+  set maxlenf [expr $maxlenf +2]  ;# allow for tag
+  set fmt_lbl   "%-7s"
+  set fmt_pin   "%-${maxlenp}s"
+  set fmt_funct "%-${maxlenf}s"
+  set fmt_thd   "%-12s"
+  set fmt_pos   "%-3s"
+  set fmt "%-6s %-30s %-13s %-3s %-20s"
+  set fmt "${fmt_lbl} ${fmt_pin} ${fmt_funct} ${fmt_thd} ${fmt_pos}"
+  set X1 " ";set X2 "  ";set X4 "    "
+  set again_char "."
+
+  foreach sname [hal list signal] {
+    set out_ct 0;set in_ct 0; set io_ct 0
+    puts $fd ""
+    puts $fd [format   "$fmt" "SIG:" "$sname" "" "" ""]
+    get_netlist i o io $sname
+    if {"$o" != ""} {
+      set pname $o
+      set first_funct 1
+      foreach ans [funct_for_pin $pname OUT] {
+        set tname    [lindex $ans 0]
+        set position [lindex $ans 1]
+        set funct    [lindex $ans 2]
+        if $first_funct {
+          set first_funct 0
+          puts $fd   [format "$fmt" "${X2}OUT:" \
+                             "${X2}$pname" "$funct" "$tname" "$position"]
+        } else {
+          set again [string repeat $again_char [string len $pname]]
+          puts $fd  [format "$fmt" "" "${X2}$again" \
+                            "$funct" "$tname" "$position"]
+        }
+      }
+      if [info exists ::ALIAS_TO_PIN($pname)] {
+        set pname $::ALIAS_TO_PIN($pname)
+        puts $fd     [format "$fmt" "" "${X2}(=$pname)" "" "" ""]
+      }
+      incr out_ct
+    }
+    if {"$io" != ""} {
+      foreach pname $io {
+        set first_funct 1
+        foreach ans [funct_for_pin $pname IO] {
+          set tname    [lindex $ans 0]
+          set position [lindex $ans 1]
+          set funct    [lindex $ans 2]
+          if $first_funct {
+            set first_funct 0
+            puts $fd     [format "$fmt" "${X2}IO:" \
+                          "${X2}$pname" "$funct" "$tname" "$position"]
+          } else {
+            set again [string repeat $again_char [string len $pname]]
+            puts $fd     [format "$fmt" "" "${X2}$again" \
+                          "$funct" "$tname" "$position"]
+          }
+        }
+        if [info exists ::ALIAS_TO_PIN($pname)] {
+          set pname $::ALIAS_TO_PIN($pname)
+          puts $fd     [format "$fmt" "" "${X1}(=$pname)" \
+                        "$funct" "$tname" "$position"]
+        }
+        incr io_ct
+      }
+    }
+    if {"$i" != ""} {
+      foreach pname $i {
+        set first_funct 1
+        foreach ans [funct_for_pin $pname IN] {
+          set tname    [lindex $ans 0]
+          set position [lindex $ans 1]
+          set funct    [lindex $ans 2]
+          if $first_funct {
+            set first_funct 0
+            puts $fd     [format "$fmt" "${X4}IN:" "${X4}$pname" \
+                          "$funct" "$tname" "$position"]
+          } else {
+            set again [string repeat $again_char [string len $pname]]
+            puts $fd     [format "$fmt" "" "${X4}$again" \
+                          "$funct" "$tname" "$position"]
+          }
+        }
+        if [info exists ::ALIAS_TO_PIN($pname)] {
+          set pname $::ALIAS_TO_PIN($pname)
+          puts $fd     [format "$fmt" "" "${X4}(=$pname)" "" "" ""]
+        }
+        incr in_ct
+      }
+    }
+    if {$out_ct == 0 && $io_ct == 0} {lappend no_out_list $sname}
+    if {$in_ct  == 0 && $io_ct == 0} {lappend no_in_list  $sname}
+  }
+
+  if [info exists no_out_list] {
+    puts $fd $::HR(separator)
+    puts $fd "Signals with no outputs (no out pin, no io pins):"
+    foreach s $no_out_list {
+      puts $fd "   $s"
+    }
+  }
+  if [info exists no_in_list] {
+    puts $fd $::HR(separator)
+    puts $fd "Signals with no inputs (no in pins, no io pins):"
+    foreach s $no_in_list {
+      puts $fd "   $s"
+    }
+  }
+
+  set thread_list [hal list thread]
+  if {"$thread_list" != ""} {
+    puts $fd $::HR(separator)
+    puts $fd "Function ordering by thread:"
+    foreach tname $thread_list {
+      puts $fd "\n$tname"
+      if {$::HR(funct_list,$tname) == "{}" } {
+        puts $fd "   None"
+      } else {
+        foreach fnames $::HR(funct_list,$tname) {
+          if ![info exists ::HR(pos,$tname,$fnames)] {continue}
+          puts $fd [format "   %3s %s" $::HR(pos,$tname,$fnames) $fnames]
+        }
+      }
+    }
+  }
+
+  set noaddf_list [unadded_functs]
+  if {$noaddf_list != ""} {
+    puts $fd $::HR(separator)
+    set msg "! Functions with no addf:"
+    puts $fd $msg
+    foreach fname $noaddf_list {
+      puts $fd "   $fname"
+    }
+  }
+
+  puts $fd $::HR(separator)
+  if [info exists ::HR(pins,unknown_funct)] {
+    set msg "?-Uncertain function determination for pins: "
+    puts $fd          "$msg"
+    foreach pname $::HR(pins,unknown_funct) {
+      puts $fd "   $pname"
+    }
+    puts $fd $::HR(separator)
+  }
+
+  set warn_names [array names ::HR warnings,*]
+  if {$warn_names != ""} {
+    puts $fd Warning:
+    foreach warn $warn_names {
+      puts $fd "   [string trim  $::HR($warn) \{\}]"
+    }
+    puts $fd $::HR(separator)
+  }
+
+  set guess_names [array names ::HR guess,*]
+  if {$guess_names != ""} {
+    puts $fd "Guessed function names:"
+    foreach guess $guess_names {
+      puts $fd "   [string trim  $::HR($guess) \{\}]"
+    }
+    puts $fd $::HR(separator)
+  }
+
+  puts $fd "Notes:
+1) Userspace functions are not ordered and are marked \"notRT\".
+2) Most in-tree components important for timing-critcal signal
+   paths are handled.  When a component is not handled explicitly,
+   a function may be tagged as ?-function_name.
+3) When alias pin names are used, the actual pin name is shown
+   below the aliased name and marked as (=real_pin_name).
+"
+#"
+} ;# make_report
+
+proc usage {} {
+  puts "\nUsage:
+  $::HR(prog,short) -h | --help (this help)
+or
+  $::HR(prog,short) \[outfilename\]
+"
+  exit 0
+} ;# usage
+
+proc config_options {} {
+  set ::HR(prog)        $::argv0
+  set ::HR(prog,short)  [file tail $::argv0]
+  set ::HR(report_file) stdout
+  set currentarg [lindex  $::argv 0]
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # to use -h: use -- -h,
+    # lreplace shifts argv for no. of items for each iteration
+    set currentarg [lindex $::argv 0]
+    switch -glob -- $currentarg {
+      -h - --help {usage}
+      -*          {usage}
+      default     {set ::HR(report_file) $currentarg}
+    }
+    set ::argv [lreplace $::argv 0 0]
+  } ;# while
+} ;# config_options
+
+proc ini_file_items {} {
+  if [info exists ::env(INI_FILE_NAME)] {
+    set ::HR(INI_FILE_NAME) $::env(INI_FILE_NAME)
+  } else {
+    set ans ""
+    catch {set ans [split [exec pgrep -a linuxcncsvr]]}
+    foreach item $ans {
+      if {"$item" == "-ini"} {set found_ini 1;continue}
+      if [info exists found_ini] {
+        set ::HR(INI_FILE_NAME) $item
+        break
+      }
+    }
+  }
+  if [info exists ::HR(INI_FILE_NAME)] {
+    set ::HR(INI_FILE_NAME) [file normalize $::HR(INI_FILE_NAME)]
+    set ::HR(ini,gui) "unknown"
+    if [catch {set ::HR(ini,gui) [exec inivar -var DISPLAY \
+                                              -sec DISPLAY \
+                                              -ini $::HR(INI_FILE_NAME)] \
+              } msg] {
+      puts msg=$msg
+    }
+  }
+} ;# ini_file_items
+#-----------------------------------------------------------------------
+# begin
+config_options
+if {[llength [hal list comp]] <3} {
+  puts stdout "\n$::HR(prog,short): No components are loaded"
+  puts stdout   "$::HR(prog,short): is LinuxCNC or another hal app running?\n"
+  exit 1
+}
+ini_file_items
+
+set fd stdout ;# default
+if {"$::HR(report_file)" != "stdout"} {
+  set ::HR(report_file) [file normalize $::HR(report_file)]
+  puts stdout "$::HR(prog,short): file=$::HR(report_file)\n"
+  if [catch {set fd [open $::HR(report_file) w]} msg] {
+    puts "$::HR(prog): $msg"
+    exit 1
+  }
+}
+if [catch {make_report $fd} msg] {
+  puts $fd "\n$::argv0: make_report_msg=\n$msg\n"
+}
+close $fd
+exit 0

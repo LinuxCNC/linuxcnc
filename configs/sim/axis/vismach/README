@@ -1,5 +1,9 @@
 The 'vismach' directory contains a number of configurations that display a 3D model of the simulated machine.
 
+The best place to start is with the rolfmill which is a 3 axis mill built
+using primitives. The rolfmill.hal file is heavly commented with step by
+step instructions on how to build the vismach simulation.
+
 These simulations are mostly intended to testing of complex kinematics code by people who don't have those somewhat exotic machines.
 
 All of these configurations work without realtime and without hardware or drivers.

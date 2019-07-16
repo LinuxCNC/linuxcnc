@@ -92,13 +92,12 @@ def print_status(status):
     print "read_line:", status.read_line
     print "rotation_xy:", status.rotation_xy
     print "settings:", status.settings
-    print "spindle_brake:", status.spindle_brake
-    print "spindle_direction:", status.spindle_direction
-    print "spindle_enabled:", status.spindle_enabled
-    print "spindle_increasing:", status.spindle_increasing
-    print "spindle_override_enabled:", status.spindle_override_enabled
-    print "spindle_speed:", status.spindle_speed
-    print "spindlerate:", status.spindlerate
+    print "spindle_brake:", status.spindle[0]['brake']
+    print "spindle_direction:", status.spindle[0]['direction']
+    print "spindle_enabled:", status.spindle[0]['enabled']
+    print "spindle_override_enabled:", status.spindle[0]['override_enabled']
+    print "spindle_speed:", status.spindle[0]['speed']
+    print "spindlerate:", status.spindle[0]['override']
     print "state:", status.state
     print "task_mode:", status.task_mode
     print "task_paused:", status.task_paused
@@ -245,8 +244,7 @@ assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
 assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80))
 
-assert(s.homed == (0, 0, 0, 0, 0, 0, 0, 0, 0))
-
+assert(not (1 in s.homed))
 assert(s.id == 0)
 assert(s.inpos == True)
 assert(s.input_timeout == False)
@@ -262,13 +260,15 @@ assert_joint_zeroed(s.joint[5])
 assert_joint_zeroed(s.joint[6])
 assert_joint_zeroed(s.joint[7])
 assert_joint_zeroed(s.joint[8])
-assert(s.joint_actual_position == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
-assert(s.joint_position == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+for i in range(len(s.joint_actual_position)):
+    assert(s.joint_actual_position[i] == 0.0)
+for i in range(len(s.joint_position)):
+    assert(s.joint_position[i] == 0.0)
 assert(s.joints == 3)
 
 assert(s.kinematics_type == 1)
 
-assert(s.limit == (0, 0, 0, 0, 0, 0, 0, 0, 0))
+assert(not (1 in s.limit))
 assert(math.fabs(s.linear_units - 0.0393700787402) < 0.0000001)
 
 assert(s.lube == 0)
@@ -304,13 +304,12 @@ assert(s.read_line == 0)
 assert(s.rotation_xy == 0.0)
 
 assert(s.settings == (0.0, 0.0, 0.0))
-assert(s.spindle_brake == 1)
-assert(s.spindle_direction == 0)
-assert(s.spindle_enabled == 0)
-assert(s.spindle_increasing == 0)
-assert(s.spindle_override_enabled == True)
-assert(s.spindle_speed == 0.0)
-assert(s.spindlerate == 1.0)
+assert(s.spindle[0]['brake'] == 1)
+assert(s.spindle[0]['direction'] == 0)
+assert(s.spindle[0]['enabled'] == 0)
+assert(s.spindle[0]['override_enabled'] == True)
+assert(s.spindle[0]['speed'] == 0.0)
+assert(s.spindle[0]['override'] == 1.0)
 assert(s.state == linuxcnc.STATE_ESTOP)
 
 assert(s.task_mode == linuxcnc.MODE_MANUAL)

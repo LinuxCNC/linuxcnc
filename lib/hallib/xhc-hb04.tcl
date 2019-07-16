@@ -124,6 +124,9 @@ proc connect_pins {} {
 } ;# connect_pins
 
 proc wheel_setup {jogmode} {
+  for {set idx 0} {$idx < 4} {incr idx} {
+    set ::XHC_HB04_CONFIG(accel,$idx) 1.0 ;# default if unspecified
+  }
   if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
     set idx 0
     foreach g $::XHC_HB04_CONFIG(mpg_accels) {
@@ -273,7 +276,7 @@ proc wheel_setup {jogmode} {
       set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                           /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
               } msg] {
-      err_exit "Missing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+      err_exit "<$msg>\n\nMissing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
     }
     setp axis.$coord.jog-accel-fraction $afraction
 
@@ -301,7 +304,7 @@ proc wheel_setup {jogmode} {
         set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                             /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
                 } msg] {
-        err_exit "Missing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+        err_exit "<$msg>\n\nMissing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
       }
       setp joint.$jnum.jog-accel-fraction $jfraction
 
@@ -320,13 +323,13 @@ proc wheel_setup {jogmode} {
   setp halui.feed-override.scale 0.01
   makenet pendant:wheel-counts  => halui.feed-override.counts
 
-  setp halui.spindle-override.scale 0.01
-  makenet pendant:wheel-counts  => halui.spindle-override.counts
+  setp halui.spindle.0.override.scale 0.01
+  makenet pendant:wheel-counts  => halui.spindle.0.override.counts
 
   makenet pendant:feed-override-enable => halui.feed-override.count-enable \
                                        <= xhc-hb04.jog.enable-feed-override
 
-  makenet pendant:spindle-override-enable => halui.spindle-override.count-enable \
+  makenet pendant:spindle-override-enable => halui.spindle.0.override.count-enable \
                                           <= xhc-hb04.jog.enable-spindle-override
 
 
@@ -335,8 +338,8 @@ proc wheel_setup {jogmode} {
                                   <= motion.current-vel \
                                   => xhc-hb04.feed-value
 
-  makenet [existing_outpin_signame motion.spindle-speed-out-rps-abs pendant:spindle-rps] \
-                                <= motion.spindle-speed-out-rps-abs \
+  makenet [existing_outpin_signame spindle.0.speed-out-rps-abs pendant:spindle-rps] \
+                                <= spindle.0.speed-out-rps-abs \
                                 => xhc-hb04.spindle-rps
 
   # accommodate existing signames for halui outpins:
@@ -347,8 +350,8 @@ proc wheel_setup {jogmode} {
                                   <= halui.feed-override.value \
                                   => xhc-hb04.feed-override
 
-  makenet [existing_outpin_signame   halui.spindle-override.value pendant:spindle-override] \
-                                  <= halui.spindle-override.value \
+  makenet [existing_outpin_signame   halui.spindle.0.override.value pendant:spindle-override] \
+                                  <= halui.spindle.0.override.value \
                                   => xhc-hb04.spindle-override
 
 } ;# wheel_setup

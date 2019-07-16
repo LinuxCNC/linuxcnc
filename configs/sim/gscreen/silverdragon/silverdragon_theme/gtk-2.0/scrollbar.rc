@@ -1,0 +1,319 @@
+style "scrollbar"
+
+{
+	
+    GtkRange::trough_border = 0
+    GtkRange::slider_width = 15
+
+
+    GtkRange::stepper_size = 15
+
+    GtkScrollbar::min_slider_length = 60
+  
+    engine "pixmap" 
+    {
+ 	
+        #The trough for vertical scrollbars. This is the region in which the slider moves.
+	image 
+	{
+            function        = BOX
+            recolorable     = TRUE
+            detail          = "trough"
+            file            = "Scrollbars/vertical_trough.png"
+            border          = { 0, 0, 30, 30 }
+            stretch         = TRUE
+            orientation     = VERTICAL
+        }
+
+	#The trough for horizontal scrollbars.
+        image 
+	{
+            function        = BOX
+            recolorable     = TRUE
+            detail          = "trough"
+            file            = "Scrollbars/horizontal_trough.png"
+            border          = { 30, 30, 0, 0 }
+            stretch         = TRUE
+            orientation     = HORIZONTAL
+        }
+
+	#The image used to draw the slider for horizontal scrollbars
+	#in the NORMAL state.
+        image 
+	{
+            function        = SLIDER
+            recolorable     = TRUE
+            state           = NORMAL
+            file            = "Scrollbars/scrollbar_horizontal.png"
+            border          = { 15, 15, 6, 6 }
+            stretch         = TRUE
+            orientation     = HORIZONTAL
+        }
+
+	#The image used to draw the slider for horizontal scrollbars
+	#in their prelight state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = PRELIGHT
+            file            = "Scrollbars/scrollbar_horizontal.png"
+            border          = { 15, 15, 6, 6 }
+            stretch         = TRUE
+            orientation     = HORIZONTAL
+        }
+
+	#The image used to draw the slider for horizontal scrollbars
+	#in their ACTIVE (pressed?) state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = ACTIVE
+            file            = "Scrollbars/scrollbar_horizontal.png"
+            border          = { 15, 15, 6, 6 }
+            stretch         = TRUE
+            orientation     = HORIZONTAL
+        }
+
+	#The image used to draw the slider for horizontal scrollbars
+	#in their INSENSITIVE state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = INSENSITIVE
+            file            = "Scrollbars/scrollbar_horizontal.png"
+            border          = { 15, 15, 6, 6 }
+            stretch         = TRUE
+            orientation     = HORIZONTAL
+        }
+
+	#The image used to draw the slider for vertical scrollbars
+	#in their NORMAL state.
+        image 
+	{
+            function        = SLIDER
+            recolorable     = TRUE
+            state           = NORMAL
+            file            = "Scrollbars/scrollbar_vertical.png"
+            border          = { 6, 6, 15, 15 }
+            stretch         = TRUE
+            orientation     = VERTICAL
+        }
+
+	#The image used to draw the slider for vertical scrollbars
+	#in their prelight state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = PRELIGHT
+            file            = "Scrollbars/scrollbar_vertical.png"
+            border          = { 6, 6, 15, 15 }
+            stretch         = TRUE
+            orientation     = VERTICAL
+        }
+
+	#The image used to draw the slider for vertical scrollbars
+	#in their ACTIVE state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = ACTIVE
+            file            = "Scrollbars/scrollbar_vertical.png"
+            border          = { 6, 6, 15, 15 }
+            stretch         = TRUE
+            orientation     = VERTICAL
+        }
+
+	#The image used to draw the slider for vertical scrollbars
+	#in their INSENSITIVE state.
+        image 
+	{
+            function        = SLIDER 
+            recolorable     = TRUE
+            state           = INSENSITIVE
+            file            = "Scrollbars/scrollbar_vertical.png"
+            border          = { 6, 6, 15, 15 }
+            stretch         = TRUE
+            orientation     = VERTICAL
+        }
+#### UP #######
+    image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= NORMAL
+      file					= "Scrollbars/top.png"
+      #border				= { 12, 2, 2, 9 }
+      stretch				= TRUE
+      arrow_direction	= UP
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= PRELIGHT
+      file					= "Scrollbars/top.png"
+      #border				= { 12, 2, 2, 9 }
+      stretch				= TRUE
+      arrow_direction	= UP
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= ACTIVE
+      file					= "Scrollbars/top.png"
+      #border				= { 12, 2, 2, 9 }
+      stretch				= TRUE
+      arrow_direction	= UP
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= INSENSITIVE
+      file					= "Scrollbars/top.png"
+      #border				= { 12, 2, 2, 9 }
+      stretch				= TRUE
+      arrow_direction	= UP
+    }
+
+ ######### DOWN ############
+
+    image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= NORMAL
+      file					= "Scrollbars/bottom.png"
+      #border				= { 12, 2, 10, 2 }
+      stretch				= TRUE
+      arrow_direction	= DOWN
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= PRELIGHT
+      file					= "Scrollbars/bottom.png"
+      #border				= { 12, 2, 10, 2 }
+      stretch				= TRUE
+      arrow_direction	= DOWN
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= ACTIVE
+      file					= "Scrollbars/bottom.png"
+      #border				= { 12, 2, 10, 2 }
+      stretch				= TRUE
+      arrow_direction	= DOWN
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= INSENSITIVE
+      file					= "Scrollbars/bottom.png"
+      #border				= { 12, 2, 10, 2 }
+      stretch				= TRUE
+      arrow_direction	= DOWN
+    }
+
+############ RIGHT ################
+
+    image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= NORMAL
+      file					= "Scrollbars/right.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= RIGHT
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= PRELIGHT
+      file					= "Scrollbars/right.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= RIGHT
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= ACTIVE
+      file					= "Scrollbars/right.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= RIGHT
+    }
+ image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= INSENSITIVE
+      file					= "Scrollbars/right.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= RIGHT
+    }
+
+############### LEFT ###################
+
+    image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= NORMAL
+      file					= "Scrollbars/left.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= LEFT
+    }
+  image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= PRELIGHT
+      file					= "Scrollbars/left.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= LEFT
+    }
+  image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= ACTIVE
+      file					= "Scrollbars/left.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= LEFT
+    }
+  image 
+    {
+      function				= STEPPER
+      recolorable			= TRUE
+      state					= INSENSITIVE
+      file					= "Scrollbars/left.png"
+      #border				= { 2, 9, 2, 13 }
+      stretch				= TRUE
+      arrow_direction	= LEFT
+    }
+
+
+  }
+}
+
+class "GtkScrollbar" style "scrollbar"
+

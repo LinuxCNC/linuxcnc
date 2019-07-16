@@ -386,6 +386,8 @@ typedef struct block_struct
   char comment[256];
   double d_number_float;
   bool d_flag;
+  int dollar_number;
+  bool dollar_flag;
   bool e_flag;
   double e_number;
   bool f_flag;
@@ -711,11 +713,13 @@ struct setup
   int selected_pocket;          // tool slot selected but not active
     int selected_tool;          // start switchover to pocket-agnostic interp
   int sequence_number;          // sequence number of line last read
-  double speed;                 // current spindle speed in rpm or SxM
-  SPINDLE_MODE spindle_mode;    // CONSTANT_RPM or CONSTANT_SURFACE
+  int num_spindles;				// number of spindles available
+  int active_spindle;			// the spindle currently used for CSS, FPR etc.
+  double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
+  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// CONSTANT_RPM or CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
-  bool speed_override;        // whether speed override is enabled
-  CANON_DIRECTION spindle_turning;      // direction spindle is turning
+  bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
+  CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset

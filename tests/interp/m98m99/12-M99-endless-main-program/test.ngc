@@ -6,7 +6,7 @@
 
 (*****************************************************)
 (Don't *actually* run this program infinitely!)
-(Stop after) #101 = 3 (loops in case of failure)
+(Stop after)#101 = 3(loops in case of failure)
 #100 = [#100 + 1]  (Counter; assume it starts at 0)
 O1000 if [#100 GT #101]
   (PRINT, "Stopping program after #101 loops")

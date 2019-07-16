@@ -305,7 +305,7 @@ void SET_TRAVERSE_RATE(double rate) {
     Py_XDECREF(result);
 }
 
-void SET_FEED_MODE(int mode) {
+void SET_FEED_MODE(int spindle, int mode) {
 #if 0
     maybe_new_line();   
     if(interp_error) return;
@@ -399,15 +399,15 @@ void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
-void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
+void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel) {}
 void STOP_SPEED_FEED_SYNCH() {}
-void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_at_speed) {}
-void START_SPINDLE_CLOCKWISE(int wait_for_at_speed) {}
-void SET_SPINDLE_MODE(double) {}
-void STOP_SPINDLE_TURNING() {}
-void SET_SPINDLE_SPEED(double rpm) {}
-void ORIENT_SPINDLE(double d, int i) {}
-void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_at_speed) {}
+void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_at_speed) {}
+void SET_SPINDLE_MODE(int spindle, double) {}
+void STOP_SPINDLE_TURNING(int spindle) {}
+void SET_SPINDLE_SPEED(int spindle, double rpm) {}
+void ORIENT_SPINDLE(int spindle, double d, int i) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
@@ -446,9 +446,9 @@ void SET_BLOCK_DELETE(bool enabled) {}
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
-void DISABLE_SPEED_OVERRIDE() {}
+void DISABLE_SPEED_OVERRIDE(int spindle) {}
 void ENABLE_FEED_OVERRIDE() {}
-void ENABLE_SPEED_OVERRIDE() {}
+void ENABLE_SPEED_OVERRIDE(int spindle) {}
 void MIST_OFF() {}
 void FLOOD_OFF() {}
 void MIST_ON() {}
@@ -485,7 +485,7 @@ void STRAIGHT_PROBE(int line_number,
 
 }
 void RIGID_TAP(int line_number,
-               double x, double y, double z) {
+               double x, double y, double z, double scale) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
@@ -527,7 +527,7 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
 }
 int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
-    CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
+    CANON_TOOL_TABLE t = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
@@ -557,7 +557,7 @@ static void user_defined_function(int num, double arg1, double arg2) {
 
 void SET_FEED_REFERENCE(int ref) {}
 int GET_EXTERNAL_QUEUE_EMPTY() { return true; }
-CANON_DIRECTION GET_EXTERNAL_SPINDLE() { return 0; }
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return 0; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 1; }
@@ -565,15 +565,30 @@ double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
 CANON_PLANE GET_EXTERNAL_PLANE() { return 1; }
-double GET_EXTERNAL_SPEED() { return 0; }
+double GET_EXTERNAL_SPEED(int spindle) { return 0; }
 int GET_EXTERNAL_POCKETS_MAX() { return CANON_POCKETS_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 
 
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
+
+int GET_EXTERNAL_OFFSET_APPLIED() {return 0;}
+EmcPose GET_EXTERNAL_OFFSETS() {
+    EmcPose e;
+    e.tran.x = 0;
+    e.tran.y = 0;
+    e.tran.z = 0;
+    e.a      = 0;
+    e.b      = 0;
+    e.c      = 0;
+    e.u      = 0;
+    e.v      = 0;
+    e.w      = 0;
+    return e;
+};
 
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
@@ -1035,5 +1050,4 @@ initgcode(void) {
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
 }
-
 // vim:ts=8:sts=4:sw=4:et:

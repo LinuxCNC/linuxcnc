@@ -1,0 +1,10 @@
+# personalities are used modulo the number of
+# halcompiled personalities
+
+# 4 names, 2 personalities
+loadrt logic    names=lg1,lg2,lg3,lg4 personality=0x102,0x204
+loadrt lincurve names=lc1,lc2,lc3,lc4 personality=2,3
+loadrt bitslice names=bs1,bs2,bs3,bs4 personality=2,3
+
+show pin
+show parameter

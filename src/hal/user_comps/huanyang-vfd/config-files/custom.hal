@@ -5,11 +5,11 @@
 loadusr -Wn spindle-vfd hy_vfd -n spindle-vfd
 
 # connect the spindle direction pins to the VFD
-net hy-fwd <= motion.spindle-forward => spindle-vfd.spindle-fwd
-net hy-rev <= motion.spindle-reverse => spindle-vfd.spindle-rev
+net hy-fwd <= spindle.0.forward => spindle-vfd.spindle-fwd
+net hy-rev <= spindle.0.reverse => spindle-vfd.spindle-rev
 
 # connect the spindle on pin to the VFD
-net hy-on <= motion.spindle-on => spindle-vfd.spindle-on
+net hy-on <= spindle.0.on => spindle-vfd.spindle-on
 
 # connect the spindle RPM to the VFD
 # Note: spindle-cmd created by stepconf wizard

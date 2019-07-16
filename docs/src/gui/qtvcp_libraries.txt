@@ -1,0 +1,481 @@
+= QTvcp Libraries modules
+
+libraries are prebuilt python modules that give added features to QTvcp. +
+In this way you can select what features you want - yet don't have to build common ones yourself. +
+
+== STATUS
+
+STATUS is a library that sends GObject messages based on linuxcnc's current state. +
+It is an extension of gladevcp's GStat object. +
+It also has some functions to give status on such things as internal jog rate. +
+You connect a function call to the STATUS message you are interested in. +
+QTvcp will call this function when the message is sent from STATUS. +
+
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.core import Status
+----
+To instantiate the module so you can use it add this python code to your instantiate section: +
+[source,python]
+----
+STATUS = Status()
+----
+To connect to messages use GObject syntax. For example to catch machine on and off messages, +
+place these commands into the INITIALIZE section: +
+[source,python]
+----
+        STATUS.connect('state-on', self.on_state_on)
+        STATUS.connect('state-off', self.on_state_off)
+----
+In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
+When linuxcnc is in machine off state the function self.on_state_off will be called. +
+
+== INFO
+
+INFO is a library to collect and filters data from the INI file. +
+
+The available data and defaults: +
+----
+inifile = linuxcnc.ini(INIPATH)
+MDI_HISTORY_PATH = '~/.axis_mdi_history'
+MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
+PREFERENCE_PATH = '~/.Preferences'
+SUB_PATH = None
+PROGRAM_FILTERS = None
+PARAMETER_FILE = None
+MACHINE_IS_LATHE = False
+MACHINE_IS_METRIC = False
+MACHINE_UNIT_CONVERSION = 1
+MACHINE_UNIT_CONVERSION_9 = [1]*9
+TRAJ_COORDINATES = 
+JOINT_COUNT =
+AVAILABLE_AXES = ['X','Y','Z']
+AVAILABLE_JOINTS = [0,1,2]
+GET_NAME_FROM_JOINT = {0:'X',1:'Y',2:'Z'}
+GET_JOG_FROM_NAME = {'X':0,'Y':1,'Z':2}
+NO_HOME_REQUIRED = False
+
+JOG_INCREMENTS = None
+ANGULAR_INCREMENTS = None
+
+DEFAULT_LINEAR_JOG_VEL = 15 units per minute
+MIN_LINEAR_JOG_VEL = 60 units per minute
+MAX_LINEAR_JOG_VEL = 300 units per minute
+
+DEFAULT_ANGULAR_JOG_VEL = 
+MIN_ANGULAR_JOG_VEL = 
+MAX_ANGULAR_JOG_VEL = 
+
+MAX_FEED_OVERRIDE = 
+MAX_TRAJ_VELOCITY = 
+
+DEFAULT_SPINDLE_SPEED = 200
+MAX_FEED_OVERRIDE = 1.5
+MAX_SPINDLE_OVERRIDE = 1.5
+MIN_SPINDLE_OVERRIDE = 0.5
+
+# user message dialog info
+USRMESS_BOLDTEXT =
+USRMESS_TEXT =
+USRMESS_TYPE =
+USRMESS_PINNAME =
+USRMESS_DETAILS =
+USRMESS_ICON =
+ZIPPED_USRMESS =
+
+# embeded program info
+TAB_NAMES =
+TAB_LOCATION =
+TAB_CMD =
+ZIPPED_TABS = 
+
+MDI_COMMAND_LIST =      (heading: [MDI_COMMAND_LIST], title: MDI_COMMAND")
+TOOL_FILE_PATH =        (heading: [EMCIO], title:TOOL_TABLE)
+POSTGUI_HALFILE_PATH =  (heading: [HAL], title: POSTGUI_HALFILE)
+----
+There are some 'helper functions' - mostly used for widget support +
+----
+convert_metric_to_machine(data)
+convert_imperial_to_machine(data)
+convert_9_metric_to_machine(data)
+convert_9_imperial_to_machine(data)
+convert_units(data)
+convert_units_9(data)
+get_filter_program(fname)
+get_qt_filter_extensions()
+----
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.core import Info
+----
+To instantiate the module so you can use it in a handler file add this python code to your instantiate section: +
+[source,python]
+----
+INFO = Info()
+----
+To access INFO data use this general syntax: +
+[source,python]
+----
+home_state = INFO.NO_HOME_REQUIRED
+if INFO.MACHINE_IS_METRIC is True:
+    print 'Metric based'
+----
+
+== Action
+
+This library is used to command linuxcnc's motion controller. +
+It tries to hide incidental details and add convenience methods for developers. +
+
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.core import Action
+----
+To instantiate the module so you can use it add this python code to your instantiate section: +
+[source,python]
+----
+ACTION = Action()
+----
+To access Lcnc_Action commands use general syntax such as these: +
+[source,python]
+----
+ACTION.SET_ESTOP_STATE(state)
+ACTION.SET_MACHINE_STATE(state)
+
+ACTION.SET_MACHINE_HOMING(joint)
+ACTION.SET_MACHINE_UNHOMED(joint)
+
+ACTION.SET_LIMITS_OVERRIDE()
+
+ACTION.SET_MDI_MODE()
+ACTION.SET_MANUAL_MODE()
+ACTION.SET_AUTO_MODE()
+
+ACTION.SET_LIMITS_OVERRIDE()
+
+ACTION.CALL_MDI(code)
+ACTION.CALL_MDI_WAIT(code)
+ACTION.CALL_INI_MDI(number)
+
+ACTION.CALL_OWORD()
+
+ACTION.OPEN_PROGRAM(filename)
+ACTION.SAVE_PROGRAM(text_source, fname):
+
+ACTION.SET_AXIS_ORIGIN(axis,value)
+ACTION.SET_TOOL_OFFSET(axis,value,fixture = False)
+
+ACTION.RUN()
+ACTION.ABORT()
+ACTION.PAUSE()
+
+ACTION.SET_MAX_VELOCITY_RATE(rate)
+ACTION.SET_RAPID_RATE(rate)
+ACTION.SET_FEED_RATE(rate)
+ACTION.SET_SPINDLE_RATE(rate)
+
+ACTION.SET_JOG_RATE(rate)
+ACTION.SET_JOG_INCR(incr)
+ACTION.SET_JOG_RATE_ANGULAR(rate)
+ACTION.SET_JOG_INCR_ANGULAR(incr, text)
+
+ACTION.SET_SPINDLE_ROTATION(direction = 1, rpm = 100, number = 0)
+ACTION.SET_SPINDLE_FASTER(number = 0)
+ACTION.SET_SPINDLE_SLOWER(number = 0)
+ACTION.SET_SPINDLE_STOP(number = 0)
+
+ACTION.SET_USER_SYSTEM(system)
+
+ACTION.ZERO_G92_OFFSET()
+ACTION.ZERO_ROTATIONAL_OFFSET()
+ACTION.ZERO_G5X_OFFSET(num)
+
+ACTION.RECORD_CURRENT_MODE()
+ACTION.RESTORE_RECORDED_MODE()
+
+ACTION.SET_SELECTED_AXIS(jointnum)
+
+ACTION.DO_JOG(jointnum, direction)
+ACTION.JOG(jointnum, direction, rate, distance=0)
+
+ACTION.TOGGLE_FLOOD()
+ACTION.SET_FLOOD_ON()
+ACTION.SET_FLOOD_OFF()
+
+ACTION.TOGGLE_MIST()
+ACTION.SET_MIST_ON()
+ACTION.SET_MIST_OFF()
+
+ACTION.RELOAD_TOOLTABLE()
+ACTION.UPDATE_VAR_FILE()
+    
+ACTION.TOGGLE_OPTIONAL_STOP()
+ACTION.SET_OPTIONAL_STOP_ON()
+ACTION.SET_OPTIONAL_STOP_OFF()
+
+ACTION.TOGGLE_BLOCK_DELETE()
+ACTION.SET_BLOCK_DELETE_ON()
+ACTION.SET_BLOCK_DELETE_OFF()
+
+ACTION.RELOAD_DISPLAY()
+ACTION.SET_GRAPHICS_VIEW(view)
+----
+There are some 'helper functions' - mostly used for this library's support +
+----
+get_jog_info (num)
+jnum_check(num)
+ensure_mode(modes)
+open_filter_program(filename, filter)
+----
+== aux_program_loader
+
+This module allows an easy way to load auxiliary programs linuxcnc often uses. +
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.lib.aux_program_loader import Aux_program_loader
+----
+To instantiate the module so you can use it add this python code to your instantiated section: +
+[source,python]
+----
+AUX_PRGM = Aux_program_loader()
+----
+
+=== HALmeter
+Halmeter is used to display one HAL pin data.
+load a halmeter with:
+----
+AUX_PRGM.load_halmeter()
+----
+
+=== classicladder user program
+----
+AUX_PRGM.load_ladder()
+----
+=== linuxcnc status program
+----
+AUX_PRGM.load_status()
+----
+=== HALshow configure display program
+----
+AUX_PRGM.load_halshow()
+----
+==== HALscope program
+----
+AUX_PRGM.load_halscope()
+----
+=== tooledit program
+----
+AUX_PRGM.load_tooledit(TOOLEFILE_PATH)
+----
+=== calibration
+----
+AUX_PRGM.load_calibration()
+----
+=== onboard/matchbox keyboard
+----
+AUX_PRGM.keyboard_onboard(ARGS)
+----
+== Keybindings
+
+This module is used to allow each keypress to control a behavior such as jogging. +
+It's used inside the handler file to facilitate keyboard jogging etc. +
+
+== Messages
+
+This modules is used to display pop up dialog messages on the screen. +
+These are defined in the INI file and controlled by HAL pins. +
+'Boldtext' is generally a title. +
+'text' is below that and usually longer. +
+'Detail' is hidden unless clicked on. +
+'pinname' is the basename of the HAL pins. +
+'type' specifies whether its a yes/no, ok, or status message. +
+Status messages will be shown in the status bar and the notify dialog. +
+it requires no user intervention. +
+ok messages require the user to click ok to close the dialog. +
+ok messages have one HAL pin to launch the dialog and one to signify it's waiting 
+for response. +
+yes/no messages require the user to select yes or no buttons to close the dialog. +
+yes/no messages have three hal pins - one to show the dialog, one for waiting, +
+and one for the answer. +
+By default it will send STATUS messages for focus_overlay anf alert sound. +
+These will silently fail if those options are not set up. +
+
+Here is a sample INI code. It would be under the [DISPLAY] heading. +
+
+[source,{ini}]
+----
+# This just shows in the status bar and desktop notify popup.
+MESSAGE_BOLDTEXT = NONE
+MESSAGE_TEXT = This is a statusbar test
+MESSAGE_DETAILS = STATUS DETAILS
+MESSAGE_TYPE = status
+MESSAGE_PINNAME = statustest
+
+# This will pop up a dialog that asks a yes no question
+MESSAGE_BOLDTEXT = NONE
+MESSAGE_TEXT = This is a yes no dialog test
+MESSAGE_DETAILS = Y/N DETAILS
+MESSAGE_TYPE = yesnodialog
+MESSAGE_PINNAME = yndialogtest
+
+# This pops up a dialog that requires an ok response and it shows in the status bar and
+# the destop notify popup.
+MESSAGE_BOLDTEXT = This is the short text
+MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
+MESSAGE_DETAILS = BOTH DETAILS
+MESSAGE_TYPE = okdialog status
+MESSAGE_PINNAME = bothtest
+----
+The screenoptions widget can automatically set up the message system. +
+
+== notify
+
+This module is used to send messages that are integrated into the desktop. +
+it uses the pynotify library. +
+
+Ubuntu/Mint does not follow the standard - you can't set how long the message stays up for. +
+I suggest fixing this with a PPA off the net +
+ https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid +
+
+you can set the title, message, icon, and timeout. +
+Notify keeps a list of all the alarm messages since starting in self.alarmpage. +
+If you click 'show all messages' in the notify popup, it will print then to the terminal. +
+ +
+The screenoptions widget can automatically set up the notify system. +
+Typically STATUS messages are used to sent notify messages. +
+
+== preferences
+
+This module allows one to load and save preference data permanently to storage media. +
+ +
+The screenoptions widget can automatically set up the preference system. +
+qtvcp searches for the screenoption widget first and if found calls _pref_init(). +
+This will create the preference object and return it to qtvcp to pass to all the widgets and +
+add it to the window object attributes. In this case the preferences object would be accesable + 
+from the handler file's initialized_ method as self.w.PREFS_ +
+Also all widgets can have access to a specific preference file at initialization time. +
+ +
+The screenoptions widget can automatically set up the preference file. +
+
+== audio player
+
+This module allows playing sounds using gstreamer, beep and espeak +
+It can play sounds/music files using 'gstreamer' (non blocking) +
+It can play sounds using the 'beep' library (currently blocks while beeping) +
+It can speak using the 'espeak' library (non blocks while speaking) +
+There are default alert sounds using Mint or freedesktop default sounds. +
+You can play arbitrary sounds or even songs by specifying the path. +
+STATUS has messages to control this module. +
+The screenoptions widget can automatically set up the audio system. +
+Or to import this modules manually add this python code to your import section: +
+[source,python]
+----
+from qtvcp.lib.audio_player import Player
+----
+To instantiate the module so you can use it add this python code to your instantiated section: +
+_resister_messages() function connects the audio player to the STATUS library for sounds can be played +
+with the STATUS message system. +
+
+[source,python]
+----
+SOUND = Player()
+SOUND._register_messages()
+----
+To play sounds using STATUS messages use these general syntax: +
+[source,python]
+----
+STATUS.emit('play-alert','LOGOUT')
+STATUS.emit('play-alert','BEEP')
+STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
+STATUS.emit('play-sound', 'PATH TO SOUND')
+----
+There are default alerts to choose from: +
+----
+ERROR
+
+READY
+
+ATTENTION
+
+RING
+
+DONE
+
+LOGIN
+
+LOGOUT
+----
+There are three beeps:
+----
+BEEP_RING
+
+BEEP_START
+
+BEEP
+----
+
+== virtual keyboard
+
+This library allows you to use STATUS messages to launch a virtual keyboard. +
+It uses Onboard or Matchbox library for the keyboard. +
+
+== TOOLBAR ACTIONS
+This library supplies prebuilt submenus and actions for toolbar menus and toolbar buttons. +
+Toolbuttons, menu and toolbar menus are built in designer and assigned actions/submenus in the handler file. +
+
+=== Importing and Initiating
+Here is the typical code to add to the relevant handler file sections. +
+
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from qtvcp.lib.toolbar_actions import ToolBarActions
+
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+
+TOOLBAR = None
+
+###################################
+# **** HANDLER CLASS SECTION **** #
+###################################
+
+class HandlerClass:
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+
+        global TOOLBAR
+        TOOLBAR = ToolBarActions(path=paths)
+----
+
+=== Assigning tool actions to toolbar buttons
+
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTSCREEN
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
+
+        TOOLBAR.configure_action(self.w.actionEstop, 'estop')
+
+        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
+
+        TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
+----

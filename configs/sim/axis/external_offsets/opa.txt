@@ -1,0 +1,41 @@
+opa.ini Offset per Angle
+
+Demonstrates external offsets using the
+hal component: eoffset_per_angle.
+
+A simulation for an XZC machine offsets
+the transverse (X) coordinate based on
+the rotary coordinate (C) angle.
+
+($ man eoffset_per_angle for more info)
+
+Usage:
+  1) Estop OFF  (F1)
+  2) Machine ON (F2)
+  3) HOME All   (Ctrl-Home)
+  4) Run        (R)
+  5) Enable/Disable offsets using pyvcp
+     panel On/Off buttons
+  6) Select parameters:
+       Astart ----- starting angle
+       fmult ------ frequency multipler
+       rfraction -- amplitude (radius fraction)
+       func ------- function
+                    0  polygon (inside)
+                    1  polygon (outside)
+                    2  sine wave
+                    3  square wave
+
+Notes:
+
+1) The effective radius used for computing
+   external offsets is set using the
+   motion.analog-out-00 hal pin and 
+   controlled by the sample program or
+   by MDI ( M68 E0 Q some_radius_value )
+
+2) Offset fidelity is dependent upon inifile
+   settings for [AXIS_X] items:
+     MAX_VELOCITY
+     MAX_ACCELERATION
+     OFFSET_AV_RATIO

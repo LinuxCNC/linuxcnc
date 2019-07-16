@@ -1,6 +1,6 @@
 (this is the program describing entry moves for)
 (radius compensation in Figure 3 of the Handbook)
-(http://www.linuxcnc.org/handbook/RS274NGC_3/RS274NGC_38a.html#999268)
+(http://linuxcnc.org/docs/2.7/html/gcode/tool-compensation.html)
 
 g20 f60
 

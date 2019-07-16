@@ -33,18 +33,33 @@ old = tmp;
 
 == Installing
 
-If you're working with an installed version of LinuxCNC you will need to install
-the development packages.
+To compile a component you need to install dev.
 
-One method is to say following line in a terminal.
-
-.Installing Dev
 ----
-sudo apt-get install linuxcnc-dev
+sudo apt install linuxcnc-dev
+or
+sudo apt install linuxcnc-uspace-dev
 ----
 
-Another method is to use the Synaptic Package Manager from the main Ubuntu menu
-to install linuxcnc-dev.
+Another method is to use the Synaptic Package Manager to install linuxcnc-dev or
+linuxcnc-uspace-dev.
+
+== Using a Component
+
+Components need to be loaded and added to a thread before it can be used.
+
+.Example
+----
+loadrt threads name1=servo-thread period1=1000000
+loadrt ddt
+addf ddt.0 servo-thread
+----
+
+More information on 'loadrt' and 'addf' can be found in the
+<<cha:basic-hal-reference,Hal Basic Referece>>.
+
+To test your component you can follow the examples in the
+<<cha:hal-tutorial,HAL Tutorial>>.
 
 == Definitions
 
@@ -458,6 +473,36 @@ for a variable number of input pins to each logic gate and to allow
 for a selection of any of the basic boolean logic functions 'and', 
 'or', and 'xor'. 
 
+The default number of allowed 'personality' items is a
+compile-time setting (64).  The default applies to numerous
+components included in the distribution that are built using
+halcompile.
+
+To alter the allowed number of personality items for user-built
+components, use the '--personality' option with halcompile.  For
+example, to allow up to 128 personality times:
+
+----
+  [sudo] halcompile --personality=128 --install ...
+----
+
+When using components with personality, normal usage is to
+specify a personality item for *each* specified component
+instance.  Example for 3 instances of the logic component:
+
+----
+loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
+----
+
+[NOTE]
+
+If a loadrt line specifies more instances than personalities, the
+instances with unspecified personalities are assigned a
+personality of 0.  If the requested number of instances
+excedes the number of allowed personalities, personalities are
+assigned by indexing modulo the number of allowed personalities.
+A message is printed denoting such assignments.
+
 == Compiling
 
 Place the '.comp' file in the source directory
@@ -475,8 +520,14 @@ in a single step, placing 'rtexample.ko' in the LinuxCNC realtime
 module directory:
 
 ----
-halcompile --install rtexample.comp
+[sudo] halcompile --install rtexample.comp
 ----
+
+[NOTE]
+
+sudo (for root permission) is needed when using LinuxCNC from
+a deb package install.  When using a Run-In-Place (RIP) build,
+root privileges should not be needed.
 
 Or, it can process and compile in one step, leaving 'example.ko' (or
 'example.so' for the simulator) in the current directory:
@@ -495,7 +546,7 @@ halcompile rtexample.comp
 the '--install' and '--compile' options shown above:
 
 ----
-halcompile --install rtexample2.c
+[sudo] halcompile --install rtexample2.c
 ----
 
 man-format documentation can also be created from the information in
@@ -520,7 +571,7 @@ or copied to a standard location for manual pages.
 ----
 halcompile usrexample.comp
 halcompile --compile usrexample.comp
-halcompile --install usrexample.comp
+[sudo] halcompile --install usrexample.comp
 halcompile --document usrexample.comp
 ----
 
@@ -737,3 +788,16 @@ which creates the following pins:
    logic.2.in-01, logic.2.in-02
 
 
+== Command Line Usage
+
+The halcompile man page gives details for invoking halcompile.
+
+----
+$ man halcompile
+----
+
+A brief summary of halcompile usage is given by:
+
+----
+$ halcompile --help
+----

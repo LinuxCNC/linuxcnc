@@ -720,10 +720,10 @@ class Data:
             self[temp+"FF2"]= 0
             self[temp+"bias"]= 0
             self[temp+"deadband"]= 0
-            self[temp+"steptime"]= 1000
-            self[temp+"stepspace"]= 1000
-            self[temp+"dirhold"]= 1000
-            self[temp+"dirsetup"]= 1000
+            self[temp+"steptime"]= 5000
+            self[temp+"stepspace"]= 5000
+            self[temp+"dirhold"]= 10000
+            self[temp+"dirsetup"]= 10000
             self[temp+"homepos"]= 0
             self[temp+"homesw"]=  0
             self[temp+"homefinalvel"]= 0
@@ -1118,9 +1118,15 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     print >>f1,"""root_window.tk.call("wm","geometry",".","%s")"""%(geo)
                 if self.axisforcemax:
                     #print "Setting AXIS forcemax option"
+                    print >>f1,"""# Find the largest size possible and set AXIS to it"""
                     print >>f1,"""maxgeo=root_window.tk.call("wm","maxsize",".")"""
-                    print >>f1,"""fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+                    print >>f1,"""try:"""
+                    print >>f1,"""   fullsize=maxgeo.split(' ')[0] + 'x' + maxgeo.split(' ')[1]"""
+                    print >>f1,"""except:"""
+                    print >>f1,"""   fullsize=str(maxgeo[0]) + 'x' + str(maxgeo[1])"""
                     print >>f1,"""root_window.tk.call("wm","geometry",".",fullsize)"""
+                    print >>f1,"""# Uncomment for fullscreen"""
+                    print >>f1,"""#root_window.attributes('-fullscreen', True)"""
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
@@ -1515,10 +1521,10 @@ class App:
                         try:
                             execfile(rcfile)
                         except:
-                            print "**** PNCCONF ERROR:    custom firmware loading error"
+                            print _("**** PNCCONF ERROR:    custom firmware loading error")
                             self._p.EXTRA_MESA_FIRMWAREDATA = []
                     if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
-                        print "**** PNCCONF INFO:    Found extra firmware in file"
+                        print _("**** PNCCONF INFO:    Found extra firmware in file")
         # these are set from the hidden preference file
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
@@ -1576,7 +1582,7 @@ class App:
     def splash_screen(self):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
-        self.window.set_title("Pncconf setup")
+        self.window.set_title(_("Pncconf setup"))
         self.window.set_border_width(10)
 
         vbox = gtk.VBox(False, 5)
@@ -1588,7 +1594,7 @@ class App:
         align.show()
 
         self.pbar = gtk.ProgressBar()
-        self.pbar.set_text("Pncconf is setting up")
+        self.pbar.set_text(_("Pncconf is setting up"))
         self.pbar.set_fraction(.1)
 
         align.add(self.pbar)
@@ -1602,7 +1608,7 @@ class App:
             if "all" in hint or mtype in hint:
                 print(message)
                 if "step" in _DEBUGSTRING:
-                    c = raw_input("\n**** Debug Pause! ****")
+                    c = raw_input(_("\n**** Debug Pause! ****"))
                 return
 
     def query_dialog(self,title, message):
@@ -4905,7 +4911,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def axis_prepare(self, axis):
         d = self.d
         w = self.widgets
-        def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
+        def set_text_from_text(n): w[axis + n].set_text("%s" % d[axis + n])
+        def set_text(n): w[axis + n].set_text(locale.format("%.4f", (d[axis + n])))
         def set_value(n): w[axis + n].set_value(d[axis + n])
         def set_active(n): w[axis + n].set_active(d[axis + n])
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
@@ -5119,7 +5126,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis+"minferror"].set_sensitive(True)
             set_value("maxferror")
             set_value("minferror")
-            set_text("compfilename")
+            set_text_from_text("compfilename")
             set_active("comptype")
             set_active("usebacklash")
             set_value("backlash")
@@ -5304,7 +5311,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_active("invertmotor")
         get_active("invertencoder")
         d[axis + "maxvel"] = (get_value(w[axis + "maxvel"])/60)
-        get_text("maxacc")
+        get_pagevalue("maxacc")
         d[axis + "drivertype"] = self.drivertype_toid(axis, w[axis + "drivertype"].get_active())
         if not axis == "s":
             get_pagevalue("outputminlimit")
@@ -5318,6 +5325,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
+            d[axis+"homesequence"] = (get_value(w[axis+"homesequence"]))
             get_active("searchdir")
             get_active("latchdir")
             get_active("usehomeindex")
@@ -5594,7 +5602,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 motor_steps = get("steprev")
                 motor_scale = (motor_steps * microstepfactor * motor_pulley_ratio * motor_worm_ratio * motor_pitch) / rotary_scale
-                w["calcmotor_scale"].set_text("%.4f" % motor_scale)
+                w["calcmotor_scale"].set_text(locale.format("%.4f", (motor_scale)))
             else:
                 w["calcmotor_scale"].set_sensitive(False)
                 w["stepscaleframe"].set_sensitive(False)
@@ -5635,7 +5643,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 encoder_cpr = get_value(w[("encoderline")]) * 4
                 encoder_scale = (encoder_pulley_ratio * encoder_worm_ratio * encoder_pitch * encoder_cpr) / rotary_scale
-                w["calcencoder_scale"].set_text("%.4f" % encoder_scale)
+                w["calcencoder_scale"].set_text(locale.format("%.4f", (encoder_scale)))
             else:
                 w["calcencoder_scale"].set_sensitive(False)
                 w["encoderscaleframe"].set_sensitive(False)

@@ -14,6 +14,9 @@ from hal_widgets import HALIO_HScale
 from hal_widgets import HAL_SpinButton
 from hal_widgets import HAL_Label
 
+from status_label import Status_Label
+from state_label import State_Label
+
 from led import HAL_LED
 from calculatorwidget import Calculator
 from tooledit_widget import ToolEdit

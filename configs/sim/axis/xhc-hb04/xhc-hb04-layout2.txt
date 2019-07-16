@@ -34,6 +34,6 @@ The other buttons can be connected to hal pins -- typically halui provided pins.
 
 MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with entries like: [HALUI]MDI_COMMAND = mdi_command 
 
-The rotary switch selects the axis, spindle, or feedoverride for control by the jogwheel.
+The rotary switch selects the axis, spindle.0, or feedoverride for control by the jogwheel.
 
 The switch positions (xyza) can be defined to any available axis (xyzc for instance).

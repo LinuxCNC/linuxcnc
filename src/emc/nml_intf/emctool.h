@@ -25,6 +25,7 @@
 
 struct CANON_TOOL_TABLE {
     int toolno;
+    int pocketno;
     EmcPose offset;
     double diameter;
     double frontangle;

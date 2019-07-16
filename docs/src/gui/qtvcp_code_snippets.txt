@@ -1,0 +1,172 @@
+= QTvcp Handler file code snippets
+
+Here are bits of ideas to put in the handler file. +
+
+== Preference file loading/saving
+Here is how to load and save at closing time a number and some text: +
+You must have included a preference file option in the screenoptions widget. +
+
+under the 'def initialized__(self):' function add:
+[source,python]
+----
+        if self.w.PREFS_:
+            # variable name                     (entry name, default value, type, section name)
+            self.int_value = self.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
+            self.string_value = self.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
+----
+
+under the 'def closing_cleanup__(self):' function add:
+[source,python]
+----
+        if self.w.PREFS_:
+            #                     entry name, variable name, type, section name)
+            self.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.PREFS_.putpref('String_value', self.string_value, int, 'CUSTOM_FORM_ENTRIES')
+
+----
+
+== Add a basic style editor
+Being able to edit a style on a running screen is convienant. +
+
+In the 'IMPORT SECTION': +
+[source,python]
+----
+from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+----
+
+In the 'INITIALIZE SECTION'
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
+----
+        self.STYLEEDITOR = SSE(widgets,paths)
+        KEYBIND.add_call('Key_F12','on_keycall_F12')
+----
+
+Finally lets make f12 launch it. +
+In the 'KEYBINDING SECTION' add: +
+[source,python]
+----
+    def on_keycall_F12(self,event,state,shift,cntrl):
+        if state:
+            self.STYLEEDITOR.load_dialog()
+----
+
+== Request Dialog Entry
+Qtvcp uses STATUS messages to pop up and return information from dialogs. +
+prebuilt dialogs keep track of their last position and include options for focus shading and sound. +
+To get information back from the dialog requires using a STATUS general message. +
+
+In the 'IMPORT SECTION' make sure there is an entry similar to this: +
+[source,python]
+----
+from qtvcp.core import Status
+STATUS = Status()
+----
+This loads and initializes the STATUS library. +
+
+In the 'INITIALIZE SECTION'
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
+----
+        STATUS.connect('general',self.return_value)
+----
+This registers STATUS to call the function 'self.return_value' when a general message is sent. +
+
+In the 'GENERAL FUNCTIONS SECTION'
+[source,python]
+----
+    def request_number(self):
+        mess = {'NAME':'ENTRY','ID':'FORM__NUMBER', 'TITLE':'Set Tool Offset'}
+        STATUS.emit('dialog-request', mess)
+----
+This is the function to request an entry dialog. +
+It creates a python dict. The NAME sets which dialog to request - 'ENTRY' or 'CALCULATOR' allows entering numbers. +
+The ID should be a unique key. TITLE sets the dialog title. You can also add arbitrary data to the dict -+
+the dialog will ignore them but send them back to the return code. +
+
+In the 'CALLBACKS FROM STATUS SECTION'
+[source,python]
+----
+   # process the STATUS return message from set-tool-offset
+    def return_value(self, w, message):
+        num = message['RETURN']
+        id_code = bool(message['ID'] == 'FORM__')
+        name = bool(message['NAME'] == 'ENTRY')
+        if num is not None and id_code and name:
+            print 'The {} number from {} was: {}'.format(name, id_code, num)
+----
+This catches all general messages so must check the dialog type and id code to confirm it's our dialog. +
+Entry or Calculator dialogs return a float number. +
+
+== Speak a Startup Greeting
+This requires the 'espeak' library installed on the system. +
+
+In the 'IMPORT SECTION' make sure there is an entry similar to this: +
+[source,python]
+----
+from qtvcp.core import Status
+STATUS = Status()
+----
+
+In the 'INITIALIZE SECTION'
+Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
+[source,python]
+----
+        STATUS.emit('play-alert','SPEAK Please remember to oil the ways.')
+----
+'SPEAK' is a key work, everything after it will be pronounced
+
+== ToolBar Functions.
+Toolbar buttons and submenus are added in Designer but the code to make them do something is added in the handler file. +
+In this example we assume you added a tool bar with one submenu and three actions. +
+These will be configure to creat a recent file selection menu, an about pop up dialog action, a quit program action and +
+a user defined function action. + 
+You can add submenus in designer by adding an qaction (by typing in the toolbar column) then clicking the 'plus' icon on the right. +
+This will ad a sub column that you need to type a name into. Now the original Qaction will be a Qmenu instead. +
+Now erase the Qaction you added to that Qmenu - the menu will stay as a menu. +
+
+The objectName of the toolbar button is used to identify the button when configuring it - descriptive names help. +
+Using the action editor menu, right click and select edit. Edit the object name, text, and button type for an appropriate action. +
+In this example the submenu name must be : 'menuRecent'. The actions must be 'actionAbout', 'actionQuit', 'actionMyFunction' +
+
+In the 'IMPORT SECTION' add: +
+[source,python]
+----
+from qtvcp.lib.toolbar_actions import ToolBarActions
+----
+Loads the toolbar library.
+
+in the 'INSTANTIATE LIBRARY' Section add:
+[source,python]
+----
+TOOLBAR = None
+----
+Make a global variable
+
+In the 'INITIALIZE SECTION'
+Under the 'def \_\_init__.(self, halcomp, widgets, paths):' function add: +
+[source,python]
+----
+        global TOOLBAR
+        TOOLBAR = ToolBarActions(path=paths)
+----
+
+In the 'SPECIAL FUNCTIONS SECTION'
+Under the 'def initialized__(self):' function add: +
+[source,python]
+----
+        TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
+        TOOLBAR.configure_action(self.w.actionAbout, 'about')
+        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
+        TOOLBAR.configure_action(self.w.actionMyFunction, 'My Function', self.my_function)
+----
+Configures the action.
+
+In the 'GENERAL FUNCTIONS SECTION' ADD: +
+[source,python]
+----
+   def my_function(self, widget, state):
+        print 'My function State = ()'.format(state)
+----
+The function to be called if the actionMyFunction button is pressed.
+

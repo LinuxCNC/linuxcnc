@@ -124,8 +124,8 @@ proc core_sim {axes
      #       unlock_joint_mask=0xNN
      set module  [split [lindex $emcmot 0]]
      set modname [lindex $module 0]
-     set modparm [lindex $module 1]
-     if [catch {loadrt $modname $modparm \
+     set modparm [lreplace $module 0 0]
+     if [catch {eval loadrt $modname $modparm \
                   base_period_nsec=$base_period \
                   servo_period_nsec=$servo_period \
                   num_joints=$number_of_joints} msg
@@ -268,6 +268,8 @@ proc use_hal_manualtoolchange {} {
   # disconnect if previously connected:
   unlinkp iocontrol.0.tool-change
   unlinkp iocontrol.0.tool-changed
+  # remove signal with no connections:
+  delsig tool:change-loop
 
   net tool:change <= iocontrol.0.tool-change
   net tool:change => hal_manualtoolchange.change
@@ -337,18 +339,18 @@ proc sim_spindle {} {
 
   # encoder reset control
   # hook up motion controller's sync output
-  net spindle-index-enable <=> motion.spindle-index-enable
+  net spindle-index-enable <=> spindle.0.index-enable
   net spindle-index-enable <=> sim_spindle.index-enable
 
   # report our revolution count to the motion controller
   net spindle-pos <= sim_spindle.position-fb
-  net spindle-pos => motion.spindle-revs
+  net spindle-pos => spindle.0.revs
 
   # simulate spindle mass
   do_setp spindle_mass.gain .07
 
   # spindle speed control
-  net spindle-speed-cmd <= motion.spindle-speed-out
+  net spindle-speed-cmd <= spindle.0.speed-out
   net spindle-speed-cmd => limit_speed.in
   net spindle-speed-cmd => near_speed.in1
 
@@ -358,7 +360,7 @@ proc sim_spindle {} {
 
   # for spindle velocity estimate
   net spindle-rpm-filtered <= spindle_mass.out
-  net spindle-rpm-filtered => motion.spindle-speed-in
+  net spindle-rpm-filtered => spindle.0.speed-in
   net spindle-rpm-filtered => near_speed.in2
 
   # at-speed detection
@@ -366,7 +368,7 @@ proc sim_spindle {} {
   do_setp near_speed.difference 10
 
   net spindle-at-speed <= near_speed.out
-  net spindle-at-speed => motion.spindle-at-speed
+  net spindle-at-speed => spindle.0.at-speed
 
   addf limit_speed  servo-thread
   addf spindle_mass servo-thread

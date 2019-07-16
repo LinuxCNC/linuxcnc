@@ -32,11 +32,9 @@ import hal_glib            # needed to make our own hal pins
 import gtk                 # base for pygtk widgets and constants
 import sys                 # handle system calls
 import os                  # needed to get the paths and directories
-import pango               # needed for font settings and changing
 import gladevcp.makepins   # needed for the dialog"s calculator widget
 import atexit              # needed to register child's to be closed on closing the GUI
 import subprocess          # to launch onboard and other processes
-import vte                 # To get the embedded terminal
 import tempfile            # needed only if the user click new in edit mode to open a new empty file
 import linuxcnc            # to get our own error system
 import gobject             # needed to add the timer for periodic
@@ -72,7 +70,7 @@ sys.excepthook = excepthook
 debug = False
 
 if debug:
-    pydevdir = '/home/gmoccapy/Aptana_Studio_3/plugins/org.python.pydev_4.5.5.201603221110/pysrc'
+    pydevdir = '/home/emcmesa/liclipse/plugins/org.python.pydev_4.5.4.201601292050/pysrc'
 
     if os.path.isdir(pydevdir):  # and  'emctask' in sys.builtin_module_names:
         sys.path.append(pydevdir)
@@ -88,7 +86,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 2.3.3.3"
+_RELEASE = " 2.3.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -613,6 +611,9 @@ class gmoccapy(object):
 
     def set_motion_mode(self, state):
         # 1:teleop, 0: joint
+#        if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
+#            if self.all_homed or self.no_force_homing:
+#                state = 1
         self.command.teleop_enable(state)
         self.command.wait_complete()
 
@@ -815,7 +816,8 @@ class gmoccapy(object):
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
         self.widgets.adj_scale_rapid_override.set_value(self.scale_rapid_override)
 
-        # holds the max velocity value and is needed to be able to react to halui pin
+        # holds the max velocity value and is needed to be able to jog at
+        # at max velocity if <SHIFT> is hold during jogging
         self.max_velocity = self.stat.max_velocity
 
         # set and get all information for turtle jogging
@@ -1733,6 +1735,7 @@ class gmoccapy(object):
             # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
+        print("IDLE")
         if self.load_tool:
             return
         widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
@@ -1750,6 +1753,7 @@ class gmoccapy(object):
             widgetlist.append("btn_tool_touchoff_x")
             widgetlist.append("btn_tool_touchoff_z")
             widgetlist.append("btn_touch")
+
         # This happen because hal_glib does emmit the signals in the order that idle is emited later that estop
         if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
             self._sensitize_widgets(widgetlist, False)
@@ -1772,6 +1776,8 @@ class gmoccapy(object):
         self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
+        print("RUN")
+
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
@@ -1872,6 +1878,12 @@ class gmoccapy(object):
 
     def on_hal_status_mode_mdi(self, widget):
         print ("MDI Mode", self.tool_change)
+
+        # if the edit offsets button is active, we do not want to change
+        # pages, as the user may want to edit several axis values
+        if self.widgets.tbtn_edit_offsets.get_active():
+            return
+
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1881,6 +1893,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_jog.set_current_page(0)
             return
+
         # if MDI button is not sensitive, we are not ready for MDI commands
         # so we have to abort external commands and get back to manual mode
         # This will happen mostly, if we are in settings mode, as we do disable the mode button
@@ -1947,23 +1960,17 @@ class gmoccapy(object):
         # Mode 1 = joint ; Mode 2 = MDI ; Mode 3 = teleop
         # so in mode 1 we have to show Joints and in Modes 2 and 3 axis values
 
-        widgetlist = ("rbt_mdi", "rbt_auto")
         if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
             self.widgets.tbtn_switch_mode.set_active(True)
             self.widgets.ntb_jog_JA.set_page(1)
-            state = False
         else:
             if not self.widgets.tbtn_fullsize_preview.get_active():
                 self.widgets.gremlin.set_property("enable_dro", False)
             self.widgets.gremlin.use_joints_mode = False
             self.widgets.tbtn_switch_mode.set_active(False)
             self.widgets.ntb_jog_JA.set_page(0)
-            state = True
-        if self.stat.task_state != linuxcnc.STATE_ON:
-            state = False
-        self._sensitize_widgets(widgetlist, state)
             
 # hal status End
 # =========================================================
@@ -2191,11 +2198,42 @@ class gmoccapy(object):
                     self.last_key_event = keyname, signal
                     return True
 
+        # in AUTO Mode we will allow the following key shortcuts
+        # R = run program
+        # P = pause program
+        # S = resume program
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            # if we are in edit mode do not start a program!
+            if self.widgets.ntb_button.get_current_page() == _BB_EDIT:
+                return
+
+            # all makes only sense, if a program is loaded, 
+            # if so, the button use current is sensitive
+            if not self.widgets.btn_use_current.get_sensitive():
+                return
+
+            if (keyname == "R" or keyname == "r") and self.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.command.auto(linuxcnc.AUTO_RUN,0)
+
+            if (keyname == "p" or keyname == "P") and self.widgets.tbtn_pause.get_sensitive():
+                self.command.auto(linuxcnc.AUTO_PAUSE)
+
+            if (keyname == "S" or keyname == "s"):
+                self.command.auto(linuxcnc.AUTO_RESUME)
+                if self.widgets.tbtn_pause.get_active():
+                    self.widgets.tbtn_pause.set_active(False)
+
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         # we also check if we are in settings or user page
         if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+            return
+
+        # This is just to avoid a terminal message, that this keys are not implemented:
+        if (keyname == "R" or keyname == "r" or
+            keyname == "p" or keyname == "P" or
+            keyname == "S" or keyname == "s"):
             return
 
         # offset page is active, so keys must go through
@@ -2500,10 +2538,10 @@ class gmoccapy(object):
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
     def _update_halui_pin(self):
-        if self.spindle_override != self.stat.spindlerate:
+        if self.spindle_override != self.stat.spindle[0]['override']:
             self.initialized = False
-            self.widgets.spc_spindle.set_value(self.stat.spindlerate * 100)
-            self.spindle_override = self.stat.spindlerate
+            self.widgets.spc_spindle.set_value(self.stat.spindle[0]['override'] * 100)
+            self.spindle_override = self.stat.spindle[0]['override']
             self.initialized = True
         if self.feed_override != self.stat.feedrate:
             self.initialized = False
@@ -2518,7 +2556,7 @@ class gmoccapy(object):
 
     def _update_slider(self, widgetlist):
         # update scales and sliders, this must happen if sliders shows units
-        # like max_vel and jog_vel
+        # like papid_vel and jog_vel
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
             min = self.widgets[widget].get_property("min")
@@ -2701,10 +2739,15 @@ class gmoccapy(object):
             # machine units = imperial
             else:
                 self.faktor = 25.4
-            self._update_slider(widgetlist)
+            self.turtle_jog = self.turtle_jog * self.faktor
+            self.rabbit_jog = self.rabbit_jog * self.faktor
+            self._update_slider( widgetlist )
+
         else:
             # display units equal machine units would be factor = 1,
             # but if factor not equal 1.0 than we have to reconvert from previous first
+            self.turtle_jog = self.turtle_jog / self.faktor
+            self.rabbit_jog = self.rabbit_jog / self.faktor
             if self.faktor != 1.0:
                 self.faktor = 1 / self.faktor
                 self._update_slider(widgetlist)
@@ -2878,7 +2921,7 @@ class gmoccapy(object):
         joint_or_axis = widget.get_label()[0]
         if not joint_or_axis.lower() in "xyzabcuvw":
             # OK, it may be a Joints button
-            if joint_or_axis in "01234567":
+            if joint_or_axis in "012345678":
                 joint_btn = True
             else:
                 print ("unknown joint or axis {0}".format(joint_or_axis))
@@ -2886,9 +2929,9 @@ class gmoccapy(object):
 
         if not joint_btn:
             # get the axisnumber
-            joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
+            joint_axis_number = "xyzabcuvw".index(joint_or_axis.lower())
         else:
-            joint_axis_number = "01234567".index(joint_or_axis)
+            joint_axis_number = "012345678".index(joint_or_axis)
 
         # if data = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
@@ -2905,24 +2948,17 @@ class gmoccapy(object):
         else:
             direction = -1
 
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
-        
+        JOGMODE = self._get_jog_mode()
+     
         if self.distance <> 0:  # incremental jogging
             self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, direction * velocity, self.distance)
         else:  # continuous jogging
             self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, direction * velocity)
 
     def on_btn_jog_released(self, widget, data=None):
+
         # only in manual mode we will allow jogging the axis at this development state
+        # needed to avoid error on stat up, machine not on
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
@@ -2930,7 +2966,7 @@ class gmoccapy(object):
         joint_axis = widget.get_label()[0]
         if not joint_axis.lower() in "xyzabcuvw":
             # OK, it may be a Joints button
-            if joint_axis in "01234567":
+            if joint_axis in "012345678":
                 joint_btn = True
             else:
                 print ("unknown axis {0}".format(joint_axis))
@@ -2940,24 +2976,24 @@ class gmoccapy(object):
             # get the axisnumber
             joint_axis_number = "xyzabcuvw".index(joint_axis.lower())
         else:
-            joint_axis_number = "01234567".index(joint_axis)
+            joint_axis_number = "012345678".index(joint_axis)
 
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
+        JOGMODE = self._get_jog_mode()
 
         # Otherwise the movement would stop before the desired distance was moved
-        if self.distance <> 0:
-            pass
-        else:
+        if self.distance == 0:
             self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
+
+    def _get_jog_mode(self):
+        # self.stat.motion_mode ==
+        # 1 = Joint
+        # 2 = MDI
+        # 3 = TELOP
+        if self.stat.motion_mode == 1:
+            JOGMODE = 1
+        else:
+            JOGMODE = 0
+        return JOGMODE
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked(self, widget, data=None):
@@ -3054,14 +3090,12 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(_BB_HOME)
 
     def on_btn_home_all_clicked(self, widget, data=None):
-        if self.stat.motion_mode != 1:
-            self.set_motion_mode(0)
+        self.set_motion_mode(0)
         # home -1 means all
         self.command.home(-1)
 
     def on_btn_unhome_all_clicked(self, widget, data=None):
         self.set_motion_mode(0)
-        self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
 
@@ -3096,7 +3130,6 @@ class gmoccapy(object):
                     joint = button
                     break
 
-        self.set_motion_mode(0)
         self.command.home(joint)
         
     def on_btn_sel_next_joints_clicked(self, widget, data=None):
@@ -3195,32 +3228,32 @@ class gmoccapy(object):
 # spindle stuff
 
     def _update_spindle(self):
-        if self.stat.spindle_direction > 0:
+        if self.stat.spindle[0]['direction'] > 0:
             self.widgets.rbt_forward.set_active(True)
-        elif self.stat.spindle_direction < 0:
+        elif self.stat.spindle[0]['direction'] < 0:
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
 
         # this is needed, because otherwise a command S0 would not set active btn_stop
-        if not abs(self.stat.spindle_speed):
+        if not abs(self.stat.spindle[0]['speed']):
             self.widgets.rbt_stop.set_active(True)
             return
 
         # set the speed label in active code frame
-        if self.stat.spindle_speed == 0:
+        if self.stat.spindle[0]['speed'] == 0:
             speed = self.stat.settings[2]
         else:
-            speed = self.stat.spindle_speed
+            speed = self.stat.spindle[0]['speed']
         self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
         self.widgets.lbl_spindle_act.set_text("S {0}".format(int(speed * self.spindle_override)))
 
     def _update_vc(self):
-        if self.stat.spindle_direction != 0:
-            if self.stat.spindle_speed == 0:
+        if self.stat.spindle[0]['direction'] != 0:
+            if self.stat.spindle[0]['speed'] == 0:
                 speed = self.stat.settings[2]
             else:
-                speed = self.stat.spindle_speed
+                speed = self.stat.spindle[0]['speed']
             if not self.lathe_mode:
                 diameter = self.halcomp["tool-diameter"]
             else:
@@ -3268,11 +3301,11 @@ class gmoccapy(object):
         # be setted to the commanded value due the next code part
         if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
-                if self.stat.spindle_direction > 0:
+                if self.stat.spindle[0]['direction'] > 0:
                     self.widgets.rbt_forward.set_sensitive(True)
                     self.widgets.rbt_reverse.set_sensitive(False)
                     self.widgets.rbt_stop.set_sensitive(False)
-                elif self.stat.spindle_direction < 0:
+                elif self.stat.spindle[0]['direction'] < 0:
                     self.widgets.rbt_forward.set_sensitive(False)
                     self.widgets.rbt_reverse.set_sensitive(True)
                     self.widgets.rbt_stop.set_sensitive(False)
@@ -3287,7 +3320,7 @@ class gmoccapy(object):
         # we take care of that but we have to check for speed override 
         # to not be zero to avoid division by zero error
         try:
-            rpm_out = rpm / self.stat.spindlerate
+            rpm_out = rpm / self.stat.spindle[0]['override']
         except:
             rpm_out = 0
         self.widgets.lbl_spindle_act.set_label("S {0}".format(int(rpm)))
@@ -3329,11 +3362,11 @@ class gmoccapy(object):
         try:
             if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
-                    speed = self.stat.spindle_speed
+                    speed = self.stat.spindle[0]['speed']
                 else:
                     speed = 0
             else:
-                speed = abs(self.stat.spindle_speed)
+                speed = abs(self.stat.spindle[0]['speed'])
             spindle_override = value / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
@@ -3487,12 +3520,15 @@ class gmoccapy(object):
 
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
-        self.widgets.offsetpage1.edit_button.set_active(state)
-        widgetlist = ["btn_set_value_x", "btn_set_value_y", "btn_set_value_z", 
-                      "btn_set_selected", "ntb_jog", "btn_set_selected", 
-                      "btn_zero_g92"
-                      ]
-        self._sensitize_widgets(widgetlist, not state)
+        self.widgets.offsetpage1.edit_button.set_active( state )
+        widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
+                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92",
+                      "rbt_mdi","rbt_auto","tbtn_setup"
+        ]
+
+        if self.widgets.tbtn_user_tabs.get_sensitive():
+            widgetlist.append("tbtn_user_tabs")
+        self._sensitize_widgets( widgetlist, not state )
 
         if state:
             self.widgets.ntb_preview.set_current_page(1)
@@ -3776,8 +3812,6 @@ class gmoccapy(object):
         self.widgets.window1.resize(self.width, value)
 
     def on_adj_dro_size_value_changed(self, widget, data=None):
-        if not self.initialized:
-            return
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
         self.dro_size = value

@@ -425,9 +425,9 @@ class HAL:
 
         print >>file, "net jog-selected-pos      halui.axis.selected.plus"
         print >>file, "net jog-selected-neg      halui.axis.selected.minus"
-        print >>file, "net spindle-manual-cw     halui.spindle.forward"
-        print >>file, "net spindle-manual-ccw    halui.spindle.reverse"
-        print >>file, "net spindle-manual-stop   halui.spindle.stop"
+        print >>file, "net spindle-manual-cw     halui.spindle.0.forward"
+        print >>file, "net spindle-manual-ccw    halui.spindle.0.reverse"
+        print >>file, "net spindle-manual-stop   halui.spindle.0.stop"
         print >>file, "net machine-is-on         halui.machine.is-on"
         print >>file, "net jog-speed             halui.axis.jog-speed"
         print >>file, "net MDI-mode              halui.mode.is-mdi"
@@ -522,7 +522,7 @@ class HAL:
                         print >>file, _("#  ---mpg signals---")
                         print >>file
                         if self.d.multimpg: # means MPG per axis
-                            print >>file, "setp    axis.%d.jog-vel-mode 0" % axnum
+                            print >>file, "setp    axis.%s.jog-vel-mode 0" % axletter
                             print >>file, "net %s-jog-enable         =>  axis.%s.jog-enable"% (axletter, axletter)
                             print >>file, "net %s-jog-count          =>  axis.%s.jog-counts" % (axletter, axletter)
                             print >>file, "net selected-jog-incr    =>  axis.%s.jog-scale" % axletter
@@ -669,25 +669,25 @@ class HAL:
             if self.d.so_usempg:
                 print >>file, "# connect spindle overide increments - MPG"
                 print >>file
-                print >>file, "    setp halui.spindle-override.direct-value false"
-                print >>file, "    setp halui.spindle-override.scale .01"
+                print >>file, "    setp halui.spindle.0.override.direct-value false"
+                print >>file, "    setp halui.spindle.0.override.scale .01"
                 if pinname: # dedicated MPG
                     if self.d.findsignal("so-enable"): # make it enable-able externally
-                        print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
+                        print >>file, "net so-enable             =>  halui.spindle.0.override.count-enable"
                     else:
-                        print >>file, "    setp halui.spindle-override.count-enable true"
-                    print >>file, "net so-count              =>  halui.spindle-override.counts"
+                        print >>file, "    setp halui.spindle.0.override.count-enable true"
+                    print >>file, "net so-count              =>  halui.spindle.0.override.counts"
                 else: # shared MPG
-                    print >>file, "net so-enable             =>  halui.spindle-override.count-enable"
-                    print >>file, "net axis-selected-count  =>  halui.spindle-override.counts"
+                    print >>file, "net so-enable             =>  halui.spindle.0.override.count-enable"
+                    print >>file, "net axis-selected-count  =>  halui.spindle.0.override.counts"
                 print >>file
             elif self.d.so_useswitch:
                 print >>file, "# connect spindle overide increments "
                 print >>file
-                print >>file, "    setp halui.spindle-override.count-enable true"
-                print >>file, "    setp halui.spindle-override.direct-value true"
-                print >>file, "    setp halui.spindle-override.scale .01"
-                print >>file, "net spindleoverride-incr  =>  halui.spindle-override.counts"
+                print >>file, "    setp halui.spindle.0.override.count-enable true"
+                print >>file, "    setp halui.spindle.0.override.direct-value true"
+                print >>file, "    setp halui.spindle.0.override.scale .01"
+                print >>file, "net spindleoverride-incr  =>  halui.spindle.0.override.counts"
                 print >>file, "net so-incr-a             =>  soincr.sel0"
                 print >>file, "net so-incr-b             =>  soincr.sel1"
                 print >>file, "net so-incr-c             =>  soincr.sel2"
@@ -1124,7 +1124,7 @@ class HAL:
                 print >>file, "net spindle-output        <=  pid.%s.output"% (let)
         else:
            print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
-           print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
+           #print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
            print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
            print >>file, "net %s-output        <=  pid.%s.output"% (name, let)
            #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
@@ -1419,18 +1419,18 @@ class HAL:
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
             print >>file
-            print >>file, "net spindle-vel-cmd-rps        <=  motion.spindle-speed-out-rps"
-            print >>file, "net spindle-vel-cmd-rps-abs    <=  motion.spindle-speed-out-rps-abs"
-            print >>file, "net spindle-vel-cmd-rpm        <=  motion.spindle-speed-out"
-            print >>file, "net spindle-vel-cmd-rpm-abs    <=  motion.spindle-speed-out-abs"
-            print >>file, "net spindle-enable             <=  motion.spindle-on"
-            print >>file, "net spindle-cw                 <=  motion.spindle-forward"
-            print >>file, "net spindle-ccw                <=  motion.spindle-reverse"
-            print >>file, "net spindle-brake              <=  motion.spindle-brake"            
-            print >>file, "net spindle-revs               =>  motion.spindle-revs"
-            print >>file, "net spindle-at-speed           =>  motion.spindle-at-speed"
-            print >>file, "net spindle-vel-fb-rps         =>  motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable      <=>  motion.spindle-index-enable"
+            print >>file, "net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps"
+            print >>file, "net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs"
+            print >>file, "net spindle-vel-cmd-rpm        <=  spindle.0.speed-out"
+            print >>file, "net spindle-vel-cmd-rpm-abs    <=  spindle.0.speed-out-abs"
+            print >>file, "net spindle-enable             <=  spindle.0.on"
+            print >>file, "net spindle-cw                 <=  spindle.0.forward"
+            print >>file, "net spindle-ccw                <=  spindle.0.reverse"
+            print >>file, "net spindle-brake              <=  spindle.0.brake"
+            print >>file, "net spindle-revs               =>  spindle.0.revs"
+            print >>file, "net spindle-at-speed           =>  spindle.0.at-speed"
+            print >>file, "net spindle-vel-fb-rps         =>  spindle.0.speed-in"
+            print >>file, "net spindle-index-enable      <=>  spindle.0.index-enable"
             print >>file
             if not self.d.findsignal("spindle-at-speed"):
                 print >>file, "# ---Setup spindle at speed signals---"

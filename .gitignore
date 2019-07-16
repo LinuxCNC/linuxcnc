@@ -13,21 +13,18 @@ build-stamp
 .tmp*
 # Ignore generated html files, 
 /docs/src/*/*.html
-# Except Gcode quick-ref cards (en,de,sp,fr) which are maintained by hand
-!docs/html/gcode*.html
-# Ignore all LyX files, we're done with them now. 
-*.lyx
+# docs/html/.gitignore is for the html directory
 debian/*.debhelper.log
 rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
 share/desktop-directories/cnc.directory
 src/modules.order
-docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
 lib/python/gremlin.py
+lib/python/qt5_graphics.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref
 configs/sim/gmoccapy/gmoccapy_plasma/*.pref

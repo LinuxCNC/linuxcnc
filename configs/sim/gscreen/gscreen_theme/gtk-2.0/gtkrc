@@ -1,0 +1,191 @@
+style "default"
+{
+    GtkButton::default_border                    = {0, 0, 0, 0}
+    GtkButton::default_outside_border            = {0, 0, 0, 0}
+    GtkButton::child_displacement_x              = 0
+    GtkButton::child_displacement_y              = 1
+    GtkButton::default_spacing                   = 4
+    GtkButton::focus-padding                     = 0
+    GtkCheckButton::indicator_size               = 8
+    GtkMenuBar::internal-padding                 = 1
+    GtkMenuBar::shadow_type                      = out
+    GtkHandleBox::shadow_type                    = out
+    GtkMenuItem::selected_shadow_type            = etched-in
+    GtkPaned::handle_full_size                   = 1
+    GtkPaned::handle_size                        = 4
+    GtkRadioButton::indicator_size               = 10
+    GtkRange::slider_width                       = 12
+    GtkRange::stepper_size                       = 10
+    GtkRange::stepper_spacing                    = 0
+    GtkRange::trough_border                      = 0
+    GtkScrollbar::has_backward_stepper           = 1
+    GtkScrollbar::has_secondary_backward_stepper = 0
+    GtkScrollbar::min_slider_length              = 10
+    GtkToolbar::shadow_type                      = out
+    GtkWidget::focus-line-width                  = 1
+    GtkWidget::focus_padding                     = 1 
+    GtkWidget::interior_focus                    = 1 
+    GtkWidget::internal_padding                  = 2 
+    GtkEntry::cursor_color                       = "#fcfcfc"
+    GtkEntry::secondary_cursor_color             = "#fcfcfc"
+    GtkTextView::cursor_color                    = "#fcfcfc"
+    GtkTextView::secondary_cursor_color          = "#fcfcfc"
+    GtkEntry::cursor_aspect_ratio                = 0.1
+    GtkEntry::cursor_aspect_ratio                = 0.1
+    
+    xthickness             = 1
+    ythickness             = 1
+
+
+    base[ACTIVE]      = "#2f519a"
+    base[INSENSITIVE] = "#303030"
+    base[NORMAL]      = "#121212"
+    base[PRELIGHT]    = "#002849"
+    base[SELECTED]    = "#003263"
+
+    bg[ACTIVE]        = "#151515"
+    bg[INSENSITIVE]   = "#303030"
+    bg[NORMAL]        = "#232323"
+    bg[PRELIGHT]      = "#003263"
+    bg[SELECTED]      = "#002849"
+
+    fg[ACTIVE]        = "#dadada"
+    fg[INSENSITIVE]   = "#151515"
+    fg[NORMAL]        = "#ffffff"
+    fg[PRELIGHT]      = "#fcfcfc"
+    fg[SELECTED]      = "#fcfcfc"
+
+    text[ACTIVE]      = "#fcfcfc"
+    text[INSENSITIVE] = "#fcfcfc"
+    text[NORMAL]      = "#fcfcfc"
+    text[PRELIGHT]    = "#fcfcfc"
+    text[SELECTED]    = "#fcfcfc"
+
+}
+widget_class "*"                   style "default"
+
+style "menustyle" = "default"
+{
+    xthickness = 2
+    ythickness = 2
+}
+widget_class "*BonoboDockItem"     style "menustyle"
+class "*BonoboDockItem"            style "menustyle"
+widget_class "*ToolBar"            style "menustyle"
+class "*ToolBar"                   style "menustyle"
+widget_class "*MenuBar"            style "menustyle"
+class "*MenuBar"                   style "menustyle"
+
+style "button" = "default"
+{
+    xthickness = 2
+    ythickness = 2
+
+    engine "xfce" 
+    {
+        smooth_edge = true
+        grip_style = none
+        boxfill
+        {
+            fill_style = gradient
+            orientation = vertical
+            shade_start = 1.25
+            shade_end = 1.00
+        }
+    }
+}
+widget_class "*Button*"            style "button"
+class "*Button*"                   style "button"
+widget_class "*button*"            style "button"
+class "*button*"                   style "button"
+widget_class "*OptionMenu*"        style "button"
+class "*OptionMenu*"               style "button"
+# widget_class "*Tree*"            style "button"
+# class "*Tree*"                   style "button"
+# widget_class "*GtkScale*"        style "button"
+# class "*GtkScale*"               style "button"
+
+style "sbstyle" = "default"
+{
+    xthickness = 2
+    ythickness = 2
+    engine "xfce" 
+    {
+        smooth_edge = true
+        grip_style = none
+        boxfill
+        {
+            fill_style = gradient
+            orientation = automatic
+            shade_start = 1.25
+            shade_end = 1.00
+        }
+    }
+}
+widget_class "*Scrollbar*"         style "sbstyle"
+class "*Scrollbar*"                style "sbstyle"
+widget_class "*GtkScale*"          style "sbstyle"
+class "*GtkScale*"                 style "sbstyle"
+
+style "progress" = "default"
+{
+    xthickness = 2
+    ythickness = 2
+}
+widget_class "*GtkProgress*"       style "progress" 
+class "*GtkProgress*"              style "progress" 
+
+style "menuitem" = "default"
+{
+    xthickness = 1
+    ythickness = 2
+}
+
+widget_class "*MenuItem*"          style "menuitem"
+class "*MenuItem*"                 style "menuitem"
+
+style "flat" = "default"
+{
+    xthickness = 2
+    ythickness = 2
+}
+widget_class "*HandleBox"         style "flat"
+
+# This is for the window borders (xfwm4 & metacity)
+# 
+style "titlebar"
+{
+    bg[SELECTED]      = "#003263"
+    fg[SELECTED]      = "#ffffff"
+    bg[INSENSITIVE]   = "#002849"
+    fg[INSENSITIVE]   = "#9a9ada"
+}
+widget "xfwm"                      style "titlebar"
+class "MetaFrames"                 style "titlebar"
+widget_class "MetaFrames"          style "titlebar"
+
+
+# These custom themed widget require the widget name 
+# to match in the glade file 
+style "halsourceview" = "default"
+{
+    base[SELECTED]    = "#FFFFFF" # hilight color
+    text[NORMAL]      = "#000000" # normal gcode text
+    base[INSENSITIVE] = "#d7d7d7" # gcode background 'insensitive'
+    base[NORMAL]      = "#d7d7d7" # gcode background 'sensitive'
+    bg[INSENSITIVE]   = "#999999" # gcode line number background 'insensitive'
+    bg[NORMAL]        = "#999999" # gcode line number background 'sensitive'
+}
+widget "*.*.gcode_view"         style "halsourceview"
+
+style "tooledit" = "default"
+{
+    base[NORMAL]      = "#d7d7d7" # background color
+    bg[NORMAL]        = "#d7d7d7" # header color
+    text[NORMAL]      = "#000000" # text
+    fg[NORMAL]        = "#ffffff" # header text
+}
+widget "*.tooledit1*"         style "tooledit"
+widget "*.tooledit1*.GtkButton"   style "default"
+widget "*.offsetpage1*"         style "tooledit"
+widget "*.offsetpage1*.GtkButton"   style "default"

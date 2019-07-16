@@ -32,6 +32,8 @@ exec_prefix=@exec_prefix@
 
 PIDOF="@PIDOF@ -x"
 PS=@PS@
+AWK=@AWK@
+GREP=@GREP@
 IPCS=@IPCS@
 KILL=@KILL@
 
@@ -49,6 +51,14 @@ LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
 HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
+
+# put ~.local/bin in PATH if missing. See:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=839155
+if [ -d $HOME/.local/bin ]; then
+    if [[ "$PATH" != *".local/bin"* ]]; then
+        PATH=$HOME/.local/bin:$PATH
+    fi
+fi
 
 #put the LINUXCNC_BIN_DIR in PATH
 PATH=$LINUXCNC_BIN_DIR:$PATH
@@ -278,7 +288,7 @@ function handle_includes () {
   hdr="# handle_includes():"
   inifile="$1"
   cd "$(dirname $inifile)" ;# for the function() subprocess only
-  grep "^#INCLUDE" "$inifile" >/dev/null
+  $GREP "^#INCLUDE" "$inifile" >/dev/null
   status=$?
   if [ $status -ne 0 ] ; then
     echo "$inifile" ;# just use the input
@@ -429,12 +439,12 @@ function GetFromIniEx {
 
 # 2.1.5 check version
 GetFromIni VERSION EMC
-if [ "$retval" != "1.0" ]; then
+if [ "$retval" != "1.1" ]; then
     if [ -z "$DISPLAY" ]; then
         echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
         exit 1
     fi
-    update_ini -d $INIFILE
+    update_ini -d "$INIFILE"
     exitval=$?
     case "$exitval" in
     0) ;;
@@ -521,15 +531,20 @@ function KillTaskWithTimeout() {
 	echo "Could not find pid(s) for task $KILL_TASK"
 	return -1
     fi
+    local NPROCS
     for KILL_PID in $KILL_PIDS ; do
-	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+        if $PS -o comm= $KILL_PID | $GREP -q '<defunct>'; then
+            echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+            continue
+        fi
 	# first a "gentle" kill with signal TERM
 	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
 	# wait and see if it dissappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-	    if $PS $KILL_PID >>$DEBUG_FILE ; then
+            NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+            if [ $NPROCS -gt 0 ]; then
 		WAIT=$(($WAIT-1))
 		sleep .1
 	    else
@@ -544,7 +559,8 @@ function KillTaskWithTimeout() {
 	    # wait and see if it dissappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-		if $PS $KILL_PID >>$DEBUG_FILE ; then
+                NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+                if [ $NPROCS -gt 0 ]; then
 		    WAIT=$(($WAIT-1))
 		    sleep .1
 		else
@@ -555,9 +571,9 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
 	fi
-	KILL_PIDS=
-	KILL_TASK=
     done
+    KILL_PIDS=
+    KILL_TASK=
 }
 
 
