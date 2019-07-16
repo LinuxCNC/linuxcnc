@@ -25,6 +25,8 @@ PlasmaC uses one of three different operating modes.
    Use external up/down for THC
 |===
 
+For full functionality, Plasmac requires LinuxCNC v2.9 (the current master) or later. It will work on LinuxCNC v2.8 with only the <<paused-motion, paused motion>> feature not available.
+
 No Z axis motion is required in G-Code, the standard PlasmaC configurations will comment out any Z commands during program load.
 
 For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
@@ -75,7 +77,7 @@ IMPORTANT: These pins will be entered later into the configurator, they should *
 
 === Getting LinuxCNC With The PlasmaC Add-Ons
 
-The minimum requirement for PlasmaC is LinuxCNC v2.8, although this version does NOT support the paused motion feature.
+The minimum requirement for PlasmaC is LinuxCNC v2.8, although this version does NOT support the <<paused-motion, paused motion>> feature.
 
 LinuxCNC v2.9 or later provides full functionality.
 
@@ -83,9 +85,11 @@ LinuxCNC v2.9 or later provides full functionality.
 
 Download an iso image from one of the following and write it to a bootable device:
 
-For a machine not using the parallel port http://www.linuxcnc.org/testing-stretch-rtpreempt/ this can also be used for a machine using parallel port and is recommended for most modern machines.
+* RTPREEMPT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
+For a machine using MESA hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
 
-For a machine using the parallel port http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
+* RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso +
+For a machine using the parallel port.
 
 Then boot from the device and follow the prompts.
 
@@ -93,7 +97,7 @@ This will give you a machine with the current stable (v2.7) branch of LinuxCNC, 
 
 === If You Have LinuxCNC v2.7
 
-You can choose between a standard package installation from the <<buildbot-install,buildbot>> or you can compile you own <<rip-install,run in place>> installation.
+You can then choose between a standard package installation from the <<buildbot-install,buildbot>> or you can compile you own <<rip-install,run in place>> installation.
 
 [[buildbot-install]]
 
@@ -109,20 +113,24 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
 
 From the main menu, open Synaptic Package Manager and find the Repositories list.
 
-You can either edit or delete existing LinuxCNC entries but you need to end up with one of the following sets of stanzas:
+You can either edit or delete existing LinuxCNC entries but you need to end up with the following set of stanzas:
 
-If you installed the 'stretch' version:
+----
+deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
+deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
+----
+
+Where:
+
+* <distro> is stretch or wheezy
+* <branch> is master or 2.8
+* <rt_type> is rtpreempt or rt
+
+So if you installed the 'stretch' version and wanted master branch then you would have:
 
 ----
 deb     http://buildbot.linuxcnc.org/ stretch master-rtpreempt
 deb-src http://buildbot.linuxcnc.org/ stretch master-rtpreempt
-----
-
-If you installed the 'wheezy' version:
-
-----
-deb     http://buildbot.linuxcnc.org/ wheezy master-rt
-deb-src http://buildbot.linuxcnc.org/ wheezy master-rt
 ----
 
 In a terminal:
@@ -216,18 +224,18 @@ When this stage is completed you can configure PlasmaC on top of your working ma
 
 You can create a base machine manually or you may use existing configuration helpers:
 
-NOTE: It is probably best to keep the base machine config simple until you have it fully tested and tuned. So if you are using stepconf or pncconf then deselect the VCP panel, manual tool change and classic ladder options these can be manually added later if you have a need for them.
+NOTE: It is probably best to keep the base machine config simple until you have it fully tested and tuned. If you are using stepconf or pncconf then deselect the VCP panel, manual tool change and classic ladder options these can be manually added later if you have a need for them.
 
-If using a parallel port:
-
-----
-$ stepconf
-----
-
-If using a Mesa Electronics board
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard,pncconf wizard>>:
 
 ----
 $ pncconf
+----
+
+If using a parallel port, use the <<cha:stepconf-wizard,stepconf wizard>>:
+
+----
+$ stepconf
 ----
 
 If using a Pico Systems board: +
@@ -308,6 +316,12 @@ Fill in the required entries to suit your machine wiring, click 'Create' and you
 
 This can be run as follows:
 
+* For a buildbot installation: +
+----
+$ linuxcnc ~/linuxcnc/configs/<machine-name>.<machine-name>.ini
+----
+
+* For a run in place installation: +
 ----
 $ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine-name>.<machine-name>.ini
 ----
@@ -528,6 +542,8 @@ image::images/plasmac_control_g.png[width=300]
 .Torch Pulse
 
 This pulses the torch on for the amount of time set in the corresponding slider.
+
+[[paused-motion]]
 
 .Paused Motion
 
@@ -795,7 +811,7 @@ BUTTON_n_NAME       = <NAME> (the name of a custom user buttons)
 BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 -----
 
-NOTE: PAUSED-MOTION-SPEED is only valid for LinuxCNC version 2.9 or later
+NOTE: <<paused-motion, PAUSED-MOTION-SPEED>> is only valid for LinuxCNC version 2.9 or later
 
 .[FILTER] Section
 

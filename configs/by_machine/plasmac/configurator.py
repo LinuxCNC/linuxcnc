@@ -1056,7 +1056,8 @@ class configurator:
                     'plasmac_stats.hal',\
                     'plasmac_stats.py',\
                     'README.md',\
-                    'tool.tbl'\
+                    'tool.tbl',\
+                    'test',\
                     ]
         elif display == 'gmoccapy':
             return ['imperial_startup.ngc',\
@@ -1085,7 +1086,8 @@ class configurator:
                     'plasmac_stats.hal',\
                     'plasmac_stats.py',\
                     'README.md',\
-                    'tool.tbl'\
+                    'tool.tbl',\
+                    'test',\
                     ]
         else:
             return None
