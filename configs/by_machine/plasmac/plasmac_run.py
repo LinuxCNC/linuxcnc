@@ -231,6 +231,7 @@ class HandlerClass:
         self.builder.get_object('kerfcross-enable').set_active(0)
         self.builder.get_object('kerfcross-override').set_digits(0)
         self.builder.get_object('kerfcross-override-adj').configure(100,10,500,1,0,0)
+        self.builder.get_object('ohmic-probe-enable').set_active(1)
         self.builder.get_object('pid-p-gain').set_digits(0)
         self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
         self.builder.get_object('pierce-delay').set_digits(1)
