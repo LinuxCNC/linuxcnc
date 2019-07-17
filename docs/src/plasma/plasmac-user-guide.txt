@@ -1047,7 +1047,7 @@ Files in the example configurations are:
 |plasmac_gcode.py|removes z axis moves from the opened G-Code file
 |plasmac_axis.py|python code to customise the Axis GUI
 |M190|for G-Code changing of materials
-|materialverter.py|tool table file converter
+|materialverter.py|tool table converter and material file creator 
 |configurator.py|configure a new or upgrade an existing PlasmaC configuration
 |===
 
@@ -1128,12 +1128,15 @@ Select the ini file of the PlasmaC configuration you wish to upgrade, click 'Upg
 
 == Materialverter
 
-This application is used to convert existing tool tables into PlasmaC material files.
+This application is used to convert existing tool tables into PlasmaC material files it can also create a material file from manual user input to entry fields.
 
-At this stage the only conversion available is from SheetCam.
+At this stage the only conversions available are from SheetCam and Fusion 360.
+
+Sheetcam tool tables are complete and the conversion is fully automatic.
+
+Fusion 360 tool tables do not have all required fields so the user is prompted for missing parameters.
 
 If you have a format you would like converted place a request in https://forum.linuxcnc.org/plasma-laser/35449-another-plasma-component[this LinuxCNC forum thread]:
-
 
 Materialverter may be run from a GUI file manager by double clicking on 'materialverter.py' in your configuration directory or may be run from a terminal with the following command:
 
@@ -1143,15 +1146,27 @@ $ python ~/linuxcnc/configs/<machine-name>/materialverter.py
 
 This will bring up the materialverter dialog:
 
-image::images/plasmac_materialverter.png[width=400]
+image::images/plasmac_material_main.png[width=400]
 
-For the Input File, select the tool table file you wish to convert.
+Select one of:
 
-For the Output File, select the file that you wish to write. This would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+* Manual - to manually create a new material file.
 
-Select whether you would like a metric or imperial output file.
+* SheetCam - to convert a SheetCam tool file.
 
-Click Convert and your new material file will be written.
+* Fusion 360 - to convert a Fusion 360 tool file.
+
+For SheetCam only, select whether you would like a metric or imperial output file.
+
+For a conversion, select the Input File you wish to have converted.
+
+Select the Output File you wish to write to, this would normally be ~/linuxcnc/configs/<machine-name>_material.cfg, although you could select a different file and hand edit your <machine-name>_material.cfg file.
+
+Click Create/Convert and your new material file will be created.
+
+For a Manual creation or a Fusion 360 conversion a dialog will show with any required parameters displayed for input.
+
+image::images/plasmac_material_dialogs.png[width=300]
 
 NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
 
