@@ -12,6 +12,7 @@ net plasmac:cut-height              plasmac_run.cut-height-f            =>  plas
 net plasmac:cut-volts               plasmac_run.cut-volts-f             =>  plasmac.cut-volts
 net plasmac:kerfcross-enable        plasmac_run.kerfcross-enable        =>  plasmac.kerfcross-enable
 net plasmac:kerfcross-override      plasmac_run.kerfcross-override-f    =>  plasmac.kerfcross-override
+net plasmac:ohmic-probe-enable      plasmac_run.ohmic-probe-enable      =>  plasmac.ohmic-probe-enable
 net plasmac:pid-p-gain              plasmac_run.pid-p-gain-f            =>  plasmac.pid-p-gain
 net plasmac:pierce-delay            plasmac_run.pierce-delay-f          =>  plasmac.pierce-delay
 net plasmac:pierce-height           plasmac_run.pierce-height-f         =>  plasmac.pierce-height

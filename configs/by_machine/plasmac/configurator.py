@@ -457,9 +457,9 @@ class configurator:
                 elif line.startswith('EMBED_TAB_NAME') and 'Plasma Run' in line:
                     outFile.write(\
                         '\n'\
-                        'EMBED_TAB_NAME          = Plasma Run\n'\
                         '# use one of the next two\n'\
-                        '# run panel in tab behind preview\n')
+                        '# run panel in tab behind preview\n'\
+                        'EMBED_TAB_NAME          = Plasma Run\n')
                 elif line.startswith('EMBED_TAB_COMMAND') and 'plasmac_run.glade' in line:
                     outFile.write('EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade\n')
                     if display == 'axis':
