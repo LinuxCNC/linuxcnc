@@ -157,10 +157,10 @@ PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk"
 YAPPS_RUNTIME="yapps2-runtime"
 
 case $DISTRIB_NAME in
-    Debian-10|Debian-10.*)
+    Raspbian-10|Debian-10|Debian-10.*)
         DOC_DEPENDS="$DOC_DEPENDS, asciidoc-dblatex"
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
-        EXTRA_BUILD=python-yapps
+        EXTRA_BUILD=python-yapps, bwidget, libtk-img, tclx, 
         YAPPS_RUNTIME="python-yapps"
         ;;
 Debian-9.*|Debian-10|Debian-10.*|Raspbian-9.*|Debian-testing|LinuxMint-19.*|Ubuntu-18.*)
