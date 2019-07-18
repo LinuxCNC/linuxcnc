@@ -100,6 +100,11 @@ include an option for suppressing superfluous commands.
 
 #include "units.h"
 
+#include <unordered_set>
+
+#include <interp_parameter_def.hh>
+using namespace interp_param_global;
+
 namespace bp = boost::python;
 
 extern char * _rs274ngc_errors[];
@@ -124,43 +129,46 @@ Interp::Interp()
     _setup{}
 {
     _setup.init_once = 1;  
-    init_named_parameters();  // need this before Python init.
+  init_named_parameters();  // need this before Python init.
  
-    if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
-	Error("Interp ctor: cant instantiate Python plugin");
-	return;
-    }
+  if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
+    Error("Interp ctor: cant instantiate Python plugin");
+    return;
+  }
 
-    try {
-	// this import will register the C++->Python converter for Interp
-	bp::object interp_module = bp::import("interpreter");
+// KLUDGE just to get unit tests to stop complaining about python modules we won't use anyway
+#ifndef UNIT_TEST
+  try {
+    // this import will register the C++->Python converter for Interp
+    bp::object interp_module = bp::import("interpreter");
 	
-	// use a boost::cref to avoid per-call instantiation of the
-	// Interp Python wrapper (used for the 'self' parameter in handlers)
-	// since interp.init() may be called repeatedly this would create a new
-	// wrapper instance on every init(), abandoning the old one and all user attributes
-	// tacked onto it, so make sure this is done exactly once
-	_setup.pythis = new boost::python::object(boost::cref(*this));
+    // use a boost::cref to avoid per-call instantiation of the
+    // Interp Python wrapper (used for the 'self' parameter in handlers)
+    // since interp.init() may be called repeatedly this would create a new
+    // wrapper instance on every init(), abandoning the old one and all user attributes
+    // tacked onto it, so make sure this is done exactly once
+    _setup.pythis = new boost::python::object(boost::cref(*this));
 	
-	// alias to 'interpreter.this' for the sake of ';py, .... ' comments
-	// besides 'this', eventually use proper instance names to handle
+    // alias to 'interpreter.this' for the sake of ';py, .... ' comments
+    // besides 'this', eventually use proper instance names to handle
 	// several instances 
-	bp::scope(interp_module).attr("this") =  *_setup.pythis;
+    bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
-	// make "this" visible without importing interpreter explicitly
-	bp::object retval;
-	python_plugin->run_string("from interpreter import this", retval, false);
-    }
-    catch (bp::error_already_set) {
-	std::string exception_msg;
-	if (PyErr_Occurred()) {
-	    exception_msg = handle_pyerror();
-	} else
-	    exception_msg = "unknown exception";
-	bp::handle_exception();
-	PyErr_Clear();
-	Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
-    }
+    // make "this" visible without importing interpreter explicitly
+    bp::object retval;
+    python_plugin->run_string("from interpreter import this", retval, false);
+  }
+  catch (bp::error_already_set) {
+    std::string exception_msg;
+    if (PyErr_Occurred()) {
+      exception_msg = handle_pyerror();
+    } else
+      exception_msg = "unknown exception";
+    bp::handle_exception();
+    PyErr_Clear();
+    Error("PYTHON: exception during 'this' export:\n%s\n",exception_msg.c_str());
+  }
+#endif
 }
 
 InterpBase *makeInterp()
@@ -169,11 +177,10 @@ InterpBase *makeInterp()
 }
 
 Interp::~Interp() {
-
     if(log_file) {
         if(log_file != stderr)
             fclose(log_file);
-	log_file = 0;
+        log_file = nullptr;
     }
 }
 
@@ -2357,20 +2364,21 @@ int Interp::ini_load(const char *filename)
     logDebug("Opened inifile:%s:", filename);
 
 
+    char parameter_file_name[LINELEN]={};
     if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-	// found it
-	strncpy(_parameter_file_name, inistring, LINELEN);
-        if (_parameter_file_name[LINELEN-1] != '\0') {
+        strncpy(parameter_file_name, inistring, LINELEN);
+
+        if (parameter_file_name[LINELEN-1] != '\0') {
             logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %d)", filename, LINELEN-1);
-            inifile.Close();
-            _parameter_file_name[0] = '\0';
-            return -1;
+        } else {
+          logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
         }
-        logDebug("found PARAMETER_FILE:%s:", _parameter_file_name);
     } else {
-	// not found, leave RS274NGC_PARAMETER_FILE alone
+      // not found, leave RS274NGC_PARAMETER_FILE alone
         logDebug("did not find PARAMETER_FILE");
     }
+    SET_PARAMETER_FILE_NAME(parameter_file_name);
+    CHKS(strlen(parameter_file_name) > 0, _("Parameter file name is missing"));
 
     // close it
     inifile.Close();
@@ -2563,15 +2571,15 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     return newFP;
 }
 
-static std::set<std::string> stringtable;
-
 const char *strstore(const char *s)
 {
+    static std::unordered_set<std::string> stringtable;
     using namespace std;
 
-    if (s == NULL)
+    if (s == nullptr) {
         throw invalid_argument("strstore(): NULL argument");
-    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
+    }
+    auto pair = stringtable.insert(s);
     return pair.first->c_str();
 }
 

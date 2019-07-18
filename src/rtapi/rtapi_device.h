@@ -37,8 +37,9 @@
 
 RTAPI_BEGIN_DECLS
 
+#define RTAPI_DEVICE_NAME_LEN 47
 struct rtapi_device {
-    char    name[HAL_NAME_LEN+1];
+    char    name[RTAPI_DEVICE_NAME_LEN + 1];
     void    (*release)(struct rtapi_device *dev);
 };
 

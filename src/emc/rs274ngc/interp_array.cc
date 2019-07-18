@@ -21,7 +21,9 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
-#include "interp_internal.hh"	// interpreter private definitions
+#include "interp_parameter_def.hh"
+
+using namespace interp_param_global;
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
 in each array is the modal group number corresponding to the nth

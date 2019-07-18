@@ -16,6 +16,7 @@
 
 #include <Python.h> // must be first header
 #include "rs274ngc.hh"
+#include "canon.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
@@ -194,6 +195,8 @@ double GET_EXTERNAL_ANGLE_UNITS() {}
 int GET_EXTERNAL_MIST() {}
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
+
+extern void SET_PARAMETER_FILE_NAME(const char *name) {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
