@@ -117,6 +117,8 @@ linuxcnc (1:2.7.15) unstable; urgency=medium
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 02 Jan 2020 11:59:23 -0700
 
+ -- John Thornton <jthornton@gnipsel.com>  Thu, 6 Jun 2019 14:50:43 -0500
+
 linuxcnc (1:2.7.14) unstable; urgency=medium
 
   * docs: improve motion.requested-vel description
