@@ -17,6 +17,7 @@
 #export DH_VERBOSE=1
 
 kernel_version = @KERNEL_VERSION@
+configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -32,11 +33,13 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps --with-python=/usr/bin/python2.7
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps --with-python=/usr/bin/python2.7
-endif
+	cd src && ./configure \
+	    --prefix=/usr --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    $(configure_realtime_arg) \
+            --enable-build-documentation=pdf \
+	    --disable-check-runtime-deps \
+            --with-python=/usr/bin/python2.7
 	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp
 
@@ -46,11 +49,12 @@ clean: debian/control
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
-endif
+	cd src && ./configure \
+	    --prefix=/usr --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    $(configure_realtime_arg) \
+            --enable-build-documentation=pdf \
+	    --disable-check-runtime-deps
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status

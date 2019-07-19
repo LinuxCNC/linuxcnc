@@ -233,8 +233,11 @@ case $TARGET in
         OTHER_MAIN_PACKAGE_NAME=linuxcnc
 
         EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
+        CONFIGURE_REALTIME_ARG=--with-realtime=uspace
     ;;
-    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*) ;;
+    2.6.32-122-rtai|3.4-9-rtai-686-pae|3.16.0-9-rtai-*)
+        CONFIGURE_REALTIME_ARG=--with-realtime=/usr/realtime-$KERNEL_VERSION
+    ;;
     *)
 	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
 esac
@@ -265,6 +268,7 @@ sed \
     -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
+    -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
     -e "s#@TCLTK_VERSION@#$TCLTK_VERSION#g" \
     -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
     -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
