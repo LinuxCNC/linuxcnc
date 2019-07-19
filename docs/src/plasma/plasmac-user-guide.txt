@@ -384,7 +384,6 @@ image::images/plasmac_config.png[width=400]
 |Probe Height|0,1,2|This is the height above the Z axis bottom limit that probing begins from.
 |Ohmic Retries|0,1,2|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
 |Skip IHS|0,1,2|The distance used to see if IHS can be skipped, see <<ihs-skip,IHS Skip>>.
-|Ohmic Enable|0,1,2|This is to enable or disable the ohmic probe input.
 |Max. Speed|0,1,2|Display only of the maximum speed the Z axis is capable of.
 |Setup Speed|0,1,2|The Z axis speed for setup moves. e.g. Pierce Height, Cut Height etc.
 |PID I Gain|0,1|PID I gain for THC
@@ -404,8 +403,6 @@ image::images/plasmac_config.png[width=400]
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
 NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
-
-NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
 
 The *'Save'* button will save the currently displayed parameters as the default.
 
@@ -438,6 +435,16 @@ image::images/plasmac_run.png[width=400]
 |P-Jump Height|The puddle jump height for the currently selected material
 |P-Jump Delay|The puddle jump delay for the currently selected material
 |===
+
+.Ohmic Probe
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Ohmic Enable|This is to enable or disable the ohmic probe input.
+|===
+
+NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
 
 .THC
 
