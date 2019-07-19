@@ -17,6 +17,7 @@
 #export DH_VERBOSE=1
 
 kernel_version = @KERNEL_VERSION@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -37,10 +38,11 @@ build-stamp:
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
-            --enable-build-documentation=pdf \
+            $(enable_build_documentation) \
 	    --disable-check-runtime-deps \
             --with-python=/usr/bin/python2.7
-	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
+	(cd src; $(MAKE) $(MAKEFLAGS))
+	$(if $(enable_build_documentation),(cd src; $(MAKE) $(MAKEFLAGS) docs))
 	touch build-stamp
 
 clean: debian/control
@@ -53,7 +55,7 @@ clean: debian/control
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
-            --enable-build-documentation=pdf \
+            $(enable_build_documentation) \
 	    --disable-check-runtime-deps
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -81,9 +83,11 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
+ifneq "$(enable_build_documentation)" ""
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
+endif
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
@@ -91,6 +95,9 @@ install: build
 	(cd debian/tmp/usr/share/doc/linuxcnc/examples; \
 	    ln -sf ../../../linuxcnc/ncfiles ./nc_files)
 	dh_movefiles
+ifeq "$(enable_build_documentation)" ""
+	find debian/tmp/usr/share/applications -name linuxcnc-*.desktop -delete
+endif
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \
 		find debian/tmp -type f; \
