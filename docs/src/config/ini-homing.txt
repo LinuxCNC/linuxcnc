@@ -111,6 +111,14 @@ HOME_LATCH_VEL). The default value is NO.
 HOME_USE_INDEX requires connections in your hal file to joint.n.index-enable
 from the encoder.n.index-enable.
 
+=== HOME_INDEX_NO_ENCODER_RESET (((HOME INDEX NO ENCODER RESET)))
+
+Default is NO.   Use YES if the encoder used for this joint does not
+reset its counter when an index pulse is detected after assertion
+of the joint index_enable hal pin.
+Applicable only for HOME_USE_INDEX = YES.
+
+
 === HOME_OFFSET (((HOME OFFSET)))
 
 Contains the location of the home switch or index pulse, in joint

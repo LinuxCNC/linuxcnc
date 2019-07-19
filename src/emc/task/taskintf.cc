@@ -280,7 +280,8 @@ int emcJointSetMinFerror(int joint, double ferror)
 
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
-			   int use_index, int ignore_limits, int is_shared,
+			   int use_index, int encoder_does_not_reset,
+			   int ignore_limits, int is_shared,
 			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
 {
 #ifdef ISNAN_TRAP
@@ -307,6 +308,9 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     emcmotCommand.volatile_home = volatile_home;
     if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
+    }
+    if (encoder_does_not_reset) {
+	emcmotCommand.flags |= HOME_INDEX_NO_ENCODER_RESET;
     }
     if (ignore_limits) {
 	emcmotCommand.flags |= HOME_IGNORE_LIMITS;

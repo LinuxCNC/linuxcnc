@@ -1073,6 +1073,18 @@ void do_homing(void)
 		    (joint->backlash_filt + joint->motor_offset);
 		joint->pos_cmd = joint->pos_fb;
 		joint->free_tp.curr_pos = joint->pos_fb;
+
+		if (H[joint_num].home_flags & HOME_INDEX_NO_ENCODER_RESET) {
+		   /* Special case: encoder does not reset on index pulse.
+		      This moves the internal position but does not affect
+		      the motor position */
+		   offset = H[joint_num].home_offset - joint->pos_fb;
+		   joint->pos_cmd          += offset;
+		   joint->pos_fb           += offset;
+		   joint->free_tp.curr_pos += offset;
+		   joint->motor_offset     -= offset;
+		}
+
 		/* next state */
 		H[joint_num].home_state = HOME_FINAL_MOVE_START;
 		immediate_state = 1;

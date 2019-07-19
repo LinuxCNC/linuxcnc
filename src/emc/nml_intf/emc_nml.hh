@@ -302,6 +302,7 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     double search_vel;
     double latch_vel;
     int use_index;
+    int encoder_does_not_reset;
     int ignore_limits;
     int is_shared;
     int home_sequence;

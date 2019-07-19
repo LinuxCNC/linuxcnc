@@ -1195,6 +1195,11 @@ These parameters are Homing related, for a better explanation read the
     home to index with steppers unless you're using stepgen in velocity mode
     and PID.
 
+* 'HOME_INDEX_NO_ENCODER_RESET = NO' -
+     Use YES if the encoder used for this joint does not reset its counter
+     when an index pulse is detected after assertion of the joint
+     index_enable hal pin. Applicable only for HOME_USE_INDEX = YES.
+
 * 'HOME_IGNORE_LIMITS = NO' -
      When you use the limit switch as a home switch and the limit switch
     this should be set to YES. When set to YES the limit switch for this

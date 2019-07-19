@@ -1185,6 +1185,13 @@ loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_ste
 The master branch is version-tagged with prerelease notation, typically
 2.9~pre*
 
+=== Configuration Updates
+
+==== Inifile Settings
+
+New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
+index that does not reset upon receipt of index pulse following
+assertion of index_enable.
 
 === Code Updates
 
