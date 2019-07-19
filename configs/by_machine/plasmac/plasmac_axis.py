@@ -43,8 +43,12 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15','16']
-    heights = ['658','680','742','764','786','842','900','932']
-    aspect = 1.5
+    if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
+        heights = ['658','680','742','764','786','842','900','932']
+        aspect = 1.5
+    else:
+        heights = ['704','728','800','826','850','900','960','990']
+        aspect = 1.7
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(
             str(int(float(heights[fsizes.index(fsize)]) * aspect)),\
             str(int(float(heights[fsizes.index(fsize)]))),
@@ -53,17 +57,17 @@ if wsize == '0':
             ))
 else:
     # change pad_width and pad_height for smaller than fullscreen
-    pad_width=0
-    pad_height=0
-    maxgeo=w('wm','maxsize','.')
+    pad_width = 0
+    pad_height = 0
+    maxgeo = w('wm','maxsize','.')
     if type(maxgeo) == tuple:
-        fullsize=str(maxgeo[0]),str(maxgeo[1])
+        fullsize = str(maxgeo[0]),str(maxgeo[1])
     else:
-        fullsize=maxgeo.split(' ')[0],maxgeo.split(' ')[1]
-    width=str(int(fullsize[0])-pad_width)
-    height=str(int(fullsize[1])-pad_height)
-    wxpos=str(pad_width/2)
-    wypos=str(pad_height/2)
+        fullsize = maxgeo.split(' ')[0],maxgeo.split(' ')[1]
+    width = str(int(fullsize[0])-pad_width)
+    height = str(int(fullsize[1])-pad_height)
+    wxpos = str(pad_width/2)
+    wypos = str(pad_height/2)
     print '\nAxis window is {0} x {1}\n'.format(width,height)
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
 
@@ -250,7 +254,7 @@ if homing_order_defined:
         hbName = 'axes'
     else:
         hbName ='joints'
-    widgets.homebutton.configure(text='Home All', command='home_all_joints')
+    widgets.homebutton.configure(text = 'Home All', command = 'home_all_joints')
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home all %s [Ctrl-Home]' % hbName)
 else:
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home selected %s [Home]' % ja_name.lower())
@@ -738,7 +742,7 @@ w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
 hal.set_p('plasmac.height-override','%f' % (torch_height))
 hal.set_p('plasmac.torch-enable','0')
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
-wLabels =[\
+wLabels = [\
     fmonitor + '.aVlab',\
     fmonitor + '.lTlab',\
     fmonitor + '.lAOlab',\
@@ -751,14 +755,14 @@ wLabels =[\
     fmonitor + '.lCLlab',\
     fmonitor + '.lKLlab',\
     ]
-wScales =[\
+wScales = [\
     ftorch + '.torch-pulse-time',\
     fpausedmotion + '.paused-motion-speed',\
     ]
-wScalesHal =[\
+wScalesHal = [\
     ftorch + '.torch-pulse-time',\
     ]
-wLeds =[\
+wLeds = [\
     fmonitor + '.led-arc-ok',\
     fmonitor + '.led-torch',\
     fmonitor + '.led-thc-enabled',\
@@ -777,7 +781,7 @@ hal.set_p('plasmac.torch-pulse-time',inifile.find('PLASMAC','TORCH_PULSE_TIME') 
 
 for widget in wLabels:
     w(widget,'configure','-anchor','w','-width',lwidth)
-widgetValues={}
+widgetValues = {}
 for widget in wScales:
     widgetValues[widget] = float(w(widget,'get'))
 for widget in wLeds:
