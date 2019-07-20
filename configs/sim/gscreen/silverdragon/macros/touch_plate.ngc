@@ -1,21 +1,21 @@
 o<touch_plate> sub
-#1 = 13.0 (plate thickness)
-G21
+#1 = 28.6 (plate thickness)
+G21 (use metric units)
 G49 (cancel tool offset)
-G10 L2 P0 Z0 (clear current offsets)
+G10 L20 P0 Z0 (clear current offsets)
 G91 (switch to incremental mode)
 
-(this section commented out for sim)
-;G38.2 Z-10.0 F60  (probe down at 60 mm/min)
-;G0 Z1.0  (go up 1 mm)
-;G38.2 Z-1.1 F30  (probe down at 30 mm/min)
+; this section commented out for sim
+;G38.2 Z-10 F[#<_hal[gscreen.search_vel]>]  (probe down)
+;G1 Z1.0  (go up 1 mm)
+;G4 P0.5 (pause 0.5 sec.)
+;G38.2 Z-1.2 F[#<_hal[gscreen.probe_vel]>] (probe down slower)
 
-(this section is used for sim)
-G0 Z-10 F60
-(pretend that probe contact is made)
+; this section used for sim, comment out otherwise
+G1 Z-10 F[#<_hal[gscreen.search_vel]>]
 
 G10 L20 P0 Z#1  (store offset in offset table)
-G90 G0 Z20  (20 mm above workpiece)
+G90 (absolute distance mode)
+G53 G0 Z0 (move Z up to 0)
 o<touch_plate> endsub
 M2
-
