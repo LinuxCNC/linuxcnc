@@ -153,7 +153,7 @@ CAUTION: Do *NOT* use sudo except for the 'make setuid' step
 Open a terminal window:
 
 ----
-$ git clone git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
+$ git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
 $ cd linuxcnc-dev/src
 $ ./autogen.sh
 ----
