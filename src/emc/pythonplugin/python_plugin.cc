@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <set>
 
 #define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/exec.hpp>
@@ -48,8 +49,7 @@ namespace bp = boost::python;
 	}								\
     } while (0)
 
-
-extern const char *strstore(const char *s);
+static const char *strstore(const char *s);
 
 // boost python versions from 1.58 to 1.61 (the latest at the time of
 // writing) all have a bug in boost::python::execfile that results in a
@@ -415,3 +415,14 @@ PythonPlugin *PythonPlugin::instantiate(struct _inittab *inittab)
     return (python_plugin->usable()) ? python_plugin : NULL;
 }
 
+
+static const char *strstore(const char *s)
+{
+    static std::set<std::string> stringtable;
+    using namespace std;
+
+    if (s == NULL)
+        throw invalid_argument("strstore(): NULL argument");
+    pair< set<string>::iterator, bool > pair = stringtable.insert(s);
+    return pair.first->c_str();
+}

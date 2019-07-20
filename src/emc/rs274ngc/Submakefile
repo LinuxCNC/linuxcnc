@@ -30,7 +30,8 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	pyblock.cc \
 	pyarrays.cc \
 	interpmodule.cc \
-	rs274ngc_pre.cc)
+	rs274ngc_pre.cc \
+	interp_inspection.cc)
 USERSRCS += $(LIBRS274SRCS)
 
 $(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS) 

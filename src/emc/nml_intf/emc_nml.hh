@@ -1503,7 +1503,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];
     double activeSettings[ACTIVE_SETTINGS];
-    CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
+    CANON_UNITS programUnits;	// CANON_UNITS_INCHES, MM, CM
 
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)

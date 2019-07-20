@@ -53,7 +53,9 @@ static int endpoint_valid = 0;
 
 std::vector<queued_canon>& qc(void) {
     static std::vector<queued_canon> c;
-    if(0) printf("len %d\n", (int)c.size());
+#if 0
+    printf("len %d\n", (int)c.size());
+#endif
     return c;
 }
 
@@ -601,7 +603,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
 
             if(fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
-            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
+            if(l1 != 0.0 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
                 ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
@@ -643,6 +645,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 q.data.straight_traverse.z = x;
                 q.data.straight_traverse.x = y;
                 break;
+            default:
+                ERS(_("BUG: Unsupported plane in cutter compensation"));
             }
             break;
         case QSTRAIGHT_FEED: 
@@ -682,6 +686,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 q.data.straight_feed.z = x;
                 q.data.straight_feed.x = y;
                 break;
+            default:
+                ERS(_("BUG: Unsupported plane in cutter compensation"));
             }
             break;
         default:
