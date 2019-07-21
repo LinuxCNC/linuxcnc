@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="cornerlock-threshold-adj"/>
   <object class="GtkAdjustment" id="cut-amps-adj"/>
@@ -672,7 +672,7 @@ Note: this also saves current cut parameters as the default</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable ohmic probing</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
                                 <property name="label" translatable="yes">Enabled</property>
@@ -689,7 +689,7 @@ Note: this also saves current cut parameters as the default</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable ohmic probing</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>
