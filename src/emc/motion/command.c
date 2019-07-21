@@ -411,7 +411,7 @@ void emcmotCommandHandler(void *arg, long period)
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
     int abort = 0;
-    char* emsg;
+    char* emsg = "";
 
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
@@ -458,6 +458,14 @@ void emcmotCommandHandler(void *arg, long period)
                    emsg = "Mode is NOT TELEOP, cannot jog axis coordinate";
                }
                abort = 1;
+           }
+           if (   !GET_MOTION_TELEOP_FLAG()
+               && (joint_num >= emcmotConfig->numJoints || joint_num <  0)
+              ) {
+               rtapi_print_msg(RTAPI_MSG_ERR,
+                    "Joint jog requested for undefined joint number=%d (min=0,max=%d)",
+                    joint_num,emcmotConfig->numJoints-1);
+               return;
            }
            if (GET_MOTION_TELEOP_FLAG()) {
                 axis = &axes[axis_num];
