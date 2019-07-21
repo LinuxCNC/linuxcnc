@@ -589,9 +589,9 @@ c.flood(linuxcnc.FLOOD_OFF)
 
 c.home(2)
 
-c.jog(linuxcnc.JOG_STOP, jogmode, axis)
-c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, velocity)
-c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, velocity, increment)
+c.jog(linuxcnc.JOG_STOP,        jjogmode, joint_num_or_axis_index)
+c.jog(linuxcnc.JOG_CONTINUOUS,  jjogmode, joint_num_or_axis_index, velocity)
+c.jog(linuxcnc.JOG_INCREMENT,   jjogmode, joint_num_or_axis_index, velocity, increment)
 
 c.load_tool_table()
 
@@ -650,17 +650,23 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 
 `jog(command-constant, bool, int[, float[, float]])`::
     Syntax: +
-    jog(command, joint-flag, axis-or-joint-number, velocity[, distance]]) +
-    jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number) +
-    jog(linuxcnc.JOG_CONTINUOUS, joint-flag, axis-or-joint-number, velocity) +
-    jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
+    jog(command,                 jjogmode, joint_num_or_axis_index, velocity[, distance]]) +
+    jog(linuxcnc.JOG_STOP,       jjogmode, joint_num_or_axis_index) +
+    jog(linuxcnc.JOG_CONTINUOUS, jjogmode, joint_num_or_axis_index, velocity) +
+    jog(linuxcnc.JOG_INCREMENT,  jjogmode, joint_num_or_axis_index, velocity, distance)
     Command Constants;;
-    JOG_STOP +
-    JOG_CONTINUOUS +
-    JOG_INCREMENT
-        Joint flag;;
-            True::: joint mode jog
-            False::: axis (cartesian) mode jog
+    linuxcnc.JOG_STOP +
+    linuxcnc.JOG_CONTINUOUS +
+    linuxcnc.JOG_INCREMENT
+    jjogmode;;
+       True:::  request individual joint jog  (requires teleop_enable(0))
+       False::: request axis Cartesian coordinate jog (requires teleop_enable(1))
+    joint_num_or_axis_index;;
+       For joint jog (jjogmode=1)::: joint_number
+       For axis Cartesian coordinate jog (jjogmode=0):::
+          zero-based index of the axis coordinate with respect to
+          the known coordinate letters XYZABCUVW
+          (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
 
 `load_tool_table()`::
     reload the tool table.
@@ -767,7 +773,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
         live values from the interpreter.
 
 `teleop_enable(int)`::
-    enable/disable teleop mode.
+    enable/disable teleop mode (disable for joint jogging).
 
 `tool_offset(int, float, float, float, float, float, int)`::
         set the tool offset. See usage example above.
