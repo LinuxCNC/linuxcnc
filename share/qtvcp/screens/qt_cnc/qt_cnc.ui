@@ -757,6 +757,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          <property name="jog_joint_pos_action" stdset="0">
           <bool>true</bool>
          </property>
+         <property name="axis_letter" stdset="0">
+          <string>X</string>
+         </property>
         </widget>
         <widget class="ActionButton" name="jog_neg_x">
          <property name="geometry">
@@ -775,6 +778,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="jog_joint_neg_action" stdset="0">
           <bool>true</bool>
+         </property>
+         <property name="axis_letter" stdset="0">
+          <string>X</string>
          </property>
         </widget>
         <widget class="ActionButton" name="jog_pos_z">
@@ -797,6 +803,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="joint_number" stdset="0">
           <number>2</number>
+         </property>
+         <property name="axis_letter" stdset="0">
+          <string>Z</string>
          </property>
          <property name="jog_joint_number" stdset="0">
           <number>2</number>
@@ -826,6 +835,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          <property name="joint_number" stdset="0">
           <number>2</number>
          </property>
+         <property name="axis_letter" stdset="0">
+          <string>Z</string>
+         </property>
          <property name="jog_joint_number" stdset="0">
           <number>2</number>
          </property>
@@ -854,6 +866,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          <property name="joint_number" stdset="0">
           <number>1</number>
          </property>
+         <property name="axis_letter" stdset="0">
+          <string>Y</string>
+         </property>
          <property name="jog_joint_number" stdset="0">
           <number>1</number>
          </property>
@@ -878,6 +893,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
          </property>
          <property name="joint_number" stdset="0">
           <number>1</number>
+         </property>
+         <property name="axis_letter" stdset="0">
+          <string>Y</string>
          </property>
          <property name="jog_joint_number" stdset="0">
           <number>1</number>

@@ -1238,6 +1238,9 @@
               <property name="joint_number" stdset="0">
                <number>2</number>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1272,6 +1275,9 @@
               </property>
               <property name="joint_number" stdset="0">
                <number>2</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
               </property>
              </widget>
             </item>
@@ -1313,6 +1319,9 @@
               </property>
               <property name="joint_number" stdset="0">
                <number>2</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
               </property>
              </widget>
             </item>
@@ -1375,6 +1384,9 @@
               <property name="joint_number" stdset="0">
                <number>1</number>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1416,6 +1428,9 @@
               <property name="joint_number" stdset="0">
                <number>1</number>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1450,6 +1465,9 @@
               </property>
               <property name="joint_number" stdset="0">
                <number>1</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
               </property>
              </widget>
             </item>
@@ -1506,6 +1524,9 @@
               <property name="checkable">
                <bool>true</bool>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1544,6 +1565,9 @@
               <property name="jog_joint_neg_action" stdset="0">
                <bool>false</bool>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1575,6 +1599,9 @@
               </property>
               <property name="jog_selected_pos_action" stdset="0">
                <bool>false</bool>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
               </property>
              </widget>
             </item>
@@ -1628,6 +1655,9 @@
               <property name="joint_number" stdset="0">
                <number>3</number>
               </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1659,6 +1689,9 @@
               </property>
               <property name="joint_number" stdset="0">
                <number>3</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
               </property>
              </widget>
             </item>
@@ -1697,6 +1730,9 @@
               </property>
               <property name="joint_number" stdset="0">
                <number>3</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
               </property>
              </widget>
             </item>
@@ -2067,11 +2103,6 @@
    <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
-   <class>ImageSwitcher</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.image_switcher</header>
-  </customwidget>
-  <customwidget>
    <class>AxisToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.axis_tool_button</header>
@@ -2096,6 +2127,11 @@
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ImageSwitcher</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.image_switcher</header>
   </customwidget>
   <customwidget>
    <class>DROLabel</class>
@@ -2161,7 +2197,7 @@
   <slot>percent(int)</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

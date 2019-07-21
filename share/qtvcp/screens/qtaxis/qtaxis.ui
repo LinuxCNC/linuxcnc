@@ -141,7 +141,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>a</string>
+                  <string>A</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>3</number>
                  </property>
                 </widget>
                </item>
@@ -163,7 +166,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>z</string>
+                  <string>Z</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>2</number>
                  </property>
                 </widget>
                </item>
@@ -211,7 +217,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>y</string>
+                  <string>Y</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>1</number>
                  </property>
                 </widget>
                </item>
@@ -234,7 +243,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>b</string>
+                  <string>B</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>4</number>
                  </property>
                 </widget>
                </item>
@@ -282,7 +294,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>c</string>
+                  <string>C</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>5</number>
                  </property>
                 </widget>
                </item>
@@ -316,6 +331,12 @@
                  <property name="checked">
                   <bool>true</bool>
                  </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>X</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>0</number>
+                 </property>
                 </widget>
                </item>
                <item row="0" column="2">
@@ -334,22 +355,6 @@
                  </property>
                  <property name="text">
                   <string>X</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="5">
-                <widget class="RadioAxisSelector" name="ras_8">
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                 <property name="checked">
-                  <bool>false</bool>
-                 </property>
-                 <property name="axis_selection" stdset="0">
-                  <string>w</string>
                  </property>
                 </widget>
                </item>
@@ -378,7 +383,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>v</string>
+                  <string>V</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>7</number>
                  </property>
                 </widget>
                </item>
@@ -394,7 +402,10 @@
                   <bool>false</bool>
                  </property>
                  <property name="axis_selection" stdset="0">
-                  <string>u</string>
+                  <string>U</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>6</number>
                  </property>
                 </widget>
                </item>
@@ -421,6 +432,25 @@
                  </property>
                  <property name="text">
                   <string>W</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="5">
+                <widget class="RadioAxisSelector" name="ras_8">
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="axis_selection" stdset="0">
+                  <string>W</string>
+                 </property>
+                 <property name="joint_selection" stdset="0">
+                  <number>8</number>
                  </property>
                 </widget>
                </item>

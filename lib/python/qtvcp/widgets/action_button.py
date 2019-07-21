@@ -96,7 +96,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
         self.toggle_float = False
         self._toggle_state = 0
-        self.joint_number = 0
+        self.joint = 0
+        self.axis = ''
         self.jog_incr_imperial = .010
         self.jog_incr_mm = .025
         self.jog_incr_angle = -1
@@ -340,14 +341,14 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.home:
             if self.isCheckable():
                 if state:
-                    ACTION.SET_MACHINE_HOMING(self.joint_number)
+                    ACTION.SET_MACHINE_HOMING(self.joint)
                 else:
-                    ACTION.SET_MACHINE_UNHOMED(self.joint_number)
+                    ACTION.SET_MACHINE_UNHOMED(self.joint)
             else:
                 if STATUS.is_all_homed():
-                    ACTION.SET_MACHINE_UNHOMED(self.joint_number)
+                    ACTION.SET_MACHINE_UNHOMED(self.joint)
                 else:
-                    ACTION.SET_MACHINE_HOMING(self.joint_number)
+                    ACTION.SET_MACHINE_HOMING(self.joint)
         elif self.run:
             ACTION.RUN()
         elif self.abort:
@@ -365,9 +366,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
-                axis = j[self.joint_number]
+                axis = j[self.joint]
             except IndexError:
-                LOG.error("can't zero origin for specified joint {}".format(self.joint_number))
+                LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
         elif self.launch_halmeter:
             AUX_PRGM.load_halmeter()
@@ -505,25 +506,32 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     # If direction = 0 (button release) and distance is not 0, then we are
     # doing a jog increment so don't stop jog on release.
     def jog_selected_action(self, direction):
-        number = STATUS.get_selected_joint()
+        if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            actuator = STATUS.get_selected_joint()
+        else:
+            actuator = STATUS.get_selected_axis()
         if direction == 0:
-            if number in (3,4,5): # angualr axis
+            if actuator in (3,4,5,'A','B','C'): # angualar axis
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
-        ACTION.DO_JOG(number, direction)
+        ACTION.DO_JOG(actuator, direction)
 
     # If direction = 0 (button release) and distance is not 0, then we are
     # doing a jog increment so don't stop jog on release.
     def jog_action(self, direction):
+        if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
+            actuator = self.joint
+        else:
+            actuator = self.axis
         if direction == 0:
-            if self.joint_number in (3,4,5): # anglar axis
+            if actuator in (3,4,5,'A','B','C'): # anglar axis
                 if STATUS.get_jog_increment_angular() != 0: return
             elif STATUS.get_jog_increment() != 0: return
         if direction:
             ACTION.ensure_mode(linuxcnc.MODE_MANUAL)
-        ACTION.DO_JOG(self.joint_number, direction)
+        ACTION.DO_JOG(actuator, direction)
 
     # We must convert the increments from current 'mode' units to
     # whatever units the machine is based on.
@@ -801,6 +809,14 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.joint
     def reset_joint(self):
         self.joint = -1
+
+    def set_axis(self, data):
+        if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
+            self.axis = data.upper()
+    def get_axis(self):
+        return self.axis
+    def reset_axis(self):
+        self.axis = 'X'
 
     def set_jog_incr(self, data):
         self.jog_incr = data
@@ -1139,6 +1155,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)
+    axis_letter = QtCore.pyqtProperty(str, get_axis, set_axis, reset_axis)
     incr_imperial_number = QtCore.pyqtProperty(float, get_incr_imperial, set_incr_imperial, reset_incr_imperial)
     incr_mm_number = QtCore.pyqtProperty(float, get_incr_mm, set_incr_mm, reset_incr_mm)
     incr_angular_number = QtCore.pyqtProperty(float, get_incr_angle, set_incr_angle, reset_incr_angle)
