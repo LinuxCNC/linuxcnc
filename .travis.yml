@@ -1,6 +1,7 @@
 sudo: required
 language: c++
 cache: ccache
+dist: bionic
 before_install:
   # Clear ccache stats
   - ccache -z
