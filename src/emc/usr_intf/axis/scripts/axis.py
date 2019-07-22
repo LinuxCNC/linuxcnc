@@ -1702,7 +1702,7 @@ class _prompt_touchoff(_prompt_float):
                     unit_str += _(" radius")
                 else:
                     unit_str += _(" diameter")
-        else: unit_str = _("\xb0")
+        else: unit_str = _('degrees')
         self.text_pattern = text_pattern
         text = text_pattern % self.workpiece_or_fixture(defaultsystem)
         _prompt_float.__init__(self, title, text, default, unit_str)

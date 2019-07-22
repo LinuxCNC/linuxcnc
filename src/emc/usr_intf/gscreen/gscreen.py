@@ -60,7 +60,7 @@ import atexit
 try:
     import vte
 except:
-    print _("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
+    print("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
 import time
 from time import strftime,localtime
 import hal_glib
@@ -1302,7 +1302,7 @@ class Gscreen:
             self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
             self.widgets.terminal_window.show()
         except:
-            print _("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?")
+            print("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?")
 
     def init_themes(self):
         """adds theme names to comdo box
@@ -1374,7 +1374,7 @@ class Gscreen:
             if self.data.window_max:
                 self.widgets.window1.maximize()
             if not good:
-                print(_("**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file"))
+                print("**** WARNING GSCREEN: could not understand the window geometry info in hidden preference file")
         if self.widgets.fullscreen1.get_active():
             self.widgets.window1.fullscreen()
 
