@@ -47,6 +47,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
         self._designer_block_signal = False
+        self._designer_running = False
         self.estop = False
         self.machine_on = False
         self.home = False
@@ -568,6 +569,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
+
+    def setText(self,data):
+        print 'set text:',data, self._designer_running
+        if self._designer_running:
+            print 'update'
+            self.set_textTemplate(data)
+        super(ActionButton, self).setText(data)
 
     def _set_text(self, data):
         if self._designer_block_signal: return
@@ -1168,10 +1176,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def set_textTemplate(self, data):
         self._textTemplate = data
-        try:
-            self._set_text(200.0)
-        except:
-            self.setText('Error 2')
+
     def get_textTemplate(self):
         return self._textTemplate
     def reset_textTemplate(self):
@@ -1180,10 +1185,6 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 
     def set_alt_textTemplate(self, data):
         self._alt_textTemplate = data
-        try:
-            self._set_text(200.0)
-        except:
-            self.setText('Error 2')
     def get_alt_textTemplate(self):
         return self._alt_textTemplate
     def reset_alt_textTemplate(self):

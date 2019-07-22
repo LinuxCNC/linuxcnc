@@ -46,7 +46,9 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # This factory method creates new instances of our custom widget
     def createWidget(self, parent):
-        return ActionButton(parent)
+        a =  ActionButton(parent)
+        a._designer_running = True
+        return a
 
     # This method returns the name of the custom widget class
     def name(self):
