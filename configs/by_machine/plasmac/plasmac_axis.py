@@ -356,10 +356,10 @@ w(fmonitor + '.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','y
 w('label',fmonitor + '.lDlab','-text','THC Down')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lCLlab','-text','Corner Lock')
+w('label',fmonitor + '.lCLlab','-text','VAD Lock')
 w('canvas',fmonitor + '.led-kerf-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lKLlab','-text','Kerf Lock')
+w('label',fmonitor + '.lKLlab','-text','Void Lock')
 # populate the monitor frame
 w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
 w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2')
@@ -394,8 +394,8 @@ w('DynamicHelp::add',fmonitor + '.led-float','-text','Float switch status indica
 w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','Breakaway switch status indicator')
 w('DynamicHelp::add',fmonitor + '.led-up','-text','THC moving up')
 w('DynamicHelp::add',fmonitor + '.led-down','-text','THC moving down')
-w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','Corner lock status indicator')
-w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','Kerf lock status indicator')
+w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','Velocity Anti Dive lock status indicator')
+w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','Void sensed lock status indicator')
 
 # new buttons frame
 w('labelframe',fbuttons,'-relief','groove')
