@@ -56,13 +56,23 @@ class HandlerClass:
         self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.01,0,0)
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
+        self.builder.get_object('cornerlock-threshold').set_digits(0)
+        self.builder.get_object('cornerlock-threshold-adj').configure(90,1,99,1,0,0)
+        self.builder.get_object('kerfcross-override').set_digits(0)
+        self.builder.get_object('kerfcross-override-adj').configure(100,10,500,1,0,0)
         self.builder.get_object('max-offset-velocity-in').set_label(str(int(self.thcFeedRate)))
         self.builder.get_object('ohmic-max-attempts').set_digits(0)
         self.builder.get_object('ohmic-max-attempts-adj').configure(0,0,10,1,0,0)
+        self.builder.get_object('pid-p-gain').set_digits(0)
+        self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
         self.builder.get_object('pid-i-gain').set_digits(0)
         self.builder.get_object('pid-i-gain-adj').configure(0,0,1000,1,0,0)
         self.builder.get_object('pid-d-gain').set_digits(0)
         self.builder.get_object('pid-d-gain-adj').configure(0,0,1000,1,0,0)
+        self.builder.get_object('thc-delay').set_digits(1)
+        self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
+        self.builder.get_object('thc-threshold').set_digits(2)
+        self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         self.builder.get_object('torch-off-delay').set_digits(1)
         self.builder.get_object('torch-off-delay-adj').configure(0,0,9,0.1,0,0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
@@ -103,6 +113,8 @@ class HandlerClass:
         maxPidP = self.thcFeedRate / units * 0.1
         self.builder.get_object('config').set_sensitive(not hal.get_value('plasmac_config.config-disable'))
         mode = hal.get_value('plasmac.mode')
+        units = hal.get_value('halui.machine.units-per-mm')
+        maxPidP = self.thcFeedRate / units * 0.1
         if mode != self.oldMode:
             if mode == 0:
                 self.builder.get_object('arc-ok-high').show()
@@ -113,11 +125,17 @@ class HandlerClass:
                 self.builder.get_object('arc-voltage-scale-label').set_text('Voltage Scale')
                 self.builder.get_object('arc-voltage-offset').show()
                 self.builder.get_object('arc-voltage-offset-label').set_text('Voltage Offset')
+                self.builder.get_object('delay-box').show()
                 self.builder.get_object('height-per-volt-box').show()
+                self.builder.get_object('kerfcross-override').show()
+                self.builder.get_object('kerfcross-override-label').show()
+                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,maxPidP,1,0,0)
+                self.builder.get_object('pid-p-label').set_text('PID P GAIN (Speed)')
                 self.builder.get_object('pid-i-gain').show()
                 self.builder.get_object('pid-i-label').set_text('PID I GAIN')
                 self.builder.get_object('pid-d-gain').show()
                 self.builder.get_object('pid-d-label').set_text('PID D GAIN')
+                self.builder.get_object('threshold-box').show()
             elif mode == 1:
                 self.builder.get_object('arc-ok-high').hide()
                 self.builder.get_object('arc-ok-high-label').set_text('')
@@ -127,11 +145,17 @@ class HandlerClass:
                 self.builder.get_object('arc-voltage-scale-label').set_text('Voltage -scale')
                 self.builder.get_object('arc-voltage-offset').show()
                 self.builder.get_object('arc-voltage-offset-label').set_text('Voltage -offset')
+                self.builder.get_object('delay-box').show()
                 self.builder.get_object('height-per-volt-box').show()
+                self.builder.get_object('kerfcross-override').show()
+                self.builder.get_object('kerfcross-override-label').show()
+                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,maxPidP,1,0,0)
+                self.builder.get_object('pid-p-label').set_text('PID P GAIN (Speed)')
                 self.builder.get_object('pid-i-gain').show()
                 self.builder.get_object('pid-i-label').set_text('PID I GAIN')
                 self.builder.get_object('pid-d-gain').show()
                 self.builder.get_object('pid-d-label').set_text('PID D GAIN')
+                self.builder.get_object('threshold-box').show()
             elif mode == 2:
                 self.builder.get_object('arc-ok-high').hide()
                 self.builder.get_object('arc-ok-high-label').set_text('')
@@ -142,10 +166,16 @@ class HandlerClass:
                 self.builder.get_object('arc-voltage-offset').hide()
                 self.builder.get_object('arc-voltage-offset-label').set_text('')
                 self.builder.get_object('height-per-volt-box').hide()
+                self.builder.get_object('delay-box').hide()
+                self.builder.get_object('kerfcross-override').hide()
+                self.builder.get_object('kerfcross-override-label').hide()
+                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,100,1,0,0)
+                self.builder.get_object('pid-p-label').set_text('Speed (%)')
                 self.builder.get_object('pid-i-gain').hide()
                 self.builder.get_object('pid-i-label').set_text('')
                 self.builder.get_object('pid-d-gain').hide()
                 self.builder.get_object('pid-d-label').set_text('')
+                self.builder.get_object('threshold-box').hide()
             else:
                 pass
             self.oldMode = mode
@@ -177,8 +207,8 @@ class HandlerClass:
                 with open(self.configFile, 'r') as f_in:
                     for line in f_in:
                         if not line.startswith('#') and not line.startswith('[') and not line.startswith('\n'):
-                            if 'version' in line or 'signature' in line:
-                                convertFile = True
+                            if line.startswith('version='):
+                                pass
                             else:
                                 (keyTmp, value) = line.strip().replace(" ", "").split('=')
                                 if value == 'True':value = True
@@ -197,7 +227,7 @@ class HandlerClass:
                                     self.configDict[key] = value
                                     tmpDict[key] = value
             except:
-                print('*** plasmac configuration file, {} is invalid ***'.format(self.configFile))
+                print('*** plasmac config tab configuration file, {} is invalid ***'.format(self.configFile))
             for item in self.configDict:
                 if isinstance(self.builder.get_object(item), gladevcp.hal_widgets.HAL_SpinButton):
                     if item in tmpDict:
@@ -208,11 +238,7 @@ class HandlerClass:
                     if item in tmpDict:
                         self.builder.get_object(item).set_active(int(self.configDict.get(item)))
                     else:
-#                        self.builder.get_object(item).set_active(False)
                         print('*** {} missing from {}'.format(item,self.configFile))
-            if convertFile:
-                print('*** converting {} to new format'.format(self.configFile))
-                self.save_settings()
         else:
             self.save_settings()
             print('*** creating new config tab configuration file, {}'.format(self.configFile))
@@ -220,8 +246,8 @@ class HandlerClass:
     def save_settings(self):
         try:
             with open(self.configFile, 'w') as f_out:
-                f_out.write('#plasmac configuration file, format is:\n#name = value\n\n')
-                #for key in self.configDict:
+                f_out.write('# plasmac config tab configuration file\n# format is: name = value\n\n')
+                f_out.write('version=0.1\n\n')
                 for key in sorted(self.configDict.iterkeys()):
                     if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                         value = self.builder.get_object(key).get_value()
@@ -234,6 +260,38 @@ class HandlerClass:
                         f_out.write(key + '=' + str(value) + '\n')
         except:
             print('*** error opening {}'.format(self.configFile))
+
+    def upgrade_check(self):
+        if os.path.exists(self.configFile):
+            with open(self.configFile, 'r') as f_in:
+                for line in f_in:
+                    if line.startswith('version=0.1'):
+                        return
+                    elif line.startswith('arc-fail-delay'):
+                        break
+                    elif line.startswith('arc-max-starts'):
+                        return
+            with open(self.configFile, 'r') as f_in:
+                contents = f_in.readlines()
+            contents[0] = '# plasmac config tab configuration file\n'
+            contents[1] = '# format is: name = value\n'
+            contents.insert(3, 'version=0.1\n\n')
+            runFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
+            if os.path.exists(runFile):
+                with open(runFile, 'r') as f_in:
+                    for line in f_in:
+                        if line.startswith('cornerlock-threshold') or \
+                           line.startswith('kerfcross-override') or \
+                           line.startswith('pid-p-gain') or \
+                           line.startswith('thc-delay') or \
+                           line.startswith('thc-threshold'):
+                            contents.append(line)
+                f_out = open(self.configFile, 'w')
+                f_out.writelines(contents)
+            else:
+                print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
+        else:
+            print('*** plasmac config tab configuration file, {} is invalid ***'.format(self.configFile))
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
@@ -252,6 +310,7 @@ class HandlerClass:
         self.maxHeight = hal.get_value('ini.z.max_limit') - hal.get_value('ini.z.min_limit')
         self.configure_widgets()
         self.builder.get_object('probe-feed-rate-adj').set_upper(self.builder.get_object('setup-feed-rate').get_value())
+        self.upgrade_check()
         self.load_settings()
         self.set_theme()
         gobject.timeout_add(100, self.periodic)

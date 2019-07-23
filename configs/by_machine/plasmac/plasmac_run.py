@@ -222,18 +222,12 @@ class HandlerClass:
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
         self.builder.get_object('cornerlock-enable').set_active(1)
-        self.builder.get_object('cornerlock-threshold').set_digits(0)
-        self.builder.get_object('cornerlock-threshold-adj').configure(90,1,99,1,0,0)
         self.builder.get_object('cut-amps').set_digits(0)
         self.builder.get_object('cut-amps-adj').configure(45,0,999,1,0,0)
         self.builder.get_object('cut-volts').set_digits(1)
         self.builder.get_object('cut-volts-adj').configure(122,50,300,0.1,0,0)
         self.builder.get_object('kerfcross-enable').set_active(0)
-        self.builder.get_object('kerfcross-override').set_digits(0)
-        self.builder.get_object('kerfcross-override-adj').configure(100,10,500,1,0,0)
         self.builder.get_object('ohmic-probe-enable').set_active(1)
-        self.builder.get_object('pid-p-gain').set_digits(0)
-        self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
         self.builder.get_object('pierce-delay').set_digits(1)
         self.builder.get_object('pierce-delay-adj').configure(0.5,0,10,0.1,0,0)
         self.builder.get_object('puddle-jump-height').set_digits(0)
@@ -241,10 +235,6 @@ class HandlerClass:
         self.builder.get_object('puddle-jump-delay').set_digits(2)
         self.builder.get_object('puddle-jump-delay-adj').configure(0,0,9,0.01,0,0)
         self.builder.get_object('thc-enable').set_active(1)
-        self.builder.get_object('thc-delay').set_digits(1)
-        self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
-        self.builder.get_object('thc-threshold').set_digits(2)
-        self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         self.builder.get_object('use-auto-volts').set_active(1)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('kerf-width').set_digits(2)
@@ -272,38 +262,18 @@ class HandlerClass:
             self.halcomp['thc-enable-out'] = self.builder.get_object('thc-enable').get_active()
 
         mode = hal.get_value('plasmac.mode')
-        units = hal.get_value('halui.machine.units-per-mm')
-        maxPidP = self.thcFeedRate / units * 0.1
         if mode != self.oldMode:
             if mode == 0:
-                self.builder.get_object('auto-box').show()
-                self.builder.get_object('kerf-box').show()
-                self.builder.get_object('kerf-label').show()
-                self.builder.get_object('kerf-frame').set_shadow_type(gtk.SHADOW_OUT)
-                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,maxPidP,1,0,0)
-                self.builder.get_object('pid-p-label').set_text('Speed (PID P)')
-                self.builder.get_object('delay-box').show()
-                self.builder.get_object('threshold-box').show()
+                self.builder.get_object('kerfcross-enable').show()
+                self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
             elif mode == 1:
-                self.builder.get_object('auto-box').show()
-                self.builder.get_object('kerf-box').show()
-                self.builder.get_object('kerf-label').show()
-                self.builder.get_object('kerf-frame').set_shadow_type(gtk.SHADOW_OUT)
-                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,maxPidP,1,0,0)
-                self.builder.get_object('pid-p-label').set_text('Speed (PID P)')
-                self.builder.get_object('delay-box').show()
-                self.builder.get_object('threshold-box').show()
+                self.builder.get_object('kerfcross-enable').show()
+                self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
             elif mode == 2:
-                self.builder.get_object('auto-box').hide()
-                self.builder.get_object('kerf-box').hide()
-                self.builder.get_object('kerf-label').hide()
-                self.builder.get_object('kerf-frame').set_shadow_type(gtk.SHADOW_NONE)
-                self.builder.get_object('pid-p-gain-adj').configure(self.builder.get_object('pid-p-gain-adj').get_value(),1,100,1,0,0)
-                self.builder.get_object('pid-p-label').set_text('Speed (%)')
-                self.builder.get_object('delay-box').hide()
-                self.builder.get_object('threshold-box').hide()
+                self.builder.get_object('kerfcross-enable').hide()
+                self.builder.get_object('kerfcross-enable-label').hide()
                 self.builder.get_object('volts-box').hide()
             else:
                 pass
@@ -369,7 +339,6 @@ class HandlerClass:
                     if item in tmpDict:
                         self.builder.get_object(item).set_active(int(self.configDict.get(item)))
                     else:
-#                        self.builder.get_object(item).set_active(False)
                         print('*** {} missing from {}'.format(item,self.configFile))
             if convertFile:
                 print('*** converting {} to new format'.format(self.configFile))
@@ -381,7 +350,7 @@ class HandlerClass:
     def save_settings(self):
         try:
             with open(self.configFile, 'w') as f_out:
-                f_out.write('#plasmac configuration file, format is:\n#name = value\n\n')
+                f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
                 for key in sorted(self.configDict.iterkeys()):
                     if key == 'material-number' or key == 'kerf-width':
                         pass

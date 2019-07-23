@@ -374,20 +374,48 @@ A HAL pin named 'plasmac_config.config-disable' can then be set to 0 to enable t
 
 image::images/plasmac_config.png[width=400]
 
+.Probing
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Float Travel|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
+|Probe Speed|This is the speed the Z axis will probe down at after it moves to Probe Height.
+|Probe Height|This is the height above the Z axis bottom limit that probing begins from.
+|Ohmic Retries|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
+|Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip,IHS Skip>>.
+|===
+
+WARNING: Probe Height is the height above the minimum Z axis limit.
+
+.THC
+
 [width="100%",cols="4,2,14"]
 |===
 |*Name*|*Modes*|*Description*
-|Safe Height|0,1,2|This is the height above the work surface that the Z axis will retract to on rapid moves. +
-                   If set to zero then Z axis maximum height will be used for the safe height.
-|Float Travel|0,1,2|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
-|Probe Speed|0,1,2|This is the speed the Z axis will probe down at after it moves to Probe Height.
-|Probe Height|0,1,2|This is the height above the Z axis bottom limit that probing begins from.
-|Ohmic Retries|0,1,2|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
-|Skip IHS|0,1,2|The distance used to see if IHS can be skipped, see <<ihs-skip,IHS Skip>>.
-|Max. Speed|0,1,2|Display only of the maximum speed the Z axis is capable of.
-|Setup Speed|0,1,2|The Z axis speed for setup moves. e.g. Pierce Height, Cut Height etc.
+|Delay|0,1,2|Delay from cut start until THC activates.
+|Threshold|0,1,2|Variation from target voltage for THC to correct height.
+|PID P Gain (Speed)|0,1|PID P gain for THC, THC correction speed.
+|VAD Threshold|0,1|Percentage of Cut Feed Rate velocity needs to fall below to lock THC.
+|Void Override|0,1|Higher values need greater voltage change to lock THC
 |PID I Gain|0,1|PID I gain for THC
 |PID P Gain|0,1|PID D gain for THC
+|===
+
+.Safety
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Safe Height|This is the height above the work surface that the Z axis will retract to on rapid moves. +
+                   If set to zero then Z axis maximum height will be used for the safe height.
+|===
+
+.Arc
+
+[width="100%",cols="4,2,14"]
+|===
+|*Name*|*Modes*|*Description*
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
@@ -400,7 +428,14 @@ image::images/plasmac_config.png[width=400]
 |OK Low Volts|0|Low voltage threshold for Arc OK.
 |===
 
-WARNING: Probe Height is the height above the minimum Z axis limit.
+.Motion
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Max. Speed|Display only of the maximum speed the Z axis is capable of.
+|Setup Speed|The Z axis speed for setup moves. e.g. Pierce Height, Cut Height etc.
+|===
 
 NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
@@ -436,16 +471,6 @@ image::images/plasmac_run.png[width=400]
 |P-Jump Delay|The puddle jump delay for the currently selected material
 |===
 
-.Ohmic Probe
-
-[width="100%",cols="4,16"]
-|===
-|*Name*|*Description*
-|Ohmic Enable|This is to enable or disable the ohmic probe input.
-|===
-
-NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
-
 .THC
 
 [width="100%",cols="4,2,14"]
@@ -455,31 +480,23 @@ NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status
              Auto = decide by THC Enable and G-Code +
              Enabled = on unless disabled by G-Code
 |Use Auto Volts|0,1|On = THC control voltage is sampled from arc voltage +
-                    Off = THC control voltage is from Cut Volts
-|Delay|0,1|Delay from cut start until sample voltage is taken
-|Threshold|0,1|THC ignores voltage difference below this value
-|Speed|0,1,2|THC correction speed
+                    Off = THC control voltage is from Cut Volts +
+|VAD Enable|0,1,2|On = Velocity anti-dive is enabled +
+                  Off = Velocity anti-dive is disabled +
+|Void Sense Enable|0,1|On = Void sensing is enabled +
+                      Off = Void sensing is disabled
+
 |===
 
-.Corner Lock
+.Ohmic Probe
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Enabled|On = Cornerlock is enabled +
-         Off = Cornerlock is disabled
-|Threshold|Percentage of Cut Feed Rate velocity needs to fall below to lock THC
+|Ohmic Enable|This is to enable or disable the ohmic probe input.
 |===
 
-.Kerf Crossing
-
-[width="100%",cols="4,2,14"]
-|===
-|*Name*|*Modes*|*Description*
-|Enabled|0,1|On = Kerfcrossing is enabled +
-             Off = Kerfcrossing is disabled
-|Override|0,1|Higher values need greater voltage change to lock THC
-|===
+NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
 
 The *'Save'* button will save the currently displayed parameters as the default.
 
@@ -503,8 +520,8 @@ image::images/plasmac_monitor_a.png[width=400]
 |Breakaway Switch|0,1,2|Indicates the breakaway sensor is activated
 |THC Up|0,1,2|Indicates THC is causing the Z axis to raise
 |THC Down|0,1,2|Indicates THC is causing the Z axis to lower
-|Corner Lock|0,1,2|Indicates THC is locked due to velocity constraints
-|Kerf Lock|0,1|Indicates THC is locked due to void being sensed
+|VAD Lock|0,1,2|Indicates THC is locked due to velocity constraints
+|Void Lock|0,1|Indicates THC is locked due to void being sensed
 |===
 
 NOTE: The Ohmic Probe LED will show the status of the probe input regardless of whether Ohmic Probe is enabled or disabled.
@@ -591,7 +608,7 @@ It is not a requirement that you use a material file, if required you can change
 The following codes may be used for a PlasmaC configuration:
 
 * 'M190 Pn' - changes the material to number n.
-* 'M66 P3 L3' - Q1 waits for material change to be confirmed.
+* 'M66 P3 L3 Q1' - waits for material change to be confirmed.
 * 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run tab/panel/panel.
 * 'M3 S1' - starts the PlasmaC component.
 
@@ -653,7 +670,7 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
 
-This percentage is displayed as Threshold % in the CornerLock frame of the Run tab/panel.
+This percentage is displayed as VAD Threshold % in the THC frame of the Config tab.
 
 Velocity based THC prevents the torch height being changed when velocity is reduced for a sharp corner or a small hole.
 
