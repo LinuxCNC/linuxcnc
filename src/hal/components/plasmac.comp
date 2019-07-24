@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.57 - 11 Jul 2019
+.I VERSION: 0.58 - 24 Jul 2019
 
 .I SUMMARY:
 .br
@@ -14,7 +14,7 @@ No Z axis commands are required in gcode as all required height movements are co
 
 Should scale correctly for both metric and inch configuraions.
 
-Three different operating modes:  
+Three different operating modes:
 ..RS 1
 .br
 0 Use the plasmac.arc-voltage-in input pin for both arc-OK and THC.
@@ -104,9 +104,9 @@ Dry Run runs the gcode without starting the torch.
 
 .I CUT FEED RATE
 .br
-Usage of the plasmac.cut-feed-rate input pin requires specifying #<_hal[plasmac.cut-feed-rate]> in the gcode file:  
+Usage of the plasmac.cut-feed-rate input pin requires specifying #<_hal[plasmac.cut-feed-rate]> in the gcode file:
 .br
-F#<_hal[plasmac.cut-feed-rate]>  
+F#<_hal[plasmac.cut-feed-rate]>
 
 If you want to use different feed rates throughout the file then set the plasmac.cut-feed-rate input pin to 0 which will then use the feed rate from the gcode file.
 .br
@@ -189,6 +189,7 @@ pin in  bit     move_down                   "external thc down switch [mode 2])"
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  float   offset_current              "current z axis offset, connect to axis.z.eoffset";
 pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
+pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
 pin in  bit     ohmic_probe                 "ohmic probe input";
 pin in  bit     ohmic_test                  "test for shorted torch";
@@ -416,7 +417,7 @@ FUNCTION(_) {
 
     /* set ohmic probe state */
     ohmic_detected = ohmic_probe && ohmic_probe_enable;
-    
+
     /* set adaptive feed reduction if no paused motion */
     if(state != PAUSED_MOTION){
         if(feed_reduction < 10 && state == CUTTING){
@@ -737,7 +738,7 @@ FUNCTION(_) {
                 offset_counts += 1;
             }else{
                 if(probe_type == OHMIC){
-                    probe_offset = 0;
+                    probe_offset = ohmic_probe_offset / offset_scale;
                 }else{
                     probe_offset = float_switch_travel / offset_scale;
                 }
@@ -752,7 +753,8 @@ FUNCTION(_) {
                 if(safe_height == 0){
                     safe_target = offset_max;
                     ohmic_enable = FALSE;
-                    state = ZERO_HEIGHT;
+//                    state = ZERO_HEIGHT;
+                    state = PIERCE_HEIGHT;
                 }else if(offset_counts + safe_min >= offset_max){
                     safe_target = offset_max;
                     rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
@@ -765,11 +767,13 @@ FUNCTION(_) {
                     safe_target = offset_max;
                     safe_height_is_limited = TRUE;
                     ohmic_enable = FALSE;
-                    state = ZERO_HEIGHT;
+//                    state = ZERO_HEIGHT;
+                    state = PIERCE_HEIGHT;
                 }else{
                     safe_target = offset_counts + safe_preferred;
                     ohmic_enable = FALSE;
-                    state = ZERO_HEIGHT;
+//                    state = ZERO_HEIGHT;
+                    state = PIERCE_HEIGHT;
                 }
             }
             break;

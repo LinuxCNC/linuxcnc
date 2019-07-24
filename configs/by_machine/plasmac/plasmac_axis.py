@@ -44,7 +44,7 @@ wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15','16']
     if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-        heights = ['658','680','742','764','786','842','900','932']
+        heights = ['658','680','742','764','790','842','900','932']
         aspect = 1.5
     else:
         heights = ['704','728','800','826','850','900','960','990']
