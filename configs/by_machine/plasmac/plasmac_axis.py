@@ -156,8 +156,8 @@ w('pack','.toolbar.space4','-after','.toolbar.program_optpause','-side','left')
 
 # set some sizes for widgets
 swidth = 5  # spinboxes width
-lwidth = 11 # labels width
-bwidth = 8  # buttons width
+lwidth = 15 # labels width
+bwidth = 12  # buttons width
 cwidth = int(fsize) * 2 #canvas width
 cheight = int(fsize) * 2 #canvas height
 ledwidth = cwidth - 2 #led width
@@ -323,7 +323,7 @@ w('pack','forget','.pane.bottom.t.text')
 w('pack','forget','.pane.bottom.t.sb')
 
 # new common frame
-w('labelframe',fcommon,'-text','','-relief','raised','-bd','1')
+w('labelframe',fcommon,'-text','','-relief','flat','-bd','1')
 
 # new monitor frame
 w('labelframe',fmonitor,'-text','','-relief','flat')
@@ -356,10 +356,10 @@ w(fmonitor + '.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','y
 w('label',fmonitor + '.lDlab','-text','THC Down')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lCLlab','-text','VAD Lock')
+w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock')
 w('canvas',fmonitor + '.led-kerf-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lKLlab','-text','Void Lock')
+w('label',fmonitor + '.lKLlab','-text','THC Void Lock')
 # populate the monitor frame
 w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
 w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2')
@@ -385,17 +385,17 @@ w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
 w('grid',fmonitor + '.lKLlab','-row','3','-column','5')
 w('grid','rowconfigure',fmonitor,'0 1 2 3','-pad','4')
 
-w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','Current arc voltage')
-w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','Arc OK status indicator')
-w('DynamicHelp::add',fmonitor + '.led-torch','-text','Torch status indicator')
-w('DynamicHelp::add',fmonitor + '.led-thc-enabled','-text','THC status indicator')
-w('DynamicHelp::add',fmonitor + '.led-ohmic','-text','Ohmic probe status indicator')
-w('DynamicHelp::add',fmonitor + '.led-float','-text','Float switch status indicator')
-w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','Breakaway switch status indicator')
-w('DynamicHelp::add',fmonitor + '.led-up','-text','THC moving up')
-w('DynamicHelp::add',fmonitor + '.led-down','-text','THC moving down')
-w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','Velocity Anti Dive lock status indicator')
-w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','Void sensed lock status indicator')
+w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','current arc voltage')
+w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','a valid arc is established')
+w('DynamicHelp::add',fmonitor + '.led-torch','-text','torch on signal is being sent to plasma supply')
+w('DynamicHelp::add',fmonitor + '.led-thc-enabled','-text','THC is enabled')
+w('DynamicHelp::add',fmonitor + '.led-ohmic','-text','the ohmic probe is sensed')
+w('DynamicHelp::add',fmonitor + '.led-float','-text','the float switch is activated')
+w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','the breakaway switch is activated')
+w('DynamicHelp::add',fmonitor + '.led-up','-text','THC is moving the Z axis up')
+w('DynamicHelp::add',fmonitor + '.led-down','-text','THC is moving the Z axis down')
+w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','THC is locked due to velocity constraints')
+w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','THC is locked due to void sensing constraints')
 
 # new buttons frame
 w('labelframe',fbuttons,'-relief','groove')
@@ -447,12 +447,11 @@ w('DynamicHelp::add',fbuttons + '.button5','-text','User button 5\nconfigured in
 
 w('pack',fmonitor,'-fill','y','-side','top')
 w('pack',fbuttons,'-fill','y','-side','top')
-w(ft,'configure','-relief','flat')
-w(ft + '.text','configure','-borderwidth','1','-relief','sunken')
 w('pack',fcommon,'-fill','both','-side','left')
 w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
-w(ft +'.text','configure','-width','20')
 w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-padx','0','-pady','0')
+w(ft,'configure','-relief','flat')
+w(ft + '.text','configure','-borderwidth','1','-relief','sunken')
 
 
 

@@ -247,7 +247,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="has_tooltip">True</property>
-                            <property name="tooltip_text" translatable="yes">the the ohmic probe is sensed</property>
+                            <property name="tooltip_text" translatable="yes">the ohmic probe is sensed</property>
                             <property name="xalign">0</property>
                             <property name="label" translatable="yes">Ohmic Probe</property>
                           </object>
@@ -435,7 +435,7 @@
                             <property name="can_focus">False</property>
                             <property name="tooltip_text" translatable="yes">THC is locked due to velocity constraints</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">VAD Lock</property>
+                            <property name="label" translatable="yes">THC Velocity Lock</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -449,9 +449,9 @@
                           <object class="GtkLabel" id="kerf-lock-label">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="tooltip_text" translatable="yes">THC is locked due to voltage constraints</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to void sensing constraints</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Void Lock</property>
+                            <property name="label" translatable="yes">THC Void Lock</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -467,7 +467,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="has_tooltip">True</property>
-                            <property name="tooltip_text" translatable="yes">THC is locked due to voltage constraints</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to void sensing constraints</property>
                             <property name="is_on">True</property>
                             <property name="led_blink_rate">0</property>
                             <property name="led_size">8</property>

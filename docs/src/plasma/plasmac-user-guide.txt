@@ -506,9 +506,9 @@ The *'Reload'* button will reload the last saved parameters.
 
 The monitor panel is used for display only, both Axis and Gmoccapy have similar monitor panels.
 
-image::images/plasmac_monitor_a.png[width=400]
+image::images/plasmac_monitor.png[width=400]
 
-[width="100%",cols="4,2,14"]
+[width="100%",cols="6,2,14"]
 |===
 |*Name*|*Modes*|*Description*
 |Arc Voltage|0,1|Displays the actual arc voltage
@@ -517,11 +517,11 @@ image::images/plasmac_monitor_a.png[width=400]
 |THC Enabled|0,1,2|Indicates if THC is enabled
 |Ohmic Probe|0,1,2|Indicates the probe has sensed the material
 |Float Switch|0,1,2|Indicates the float switch is activated
-|Breakaway Switch|0,1,2|Indicates the breakaway sensor is activated
+|Breakaway|0,1,2|Indicates the breakaway sensor is activated
 |THC Up|0,1,2|Indicates THC is causing the Z axis to raise
 |THC Down|0,1,2|Indicates THC is causing the Z axis to lower
-|VAD Lock|0,1,2|Indicates THC is locked due to velocity constraints
-|Void Lock|0,1|Indicates THC is locked due to void being sensed
+|THC Velocity Lock|0,1,2|Indicates THC is locked due to velocity constraints
+|THC Void Lock|0,1|Indicates THC is locked due to void being sensed
 |===
 
 NOTE: The Ohmic Probe LED will show the status of the probe input regardless of whether Ohmic Probe is enabled or disabled.
