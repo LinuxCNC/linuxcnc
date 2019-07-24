@@ -486,6 +486,14 @@ requests the joint to be selected by emitting the +
 *get_selected_joint* :: '(None)' -
 returns integer representing the internal selected joint number. +
 
+*set_selected_axis* :: '(string)' -
+records the selected axis letter internally. +
+requests the axis to be selected by emitting the +
+'axis-selection-changed' message. +
+
+*get_selected_axis* :: '(None)' -
+returns string representing the internal selected axis letter. +
+
 *is_man_mode* :: '(None)' -
 
 *is_mdi_mode* :: '(None)' -

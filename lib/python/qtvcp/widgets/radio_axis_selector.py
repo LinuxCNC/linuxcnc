@@ -20,35 +20,41 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(RadioAxisSelector, self).__init__(parent)
         self.toggled.connect(lambda:self.btnstate(self))
-        self.axis = 'x'
-        self.joint = 0
+        self.axis = ''
+        self.joint = -1
 
     def _hal_init(self):
-        pass
+        STATUS.connect('motion-mode-changed', lambda w,data: self.modeChanged(data))
 
     def btnstate(self,b):
-       if b.isChecked() == True:
-            ACTION.SET_SELECTED_JOINT(self.joint)
+        if b.isChecked() == True:
+            if STATUS.is_joint_mode():
+                ACTION.SET_SELECTED_JOINT(self.joint)
+            else:
+                print isinstance(self.axis, (str))
+                ACTION.SET_SELECTED_AXIS(self.axis)
+
+    # change of joints mode / axis mode
+    def modeChanged(self, mode):
+        self.btnstate(self)
 
     def setAxis(self, data):
-        self.axis = data
-        if self.axis.isdigit():
-            self.joint = int(data)
-        else:
-            try:
-                conversion = {"X":0, "Y":1, "Z":2, "A":3, "B":4, "C":5, "U":6, "V":7, "W":8}
-                self.joint = int(conversion[data.upper()])
-            except:
-                LOG.warning('axis not recognized: {} using X axis'.format(data))
-                self.joint = 0
-
+        if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
+            self.axis = str(data.upper())
     def getAxis(self):
         return self.axis
     def resetAxis(self):
-        self.axis = 'x'
-        self.joint = 0
+        self.axis = ''
+
+    def setJoint(self, data):
+        self.joint = data
+    def getJoint(self):
+        return self.joint
+    def resetJoint(self):
+        self.joint = -1
 
     axis_selection = QtCore.pyqtProperty(str, getAxis, setAxis, resetAxis)
+    joint_selection = QtCore.pyqtProperty(int, getJoint, setJoint, resetJoint)
 
 # for testing without editor:
 def main():

@@ -108,7 +108,8 @@ class _GStat(gobject.GObject):
         'jogincrement-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
         'jogincrement-angular-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
 
-        'joint-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
+        'joint-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'axis-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'program-pause-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'optional-stop-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
@@ -216,6 +217,7 @@ class _GStat(gobject.GObject):
         self.current_jog_distance_angular= 0
         self.current_jog_distance_angular_text =''
         self.selected_joint = -1
+        self.selected_axis = ''
         self._is_all_homed = False
         self.set_timer()
 
@@ -782,11 +784,17 @@ class _GStat(gobject.GObject):
 
     def set_selected_joint(self, data):
         self.selected_joint = int(data)
-        self.emit('joint-selection-changed', 0, int(data))
+        self.emit('joint-selection-changed', data)
 
     def get_selected_joint(self):
         return self.selected_joint
 
+    def set_selected_axis(self, data):
+        self.selected_axis = str(data)
+        self.emit('axis-selection-changed', data)
+
+    def get_selected_axis(self):
+        return self.selected_axis
     def is_all_homed(self):
         return self._is_all_homed
 
@@ -831,6 +839,13 @@ class _GStat(gobject.GObject):
 
     def is_spindle_on(self):
         return self.old['spindle-enabled']
+
+    def is_joint_mode(self):
+        try:
+            self.stat.poll()
+        except:
+            return None
+        return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
