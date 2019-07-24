@@ -382,6 +382,7 @@ image::images/plasmac_config.png[width=400]
 |Float Travel|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
 |Probe Speed|This is the speed the Z axis will probe down at after it moves to Probe Height.
 |Probe Height|This is the height above the Z axis bottom limit that probing begins from.
+|Ohmic Probe Offset|The Z axis offset of the ohmic probe.
 |Ohmic Retries|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
 |Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip,IHS Skip>>.
 |===
@@ -506,9 +507,9 @@ The *'Reload'* button will reload the last saved parameters.
 
 The monitor panel is used for display only, both Axis and Gmoccapy have similar monitor panels.
 
-image::images/plasmac_monitor_a.png[width=400]
+image::images/plasmac_monitor.png[width=400]
 
-[width="100%",cols="4,2,14"]
+[width="100%",cols="6,2,14"]
 |===
 |*Name*|*Modes*|*Description*
 |Arc Voltage|0,1|Displays the actual arc voltage
@@ -517,11 +518,11 @@ image::images/plasmac_monitor_a.png[width=400]
 |THC Enabled|0,1,2|Indicates if THC is enabled
 |Ohmic Probe|0,1,2|Indicates the probe has sensed the material
 |Float Switch|0,1,2|Indicates the float switch is activated
-|Breakaway Switch|0,1,2|Indicates the breakaway sensor is activated
+|Breakaway|0,1,2|Indicates the breakaway sensor is activated
 |THC Up|0,1,2|Indicates THC is causing the Z axis to raise
 |THC Down|0,1,2|Indicates THC is causing the Z axis to lower
-|VAD Lock|0,1,2|Indicates THC is locked due to velocity constraints
-|Void Lock|0,1|Indicates THC is locked due to void being sensed
+|THC Velocity Lock|0,1,2|Indicates THC is locked due to velocity constraints
+|THC Void Lock|0,1|Indicates THC is locked due to void being sensed
 |===
 
 NOTE: The Ohmic Probe LED will show the status of the probe input regardless of whether Ohmic Probe is enabled or disabled.
@@ -715,7 +716,11 @@ If THC is enabled then skip IHS if start of cut less than 'plasmac.skip-ihs-dist
 
 === Probing
 
-Probing may be with either ohmic sensing or a float switch, it is also possible to combine both with the float switch providing a fallback to ohmic probing. Probing setup is done in the Motion frame of the Config tab.
+Probing may be with either ohmic sensing or a float switch, it is also possible to combine both with the float switch providing a fallback to ohmic probing.
+
+If your torch doesn't support ohmic probing you could have a separate probe next to the torch. In this case you would extend the probe below the torch. The probe must NOT extend more than your minimum Cut Height below the torch and this offset distance is entered as the 'ohmic-probe-offset' in the Config panel.
+
+Probing setup is done in the Motion frame of the Config tab.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
@@ -1071,7 +1076,7 @@ Files in the example configurations are:
 |plasmac_gcode.py|removes z axis moves from the opened G-Code file
 |plasmac_axis.py|python code to customise the Axis GUI
 |M190|for G-Code changing of materials
-|materialverter.py|tool table converter and material file creator 
+|materialverter.py|tool table converter and material file creator
 |configurator.py|configure a new or upgrade an existing PlasmaC configuration
 |===
 

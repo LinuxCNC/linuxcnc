@@ -15,6 +15,7 @@
   <object class="GtkAdjustment" id="height-per-volt-adj"/>
   <object class="GtkAdjustment" id="kerfcross-override-adj"/>
   <object class="GtkAdjustment" id="ohmic-max-attempts-adj"/>
+  <object class="GtkAdjustment" id="ohmic-probe-offset-adj"/>
   <object class="GtkAdjustment" id="pid-d-gain-adj"/>
   <object class="GtkAdjustment" id="pid-i-gain-adj"/>
   <object class="GtkAdjustment" id="pid-p-gain-adj"/>
@@ -60,7 +61,7 @@
                           <object class="GtkTable" id="table5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">5</property>
+                            <property name="n_rows">6</property>
                             <property name="n_columns">2</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
@@ -112,8 +113,8 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
                               </packing>
                             </child>
                             <child>
@@ -171,8 +172,8 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                                 <property name="wrap">True</property>
                               </object>
                               <packing>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
+                                <property name="top_attach">5</property>
+                                <property name="bottom_attach">6</property>
                               </packing>
                             </child>
                             <child>
@@ -230,8 +231,8 @@ Note: this is the height above minimum limit</property>
                                 <property name="wrap">True</property>
                               </object>
                               <packing>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
                               </packing>
                             </child>
                             <child>
@@ -248,6 +249,45 @@ Note: this is the height above minimum limit</property>
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC4">
+                                <property name="width_request">127</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">ohmic probe Z axis offset in machine units</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Ohmic Probe Offset</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">3</property>
+                                <property name="bottom_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="ohmic-probe-offset">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">ohmic probe Z axis offset in machine units</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">ohmic-probe-offset-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
                                 <property name="top_attach">3</property>
                                 <property name="bottom_attach">4</property>
                               </packing>

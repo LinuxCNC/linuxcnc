@@ -77,9 +77,11 @@ class HandlerClass:
         self.builder.get_object('torch-off-delay-adj').configure(0,0,9,0.1,0,0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
             self.builder.get_object('float-switch-travel').set_digits(2)
-            self.builder.get_object('float-switch-travel-adj').configure(1.5,0,9,0.01,0,0)
+            self.builder.get_object('float-switch-travel-adj').configure(1.5,0,25,0.01,0,0)
             self.builder.get_object('height-per-volt').set_digits(3)
             self.builder.get_object('height-per-volt-adj').configure(0.1,0.025,0.2,0.01,0,0)
+            self.builder.get_object('ohmic-probe-offset').set_digits(2)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-25,0,0.01,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(0)
             self.builder.get_object('probe-feed-rate-adj').configure(300,1,self.thcFeedRate,1,0,0)
             self.builder.get_object('probe-start-height').set_digits(0)
@@ -95,6 +97,8 @@ class HandlerClass:
             self.builder.get_object('float-switch-travel-adj').configure(0.06,0,1,0.001,0,0)
             self.builder.get_object('height-per-volt').set_digits(4)
             self.builder.get_object('height-per-volt-adj').configure(0.004,0.001,0.008,0.001,0,0)
+            self.builder.get_object('ohmic-probe-offset').set_digits(3)
+            self.builder.get_object('ohmic-probe-offset-adj').configure(0,-1,0,0.001,0,0)
             self.builder.get_object('probe-feed-rate').set_digits(1)
             self.builder.get_object('probe-feed-rate-adj').configure(12,0.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('probe-start-height').set_digits(2)
@@ -194,6 +198,8 @@ class HandlerClass:
         else:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
+            fSize = int(font.split()[1])
+            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
