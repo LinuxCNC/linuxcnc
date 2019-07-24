@@ -11,7 +11,11 @@ loadrt  debounce                cfg=3
 setp    debounce.0.delay        5
 addf    debounce.0              servo-thread
 
-# the next line needs to be the joint associated with the Z axis
+#***** arc voltage lowpass cutoff frequency *****
+#***** change to the cutoff frequency you require *****
+#setp plasmac.lowpass-frequency 0
+
+#***** the joint associated with the Z axis *****
 net plasmac:axis-position        joint.3.pos-fb                  =>  plasmac.axis-z-position
 
 # FOR MODE 0 ***************************************************************************#
