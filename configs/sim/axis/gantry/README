@@ -1,0 +1,10 @@
+Axis gui sim configs for gantry applications
+using 2 joints for the Y coordinate
+
+Use trivkins coordinates=XYZY kinstype=BOTH
+X: Joint0 
+Y: Joint1 and Joint3
+Z: Joint2
+
+gantry.ini    basic gantry demo (in)
+gantry_mm.ini basic gantry demo (mm)
