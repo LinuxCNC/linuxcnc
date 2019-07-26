@@ -325,7 +325,7 @@ net home_seq_s32   <= home_sequence_s32.out
 net home_seq_s32   => ini.0.home_sequence
 net home_seq_s32   => ini.1.home_sequence
 ...
-# allow_jjog: from a virtual panel or hardware switch
+# allow_jjog: pin created by a virtual panel or hardware switch
 net hsequence_select <= allow_jjog
 net hsequence_select => home_sequence_mux.sel
 net hsequence_select => motion.homing-inhibit
@@ -340,5 +340,9 @@ deferred using a postgui halfile or a delayed
 
 [NOTE]
 Realtime synchronization of joint jogging for multiple joints
-requires additional hal connections for the mpg-type jog pins
-(joint.N.enable, joint.N.scale, joint.N.counts)
+requires additional hal connections for the Manual-Pulse-Generator
+(MPG) type jog pins (joint.N.enable, joint.N.scale, joint.N.counts).
+
+An example simulation config (gantry_jjog.ini) that demonstrates
+joint jogging when using negative home sequences is located in the:
+configs/sim/axis/gantry/ directory.
