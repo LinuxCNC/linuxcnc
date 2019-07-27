@@ -117,6 +117,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # set horizontal header properties
         hh = self.horizontalHeader()
         hh.setStretchLastSection(True)
+        hh.setMinimumSectionSize(75)
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -189,7 +190,6 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 else:
                     self.tabledata[row][column] = locale.format(tmpl, i[column])
         self.tablemodel.layoutChanged.emit()
-        self.resizeColumnsToContents()
 
     # We read the var file directly
     # and pull out the info we need
