@@ -166,7 +166,7 @@ package manager with this command 'sudo dpkg -i linuxcnc_2.7.4.deb'
 sudo dpkg -i linuxcnc_2.7.4.deb
 ----
 
-== Updating Configuration Files
+== Updating Configuration Files (for 2.8.x)
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.
@@ -541,7 +541,7 @@ Support for specifying trajectory planning angular default and maximum
 accelerations has not been implemented.
 
 
-== Hal Changes (updates for joints_axes)
+== Hal Changes (updates for joints_axes 2.8.x)
 
 === Wheel or MPG (manual pulse generator) jogging
 
@@ -624,7 +624,7 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
       (pins were created for all 9 axes)
       See the man page ('$ man milltask') for more information
 
-== Hal Changes (Other)
+== Hal Changes (Other 2.8.x)
 
 === halcompile
 
@@ -646,7 +646,7 @@ so that they can be connected to signals:
    motion.servo.last-period_ns (kernel-dependent availability)
 ----
 
-== Interface changes for joints_axes
+== Interface changes for joints_axes 2.8.x
 
 === python linuxcnc module
 
@@ -661,7 +661,7 @@ jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
 jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 ----
 
-== GUIs (updates for joints_axes)
+== GUIs (updates for joints_axes 2.8.x)
 
 === Notes on joint/axis jogging, homing, and kinematics
 
@@ -960,19 +960,19 @@ This command now attemps to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'
 
-== Obsolete Guis
+== Obsolete Guis (removed for 2.8.x)
 
 The guis 'mini', 'keystick', and 'xlinuxcnc' have been removed in
 conjunction with updates for joints_axes.  All related source code,
 examples, and documentation are available in the git repository.
 
-== Deprecated Guis
+== Deprecated Guis (marked at 2.8.x)
 
 The 'linuxcnclcd' gui is a candidate for removal.
 Should this component be removed, all related source code, examples,
 and documentation will be available in the git repository.
 
-== Simulator configurations (updates for joints axes)
+== Simulator configurations (updates for joints axes 2.8.x)
 
 === Pre-joints_axes
 
@@ -1104,7 +1104,7 @@ The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
 demonstrates a working xyz configuration that uses LIB:basic_sim.tcl
 with a minimal number of ini file settings.
 
-== Ongoing updates to development branch
+== Miscellaneous updates for 2.8.x
 
 Commits to unreleased branches may make changes that affect testers
 and early-adopters of the unreleased software.
@@ -1179,5 +1179,10 @@ settings separated by blanks and enclosed with quotes.  Example:
 ----
 loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
 ----
+
+== Changes beyond 2.8.x
+
+Future versions of this document will note changes made to the development
+branch subsequent to 2.8.x release(s).
 
 // vim: set syntax=asciidoc:
