@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.58 - 24 Jul 2019
+.I VERSION: 0.59 - 27 Jul 2019
 
 .I SUMMARY:
 .br
@@ -1104,21 +1104,23 @@ FUNCTION(_) {
         case SAFE_HEIGHT:
             /* move to safe height */
             feed_hold = TRUE;
-            cornerlock_is_locked = FALSE;
-            if(!probe_test){
-                if(offset_counts - setup_velocity > safe_target){
-                    offset_counts -= setup_velocity;
-                }else if(offset_counts + setup_velocity < safe_target){
-                    offset_counts += setup_velocity;
-                }else{
-                    offset_counts = safe_target;
-                    if(stop_type == WAIT){
-                        feed_hold = FALSE;
+            if(!torch_off_timer){
+                cornerlock_is_locked = FALSE;
+                if(!probe_test){
+                    if(offset_counts - setup_velocity > safe_target){
+                        offset_counts -= setup_velocity;
+                    }else if(offset_counts + setup_velocity < safe_target){
+                        offset_counts += setup_velocity;
+                    }else{
+                        offset_counts = safe_target;
+                        if(stop_type == WAIT){
+                            feed_hold = FALSE;
+                        }
+                        first_cut_finished = TRUE;
+                        /* do height override here for for remainder of job */
+                        height_ovr_old = 0;
+                        state = FINISH;
                     }
-                    first_cut_finished = TRUE;
-                    /* do height override here for for remainder of job */
-                    height_ovr_old = 0;
-                    state = FINISH;
                 }
             }
             break;
