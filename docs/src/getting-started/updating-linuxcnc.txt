@@ -1180,9 +1180,22 @@ settings separated by blanks and enclosed with quotes.  Example:
 loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
 ----
 
-== Changes beyond 2.8.x
+== Changes beyond 2.8.x (master branch development)
 
-Future versions of this document will note changes made to the development
-branch subsequent to 2.8.x release(s).
+The master branch is version-tagged with prerelease notation, typically
+2.9~pre*
+
+
+=== Code Updates
+
+==== Reverse Run
+
+Support added for reverse run in the trajectory planner, the task, and
+motion modules, the python interface, the axis gui, and the test suite.
+
+==== Homing
+
+A homing api is provided by src/emc/motion/homing.ini to support users'
+custom homing code in out-of-tree homing.c source files.
 
 // vim: set syntax=asciidoc:
