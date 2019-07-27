@@ -17,6 +17,7 @@
 import sys
 import os
 import locale
+import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
@@ -68,11 +69,16 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
-        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
+        conversion = {2:"X", 4:"Y", 6:"Z", 8:"A", 9:"B", 10:"C", 11:"U", 12:"V", 13:"W"}
         for num, let in conversion.iteritems():
             if let in (INFO.AVAILABLE_AXES):
                 continue
-            self.hideColumn(num+2)
+            self.hideColumn(num)
+        if not INFO.MACHINE_IS_LATHE:
+            for i in (3,5,7,15,16,17):
+                self.hideColumn(i)
+        else:
+            self.hideColumn(8)
 
     # only update every 100th time periodic calls
     # if editing don't update
@@ -84,13 +90,12 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         except:
             self.IS_RUNNING = False
             return
-        if self.delay < 999:
+        if self.delay < 9:
             self.delay += 1
             return
         if self.editing_flag: return
         self.delay = 0
         self.tablemodel.update(TOOL.GET_TOOL_FILE())
-        self.resizeColumnsToContents()
         return True
 
     def currentTool(self, data):
@@ -103,9 +108,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         # set the table model
-        header = ['tool','pocket','X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
-        vheader = []
-        self.tablemodel = MyTableModel(TOOL.GET_TOOL_FILE(), header, vheader, self)
+        self.tablemodel = MyTableModel(self)
         self.setModel(self.tablemodel)
         self.clicked.connect(self.showSelection)
         #self.dataChanged.connect(self.selection_changed)
@@ -115,7 +118,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
         # set horizontal header properties
         hh = self.horizontalHeader()
+        hh.setMinimumSectionSize(75)
         hh.setStretchLastSection(True)
+        hh.setSortIndicator(0,Qt.DescendingOrder)
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -124,7 +129,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.resizeRowsToContents()
 
         # enable sorting
-        self.setSortingEnabled(False)
+        self.setSortingEnabled(True)
 
     def showSelection(self, item):
         cellContent = item.data()
@@ -143,7 +148,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         col = new.column()
         data = self.tablemodel.data(new)
         print 'Entered data:', data, row,col
-        if col is not 15:
+        if col is not 18:
             # set the text style based on unit type
             if self.metric_display:
                 tmpl = lambda s: self.mm_text_template % s
@@ -162,7 +167,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         # now update linuxcnc to the change
         try:
             if self.IS_RUNNING:
-                TOOL.SAVE_TOOLFILE(self.tablemodel.arraydata)
+                
+                TOOL.SAVE_TOOLFILE(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
                 ACTION.RECORD_CURRENT_MODE()
                 ACTION.CALL_MDI('g43')
                 ACTION.RESTORE_RECORDED_MODE()
@@ -180,23 +186,27 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 # custom model
 #########################################
 class MyTableModel(QAbstractTableModel):
-    def __init__(self, datain, headerdata, vheaderdata, parent=None):
+    def __init__(self, datain, parent=None):
         """
         Args:
             datain: a list of lists\n
             headerdata: a list of strings
         """
         super(MyTableModel, self).__init__(parent)
-        self.arraydata = datain
-        self.headerdata = headerdata
-        self.Vheaderdata = vheaderdata
+        self.arraydata = TOOL.CONVERT_TO_WEAR_TYPE(TOOL.GET_TOOL_FILE())
+        self.headerdata = ['tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
+        self.vheaderdata = []
 
-    def update(self, data):
+    def update(self, info):
         #print 'update'
+        data = TOOL.CONVERT_TO_WEAR_TYPE(info)
         if data is None:
-            data = [[0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']]
+            data = [[0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']]
         self.arraydata = data
         self.layoutChanged.emit()
+
+    def wear_save(self):
+        TOOL.CONVERT_TO_STANDARD(self.arraydata)
 
     # Returns the number of rows under the given parent.
     # When the parent is valid it means that rowCount is
@@ -242,11 +252,12 @@ class MyTableModel(QAbstractTableModel):
         try:
             if index.column() in (0,1):
                 v = int(value)
-            elif index.column() == 15:
+            elif index.column() == 18:
                 v = str(value)
             else:
                 v = float(value)
         except:
+            LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), index.column()))
             return False
         LOG.debug(">>> setData() value = {} ".format(value))
         LOG.debug(">>> setData() qualified value = {}".format(v))
@@ -272,11 +283,11 @@ class MyTableModel(QAbstractTableModel):
         """
         Sort table by given column number.
         """
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
+        self.layoutAboutToBeChanged.emit()
         self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
         if order == Qt.DescendingOrder:
             self.arraydata.reverse()
-        self.emit(SIGNAL("layoutChanged()"))
+        self.layoutChanged.emit()
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

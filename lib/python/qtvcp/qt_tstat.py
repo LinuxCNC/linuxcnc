@@ -57,9 +57,10 @@ class _TStat(object):
         self.COMMENTS = 15
         self.hash_check = None 
         self.toolfile = INFO.TOOL_FILE_PATH
-        self.tool_info = None
+        self.tool_wear_info = None
         self.current_tool_num = -1
         self.model = []
+        self.wear_model = []
         self.toolinfo = None
 
     def GET_TOOL_INFO(self, toolnum):
@@ -69,7 +70,7 @@ class _TStat(object):
 
     def GET_TOOL_FILE(self):
         self._reload()
-        return self.model
+        return self.model, self.wear_model
 
     def SAVE_TOOLFILE(self, array):
         self._save(array)
@@ -103,6 +104,7 @@ class _TStat(object):
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
         self.model = []
+        self.wear_model = []
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = None
         toolinfo_flag = False
@@ -118,6 +120,7 @@ class _TStat(object):
             else:
                 line = rawline
             array = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
+            wear_flag = False
             # search beginning of each word for keyword letters
             # if i = ';' that is the comment and we have already added it
             # offset 0 and 1 are integers the rest floats
@@ -133,6 +136,9 @@ class _TStat(object):
                                 # This array's tool num is the current tool num
                                 # remember it for later
                                 temp = array
+                            # check if tool is greater then 10000 -then it's a wear tool
+                            if int(word.lstrip(i)) > 10000:
+                                wear_flag = True
                         if offset in(0,1):
                             try:
                                 array[offset]= int(word.lstrip(i))
@@ -149,11 +155,87 @@ class _TStat(object):
                         break
 
             # add array line to model array
-            self.model.append(array)
+            if wear_flag:
+                self.wear_model.append(array)
+            else:
+                self.model.append(array)
         if toolinfo_flag:
             self.toolinfo = temp
         else:
             self.toolinfo = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']
+
+    def CONVERT_TO_WEAR_TYPE(self, data):
+        if not INFO.MACHINE_IS_LATHE:
+            maintool = data[0] + data[1]
+            weartool = []
+        else:
+            maintool = data[0]
+            weartool = data[1]
+        tool_num_list = {}
+        full_tool_list = []
+        for rnum, row in enumerate(maintool):
+            new_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']
+            values = [ value for value in row ]
+            for cnum,i in enumerate(values):
+                if cnum == 0:
+                    tool_num_list[i] = rnum
+                if cnum in(0,1,2,):
+                    new_line[cnum] = i
+                elif cnum == 3:
+                    new_line[4] = i
+                elif cnum == 4:
+                    new_line[6] = i
+                elif cnum in(5,6,7,8,9,10,11,12,13,14,15):
+                    new_line[cnum+3] = i
+            #print new_line
+            full_tool_list.append(new_line)
+
+        # any tool number over 10000 is a wear offset
+        # add it's value to the parent tool
+        # eg 10001 goes to tool 1
+        for rnum, row in enumerate(weartool):
+            values = [ value for value in row ]
+            parent_tool = tool_num_list[( values[0]-10000)]
+            full_tool_list[parent_tool][3] = values[2]
+            full_tool_list[parent_tool][5] = values[3]
+            full_tool_list[parent_tool][7] = values[4]
+        return full_tool_list
+
+    def CONVERT_TO_STANDARD(self, data):
+        tool_wear_list = []           
+        full_tool_list = []
+        for rnum, row in enumerate(data):
+            new_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','']
+            new_wear_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','Wear Offset']
+            wear_flag = False
+            values = [ value for value in row ]
+            for cnum,i in enumerate(values):
+                if cnum in(0,1):
+                    new_line[cnum] = int(i)
+                elif cnum == 2:
+                    new_line[cnum] = float(i)
+                elif cnum == 3 and i !='0':
+                    wear_flag = True
+                    new_wear_line[2] = float(i)
+                elif cnum == 5 and i !='0':
+                    wear_flag = True
+                    new_wear_line[3] = float(i)
+                elif cnum == 7 and i !='0':
+                    wear_flag = True
+                    new_wear_line[4] = float(i)
+                elif cnum in(8,9,10,11,12,13,14,15,16,17):
+                    new_line[cnum-3] = float(i)
+                elif cnum == 18:
+                    new_line[cnum-3] = str(i)
+            if wear_flag:
+                new_wear_line[0] = int(values[0]+10000)
+                new_wear_line[15] = 'Wear Offset Tool %d'% values[0]
+                tool_wear_list.append(new_wear_line)
+            # add tool line to tool list
+            full_tool_list.append(new_line)
+        # add wear list to full tool list
+        full_tool_list = full_tool_list + tool_wear_list
+        return full_tool_list
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
     def _save(self, new_model):
