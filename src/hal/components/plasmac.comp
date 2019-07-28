@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.60 - 28 Jul 2019
+.I VERSION: 0.61 - 28 Jul 2019
 
 .I SUMMARY:
 .br
@@ -264,7 +264,7 @@ variable float  cut_height_first;           /* cut height at start of cut */
 variable float  cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
 variable float  cut_started;                /* cut has started */
-variable float  cut_target;                 /* cut height target offset */
+variable int    cut_target;                 /* cut height target offset */
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
@@ -912,16 +912,19 @@ FUNCTION(_) {
                 offset_counts += setup_velocity;
             }else{
                 offset_counts = cut_target;
-                count = 0;
-                /* set feed rate for this cut */
-                if(cut_feed_rate > 0){
-                    requested_feed_rate = cut_feed_rate;
-                }else{
-                    requested_feed_rate = requested_velocity;
+                if((int)floor(offset_current / offset_scale) <= cut_target + 1 && 
+                   (int)floor(offset_current / offset_scale) >= cut_target - 1){
+                    count = 0;
+                    /* set feed rate for this cut */
+                    if(cut_feed_rate > 0){
+                        requested_feed_rate = cut_feed_rate;
+                    }else{
+                        requested_feed_rate = requested_velocity;
+                    }
+                    feed_hold = FALSE;
+                    thc_delay_timer = thc_delay;
+                    state = CUTTING;
                 }
-                feed_hold = FALSE;
-                thc_delay_timer = thc_delay;
-                state = CUTTING;
             }
             break;
         case CUTTING:
