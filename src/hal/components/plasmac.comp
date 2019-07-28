@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.61 - 28 Jul 2019
+.I VERSION: 0.62 - 28 Jul 2019
 
 .I SUMMARY:
 .br
@@ -309,7 +309,6 @@ variable float  target_total;               /* total voltage of samples for sett
 variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
-variable float  tolerance;                  /* tolerance when comparing axis z height */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable bool   torch_pulse;                /* torch pulse flag */
 variable float  torch_pulse_timer;          /* torch pulse timer */
@@ -378,7 +377,6 @@ FUNCTION(_) {
     if(!initialized && units_per_mm){
         offset_scale = units_per_mm * fperiod;
         velocity_scale = 1 / units_per_mm / 60;
-        tolerance = 0.001 * units_per_mm;
         offset_enable = TRUE;
         adaptive_feed = 1;
         initialized = TRUE;
