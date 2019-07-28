@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.59 - 27 Jul 2019
+.I VERSION: 0.60 - 28 Jul 2019
 
 .I SUMMARY:
 .br
@@ -219,6 +219,7 @@ pin in  float   thc_delay                   "delay from start of cut to THC enab
 pin in  float   thc_feed_rate               "maximum feed rate for thc (machine units per minute)";
 pin in  float   thc_threshold               "thc threshold (volts), changes below this have no effect";
 pin in  bit     torch_enable                "enable torch";
+pin in  bit     torch_off                   "turn torch off";
 pin in  float   torch_off_delay             "time delay to turn torch off (seconds)";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
@@ -412,6 +413,11 @@ FUNCTION(_) {
         }
     }
 
+    /* turn torch off from external input */
+    if(torch_off){
+        torch_on = FALSE;
+    }
+
     /* set THC state*/
     thc_enabled = (thc_enable && !thc_disable ? 1:0);
 
@@ -488,7 +494,7 @@ FUNCTION(_) {
                                           "program is paused.");
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
-        }else if(state > ARC_OK && !arc_ok_out && torch_enable){ ;
+        }else if(state > ARC_OK && !arc_ok_out && torch_enable && !torch_off){ ;
             torch_on = FALSE;
             program_pause = TRUE;
             stop_type = PAUSE;
@@ -924,7 +930,8 @@ FUNCTION(_) {
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
              * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
              * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
-            if(torch_enable){
+            if(torch_on){
+//            if(torch_enable){
                 /* thc control by arc voltage */
                 if(mode < 2){
                     thc_delay_timer -= fperiod;
@@ -1104,7 +1111,7 @@ FUNCTION(_) {
         case SAFE_HEIGHT:
             /* move to safe height */
             feed_hold = TRUE;
-            if(!torch_off_timer){
+            if(!torch_off_timer || !torch_on){
                 cornerlock_is_locked = FALSE;
                 if(!probe_test){
                     if(offset_counts - setup_velocity > safe_target){
