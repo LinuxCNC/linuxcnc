@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.62 - 28 Jul 2019
+.I VERSION: 0.64 - 28 Jul 2019
 
 .I SUMMARY:
 .br
@@ -667,7 +667,9 @@ FUNCTION(_) {
                 }
             }else if(offset_counts - setup_velocity > probe_start_target){
                 offset_counts -= setup_velocity;
-            }else if(offset_counts > probe_start_target){
+            }else if(offset_counts + setup_velocity < probe_start_target){
+                offset_counts += setup_velocity;
+            }else if(offset_counts > probe_start_target || offset_counts < probe_start_target){
                 offset_counts = probe_start_target;
             }else{
                 if(float_detected){
