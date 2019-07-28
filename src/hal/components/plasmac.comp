@@ -260,50 +260,50 @@ variable float  axis_x_start;               /* axis x position at start of cut *
 variable float  axis_y_finish;              /* axis y position at end of cut */
 variable float  axis_y_start;               /* axis y position at start of cut */
 variable int    count;                      /* for counting */
-variable float  cut_height_first;           /* cut height at start of cut */
-variable float  cut_height_last;            /* cut height at end of cut */
+variable int    cut_height_first;           /* cut height at start of cut */
+variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
-variable float  cut_started;                /* cut has started */
+variable bool   cut_started;                /* cut has started */
 variable int    cut_target;                 /* cut height target offset */
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
-variable float  height_ovr_counts;          /* number of counts to change height via override */
+variable int    height_ovr_counts;          /* number of counts to change height via override */
 variable float  height_ovr_old;             /* old height override value */
 variable bool   initialized;                /* initialization flag */
 variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
 variable float  kerf_threshold;             /* kerf crossing threshold voltage */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
-variable float  offset_datum;               /* datum for safe height calcs */
-variable float  offset_min;                 /* minimum allowed offset */
-variable float  offset_max;                 /* maximum allowed offset */
-variable float  ohmic_attempts;             /* current ohmic probe attempts */
+variable int    offset_datum;               /* datum for safe height calcs */
+variable int    offset_min;                 /* minimum allowed offset */
+variable int    offset_max;                 /* maximum allowed offset */
+variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
-variable float  setup_velocity;             /* velocity for setup moves */
+variable int    setup_velocity;             /* velocity for setup moves */
 variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
 variable float  pid_error_now;              /* current error for pid calcs */
 variable float  pid_error_old;              /* old error for pid calcs */
 variable float  pid_output;                 /* calculated pid output value */
 variable float  pierce_timer;               /* pierce delay timer */
-variable float  pierce_target;              /* pierce height target offset */
-variable float  probe_force;                /* extra movement of probe after first contact */
-variable float  probe_force_val;            /* distance for probe_force */
+variable int    pierce_target;              /* pierce height target offset */
+variable int    probe_force;                /* extra movement of probe after first contact */
+variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
-variable float  probe_offset;               /* offset for active probe */
-variable float  probe_required = 1;         /* a probe sequence is required */
+variable int    probe_offset;               /* offset for active probe */
+variable bool   probe_required = 1;         /* a probe sequence is required */
 variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
-variable float  probe_velocity;             /* probe down velocity */
-variable float  puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
-variable float  puddle_jump_target;         /* puddle jump height target offset */
+variable int    probe_velocity;             /* probe down velocity */
+variable int    puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
+variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  requested_feed_rate;        /* requested feed rate */
 variable float  restart_timer;              /* time between torch on attempts*/
-variable float  safe_min;                   /* minimum safe height allowed */
-variable float  safe_preferred;             /* preferred safe height offset */
-variable float  safe_target;                /* safe height target offset */
-variable float  target_sensed;              /* sensed top of stock */
+variable int    safe_min;                   /* minimum safe height allowed */
+variable int    safe_preferred;             /* preferred safe height offset */
+variable int    safe_target;                /* safe height target offset */
+variable bool   target_sensed;              /* sensed top of stock */
 variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
 variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
@@ -313,7 +313,7 @@ variable float  torch_off_timer;            /* arc off delay timer */
 variable bool   torch_pulse;                /* torch pulse flag */
 variable float  torch_pulse_timer;          /* torch pulse timer */
 variable float  velocity_scale;             /* the velocity multipler */
-variable float  zero_target;                /* zero height target offset */
+variable int    zero_target;                /* zero height target offset */
 
 /* DEBUGGING PINS */
 /* pin out s32     stop_type_out; */
@@ -380,7 +380,7 @@ FUNCTION(_) {
         offset_enable = TRUE;
         adaptive_feed = 1;
         initialized = TRUE;
-        probe_force_val = 0.126 * units_per_mm / offset_scale;
+        probe_force_val = 0.125 * units_per_mm / offset_scale;
     }
 
     /* output the current state */
@@ -693,7 +693,7 @@ FUNCTION(_) {
                     probe_force -= 21;
                     offset_counts -= probe_velocity;
                 }else{
-                    target_sensed = 0;
+                    target_sensed = FALSE;
                     if(float_switch || ohmic_detected){
                         state = PROBE_UP;
                     }else{
