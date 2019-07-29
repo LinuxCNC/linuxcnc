@@ -410,6 +410,9 @@ Pressing cancel will close linuxcnc.""" % target)
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
+        if "before_loop__" in dir(window.handler_instance):
+            log.debug('''Calling the handler file's before_loop__ function''')
+            window.handler_instance.before_loop__()
         # start loop
         self.app.exec_()
 

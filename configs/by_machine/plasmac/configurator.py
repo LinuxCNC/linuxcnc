@@ -398,7 +398,10 @@ class configurator:
                 outFile.write(line + '\n')
             elif ' '.join(line.split()).startswith('net plasmac:axis-position '):
                 outFile.write(\
-                    '# the next line needs to be the joint associated with the Z axis\n'\
+                    '#***** arc voltage lowpass cutoff frequency *****\n'\
+                    '#***** change to the cutoff frequency you require *****\n'\
+                    '#setp plasmac.lowpass-frequency 0\n\n'\
+                    '#***** the joint associated with the Z axis *****\n'\
                      + line + '\n')
             elif ' '.join(line.split()).startswith('net plasmac:arc-voltage-in '):
                 outFile.write(line)
@@ -595,9 +598,10 @@ class configurator:
                 'loadrt  debounce                cfg=3\n'\
                 'setp    debounce.0.delay        5\n'\
                 'addf    debounce.0              servo-thread\n\n'\
-                '#***** lowpass cutoff frequency ******\n'\
+                '#***** arc voltage lowpass cutoff frequency *****\n'\
+                '#***** change to the cutoff frequency you require *****\n'\
                 '#setp plasmac.lowpass-frequency 0\n\n'\
-                '# the next line needs to be the joint associated with the Z axis\n')
+                '#***** the joint associated with the Z axis *****\n')
             outFile.write('net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position\n\n'.format(self.zJoint))
             if self.arcVoltPin.get_text() and (self.mode == 0 or self.mode == 1):
                 outFile.write('net plasmac:arc-voltage-in {} => plasmac.arc-voltage-in\n'.format(self.arcVoltPin.get_text()))

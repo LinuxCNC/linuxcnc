@@ -31,6 +31,7 @@ ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 infile = sys.argv[1]
 materialFile = ini.find('EMC', 'MACHINE').lower() + '_material.cfg'
 materialsExist = True
+torch = True
 
 # comment out all Z commands
 def comment_out_z_commands():
@@ -59,10 +60,6 @@ def comment_out_z_commands():
             newz += '(' + bit
         else:
             newline += bit
-    if lastLineArc:
-        print 'm67e3q0'
-        lastLineArc = False
-        reduction = 0
     print('{} {}'.format(newline.rstrip(), newz))
 
 # get a list of known materials
@@ -108,14 +105,28 @@ if materialsExist:
         # if a commented line then print it
         if line.startswith(';') or line.startswith('('):
              print line.rstrip()
+        # if torch off, flag it then print it
+        elif line.startswith('m62p3') or line.startswith('m64p3'):
+            torch = False
+            print(line.rstrip())
+        # if torch on, flag it then print it
+        elif line.startswith('m63p3') or line.startswith('m65p3'):
+            torch = True
+            print(line.rstrip())
+        # if spindle off print it
+        elif line.startswith('m5'):
+            print(line.rstrip())
+            # if torch off, allow torch on 
+            if not torch:
+                print('m65p3')
         # if no Z in line then print it
         elif not 'z' in line:
             print(line.rstrip())
-        # if no other axes in line then print it
+        # if no other axes in line, comment it then print it
         elif 1 not in [c in line for c in 'xyabcuvw']:
-             print('({})'.format(line.rstrip()))
+            print('({})'.format(line.rstrip()))
         # mixed axes in line
         else:
             comment_z_commands()
 else:
-    print('M2')
+    print('m2')

@@ -420,7 +420,7 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
-|Off Delay|0,1,2|The delay from an M5 command until torch turns off.
+|Off Delay|0,1,2|The delay from an M5 command until torch turns off and the Z axis raises.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
@@ -663,9 +663,9 @@ THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'
 THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run tab/panel, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
 
 * 'M62 P2' will disable THC (synchronised with motion)
-* 'M63 P2' will enable THC(synchronised with motion)
+* 'M63 P2' will enable THC (synchronised with motion)
 * 'M64 P2' will disable THC (immediately)
-* 'M65 P2' will enable THC(immediately)
+* 'M65 P2' will enable THC (immediately)
 
 .Velocity Based THC
 
@@ -723,6 +723,52 @@ If your torch doesn't support ohmic probing you could have a separate probe next
 Probing setup is done in the Motion frame of the Config tab.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
+
+=== Hole Cutting
+
+It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
+
+It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts.
+
+There are two methods available for improving the quality of holes.
+
+.Method 1:
+
+One way of improving the finish of the exit from the hole is to turn the torch off then continue along the path of the hole for about 4mm (0.015").
+
+The torch can be turned off by setting the 'motion.digital-out-03' pin with the M-Codes M62 or M64. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes M63 or M65, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seing a 'M63 P3' or 'M65 P3'.
+
+* 'M62 P3' will turn the torch off (synchronised with motion)
+* 'M63 P3' will allow the torch to be turned on (synchronised with motion)
+* 'M64 P3' will turn the torch off (immediately)
+* 'M65 P3' will allow the torch to be turned on (immediately)
+
+Sample code:
+
+----
+G21 (metric)
+G64 P0.005
+M52 P1 (allow paused motion)
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
+G0 X10 Y10
+M3 S1 (start cut)
+G1 X0
+M67 E3 Q60 (reduce feed rate to 60%)
+G3 I10
+M62 P3 (turn torch off)
+G3 X0.8 Y6.081 I10
+M63 P3 (allow torch to be turned on)
+M67 E3 Q0 (restore feed rate to 100%)
+M5 (end cut)
+G0 X0 Y0
+M2 (end job)
+----
+
+.Method 2:
+
+Another way to improve the finish is to keep the torch on for a short time while all motion is stopped to allow the arc to catch up. This is achieved by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+
+NOTE: If both of these methods are active at the same time then the first method will take precedence.
 
 == Error Messages
 

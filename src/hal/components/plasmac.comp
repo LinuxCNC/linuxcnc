@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.58 - 24 Jul 2019
+.I VERSION: 0.64 - 28 Jul 2019
 
 .I SUMMARY:
 .br
@@ -219,6 +219,7 @@ pin in  float   thc_delay                   "delay from start of cut to THC enab
 pin in  float   thc_feed_rate               "maximum feed rate for thc (machine units per minute)";
 pin in  float   thc_threshold               "thc threshold (volts), changes below this have no effect";
 pin in  bit     torch_enable                "enable torch";
+pin in  bit     torch_off                   "turn torch off";
 pin in  float   torch_off_delay             "time delay to turn torch off (seconds)";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
@@ -259,61 +260,60 @@ variable float  axis_x_start;               /* axis x position at start of cut *
 variable float  axis_y_finish;              /* axis y position at end of cut */
 variable float  axis_y_start;               /* axis y position at start of cut */
 variable int    count;                      /* for counting */
-variable float  cut_height_first;           /* cut height at start of cut */
-variable float  cut_height_last;            /* cut height at end of cut */
+variable int    cut_height_first;           /* cut height at start of cut */
+variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
-variable float  cut_started;                /* cut has started */
-variable float  cut_target;                 /* cut height target offset */
+variable bool   cut_started;                /* cut has started */
+variable int    cut_target;                 /* cut height target offset */
 variable bool   error_message;              /* 1 if error message has been sent */
 variable bool   first_cut_finished;         /* first cut is complete */
 variable bool   float_detected;             /* float switch detected */
-variable float  height_ovr_counts;          /* number of counts to change height via override */
+variable int    height_ovr_counts;          /* number of counts to change height via override */
 variable float  height_ovr_old;             /* old height override value */
 variable bool   initialized;                /* initialization flag */
 variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
 variable float  kerf_threshold;             /* kerf crossing threshold voltage */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
-variable float  offset_datum;               /* datum for safe height calcs */
-variable float  offset_min;                 /* minimum allowed offset */
-variable float  offset_max;                 /* maximum allowed offset */
-variable float  ohmic_attempts;             /* current ohmic probe attempts */
+variable int    offset_datum;               /* datum for safe height calcs */
+variable int    offset_min;                 /* minimum allowed offset */
+variable int    offset_max;                 /* maximum allowed offset */
+variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
-variable float  setup_velocity;             /* velocity for setup moves */
+variable int    setup_velocity;             /* velocity for setup moves */
 variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
 variable float  pid_error_now;              /* current error for pid calcs */
 variable float  pid_error_old;              /* old error for pid calcs */
 variable float  pid_output;                 /* calculated pid output value */
 variable float  pierce_timer;               /* pierce delay timer */
-variable float  pierce_target;              /* pierce height target offset */
-variable float  probe_force;                /* extra movement of probe after first contact */
-variable float  probe_force_val;            /* distance for probe_force */
+variable int    pierce_target;              /* pierce height target offset */
+variable int    probe_force;                /* extra movement of probe after first contact */
+variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
-variable float  probe_offset;               /* offset for active probe */
-variable float  probe_required = 1;         /* a probe sequence is required */
+variable int    probe_offset;               /* offset for active probe */
+variable bool   probe_required = 1;         /* a probe sequence is required */
 variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
-variable float  probe_velocity;             /* probe down velocity */
-variable float  puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
-variable float  puddle_jump_target;         /* puddle jump height target offset */
+variable int    probe_velocity;             /* probe down velocity */
+variable int    puddle_jump_percent;        /* puddle jump height as percentage of pierce height */
+variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  requested_feed_rate;        /* requested feed rate */
 variable float  restart_timer;              /* time between torch on attempts*/
-variable float  safe_min;                   /* minimum safe height allowed */
-variable float  safe_preferred;             /* preferred safe height offset */
-variable float  safe_target;                /* safe height target offset */
-variable float  target_sensed;              /* sensed top of stock */
+variable int    safe_min;                   /* minimum safe height allowed */
+variable int    safe_preferred;             /* preferred safe height offset */
+variable int    safe_target;                /* safe height target offset */
+variable bool   target_sensed;              /* sensed top of stock */
 variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
 variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
-variable float  tolerance;                  /* tolerance when comparing axis z height */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable bool   torch_pulse;                /* torch pulse flag */
 variable float  torch_pulse_timer;          /* torch pulse timer */
 variable float  velocity_scale;             /* the velocity multipler */
-variable float  zero_target;                /* zero height target offset */
+variable int    zero_target;                /* zero height target offset */
 
 /* DEBUGGING PINS */
 /* pin out s32     stop_type_out; */
@@ -377,11 +377,10 @@ FUNCTION(_) {
     if(!initialized && units_per_mm){
         offset_scale = units_per_mm * fperiod;
         velocity_scale = 1 / units_per_mm / 60;
-        tolerance = 0.001 * units_per_mm;
         offset_enable = TRUE;
         adaptive_feed = 1;
         initialized = TRUE;
-        probe_force_val = 0.126 * units_per_mm / offset_scale;
+        probe_force_val = 0.125 * units_per_mm / offset_scale;
     }
 
     /* output the current state */
@@ -410,6 +409,11 @@ FUNCTION(_) {
             torch_on = FALSE;
             torch_off_timer = 0;
         }
+    }
+
+    /* turn torch off from external input */
+    if(torch_off){
+        torch_on = FALSE;
     }
 
     /* set THC state*/
@@ -488,7 +492,7 @@ FUNCTION(_) {
                                           "program is paused.");
             probe_inhibit = TRUE;
             state = MAX_HEIGHT;
-        }else if(state > ARC_OK && !arc_ok_out && torch_enable){ ;
+        }else if(state > ARC_OK && !arc_ok_out && torch_enable && !torch_off){ ;
             torch_on = FALSE;
             program_pause = TRUE;
             stop_type = PAUSE;
@@ -663,7 +667,9 @@ FUNCTION(_) {
                 }
             }else if(offset_counts - setup_velocity > probe_start_target){
                 offset_counts -= setup_velocity;
-            }else if(offset_counts > probe_start_target){
+            }else if(offset_counts + setup_velocity < probe_start_target){
+                offset_counts += setup_velocity;
+            }else if(offset_counts > probe_start_target || offset_counts < probe_start_target){
                 offset_counts = probe_start_target;
             }else{
                 if(float_detected){
@@ -687,7 +693,7 @@ FUNCTION(_) {
                     probe_force -= 21;
                     offset_counts -= probe_velocity;
                 }else{
-                    target_sensed = 0;
+                    target_sensed = FALSE;
                     if(float_switch || ohmic_detected){
                         state = PROBE_UP;
                     }else{
@@ -906,16 +912,19 @@ FUNCTION(_) {
                 offset_counts += setup_velocity;
             }else{
                 offset_counts = cut_target;
-                count = 0;
-                /* set feed rate for this cut */
-                if(cut_feed_rate > 0){
-                    requested_feed_rate = cut_feed_rate;
-                }else{
-                    requested_feed_rate = requested_velocity;
+                if((int)floor(offset_current / offset_scale) <= cut_target + 1 && 
+                   (int)floor(offset_current / offset_scale) >= cut_target - 1){
+                    count = 0;
+                    /* set feed rate for this cut */
+                    if(cut_feed_rate > 0){
+                        requested_feed_rate = cut_feed_rate;
+                    }else{
+                        requested_feed_rate = requested_velocity;
+                    }
+                    feed_hold = FALSE;
+                    thc_delay_timer = thc_delay;
+                    state = CUTTING;
                 }
-                feed_hold = FALSE;
-                thc_delay_timer = thc_delay;
-                state = CUTTING;
             }
             break;
         case CUTTING:
@@ -924,7 +933,8 @@ FUNCTION(_) {
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
              * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
              * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
-            if(torch_enable){
+            if(torch_on){
+//            if(torch_enable){
                 /* thc control by arc voltage */
                 if(mode < 2){
                     thc_delay_timer -= fperiod;
@@ -1104,21 +1114,23 @@ FUNCTION(_) {
         case SAFE_HEIGHT:
             /* move to safe height */
             feed_hold = TRUE;
-            cornerlock_is_locked = FALSE;
-            if(!probe_test){
-                if(offset_counts - setup_velocity > safe_target){
-                    offset_counts -= setup_velocity;
-                }else if(offset_counts + setup_velocity < safe_target){
-                    offset_counts += setup_velocity;
-                }else{
-                    offset_counts = safe_target;
-                    if(stop_type == WAIT){
-                        feed_hold = FALSE;
+            if(!torch_off_timer || !torch_on){
+                cornerlock_is_locked = FALSE;
+                if(!probe_test){
+                    if(offset_counts - setup_velocity > safe_target){
+                        offset_counts -= setup_velocity;
+                    }else if(offset_counts + setup_velocity < safe_target){
+                        offset_counts += setup_velocity;
+                    }else{
+                        offset_counts = safe_target;
+                        if(stop_type == WAIT){
+                            feed_hold = FALSE;
+                        }
+                        first_cut_finished = TRUE;
+                        /* do height override here for for remainder of job */
+                        height_ovr_old = 0;
+                        state = FINISH;
                     }
-                    first_cut_finished = TRUE;
-                    /* do height override here for for remainder of job */
-                    height_ovr_old = 0;
-                    state = FINISH;
                 }
             }
             break;
