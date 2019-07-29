@@ -60,10 +60,6 @@ def comment_out_z_commands():
             newz += '(' + bit
         else:
             newline += bit
-    if lastLineArc:
-        print 'm67e3q0'
-        lastLineArc = False
-        reduction = 0
     print('{} {}'.format(newline.rstrip(), newz))
 
 # get a list of known materials
