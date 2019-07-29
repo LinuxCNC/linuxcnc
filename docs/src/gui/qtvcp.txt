@@ -552,15 +552,19 @@ in the handler file instead.
 ==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
 This function is called to facilitate keyboard jogging etc. +
 By using the keybindings library this can be used to easily add +
-functions bound to keypresses.+
+functions bound to keypresses. +
 
 ==== keypress_event__(self,receiver, event)):
 This function gives raw key press events. It takes presidence over +
 the processed_key_event. +
  
-==== keyrelease_event__(receiver, event)
+==== keyrelease_event__(receiver, event):
 This function gives raw key release events. It takes presidence over +
 the processed_key_event. +
+
+==== before_loop__(self):
+This function is called just before the Qt event loop is entered. +
+At the point all widgets/libraries/initialization code has completed and the screen is already displayed. +
 
 ==== closing_cleanup__(self):
 This function is called just before the screen closes. It can be used +
