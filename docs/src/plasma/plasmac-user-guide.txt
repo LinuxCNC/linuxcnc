@@ -667,6 +667,8 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 * 'M64 P2' will disable THC (immediately)
 * 'M65 P2' will enable THC (immediately)
 
+[[velocity_thc]]
+
 .Velocity Based THC
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
@@ -724,19 +726,50 @@ Probing setup is done in the Motion frame of the Config tab.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
-=== Hole Cutting
+=== Hole Cutting - Intro
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts.
+It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
-There are two methods available for improving the quality of holes.
+PlasmaC can utilise GCode commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you don't have a PP or your PP doesn't support these methods then PlasmaC can automatically adapt the GCode to suit. This automatic mode is disabled by default.
 
-.Method 1:
+There are three methods available for improving the quality of small holes.
 
-One way of improving the finish of the exit from the hole is to turn the torch off then continue along the path of the hole for about 4mm (0.015").
+.Velocity Reduction
 
-The torch can be turned off by setting the 'motion.digital-out-03' pin with the M-Codes M62 or M64. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes M63 or M65, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seing a 'M63 P3' or 'M65 P3'.
+Reduce the velocity to approximately 60% of the 'CutFeedRate'.
+
+.Arc Dwell:
+
+Keep the torch on for a short time while all motion is stopped to allow the arc to catch up.
+
+.Overcut:
+
+Turn the torch off at the end of the hole then continue along the path of the hole for about 4mm (0.015").
+
+NOTE: If both 'Arc Dwell' and 'Overcut' are active at the same time then 'Overcut' will take precedence.
+
+
+=== Hole Cutting - GCode Commands
+
+Your GCode commands are set up either by a CAM Post Processor (PP) or by hand coding.
+
+.Velocity Reduction
+
+If a hole requires a reduced velocity then set the velocity with 'M67 E3 Q60' which would set the velocity to 60% of 'CutFeedRate'.
+
+See the <<velocity_thc,Velocity Based THC>> section.
+
+.Arc Dwell:
+
+Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+
+.Overcut:
+
+The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes M62 or M64. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes M63 or M65, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
+
+After the torch is turned of the hole path should be followed for approximately 4mm (0.15")
 
 * 'M62 P3' will turn the torch off (synchronised with motion)
 * 'M63 P3' will allow the torch to be turned on (synchronised with motion)
@@ -754,9 +787,9 @@ G0 X10 Y10
 M3 S1 (start cut)
 G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
-G3 I10
+G3 I10 (the hole)
 M62 P3 (turn torch off)
-G3 X0.8 Y6.081 I10
+G3 X0.8 Y6.081 I10 (continue motion for 4mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
 M5 (end cut)
@@ -764,11 +797,71 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-.Method 2:
+=== Hole Cutting - Automatic
 
-Another way to improve the finish is to keep the torch on for a short time while all motion is stopped to allow the arc to catch up. This is achieved by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+PlasmaC has the ability to automatically modify the GCode to reduce the velocity and/or apply 'Overcut'.
 
-NOTE: If both of these methods are active at the same time then the first method will take precedence.
+The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following commands:
+
+* #<m_diameter> = nn - To set a diameter in metric measurments
+
+* #<i_diameter> = nn - To set a diameter in imperial measurements
+
+PlasmaC hole sensing is enabled/disabled by setting the following GCode parameter. It is disabled by default.
+
+* #<holes> = 0 - Disables hole sensing.
+
+* #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of 'CutFeedRate'.
+
+* #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path for a further 4mm (0.015").
+
+.Arc Dwell:
+
+Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+
+Use #<holes> = 1 to allow velocity reduction.
+
+Sample code:
+
+----
+G21 (metric)
+G64 P0.005
+M52 P1 (allow paused motion)
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
+#<holes> = 1 (velocity reduction for holes)
+G0 X10 Y10
+M3 S1 (start cut)
+G1 X0
+G3 I10
+M5 (end cut)
+G0 X0 Y0
+M2 (end job)
+----
+
+.Overcut:
+
+Use #<holes> = 2 to allow velocity reduction and overcut.
+
+Sample code:
+
+----
+G21 (metric)
+G64 P0.005
+M52 P1 (allow paused motion)
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
+#<holes> = 2 (Overcut for holes)
+G0 X10 Y10
+M3 S1 (start cut)
+G1 X0
+G3 I10
+M5 (end cut)
+G0 X0 Y0
+M2 (end job)
+----
+
+NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
+
+NOTE: It is OK to have multiple and mixed #<holes> commands in a GCode file.
 
 == Error Messages
 
