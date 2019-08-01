@@ -76,6 +76,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.use_pref_file = True
         self.process_tabs = True
         self.add_message_dialog = True
+        self.add_close_dialog = True
         self.add_entry_dialog = False
         self.add_tool_dialog = False
         self.add_file_dialog = False
@@ -91,6 +92,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._default_tab_name = ''
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
@@ -108,6 +110,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.add_message_dialog:
             self.init_message_dialog()
+
+        if self.add_close_dialog:
+            self.init_close_dialog()
 
         if self.add_entry_dialog:
             self.init_entry_dialog()
@@ -173,7 +178,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.connect('error', self.process_error)
 
         if self.close_event:
-            self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
+            self.QTVCP_INSTANCE_.closeEvent = self. closeEvent
 
         if self.play_sounds:
             try:
@@ -250,20 +255,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             sound = None
             if self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.messageDialog_.showdialog(self.shutdown_msg_title,
+            answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
-                                                                 details=self.shutdown_msg_detail,
+                                                                 details=None,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type=MSG.YN_TYPE,
-                                                                 focus_text='Shutdown Requested!',
+                                                                 focus_text='Close Linuxcnc?',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
-            if not answer:
+            if answer == QtWidgets.QMessageBox.Yes:
+                if self.play_sounds and self.play_shutdown_sounds:
+                    STATUS.emit('play-sound', self.shutdown_exit_sound_type)
+                    event.accept()
+            elif answer == QtWidgets.QMessageBox.No:
                 event.ignore()
                 return
-            if self.play_sounds and self.play_shutdown_sounds:
-                STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-            event.accept()
+            elif answer == 0:
+                from qtvcp.core import Action
+                ACTION = Action()
+                ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+                event.accept()
 
         # [0] = tool number
         # [1] = pocket number
@@ -327,6 +338,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.messageDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.messageDialog_, w, w.PATHS, self.PREFS_)
         w.messageDialog_.overlay_color = self._messageDialogColor
+
+    def init_close_dialog(self):
+        from qtvcp.widgets.dialog_widget import CloseDialog
+        w = self.QTVCP_INSTANCE_
+        w.closeDialog_ = CloseDialog()
+        w.closeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.closeDialog_, w, w.PATHS, self.PREFS_)
+        w.closeDialog_.overlay_color = self._messageDialogColor
 
     def init_entry_dialog(self):
         from qtvcp.widgets.dialog_widget import EntryDialog
@@ -507,6 +526,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_messageDialogColor(self, value):
         self._messageDialogColor = value
     message_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_messageDialogColor, set_messageDialogColor)
+
+    def set_closeDialog(self, data):
+        self.add_close_dialog = data
+    def get_closeDialog(self):
+        return self.add_close_dialog
+    def reset_closeDialog(self):
+        self.add_close_dialog = False
+    closeDialog_option = QtCore.pyqtProperty(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
+    def get_closeDialogColor(self):
+        return self._closeDialogColor
+    def set_closeDialogColor(self, value):
+        self._closeDialogColor = value
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_closeDialogColor, set_closeDialogColor)
 
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
