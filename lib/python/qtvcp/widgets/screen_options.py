@@ -178,7 +178,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.connect('error', self.process_error)
 
         if self.close_event:
-            self.QTVCP_INSTANCE_.closeEvent = self. closeEvent
+            self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
 
         if self.play_sounds:
             try:
