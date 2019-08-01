@@ -69,7 +69,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
-        conversion = {2:"X", 4:"Y", 6:"Z", 8:"A", 9:"B", 10:"C", 11:"U", 12:"V", 13:"W"}
+        conversion = {4:"Y", 5:'Y', 6:"Z", 7:'Z', 8:"A", 9:"B", 10:"C", 11:"U", 12:"V", 13:"W"}
         for num, let in conversion.iteritems():
             if let in (INFO.AVAILABLE_AXES):
                 continue

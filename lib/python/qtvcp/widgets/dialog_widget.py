@@ -151,10 +151,13 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
         LOG.debug("Value of pressed button: {}".format(retval))
-        if retval == QMessageBox.No:
-            return False
+        if display_type == self.OK_TYPE:
+            if retval == QMessageBox.No:
+                return False
+            else:
+                return True
         else:
-            return True
+            return retval
 
     def showEvent(self, event):
         geom = self.frameGeometry()
@@ -191,6 +194,13 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
     overlay_color = pyqtProperty(QColor, getColor, setColor)
     state = pyqtProperty(bool, getState, setState, resetState)
 
+################################################################################
+# Close Dialog
+################################################################################
+class CloseDialog(LcncDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(CloseDialog, self).__init__(parent)
+        self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
 
 ################################################################################
 # Tool Change Dialog
