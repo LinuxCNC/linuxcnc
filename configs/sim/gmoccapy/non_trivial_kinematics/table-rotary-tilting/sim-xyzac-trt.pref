@@ -73,4 +73,6 @@ reload_tool = True
 tool_in_spindle = 0
 blockheight = 0.0
 use_toolmeasurement = False
+offset_axis_c = 5.0
+offset_axis_a = 0
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="adj_dro_digits">
     <property name="lower">1</property>
@@ -150,12 +150,6 @@
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
-  </object>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
@@ -462,6 +456,12 @@
       </row>
     </data>
   </object>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
+  </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
     <property name="height_request">750</property>
@@ -612,7 +612,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">clear plot</property>
-                                            <property name="use_action_appearance">False</property>
                                             <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_tool_clear">
@@ -637,7 +636,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Zoom in</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="image">img_zoom_in</property>
                                             <signal name="clicked" handler="on_btn_zoom_in_clicked" swapped="no"/>
                                           </object>
@@ -656,7 +654,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Zoom out</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="image">img_zoom_out</property>
                                             <signal name="clicked" handler="on_btn_zoom_out_clicked" swapped="no"/>
                                           </object>
@@ -675,7 +672,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view perspective</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">False</property>
                                             <signal name="toggled" handler="on_rbt_view_p_toggled" swapped="no"/>
@@ -700,7 +696,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the X axis from positive to negative</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_x_toggled" swapped="no"/>
@@ -727,7 +722,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Y axis from positive to negative</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y_toggled" swapped="no"/>
@@ -754,7 +748,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Z axis from positive to negative</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
@@ -783,7 +776,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide tool path</property>
-                                            <property name="use_action_appearance">False</property>
                                             <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="imimg_toll_path">
@@ -808,7 +800,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide dimensions</property>
-                                            <property name="use_action_appearance">False</property>
                                             <signal name="toggled" handler="on_tbtn_view_dimension_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_dimensions">
@@ -833,7 +824,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Y axis from positive to negative as viewn for a back tool lathe</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
@@ -1009,6 +999,96 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1069,7 +1149,6 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
-                                                        <property name="use_action_appearance">False</property>
                                                         <signal name="toggled" handler="on_tbtn_turtle_jog_toggled" swapped="no"/>
                                                         <child>
                                                           <object class="GtkImage" id="img_rabbit_jog">
@@ -1137,6 +1216,186 @@
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             <child>
                                                             <placeholder/>
                                                             </child>
@@ -1282,6 +1541,186 @@
                                                             <child>
                                                             <placeholder/>
                                                             </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="position">1</property>
@@ -1333,7 +1772,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <property name="draw_indicator">True</property>
                                                             <signal name="toggled" handler="on_chk_ignore_limits_toggled" swapped="no"/>
                                                           </object>
@@ -1923,7 +2361,6 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
-                                                        <property name="use_action_appearance">False</property>
                                                         <property name="image">img_coolant_off</property>
                                                         <signal name="toggled" handler="on_tbtn_flood_toggled" swapped="no"/>
                                                       </object>
@@ -1939,7 +2376,6 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">True</property>
-                                                        <property name="use_action_appearance">False</property>
                                                         <property name="image">img_mist_off</property>
                                                         <signal name="toggled" handler="on_tbtn_mist_toggled" swapped="no"/>
                                                       </object>
@@ -2055,7 +2491,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <signal name="clicked" handler="on_btn_spindle_100_clicked" swapped="no"/>
                                                             </object>
                                                             <packing>
@@ -2113,7 +2548,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <property name="draw_indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_reverse_clicked" swapped="no"/>
@@ -2139,7 +2573,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <property name="draw_indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_forward_clicked" swapped="no"/>
@@ -2167,7 +2600,6 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <property name="active">True</property>
                                                             <property name="draw_indicator">False</property>
                                                             <signal name="clicked" handler="on_rbt_stop_clicked" swapped="no"/>
@@ -2499,7 +2931,6 @@
                                                             <property name="has_tooltip">True</property>
                                                             <property name="tooltip_markup">reset feed override to 100 %</property>
                                                             <property name="tooltip_text" translatable="yes">reset feed override to 100 %</property>
-                                                            <property name="use_action_appearance">False</property>
                                                             <signal name="clicked" handler="on_btn_feed_100_clicked" swapped="no"/>
                                                           </object>
                                                           <packing>
@@ -2632,7 +3063,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_btn_undo_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -2648,7 +3078,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_btn_search_back_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -2666,7 +3095,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_btn_search_forward_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -2683,7 +3111,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_btn_redo_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -2732,7 +3159,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                               <packing>
@@ -2747,7 +3173,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                               </object>
@@ -2773,7 +3198,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_btn_replace_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -2911,7 +3335,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_rbtn_fullscreen_toggled" swapped="no"/>
@@ -2928,7 +3351,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbtn_fullscreen</property>
                                             <signal name="toggled" handler="on_rbtn_maximized_toggled" swapped="no"/>
@@ -2945,7 +3367,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbtn_fullscreen</property>
                                             <signal name="toggled" handler="on_rbtn_window_toggled" swapped="no"/>
@@ -3127,7 +3548,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_hide_cursor_toggled" swapped="no"/>
                                           </object>
@@ -3180,7 +3600,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_use_kb_on_offset_toggled" swapped="no"/>
@@ -3197,7 +3616,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_use_kb_on_tooledit_toggled" swapped="no"/>
@@ -3214,7 +3632,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled" swapped="no"/>
@@ -3231,7 +3648,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_use_kb_on_edit_toggled" swapped="no"/>
@@ -3248,7 +3664,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_use_kb_on_file_selection_toggled" swapped="no"/>
                                           </object>
@@ -3301,7 +3716,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_rbtn_show_preview_toggled" swapped="no"/>
@@ -3318,7 +3732,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbtn_show_preview</property>
                                           </object>
@@ -3381,6 +3794,18 @@
                                         <property name="n_columns">2</property>
                                         <property name="row_spacing">3</property>
                                         <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
                                           <object class="GtkLabel" id="lbl_rel_color">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
@@ -3398,7 +3823,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="color">#000000000000</property>
                                             <signal name="color-set" handler="on_rel_colorbutton_color_set" swapped="no"/>
                                           </object>
@@ -3429,7 +3853,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="color">#00000000ffff</property>
                                             <signal name="color-set" handler="on_abs_colorbutton_color_set" swapped="no"/>
                                           </object>
@@ -3462,7 +3885,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="color">#ffffffff0000</property>
                                             <signal name="color-set" handler="on_dtg_colorbutton_color_set" swapped="no"/>
                                           </object>
@@ -3521,7 +3943,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="color">#0000ffff0000</property>
                                             <signal name="color-set" handler="on_homed_colorbtn_color_set" swapped="no"/>
                                           </object>
@@ -3539,7 +3960,6 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="color">#ffff00000000</property>
                                             <signal name="color-set" handler="on_unhomed_colorbtn_color_set" swapped="no"/>
                                           </object>
@@ -3666,7 +4086,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_toggle_readout_toggled" swapped="no"/>
@@ -3679,18 +4098,6 @@ clicking on the DRO</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="x_padding">5</property>
                                           </packing>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
-                                        </child>
-                                        <child>
-                                          <placeholder/>
                                         </child>
                                       </object>
                                     </child>
@@ -3778,7 +4185,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_show_dro_toggled" swapped="no"/>
                                           </object>
@@ -3794,7 +4200,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_show_offsets_toggled" swapped="no"/>
                                           </object>
@@ -3810,7 +4215,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="xalign">1</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_show_dtg_toggled" swapped="no"/>
@@ -3942,7 +4346,6 @@ clicking on the DRO</property>
                                                 <property name="sensitive">False</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <signal name="clicked" handler="on_btn_use_current_clicked" swapped="no"/>
                                               </object>
                                               <packing>
@@ -3958,7 +4361,6 @@ clicking on the DRO</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <signal name="clicked" handler="on_btn_none_clicked" swapped="no"/>
                                               </object>
                                               <packing>
@@ -4410,7 +4812,6 @@ clicking on the DRO</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="draw_indicator">True</property>
                                         <signal name="toggled" handler="on_chk_use_kb_shortcuts_toggled" swapped="no"/>
                                       </object>
@@ -4455,7 +4856,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_rbt_unlock_toggled" swapped="no"/>
@@ -4472,7 +4872,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbt_use_unlock</property>
                                             <signal name="toggled" handler="on_rbt_unlock_toggled" swapped="no"/>
@@ -4489,7 +4888,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbt_use_unlock</property>
                                             <signal name="toggled" handler="on_rbt_unlock_toggled" swapped="no"/>
@@ -4694,7 +5092,6 @@ clicking on the DRO</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="draw_indicator">True</property>
                                             <signal name="toggled" handler="on_chk_turtle_jog_toggled" swapped="no"/>
                                           </object>
@@ -4857,7 +5254,6 @@ clicking on the DRO</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_chk_use_tool_measurement_toggled" swapped="no"/>
                                               </object>
@@ -5237,7 +5633,6 @@ and the last tool will be reloaded
 at start of the GUI. Also it's 
 length offset will be reloaded.
 </property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="active">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_chk_reload_tool_toggled" swapped="no"/>
@@ -5320,7 +5715,6 @@ is not possible.</property>
                                                 <property name="receives_default">False</property>
                                                 <property name="tooltip_text" translatable="yes">If checked, the messages
 will be in a frame.</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_chk_use_frames_toggled" swapped="no"/>
                                               </object>
@@ -5382,7 +5776,6 @@ will be in a frame.</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="tooltip_text" translatable="yes">The font to use</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="font_name">Sans 10</property>
                                                 <signal name="font-set" handler="on_fontbutton_popup_font_set" swapped="no"/>
                                               </object>
@@ -5526,7 +5919,6 @@ will be in a frame.</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="tooltip_text" translatable="yes">Push here to launch a test message
 to test your settings.</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <signal name="pressed" handler="on_btn_launch_test_message_pressed" swapped="no"/>
                                               </object>
                                               <packing>
@@ -5595,7 +5987,6 @@ feeds and cooling, etc.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="active">True</property>
                                                 <property name="draw_indicator">True</property>
                                                 <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
@@ -5612,7 +6003,6 @@ feeds and cooling, etc.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
                                                 <property name="draw_indicator">True</property>
                                                 <property name="group">rbtn_no_run_from_line</property>
                                                 <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
@@ -5767,7 +6157,6 @@ feeds and cooling, etc.</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Estop the machine
 [F1]</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_estop_toggled" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_emergency">
@@ -5792,7 +6181,6 @@ feeds and cooling, etc.</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Turn the machine on/off
 [F2]</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_on_toggled" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_machine_off">
@@ -5817,7 +6205,6 @@ feeds and cooling, etc.</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">enter manual mode to jog axis by hand or touch off
 [F3]</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_manual</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">False</property>
@@ -5839,7 +6226,6 @@ feeds and cooling, etc.</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands
 [F5]</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
@@ -5859,7 +6245,6 @@ feeds and cooling, etc.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">enter auto mode to run programs</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_auto</property>
                     <property name="draw_indicator">False</property>
                     <signal name="pressed" handler="on_rbt_auto_pressed" swapped="no"/>
@@ -5878,7 +6263,6 @@ feeds and cooling, etc.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Enter the settings page, the default code is "123"</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_setup_toggled" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_settings">
@@ -5902,7 +6286,6 @@ feeds and cooling, etc.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">show user tabs</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_user_tabs</property>
                     <signal name="toggled" handler="on_tbtn_user_tabs_toggled" swapped="no"/>
                   </object>
@@ -5960,7 +6343,6 @@ Date</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open homing button list</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_ref_all</property>
                     <signal name="clicked" handler="on_btn_homing_clicked" swapped="no"/>
                   </object>
@@ -5978,7 +6360,6 @@ Date</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open touch off button list</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_touch_off</property>
                     <signal name="clicked" handler="on_btn_touch_clicked" swapped="no"/>
                   </object>
@@ -6009,7 +6390,6 @@ Date</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Open the tooleditor page</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_tool_clicked" swapped="no"/>
                     <child>
@@ -6063,7 +6443,6 @@ Mode</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Switch motion mode between Joint and World mode
 F12 or $ key does the same</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_switch_mode_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -6106,7 +6485,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">make the preview as large as possible</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_fullsize_preview</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
@@ -6124,7 +6502,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Close moccapy / leave the program</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_close</property>
                     <signal name="clicked" handler="on_btn_exit_clicked" swapped="no"/>
                   </object>
@@ -6213,7 +6590,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Load a new program</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_open</property>
                     <signal name="clicked" handler="on_btn_load_clicked" swapped="no"/>
                   </object>
@@ -6231,7 +6607,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Run the loaded program</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_run</property>
                     <signal name="clicked" handler="on_btn_run_clicked" swapped="no"/>
                   </object>
@@ -6243,13 +6618,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_stop">
+                    <property name="related_action">hal_action_stop</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Stop the running program</property>
-                    <property name="related_action">hal_action_stop</property>
                     <property name="image">img_stop</property>
                     <signal name="clicked" handler="on_btn_stop_clicked" swapped="no"/>
                   </object>
@@ -6261,13 +6636,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_pause">
+                    <property name="related_action">hal_tgl_pause</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Pause the running program</property>
-                    <property name="related_action">hal_tgl_pause</property>
                     <signal name="toggled" handler="on_tbtn_pause_toggled" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_pause">
@@ -6288,13 +6663,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_step">
+                    <property name="related_action">hal_action_step</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Run the  loaded program step by step</property>
-                    <property name="related_action">hal_action_step</property>
                     <property name="image">img_step</property>
                   </object>
                   <packing>
@@ -6311,7 +6686,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checed!</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_run_from</property>
                     <signal name="clicked" handler="on_btn_from_line_clicked" swapped="no"/>
                   </object>
@@ -6329,7 +6703,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Machine or not the optional blocks of the program. If the button is pressed, the optional blocks will not be machined. The button will indicate this by a yellow background.</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_optional_blocks_toggled" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_optional_blocks">
@@ -6356,7 +6729,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Make optional stops or not. if an M1 is programed and the button is pressed (is active) the programm will pause if it found a M1</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="toggled" handler="on_tbtn_optional_stops_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -6372,7 +6744,6 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_fullsize_preview1</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
@@ -6390,7 +6761,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Edit the loaded program</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_editor</property>
                     <signal name="clicked" handler="on_btn_edit_clicked" swapped="no"/>
                   </object>
@@ -6540,7 +6910,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">delete MDI history</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_delete_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6600,7 +6969,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Open classicladder</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_classicladder_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6618,7 +6986,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch hal scope</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_hal_scope_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6636,7 +7003,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch linuxcnc status</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_status_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6654,7 +7020,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch hal meter</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="xalign">0.51999998092651367</property>
                     <signal name="clicked" handler="on_btn_hal_meter_clicked" swapped="no"/>
                   </object>
@@ -6673,7 +7038,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch calibration</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_calibration_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6691,7 +7055,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">opens the show hal tool</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_show_hal_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6723,10 +7086,10 @@ F12 or $ key does the same</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_reload">
+                    <property name="related_action">hal_action_reload</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">hal_action_reload</property>
                     <property name="use_underline">True</property>
                     <child>
                       <object class="GtkImage" id="img_reload">
@@ -6757,11 +7120,11 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save">
+                    <property name="related_action">hal_action_save</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">save the file using the original name</property>
-                    <property name="related_action">hal_action_save</property>
                     <child>
                       <object class="GtkImage" id="img_save">
                         <property name="visible">True</property>
@@ -6778,13 +7141,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_save_as">
+                    <property name="related_action">hal_action_saveas</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">save the file with a new name</property>
-                    <property name="related_action">hal_action_saveas</property>
                     <child>
                       <object class="GtkImage" id="img_save_as">
                         <property name="visible">True</property>
@@ -6833,7 +7196,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">clear the edit field and make a new file</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_new_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_new">
@@ -6872,7 +7234,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_keyboard2">
@@ -6898,7 +7259,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_back_zero</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
@@ -6937,7 +7297,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">delete selected tool or tools</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_delete_tool_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6955,7 +7314,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">add a new tool to tool table</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_add_tool_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6973,7 +7331,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">reload tool table from file</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_reload_tooltable_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6991,7 +7348,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be excecuted only if it is active g-code</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_apply_tool_changes_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7008,7 +7364,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select a tool by number</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_select_tool_by_no_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_tool_by_no">
@@ -7032,7 +7387,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">change tool with the command M61 Q?, no machine move will be done</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_selected_tool_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_index_tool">
@@ -7056,7 +7410,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">change tool to the selected one</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_toolchange</property>
                     <signal name="clicked" handler="on_btn_selected_tool_clicked" swapped="no"/>
                   </object>
@@ -7077,7 +7430,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">touch off the tool and set the value to the tool table</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_tool_touchoff_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7110,7 +7462,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">touch off the tool and set the value to the tool table</property>
-                    <property name="use_action_appearance">False</property>
                     <signal name="clicked" handler="on_btn_tool_touchoff_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7127,7 +7478,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_back_tool</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
@@ -7166,7 +7516,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Move to your home directory</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_home</property>
                     <signal name="clicked" handler="on_btn_home_clicked" swapped="no"/>
                   </object>
@@ -7184,7 +7533,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Move to parrent directory</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked" swapped="no"/>
                   </object>
@@ -7215,7 +7563,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select the previos file</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked" swapped="no"/>
@@ -7234,7 +7581,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select the next file</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_sel_next</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_next_clicked" swapped="no"/>
@@ -7253,7 +7599,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Jump to user defined directory</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_jump_to</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_jump_to_clicked" swapped="no"/>
@@ -7285,7 +7630,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">select the highlighted file and return the path</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_select</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_select_clicked" swapped="no"/>
@@ -7317,7 +7661,6 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Close without returning a file path</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="image">img_back_file_load</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>

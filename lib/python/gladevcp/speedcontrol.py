@@ -81,7 +81,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         'increment' : (gobject.TYPE_FLOAT, 'Increment Value', 'The increment value to apply, -1 means 100 steps from max to min',
                     -1.0, 99999.0, -1.0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'inc_speed'  : ( gobject.TYPE_INT, 'The speed of the increments', 'Set the timer delay for the increment speed',
-                    20, 300, 100, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                    20, 300, 50, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'unit' : ( gobject.TYPE_STRING, 'unit', 'Sets the unit to be shown in the bar after the value',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'color' : (gtk.gdk.Color.__gtype__, 'color', 'Sets the color of the bar',
