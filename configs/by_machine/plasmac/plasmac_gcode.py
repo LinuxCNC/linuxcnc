@@ -210,34 +210,45 @@ for line in f:
                   '*** Material #{}\n'
                   'Error in line #{}: {}\n'
                   .format(materialFile, material, count, line))
-    # if unsupported distance mode
-    if 'g91' in line and not 'g91.1' in line:
-        codeError = True
-        print('*** PlasmaC GCode parser only\n'
-              '*** supports Distance Mode G90\n'
-              'Error in line #{}: {}\n'
-              .format(count, line))
-    # if unsupported arc distance mode
-    if 'g90.1' in line:
-        codeError = True
-        print('*** PlasmaC GCode parser only\n'
-              '*** supports Arc Distance Mode G91.1\n'
-              'Error in line #{}: {}\n'
-              .format(count, line))
-    if 'x' in line: check_math('x')
-    if 'y' in line: check_math('y')
-    if 'i' in line: check_math('i')
-    if 'j' in line: check_math('j')
+    # set units
     if 'g21' in line:
         scale, precision = metric
     elif 'g20' in line:
         scale, precision = imperial
-    if '_diameter>' in line:
-        if not line.startswith('#<m_d') and not line.startswith('#<i_d'):
+    # if hole sensing code
+    if line.startswith('#<holes>'):
+        if line.split('=')[1][0] == '1':
+            holeEnable = True
+        elif line.split('=')[1][0] == '2':
+            holeEnable = cutoffEnable = True
+        else:
+            holeEnable = cutoffEnable = False
+    # if hole sensing enabled
+    if holeEnable:
+        # if unsupported distance mode
+        if 'g91' in line and not 'g91.1' in line:
             codeError = True
-            print('*** invalid diameter word\n'
+            print('*** PlasmaC GCode parser only\n'
+                  '*** supports Distance Mode G90\n'
                   'Error in line #{}: {}\n'
                   .format(count, line))
+        # if unsupported arc distance mode
+        if 'g90.1' in line:
+            codeError = True
+            print('*** PlasmaC GCode parser only\n'
+                  '*** supports Arc Distance Mode G91.1\n'
+                  'Error in line #{}: {}\n'
+                  .format(count, line))
+        if 'x' in line: check_math('x')
+        if 'y' in line: check_math('y')
+        if 'i' in line: check_math('i')
+        if 'j' in line: check_math('j')
+        if '_diameter>' in line:
+            if not line.startswith('#<m_d') and not line.startswith('#<i_d'):
+                codeError = True
+                print('*** invalid diameter word\n'
+                      'Error in line #{}: {}\n'
+                      .format(count, line))
 
 # second, pass process every line
 if not codeError:
@@ -295,9 +306,23 @@ if not codeError:
         elif line.startswith('m63p3') or line.startswith('m65p3'):
             torchEnable = True
             print(line)
-        # if spindle off or program end
-        elif line.startswith('m5') or line.startswith('m2') or \
-             line.startswith('m30') or line.startswith('%'):
+        # if spindle off
+        elif line.startswith('m5'):
+            print(line)
+            # restore velocity if required
+            if holeActive:
+                print('m68e3q0 (arc complete, velocity 100%)')
+                holeActive = False
+            # if torch off, allow torch on 
+            if not torchEnable:
+                print('m65p3 (enable torch)')
+                torchEnable = True
+        # if program end
+        elif 'm2' in line or 'm30' in line or '%' in line:
+            # restore hole sensing to default
+            if holeEnable:
+                print('#<holes> = 0 (disable hole sensing)')
+                holeEnable = False
             # restore velocity if required
             if holeActive:
                 print('m68e3q0 (arc complete, velocity 100%)')
