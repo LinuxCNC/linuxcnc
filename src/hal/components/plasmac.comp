@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.64 - 28 Jul 2019
+.I VERSION: 0.65 - 03 Aug 2019
 
 .I SUMMARY:
 .br
@@ -451,7 +451,7 @@ FUNCTION(_) {
             probe_required = TRUE;
             state = MAX_HEIGHT;
         }else if(!spindle_on){
-            if(torch_off_delay > 0){
+            if(torch_off_delay > 0 && !torch_off){
                 torch_off_timer = torch_off_delay;
             }else{
                 torch_on = FALSE;
