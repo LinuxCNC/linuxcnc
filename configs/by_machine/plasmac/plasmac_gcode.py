@@ -159,7 +159,7 @@ def comment_out_z_commands():
     if holeActive:
         print 'm67 e3 q0 (arc complete, velocity 100%)'
         holeActive = False
-    print('{} {}'.format(newline, newz))
+    print('{} {})'.format(newline, newz))
 
 # check if math used or explicit values
 def check_math(axis):
@@ -270,15 +270,18 @@ if not codeError:
         if line.startswith(';') or line.startswith('('):
             print line.rstrip()
             continue
+        # if a ; comment at end of line preprocess it
         elif ';' in line:
             a,b = line.strip().split(';')
-            line = '{} ;{}'.format(a.strip().lower(),b)
+            line = '{} ({})'.format(a.strip().lower(),b)
+        # if a () comment at end of line preprocess it
         elif '(' in line:
             a,b = line.strip().split('(')
             line = '{} ({}'.format(a.strip().lower(),b)
+        # if any other line preprocess it
         else:
             line = line.strip().lower()
-        # if segment is a G2 or G3 arc
+        # if hole sense command
         if line.startswith('#<holes>'):
             if line.split('=')[1].replace(' ','')[0] == '2':
                 holeEnable = overCut = True
@@ -290,6 +293,7 @@ if not codeError:
             else:
                 holeEnable = overCut = False
                 print('{} (disable hole sensing)'.format('#<holes> = 0'))
+        # if diameter command
         elif '_diameter>' in line:
             if line.startswith('#<i_d'):
                 multiplier = 25.4
@@ -302,6 +306,16 @@ if not codeError:
             else:
                 minDiameter = float(line.split('=')[1]) * multiplier
             print(line)
+        # if z axis in line but no other axes
+        elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw']:
+            #print('Z only')
+            print('({})'.format(line))
+        # if z axis and other axes in line, comment out the Z axis
+        elif 'z' in line:
+            if holeEnable:
+                lastX, lastY = get_last_position(lastX, lastY)
+            comment_out_z_commands()
+        # if an arc command
         elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
             if holeEnable:
                 check_if_hole()
@@ -341,8 +355,8 @@ if not codeError:
                 print('m65 p3 (enable torch)')
                 torchEnable = True
             print(line)
-        # if no Z axis in line
-        elif not 'z' in line:
+        # any other line
+        else:
             if holeEnable:
                 # restore velocity if required
                 if holeActive:
@@ -350,12 +364,3 @@ if not codeError:
                     holeActive = False
                 lastX, lastY = get_last_position(lastX, lastY)
             print(line)
-        # if only Z axis in line then comment it out
-        elif 1 not in [c in line for c in 'xyabcuvw']:
-            #print('Z only')
-            print('({})'.format(line))
-        # mixed axes in line, comment out the Z axis
-        else:
-            if holeEnable:
-                lastX, lastY = get_last_position(lastX, lastY)
-            comment_out_z_commands()
