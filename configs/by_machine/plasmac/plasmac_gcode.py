@@ -28,7 +28,7 @@ import math
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 
 codeError = False
-cutoffEnable = False
+overCut = False
 holeActive = False
 holeEnable = False
 imperial = [25.4, 6]
@@ -55,7 +55,7 @@ def check_if_hole():
         if 'j' in line: J = get_position('j')
         radius = get_hole_radius(I, J)
         print(line)
-        if cutoffEnable:
+        if overCut and radius < (minDiameter / 2 / scale):
             negative_cutoff(I, J, radius)
     else:
         print(line)
@@ -71,7 +71,7 @@ def negative_cutoff(I, J, radius):
     sinA = math.sin(4 / radius / scale)
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
-    print('m62p3 (disable torch)')
+    print('m62 p3 (disable torch)')
     torchEnable = False
     #clockwise arc
     if line.startswith('g2'):
@@ -83,7 +83,7 @@ def negative_cutoff(I, J, radius):
         endX = centerX + radius * ((cosB * cosA) - (sinB * sinA))
         endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
         dir = '3'
-    print('g{0}x{1:0.{5}f}y{2:0.{5}f}i{3:0.{5}f}j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
+    print('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
     lastX = endX
     lastY = endY
 
@@ -93,12 +93,12 @@ def get_hole_radius(I, J):
     radius = math.sqrt((I ** 2) + (J ** 2))
     # velocity reduction required
     if radius < (minDiameter / 2 / scale):
-        print('m67e3q{0} (radius: {1:0.3f}, velocity: {0}%)'.format(velocity, radius))
+        print('m67 e3 q{0} (radius: {1:0.3f}, velocity: {0}%)'.format(velocity, radius))
         holeActive = True
     # no velocity reduction required
     else:
         if holeActive:
-            print('m67e3q0 (arc complete, velocity 100%)')
+            print('m67 e3 q0 (arc complete, velocity 100%)')
             holeActive = False
     return radius
 
@@ -157,7 +157,7 @@ def comment_out_z_commands():
         else:
             newline += bit
     if holeActive:
-        print 'm67e3q0 (arc complete, velocity 100%)'
+        print 'm67 e3 q0 (arc complete, velocity 100%)'
         holeActive = False
     print('{} {}'.format(newline, newz))
 
@@ -220,9 +220,9 @@ for line in f:
         if line.split('=')[1][0] == '1':
             holeEnable = True
         elif line.split('=')[1][0] == '2':
-            holeEnable = cutoffEnable = True
+            holeEnable = overCut = True
         else:
-            holeEnable = cutoffEnable = False
+            holeEnable = overCut = False
     # if hole sensing enabled
     if holeEnable:
         # if unsupported distance mode
@@ -254,8 +254,6 @@ for line in f:
 if not codeError:
     f = open(infile, 'r')
     for line in f:
-        # convert to lower case and remove spaces
-        line = line.strip().lower().replace(' ','')
         # remove line numbers
         if line.startswith('n'):
             line = line.split('n',1)[-1]
@@ -268,42 +266,53 @@ if not codeError:
                     line = line[:1] + line[2:]
                 else:
                     break
-        # if a commented line then print it
+        # if a commented line then print it and get next line
         if line.startswith(';') or line.startswith('('):
-            print line
+            print line.rstrip()
+            continue
+        elif ';' in line:
+            a,b = line.strip().split(';')
+            line = '{} ;{}'.format(a.strip().lower(),b)
+        elif '(' in line:
+            a,b = line.strip().split('(')
+            line = '{} ({}'.format(a.strip().lower(),b)
+        else:
+            line = line.strip().lower()
         # if segment is a G2 or G3 arc
-        elif line.startswith('#<holes>'):
-            if line.split('=')[1][0] == '1':
+        if line.startswith('#<holes>'):
+            if line.split('=')[1].replace(' ','')[0] == '2':
+                holeEnable = overCut = True
+                print('{} (overcut for holes)'.format('#<holes> = 2'))
+            elif line.split('=')[1].replace(' ','')[0] == '1':
                 holeEnable = True
-                print('{} (velocity reduction for holes)'.format('#<holes>=1'))
-            elif line.split('=')[1][0] == '2':
-                holeEnable = cutoffEnable = True
-                print('{} (overcut for holes)'.format('#<holes>=2'))
+                overCut = False
+                print('{} (velocity reduction for holes)'.format('#<holes> = 1'))
             else:
-                holeEnable = cutoffEnable = False
-                print(line)
+                holeEnable = overCut = False
+                print('{} (disable hole sensing)'.format('#<holes> = 0'))
         elif '_diameter>' in line:
             if line.startswith('#<i_d'):
                 multiplier = 25.4
             else:
                 multiplier = 1
-            line = line.split('=')[1]
-            if '(' in line or ';':
-                line = line.replace('(',';').split(';')[0]
-            print('(LINE: {})'.format(line))
-            minDiameter = float(line) * multiplier
-            print('(DIA: {})'.format(minDiameter))
-        elif (line.startswith('g2') or line.startswith('g3')) and line[2].isalpha():
+            if (';') in line:
+                minDiameter = float(line.split('=')[1].split(';')[0]) * multiplier
+            elif ('(') in line:
+                minDiameter = float(line.split('=')[1].split('(')[0]) * multiplier
+            else:
+                minDiameter = float(line.split('=')[1]) * multiplier
+            print(line)
+        elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
             if holeEnable:
                 check_if_hole()
             else:
                 print(line)
         # if torch off, flag it then print it
-        elif line.startswith('m62p3') or line.startswith('m64p3'):
+        elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
             torchEnable = False
             print(line)
         # if torch on, flag it then print it
-        elif line.startswith('m63p3') or line.startswith('m65p3'):
+        elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
             torchEnable = True
             print(line)
         # if spindle off
@@ -311,11 +320,11 @@ if not codeError:
             print(line)
             # restore velocity if required
             if holeActive:
-                print('m68e3q0 (arc complete, velocity 100%)')
+                print('m68 e3 q0 (arc complete, velocity 100%)')
                 holeActive = False
             # if torch off, allow torch on 
             if not torchEnable:
-                print('m65p3 (enable torch)')
+                print('m65 p3 (enable torch)')
                 torchEnable = True
         # if program end
         elif 'm2' in line or 'm30' in line or '%' in line:
@@ -325,11 +334,11 @@ if not codeError:
                 holeEnable = False
             # restore velocity if required
             if holeActive:
-                print('m68e3q0 (arc complete, velocity 100%)')
+                print('m68 e3 q0 (arc complete, velocity 100%)')
                 holeActive = False
             # if torch off, allow torch on 
             if not torchEnable:
-                print('m65p3 (enable torch)')
+                print('m65 p3 (enable torch)')
                 torchEnable = True
             print(line)
         # if no Z axis in line
@@ -337,7 +346,7 @@ if not codeError:
             if holeEnable:
                 # restore velocity if required
                 if holeActive:
-                    print('m67e3q0 (arc complete, velocity 100%)')
+                    print('m67 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
                 lastX, lastY = get_last_position(lastX, lastY)
             print(line)
