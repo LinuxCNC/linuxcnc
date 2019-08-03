@@ -21,7 +21,6 @@
 import gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
-from qtvcp.core import QComponent
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QDesktopWidget
 
@@ -39,7 +38,6 @@ class QTPanel():
         self._screenOptions = None
         self._geo_string = ''
 
-        self.hal = QComponent(halcomp)
         # see if a screenoptions widget is present
         # if is is then initiate the preference file
         # and pass a preference object to the window
@@ -61,7 +59,7 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 idname = widget.objectName()
                 LOG.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(self.hal, str(idname), widget, window, window. PATHS, window['PREFS_'])
+                widget.hal_init(halcomp, str(idname), widget, window, window. PATHS, window['PREFS_'])
 
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings

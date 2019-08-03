@@ -7,7 +7,7 @@ import hal
 import signal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, QComponent
 from qtvcp.lib import xembed
 
 # Set up the base logger
@@ -299,12 +299,13 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize HAL
         try:
             self.halcomp = hal.component(opts.component)
+            self.hal = QComponent(self.halcomp)
         except:
             log.critical("Asking for a HAL component using a name that already exists?")
             sys.exit(0)
 
         # initialize the window
-        window = qt_makegui.MyWindow(self.halcomp, PATH)
+        window = qt_makegui.MyWindow(self.hal, PATH)
  
         # load optional user handler file
         if opts.usermod:
@@ -322,7 +323,7 @@ Pressing cancel will close linuxcnc.""" % target)
         window.instance()
 
         # make QT widget HAL pins
-        self.panel = qt_makepins.QTPanel(self.halcomp, PATH, window, opts.debug)
+        self.panel = qt_makepins.QTPanel(self.hal, PATH, window, opts.debug)
 
         # call handler file's initialized function
         if opts.usermod:
