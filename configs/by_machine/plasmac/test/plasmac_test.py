@@ -103,10 +103,7 @@ class plasmacTest:
         return gtk.TRUE
 
     def torch_changed(self, halpin):
-        if halpin.get():
-            print('TRUE')
-        else:
-            print('FALSE')
+        if not halpin.get():
             self.B.get_object('arcVoltage').set_sensitive(0)
             self.B.get_object('arcVoltage').set_value(99.9)
             time.sleep(.1)
