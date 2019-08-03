@@ -49,6 +49,14 @@ class _IStat(object):
         self.MACHINE_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'MESSAGE_HISTORY_FILE') or '~/.machine_log_history'
         self.PREFERENCE_PATH = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH") or None
         self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
+        if self.SUB_PATH is not None:
+            for mpath in (self.SUB_PATH.split(':')):
+                if 'macro' in mpath:
+                    path = mpath
+                    break
+            self.MACRO_PATH = mpath or None
+        else:
+            self.MACRO_PATH = None
         self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
         extensions = self.inifile.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
