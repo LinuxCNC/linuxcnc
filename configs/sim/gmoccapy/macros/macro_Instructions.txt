@@ -1,4 +1,4 @@
-This is a smal instruction to include macros in gmoccapy.
+This is a small instruction to include macros in gmoccapy.
 
 In your INI File you need to introduce a section called [MACROS]
 and for every macro you wan't to include one line like so:
@@ -21,7 +21,7 @@ SUBROUTINE_PATH = nc_files/subroutines
 
 or you place your macros in the nc_files folder.
 
-Each macro mus have its own file in one of the mentioned folders and are normal subroutines, so the must begin with:
+Each macro must have it's own file in one of the mentioned folders and they are normal subroutines, so the must begin with:
 
 O<jog_around> sub
 
@@ -33,12 +33,12 @@ M2
 The name of the file must be jog_around.ngc.
 And an macro must contain at least one movement of one axis.
 
-macro name in INI file have to be the same as the file name and the sub must have also the same name!
+macro name in INI file have to be the same as the file name and the sub must have also the same name (case sensitive!)!
 
 BE CARFULL:
 At this development step, the macros can only be interupted by pressing the machine off button or the emergency exit button! I will check how to make this more secure! 
 
-Hope this helps.
+Hope this does help.
 
 Norbert
 

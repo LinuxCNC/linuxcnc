@@ -66,6 +66,51 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
             self.hal_pin_f.set(data*scale)
         self.valueChanged.connect(partial(_f))
 
+class Dial(QtWidgets.QDial, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(Dial, self).__init__(parent)
+        self._lastRawCount = 0
+        self._currentTotalCount = 0
+        self._deltaScaled  = 0
+        self.epiLow = int(self.maximum() * .25)
+        self.epiHigh = self.maximum() - self.epiLow
+        self.scale = 1
+
+    def _hal_init(self):
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_d = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-d', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        self.hal_pin_scale.value_changed.connect(lambda data: self.updateScale(data))
+        self.hal_pin_scale.set(1)
+        self.valueChanged.connect(lambda data:self.updateCount(data))
+
+    def updateScale(self, data):
+        self.scale = data
+        self.hal_pin_f.set(self._currentTotalCount * data)
+
+    def updateCount(self, count):
+        if count == self.maximum(): count = 0
+
+        delta = self._lastRawCount - count
+        #print 'last:',self._lastRawCount ,'raw count',count,'delta',delta,'count:',count
+        if self._lastRawCount > self.epiHigh and count < self.epiLow  :
+                change = self.maximum() - self._lastRawCount + count
+                self._currentTotalCount += change
+                self._deltaScaled += change * self.scale
+        elif count > self.epiHigh and self._lastRawCount < self.epiLow  :
+                change = self.maximum() - count + self._lastRawCount
+                self._currentTotalCount -= change
+                self._deltaScaled -= change * self.scale
+        else:
+                self._currentTotalCount -= delta
+                self._deltaScaled -= delta * self.scale
+
+
+        self._lastRawCount = count
+        self.hal_pin_s.set(self._currentTotalCount)
+        self.hal_pin_f.set(self._currentTotalCount * self.scale)
+        self.hal_pin_d.set(self._deltaScaled)
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):

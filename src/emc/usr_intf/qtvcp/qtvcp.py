@@ -7,7 +7,7 @@ import hal
 import signal
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, QComponent
 from qtvcp.lib import xembed
 
 # Set up the base logger
@@ -89,7 +89,7 @@ class Paths():
                     local_handler_path = os.path.join(root, handler_fn)
                     break
         else:
-            local_handler_path = os.path.join(self.WORKINGDIR, self.BASENAME, handler_fn)
+            local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
             default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
         log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
 
@@ -115,7 +115,7 @@ class Paths():
                     localui = os.path.join(root, ui_fn)
                     break
         else:
-            localui = os.path.join(self.WORKINGDIR, self.BASENAME, ui_fn)
+            localui = os.path.join(self.WORKINGDIR, ui_fn)
             defaultui = os.path.join(self.PANELDIR, self.BASENAME, ui_fn)
         log.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
@@ -134,12 +134,17 @@ class Paths():
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASENAME)
-        defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
-        localqss = 'None Found'
-        for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-            if qss_fn in(files):
-                localqss = os.path.join(root, qss_fn)
-                break
+        if self.IS_SCREEN:
+            defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
+            localqss = 'None Found'
+            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+                if qss_fn in(files):
+                    localqss = os.path.join(root, qss_fn)
+                    break
+        else:
+            localqss = os.path.join(self.WORKINGDIR, qss_fn)
+            defaultqss = os.path.join(self.PANELDIR, self.BASENAME, qss_fn)
+
         log.debug("Checking for .qss in: yellow<{}>".format(localqss))
         if os.path.exists(localqss):
             log.info("Using specified qss file from yellow<{}>".format(localqss))
@@ -299,12 +304,13 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize HAL
         try:
             self.halcomp = hal.component(opts.component)
+            self.hal = QComponent(self.halcomp)
         except:
             log.critical("Asking for a HAL component using a name that already exists?")
             sys.exit(0)
 
         # initialize the window
-        window = qt_makegui.MyWindow(self.halcomp, PATH)
+        window = qt_makegui.MyWindow(self.hal, PATH)
  
         # load optional user handler file
         if opts.usermod:
@@ -322,7 +328,7 @@ Pressing cancel will close linuxcnc.""" % target)
         window.instance()
 
         # make QT widget HAL pins
-        self.panel = qt_makepins.QTPanel(self.halcomp, PATH, window, opts.debug)
+        self.panel = qt_makepins.QTPanel(self.hal, PATH, window, opts.debug)
 
         # call handler file's initialized function
         if opts.usermod:
@@ -410,7 +416,7 @@ Pressing cancel will close linuxcnc.""" % target)
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
-        if "before_loop__" in dir(window.handler_instance):
+        if opts.usermod and "before_loop__" in dir(window.handler_instance):
             log.debug('''Calling the handler file's before_loop__ function''')
             window.handler_instance.before_loop__()
         # start loop

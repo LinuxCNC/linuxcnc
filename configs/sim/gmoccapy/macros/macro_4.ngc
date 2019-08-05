@@ -1,0 +1,24 @@
+; Testfile go to position
+; will jog the machine to a position to give
+
+O<macro_4> sub
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+;#1 = <X-Pos>
+;#2 = <Y-Pos>
+;#3 = <Z-Pos>
+
+(DBG, Will now move machine to X = #1 , Y = #2 , Z = #3)
+G0 X #1 Y #2 Z #3
+
+O<macro_4> endsub
+
+M2

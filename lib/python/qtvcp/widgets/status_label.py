@@ -15,6 +15,7 @@
 ###############################################################################
 
 import time
+import os
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp import logger
@@ -62,6 +63,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.tool_diameter = False
         self.tool_comment = False
         self.filename = False
+        self.filepath = False
         self.machine_state = False
         self.time_stamp = False
         self.tool_offset = False
@@ -114,7 +116,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
             STATUS.connect('metric-mode-changed', self._switch_units)
-        elif self.filename:
+        elif self.filename or self.filepath:
             STATUS.connect('file-loaded', self._file_loaded)
         elif self.machine_state:
             STATUS.connect('state-estop', lambda w: self._machine_state('Estopped'))
@@ -220,7 +222,9 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             self._set_text(circ * self._actual_RPM)
 
     def _file_loaded(self, w, name):
-        self.setText(name)
+        if self.filename:
+            name = os.path.basename(name)
+        self._set_text(name)
 
     def _machine_state(self, text):
         self.setText(text)
@@ -242,8 +246,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
-                'tool_comment',  'actual_surface_speed', 'filename', 'machine_state',
-                'time_stamp', 'max_velocity', 'tool_offset')
+                'tool_comment',  'actual_surface_speed', 'filename', 'filepath',
+                'machine_state', 'time_stamp', 'max_velocity', 'tool_offset')
 
         for i in data:
             if not i == picked:
@@ -492,6 +496,16 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_filename(self):
         self.filename = False
 
+    # filepath status
+    def set_filepath(self, data):
+        self.filepath = data
+        if data:
+            self._toggle_properties('filepath')
+    def get_filepath(self):
+        return self.filepath
+    def reset_filepath(self):
+        self.filepath = False
+
     # machine_state status
     def set_machine_state(self, data):
         self.machine_state = data
@@ -554,6 +568,8 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                                                       reset_actual_surface_speed)
     filename_status = QtCore.pyqtProperty(bool, get_filename, set_filename,
                                                       reset_filename)
+    filepath_status = QtCore.pyqtProperty(bool, get_filepath, set_filepath,
+                                                      reset_filepath)
     machine_state_status = QtCore.pyqtProperty(bool, get_machine_state, set_machine_state,
                                                       reset_machine_state)
     time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,

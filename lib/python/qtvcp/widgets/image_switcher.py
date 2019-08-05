@@ -23,10 +23,13 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.core import Status
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
+# STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
+STATUS = Status()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
@@ -79,6 +82,82 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+
+
+class StatusImageSwitcher(ImageSwitcher):
+
+    def __init__(self, parent=None):
+        super(StatusImageSwitcher, self).__init__(parent)
+        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png'),
+                    os.path.join(self.IMAGEDIR,'spindle_ccw.gif'),
+                    os.path.join(self.IMAGEDIR,'spindle_cw.gif')]
+        self.spindle = True
+        self.all_homed = False
+
+    def _hal_init(self):
+        if self.spindle:
+            STATUS.connect('spindle-control-changed', lambda w, b, d: self.switch_on_spindle(b,d))
+        elif self.all_homed:
+            STATUS.connect('not-all-homed', lambda w, data: self.switch_on_homed(0))
+            STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
+
+    def switch_on_spindle(self, b, data):
+        if data <0: data= 2
+        self.set_image_number(data)
+
+    def switch_on_homed(self, data):
+        self.set_image_number(data)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('spindle','all_homed' )
+
+        for i in data:
+            if not i == picked:
+                self['watch_'+i] = False
+
+# property getter/setters
+
+    # machine_spindle status
+    def set_spindle(self, data):
+        self.spindle = data
+        if data:
+            self._toggle_properties('spindle')
+    def get_spindle(self):
+        return self.spindle
+    def reset_spindle(self):
+        self.spindle = False
+    watch_spindle = pyqtProperty(bool, get_spindle, set_spindle, reset_spindle)
+
+    # machine_homed status
+    def set_homed(self, data):
+        self.all_homed = data
+        if data:
+            self._toggle_properties('all_homed')
+    def get_homed(self):
+        return self.all_homed
+    def reset_homed(self):
+        self.all_homed = False
+    watch_all_homed = pyqtProperty(bool, get_homed, set_homed, reset_homed)
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+
 
 # for testing without editor:
 def main():

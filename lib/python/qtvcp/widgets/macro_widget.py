@@ -52,7 +52,7 @@ class CustomButton(QtWidgets.QPushButton):
     def __init__(self, parent=None, path=None, layer=0):
         super(CustomButton, self).__init__(parent)
         if path is None:
-            tpath = os.path.expanduser(INFO.SUB_PATH)
+            tpath = os.path.expanduser(INFO.MACRO_PATH)
             path = os.path.join(tpath, 'LatheMacro.svg')
         self.r = QtSvg.QSvgRenderer(path)
         self.basename = 'layer'
@@ -118,7 +118,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MacroTab, self).__init__(parent)
         try:
-            tpath = os.path.expanduser(INFO.SUB_PATH)
+            tpath = os.path.expanduser(INFO.MACRO_PATH)
             self.filepath = os.path.join(tpath, '')
         except:
             self.filepath = 'None'
@@ -163,6 +163,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.buildStack()
 
     def _hal_init(self):
+        print self.HAL_GCOMP_
         self.runButton.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
