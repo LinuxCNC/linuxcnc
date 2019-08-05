@@ -1,3 +1,6 @@
+ver 3.0.7.1
+- jogging of non trivial kinematics need an int for jogging
+
 ver 3.0.7
 - jogging on configs with missing axis like XZ (Y missing) did lead to an error
   due to not taken care about the homing status. Not homed requires the joint 

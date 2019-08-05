@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.6"
+_RELEASE = " 3.0.7.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1089,8 +1089,10 @@ class gmoccapy(object):
     def _get_joint_no_or_axis_index(self, button_name):
         joint_btn = False
         if not button_name[0] in "xyzabcuvw":
+            print("Axis button")
             # OK, it may be a Joints button
             if button_name[0] in "012345678":
+                print("joint button")
                 joint_btn = True
             else:
                 print(_("**** GMOCCAPY INFO ****"))
@@ -1104,7 +1106,7 @@ class gmoccapy(object):
             else:
                 joint_no_or_axis_index = self._get_joint_from_joint_axis_dic(button_name[0])
         else:
-            joint_no_or_axis_index = button_name[0]
+            joint_no_or_axis_index = int(button_name[0])
 
         return joint_no_or_axis_index
 
