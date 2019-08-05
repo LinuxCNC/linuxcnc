@@ -1,3 +1,25 @@
+ver 3.0.7
+- jogging on configs with missing axis like XZ (Y missing) did lead to an error
+  due to not taken care about the homing status. Not homed requires the joint 
+  number, while jogging in homed state requires the axis index.
+
+ver 3.0.6
+- Most widgets like homing and touch button are now generated on the fly,
+  leading to the need of less resources and a quicker start of the GUI
+- gmoccapy now supports 9 axis and 9 joints
+- configuration of joint axis relation are now applied as given in the
+  ini file, allowing also strange configs like XZCW lathe configs or
+  scara or 6 axis robot arms
+- Display of cutting speed is now correct, even on a lathe with
+  constant surface speed
+- Jog increments on a lathe do now take care of being in diameter or
+  radius mode, so if you jog 1,0 mm in diameter mode, the X axis will
+  only move 0.5 mm!
+- a lot of internal stuff has been optimized
+
+ver 3.0.5
+- solved bug with macro button if no virtual keyboard 
+
 ver 3.0.4
 - changed combi_DRO to emit two signals, if clicked on the left side in the range 
   of the axis letter, the signal will open the set_axis_value dialog, clicking

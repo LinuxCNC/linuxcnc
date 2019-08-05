@@ -1020,15 +1020,15 @@ class gmoccapy(object):
 
     def _on_btn_jog_pressed(self, widget, button_name, shift=False):
         print("Jog Button pressed = {0}".format(button_name))
-        print(button_name[0] in "abc")
 
         # only in manual mode we will allow jogging the axis at this development state
         # needed to avoid error on start up, machine not on
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
-        joint_axis_number = self._get_joint_axis_number(button_name)
-        if joint_axis_number is None:
+        joint_no_or_axis_index = self._get_joint_no_or_axis_index(button_name)
+        if joint_no_or_axis_index is None:
+            print("Did not get an axis number in jog part of the code")
             return
 
         # if shift = True, then the user pressed SHIFT for Jogging and
@@ -1055,9 +1055,9 @@ class gmoccapy(object):
                 distance = self.distance/2
             else:
                 distance = self.distance
-            self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, dir * velocity, distance)
+            self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_no_or_axis_index, dir * velocity, distance)
         else:  # continuous jogging
-            self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, dir * velocity)
+            self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_no_or_axis_index, dir * velocity)
 
     def _on_btn_jog_released(self, widget, button_name, shift=False):
         print ("Jog Button released = {0}".format(button_name))
@@ -1065,9 +1065,7 @@ class gmoccapy(object):
         if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
             return
 
-        joint_axis_number = self._get_joint_axis_number(button_name)
-        if joint_axis_number is None:
-            return
+        joint_no_or_axis_index = self._get_joint_no_or_axis_index(button_name)
 
         JOGMODE = self._get_jog_mode()
 
@@ -1075,7 +1073,7 @@ class gmoccapy(object):
         if self.distance <> 0:
             pass
         else:
-            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
+            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_no_or_axis_index)
 
     def _get_jog_mode(self):
         # self.stat.motion_mode ==
@@ -1088,11 +1086,11 @@ class gmoccapy(object):
             JOGMODE = 0
         return JOGMODE
 
-    def _get_joint_axis_number(self, button_name):
+    def _get_joint_no_or_axis_index(self, button_name):
         joint_btn = False
         if not button_name[0] in "xyzabcuvw":
             # OK, it may be a Joints button
-            if button_name[0] in "01234567":
+            if button_name[0] in "012345678":
                 joint_btn = True
             else:
                 print(_("**** GMOCCAPY INFO ****"))
@@ -1100,13 +1098,15 @@ class gmoccapy(object):
                 return None
 
         if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvw".index(button_name[0])
-            print joint_axis_number
+            # get the axisnumber from the index as specified in python interface documentation
+            if self.all_homed:
+                joint_no_or_axis_index = "xyzabcuvw".index(button_name[0])
+            else:
+                joint_no_or_axis_index = self._get_joint_from_joint_axis_dic(button_name[0])
         else:
-            joint_axis_number = "01234567".index(button_name[0])
+            joint_no_or_axis_index = button_name[0]
 
-        return joint_axis_number
+        return joint_no_or_axis_index
 
     def _make_jog_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1126,8 +1126,6 @@ class gmoccapy(object):
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
-
-#        print self.jog_button_dic
 
     def _make_joints_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -4279,7 +4277,7 @@ class gmoccapy(object):
         self.prefs.putpref("log_actions", widget.get_active())
 
     def on_chk_show_dro_toggled(self, widget, data=None):
-        self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
+        self.widgets.gremlin.set_property("metric_units", self.dro_dic["Combi_DRO_0"].metric_units)
         self.widgets.gremlin.set_property("enable_dro", widget.get_active())
         self.prefs.putpref("enable_dro", widget.get_active())
         self.widgets.chk_show_offsets.set_sensitive(widget.get_active())
