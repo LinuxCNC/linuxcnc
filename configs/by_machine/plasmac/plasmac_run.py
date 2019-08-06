@@ -32,6 +32,13 @@ import time
 
 class HandlerClass:
 
+    def dialog_error(self, error):
+        md = gtk.MessageDialog(self.W, 
+            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+            gtk.BUTTONS_CLOSE, error)
+        md.run()
+        md.destroy()
+
     def check_material_file(self):
         version = '[VERSION 1]'
         tempMaterialDict = {}
@@ -84,7 +91,6 @@ class HandlerClass:
         try:
             with open(self.materialFile, 'r') as f_in:
                 self.builder.get_object('materials').clear()
-                self.materialList = []
                 for line in f_in:
                     if not line.startswith('#'):
                         if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
@@ -119,15 +125,18 @@ class HandlerClass:
                         elif line.startswith('CUT_VOLTS'):
                             c_volts = float(line.split('=')[1].strip())
                 self.materialFileDict[t_number] = [t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts]
-                self.materialList.append(t_number)
                 iter = self.builder.get_object('materials').append()
                 self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(int(t_number), t_name))
         except:
-            print('*** material file, {} is invalid'.format(self.materialFile))
+            errorText = '\nThe material file, {} is invalid'.format(self.materialFile)
+            if t_number:
+                errorText += '\n\nError in material #{}'.format(t_number)
+                
+            self.dialog_error(errorText)
+            print('*** The material file, {} is invalid'.format(self.materialFile))
         self.builder.get_object('material').set_active(0)
-
         self.materialList = []
-        for material in self.materialKerfMap.keys():
+        for material in sorted(self.materialKerfMap.keys()):
             self.materialList.append(material)
         self.getMaterial = 0
 
@@ -173,25 +182,33 @@ class HandlerClass:
 
     def on_material_changed(self,widget):
         if self.getMaterial: return
-        material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
-        self.change_material(int(material))
+        if self.autoChange == False:
+            self.manualChange = True
+            material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
+            self.change_material(int(material),'manual')
+        else:
+            self.autoChange = False
 
     def material_change_number_changed(self,halpin):
         if self.getMaterial: return
-        hal.set_p('motion.digital-in-03','0')
-        material = halpin.get()
-        if material in self.materialKerfMap.keys():
-            self.change_material(int(material))
-            hal.set_p('plasmac_run.material-change','1')
-            hal.set_p('motion.digital-in-03','1')
+        if self.manualChange == False:
+            self.autoChange = True
+            hal.set_p('motion.digital-in-03','0')
+            material = halpin.get()
+            if material in self.materialKerfMap.keys():
+                self.change_material(int(material),'auto')
+                hal.set_p('plasmac_run.material-change','1')
+                hal.set_p('motion.digital-in-03','1')
+            else:
+                hal.set_p('plasmac_run.material-change','-1')
         else:
-            hal.set_p('plasmac_run.material-change','-1')
+            self.manualChange = False
 
     def material_change_changed(self,halpin):
         if halpin.get() == 0:
             hal.set_p('motion.digital-in-03','0')
 
-    def change_material(self,material):
+    def change_material(self,material,fr):
         if material in self.materialKerfMap.keys():
             self.materialName = self.materialFileDict[material][0]
             self.builder.get_object('kerf-width').set_value(self.materialFileDict[material][1])
@@ -212,7 +229,8 @@ class HandlerClass:
 #            else:
 #                self.change_material(self.materialList[self.materialList.index(self.oldMaterial) + 1])
         if material in self.materialList:
-            self.builder.get_object('material').set_active(self.materialList.index(material))
+            if self.autoChange:
+                self.builder.get_object('material').set_active(self.materialList.index(material))
         self.oldMaterial = material
 
     def on_setupFeedRate_value_changed(self, widget):
@@ -255,6 +273,7 @@ class HandlerClass:
             self.builder.get_object('pierce-height').set_digits(3)
             self.builder.get_object('pierce-height-adj').configure(0.16,0,1,0.001,0,0)
         else:
+            self.dialog_error('incorrect [TRAJ]LINEAR_UNITS in ini file')
             print('*** incorrect [TRAJ]LINEAR_UNITS in ini file')
 
     def periodic(self):
@@ -326,6 +345,7 @@ class HandlerClass:
                                     self.configDict[key] = value
                                     tmpDict[key] = value
             except:
+                self.dialog_error('The plasmac configuration file, {} is invalid ***'.format(self.configFile))
                 print('*** plasmac configuration file, {} is invalid ***'.format(self.configFile))
             for item in self.configDict:
                 if item == 'material-number' or item == 'kerf-width':
@@ -364,9 +384,11 @@ class HandlerClass:
                         value = self.builder.get_object(key).get_value()
                         f_out.write(key + '=' + str(value) + '\n')
         except:
+            self.dialog_error('Error opening {}'.format(self.configFile))
             print('*** error opening {}'.format(self.configFile))
 
     def __init__(self, halcomp,builder,useropts):
+        self.W = gtk.Window()
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -391,6 +413,8 @@ class HandlerClass:
         self.oldMode = 9
         self.oldMaterial = -1
         self.materialUpdate = False
+        self.autoChange = False
+        self.manualChange = False
         self.configure_widgets()
         self.load_settings()
         self.check_material_file()
