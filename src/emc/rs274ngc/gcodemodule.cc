@@ -24,7 +24,6 @@
 #include "interp_return.hh"
 #include "canon.hh"
 #include "config.h"		// LINELEN
-#include <memory>
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -145,7 +144,7 @@ static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-static std::unique_ptr<InterpBase> pinterp;
+static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
@@ -720,12 +719,14 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             return NULL;
     }
 
-    if(interpname && *interpname) {
-        pinterp.reset(interp_from_shlib(interpname));
+    if(pinterp) {
+        delete pinterp;
+        pinterp = 0;
     }
-    if(!pinterp) {
-        pinterp.reset(new Interp());
-    }
+    if(interpname && *interpname)
+        pinterp = interp_from_shlib(interpname);
+    if(!pinterp)
+        pinterp = new Interp;
 
     for(int i=0; i<USER_DEFINED_FUNCTION_NUM; i++) 
         USER_DEFINED_FUNCTION[i] = user_defined_function;
@@ -782,7 +783,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 out_error:
     if(pinterp)
     {
-        auto interp = dynamic_cast<Interp*>(pinterp.get());
+        auto interp = dynamic_cast<Interp*>(pinterp);
         if(interp) interp->_setup.use_lazy_close = false;
         pinterp->close();
     }
