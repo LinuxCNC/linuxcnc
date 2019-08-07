@@ -182,8 +182,7 @@ with open(materialFile, 'r') as f_in:
     for line in f_in:
         if not line.startswith('#'):
             if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                a,b,c = line.split('_')
-                t_number = int(c.replace(']',''))
+                t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                 materialList.append(t_number)
 f = open(infile, 'r')
  
@@ -198,6 +197,10 @@ for line in f:
         continue
     # if material change
     if 'm190' in line:
+        if '(' in line:
+            line = line.split('(', 1)[0]
+        elif ';' in line:
+            line = line.split(';', 1)[0]
         first, last = line.split('p', 1)
         material = ''
         # get the material number
@@ -254,7 +257,7 @@ for line in f:
     if line.startswith('#<pierce-only>') and \
        line.split('=')[1][0] == '1':
         pierceOnly = True
-        
+
 # second pass, process every line
 if not codeError:
     # if full cut
@@ -269,7 +272,9 @@ if not codeError:
                 while line[0].isdigit() or line[0] == '.':
                     line = line[1:].lstrip()
             # remove leading 0's from G & M codes
-            if line.lower().startswith('g') or line.lower().startswith('m'):
+            if (line.lower().startswith('g') or \
+               line.lower().startswith('m')) and \
+               len(line) > 2:
                 while line[1] == '0':
                     if line[2].isdigit():
                         line = line[:1] + line[2:]
@@ -421,7 +426,7 @@ if not codeError:
             # if a spindle on
             elif line.lower().replace(' ','').startswith('m3s'):
                 spindleOn = True
-    print('')
-    if rapidLine:
-        print('{}'.format(rapidLine))
-    print('M2 (END)')
+        print('')
+        if rapidLine:
+            print('{}'.format(rapidLine))
+        print('M30 (END)')
