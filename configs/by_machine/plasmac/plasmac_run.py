@@ -55,30 +55,41 @@ class HandlerClass:
         else: # create a new material file if it doesn't exist
             with open(self.materialFile, 'w') as f_out:
                 f_out.write(\
-                    '#plasmac material file\n'\
-                    '#the next line is required for version checking\n'\
+                    '# plasmac material file\n'\
+                    '# the next line is required for version checking\n'\
                     + version + '\n\n'\
-                    '#example only, may be deleted\n'\
+                    '# example only, may be deleted\n'\
+                    '# items marked * are optional and will be 0 if not specified\n'\
+                    '# all other items are mandatory\n'\
                     '#[MATERIAL_NUMBER_1]  \n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#THC                = (0 = off, 1 = on)\n'\
+                    '#NAME               = *\n'\
+                    '#KERF_WIDTH         = *\n'\
+                    '#THC                = * (0 = off, 1 = on)\n'\
                     '#PIERCE_HEIGHT      = \n'\
                     '#PIERCE_DELAY       = \n'\
-                    '#PUDDLE_JUMP_HEIGHT = (optional, set to 0 or delete if not required)\n'\
-                    '#PUDDLE_JUMP_DELAY  = (optional, set to 0 or delete if not required)\n'\
+                    '#PUDDLE_JUMP_HEIGHT = *\n'\
+                    '#PUDDLE_JUMP_DELAY  = *\n'\
                     '#CUT_HEIGHT         = \n'\
                     '#CUT_SPEED          = \n'\
-                    '#CUT_AMPS           = (optional, only used for operator information)\n'\
-                    '#CUT_VOLTS          = (modes 0 & 1 only, if not using auto voltage sampling)\n'\
+                    '#CUT_AMPS           = * (only used for operator information)\n'\
+                    '#CUT_VOLTS          = * (modes 0 & 1 only, if not using auto voltage sampling)\n'\
                     '\n')
             print('*** creating new material configuration file, {}'.format(self.materialFile))
 
+    def write_material(self, *items):
+        mat = []
+        for item in items[1:]:
+            mat.append(item)
+        self.materialFileDict[items[0]] = mat
+        iter = self.builder.get_object('materials').append()
+        self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(int(items[0]), items[1]))
+
     def get_material(self):
         self.getMaterial = 1
+        self.builder.get_object('materials').clear()
         t_number = 0
         t_name = 'Default'
-        k_width = self.builder.get_object('kerf-width').get_value()
+        k_width = float(self.builder.get_object('kerf-width').get_value())
         thc_enable = self.builder.get_object('thc-enable').get_active()
         p_height = self.builder.get_object('pierce-height').get_value()
         p_delay = self.builder.get_object('pierce-delay').get_value()
@@ -89,78 +100,75 @@ class HandlerClass:
         c_amps = self.builder.get_object('cut-amps').get_value()
         c_volts = self.builder.get_object('cut-volts').get_value()
         t_item = 0
-        # preparation for missing variables
-        # we will need to loop through each material
-        required = ['PIERCE_HEIGHT','PIERCE_DELAY','CUT_HEIGHT''CUT_SPEED']
-        received = []
-        try:
-            with open(self.materialFile, 'r') as f_in:
-                self.builder.get_object('materials').clear()
-                for line in f_in:
-                    if not line.startswith('#'):
-                        if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                            self.materialFileDict[t_number] = [t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item]
-                            iter = self.builder.get_object('materials').append()
-                            self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(int(t_number), t_name))
-                            a,b,c = line.split('_')
-                            t_number = int(c.replace(']',''))
-                            t_name = 'none'
-                            t_item += 1
-                            k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  0
-                            received = []
-                        elif line.startswith('NAME'):
-                            t_name = line.split('=')[1].strip()
-                        elif line.startswith('KERF_WIDTH'):
-                            if line.split('=')[1].strip():
-                                k_width = float(line.split('=')[1].strip())
-                        elif line.startswith('THC'):
-                            if line.split('=')[1].strip():
-                                thc_enable = int(line.split('=')[1].strip())
-                        elif line.startswith('PIERCE_HEIGHT'):
-                            received.append('PIERCE_HEIGHT')
-                            if line.split('=')[1].strip():
-                                p_height = float(line.split('=')[1].strip())
-                            else:
-                                self.dialog_error('\nA value for PIERCE_HEIGHT is missing from Material #{}'.format(t_number))
-                        elif line.startswith('PIERCE_DELAY'):
-                            received.append('PIERCE_DELAY')
-                            if line.split('=')[1].strip():
-                                p_delay = float(line.split('=')[1].strip())
-                            else:
-                                self.dialog_error('\nA value for PIERCE_DELAY is missing from Material #{}'.format(t_number))
-                        elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                            if line.split('=')[1].strip():
-                                pj_height = float(line.split('=')[1].strip())
-                        elif line.startswith('PUDDLE_JUMP_DELAY'):
-                            if line.split('=')[1].strip():
-                                pj_delay = float(line.split('=')[1].strip())
-                        elif line.startswith('CUT_HEIGHT'):
-                            received.append('CUT_HEIGHT')
-                            if line.split('=')[1].strip():
-                                c_height = float(line.split('=')[1].strip())
-                            else:
-                                self.dialog_error('\nA value for CUT_HEIGHT is missing from Material #{}'.format(t_number))
-                        elif line.startswith('CUT_SPEED'):
-                            received.append('CUT_SPEED')
-                            if line.split('=')[1].strip():
-                                c_speed = float(line.split('=')[1].strip())
-                            else:
-                                self.dialog_error('\nA value for CUT_SPEED is missing from Material #{}'.format(t_number))
-                        elif line.startswith('CUT_AMPS'):
-                            if line.split('=')[1].strip():
-                                c_amps = float(line.split('=')[1].strip().replace(' ',''))
-                        elif line.startswith('CUT_VOLTS'):
-                            if line.split('=')[1].strip():
-                                c_volts = float(line.split('=')[1].strip())
-                self.materialFileDict[t_number] = [t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item]
-                iter = self.builder.get_object('materials').append()
-                self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(int(t_number), t_name))
-        except:
-            errorText = '\nThe material file, {} is invalid'.format(self.materialFile)
-            if t_number:
-                errorText += '\n\nError in material #{}'.format(t_number)
-            self.dialog_error(errorText)
-            print(errorText)
+        self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+        with open(self.materialFile, 'r') as f_in:
+            firstpass = True
+            required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
+            received = []
+            for line in f_in:
+                if line.startswith('#'):
+                    continue
+                elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
+                    newMaterial = True
+                    if not firstpass:
+                        self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+                        for item in required:
+                            if item not in received:
+                                self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
+                    firstpass = False
+                    t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  0.0
+                    t_item += 1
+                    received = []
+                elif line.startswith('NAME'):
+                    if line.split('=')[1].strip():
+                        t_name = line.split('=')[1].strip()
+                elif line.startswith('KERF_WIDTH'):
+                    if line.split('=')[1].strip():
+                        k_width = float(line.split('=')[1].strip())
+                elif line.startswith('THC'):
+                    if line.split('=')[1].strip():
+                        thc_enable = int(line.split('=')[1].strip())
+                elif line.startswith('PIERCE_HEIGHT'):
+                    received.append('PIERCE_HEIGHT')
+                    if line.split('=')[1].strip():
+                        p_height = float(line.split('=')[1].strip())
+                    else:
+                        self.dialog_error('\nA value for PIERCE_HEIGHT is missing from Material #{}'.format(t_number))
+                elif line.startswith('PIERCE_DELAY'):
+                    received.append('PIERCE_DELAY')
+                    if line.split('=')[1].strip():
+                        p_delay = float(line.split('=')[1].strip())
+                    else:
+                        self.dialog_error('\nA value for PIERCE_DELAY is missing from Material #{}'.format(t_number))
+                elif line.startswith('PUDDLE_JUMP_HEIGHT'):
+                    if line.split('=')[1].strip():
+                        pj_height = float(line.split('=')[1].strip())
+                elif line.startswith('PUDDLE_JUMP_DELAY'):
+                    if line.split('=')[1].strip():
+                        pj_delay = float(line.split('=')[1].strip())
+                elif line.startswith('CUT_HEIGHT'):
+                    received.append('CUT_HEIGHT')
+                    if line.split('=')[1].strip():
+                        c_height = float(line.split('=')[1].strip())
+                    else:
+                        self.dialog_error('\nA value for CUT_HEIGHT is missing from Material #{}'.format(t_number))
+                elif line.startswith('CUT_SPEED'):
+                    received.append('CUT_SPEED')
+                    if line.split('=')[1].strip():
+                        c_speed = float(line.split('=')[1].strip())
+                    else:
+                        self.dialog_error('\nA value for CUT_SPEED is missing from Material #{}'.format(t_number))
+                elif line.startswith('CUT_AMPS'):
+                    if line.split('=')[1].strip():
+                        c_amps = float(line.split('=')[1].strip().replace(' ',''))
+                elif line.startswith('CUT_VOLTS'):
+                    if line.split('=')[1].strip():
+                        c_volts = float(line.split('=')[1].strip())
+            self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+            for item in required:
+                if item not in received:
+                    self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
         self.builder.get_object('material').set_active(0)
         self.materialList = []
         for material in (self.materialFileDict.keys()):
@@ -338,7 +346,8 @@ class HandlerClass:
                         if 'gtk_theme' in line and not 'Follow System Theme' in line:
                             (item, theme) = line.strip().replace(" ", "").split('=')
             except:
-                print('*** configuration file, {} is invalid ***'.format(self.prefFile))
+                self.dialog_error('Preferences file, {} is invalid ***'.format(self.prefFile))
+                print('*** preferences file, {} is invalid ***'.format(self.prefFile))
         else:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
