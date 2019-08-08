@@ -215,7 +215,7 @@ class EditorBase(QsciScintilla):
         # setting marker margin width to zero make the marker highlight line
         self.setMarginWidth(1, 0)
         #self.matginClicked.connect(self.on_margin_clicked)
-        self.markerDefine(QsciScintilla.RightArrow,
+        self.markerDefine(QsciScintilla.Background,
                           self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffe4e4"),
                                       self.ARROW_MARKER_NUM)
@@ -336,6 +336,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
 
+
+
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
@@ -428,6 +430,17 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         LOG.debug(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
+
+    def jump_line(self, jump):
+        line, col = self.getCursorPosition()
+        line = line + jump
+        LOG.debug(line)
+        if line <0:
+            line = 0
+        elif line > self.lines():
+            line = self.lines()
+        self.setCursorPosition(line, 0)
+        self.highlight_line(None, line)
 
     # designer recognized getter/setters
     # auto_show_mdi status
@@ -731,6 +744,21 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def emit_percent(self, percent):
         self.percentDone.emit(percent)
+
+    def select_lineup(self):
+        self.editor.select_lineup(None)
+
+    def select_linedown(self):
+        self.editor.select_linedown(None)
+
+    def select_line(self, line):
+        self.editor.highlight_line(None, line)
+
+    def jump_line(self, jump):
+        self.editor.jump_line(jump)
+
+    def get_line(self):
+        return self.editor.getCursorPosition()[0] +1
 
     # designer recognized getter/setters
     # auto_show_mdi status

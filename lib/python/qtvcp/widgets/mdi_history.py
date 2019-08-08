@@ -119,22 +119,28 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.MDILine.submit()
         self.select_row('down')
 
+    def run_command(self):
+        self.MDILine.submit()
+        self.select_row('last')
+
     def select_row(self, style):
+        style = style.lower()
         selectionModel = self.list.selectionModel()
         parent = QModelIndex()
         self.rows = self.model.rowCount(parent) - 1
         if style == 'last':
             self.row = self.rows
+            print 'last =',self.row
         elif style == 'up':
             if self.row > 0:
                 self.row -= 1
             else:
-                self.row = self.rows
+                self.row = 0
         elif style == 'down':
             if self.row < self.rows:
                 self.row += 1
             else:
-                self.row = 0
+                self.row = self.rows
         else:
             return
         top = self.model.index(self.row, 0, parent)
