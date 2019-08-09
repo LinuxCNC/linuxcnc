@@ -2,7 +2,7 @@
 from pyhal import *
 import os
 
-os.system('halrun -U')
+os.system("realtime start")
 
 c = component("hello")
 
