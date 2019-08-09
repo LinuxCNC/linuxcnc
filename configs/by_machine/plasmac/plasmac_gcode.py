@@ -41,6 +41,8 @@ minDiameter = 32
 scale, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
 torchEnable = True
 velocity = 60
+pierceOnly = False
+rapidLine = ''
 
 # check if arc is a hole
 def check_if_hole():
@@ -180,8 +182,7 @@ with open(materialFile, 'r') as f_in:
     for line in f_in:
         if not line.startswith('#'):
             if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                a,b,c = line.split('_')
-                t_number = int(c.replace(']',''))
+                t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                 materialList.append(t_number)
 f = open(infile, 'r')
  
@@ -189,14 +190,18 @@ f = open(infile, 'r')
 count = 0
 for line in f:
     count += 1
-    # convert to lower case and remove spaces
-    line = line.strip().lower().replace(' ','')
-    # if line is a comment
+    # convert to lower case and remove whitespace and spaces
+    line = line.lower().strip().replace(' ','')
+    # if line is a comment get next line
     if line.startswith(';') or line.startswith('('):
         continue
     # if material change
     if 'm190' in line:
-        first, last = line.lower().strip().split('p',1)
+        if '(' in line:
+            line = line.split('(', 1)[0]
+        elif ';' in line:
+            line = line.split(';', 1)[0]
+        first, last = line.split('p', 1)
         material = ''
         # get the material number
         for mNumber in last.strip():
@@ -249,118 +254,179 @@ for line in f:
                 print('*** invalid diameter word\n'
                       'Error in line #{}: {}\n'
                       .format(count, line))
+    if line.startswith('#<pierce-only>') and \
+       line.split('=')[1][0] == '1':
+        pierceOnly = True
 
-# second, pass process every line
+# second pass, process every line
 if not codeError:
-    f = open(infile, 'r')
-    for line in f:
-        # remove line numbers
-        if line.startswith('n'):
-            line = line.split('n',1)[-1]
-            while line[0].isdigit() or line[0] == '.':
+    # if full cut
+    if not pierceOnly:
+        f = open(infile, 'r')
+        for line in f:
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
                 line = line[1:]
-        # remove leading 0's from G & M codes
-        if line.startswith('g') or line.startswith('m'):
-            while line[1] == '0':
-                if line[2].isdigit():
-                    line = line[:1] + line[2:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].lstrip()
+            # remove leading 0's from G & M codes
+            if (line.lower().startswith('g') or \
+               line.lower().startswith('m')) and \
+               len(line) > 2:
+                while line[1] == '0':
+                    if line[2].isdigit():
+                        line = line[:1] + line[2:]
+                    else:
+                        break
+            # if a commented line then print it and get next line
+            if line.startswith(';') or line.startswith('('):
+                print line
+                continue
+            # if a ; comment at end of line preprocess it
+            elif ';' in line:
+                a,b = line.split(';', 1)
+                line = '{} ({})'.format(a.strip().lower(),b)
+            # if a () comment at end of line preprocess it
+            elif '(' in line:
+                a,b = line.split('(', 1)
+                line = '{} ({}'.format(a.strip().lower(),b)
+            # if any other line preprocess it
+            else:
+                line = line.lower()
+            # if hole sense command
+            if line.startswith('#<holes>'):
+                if line.split('=')[1].replace(' ','')[0] == '2':
+                    holeEnable = overCut = True
+                    print('{} (overcut for holes)'.format('#<holes> = 2'))
+                elif line.split('=')[1].replace(' ','')[0] == '1':
+                    holeEnable = True
+                    overCut = False
+                    print('{} (velocity reduction for holes)'.format('#<holes> = 1'))
                 else:
-                    break
-        # if a commented line then print it and get next line
-        if line.startswith(';') or line.startswith('('):
-            print line.rstrip()
-            continue
-        # if a ; comment at end of line preprocess it
-        elif ';' in line:
-            a,b = line.strip().split(';')
-            line = '{} ({})'.format(a.strip().lower(),b)
-        # if a () comment at end of line preprocess it
-        elif '(' in line:
-            a,b = line.strip().split('(')
-            line = '{} ({}'.format(a.strip().lower(),b)
-        # if any other line preprocess it
-        else:
-            line = line.strip().lower()
-        # if hole sense command
-        if line.startswith('#<holes>'):
-            if line.split('=')[1].replace(' ','')[0] == '2':
-                holeEnable = overCut = True
-                print('{} (overcut for holes)'.format('#<holes> = 2'))
-            elif line.split('=')[1].replace(' ','')[0] == '1':
-                holeEnable = True
-                overCut = False
-                print('{} (velocity reduction for holes)'.format('#<holes> = 1'))
-            else:
-                holeEnable = overCut = False
-                print('{} (disable hole sensing)'.format('#<holes> = 0'))
-        # if diameter command
-        elif '_diameter>' in line:
-            if line.startswith('#<i_d'):
-                multiplier = 25.4
-            else:
-                multiplier = 1
-            if (';') in line:
-                minDiameter = float(line.split('=')[1].split(';')[0]) * multiplier
-            elif ('(') in line:
-                minDiameter = float(line.split('=')[1].split('(')[0]) * multiplier
-            else:
-                minDiameter = float(line.split('=')[1]) * multiplier
-            print(line)
-        # if z axis in line but no other axes
-        elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw']:
-            #print('Z only')
-            print('({})'.format(line))
-        # if z axis and other axes in line, comment out the Z axis
-        elif 'z' in line:
-            if holeEnable:
-                lastX, lastY = get_last_position(lastX, lastY)
-            comment_out_z_commands()
-        # if an arc command
-        elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
-            if holeEnable:
-                check_if_hole()
-            else:
+                    holeEnable = overCut = False
+                    print('{} (disable hole sensing)'.format('#<holes> = 0'))
+            # if diameter command
+            elif '_diameter>' in line:
+                if line.startswith('#<i_d'):
+                    multiplier = 25.4
+                else:
+                    multiplier = 1
+                if (';') in line:
+                    minDiameter = float(line.split('=')[1].split(';')[0]) * multiplier
+                elif ('(') in line:
+                    minDiameter = float(line.split('=')[1].split('(')[0]) * multiplier
+                else:
+                    minDiameter = float(line.split('=')[1]) * multiplier
                 print(line)
-        # if torch off, flag it then print it
-        elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
-            torchEnable = False
-            print(line)
-        # if torch on, flag it then print it
-        elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
-            torchEnable = True
-            print(line)
-        # if spindle off
-        elif line.startswith('m5'):
-            print(line)
-            # restore velocity if required
-            if holeActive:
-                print('m68 e3 q0 (arc complete, velocity 100%)')
-                holeActive = False
-            # if torch off, allow torch on 
-            if not torchEnable:
-                print('m65 p3 (enable torch)')
+            # if z axis in line but no other axes comment it
+            elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw']:
+                print('({})'.format(line))
+            # if z axis and other axes in line, comment out the Z axis
+            elif 'z' in line:
+                if holeEnable:
+                    lastX, lastY = get_last_position(lastX, lastY)
+                comment_out_z_commands()
+            # if an arc command
+            elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
+                if holeEnable:
+                    check_if_hole()
+                else:
+                    print(line)
+            # if torch off, flag it then print it
+            elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
+                torchEnable = False
+                print(line)
+            # if torch on, flag it then print it
+            elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
                 torchEnable = True
-        # if program end
-        elif 'm2' in line or 'm30' in line or '%' in line:
-            # restore hole sensing to default
-            if holeEnable:
-                print('#<holes> = 0 (disable hole sensing)')
-                holeEnable = False
-            # restore velocity if required
-            if holeActive:
-                print('m68 e3 q0 (arc complete, velocity 100%)')
-                holeActive = False
-            # if torch off, allow torch on 
-            if not torchEnable:
-                print('m65 p3 (enable torch)')
-                torchEnable = True
-            print(line)
-        # any other line
-        else:
-            if holeEnable:
+                print(line)
+            # if spindle off
+            elif line.startswith('m5'):
+                print(line)
                 # restore velocity if required
                 if holeActive:
-                    print('m67 e3 q0 (arc complete, velocity 100%)')
+                    print('m68 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
-                lastX, lastY = get_last_position(lastX, lastY)
-            print(line)
+                # if torch off, allow torch on 
+                if not torchEnable:
+                    print('m65 p3 (enable torch)')
+                    torchEnable = True
+            # if program end
+            elif 'm2' in line or 'm30' in line or '%' in line:
+                # restore hole sensing to default
+                if holeEnable:
+                    print('#<holes> = 0 (disable hole sensing)')
+                    holeEnable = False
+                # restore velocity if required
+                if holeActive:
+                    print('m68 e3 q0 (arc complete, velocity 100%)')
+                    holeActive = False
+                # if torch off, allow torch on 
+                if not torchEnable:
+                    print('m65 p3 (enable torch)')
+                    torchEnable = True
+                print(line)
+            # any other line
+            else:
+                if holeEnable:
+                    # restore velocity if required
+                    if holeActive:
+                        print('m67 e3 q0 (arc complete, velocity 100%)')
+                        holeActive = False
+                    lastX, lastY = get_last_position(lastX, lastY)
+                print(line)
+    #if pierce only
+    else:
+        print('(Piercing Only)')
+        spindleOn = False
+        pierces = 0
+        f = open(infile, 'r')
+        # print all lines up to the first spindle on
+        for line in f:
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
+                line = line[1:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].lstrip()
+            # if a rapid move
+            if line.lower().startswith('g0'):
+                rapidLine = line
+            # if a spindle on
+            elif line.lower().replace(' ','').startswith('m3s'):
+                spindleOn = True
+                break
+            elif not '#<pierce-only>' in line:
+                print(line)
+        #find all other spindle ons
+        for line in f:
+            if spindleOn:
+                pierces += 1
+                print('\n(Pierce #{})'.format(pierces))
+                print(rapidLine)
+                print('M3 S1')
+                print('G91')
+                print('G1 X.000001')
+                print('G90\nM5')
+                rapidLine = ''
+                spindleOn = False
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
+                line = line[1:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].strip()
+            # if a rapid move
+            if line.lower().startswith('g0'):
+                rapidLine = line
+            # if a spindle on
+            elif line.lower().replace(' ','').startswith('m3s'):
+                spindleOn = True
+        print('')
+        if rapidLine:
+            print('{}'.format(rapidLine))
+        print('M30 (END)')
