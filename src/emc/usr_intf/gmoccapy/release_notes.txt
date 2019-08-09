@@ -1,3 +1,8 @@
+ver 3.0.7.2
+- did not update the gmoccapy.toolmeasurement hal pin, so tool measurement ended
+  with an error after a restart of the GUI
+  Thanks to Mark and Ralf for reporting
+
 ver 3.0.7.1
 - jogging of non trivial kinematics need an int for jogging
 

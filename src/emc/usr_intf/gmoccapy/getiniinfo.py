@@ -435,11 +435,11 @@ class GetIniInfo:
             messages = zip(message_text, message_type, message_pinname)
             return messages
 
-    def get_machine_units(self):#
-        units = self.inifile.findall("TRAJ", "LINEAR_UNITS")
+    def get_machine_units(self):
+        units = self.inifile.find("TRAJ", "LINEAR_UNITS")
         if units == "mm" or units == "cm" or units == "inch":
             return units
         else:
             print("**** GMOCCAPY GETINIINFO **** \nERROR getting machine units \n"
-                  "please check [TRAJ] LINEAR_UNITS for a valid entry")
+                  "please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}".format(units))
             return None
