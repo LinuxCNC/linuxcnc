@@ -4157,7 +4157,7 @@ EXPORT_SYMBOL(hal_port_peek_commit);
 EXPORT_SYMBOL(hal_port_write);
 EXPORT_SYMBOL(hal_port_readable);
 EXPORT_SYMBOL(hal_port_writable);
-EXPORT_SYMBOL(hal_port_size);
+EXPORT_SYMBOL(hal_port_buffer_size);
 EXPORT_SYMBOL(hal_port_clear);
 
 EXPORT_SYMBOL_GPL(hal_stream_create);
