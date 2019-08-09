@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.7.1"
+_RELEASE = " 3.0.7.2"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -882,7 +882,7 @@ class gmoccapy(object):
             btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
             btn.connect("clicked", self._on_btn_set_value_clicked)
 
-            print("Touch button Name = ",name)
+            #print("Touch button Name = ",name)
 
             self.widgets.hbtb_touch_off.pack_start(btn)
             
@@ -943,12 +943,12 @@ class gmoccapy(object):
         # tool measurement probe settings
         xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
         if not xpos or not ypos or not zpos or not maxprobe:
-            self.widgets.chk_use_tool_measurement.set_active(False)
-            self.widgets.chk_use_tool_measurement.set_sensitive(False)
             self.widgets.lbl_tool_measurement.show()
             print(_("**** GMOCCAPY INFO ****"))
             print(_("**** no valid probe config in INI File ****"))
             print(_("**** disabled tool measurement ****"))
+            self.widgets.chk_use_tool_measurement.set_active(False)
+            self.widgets.chk_use_tool_measurement.set_sensitive(False)
             return False
         else:
             self.widgets.lbl_tool_measurement.hide()
@@ -956,7 +956,6 @@ class gmoccapy(object):
             self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
             self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
             self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
-            # to set the hal pin with correct values we emit a toogled
             self.widgets.lbl_x_probe.set_label(str(xpos))
             self.widgets.lbl_y_probe.set_label(str(ypos))
             self.widgets.lbl_z_probe.set_label(str(zpos))
@@ -1220,7 +1219,7 @@ class gmoccapy(object):
 
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
-            print(child.name)
+            #print(child.name)
             self.macro_dic[child.name] = child
 
         if num_macros >= 9:
@@ -1504,7 +1503,7 @@ class gmoccapy(object):
             rows = (len(self.dro_dic) + 1) / 2
 
         self.widgets.tbl_jog_btn_axes.resize(rows, cols)
-        print (cols,rows)
+        #print (cols,rows)
 
         col = 0
         row = 0
@@ -1545,7 +1544,7 @@ class gmoccapy(object):
         row = 0
 
         for joint in range(0, self.stat.joints):
-            print(joint)
+            #print(joint)
 
             joint_name = "{0}-".format(joint)
             self.widgets.tbl_jog_btn_joints.attach(self.joints_button_dic[joint_name],
@@ -2688,6 +2687,13 @@ class gmoccapy(object):
 
         # set initial state of widgets
         self.touch_button_dic["set_active"].set_sensitive(False)
+
+        # set up the hal pin status of tool measurement
+        # could not be done prior to this, as the hal pin are not created before
+        # the tool measure check, due to the reason we need tzo know if creation
+        # of tool measurement button is needed. So we call the toogle action to
+        # set all up and running
+        self.on_chk_use_tool_measurement_toggled(self.widgets.chk_use_tool_measurement)
 
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
@@ -3848,21 +3854,6 @@ class gmoccapy(object):
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
-
-    def on_tbtn_use_screen2_toggled(self, widget, data=None):
-        self.prefs.putpref("use_screen2", widget.get_active())
-        if widget.get_active():
-            self.widgets.window2.show()
-            if self.widgets.rbtn_window.get_active():
-                try:
-                    pos = self.widgets.window1.get_position()
-                    size = self.widgets.window1.get_size()
-                    left = pos[0] + size[0]
-                    self.widgets.window2.move(left, pos[1])
-                except:
-                    pass
-        else:
-            self.widgets.window2.hide()
 
     def on_btn_show_kbd_clicked(self, widget):
         #print("show Keyboard clicked", self.widgets.key_box.get_children())
