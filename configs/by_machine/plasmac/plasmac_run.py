@@ -89,7 +89,7 @@ class HandlerClass:
         self.builder.get_object('materials').clear()
         t_number = 0
         t_name = 'Default'
-        k_width = float(self.builder.get_object('kerf-width').get_value())
+        k_width = (self.builder.get_object('kerf-width').get_value())
         thc_enable = self.builder.get_object('thc-enable').get_active()
         p_height = self.builder.get_object('pierce-height').get_value()
         p_delay = self.builder.get_object('pierce-delay').get_value()

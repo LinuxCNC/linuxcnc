@@ -308,8 +308,8 @@ image::images/plasmac_configurator_new.png[width=400]
          the HAL pin you have connected your move up signal to
 |Move Down|Mode 2 only +
            the HAL pin you have connected your move down signal to
-|Run Tab/Panel|Run Tab = the run frame is a tab behind the preview tab +
-               Run Panel = the run frame is a panel at the side of the GUI
+|Run Frame|Run Tab = the run frame is a tab behind the preview tab +
+           Run Panel = the run frame is a panel at the side of the GUI
 |===
 
 Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
@@ -370,7 +370,7 @@ It is possible to disable this panel so machine settings cannot be modified by u
 [PLASMAC] CONFIG_DISABLE = 1
 ----
 
-A HAL pin named 'plasmac_config.config-disable' can then be set to 0 to enable the panel. This pin could be tied to a key-switch or similar so only authorised personnel could enable the config panel.
+A HAL pin named 'plasmac_config.config-disable' can then be set to Zero to enable the panel. This pin could be tied to a key-switch or similar so only authorised personnel could enable the config panel.
 
 image::images/plasmac_config.png[width=400]
 
@@ -409,7 +409,7 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 |===
 |*Name*|*Description*
 |Safe Height|This is the height above the work surface that the Z axis will retract to on rapid moves. +
-                   If set to zero then Z axis maximum height will be used for the safe height.
+                   If set to Zero then Z axis maximum height will be used for the safe height.
 |===
 
 .Arc
@@ -596,26 +596,28 @@ image::images/plasmac_stats.png[width=400]
 
 The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
 
-PlasmaC will read the cut parameters from the Run tab/panel and use them where required.
+PlasmaC will read the cut parameters from the Run Frame and use them where required.
+
+[[material-handling]]
 
 === Material Handling
 
 Material handling has nothing at all to do with the LinuxCNC tool table. In fact 'M6 Tn' commands should not be used with these configs.
 
-There is a material file with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
+There is a <<material-file,material file>> with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
-It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run tab/panel/panel. It is also not a requirement to use the automatic material changes, just omit them from the G-Code file.
+It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run Frame. It is also not a requirement to use the automatic material changes, just omit them from the G-Code file.
 
 The following codes may be used for a PlasmaC configuration:
 
 * 'M190 Pn' - changes the material to number n.
 * 'M66 P3 L3 Q1' - waits for material change to be confirmed.
-* 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run tab/panel/panel.
+* 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run Frame.
 * 'M3 S1' - starts the PlasmaC component.
 
 NOTE: F#<_hal[plasmac.cut-feed-rate]> could be replaced with Fnnn, see THC notes below.
 
-For manual material handling all you need in the G-Code is:
+For manual material handling you manually select the material from the materials list in the Run Frame before running your GCode which should have the following minimum code:
 
 ----
 F#<_hal[plasmac.cut-feed-rate]>
@@ -623,6 +625,8 @@ M3 S1
 ...
 M5
 ----
+
+NOTE: Manual material handling does restrict you to only one material for the entire job.
 
 For automatic material handling, the codes MUST be in the order shown.
 You could have other codes between them.
@@ -639,28 +643,28 @@ M5
 
 Material numbers do not need to be consecutive nor do they need to be in numerical order.
 
-When a material is changed it only changes the cut parameters in the Run tab/panel, LinuxCNC knows nothing of the material nor does PlasmaC know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
+When a material is changed it only changes the cut parameters in the Run Frame, LinuxCNC knows nothing of the material nor does PlasmaC know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
 
 Materials can be selected manually with the either the Cut Parameters combobox or via MDI with M190 Pn.
 
 === THC
 
-NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run tab/panel.
+NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Frame.
 
-THC can be controlled from the THC frame of the Run tab/panel, off = disabled, on = enabled and auto means abide by the THC Enable checkbox in the cut parameters.
+THC can be controlled from the THC frame of the Run Frame, off = disabled, on = enabled and auto means abide by the THC Enable checkbox in the cut parameters.
 
-THC can also be enabled or disabled directly from G-Code provided that THC is not disabled in the Run tab/panel.
+THC can also be enabled or disabled directly from G-Code provided that THC is not disabled in the Run Frame.
 
-PlasmaC uses a control voltage dependent on the state of the Use Auto Volts checkbox in the Run tab/panel:
+PlasmaC uses a control voltage dependent on the state of the Use Auto Volts checkbox in the Run Frame:
 
-. If Use Auto Volts is checked then the actual cut voltage is sampled after the cut begins and this is then used as the control voltage. To allow the arc voltage to stabilise, PlasmaC waits for the amount of time displayed as Delay in the THC frame of the Run tab/panel before taking the sample.
-. If Use Auto Volts is not checked then the voltage displayed as Cut Volts in the Cut Parameters frame of the Run tab/panel is used as the control voltage.
+. If Use Auto Volts is checked then the actual cut voltage is sampled after the cut begins and this is then used as the control voltage. To allow the arc voltage to stabilise, PlasmaC waits for the amount of time displayed as Delay in the THC frame of the Run Frame before taking the sample.
+. If Use Auto Volts is not checked then the voltage displayed as Cut Volts in the Cut Parameters frame of the Run Frame is used as the control voltage.
 
 THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'.
 
 .G-Code THC
 
-THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run tab/panel, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
+THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run Frame, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
 
 * 'M62 P2' will disable THC (synchronised with motion)
 * 'M63 P2' will enable THC (synchronised with motion)
@@ -696,7 +700,7 @@ NOTE: Another way of achieving the same result is to use 'F#<_hal[plasmac.cut-fe
 F[#<_hal[plasmac.cut-feed-rate] * 0.6]
 ----
 
-WARNING: If Cut Feed Rate in the Run tab/panel is set to 0 then PlasmaC will use 'motion.requested-velocity' for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
+WARNING: If Cut Feed Rate in the Run Frame is set to Zero then PlasmaC will use 'motion.requested-velocity' for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
 
 === Cutter Compensation
 
@@ -909,7 +913,7 @@ The workpiece is too high for any safe rapid removes.
 
 * 'material too high for safe traverse program is paused'
 
-One of these values in Cut Parameters in the Run tab/panel is invalid.
+One of these values in Cut Parameters in the Run Frame is invalid.
 
 * 'invalid pierce height or invalid cut height or invalid cut volts'
 
@@ -1040,11 +1044,11 @@ EMBED_TAB_NAME    = Statistics
 EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
 use one of the next two
 
-run panel in tab behind preview
+run frame in tab behind preview
 EMBED_TAB_NAME    = Plasma Run
 EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 
-run panel in panel on left side
+run frame in panel on left side
 GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
 EMBED_TAB_NAME    = Plasma Config
@@ -1182,7 +1186,7 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 BUTTON_n_CODE = probe-test 30
 ----
 
-PlasmaC will begin a probe and when the probe is detected, the Z axis will rise to the Pierce Height currently displayed in the Run tab/panel. It will then wait in this state for the time specified (in this case 30 seconds) then it will return the Z axis to the top.
+PlasmaC will begin a probe and when the probe is detected, the Z axis will rise to the Pierce Height currently displayed in the Run Frame. It will then wait in this state for the time specified (in this case 30 seconds) then it will return the Z axis to the top.
 
 [[button-ohmic]]
 
@@ -1193,6 +1197,54 @@ BUTTON_n_CODE = ohmic-test
 ----
 
 PlasmaC will enable the Ohmic Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
+
+[[material-file]]
+
+== Material File
+
+PlasmaC uses a file containing cut parameters for materials. This file is used for <<material-handling,material handling>>.
+
+The file name is derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
+
+The following variables are mandatory and an error message will appear if any are not found when the material file is loaded.
+
+* PIERCE_HEIGHT
+* PIERCE_DELAY
+* CUT_HEIGHT
+* CUT_SPEED
+
+The following variables are optional. If any are not detected or have no value assigned, they will be assigned a value of 0 and no error message will appear.
+
+* NAME
+* KERF_WIDTH
+* THC
+* PUDDLE_JUMP_HEIGHT
+* PUDDLE_JUMP_DELAY
+* CUT_AMPS
+* CUT_VOLTS
+
+WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the GCode to be run.
+
+The material file uses the following format:
+
+----
+[MATERIAL_NUMBER_1]  
+NAME                = name
+KERF_WIDTH          = value
+THC                 = value (0 = off, 1 = on)
+PIERCE_HEIGHT       = value
+PIERCE_DELAY        = value
+PUDDLE_JUMP_HEIGHT  = value
+PUDDLE_JUMP_DELAY   = value
+CUT_HEIGHT          = value
+CUT_SPEED           = value
+CUT_AMPS            = value (only used for operator information)
+CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
+----
+
+The material file is a plain text file and may be edited with any text editor.
+
+It is possible to edit the material file while LinuxCNC is running by clicking 'Reload' in the Run Frame after any changes have been saved.
 
 == Example Configurations
 
@@ -1233,7 +1285,7 @@ After running a new working configuration the first time the following will be c
 |===
 |*Filename*|*Function* (<MACHINE> = name of machine in ini file)
 |<MACHINE>_config.cfg|configuration settings for the config tab
-|<MACHINE>_run.cfg|configuration settings for the Run tab/panel
+|<MACHINE>_run.cfg|configuration settings for the Run Frame
 |<MACHINE>_material.cfg|material file for cut parameters
 |plasmac_stats.var|saved statistics
 |===
