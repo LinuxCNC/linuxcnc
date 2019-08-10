@@ -148,7 +148,7 @@ def comment_out_z_commands():
             else:
                 removing = 0
                 if newz:
-                    newz = newz.rstrip() + ')'
+                    newz = newz.rstrip()
                 newline += bit
         elif bit == '(':
             comment = 1
