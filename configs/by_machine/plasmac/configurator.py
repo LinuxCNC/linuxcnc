@@ -258,6 +258,7 @@ class configurator:
                 inFile.close()
                 return False
 
+    # check existing version so we know what to upgrade
     def check_version(self):
         # see if this is a version before creating {MACHINE}_connections.hal
         if not os.path.exists('{}/{}_connections.hal'.format(os.path.dirname(self.orgIniFile),self.machineName.lower())):
@@ -279,6 +280,7 @@ class configurator:
             if version == 0.0:
                 self.upgrade_connections_hal_00()
             self.upgrade_ini_file(version,display)
+            self.upgrade_material_file()
             if not self.make_links(display): return
             self.dialog_ok('SUCCESS','\nUpgrade is complete.\n\n')
             return
@@ -461,23 +463,57 @@ class configurator:
                     outFile.write(\
                         '\n'\
                         '# use one of the next two\n'\
-                        '# run panel in tab behind preview\n'\
+                        '# run frame in tab behind preview\n'\
                         'EMBED_TAB_NAME          = Plasma Run\n')
                 elif line.startswith('EMBED_TAB_COMMAND') and 'plasmac_run.glade' in line:
                     outFile.write('EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade\n')
                     if display == 'axis':
                         outFile.write(\
-                            '# run panel on right\n'\
+                            '# run frame on right\n'\
                             '#GLADEVCP                = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade\n\n')
                     elif display == 'gmoccapy':
                         outFile.write(\
-                            '# run panel on left\n'\
+                            '# run frame on left\n'\
                             '#EMBED_TAB_LOCATION      = box_left\n'\
                             '#EMBED_TAB_COMMAND       = gladevcp -c plasmac_run -x {XID} -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade\n\n')
                 else:
                     outFile.write(line)
             inFile.close()
             outFile.close()
+
+    def upgrade_material_file(self):
+        materialFile = '{}/{}_material.cfg'.format(os.path.dirname(self.orgIniFile),self.machineName.lower())
+        if os.path.exists(materialFile):
+            inFile = open(materialFile, 'r')
+            mVersion = 0
+            for line in inFile:
+                if '[VERSION' in line:
+                    mVersion = float(line.strip().strip(']').split(' ')[1])
+            inFile.close()
+            if mVersion == 1:
+                shutil.copy(materialFile,'{}.old1'.format(materialFile))
+                inFile = open('{}.old1'.format(materialFile), 'r')
+                outFile = open(materialFile, 'w')
+                outFile.write(self.material_header())
+                while 1:
+                    line = inFile.readline()
+                    if line.startswith('[MATERIAL_NUMBER'):
+                        outFile.write(line)
+                        break
+                    if not line:
+                        inFile.close()
+                        self.dialog_ok('ERROR','Cannot find a MATERIAL section in material file')
+                        return False
+                while 1:
+                    line = inFile.readline()
+                    if not line:
+                        inFile.close()
+                        return True
+                    outFile.write(line)
+                inFile.close()
+                outFile.close()
+        else:
+            print('No material file to upgrade')
 
     def copy_ini_and_hal_files(self):
         # copy original INI and HAL files for input and backup
@@ -816,33 +852,14 @@ class configurator:
             os.symlink(src,dst)
         return True
 
-
     def write_material_file(self):
         # create a new material file if not existing
-        version = '[VERSION 1]'
         materialFile = '{}/{}_material.cfg'.format(self.newIniPath,self.machineName.lower())
         if os.path.exists(materialFile):
             return True
         else: # create a new material file if it doesn't exist
             with open(materialFile, 'w') as outFile:
-                outFile.write(\
-                    '#plasmac material file\n'\
-                    '#the next line is required for version checking\n'\
-                    + version + '\n\n'\
-                    '#example only, may be deleted\n'\
-                    '#[MATERIAL_NUMBER_1]  \n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#THC                = (0 = off, 1 = on)\n'\
-                    '#PIERCE_HEIGHT      = \n'\
-                    '#PIERCE_DELAY       = \n'\
-                    '#PUDDLE_JUMP_HEIGHT = (optional, set to 0 or delete if not required)\n'\
-                    '#PUDDLE_JUMP_DELAY  = (optional, set to 0 or delete if not required)\n'\
-                    '#CUT_HEIGHT         = \n'\
-                    '#CUT_SPEED          = \n'\
-                    '#CUT_AMPS           = (optional, only used for operator information)\n'\
-                    '#CUT_VOLTS          = (modes 0 & 1 only, if not using auto voltage sampling)\n'\
-                    '\n')
+                outFile.write(self.material_header())
         return True
 
     def print_success(self):
@@ -1095,6 +1112,26 @@ class configurator:
                     ]
         else:
             return None
+
+    def material_header(self):
+        return  '# plasmac material file\n'\
+                '# the next line is required for version checking\n'\
+                '[VERSION 1.1]\n\n'\
+                '# example only, may be deleted\n'\
+                '# items marked * are optional and will be 0 if not specified\n'\
+                '# all other items are mandatory\n'\
+                '#[MATERIAL_NUMBER_1]  \n'\
+                '#NAME               = *\n'\
+                '#KERF_WIDTH         = *\n'\
+                '#THC                = * (0 = off, 1 = on)\n'\
+                '#PIERCE_HEIGHT      = \n'\
+                '#PIERCE_DELAY       = \n'\
+                '#PUDDLE_JUMP_HEIGHT = *\n'\
+                '#PUDDLE_JUMP_DELAY  = *\n'\
+                '#CUT_HEIGHT         = \n'\
+                '#CUT_SPEED          = \n'\
+                '#CUT_AMPS           = * (only used for operator information)\n'\
+                '#CUT_VOLTS          = * (modes 0 & 1 only, if not using auto voltage sampling)\n\n'
 
 if __name__ == '__main__':
     try:
