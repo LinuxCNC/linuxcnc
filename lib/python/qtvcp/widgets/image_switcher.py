@@ -23,13 +23,14 @@ from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status
+from qtvcp.core import Status, Info
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
 STATUS = Status()
+INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
@@ -43,10 +44,15 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
         self.IMAGEDIR = os.path.join(os.environ['EMC2_HOME'], "share","qtvcp","images")
         self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png')]
         self._current_number = 0
-        self.show_image_by_number(0)
+
+    def _hal_init(self):
+        self.show_image_by_number(self._current_number)
 
     # Show the widgets based on a reference number
     def show_image_by_number(self, number):
+        print self.objectName(),len(self._imagePath),number
+        if self._imagePath[number].upper() == 'NONE':
+            return
         if number <0 or number > len(self._imagePath)-1:
             LOG.debug('Path reference number out of range: {}'.format(number))
             return
@@ -94,6 +100,10 @@ class StatusImageSwitcher(ImageSwitcher):
                     os.path.join(self.IMAGEDIR,'spindle_cw.gif')]
         self.spindle = True
         self.all_homed = False
+        self.hard_limits = False
+        self._last_limit = []
+        for i in range(0,len(INFO.AVAILABLE_JOINTS)):
+            self._last_limit.append([0,0])
 
     def _hal_init(self):
         if self.spindle:
@@ -101,13 +111,37 @@ class StatusImageSwitcher(ImageSwitcher):
         elif self.all_homed:
             STATUS.connect('not-all-homed', lambda w, data: self.switch_on_homed(0))
             STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
+        elif self.hard_limits:
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
 
     def switch_on_spindle(self, b, data):
         if data <0: data= 2
         self.set_image_number(data)
 
     def switch_on_homed(self, data):
-        self.set_image_number(data)
+        if not data <0:
+            self.set_image_number(data)
+
+    def switch_on_hard_limits(self, data, group):
+        if not data:
+            # tripped
+            self.set_image_number(0)
+        elif (len(self._imagePath)) == 2:
+            print 'bool images'
+            self.set_image_number(1)
+        elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS)):
+            print 'per joint limts images', self._last_limit, group
+            for i in range(0,len(INFO.AVAILABLE_JOINTS)):
+                if group[i] == self._last_limit[i]:
+                    pass
+                elif group[i] == [0,0]:
+                    pass
+                else:
+                    self.set_image_number(i+1)
+                    break
+        elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS) * 2):
+            print 'per joint and per end limts images'
+        self._last_limit = group
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -118,7 +152,7 @@ class StatusImageSwitcher(ImageSwitcher):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('spindle','all_homed' )
+        data = ('spindle','all_homed', 'hard_limits' )
 
         for i in data:
             if not i == picked:
@@ -147,6 +181,17 @@ class StatusImageSwitcher(ImageSwitcher):
     def reset_homed(self):
         self.all_homed = False
     watch_all_homed = pyqtProperty(bool, get_homed, set_homed, reset_homed)
+
+    # machine_limits status
+    def set_limits(self, data):
+        self.hard_limits = data
+        if data:
+            self._toggle_properties('hard_limits')
+    def get_limits(self):
+        return self.hard_limits
+    def reset_limits(self):
+        self.hard_limits = False
+    watch_hard_limits = pyqtProperty(bool, get_limits, set_limits, reset_limits)
 
     ##############################
     # required class boiler code #

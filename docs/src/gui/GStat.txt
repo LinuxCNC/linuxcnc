@@ -149,8 +149,9 @@ Sends a list of joints not currently homed.
 *override_limits_changed* :: '(returns string)' -
 Sent if linuxcnc has been directed to override it's limits.
 
-*hard-limit-tripped* :: '(returns bool)' -
+*hard-limit-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
+bool indicates it any limit is tripped, the list shows all available joint's current limit values.
 
 *mode-manual* :: '(returns nothing)' -
 Sent when linuxcnc switches to manual mode.
