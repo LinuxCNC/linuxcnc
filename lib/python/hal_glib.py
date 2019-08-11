@@ -91,7 +91,7 @@ class _GStat(gobject.GObject):
         'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
 
-        'hard-limits-tripped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'hard-limits-tripped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
 
         'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -267,14 +267,17 @@ class _GStat(gobject.GObject):
 
         # override limits / hard limits
         or_limit_list=[]
+        hard_limit_list = []
         hard_limit = False
         for j in range(0, self.stat.joints):
             or_limit_list.append( self.stat.joint[j]['override_limits'])
             min_hard_limit = self.stat.joint[j]['min_hard_limit']
             max_hard_limit = self.stat.joint[j]['max_hard_limit']
             hard_limit = hard_limit or min_hard_limit or max_hard_limit
+            hard_limit_list.append([min_hard_limit,max_hard_limit])
         self.old['override-limits'] = or_limit_list
         self.old['hard-limits-tripped'] = bool(hard_limit)
+        self.old['hard-limits-list'] = hard_limit_list
 
         # active G codes
         active_gcodes = []
@@ -443,10 +446,11 @@ class _GStat(gobject.GObject):
         if or_limits_new != or_limits_old:
             self.emit('override-limits-changed',or_limits_new)
         # hard limits tripped
-        hard_limits_tripped_old = old.get('hard-limits-tripped', None)
-        hard_limits_tripped_new = self.old['hard-limits-tripped']
-        if hard_limits_tripped_new != hard_limits_tripped_old:
-            self.emit('hard-limits-tripped',hard_limits_tripped_new)
+        t_list_old = old.get('hard-limits-list')
+        t_list_new = self.old['hard-limits-list']
+        if t_list_new != t_list_old:
+            hard_limits_tripped_new = self.old['hard-limits-tripped']
+            self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # current velocity
         self.emit('current-feed-rate',self.stat.current_vel * 60.0)
         # X relative position

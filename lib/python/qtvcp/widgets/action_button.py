@@ -281,7 +281,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('spindle-control-changed', lambda w, e, d: _safecheck(not e))
 
         elif self.limits_override:
-            STATUS.connect('hard-limits-tripped', lambda w, data: self.setEnabled(data))
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: self.setEnabled(data))
         elif self.flood:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
