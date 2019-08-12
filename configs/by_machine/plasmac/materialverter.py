@@ -233,15 +233,15 @@ class materialConverter:
                         self.materialNum = ''
                         self.materialName = 'NAME               = '
                         self.materialKerf = 'KERF_WIDTH         = '
-                        self.materialTHC = 'THC                = '
+                        self.materialTHC = 'THC                = 0'
                         self.materialPierceH = 'PIERCE_HEIGHT      = '
                         self.materialPierceD = 'PIERCE_DELAY       = '
                         self.materialPuddleH = 'PUDDLE_JUMP_HEIGHT = 0'
                         self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = 0'
                         self.materialCutH = 'CUT_HEIGHT         = '
                         self.materialCutS = 'CUT_SPEED          = '
-                        self.materialCutA = 'CUT_AMPS           = '
-                        self.materialCutV = 'CUT_VOLTS          = '
+                        self.materialCutA = 'CUT_AMPS           = 0'
+                        self.materialCutV = 'CUT_VOLTS          = 0'
                     elif 'PlasmaTool' in line:
                         valid = True
                     elif line.startswith('Tool\ number'):
