@@ -1,5 +1,10 @@
+ver 3.0.7.3
+- Ralf reported an error toggling the Edit Offsets button. It was caused because
+  I missed to change the widget handling of the dynamically created widgets on
+  this special page.
+
 ver 3.0.7.2
-- did not update the gmoccapy.toolmeasurement hal pin, so tool measurement ended
+- did not update the gmoccapy.tool measurement hal pin, so tool measurement ended
   with an error after a restart of the GUI
   Thanks to Mark and Ralf for reporting
 
