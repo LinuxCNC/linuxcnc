@@ -1205,4 +1205,21 @@ motion modules, the python interface, the axis gui, and the test suite.
 A homing api is provided by src/emc/motion/homing.ini to support users'
 custom homing code in out-of-tree homing.c source files.
 
+==== Other
+
+lib/hallib/sim_lib.tcL: simulate encoder index if [JOINT_n]HOME_USE_INDEX
+is specified.
+
+=== Hal
+
+==== Components
+
+sim_home_switch: added I/O pin for index-enable
+
+=== Configs
+
+==== Simulation Configs
+
+sim/configs/axis/axis_9axis: demonstrate simulated encoder index
+
 // vim: set syntax=asciidoc:

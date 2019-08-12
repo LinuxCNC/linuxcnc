@@ -321,6 +321,13 @@ proc simulated_home {number_of_joints} {
         }
       }
     } ;# type
+    if [info exists ::JOINT_[set jno](HOME_USE_INDEX)] {
+      if [set ::JOINT_[set jno](HOME_USE_INDEX)] {
+        # Note: use default for joint.${jno}.index-delay-ms
+        net J${jno}:index-enable <= joint.${jno}.index-enable
+        net J${jno}:index-enable => J${jno}_switch.index-enable
+      }
+    }
   } ;# for
 } ;# simulated_home
 
