@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.7.2"
+_RELEASE = " 3.0.7.3"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -475,6 +475,7 @@ class gmoccapy(object):
                       "btn_select_tool_by_no", "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
         ]
+        # 
         self._sensitize_widgets(widgetlist, False)
 
         # this must be done last, otherwise we will get wrong values
@@ -927,8 +928,7 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(btn)
         btn.show()
 
-        name = "touch_back"
-        btn = self._get_button_with_image(name, None, gtk.STOCK_UNDO)
+        btn = self._get_button_with_image("touch_back", None, gtk.STOCK_UNDO)
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_touch_off.pack_start(btn)
@@ -3916,31 +3916,27 @@ class gmoccapy(object):
 
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
-        self.widgets.offsetpage1.edit_button.set_active( state )
-        widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92",
-                      "rbt_mdi","rbt_auto","tbtn_setup"
-        ]
+        self.widgets.offsetpage1.edit_button.set_active(state)
+        self.widgets.ntb_preview.set_current_page(1)
+
+        if self.widgets.rbtn_show_preview.get_active() and not state:
+            self.widgets.ntb_preview.set_current_page(0)
+
+        widgetlist = ["ntb_jog", "rbt_mdi","rbt_auto","tbtn_setup"]
 
         if self.widgets.tbtn_user_tabs.get_sensitive():
             widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
 
-        if state:
-            self.widgets.ntb_preview.set_current_page(1)
-        else:
-            self.widgets.ntb_preview.set_current_page(0)
+        for element in self.touch_button_dic:
+            if self.touch_button_dic[element].name in ["edit_offsets", "touch_back"]:
+                continue
+            self.touch_button_dic[element].set_sensitive(not state)
 
-        # we have to replace button calls in our list to make all hardware button
-        # activate the correct button call
-        if state and self.widgets.chk_use_tool_measurement.get_active():
-            self.widgets.btn_zero_g92.show()
-            self.widgets.btn_block_height.hide()
-            self._replace_list_item(4, "btn_block_height", "btn_zero_g92")
-        elif not state and self.widgets.chk_use_tool_measurement.get_active():
-            self.widgets.btn_zero_g92.hide()
-            self.widgets.btn_block_height.show()
-            self._replace_list_item(4, "btn_zero_g92", "btn_block_height")
+        # if no system is selected we will set the button not sensitive
+        system, name = self.widgets.offsetpage1.get_selected()
+        if not system:
+            self.touch_button_dic["set_active"].set_sensitive(False)
 
         if not state:  # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(linuxcnc.MODE_MANUAL)
