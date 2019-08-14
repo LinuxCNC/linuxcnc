@@ -354,7 +354,7 @@ if not codeError:
                     print('m65 p3 (enable torch)')
                     torchEnable = True
             # if program end
-            elif 'm2' in line or 'm30' in line or '%' in line:
+            elif line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
                 # restore hole sensing to default
                 if holeEnable:
                     print('#<holes> = 0 (disable hole sensing)')
