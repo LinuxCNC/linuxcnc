@@ -163,7 +163,6 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.buildStack()
 
     def _hal_init(self):
-        print self.HAL_GCOMP_
         self.runButton.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
