@@ -113,7 +113,10 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.tool_comment:
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
-            STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
+            if INFO.MACHINE_IS_LATHE:
+                STATUS.connect('current-x-rel-position', lambda w, data: _set_work_diameter(data))
+            else:
+                STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
             STATUS.connect('metric-mode-changed', self._switch_units)
         elif self.filename or self.filepath:
@@ -210,16 +213,21 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         else:
             self._diameter = 1
         self. _set_surface_speed()
+    def _set_work_diameter(self, radius):
+        self._diameter = radius * 2
+        self._set_surface_speed()
     def _ss_spindle_speed(self, rpm):
         self._actual_RPM = rpm
         self._set_surface_speed()
-    # TODO some sort of metric conversion for tool diameter
     def _set_surface_speed(self):
-        circ = 3.14 * self._diameter
+        # TODO some sort of metric conversion for tool diameter
+        #if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+        #    data = INFO.convert_units(self._diameter)
+        circ = 3.14 * self._actual_RPM * self._diameter
         if self.display_units_mm:
-            self._set_alt_text(circ * self._actual_RPM)
+            self._set_alt_text(circ)
         else:
-            self._set_text(circ * self._actual_RPM)
+            self._set_text(circ)
 
     def _file_loaded(self, w, name):
         if self.filename:
