@@ -952,6 +952,10 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
+// to be called when there is an abort, to dump the last segment instead of adding
+// it to the interp list in certain cases
+extern void ON_RESET(void);
+
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
