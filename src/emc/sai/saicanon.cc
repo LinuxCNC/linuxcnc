@@ -1023,7 +1023,7 @@ void FINISH(void) {
 
 void ON_RESET(void)
 {
-    PRINT0("ON_RESET\n");
+    PRINT("ON_RESET\n");
 }
 
 void START_CHANGE(void) {
