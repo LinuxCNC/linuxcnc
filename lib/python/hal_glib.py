@@ -255,7 +255,6 @@ class _GStat(gobject.GObject):
         self.old['spindle-direction']  = self.stat.spindle[0]['direction']
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
-        self.old['spindle-speed']= self.stat.spindle[0]['speed']
         try:
             self.old['actual-spindle-speed'] = hal.get_value('spindle.0.speed-in') * 60
         except RuntimeError:
@@ -311,6 +310,10 @@ class _GStat(gobject.GObject):
         self.old['metric'] = metric
         self.old['radius'] = radius
         self.old['diameter'] = diameter
+        if css:
+            self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+        else:
+            self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
         # active M codes
         active_mcodes = []
