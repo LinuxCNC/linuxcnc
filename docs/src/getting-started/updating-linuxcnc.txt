@@ -1202,8 +1202,9 @@ motion modules, the python interface, the axis gui, and the test suite.
 
 ==== Homing
 
-A homing api is provided by src/emc/motion/homing.ini to support users'
-custom homing code in out-of-tree homing.c source files.
+A homing api is provided by src/emc/motion/homing.h to support users'
+custom homing code that replaces src/emc/motion/homing.c with
+a user-customized homing.c file.
 
 ==== Other
 
