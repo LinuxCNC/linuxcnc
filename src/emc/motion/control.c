@@ -273,8 +273,8 @@ void emcmotController(void *arg, long period)
 #ifdef EDEBUG
     dbg_ct++;
 #endif
-    process_inputs();
     read_homing_in_pins(emcmotConfig->numJoints);
+    process_inputs();
     do_forward_kins();
     process_probe_inputs();
     check_for_faults();
