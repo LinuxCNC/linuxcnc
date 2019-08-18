@@ -1,0 +1,1 @@
+pin+laser.control.cur-velocity pin+laser.control.distance-to-go pin+laser.control.enabled pin+laser.control.max-power pin+laser.control.min-power pin+laser.control.power pin+laser.control.raster-power pin+laser.control.req-velocity pin+laser.control.time pin+laser.control.vector-power pin+laser.control.raster-mode

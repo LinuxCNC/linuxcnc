@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+from pyhal import *
+import time
+from struct import *
+import os
+from raster import *
+
+os.system('realtime start')
+
+c = component("test")
+
+position = c.pinNew("position", halType.FLOAT, pinDir.OUT)
+program = c.pinNew("program", halType.PORT, pinDir.OUT)
+reset = c.pinNew("reset", halType.BIT, pinDir.IO)
+enabled = c.pinNew("enabled", halType.BIT, pinDir.IN)
+output = c.pinNew("output", halType.FLOAT, pinDir.IN)
+fault = c.pinNew("fault", halType.BIT, pinDir.IN)
+fault_code = c.pinNew("fault-code", halType.UNSIGNED, pinDir.IN)
+state = c.pinNew("state", halType.UNSIGNED, pinDir.IN)
+prog_size = c.pinNew("prog-size", halType.UNSIGNED, pinDir.IN)
+prog_counter = c.pinNew("prog-counter", halType.UNSIGNED, pinDir.IN)
+
+c.ready()
+
+prog = RasterProgrammer("programmer")
+
+#instantiate the raster component, 
+#add it to a thread and link all signals from
+#the test component here
+assert os.system('halcmd -f raster.hal') == 0, "raster.hal script failed"
+
+def printStats():
+    print "Program State {0}".format(state.value)
+    print "Last Command {0}".format(command.value)
+    print "Program Fault {0}".format(fault.value)
+    print "Program Fault Code {0}".format(fault_code.value)
+    print "Program Size {0}".format(prog_size.value)
+    print "Program Counter {0}".format(prog_counter.value)
+    print "Enabled {0}".format(enabled.value)
+    print "Output {0}".format(output.value)
+    print ""
+
+
+def sleep():
+    time.sleep(0.01)
+
+
+
+def testProgram(pos, program, data):
+    global prog
+    position.value = pos
+    prog.begin(len(program))
+
+    for (pos, pow) in program:
+        prog.data(pos, pow)
+
+    prog.run()
+    assert fault.value == 0, "Fault should not have happend in program"
+    assert enabled.value, "Raster not enabled after programming"
+    for (pos, pow) in data:
+        position.value = pos
+        sleep()
+        assert output.value == pow, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
+
+    prog.clear()
+    assert state.value == 2
+    assert not enabled.value
+
+testProgram(0.0,
+ 
+            [(0.0, 0.0),
+             (1.0, 100.0)],
+
+            [(-1.0, -1.0),
+             (-.5, -1.0),
+             (0.0, 0.0),
+             (0.25, 25.0),
+             (0.5, 50.0),
+             (0.75, 75.0),
+             (1.0, 100.0),
+             (1.01, -1.0)])
+
+testProgram(0.0,
+
+           [(0.0, 0.0),
+           (1.0, 50.0),
+           (2.0, 100.0)],
+
+            [(0.0, 0.0),
+             (0.5, 25.0),
+             (1.0, 50.0),
+             (1.5, 75.0),
+             (2.0, 100.0),
+             (2.1, -1.0)])
+
+testProgram(10.0,
+
+            [(0.0, -1.0),
+             (1, 50),
+             (2, 50),
+             (3, -1.0),
+             (4, 75),
+             (5, 75)],
+
+            [(10, -1.0),
+             (11, -1.0),
+            (11.5, 50),
+             (12.1, -1),
+             (13, -1),
+             (13.9, -1),
+             (14.1, 75),
+             (15, 75),
+             (15.001, -1)])
+
+c.exit()
+prog.exit()
+
+os.system('halrun -U')
+
+exit(0)
+

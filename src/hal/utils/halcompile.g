@@ -24,7 +24,7 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|signed|unsigned|u32|s32"
+    token TYPE: "float|bit|signed|unsigned|u32|s32|port"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
@@ -723,12 +723,15 @@ int __comp_parse_names(int *argc, char **argv) {
         print("#define fperiod (period * 1e-9)", file=f)
         for name, type, array, dir, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
+            print("#undef %s_ptr" % to_c(name), file=f)
             if array:
+                print("#define %s_ptr(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
                     print("#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
                 else:
                     print("#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
             else:
+                print("#define %s_ptr (__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
                     print("#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
                 else:

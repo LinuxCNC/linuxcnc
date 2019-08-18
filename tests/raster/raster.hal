@@ -1,0 +1,38 @@
+loadrt threads name1=fast period1=1000000
+loadrt raster names="raster"
+
+addf raster fast
+
+net pos <= test.position
+net pos => raster.position
+
+net program <= programmer.program
+net program => raster.program
+sets program 1000
+
+net enabled <= raster.enabled
+net enabled => test.enabled
+net enabled => programmer.enabled
+
+net output <= raster.output
+net output => test.output
+
+net fault <= raster.fault
+net fault => test.fault
+
+net fault-code <= raster.fault-code
+net fault-code => test.fault-code
+net fault-code => programmer.fault-code
+
+net state <= raster.state
+net state => test.state
+
+net prog-size <= raster.prog-size
+net prog-size => test.prog-size
+
+net prog-counter <= raster.prog-counter
+net prog-counter => test.prog-counter
+
+
+
+start
