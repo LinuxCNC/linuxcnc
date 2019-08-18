@@ -8,7 +8,7 @@ G64 P0.005
 M52 P1
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
 G0 X[12.92+#<x_offset>] Y[38.70+#<y_offset>]
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X[35.92+#<x_offset>]
 G3 X[35.92+#<x_offset>] Y[66.2+#<y_offset>] I-8.182 J13.75
 G1 X[18.92+#<x_offset>]

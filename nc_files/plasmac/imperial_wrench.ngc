@@ -8,7 +8,7 @@ G64 P0.0005
 M52 P1 ;to enable reverse-run
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
 G0 X[0.5+#<x_offset>] Y[1.5236+#<y_offset>]
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X[1.4141+#<x_offset>]
 G3 X[1.4141+#<x_offset>] Y[2.6062+#<y_offset>] I-0.3221 J0.5413
 G1 X[0.7448+#<x_offset>]

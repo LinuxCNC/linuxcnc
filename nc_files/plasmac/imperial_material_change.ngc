@@ -10,7 +10,7 @@ M66 P3 L3 Q1 ; wait for material ready
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
 G41.1 D[#<_hal[plasmac_run.kerf-width-f]> * 1] ; with cutter compensation
 G1 X1 Y1
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X5
 M5
 G40 ; cutter compensation off
@@ -19,7 +19,7 @@ G0 Y2
 M190 P2 ; material #2
 M66 P3 L3 Q1 ; wait for material ready
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X1
 M5
 
@@ -29,7 +29,7 @@ M66 P3 L3 Q1 ; wait for material ready
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
 G42.1 D#<_hal[plasmac_run.kerf-width-f]> ; with cutter compensation
 G1 X1 Y3
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X5
 M5
 G40 ; cutter compensation off
@@ -38,7 +38,7 @@ G0 Y4
 M190 P4 ; material #4
 M66 P3 L3 Q1 ; wait for material ready
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-M3 $0 S1
+M3 $0 S1 (select plasma torch)
 G1 X1
 M5
 
