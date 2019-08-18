@@ -1,3 +1,9 @@
+ver 3.0.8
+- added the possibility to add also images to macro button. The images will be 
+  resized to fit the buttons (72x48). The macro file need to contain a line like
+  (IMAGE, ./macros/images/goto_x_y_z.png)
+  the path must be absolute or relative to the config dir, "~" is allowed in path
+
 ver 3.0.7.3
 - Ralf reported an error toggling the Edit Offsets button. It was caused because
   I missed to change the widget handling of the dynamically created widgets on
