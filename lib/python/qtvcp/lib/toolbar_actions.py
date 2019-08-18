@@ -395,7 +395,8 @@ class ToolBarActions():
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
             homeAct = QtWidgets.QAction('Home %s'%i, widget)
-            homeAct.triggered.connect(lambda: home(conversion[i]))
+            # weird lambda i=i to work around 'function closure'
+            homeAct.triggered.connect(lambda state, i=i: home(conversion[i]))
             widget.addAction(homeAct)
 
     def addUnHomeActions(self,widget):
@@ -408,7 +409,8 @@ class ToolBarActions():
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
             homeAct = QtWidgets.QAction('Unhome %s'%i, widget)
-            homeAct.triggered.connect(lambda: unHome(conversion[i]))
+            # weird lambda i=i to work around 'function closure'
+            homeAct.triggered.connect(lambda state, i=i: unHome(conversion[i]))
             widget.addAction(homeAct)
 
     def addZeroSystemsActions(self, widget):
