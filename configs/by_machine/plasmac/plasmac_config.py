@@ -72,6 +72,8 @@ class HandlerClass:
         self.builder.get_object('pid-d-gain').set_digits(0)
         self.builder.get_object('pid-d-gain-adj').configure(0,0,1000,1,0,0)
         self.builder.get_object('pid-d-gain').set_value(0)
+        self.builder.get_object('air-scribe-delay').set_digits(1)
+        self.builder.get_object('air-scribe-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-delay').set_digits(1)
         self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-threshold').set_digits(2)

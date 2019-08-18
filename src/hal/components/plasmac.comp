@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.65 - 03 Aug 2019
+.I VERSION: 0.66 - 19 Aug 2019
 
 .I SUMMARY:
 .br
@@ -24,7 +24,7 @@ Three different operating modes:
 2 Use the plasmac.arc-ok-in input pin for arc-OK, use the plasmac.move-up and the plasmac.move-down input pins for THC, kerf crossing lockout is disabled.
 .RE
 
-A spindle on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
+A spindle 0 on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
 .RS 1
 .br
 - set feedhold.
@@ -112,7 +112,7 @@ If you want to use different feed rates throughout the file then set the plasmac
 .br
 G1 X2 F100
 .br
-blah
+...
 .br
 G1 X3 F125
 .br
@@ -134,6 +134,11 @@ This feature is disabled after any error. For example if there is a arc failure 
 .br
 If plasmac.safe-height is zero then Z axis maximum limit will be used as the safe height and the safe height reduced error will be disabled.
 
+.I AIR SCRIBE
+.br
+A spindle 1 on signal (connected to the plasmac.scribe-on input pin) begins a scribing sequence:
+.br
+
 .I NOTES
 .RS 1
 .br
@@ -154,6 +159,8 @@ All plasmac related software is released under the GPLv2. See the file LICENSE f
 """;
 
 /* INPUT PINS */
+pin in  float   air_scribe_delay            "delay from scribe arm to scribe start";
+pin in  bit     air_scribe_on               "start a new scribe, connect to spindle.1.on";
 pin in  float   arc_fail_delay              "arc failure timeout (seconds)";
 pin in  float   arc_ok_high                 "maximum voltage level for Arc OK signal [mode 0] (volts)";
 pin in  bit     arc_ok_in                   "external arc ok input signal [mode 1 & mode 2]";
@@ -187,6 +194,7 @@ pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc vo
 pin in  s32     mode                        "operating mode";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
+pin in  bit     multi_tool                  "allows the use of multiple tools";
 pin in  float   offset_current              "current z axis offset, connect to axis.z.eoffset";
 pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
@@ -228,6 +236,8 @@ pin in  bit     use_auto_volts              "use calculated voltage for thc base
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
+pin out bit     air_scribe_arm              "arm the air scribe";
+pin out bit     air_scribe_start            "start the air scribe";
 pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -252,6 +262,8 @@ pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 
 /* VARIABLES */
+variable bool   air_scribe_pause;           /* air-scribe pause flag */
+variable float  air_scribe_timer;           /* air-scribe timer */
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_fail_timer;             /* arc failure timer */
 variable float  arc_voltage;                /* calculated arc voltage before lowpass filter*/
@@ -316,7 +328,7 @@ variable float  velocity_scale;             /* the velocity multipler */
 variable int    zero_target;                /* zero height target offset */
 
 /* DEBUGGING PINS */
-/* pin out s32     stop_type_out; */
+//pin out s32     stop_type_out;
 
 function _;
 
@@ -349,6 +361,7 @@ typedef enum{IDLE,
              PAUSED_MOTION,
              OHMIC_TEST,
              PROBE_TEST,
+             AIR_SCRIBE,
              DEBUG} state_t;
 
 typedef enum{NONE,
@@ -371,7 +384,7 @@ probe_type_t probe_type = FLOAT;
 FUNCTION(_) {
 
     /* DEBUGGING STUFF */
-    /* stop_type_out = stop_type; */
+//    stop_type_out = stop_type;
 
     /* do these first run only */
     if(!initialized && units_per_mm){
@@ -548,8 +561,8 @@ FUNCTION(_) {
                 /* if we get a paused motion request and we are paused */
                 if(paused_motion_speed && stop_type == PAUSE){
                     state = PAUSED_MOTION;
-                /* if we get a start request and we are stopped or waiting for a restart */
-                }else if((spindle_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
+                /* if we get a torch start request and we are stopped or waiting for a restart */
+                }else if((((spindle_on && !air_scribe_on && multi_tool) || (spindle_on && !multi_tool)) || probe_test) && (stop_type == NONE || stop_type == WAIT)){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -632,6 +645,11 @@ FUNCTION(_) {
                     feed_hold = TRUE;
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
+                /* if we get a air-scribe start request */
+                }else if(air_scribe_on && !spindle_on && !probe_test && multi_tool){
+                    state = AIR_SCRIBE;
+                    air_scribe_timer = air_scribe_delay;
+                    air_scribe_pause = FALSE;
                 }else if(!cut_started){
                     feed_hold = FALSE;
                 }
@@ -1250,6 +1268,33 @@ FUNCTION(_) {
                     offset_counts = 0;
                     state = FINISH;
                 }
+            }
+            break;
+        case AIR_SCRIBE:
+            if(!program_is_paused && air_scribe_on){
+                air_scribe_arm = TRUE;
+            }else{
+                air_scribe_arm = FALSE;
+            }
+            if(!program_is_paused && air_scribe_on && !air_scribe_timer && !program_is_idle){
+                air_scribe_start = TRUE;
+                feed_hold = FALSE;
+            }else{
+                air_scribe_start = FALSE;
+                feed_hold = TRUE;
+            }
+            if(program_is_paused){
+                air_scribe_timer = air_scribe_delay;
+            }
+            if(!program_is_paused && air_scribe_timer){
+                air_scribe_timer -= fperiod;
+                if(air_scribe_timer < 0){
+                    air_scribe_timer = 0;
+                }
+            }
+            if(!air_scribe_on){
+                air_scribe_timer = 0;
+                state = IDLE;
             }
             break;
         case DEBUG:
