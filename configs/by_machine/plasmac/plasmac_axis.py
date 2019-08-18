@@ -451,7 +451,8 @@ w('pack',fcommon,'-fill','both','-side','left')
 w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
 w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-padx','0','-pady','0')
 w(ft,'configure','-relief','flat')
-w(ft + '.text','configure','-borderwidth','1','-relief','sunken')
+w(ft + '.sb','configure','-width', '16')
+w(ft + '.text','configure','-width', '42', '-borderwidth','1','-relief','sunken')
 
 
 
