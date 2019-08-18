@@ -1452,12 +1452,7 @@ this also sets the maximum probe feed rate</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">offset feed rate in machine units per minute
-used for moving to:
-pierce height
-cutting height
-safe height
-this also sets the maximum probe feed rate</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to reach surface of material before start of scribing</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
                                 <property name="label" translatable="yes">Start Delay</property>
@@ -1473,12 +1468,7 @@ this also sets the maximum probe feed rate</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">offset feed rate in machine units per minute
-used for moving to:
-pierce height
-cutting height
-safe height
-this also sets the maximum probe feed rate</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to reach surface of material before start of scribing</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
