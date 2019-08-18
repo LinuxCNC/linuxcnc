@@ -1,0 +1,276 @@
+component raster "Outputs laser power based upon pre programmed rastering data";
+pin in float position "input coordinate for raster program";
+pin in bit   reset "resets the compnent";
+pin in port  program "port used to program the raster";
+
+pin out float program_position "value stored at program start time";
+pin out bit enabled = 0 "When a valid raster program is running.";
+pin out float output = -1 "current output level command";
+pin out bit fault = 0 "If error has occured";
+pin out unsigned fault_code = 0 "Code of fault";
+pin out unsigned state = 0 "current state";
+pin out unsigned prog_size "program size";
+pin out unsigned prog_counter "program counter";
+pin out unsigned prog_index "current index in running program";
+
+function _;
+license "GPL";
+
+include <rtapi_math.h>;
+include <stdlib.h>;
+
+;;
+
+
+
+#define MAX_PROGRAM_SIZE 50000
+
+enum {
+    ERROR_NONE          = 0,  //no error at the moment
+    ERROR_INVALID_CMD   = 1,  //an invalid command was issued 
+    ERROR_EXPECTED_RUN  = 2,  //after programming data the RUN command was expected
+    ERROR_PROGTOOBIG    = 3,  //the requested raster program will be too big
+    ERROR_PROGTOOSMALL  = 4,  //the requested raster program will be too small. It must have more than 1 programmed point
+    ERROR_NOT_MONOTONIC = 5,  //the program pos data must be always increasing in value from start to end position
+    ERROR_BAD_POW       = 6,  //the power value wasn't between -1 and 100
+    ERROR_INVALID_ARG   = 7   //a command argument was invalid
+} raster_error;
+
+typedef enum { 
+    PROGRAM_CLEAR = 0, 
+    PROGRAM_FAULT = 1, 
+    PROGRAM_BEGIN = 2,
+    PROGRAM_DATA  = 3, 
+    PROGRAM_READY = 4, 
+    PROGRAM_RUN   = 5 
+} raster_state;
+
+typedef struct {
+    hal_float_t pos;
+    hal_float_t pow;
+} raster_point;
+
+raster_point raster_data[MAX_PROGRAM_SIZE];
+
+#define max_command_len 31
+
+int command_type;
+char command[max_command_len+1];
+unsigned cmdLen;
+char* command_args;
+
+const char* const command_words[] = { "clr", 
+                                      "beg", 
+                                      "run", 
+                                      "dat",
+                                      0 };
+
+typedef enum { 
+    ERROR = -1,
+    CLEAR = 0, 
+    BEGIN = 1, 
+    RUN = 2, 
+    DATA = 3 
+} command_ids;
+
+hal_float_t scale_power(hal_float_t coord, hal_float_t coord1, hal_float_t coord2, hal_float_t pow1, hal_float_t pow2)
+{
+    return (coord-coord1)*(pow2-pow1)/(coord2 - coord1) + pow1;
+}
+
+/*
+reads a command string in from port. searches for the first ; in the command string and sets command
+to be a null terminated string holding that single command
+it also sets the command type based upon the beginning of the command
+*/
+bool read_program_command(hal_port_t port) {
+    unsigned available = hal_port_readable(port);
+    unsigned count = available < max_command_len ? available : max_command_len;
+    char* pos;
+
+    if(hal_port_peek(port, command, count))
+    {
+        command[count] = 0;
+
+        pos = strchr(command, ';');
+
+        if(pos) {
+            *pos = 0;
+            hal_port_peek_commit(port, pos-command + 1);
+
+            //get command type
+            command_type = ERROR;
+            command_args = command;
+            for(int index = 0; command_words[index]; index++) {
+                if(!strncmp(command, command_words[index], strlen(command_words[index]))) {
+                    command_type = index;
+                    command_args = command + strlen(command_words[index]);
+                    break;
+                }
+            }
+                
+            if(command_type == ERROR) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "RASTER: bad command:'%s' args:'%s'\n", command, command_args);
+                return false;
+            } else {
+                return true;
+            }
+       } else {
+        return false;
+       }
+    } else {
+        return false;
+    }
+}
+
+bool parse_data_args(char* argument, hal_float_t* pos, hal_float_t* pow) {
+    //parse the argument string for 2 float values
+    char* sep;
+    char* end;
+    sep = strchr(command, ',');
+    if(!sep) {
+        return false;
+    }
+    *sep = 0;
+    *pos = strtod(argument, &end);
+    if(argument == end) {
+       return false; 
+    }
+    *pow = strtod(sep+1, &end);
+    if(sep+1 == end) {
+        return false;
+    }
+    return true;
+}
+
+
+FUNCTION(_) {
+    hal_float_t relative_position = 0;
+
+    if (reset) {
+        output = -1.0;
+        enabled = 0;
+        state = PROGRAM_CLEAR;
+        hal_port_clear(program);
+    } else if (state == PROGRAM_FAULT) {
+        output = -1.0;
+        enabled = 0;
+        fault = 1;
+    } else if (state == PROGRAM_CLEAR) {
+        state = PROGRAM_BEGIN;
+        fault = 0;
+        fault_code = ERROR_NONE;
+        prog_size = 0;
+        prog_counter = 0;
+        prog_index = 0;
+        output = -1.0;
+        enabled = 0;
+    } else if (state == PROGRAM_BEGIN && read_program_command(program)) {
+        if(command_type == BEGIN) {
+            rtapi_print_msg(RTAPI_MSG_DBG, "RASTER: BEGIN(%s)\n", command_args);
+
+            prog_size = (unsigned)strtol(command_args, NULL, 10);
+
+            if(!errno) { 
+                if(prog_size > MAX_PROGRAM_SIZE) {
+                    state = PROGRAM_FAULT;
+                    fault_code = ERROR_PROGTOOBIG;
+                } else if(prog_size == 1) {
+                    state = PROGRAM_FAULT;
+                    fault_code = ERROR_PROGTOOSMALL;
+                } else {
+                    program_position = position;
+                    prog_counter = 0;
+                    state = PROGRAM_DATA;
+                }
+            }
+        } else {
+            state = PROGRAM_FAULT;
+            fault_code = ERROR_INVALID_CMD;
+        }
+    } else if (state == PROGRAM_DATA) {
+        //we read as much program data as is available in the port buffer in one cycle
+        while(read_program_command(program)) {
+            if(command_type == DATA) {
+                if(parse_data_args(command_args, &raster_data[prog_counter].pos, &raster_data[prog_counter].pow)) {
+                    rtapi_print_msg(RTAPI_MSG_DBG, "RASTER: DATA(%f,%f)\n", raster_data[prog_counter].pos, raster_data[prog_counter].pow);
+
+                    if(raster_data[prog_counter].pow < -1.0 || raster_data[prog_counter].pow > 100.0) {
+                        state = PROGRAM_FAULT;
+                        fault_code = ERROR_BAD_POW;
+                        break;
+                    } else if((prog_counter > 0) && (raster_data[prog_counter].pos <= raster_data[prog_counter-1].pos)) {
+                        state = PROGRAM_FAULT;
+                        fault_code = ERROR_NOT_MONOTONIC;
+                        break;
+                    } else {
+                        prog_counter++;
+                        if(prog_counter == prog_size) {
+                            state = PROGRAM_READY;
+                            break;
+                        }
+                    }
+                } else {
+                    state = PROGRAM_FAULT;
+                    fault_code = ERROR_INVALID_ARG;
+                    break;
+                }
+            } else {
+                state = PROGRAM_FAULT;
+                fault_code = ERROR_INVALID_CMD;
+                break;
+            }
+        }
+    } else if (state == PROGRAM_READY && read_program_command(program)) {
+        if(command_type == RUN) {
+            rtapi_print_msg(RTAPI_MSG_DBG, "RASTER: RUN\n");
+            state = PROGRAM_RUN;
+        } else {
+            state = PROGRAM_FAULT;
+            fault = ERROR_EXPECTED_RUN;
+        }
+    } else if (state == PROGRAM_RUN) {
+        relative_position = position - program_position;
+
+        if(read_program_command(program)) {
+            if(command_type == CLEAR)
+            {   
+                rtapi_print_msg(RTAPI_MSG_DBG, "RASTER: CLEAR\n");
+                state = PROGRAM_CLEAR;
+            } else {
+                state = PROGRAM_FAULT;
+                fault_code = ERROR_INVALID_CMD;
+            }
+        } else {
+            enabled = 1;
+            while(1) {
+                if (relative_position < raster_data[0].pos) {
+                    prog_index = 0;
+                    output = -1.0;
+                    break;
+                } else if (relative_position > raster_data[prog_size-1].pos) {
+                    prog_index = prog_size-2;
+                    output = -1.0;
+                    break;
+                } else if (relative_position < raster_data[prog_index].pos) {
+                    prog_index--;
+                } else if (relative_position > raster_data[prog_index+1].pos) {
+                    prog_index++;
+                } else if((raster_data[prog_index].pow < 0) || (raster_data[prog_index+1].pow < 0)) {
+                    //if the current position is neighboring any interval with -1 power, any value on either
+                    //side of the interval is considered OFF or -1
+					output = -1.0;
+					break;
+				} else {
+					output = scale_power(relative_position, 
+                                         raster_data[prog_index].pos, 
+                                         raster_data[prog_index+1].pos, 
+                                         raster_data[prog_index].pow, 
+                                         raster_data[prog_index+1].pow);
+                    break;
+                }
+            }
+		}   
+    }
+}
+
