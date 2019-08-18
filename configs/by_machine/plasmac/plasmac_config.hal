@@ -1,5 +1,6 @@
 
 # outputs
+net plasmac:air-scribe-delay        plasmac_config.air-scribe-delay-f       =>  plasmac.air-scribe-delay
 net plasmac:arc-ok-high             plasmac_config.arc-ok-high-f            =>  plasmac.arc-ok-high
 net plasmac:arc-ok-low              plasmac_config.arc-ok-low-f             =>  plasmac.arc-ok-low
 net plasmac:arc-max-starts          plasmac_config.arc-max-starts-s         =>  plasmac.arc-max-starts

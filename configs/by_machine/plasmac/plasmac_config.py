@@ -63,12 +63,17 @@ class HandlerClass:
         self.builder.get_object('max-offset-velocity-in').set_label(str(int(self.thcFeedRate)))
         self.builder.get_object('ohmic-max-attempts').set_digits(0)
         self.builder.get_object('ohmic-max-attempts-adj').configure(0,0,10,1,0,0)
+        self.builder.get_object('ohmic-max-attempts').set_value(0)
         self.builder.get_object('pid-p-gain').set_digits(0)
         self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
         self.builder.get_object('pid-i-gain').set_digits(0)
         self.builder.get_object('pid-i-gain-adj').configure(0,0,1000,1,0,0)
+        self.builder.get_object('pid-i-gain').set_value(0)
         self.builder.get_object('pid-d-gain').set_digits(0)
         self.builder.get_object('pid-d-gain-adj').configure(0,0,1000,1,0,0)
+        self.builder.get_object('pid-d-gain').set_value(0)
+        self.builder.get_object('air-scribe-delay').set_digits(1)
+        self.builder.get_object('air-scribe-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-delay').set_digits(1)
         self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-threshold').set_digits(2)
@@ -92,6 +97,7 @@ class HandlerClass:
             self.builder.get_object('setup-feed-rate-adj').configure(int(self.thcFeedRate * 0.8),1,self.thcFeedRate,1,0,0)
             self.builder.get_object('skip-ihs-distance').set_digits(0)
             self.builder.get_object('skip-ihs-distance-adj').configure(0,0,999,1,0,0)
+            self.builder.get_object('skip-ihs-distance').set_value(0)
         elif self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
             self.builder.get_object('float-switch-travel').set_digits(3)
             self.builder.get_object('float-switch-travel-adj').configure(0.06,0,1,0.001,0,0)
@@ -109,6 +115,7 @@ class HandlerClass:
             self.builder.get_object('setup-feed-rate-adj').configure(int(self.thcFeedRate * 0.8),.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('skip-ihs-distance').set_digits(1)
             self.builder.get_object('skip-ihs-distance-adj').configure(0,0,99,.1,0,0)
+            self.builder.get_object('skip-ihs-distance').set_value(0)
         else:
             print '*** incorrect [TRAJ]LINEAR_UNITS in ini file'
 
@@ -208,6 +215,7 @@ class HandlerClass:
             self.configDict[item] = '0'
         convertFile = False
         if os.path.exists(self.configFile):
+            self.upgrade_check()
             try:
                 tmpDict = {}
                 with open(self.configFile, 'r') as f_in:
@@ -268,36 +276,33 @@ class HandlerClass:
             print('*** error opening {}'.format(self.configFile))
 
     def upgrade_check(self):
-        if os.path.exists(self.configFile):
-            with open(self.configFile, 'r') as f_in:
+        with open(self.configFile, 'r') as f_in:
+            for line in f_in:
+                if line.startswith('version=0.1'):
+                    return
+                elif line.startswith('arc-fail-delay'):
+                    break
+                elif line.startswith('arc-max-starts'):
+                    return
+        with open(self.configFile, 'r') as f_in:
+            contents = f_in.readlines()
+        contents[0] = '# plasmac config tab configuration file\n'
+        contents[1] = '# format is: name = value\n'
+        contents.insert(3, 'version=0.1\n\n')
+        runFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
+        if os.path.exists(runFile):
+            with open(runFile, 'r') as f_in:
                 for line in f_in:
-                    if line.startswith('version=0.1'):
-                        return
-                    elif line.startswith('arc-fail-delay'):
-                        break
-                    elif line.startswith('arc-max-starts'):
-                        return
-            with open(self.configFile, 'r') as f_in:
-                contents = f_in.readlines()
-            contents[0] = '# plasmac config tab configuration file\n'
-            contents[1] = '# format is: name = value\n'
-            contents.insert(3, 'version=0.1\n\n')
-            runFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
-            if os.path.exists(runFile):
-                with open(runFile, 'r') as f_in:
-                    for line in f_in:
-                        if line.startswith('cornerlock-threshold') or \
-                           line.startswith('kerfcross-override') or \
-                           line.startswith('pid-p-gain') or \
-                           line.startswith('thc-delay') or \
-                           line.startswith('thc-threshold'):
-                            contents.append(line)
-                f_out = open(self.configFile, 'w')
-                f_out.writelines(contents)
-            else:
-                print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
+                    if line.startswith('cornerlock-threshold') or \
+                       line.startswith('kerfcross-override') or \
+                       line.startswith('pid-p-gain') or \
+                       line.startswith('thc-delay') or \
+                       line.startswith('thc-threshold'):
+                        contents.append(line)
+            f_out = open(self.configFile, 'w')
+            f_out.writelines(contents)
         else:
-            print('*** plasmac config tab configuration file, {} is invalid ***'.format(self.configFile))
+            print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
@@ -316,7 +321,6 @@ class HandlerClass:
         self.maxHeight = hal.get_value('ini.z.max_limit') - hal.get_value('ini.z.min_limit')
         self.configure_widgets()
         self.builder.get_object('probe-feed-rate-adj').set_upper(self.builder.get_object('setup-feed-rate').get_value())
-        self.upgrade_check()
         self.load_settings()
         self.set_theme()
         gobject.timeout_add(100, self.periodic)

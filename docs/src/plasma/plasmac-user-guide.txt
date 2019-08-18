@@ -71,7 +71,7 @@ If 'ohmic probe' is used then 'ohmic enable' is required.
 
 NOTE: The minimum I/O requirement for a PlasmaC configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, PlasmaC treats the float switch as a breakaway switch when it is not probing.
 
-IMPORTANT: These pins will be entered later into the configurator, they should *NOT* be used in your base machine HAL file.
+IMPORTANT: These pins will be entered later into the Configurator, they should *NOT* be used in your base machine HAL file.
 
 == Installation
 
@@ -254,7 +254,7 @@ If you are using a Mesa Electronics THCAD card for arc voltage measurement, see 
 
 [[configurator]]
 
-The type of installation determines where the configurator (configurator.py) will installed:
+The type of installation determines where the Configurator (configurator.py) will installed:
 
 [width="100%",cols="4,16"]
 |===
@@ -263,13 +263,13 @@ The type of installation determines where the configurator (configurator.py) wil
 |Run In Place|~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
 |===
 
-The configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
+The Configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
 
 ----
 $ python <path>/<to>/configurator.py
 ----
 
-NOTE: If the configurator does not run make sure that the file permissions allow executable.
+NOTE: If the Configurator does not run make sure that the file permissions allow executable.
 
 This brings up the selection window:
 
@@ -312,6 +312,10 @@ image::images/plasmac_configurator_new.png[width=400]
            the HAL pin you have connected your move down signal to
 |Run Panel|Run Tab = the run frame is a tab behind the preview tab +
            Run Panel = the run frame is a panel at the side of the GUI
+|Scribe Arming|only required if using an air-scribe +
+               the HAL pin to arm the air-scriber
+|Scribe Start|only required if using an air-scribe +
+              the HAL pin to start the air-scriber
 |===
 
 Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
@@ -441,6 +445,15 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 |===
 
 NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
+
+[[scribe-config]]
+.Air Scribe
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Start Delay|Delay from air-scribe arming until air-scribe starting.
+|===
 
 The *'Save'* button will save the currently displayed parameters as the default.
 
@@ -596,7 +609,9 @@ image::images/plasmac_stats.png[width=400]
 
 == Using PlasmaC
 
-The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
+The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 $0 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
+
+If you are using PlasmaC without an <<air-scribe, air-scribe>> enabled then it is permissible to use 'M3 S1' in lieu of 'M3 $0 S1'. If the <<air-scribe, air-scribe>> is enabled then 'M3 S1' will cause the machine to follow the GCode program with both the torch and air-scribe inactive.
 
 PlasmaC will read the cut parameters from the Run Panel and use them where required.
 
@@ -604,7 +619,9 @@ PlasmaC will read the cut parameters from the Run Panel and use them where requi
 
 === Material Handling
 
-Material handling has nothing at all to do with the LinuxCNC tool table. In fact 'M6 Tn' commands should not be used with these configs.
+Material handling has nothing at all to do with the LinuxCNC tool table, instead it uses a material file that was created at the same time as the configuration.
+
+The LinuxCNC tool table and tool commands only come into play if your are using an <<air-scribe, air-scribe>> in addition to the plasma torch.
 
 There is a <<material-file,material file>> with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
@@ -615,7 +632,7 @@ The following codes may be used for a PlasmaC configuration:
 * 'M190 Pn' - changes the material to number n.
 * 'M66 P3 L3 Q1' - waits for material change to be confirmed.
 * 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run Panel.
-* 'M3 S1' - starts the PlasmaC component.
+* 'M3 $0 S1' - starts the PlasmaC component.
 
 NOTE: F#<_hal[plasmac.cut-feed-rate]> could be replaced with Fnnn, see THC notes below.
 
@@ -623,7 +640,7 @@ For manual material handling you manually select the material from the materials
 
 ----
 F#<_hal[plasmac.cut-feed-rate]>
-M3 S1
+M3 $0 S1
 ...
 M5
 ----
@@ -638,7 +655,7 @@ In your G-Code you need:
 M190 Pn
 M66 P3 L3 Q1
 F#<_hal[plasmac.cut-feed-rate]>
-M3 S1
+M3 $0 S1
 ...
 M5
 ----
@@ -790,7 +807,7 @@ G64 P0.005
 M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 X10 Y10
-M3 S1 (start cut)
+M3 $0 S1 (start cut)
 G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
@@ -836,7 +853,7 @@ M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 #<holes> = 1 (velocity reduction for holes)
 G0 X10 Y10
-M3 S1 (start cut)
+M3 $0 S1 (start cut)
 G1 X0
 G3 I10
 M5 (end cut)
@@ -857,7 +874,7 @@ M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 #<holes> = 2 (Overcut for holes)
 G0 X10 Y10
-M3 S1 (start cut)
+M3 $0 S1 (start cut)
 G1 X0
 G3 I10
 M5 (end cut)
@@ -868,6 +885,66 @@ M2 (end job)
 NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
 
 NOTE: It is OK to have multiple and mixed #<holes> commands in a GCode file.
+
+[[air-scribe]]
+
+== Air Scribe
+
+An air-scribe may be operated by PlasmaC in addition to the plasma torch, this is disabled by default so as not to affect existing configurations.
+
+Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'M6 Tn' command then a 'G43' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
+
+There are two HAL pins used to operate the air-scribe, one to arm the air-scribe then after a delay the other to start the torch.
+
+Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
+
+To enable scribing, edit the following line in <MACHINE_NAME>_connections.hal.
+
+from:
+
+-----
+setp plasmac.multi-tool 0
+-----
+
+to:
+
+-----
+setp plasmac.multi-tool 1
+-----
+
+If you haven't yet assigned the HAL pins for the air-scribe in the Configurator then you will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
+
+The air-scribe is now active and the arming action may be tested by issuing a 'M3 $1 S1' command in the MDI input. This will cause the air-scribe to arm but will not start the air-scribe.
+
+The next step is to open the tool table editor in the GUI and enter the X and Y axes offsets. These are the distances in X and Y from the centre of the torch nozzle. In most cases, if standing at the front of the machine if the air-scribe is to the right of the torch it would be a positive value and if the air-scribe is to the rear of the torch it would also be a positive value. The offsets for the torch should always be zero.
+
+The final step is to set the delay from when the air-scribe begins to arm until when the air-scribe starts. See <<scribe-config,air-scribe delay>>. Save the Config parameters.
+
+The material can then be lined up with the torch as previously and the offsets can be applied so both tools operate at the correct coordinates.
+
+To use the air-scribe from GCode:
+
+-----
+...
+M52 P1 (paused motion on)
+F#<_hal[plasmac.cut-feed-rate]>
+M6 T1 (select air-scribe)
+G43 (apply ofsets)
+M3 $1 S1 (start plasmac with air-scribe)
+...
+M6 T0 (select torch)
+G43 (apply ofsets)
+G0 X0 Y0 (parking position)
+M5 (end)
+-----
+
+It is a good idea to switch back to the torch at the end of the program before you final rapid parking move so your machine is always in the same state at idle.
+
+You can switch between the torch and the air-scribe any number of times during a program by using the above code and issuing 'M3 $0 S1' to start PlasmaC with the torch.
+
+Issuing M3 S1 (without $n) will cause the machine to follow the GCode program with both the torch and air-scribe inactive as there was no specific tool to start.
+
+WARNING: If you have an existing manual toolchange in your machine HAL file then PlasmaC will convert it to an automatic toolchange.
 
 == Error Messages
 
@@ -1013,7 +1090,15 @@ HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
 
+The <MACHINE_NAME>.hal file has 'num_spindles=[TRAJ]SPINDLES' appended to the end of the 'loadrt motmod' line to allow the addition of an <<air-scribe, air-scribe>> if required.
+
 NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
+
+.[TRAJ] Section
+
+-----
+SPINDLES = 2
+-----
 
 .[AXIS_Z] Section
 
@@ -1041,6 +1126,7 @@ MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 .[DISPLAY] Section
 
 -----
+TOOL_EDITOR       = tooledt x y
 USER_COMMAND_FILE = plasmac_axis.py.py
 EMBED_TAB_NAME    = Statistics
 EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
@@ -1273,7 +1359,7 @@ Files in the example configurations are:
 |configurator.py|configure a new or upgrade an existing PlasmaC configuration
 |===
 
-The configurator creates the following files:
+The Configurator creates the following files:
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function* (<MACHINE> = name of machine in ini file)
@@ -1330,7 +1416,7 @@ $ cd src
 $ make
 ----
 
-Normally there is no reason to run the configurator after an upgrade.
+Normally there is no reason to run the Configurator after an upgrade.
 
 If you have decided to change the type of installation:
 
@@ -1348,6 +1434,8 @@ image::images/plasmac_configurator_upgrade.png[width=400]
 
 Select the ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
 
+[[modify-config]]
+
 == Modifying An Existing Configuration
 
 The Configurator is able to modify:
@@ -1358,7 +1446,7 @@ The Configurator is able to modify:
 
 * The position of the Run Panel in the GUI.
 
-The type of installation determines where the configurator (configurator.py) will installed:
+The type of installation determines where the Configurator (configurator.py) will installed:
 
 [width="100%",cols="4,16"]
 |===
@@ -1367,13 +1455,13 @@ The type of installation determines where the configurator (configurator.py) wil
 |Run In Place|~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
 |===
 
-The configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
+The Configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
 
 ----
 $ python <path>/<to>/configurator.py
 ----
 
-NOTE: If the configurator does not run make sure that the file permissions allow executable.
+NOTE: If the Configurator does not run make sure that the file permissions allow executable.
 
 This brings up the selection window:
 
@@ -1444,7 +1532,7 @@ NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this 
 
 The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
-You will need to manually add a scale and counter mode to your base machine HAL file before running the configurator.
+You will need to manually add a scale and counter mode to your base machine HAL file before running the Configurator.
 
 If you connected your THCAD to a mesa 7i76e then the commands required in the HAL file would be:
 
@@ -1453,7 +1541,7 @@ setp  hm2_7i76e.0.encoder.00.scale -1
 setp  hm2_7i76e.0.encoder.00.counter-mode 1
 ----
 
-You then need to note that the 'Arc Voltage HAL pin' needed to enter into the PlasmaC configurator will be:
+You then need to note that the 'Arc Voltage HAL pin' needed to enter into the PlasmaC Configurator will be:
 
 ----
 hm2_7i76e.0.encoder.00.velocity

@@ -40,7 +40,7 @@ class HandlerClass:
         md.destroy()
 
     def check_material_file(self):
-        version = '[VERSION 1]'
+        version = '[VERSION 1.1]'
         tempMaterialDict = {}
         if os.path.exists(self.materialFile):
             if not version in open(self.materialFile).read():
@@ -133,14 +133,14 @@ class HandlerClass:
                     received.append('PIERCE_HEIGHT')
                     if line.split('=')[1].strip():
                         p_height = float(line.split('=')[1].strip())
-                    else:
-                        self.dialog_error('\nA value for PIERCE_HEIGHT is missing from Material #{}'.format(t_number))
+                    elif t_number:
+                        self.dialog_error('\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('PIERCE_DELAY'):
                     received.append('PIERCE_DELAY')
                     if line.split('=')[1].strip():
                         p_delay = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nA value for PIERCE_DELAY is missing from Material #{}'.format(t_number))
+                        self.dialog_error('\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
                 elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                     if line.split('=')[1].strip():
                         pj_height = float(line.split('=')[1].strip())
@@ -152,23 +152,24 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         c_height = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nA value for CUT_HEIGHT is missing from Material #{}'.format(t_number))
+                        self.dialog_error('\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('CUT_SPEED'):
                     received.append('CUT_SPEED')
                     if line.split('=')[1].strip():
                         c_speed = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nA value for CUT_SPEED is missing from Material #{}'.format(t_number))
+                        self.dialog_error('\nNo value for CUT_SPEED in Material #{}'.format(t_number))
                 elif line.startswith('CUT_AMPS'):
                     if line.split('=')[1].strip():
                         c_amps = float(line.split('=')[1].strip().replace(' ',''))
                 elif line.startswith('CUT_VOLTS'):
                     if line.split('=')[1].strip():
                         c_volts = float(line.split('=')[1].strip())
-            self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
-            for item in required:
-                if item not in received:
-                    self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
+            if t_number:
+                self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+                for item in required:
+                    if item not in received:
+                        self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
         self.builder.get_object('material').set_active(0)
         self.materialList = []
         for material in (self.materialFileDict.keys()):
@@ -406,7 +407,7 @@ class HandlerClass:
                 self.save_settings()
         else:
             self.save_settings()
-            print('*** creating new run tab configuration file, {}',format(self.configFile))
+            print('*** creating new run tab configuration file, {}'.format(self.configFile))
 
     def save_settings(self):
         try:

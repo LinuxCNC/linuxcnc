@@ -31,49 +31,70 @@ import re
 class configurator:
 
     def __init__(self):
-        self.W = gtk.Window()
-        self.W.set_title('PlasmaC Configurator')
-        self.W.connect('delete_event', self.on_window_delete_event)
-        self.W.set_position(gtk.WIN_POS_CENTER)
+        self.S = gtk.Window()
+        self.S.set_title('PlasmaC Configurator')
+        self.S.connect('delete_event', self.on_window_delete_event)
+        self.S.set_position(gtk.WIN_POS_CENTER)
+        SB = gtk.HButtonBox()
+        self.new = gtk.Button('New')
+        self.upg = gtk.Button('Upgrade')
+        self.rec = gtk.Button('Reconfigure')
+        self.can = gtk.Button(stock=gtk.STOCK_CLOSE)
+        SB.pack_start(self.new, True, True, 0)
+        SB.pack_start(self.upg, True, True, 0)
+        SB.pack_start(self.rec, True, True, 0)
+        SB.pack_start(self.can, True, True, 0)
+        SB.set_border_width(5)
+        self.S.add(SB)
+        self.S.show_all()
+        self.new.connect('button_press_event', self.on_selection, 'new')
+        self.upg.connect('button_press_event', self.on_selection, 'upgrade')
+        self.rec.connect('button_press_event', self.on_selection, 'reconfigure')
+        self.can.connect('button_press_event', self.on_selection, 'cancel')
         if 'configs/by_machine/plasmac' not in os.path.realpath(sys.argv[0]):
             if self.dialog_ok(
                     'PATH ERROR',
                     '\nThe plasmac configurator must be run from the original source directory\n'
-                    '\ne.g. ~/linuxcnc-plasmac/configs/by_machine/plasmac/configurator.py\n\n'):
+                    '\ne.g. ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py\n\n'):
                 quit()
-        configureType = self.start_dialog()
-        self.configureType = ['new', 'upgrade', 'reconfigure', 'exit'][configureType]
+
+    def on_selection(self, button, event, selection):
+        self.configureType = selection
         if self.configureType == 'new':
-            if not self.dialog_ok_cancel(
-                    'Prerequisites',
-                    '\nBefore using this configurator you should already have a\n'
-                    'working configuration for your base machine.\n\n'
-                    'The base machine should be fully operational.\n\n'
-                    'If you don\'t have a working configuration then you need\n'
-                    'to exit the configurator and create one.\n\n',
-                    'Continue','Exit'):
-                quit()
+            result = self.dialog_ok_cancel(
+                'New Config Prerequisites',
+                '\nBefore using this configurator you should already have a\n'
+                'working configuration for your base machine.\n\n'
+                'The base machine should be fully operational.\n\n'
+                'If you don\'t have a working configuration then you need\n'
+                'to exit the configurator and create one.\n\n',
+                'Continue','Back')
+            if not result: return
         elif self.configureType == 'upgrade':
-            if not self.dialog_ok_cancel(\
-                    'Prerequisites',
-                    '\nThis configurator will upgrade an existing plasmac configuration by:\n'
-                    'Creating links to updated application files\n'
-                    'Deleting links to redundant files\n'
-                    'Making changes to the ini file if required\n\n'
-                    'Existing machine HAL and custom HAL files will not be changed\n\n',
-                    'Continue','Exit'):
-                quit()
+            result = self.dialog_ok_cancel(\
+                'Upgrade Prerequisites',
+                '\nThis configurator will upgrade an existing plasmac configuration by:\n'
+                'Creating links to updated application files\n'
+                'Deleting links to redundant files\n'
+                'Making changes to the ini file if required\n\n'
+                'Existing machine HAL and custom HAL files will not be changed\n\n',
+                'Continue','Back')
+            if not result: return
         elif self.configureType == 'reconfigure':
-            if not self.dialog_ok_cancel(
-                    'Prerequisites',
-                    '\nThis configurator will enable the modifying of an\n'
-                    'existing configuration.\n\n'
-                    'If you don\'t have an existing configuration then you\n'
-                    'need to exit the configurator and create one.\n\n',
-                    'Continue','Exit'):
-                quit()
+            result = self.dialog_ok_cancel(
+                'Reconfigure Prerequisites',
+                '\nThis configurator will enable the modifying of an\n'
+                'existing configuration.\n\n'
+                'If you don\'t have an existing configuration then you\n'
+                'need to exit the configurator and create one.\n\n',
+                'Continue','Back')
+            if not result: return
         else:
             quit()
+        self.W = gtk.Window()
+#        self.W.set_title('PlasmaC Configurator')
+        self.W.connect('delete_event', self.on_window_delete_event)
+        self.W.set_position(gtk.WIN_POS_CENTER)
         self.create_widgets()
         self.iniFile.connect('button_press_event', self.on_inifile_press_event)
         self.create.connect('clicked', self.on_create_clicked)
@@ -82,7 +103,7 @@ class configurator:
         self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
         self.gitPath = self.copyPath.split('/config')[0]
         self.orgIniFile = ''
-        self.newIniPath = ''
+        self.configDir = ''
         if self.configureType == 'new':
             self.halFile.connect('button_press_event', self.on_halfile_press_event)
             self.nameFile.connect_after('focus-out-event', self.on_namefile_focus_out_event)
@@ -101,24 +122,24 @@ class configurator:
             self.inPlace = False
             self.set_mode()
 
-    def start_dialog(self):
-        dialog = gtk.Dialog('SELECT',
-                            self.W,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            ('New', 0, 
-                             'Upgrade', 1,
-                             'Reconfigure', 2,
-                             'Exit', 3,))
-        label = gtk.Label('Is this a new config, an upgrade or a reconfiguration?')
-        dialog.vbox.add(label)
-        label.show()
-        response = dialog.run()
-        dialog.destroy()
-        return response
+    # def start_dialog(self):
+    #     dialog = gtk.Dialog('SELECT',
+    #                         self.W,
+    #                         gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+    #                         ('New', 0, 
+    #                          'Upgrade', 1,
+    #                          'Reconfigure', 2,
+    #                          'Exit', 3,))
+    #     label = gtk.Label('Is this a new config, an upgrade or a reconfiguration?')
+    #     dialog.vbox.add(label)
+    #     label.show()
+    #     response = dialog.run()
+    #     dialog.destroy()
+    #     return response
 
     def dialog_ok_cancel(self,title,text,name1,name2):
         dialog = gtk.Dialog(title,
-                            self.W,
+                            self.S,
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (name1, 1,
                             name2, 0)
@@ -132,7 +153,7 @@ class configurator:
 
     def dialog_ok(self,title,error):
         dialog = gtk.Dialog(title,
-                    self.W,
+                    self.S,
                     gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         label = gtk.Label(error)
@@ -197,8 +218,8 @@ class configurator:
 
     def on_namefile_focus_out_event(self,widget,event):
         self.machineName = self.nameFile.get_text()
-        self.newIniPath = '{}/{}'.format(self.configPath,self.machineName.lower())
-        self.newIniFile = '{}/{}.ini'.format(self.newIniPath,self.machineName.lower())
+        self.configDir = '{}/{}'.format(self.configPath,self.machineName.lower())
+        self.newIniFile = '{}/{}.ini'.format(self.configDir,self.machineName.lower())
 
     def on_inifile_press_event(self,button,event):
         self.dlg = gtk.FileChooserDialog('Open..', None, gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -212,6 +233,7 @@ class configurator:
             self.iniFile.set_text(self.dlg.get_filename())
             self.orgIniFile = self.dlg.get_filename()
         else:
+            self.dlg.destroy()
             self.iniFile.set_text('')
             self.orgIniFile = ''
         if self.configureType == 'upgrade' or self.configureType == 'reconfigure':
@@ -223,6 +245,7 @@ class configurator:
                 line = inFile.readline()
                 if line.startswith('MACHINE'):
                     self.machineName = line.split('=')[1].strip()
+                    self.configDir = '{}'.format(os.path.dirname(self.orgIniFile))
                     inFile.close()
                     break
                 elif line.startswith('[') or not line:
@@ -251,7 +274,7 @@ class configurator:
         self.dlg.destroy()
 
     def on_cancel_clicked(self,button):
-        gtk.main_quit()
+        self.W.hide()
 
     def b4_pmt_tpt(self):
         inFile = open(self.orgIniFile,'r')
@@ -262,10 +285,18 @@ class configurator:
             line = inFile.readline()
             if line.startswith('PAUSED_MOTION_SPEED'):
                 inFile.close()
-                return True
+                return False
             elif line.startswith('[') or not line:
                 inFile.close()
+                return True
+
+    def b4_air_scribe(self):
+        inFile = open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()),'r')
+        for line in inFile:
+            if 'air-scribe' in line:
+                inFile.close()
                 return False
+        return True
 
     def set_mode(self):
         if self.mode == 0:
@@ -290,19 +321,25 @@ class configurator:
     # check existing version so we know what to upgrade
     def check_version(self):
         # see if this is a version before creating {MACHINE}_connections.hal
-        if not os.path.exists('{}/{}_connections.hal'.format(os.path.dirname(self.orgIniFile),self.machineName.lower())):
+        if not os.path.exists('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())):
             return 0.0
         # if version before changing paused_motion_speed and torch_pulse_time
-        elif not self.b4_pmt_tpt():
+        elif self.b4_pmt_tpt():
             return 0.1
+        # if version before adding air scribe
+        elif self.b4_air_scribe():
+            return 0.2
         # must be the latest version
         else:
-            return 0.2
+            return 0.3
 
     def on_create_clicked(self,button):
-        if not self.check_entries(): return
+        if not self.check_entries():
+            self.W.present()
+            return
         if self.configureType == 'reconfigure':
             self.reconfigure()
+            self.W.hide()
             self.dialog_ok('SUCCESS','\nReconfigure is complete.\n\n')
             return
         display = self.get_display()
@@ -310,11 +347,11 @@ class configurator:
         if not self.check_new_path(): return
         if self.configureType == 'upgrade':
             version = self.check_version()
-            if version == 0.0:
-                self.upgrade_connections_hal_00()
             self.upgrade_ini_file(version,display)
-            self.upgrade_material_file()
+            self.upgrade_material_file(version)
+            self.upgrade_connections_file(version)
             if not self.make_links(display): return
+            self.W.hide()
             self.dialog_ok('SUCCESS','\nUpgrade is complete.\n\n')
             return
         if not self.copy_ini_and_hal_files(): return
@@ -326,6 +363,7 @@ class configurator:
         if not self.write_newini_file(display): return
         if not self.make_links(display): return
         if not self.write_material_file(): return
+        self.W.hide()
         self.print_success()
 
     def check_entries(self):
@@ -403,66 +441,102 @@ class configurator:
     def check_new_path(self):
         # test if path exists
         if self.configureType == 'new':
-            if not os.path.exists(self.newIniPath):
-                os.makedirs(self.newIniPath)
+            if not os.path.exists(self.configDir):
+                os.makedirs(self.configDir)
             else:
                 if not self.dialog_ok_cancel('CONFIGURATION EXISTS',\
                                              '\nA configuration already exists in {}\n'\
-                                             .format(self.newIniPath),'Overwrite','Back'):
+                                             .format(self.configDir),'Overwrite','Back'):
                     return False
         return True
 
-    def upgrade_connections_hal_00(self):
-        # create a {MACHINE}_connections.hal for an upgrade from 00
-        inFile = open('{}/plasmac.hal'.format(os.path.dirname(self.orgIniFile)), 'r')
-        outFile = open('{}/{}_connections.hal'.format(os.path.dirname(self.orgIniFile),self.machineName.lower()), 'w')
-        outFile.write(\
-            '# Keep your plasmac i/o connections here to prevent them from\n'\
-            '# being overwritten by updates or pncconf/stepconf changes\n\n'\
-            '# Other customisations may be placed here as well\n'\
-            '# This file is built by the configurator in your configuration directory\n\n')
-        for line in inFile:
-            if ' '.join(line.split()).startswith('loadrt debounce'):
-                outFile.write(\
-                    '#***** DEBOUNCE FOR THE FLOAT SWITCH *****\n'\
-                    '# the lower the delay here the better\n'\
-                    '# each 1 is a 0.001mm (0.00004") increase in probed height result\n'\
-                    + line)
-            elif ' '.join(line.split()).startswith('setp debounce.0.delay'):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('addf debounce.0'):
-                outFile.write(line + '\n')
-            elif ' '.join(line.split()).startswith('net plasmac:axis-position '):
-                outFile.write(\
-                    '#***** arc voltage lowpass cutoff frequency *****\n'\
-                    '#***** change to the cutoff frequency you require *****\n'\
-                    '#setp plasmac.lowpass-frequency 0\n\n'\
-                    '#***** the joint associated with the Z axis *****\n'\
-                     + line + '\n')
-            elif ' '.join(line.split()).startswith('net plasmac:arc-voltage-in '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:arc-ok-in '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:float-switch '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:breakaway '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:ohmic-probe '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:ohmic-enable '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:torch-on ') and not 'plasmac.torch-on' in line:
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:move-down '):
-                outFile.write(line)
-            elif ' '.join(line.split()).startswith('net plasmac:move-up '):
-                outFile.write(line)
-        inFile.close()
-        outFile.close()
+    def upgrade_connections_file(self,version):
+        # add a connections.hal file for an upgrade from 0.0
+        if version == 0.0:
+            inFile = open('{}/plasmac.hal'.format(os.path.dirname(self.orgIniFile)), 'r')
+            outFile = open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'w')
+            outFile.write(\
+                '# Keep your plasmac i/o connections here to prevent them from\n'\
+                '# being overwritten by updates or pncconf/stepconf changes\n\n'\
+                '# Other customisations may be placed here as well\n'\
+                '# This file is built by the configurator in your configuration directory\n\n')
+            for line in inFile:
+                if ' '.join(line.split()).startswith('loadrt debounce'):
+                    outFile.write(\
+                        '#***** DEBOUNCE FOR THE FLOAT SWITCH *****\n'\
+                        '# the lower the delay here the better\n'\
+                        '# each 1 is a 0.001mm (0.00004") increase in probed height result\n'\
+                        + line)
+                elif ' '.join(line.split()).startswith('setp debounce.0.delay'):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('addf debounce.0'):
+                    outFile.write(line + '\n')
+                elif ' '.join(line.split()).startswith('net plasmac:axis-position '):
+                    outFile.write(\
+                        '#***** arc voltage lowpass cutoff frequency *****\n'\
+                        '#***** change to the cutoff frequency you require *****\n'\
+                        'setp plasmac.lowpass-frequency 0\n\n'\
+                        '#***** the joint associated with the Z axis *****\n'\
+                         + line + '\n')
+                elif ' '.join(line.split()).startswith('net plasmac:arc-voltage-in '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:arc-ok-in '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:float-switch '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:breakaway '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:ohmic-probe '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:ohmic-enable '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:torch-on ') and not 'plasmac.torch-on' in line:
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:move-down '):
+                    outFile.write(line)
+                elif ' '.join(line.split()).startswith('net plasmac:move-up '):
+                    outFile.write(line)
+            inFile.close()
+            outFile.close()
+        if version <= 0.2:
+            # add air scibe for an upgrade from 0.2 or earlier
+            conFile = '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())
+            if os.path.exists(conFile):
+                shutil.copy(conFile,'{}.old2'.format(conFile))
+                inFile = open('{}.old2'.format(conFile), 'r')
+                outFile = open(conFile, 'w')
+                todo = False
+
+                while 1:
+                    line = inFile.readline()
+                    if not line or line.strip() == '':
+                        if todo:
+                            outFile.write('\n# a 1 here allows multiple tools to be used\n' \
+                                            '# gcode M3 S1 needs to be changed to:\n' \
+                                            '# M3 $0 S1 for the plasma torch\n' \
+                                            '# M3 $1 S1 for the air scribe\n' \
+                                            'setp plasmac.multi-tool 0\n')
+                            outFile.write('# net plasmac:air-scribe-arm   plasmac.air-scribe-arm   => ***YOUR_AIR_SCRIBE_ARMING_OUTPUT***\n')
+                            outFile.write('# net plasmac:air-scribe-start plasmac.air-scribe-start => ***YOUR_AIR_SCRIBE_START_OUTPUT***\n')
+                            outFile.write(line)
+                            todo = False
+                        elif not line:
+                            break
+                        else:
+                            outFile.write(line)
+                    elif 'torch-on' in line:
+                        outFile.write(line)
+                        todo = True
+                    else:
+                        outFile.write(line)
+                inFile.close()
+                outFile.close()
+            else:
+                print('No connections file to upgrade')
 
     def upgrade_ini_file(self,version,display):
-        # create a new ini file for an upgrade
-        if version < 0.1:
+        # add a connections.hal file for an upgrade from 0.0
+        if version == 0.0:
             shutil.copy(self.orgIniFile,'{}.old0'.format(self.orgIniFile))
             inFile = open('{}.old0'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
@@ -477,7 +551,9 @@ class configurator:
                     outFile.write(line)
             inFile.close()
             outFile.close()
-        if version == 0.1:
+        # add paused-motion-time and torch-pulse-time for an upgrade from 0.1 or earlier
+        # add choice of run tab or run panel for an upgrade from 0.1 or earlier
+        if version <= 0.1:
             shutil.copy(self.orgIniFile,'{}.old01'.format(self.orgIniFile))
             inFile = open('{}.old01'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
@@ -514,9 +590,39 @@ class configurator:
                     outFile.write(line)
             inFile.close()
             outFile.close()
+        # add air scibe for an upgrade from 0.2 or earlier
+        if version <= 0.2 and display == 'axis':
+            shutil.copy(self.orgIniFile,'{}.old02'.format(self.orgIniFile))
+            inFile = open('{}.old02'.format(self.orgIniFile), 'r')
+            outFile = open('{}'.format(self.orgIniFile), 'w')
+            display = False
+            tooledit = False
+            for line in inFile:
+                if line.startswith('[TRAJ]'):
+                    outFile.write(line)
+                    outFile.write('SPINDLES                = 2\n')
+                elif line.startswith('HALFILE'):
+                    outFile.write(line)
+                    halFile = line.split('=')[1].strip()
+                    if halFile != 'plasmac.hal' and 'connections.hal' not in line:
+                        self.add_spindle_to_halfile(halFile)
+                elif line.startswith('[DISPLAY]'):
+                    outFile.write(line)
+                    display = True
+                elif line.startswith('TOOL_EDITOR'):
+                    outFile.write('TOOL_EDITOR             = tooledit x y\n')
+                    tooledit = True
+                elif (line.startswith('[') or line.strip() == '') and display and not tooledit:
+                    outFile.write('TOOL_EDITOR             = tooledit x y\n\n')
+                    outFile.write(line)
+                    tooledit = True
+                else:
+                    outFile.write(line)
+            inFile.close()
+            outFile.close()
 
-    def upgrade_material_file(self):
-        materialFile = '{}/{}_material.cfg'.format(os.path.dirname(self.orgIniFile),self.machineName.lower())
+    def upgrade_material_file(self,version):
+        materialFile = '{}/{}_material.cfg'.format(self.configDir,self.machineName.lower())
         if os.path.exists(materialFile):
             inFile = open(materialFile, 'r')
             mVersion = 0
@@ -524,6 +630,7 @@ class configurator:
                 if '[VERSION' in line:
                     mVersion = float(line.strip().strip(']').split(' ')[1])
             inFile.close()
+            # change material file format
             if mVersion == 1:
                 shutil.copy(materialFile,'{}.old1'.format(materialFile))
                 inFile = open('{}.old1'.format(materialFile), 'r')
@@ -549,20 +656,42 @@ class configurator:
         else:
             print('No material file to upgrade')
 
+    def add_spindle_to_halfile(self,halfile):
+        halFile = '{}/{}'.format(self.configDir,halfile)
+        toolCange = False
+        if os.path.exists(halFile):
+            shutil.copy(halFile,'{}.old2'.format(halFile))
+            inFile = open('{}.old2'.format(halFile), 'r')
+            outFile = open(halFile, 'w')
+            for line in inFile:
+                if line.startswith('loadrt motmod') :
+                    line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
+                elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
+                    line = '# {}'.format(line)
+                outFile.write(line)
+            outFile.write(\
+                '\n#Toolchange passthrough\n'
+                'net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed\n'
+                'net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared\n')
+            inFile.close()
+            outFile.close()
+        else:
+            print('No hal file to upgrade')
+
     def copy_ini_and_hal_files(self):
         # copy original INI and HAL files for input and backup
-        if os.path.dirname(self.orgIniFile) == self.newIniPath and \
+        if os.path.dirname(self.orgIniFile) == self.configDir and \
            os.path.basename(self.orgIniFile).startswith('_original_'):
             self.readIniFile = self.orgIniFile
         else:
-            self.readIniFile = '{}/_original_{}'.format(self.newIniPath,os.path.basename(self.orgIniFile))
+            self.readIniFile = '{}/_original_{}'.format(self.configDir,os.path.basename(self.orgIniFile))
             shutil.copy(self.orgIniFile,self.readIniFile)
 
-        if os.path.dirname(self.orgHalFile) == self.newIniPath and \
+        if os.path.dirname(self.orgHalFile) == self.configDir and \
            os.path.basename(self.orgHalFile).startswith('_original_'):
             self.readHalFile = self.orgHalFile
         else:
-            self.readHalFile = '{}/_original_{}'.format(self.newIniPath,os.path.basename(self.orgHalFile))
+            self.readHalFile = '{}/_original_{}'.format(self.configDir,os.path.basename(self.orgHalFile))
             shutil.copy(self.orgHalFile,self.readHalFile)
         return True
 
@@ -642,21 +771,28 @@ class configurator:
         return True
 
     def write_new_hal_file(self):
-        #write new hal file with spindle.0.on commented out
-        newHalFile = open('{}/{}{}'.format(self.newIniPath,self.machineName.lower(),self.halExt),'w')
+        #write new hal file
+        newHalFile = open('{}/{}{}'.format(self.configDir,self.machineName.lower(),self.halExt),'w')
         inHal = open(self.readHalFile,'r')
         for line in inHal:
-            if 'spindle.0.on' in line:
-                newHalFile.write('# ' + line)
-            else:
-                newHalFile.write(line)
+            if line.startswith('loadrt motmod'):
+                line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
+            elif 'spindle.0.on' in line:
+                line = '# {}'.format(line)
+            elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
+                line = '# {}'.format(line)
+            newHalFile.write(line)
+        newHalFile.write(\
+            '\n#Toolchange passthrough\n'
+            'net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed\n'
+            'net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared\n')
         newHalFile.close()
         inHal.close()
         return True
 
     def write_connections_hal_file(self):
         # write a connections.hal file for plasmac connections to the machine
-        with open('{}/{}_connections.hal'.format(self.newIniPath,self.machineName.lower()), 'w') as outFile:
+        with open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'w') as outFile:
             outFile.write(\
                 '# Keep your plasmac i/o connections here to prevent them from\n'\
                 '# being overwritten by updates or pncconf/stepconf changes\n\n'\
@@ -670,7 +806,7 @@ class configurator:
                 'addf    debounce.0              servo-thread\n\n'\
                 '#***** arc voltage lowpass cutoff frequency *****\n'\
                 '#***** change to the cutoff frequency you require *****\n'\
-                '#setp plasmac.lowpass-frequency 0\n\n'\
+                'setp plasmac.lowpass-frequency 0\n\n'\
                 '#***** the joint associated with the Z axis *****\n')
             outFile.write('net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position\n\n'.format(self.zJoint))
             if self.arcVoltPin.get_text() and (self.mode == 0 or self.mode == 1):
@@ -699,12 +835,25 @@ class configurator:
                 outFile.write('net plasmac:move-up {} => plasmac.move-up\n'.format(self.moveUpPin.get_text()))
             if self.moveDownPin.get_text() and self.mode == 2:
                 outFile.write('net plasmac:move-down {} => plasmac.move-down\n'.format(self.moveDownPin.get_text()))
+            outFile.write('\n# a 1 here allows multiple tools to be used\n' \
+                            '# gcode M3 S1 needs to be changed to:\n' \
+                            '# M3 $0 S1 for the plasma torch\n' \
+                            '# M3 $1 S1 for the air scribe\n' \
+                            'setp plasmac.multi-tool 0\n')
+            if self.scribeArmPin.get_text():
+                outFile.write('net plasmac:air-scribe-arm plasmac.air-scribe-arm => {}\n'.format(self.scribeArmPin.get_text()))
+            else:
+                outFile.write('# net plasmac:air-scribe-arm plasmac.air-scribe-arm => ***YOUR_AIR_SCRIBE_ARMING_OUTPUT***\n')
+            if self.scribeStartPin.get_text():
+                outFile.write('net plasmac:air-scribe-start plasmac.air-scribe-start => {}\n'.format(self.scribeStartPin.get_text()))
+            else:
+                outFile.write('# net plasmac:air-scribe-start plasmac.air-scribe-start => ***YOUR_AIR_SCRIBE_START_OUTPUT***\n')
         return True
 
     def write_postgui_hal_file(self):
         # create a postgui.hal file if not already present
-        if not os.path.exists('{}/postgui.hal'.format(self.newIniPath)):
-            with open('{}/postgui.hal'.format(self.newIniPath), 'w') as outFile:
+        if not os.path.exists('{}/postgui.hal'.format(self.configDir)):
+            with open('{}/postgui.hal'.format(self.configDir), 'w') as outFile:
                 outFile.write(\
                     '# Keep your post GUI customisations here to prevent them from\n'\
                     '# being overwritten by updates or pncconf/stepconf changes\n\n'\
@@ -763,19 +912,25 @@ class configurator:
                 outFile.write(line)
                 break
         openFile = False
+        toolFile = False
         while 1:
             line = inFile.readline()
             if not line.startswith('['):
                 if line.startswith('OPEN_FILE'):
                     outFile.write('OPEN_FILE = \"\"\n')
                     openFile = True
+                elif line.startswith('TOOL_EDITOR'):
+                    outFile.write('TOOL_EDITOR = tooledit x y\n')
+                    toolFile = True
                 else:
                     outFile.write(line)
             else:
                 inFile.close()
                 break
         if not openFile and display == 'axis':
-            outFile.write('OPEN_FILE = \"\"\n\n')
+            outFile.write('OPEN_FILE = \"\"\n')
+        if not toolFile and display == 'axis':
+            outFile.write('TOOL_EDITOR = tooledit x y\n\n')
         while 1:        
             line = plasmacIni.readline()
             if line.startswith('EMBED'):
@@ -826,28 +981,38 @@ class configurator:
                 '[DISPLAY]']
         # iterate through INI file copy to get all missing sections
         inFile = open(self.readIniFile, 'r')
-        validSection = True
+        editSection = False
         offsetAxis = False
         newName = False
+        addSpindle =False
         while 1:
             line = inFile.readline()
             if line.startswith('['):
                 if line.strip() in done:
-                    validSection = False
+                    editSection = False
                 else:
                     done.append(line.strip())
-                    validSection = True
-                if line.strip() == '[EMC]' and validSection:
+                    editSection = True
+                if line.strip() == '[EMC]' and editSection:
                     newName = True
-                elif line.strip() == '[AXIS_Z]' and validSection:
+                elif line.strip() == '[TRAJ]' and editSection:
+                    addSpindle = True
+                elif line.strip() == '[AXIS_Z]' and editSection:
                     offsetAxis = True
                 else:
                     newName = False
                     offsetAxis = False
-            if validSection:
+                    addSpindle = False
+            if editSection:
                 if newName:
                     if line.startswith('MACHINE'):
                         outFile.write('MACHINE = {}\n'.format(self.machineName))
+                    else:
+                        outFile.write(line)
+                elif addSpindle:
+                    if line.strip() == '[TRAJ]':
+                        outFile.write(line)
+                        outFile.write('SPINDLES = 2\n')
                     else:
                         outFile.write(line)
                 elif offsetAxis:
@@ -875,10 +1040,7 @@ class configurator:
         # make links plasmac application files in configuration directory
         for fileName in self.get_files_to_link(display):
             src = '{}/{}'.format(self.copyPath,fileName)
-            if self.configureType == 'upgrade':
-                dst = '{}/{}'.format(os.path.dirname(self.orgIniFile),fileName)
-            else:
-                dst = '{}/{}'.format(self.newIniPath,fileName)
+            dst = '{}/{}'.format(self.configDir,fileName)
             if os.path.islink(dst):
                 os.unlink(dst)
             elif os.path.exists(dst):
@@ -888,7 +1050,7 @@ class configurator:
 
     def write_material_file(self):
         # create a new material file if not existing
-        materialFile = '{}/{}_material.cfg'.format(self.newIniPath,self.machineName.lower())
+        materialFile = '{}/{}_material.cfg'.format(self.configDir,self.machineName.lower())
         if os.path.exists(materialFile):
             return True
         else: # create a new material file if it doesn't exist
@@ -968,7 +1130,7 @@ class configurator:
         arcOkMissing = True
         moveUpMissing = True
         moveDownMissing = True
-        newConex = '{0}/{1}/{1}_connections.hal'.format(self.configPath,self.machineName.lower())
+        newConex = '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())
         oldConex = '{}.bakr'.format(newConex)
         shutil.copy(newConex, oldConex)
         outFile = open(newConex, 'w')
@@ -1078,6 +1240,34 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
+
+
+                elif 'scribe-arm' in line:
+                    if self.scribeArmPin.get_text():
+                        if self.oldScribeArmPin != self.scribeArmPin.get_text():
+                            outFile.write('{}\n'.format(re.sub(r'\b{}\b'.format(self.oldScribeArmPin),self.scribeArmPin.get_text(),line.strip('#').strip())))
+                            self.oldScribeArmPin = self.scribeArmPin.get_text()
+                        else:
+                            outFile.write('{}\n'.format(line.strip('#').strip()))
+                    elif line.startswith('#'):
+                        outFile.write(line)
+                    else:
+                        outFile.write('# {}'.format(line))
+
+
+                elif 'scribe-start' in line:
+                    if self.scribeStartPin.get_text():
+                        if self.oldScribeStartPin != self.scribeStartPin.get_text():
+                            outFile.write('{}\n'.format(re.sub(r'\b{}\b'.format(self.oldScribeStartPin),self.scribeStartPin.get_text(),line.strip('#').strip())))
+                            self.oldScribeStartPin = self.scribeStartPin.get_text()
+                        else:
+                            outFile.write('{}\n'.format(line.strip('#').strip()))
+                    elif line.startswith('#'):
+                        outFile.write(line)
+                    else:
+                        outFile.write('# {}'.format(line))
+
+
                 else:
                     outFile.write(line)
         if arcVoltMissing:
@@ -1126,8 +1316,18 @@ class configurator:
         self.oldMoveUpPin = ''
         self.moveDownPin.set_text('')
         self.oldMoveDownPin = ''
+
+
+        self.scribeArmPin.set_text('')
+        self.oldScribeArmPin = ''
+
+
+        self.scribeStartPin.set_text('')
+        self.oldScribeStartPin = ''
+
+
         try:
-            with open('{0}/{1}/{1}_connections.hal'.format(self.configPath,self.machineName.lower()), 'r') as inFile:
+            with open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'r') as inFile:
                 for line in inFile:
                     if 'arc-voltage-in' in line:
                         self.oldArcVoltPin = (line.split('age-in', 1)[1].strip().split(' ', 1)[0].strip())
@@ -1165,12 +1365,26 @@ class configurator:
                         self.oldMoveDownPin = (line.split('move-down', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.moveDownPin.set_text(self.oldMoveDownPin)
+
+
+                    elif 'scribe-arm' in line:
+                        self.oldScribeArmPin = (line.strip().split(' ', -1).strip())
+                        if not line.strip().startswith('#'):
+                            self.scribeArmPin.set_text(self.oldScribeArmPin)
+
+
+                    elif 'scribe-start' in line:
+                        self.oldScribeStartPin = (line.strip().split(' ', -1).strip())
+                        if not line.strip().startswith('#'):
+                            self.scribeStartPin.set_text(self.oldScribeStartPin)
+
+
         except:
             self.iniFile.set_text('')
             self.dialog_ok(
                 'FILE ERROR',
                 '\nCannot open connections file:\n'
-                '{0}/{1}/{1}_connections.hal'.format(self.configPath,self.machineName.lower()))
+                '{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()))
         with open(self.orgIniFile,'r') as inFile:
             while 1:
                 line = inFile.readline()
@@ -1200,11 +1414,11 @@ class configurator:
             'You can run this configuration from a console as follows.\n\n'\
             'Full installation:\n'\
             'linuxcnc  '\
-            '{0}/{1}/{1}.ini\n\n'\
+            '{0}/{1}.ini\n\n'\
             'Run In Place installation:\n'\
             '{2}/scripts/linuxcnc  '\
-            '{0}/{1}/{1}.ini\n\n'\
-            .format(self.configPath,self.machineName.lower(),self.gitPath))
+            '{0}/{1}.ini\n\n'\
+            .format(self.configDir,self.machineName.lower(),self.gitPath))
 
     def create_widgets(self):
         self.VB = gtk.VBox()
@@ -1268,7 +1482,7 @@ class configurator:
             self.VB.pack_start(self.halVBox,expand=False)
         if self.configureType == 'new' or self.configureType == 'reconfigure':
             self.arcVoltVBox = gtk.VBox()
-            self.arcVoltLabel = gtk.Label('Arc Voltage HAL pin:')
+            self.arcVoltLabel = gtk.Label('Arc Voltage HAL pin: (float in)')
             self.arcVoltLabel.set_alignment(0,0)
             self.arcVoltPin = gtk.Entry()
             self.arcVoltPin.set_width_chars(60)
@@ -1278,7 +1492,7 @@ class configurator:
             self.arcVoltVBox.pack_start(arcVoltBlank)
             self.VB.pack_start(self.arcVoltVBox,expand=False)
             self.arcOkVBox = gtk.VBox()
-            self.arcOkLabel = gtk.Label('Arc OK HAL pin:')
+            self.arcOkLabel = gtk.Label('Arc OK HAL pin: (bit in)')
             self.arcOkLabel.set_alignment(0,0)
             self.arcOkPin = gtk.Entry()
             self.arcOkPin.set_width_chars(60)
@@ -1288,7 +1502,7 @@ class configurator:
             self.arcOkVBox.pack_start(arcOkBlank)
             self.VB.pack_start(self.arcOkVBox,expand=False)
             self.ohmicInVBox = gtk.VBox()
-            ohmicInLabel = gtk.Label('Ohmic Probe HAL pin (optional):')
+            ohmicInLabel = gtk.Label('Ohmic Probe HAL pin: (optional, bit out)')
             ohmicInLabel.set_alignment(0,0)
             self.ohmicInPin = gtk.Entry()
             self.ohmicInPin.set_width_chars(60)
@@ -1298,7 +1512,7 @@ class configurator:
             self.ohmicInVBox.pack_start(ohmicInBlank)
             self.VB.pack_start(self.ohmicInVBox,expand=False)
             self.ohmicOutVBox = gtk.VBox()
-            ohmicOutLabel = gtk.Label('Ohmic Probe Enable HAL pin (optional):')
+            ohmicOutLabel = gtk.Label('Ohmic Probe Enable HAL pin: (optional, bit in)')
             ohmicOutLabel.set_alignment(0,0)
             self.ohmicOutPin = gtk.Entry()
             self.ohmicOutPin.set_width_chars(60)
@@ -1308,7 +1522,7 @@ class configurator:
             self.ohmicOutVBox.pack_start(ohmicOutBlank)
             self.VB.pack_start(self.ohmicOutVBox,expand=False)
             self.floatVBox = gtk.VBox()
-            floatLabel = gtk.Label('Float Switch HAL pin (optional):')
+            floatLabel = gtk.Label('Float Switch HAL pin: (optional, bit in)')
             floatLabel.set_alignment(0,0)
             self.floatPin = gtk.Entry()
             self.floatPin.set_width_chars(60)
@@ -1318,7 +1532,7 @@ class configurator:
             self.floatVBox.pack_start(floatBlank)
             self.VB.pack_start(self.floatVBox,expand=False)
             self.breakVBox = gtk.VBox()
-            breakLabel = gtk.Label('Breakaway Switch HAL pin (optional):')
+            breakLabel = gtk.Label('Breakaway Switch HAL pin: (optional, bit in)')
             breakLabel.set_alignment(0,0)
             self.breakPin = gtk.Entry()
             self.breakPin.set_width_chars(60)
@@ -1328,7 +1542,7 @@ class configurator:
             self.breakVBox.pack_start(breakBlank)
             self.VB.pack_start(self.breakVBox,expand=False)
             self.torchVBox = gtk.VBox()
-            torchLabel = gtk.Label('Torch On HAL pin:')
+            torchLabel = gtk.Label('Torch On HAL pin: (bit out)')
             torchLabel.set_alignment(0,0)
             self.torchPin = gtk.Entry()
             self.torchPin.set_width_chars(60)
@@ -1338,7 +1552,7 @@ class configurator:
             self.torchVBox.pack_start(torchBlank)
             self.VB.pack_start(self.torchVBox,expand=False)
             self.moveUpVBox = gtk.VBox()
-            self.moveUpLabel = gtk.Label('Move Up HAL pin:')
+            self.moveUpLabel = gtk.Label('Move Up HAL pin: (bit out)')
             self.moveUpLabel.set_alignment(0,0)
             self.moveUpPin = gtk.Entry()
             self.moveUpPin.set_width_chars(60)
@@ -1348,7 +1562,7 @@ class configurator:
             self.moveUpVBox.pack_start(moveUpBlank)
             self.VB.pack_start(self.moveUpVBox,expand=False)
             self.moveDownVBox = gtk.VBox()
-            self.moveDownLabel = gtk.Label('Move Down HAL pin:')
+            self.moveDownLabel = gtk.Label('Move Down HAL pin: (bit out)')
             self.moveDownLabel.set_alignment(0,0)
             self.moveDownPin = gtk.Entry()
             self.moveDownPin.set_width_chars(60)
@@ -1357,6 +1571,26 @@ class configurator:
             self.moveDownVBox.pack_start(self.moveDownPin)
             self.moveDownVBox.pack_start(moveDownBlank)
             self.VB.pack_start(self.moveDownVBox,expand=False)
+            self.scribeArmVBox = gtk.VBox()
+            self.scribeArmLabel = gtk.Label('Scribe Arming HAL pin: (bit out)')
+            self.scribeArmLabel.set_alignment(0,0)
+            self.scribeArmPin = gtk.Entry()
+            self.scribeArmPin.set_width_chars(60)
+            scribeArmBlank = gtk.Label('')
+            self.scribeArmVBox.pack_start(self.scribeArmLabel)
+            self.scribeArmVBox.pack_start(self.scribeArmPin)
+            self.scribeArmVBox.pack_start(scribeArmBlank)
+            self.VB.pack_start(self.scribeArmVBox,expand=False)
+            self.scribeStartVBox = gtk.VBox()
+            self.scribeStartLabel = gtk.Label('Scribe Start HAL pin: (bit out)')
+            self.scribeStartLabel.set_alignment(0,0)
+            self.scribeStartPin = gtk.Entry()
+            self.scribeStartPin.set_width_chars(60)
+            scribeStartBlank = gtk.Label('')
+            self.scribeStartVBox.pack_start(self.scribeStartLabel)
+            self.scribeStartVBox.pack_start(self.scribeStartPin)
+            self.scribeStartVBox.pack_start(scribeStartBlank)
+            self.VB.pack_start(self.scribeStartVBox,expand=False)
             self.tabPanelVBox = gtk.VBox()
             self.tabPanelLabel = gtk.Label('Run Frame is a tab behind preview')
             self.tabPanelLabel.set_alignment(0,0)
@@ -1377,7 +1611,7 @@ class configurator:
             self.create = gtk.Button('Upgrade')
         else:
             self.create = gtk.Button('Reconfigure')
-        self.cancel = gtk.Button('Exit')
+        self.cancel = gtk.Button('Back')
         BB.pack_start(self.create, True, True, 0)
         BB.pack_start(self.cancel, True, True, 0)
         BB.set_border_width(5)
@@ -1385,14 +1619,17 @@ class configurator:
         self.W.add(self.VB)
         self.W.show_all()
         if self.configureType == 'new':
+            self.W.set_title('PlasmaC Config Creator')
             self.modeLabel.set_text('Use arc voltage for both arc-OK and THC')
             self.tabPanelLabel.set_text('Run Frame is a tab behind preview')
             self.arcVoltVBox.show()
             self.arcOkVBox.hide()
             self.moveUpVBox.hide()
             self.moveDownVBox.hide()
-        else:
+        elif self.configureType == 'upgrade':
             self.W.set_title('PlasmaC Upgrader')
+        else:
+            self.W.set_title('PlasmaC Reconfigurer')
 
     def get_files_to_link(self,display):
         if display == 'axis':

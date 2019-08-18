@@ -1,4 +1,4 @@
-;skip ihs with thc enabled
+;skip ihs with thc disabled
 
 G21
 G64 P0.01
@@ -10,21 +10,20 @@ M3S1
 G1 X125
 M5
 
-G0 Y50
-M3S1
-G1 X25
-M5
-
-G0 Y75
+G0 X25 Y50
 M3S1
 G1 X125
 M5
 
-G0 Y100
+G0 X25 Y75
 M3S1
-G1 X25
+G1 X125
+M5
+
+G0 X25 Y100
+M3S1
+G1 X125
 M5
 
 G0 X0 Y0
 M2
-
