@@ -13,34 +13,34 @@ addf    debounce.0              servo-thread
 
 #***** arc voltage lowpass cutoff frequency *****
 #***** change to the cutoff frequency you require *****
-#setp plasmac.lowpass-frequency 0
+setp plasmac.lowpass-frequency 0
 
 #***** the joint associated with the Z axis *****
 net plasmac:axis-position        joint.3.pos-fb                  =>  plasmac.axis-z-position
 
 # FOR MODE 0 ***************************************************************************#
 #net plasmac:arc-voltage-in      ***YOUR PLASMA ARC VOLTAGE***   =>  plasmac.arc-voltage-in
-#net plasmac:float-switch        ***YOUR FLOAT SWITCH***         =>  debounce.0.0.in
-#net plasmac:breakaway           ***YOUR BREAKAWAY SWITCH***     =>  debounce.0.1.in
-#net plasmac:ohmic-probe         ***YOUR OHMIC PROBE***          =>  debounce.0.2.in
-#net plasmac:torch-on                                            =>  ***YOUR TORCH ON***
-#net plasmac:ohmic-enable        plasmac.ohmic-enable            =>  ***YOUR OHMIC PROBE ENABLING CIRCUIT***
 
 # FOR MODE 1 ***************************************************************************#
 #net plasmac:arc-voltage-in      ***YOUR PLASMA ARC VOLTAGE***   =>  plasmac.arc-voltage-in
 #net plasmac:arc-ok-in           ***YOUR PLASMA ARC OK***        =>  plasmac.arc-ok-in
-#net plasmac:float-switch        ***YOUR FLOAT SWITCH***         =>  debounce.0.0.in
-#net plasmac:breakaway           ***YOUR BREAKAWAY SWITCH***     =>  debounce.0.1.in
-#net plasmac:ohmic-probe         ***YOUR OHMIC PROBE***          =>  debounce.0.2.in
-#net plasmac:torch-on                                            =>  ***YOUR TORCH ON***
-#net plasmac:ohmic-enable        plasmac.ohmic-enable            =>  ***YOUR OHMIC PROBE ENABLING CIRCUIT***
 
 # FOR MODE 2 ***************************************************************************
 #net plasmac:arc-ok-in           ***YOUR PLASMA ARC OK***        =>  plasmac.arc-ok-in
 #net plasmac:move-down           ***YOUR MOVE DOWN SIGNAL***     =>  plasmac.move-down
 #net plasmac:move-up             ***YOUR MOVE UP SIGNAL***       =>  plasmac.move-up
+
+# FOR ALL MODES
 #net plasmac:float-switch        ***YOUR FLOAT SWITCH***         =>  debounce.0.0.in
 #net plasmac:breakaway           ***YOUR BREAKAWAY SWITCH***     =>  debounce.0.1.in
 #net plasmac:ohmic-probe         ***YOUR OHMIC PROBE***          =>  debounce.0.2.in
 #net plasmac:torch-on                                            =>  ***YOUR TORCH ON***
 #net plasmac:ohmic-enable        plasmac.ohmic-enable            =>  ***YOUR OHMIC PROBE ENABLING CIRCUIT***
+
+# a 1 here allows multiple tools to be used
+# gcode M3 S1 needs to be changed to:
+# M3 $0 S1 for the plasma torch'
+# M3 $1 S1 for the air scribe'
+setp plasmac.multi-tool = 0
+#net plasmac:air-scribe-arm      plasmac.air-scribe-arm          => ***YOUR_AIR_SCRIBE_ARMING_OUTPUT***
+#net plasmac:air-scribe-start    plasmac.air-scribe-start        => ***YOUR_AIR_SCRIBE_START_OUTPUT***

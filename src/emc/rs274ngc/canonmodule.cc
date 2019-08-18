@@ -118,6 +118,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("PLUGIN_CALL",&PLUGIN_CALL);
     def("IO_PLUGIN_CALL",&IO_PLUGIN_CALL);
     def("FINISH",&FINISH);
+    def("ON_RESET", &ON_RESET);
     def("FLOOD_OFF",&FLOOD_OFF);
     def("FLOOD_ON",&FLOOD_ON);
     def("GET_BLOCK_DELETE",&GET_BLOCK_DELETE);

@@ -42,6 +42,7 @@ scale, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch
 torchEnable = True
 velocity = 60
 pierceOnly = False
+scribing = False
 rapidLine = ''
 
 # check if arc is a hole
@@ -257,6 +258,14 @@ for line in f:
     if line.startswith('#<pierce-only>') and \
        line.split('=')[1][0] == '1':
         pierceOnly = True
+    if line.startswith('m3$1s'):
+        scribing = True
+    if pierceOnly and scribing:
+        codeError = True
+        print('*** air-scribe is invalid for pierce only mode\n'
+              'Error in line #{}: {}\n'
+              .format(count, line))
+        scribing = False
 
 # second pass, process every line
 if not codeError:
@@ -354,7 +363,7 @@ if not codeError:
                     print('m65 p3 (enable torch)')
                     torchEnable = True
             # if program end
-            elif 'm2' in line or 'm30' in line or '%' in line:
+            elif line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
                 # restore hole sensing to default
                 if holeEnable:
                     print('#<holes> = 0 (disable hole sensing)')
@@ -396,7 +405,8 @@ if not codeError:
             if line.lower().startswith('g0'):
                 rapidLine = line
             # if a spindle on
-            elif line.lower().replace(' ','').startswith('m3s'):
+            elif line.lower().replace(' ','').startswith('m3') and not \
+                 line.lower().replace(' ','').startswith('m3$1'):
                 spindleOn = True
                 break
             elif not '#<pierce-only>' in line:
@@ -407,7 +417,7 @@ if not codeError:
                 pierces += 1
                 print('\n(Pierce #{})'.format(pierces))
                 print(rapidLine)
-                print('M3 S1')
+                print('M3 $0 S1')
                 print('G91')
                 print('G1 X.000001')
                 print('G90\nM5')
@@ -424,7 +434,7 @@ if not codeError:
             if line.lower().startswith('g0'):
                 rapidLine = line
             # if a spindle on
-            elif line.lower().replace(' ','').startswith('m3s'):
+            elif line.lower().replace(' ','').startswith('m3'):
                 spindleOn = True
         print('')
         if rapidLine:
