@@ -571,9 +571,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     def setText(self,data):
-        print 'set text:',data, self._designer_running
+        #print 'set text:',data, self._designer_running
         if self._designer_running:
-            print 'update'
+            #print 'update'
             self.set_textTemplate(data)
         super(ActionButton, self).setText(data)
 
