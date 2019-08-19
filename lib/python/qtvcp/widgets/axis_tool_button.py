@@ -155,7 +155,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 if self._halpin_option:
                     self.hal_pin_joint.set(self.isChecked())
             else:
-                ACTION.SET_SELECTED_axis(self._axis)
+                ACTION.SET_SELECTED_AXIS(self._axis)
                 if self._halpin_option:
                     self.hal_pin_axis.set(self.isChecked())
 
@@ -172,7 +172,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 self._block_signal = True
                 self.setChecked(False)
                 self._block_signal = False
-                if self._halpin_option and self.axis != '':
+                if self._halpin_option and self._axis != '':
                     self.hal_pin_joint.set(False)
 
     def modeChanged(self, mode):
@@ -207,7 +207,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
-            self._axis = data.upper()
+            self._axis = str(data.upper())
     def get_axis(self):
         return self._axis
     def reset_axis(self):
