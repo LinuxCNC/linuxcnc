@@ -50,7 +50,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
 
     # Show the widgets based on a reference number
     def show_image_by_number(self, number):
-        print self.objectName(),len(self._imagePath),number
+        #print self.objectName(),len(self._imagePath),number
         if self._imagePath[number].upper() == 'NONE':
             return
         if number <0 or number > len(self._imagePath)-1:
@@ -127,10 +127,10 @@ class StatusImageSwitcher(ImageSwitcher):
             # tripped
             self.set_image_number(0)
         elif (len(self._imagePath)) == 2:
-            print 'bool images'
+            #print 'bool images'
             self.set_image_number(1)
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS)):
-            print 'per joint limts images', self._last_limit, group
+            #print 'per joint limts images', self._last_limit, group
             for i in range(0,len(INFO.AVAILABLE_JOINTS)):
                 if group[i] == self._last_limit[i]:
                     pass
@@ -140,7 +140,8 @@ class StatusImageSwitcher(ImageSwitcher):
                     self.set_image_number(i+1)
                     break
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS) * 2):
-            print 'per joint and per end limts images'
+            pass
+            #print 'per joint and per end limts images'
         self._last_limit = group
 
     #########################################################################

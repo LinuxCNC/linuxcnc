@@ -1240,8 +1240,6 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-
-
                 elif 'scribe-arm' in line:
                     if self.scribeArmPin.get_text():
                         if self.oldScribeArmPin != self.scribeArmPin.get_text():
@@ -1253,8 +1251,6 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-
-
                 elif 'scribe-start' in line:
                     if self.scribeStartPin.get_text():
                         if self.oldScribeStartPin != self.scribeStartPin.get_text():
@@ -1266,8 +1262,6 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-
-
                 else:
                     outFile.write(line)
         if arcVoltMissing:
@@ -1316,16 +1310,10 @@ class configurator:
         self.oldMoveUpPin = ''
         self.moveDownPin.set_text('')
         self.oldMoveDownPin = ''
-
-
         self.scribeArmPin.set_text('')
         self.oldScribeArmPin = ''
-
-
         self.scribeStartPin.set_text('')
         self.oldScribeStartPin = ''
-
-
         try:
             with open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()), 'r') as inFile:
                 for line in inFile:
@@ -1365,20 +1353,14 @@ class configurator:
                         self.oldMoveDownPin = (line.split('move-down', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.moveDownPin.set_text(self.oldMoveDownPin)
-
-
                     elif 'scribe-arm' in line:
-                        self.oldScribeArmPin = (line.strip().split(' ', -1).strip())
+                        self.oldScribeArmPin = (line.strip().split(' ')[-1].strip())
                         if not line.strip().startswith('#'):
                             self.scribeArmPin.set_text(self.oldScribeArmPin)
-
-
                     elif 'scribe-start' in line:
-                        self.oldScribeStartPin = (line.strip().split(' ', -1).strip())
+                        self.oldScribeStartPin = (line.strip().split(' ')[-1].strip())
                         if not line.strip().startswith('#'):
                             self.scribeStartPin.set_text(self.oldScribeStartPin)
-
-
         except:
             self.iniFile.set_text('')
             self.dialog_ok(

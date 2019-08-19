@@ -447,12 +447,13 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
 [[scribe-config]]
+
 .Air Scribe
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Start Delay|Delay from air-scribe arming until air-scribe starting.
+|Start Delay|Delay to allow air-scribe to reach surface of material before start of scribing.
 |===
 
 The *'Save'* button will save the currently displayed parameters as the default.
@@ -894,7 +895,7 @@ An air-scribe may be operated by PlasmaC in addition to the plasma torch, this i
 
 Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'M6 Tn' command then a 'G43' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
 
-There are two HAL pins used to operate the air-scribe, one to arm the air-scribe then after a delay the other to start the torch.
+There are two HAL pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config,delay>> the other to start the air-scribe.
 
 Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
 
@@ -938,7 +939,7 @@ G0 X0 Y0 (parking position)
 M5 (end)
 -----
 
-It is a good idea to switch back to the torch at the end of the program before you final rapid parking move so your machine is always in the same state at idle.
+It is a good idea to switch back to the torch at the end of the program before your final rapid parking move so your machine is always in the same state at idle.
 
 You can switch between the torch and the air-scribe any number of times during a program by using the above code and issuing 'M3 $0 S1' to start PlasmaC with the torch.
 

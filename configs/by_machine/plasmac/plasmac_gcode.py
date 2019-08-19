@@ -24,7 +24,8 @@ import os
 import sys
 import linuxcnc
 import math
- 
+from subprocess import Popen, PIPE
+
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 
 codeError = False
@@ -44,6 +45,7 @@ velocity = 60
 pierceOnly = False
 scribing = False
 rapidLine = ''
+cutType = int(Popen('halcmd getp axisui.cut-type', stdout = PIPE, shell = True).communicate()[0])
 
 # check if arc is a hole
 def check_if_hole():
@@ -255,8 +257,7 @@ for line in f:
                 print('*** invalid diameter word\n'
                       'Error in line #{}: {}\n'
                       .format(count, line))
-    if line.startswith('#<pierce-only>') and \
-       line.split('=')[1][0] == '1':
+    if (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or cutType == 1:
         pierceOnly = True
     if line.startswith('m3$1s'):
         scribing = True

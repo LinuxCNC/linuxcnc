@@ -1,0 +1,34 @@
+;wrench with offsets
+
+#<x_offset> = 40
+#<y_offset> = 0
+
+G21
+G64 P0.005
+M52 P1
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+G0 X[12.92+#<x_offset>] Y[38.70+#<y_offset>]
+M3 $0 S1 (select plasma torch)
+G1 X[35.92+#<x_offset>]
+G3 X[35.92+#<x_offset>] Y[66.2+#<y_offset>] I-8.182 J13.75
+G1 X[18.92+#<x_offset>]
+G1 Y[68.71+#<y_offset>]
+F[#<_hal[plasmac.cut-feed-rate]> * .6]
+G2 X[19.900+#<x_offset>] Y[70.928+#<y_offset>] I3 J-0
+F[#<_hal[plasmac.cut-feed-rate]>]
+G2 X[57.068+#<x_offset>] Y[67+#<y_offset>] I16.833 J-18.538
+G3 X[71.871+#<x_offset>] Y[60.45+#<y_offset>] I14.721 J13.267
+G1 X[161.739+#<x_offset>] Y[58.45+#<y_offset>]
+F[#<_hal[plasmac.cut-feed-rate]> * .6]
+G2 X[161.739+#<x_offset>] Y[46.45+#<y_offset>] I0 J-6
+F#<_hal[plasmac.cut-feed-rate]>
+G1 X[71.871+#<x_offset>] Y[44.45+#<y_offset>]
+G3 X[57.068+#<x_offset>] Y[37.9+#<y_offset>] I0 J-20
+G2 X[19.9+#<x_offset>] Y[33.972+#<y_offset>] I-20.32 J14.46
+F[#<_hal[plasmac.cut-feed-rate]> * .6]
+G2 X[18.92+#<x_offset>] Y[36.189+#<y_offset>] I1.653 J2.055
+F#<_hal[plasmac.cut-feed-rate]>
+G1 Y[38.7+#<y_offset>]
+M5
+G0 X0 Y0
+M2
