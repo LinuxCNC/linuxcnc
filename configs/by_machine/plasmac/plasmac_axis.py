@@ -541,8 +541,9 @@ commands = TclCommands(root_window)
 # some python functions
 
 def user_button_pressed(button,commands):
+    if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
+       not commands: return
     from subprocess import Popen,PIPE
-    if not commands: return
     if 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','1')
     elif 'probe-test' in commands.lower():
@@ -554,7 +555,18 @@ def user_button_pressed(button,commands):
         if commands.lower().replace('probe-test','').strip():
             probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
         hal.set_p('plasmac.probe-test','1')
-
+    elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
+        global cutType
+        cutType ^= 1
+        bgc = w('ttk::style', 'lookup', 'TButton', '-background')
+        abgc = w('ttk::style', 'lookup', 'TButton', '-background', 'active')
+        if cutType:
+            hal.set_p('axisui.cut-type','1')
+            w(fbuttons + '.button' + button,'configure','-bg','orange','-activebackground','darkorange1','-text','Pierce\nOnly')
+        else:
+            hal.set_p('axisui.cut-type','0')
+            w(fbuttons + '.button' + button,'configure','-bg',bgc,'-activebackground',abgc,'-text','Pierce\n & Cut')
+        Popen('axis-remote -r', stdout = PIPE, shell = True)
     else:
         for command in commands.split('\\'):
             if command.strip()[0] == '%':
@@ -590,10 +602,11 @@ def user_button_pressed(button,commands):
                     c.wait_complete()
 
 def user_button_released(button,commands):
+    if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
+       not commands: return
     global probeButton
     global probePressed
     probePressed = False
-    if not commands: return
     if commands.lower() == 'ohmic-test':
         hal.set_p('plasmac.ohmic-test','0')
     elif commands.lower() == 'probe-test':
@@ -652,7 +665,7 @@ def user_live_update():
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
                 w(fbuttons + '.button' + str(n),'configure','-state','disabled')
-        elif not iniButtonCode[n] in ['ohmic-test'] and not iniButtonCode[n].startswith('%'):
+        elif not iniButtonCode[n] in ['ohmic-test'] and not iniButtonCode[n] in ['cut-type'] and not iniButtonCode[n].startswith('%'):
             if isIdleHomed:
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
@@ -690,6 +703,7 @@ def user_live_update():
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)
+    comp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN)
     comp.newpin('led-arc-ok', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-torch', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-thc-enabled', hal.HAL_BIT, hal.HAL_IN)
@@ -723,6 +737,7 @@ def user_hal_pins():
     hal.connect('axisui.led-float','plasmac:float-switch-out')
     hal.connect('axisui.led-breakaway','plasmac:breakaway-switch-out')
     hal.connect('axisui.led-torch','plasmac:torch-on')
+    hal.set_p('axisui.cut-type','0')
 
 def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
@@ -738,10 +753,11 @@ probeTimer = 0
 probeButton = ''
 torchPulse = 0
 torch_height = 0
-w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
-hal.set_p('plasmac.height-override','%f' % (torch_height))
+cutType = 0
 hal.set_p('plasmac.torch-enable','0')
+hal.set_p('plasmac.height-override','%f' % (torch_height))
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
+w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
 wLabels = [\
     fmonitor + '.aVlab',\
     fmonitor + '.lTlab',\
