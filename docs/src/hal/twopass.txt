@@ -162,9 +162,15 @@ options.
 This exclusion provision can be used to isolate problems or for loading any
 special hal component that does not require or benefit from TWOPASS processing.
 
-Ordinarily, the ordering of realtime components (loadrt) is not critical,
-but ordering for special components can be enforced by placing the load
-directives in an excluded file.
+Ordinarily, the loadrt ordering of realtime components is not critical,
+but loadrt ordering for special components can be enforced by placing the
+such loadrt directives in an excluded file.
+
+[NOTE]
+
+While the order of loadrt directives is not usually critical,
+ordering of addf directives is often very important for proper
+operation of servo loop components.
 
 Excluded '.hal' file example:
 ----
