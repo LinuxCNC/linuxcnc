@@ -64,6 +64,19 @@ class HandlerClass:
             if commands.lower().replace('probe-test','').strip():
                 self.probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
             hal.set_p('plasmac.probe-test','1')
+        elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
+            self.cutType ^= 1
+            if self.cutType:
+                hal.set_p('plasmac_run.cut-type','1')
+                self.builder.get_object(button).set_style(self.buttonOrange)
+                self.builder.get_object(button).set_label('Pierce Only')
+            else:
+                hal.set_p('plasmac_run.cut-type','0')
+                self.builder.get_object(button).set_style(self.buttonPlain)
+                self.builder.get_object(button).set_label('Pierce & Cut')
+            self.message(
+                    '\nSwitching between cut types requires re-opening of the program.\n\n'
+                    'Reload is NOT sufficient.\n\n')
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
@@ -108,6 +121,16 @@ class HandlerClass:
                 hal.set_p('plasmac.probe-test','0')
                 self.probeButton = ''
 
+    def message(self,msg):
+        md = gtk.MessageDialog(None, 
+                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.MESSAGE_WARNING,
+                               gtk.BUTTONS_CLOSE,
+                               msg)
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.run()
+        md.destroy()
+
     def set_theme(self):
         theme = gtk.settings_get_default().get_property('gtk-theme-name')
         if os.path.exists(self.prefFile):
@@ -119,6 +142,12 @@ class HandlerClass:
             except:
                 print('*** configuration file, {} is invalid ***'.format(self.prefFile))
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
+
+    def set_style(self,button):
+        self.buttonPlain = self.builder.get_object('button1').get_style().copy()
+        self.buttonOrange = self.builder.get_object('button1').get_style().copy()
+        self.buttonOrange.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse('orange')
+        self.buttonOrange.bg[gtk.STATE_PRELIGHT] = gtk.gdk.color_parse('dark orange')
 
     def periodic(self):
         self.s.poll()
@@ -140,7 +169,7 @@ class HandlerClass:
                     self.builder.get_object('button' + str(n)).set_sensitive(True)
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)
-            elif not self.iniButtonCode[n].startswith('%'):
+            elif not 'cut-type' in self.iniButtonCode[n] and not self.iniButtonCode[n].startswith('%'):
                 if isIdleHomed:
                     self.builder.get_object('button' + str(n)).set_sensitive(True)
                 else:
@@ -164,6 +193,7 @@ class HandlerClass:
         self.probePressed = False
         self.probeTimer = 0
         self.probeButton = ''
+        self.cutType = 0
         for button in range(1,5):
             bname = self.i.find('PLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
             self.iniButtonName.append(bname)
@@ -177,6 +207,7 @@ class HandlerClass:
                 self.builder.get_object('button' + str(button)).set_label(blabel)
                 self.builder.get_object('button' + str(button)).children()[0].set_justify(gtk.JUSTIFY_CENTER)
         self.set_theme()
+        self.builder.get_object('button1').connect('realize', self.set_style)
         gobject.timeout_add(100, self.periodic)
 
 def get_handlers(halcomp,builder,useropts):

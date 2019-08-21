@@ -45,8 +45,7 @@ velocity = 60
 pierceOnly = False
 scribing = False
 rapidLine = ''
-#cutType = int(Popen('halcmd getp axisui.cut-type', stdout = PIPE, shell = True).communicate()[0])
-cutType = 0
+cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = True).communicate()[0])
 
 # check if arc is a hole
 def check_if_hole():

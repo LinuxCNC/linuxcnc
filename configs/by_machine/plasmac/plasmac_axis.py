@@ -561,10 +561,10 @@ def user_button_pressed(button,commands):
         bgc = w('ttk::style', 'lookup', 'TButton', '-background')
         abgc = w('ttk::style', 'lookup', 'TButton', '-background', 'active')
         if cutType:
-            hal.set_p('axisui.cut-type','1')
+            hal.set_p('plasmac_run.cut-type','1')
             w(fbuttons + '.button' + button,'configure','-bg','orange','-activebackground','darkorange1','-text','Pierce\nOnly')
         else:
-            hal.set_p('axisui.cut-type','0')
+            hal.set_p('plasmac_run.cut-type','0')
             w(fbuttons + '.button' + button,'configure','-bg',bgc,'-activebackground',abgc,'-text','Pierce\n & Cut')
         Popen('axis-remote -r', stdout = PIPE, shell = True)
     else:
@@ -703,7 +703,6 @@ def user_live_update():
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)
-    comp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN)
     comp.newpin('led-arc-ok', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-torch', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-thc-enabled', hal.HAL_BIT, hal.HAL_IN)
@@ -737,7 +736,6 @@ def user_hal_pins():
     hal.connect('axisui.led-float','plasmac:float-switch-out')
     hal.connect('axisui.led-breakaway','plasmac:breakaway-switch-out')
     hal.connect('axisui.led-torch','plasmac:torch-on')
-    hal.set_p('axisui.cut-type','0')
 
 def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')

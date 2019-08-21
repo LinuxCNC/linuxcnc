@@ -436,6 +436,7 @@ class HandlerClass:
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
         self.c = linuxcnc.command()
         self.s = linuxcnc.stat()
+        self.cutTypePin = hal_glib.GPin(halcomp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN))
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
