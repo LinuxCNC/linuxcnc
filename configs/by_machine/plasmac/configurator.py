@@ -664,7 +664,7 @@ class configurator:
             inFile = open('{}.old2'.format(halFile), 'r')
             outFile = open(halFile, 'w')
             for line in inFile:
-                if line.startswith('loadrt motmod') :
+                if line.startswith('loadrt motmod') or line.startswith('loadrt [EMCMOT]EMCMOT'):
                     line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
                 elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
                     line = '# {}'.format(line)
@@ -775,7 +775,7 @@ class configurator:
         newHalFile = open('{}/{}{}'.format(self.configDir,self.machineName.lower(),self.halExt),'w')
         inHal = open(self.readHalFile,'r')
         for line in inHal:
-            if line.startswith('loadrt motmod'):
+            if line.startswith('loadrt motmod') or line.startswith('loadrt [EMCMOT]EMCMOT'):
                 line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
             elif 'spindle.0.on' in line:
                 line = '# {}'.format(line)
