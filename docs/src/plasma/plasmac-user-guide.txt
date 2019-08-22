@@ -269,6 +269,8 @@ The Configurator can be started by double clicking the file in a file manager or
 $ python <path>/<to>/configurator.py
 ----
 
+TIP: It is best practice to run the Configurator from a terminal as that allows any errors to be caught during configuring.
+
 NOTE: If the Configurator does not run make sure that the file permissions allow executable.
 
 This brings up the selection window:
@@ -453,7 +455,8 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Start Delay|Delay to allow air-scribe to reach surface of material before start of scribing.
+|Arm Delay|Delay to allow air-scribe to reach surface of material before start of scribing.
+|Start Delay|Delay to allow air-scribe to start before beginning motion.
 |===
 
 The *'Save'* button will save the currently displayed parameters as the default.
@@ -635,8 +638,6 @@ The following codes may be used for a PlasmaC configuration:
 * 'F#<_hal[plasmac.cut-feed-rate]>' - sets the feed rate to the feed rate shown in the cut parameters of the Run Panel.
 * 'M3 $0 S1' - starts the PlasmaC component.
 
-NOTE: F#<_hal[plasmac.cut-feed-rate]> could be replaced with Fnnn, see THC notes below.
-
 For manual material handling you manually select the material from the materials list in the Run Panel before running your GCode which should have the following minimum code:
 
 ----
@@ -714,7 +715,7 @@ The maximum percentage allowed is 100%, values above this will be set to 100%.
 
 If you intend to use this feature it would be prudent to add 'M68 E3 Q0' to your G-Code preamble and postamble so you start and end at a known state.
 
-NOTE: Another way of achieving the same result is to use 'F#<_hal[plasmac.cut-feed-rate]' with a multiplier.
+TIP: Another way of achieving the same result is to use 'F#<_hal[plasmac.cut-feed-rate]' with a multiplier.
 
 ----
 F[#<_hal[plasmac.cut-feed-rate] * 0.6]
@@ -749,6 +750,28 @@ If your torch doesn't support ohmic probing you could have a separate probe next
 Probing setup is done in the Motion frame of the Config tab.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
+
+[[cut-types]]
+
+=== Cut Types
+
+PlasmaC allows two different cut types:
+
+* Pierce and Cut - runs the loaded GCode program to pierce then cut.
+* Pierce Only - converts then runs the loaded GCode program to do piercing only.
+
+Pierce Only mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced then cleaned off and then cut.
+
+This also enables the use of near end of life consumables to be used for piercing and they can be swapped out for good consumables to be used in cutting.
+
+There are two ways of enabling this feature:
+
+* Program a <<button-cut, cutom user button>> to toggle between the cut types.
+* Adding a line '<pierce-only> = 1' anywhere in a gcode file to enable Pierce Only mode for the current file.
+
+If using a custom user button then the Axis GUI is able to automatically reload the file when the cut type is toggled.
+
+This automatic feature is not available for Gmoccapy so the file must be manually reloaded for the selected cut type to take effect. A program reload is NOT effective.
 
 === Hole Cutting - Intro
 
@@ -828,15 +851,12 @@ PlasmaC has the ability to automatically modify the GCode to reduce the velocity
 The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following commands:
 
 * #<m_diameter> = nn - To set a diameter in metric measurments
-
 * #<i_diameter> = nn - To set a diameter in imperial measurements
 
 PlasmaC hole sensing is enabled/disabled by setting the following GCode parameter. It is disabled by default.
 
 * #<holes> = 0 - Disables hole sensing.
-
 * #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of 'CutFeedRate'.
-
 * #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path for a further 4mm (0.015").
 
 .Arc Dwell:
@@ -883,9 +903,11 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-NOTE: It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
-
-NOTE: It is OK to have multiple and mixed #<holes> commands in a GCode file.
+[NOTE]
+====
+* It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
+* It is OK to have multiple and mixed #<holes> commands in a GCode file.
+====
 
 [[air-scribe]]
 
@@ -895,7 +917,7 @@ An air-scribe may be operated by PlasmaC in addition to the plasma torch, this i
 
 Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'M6 Tn' command then a 'G43' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
 
-There are two HAL pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config,delay>> the other to start the air-scribe.
+There are two HAL output pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config,delay>> the other to start the air-scribe, then after a <<scribe-config,delay>> motion will beging
 
 Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
 
@@ -919,7 +941,12 @@ The air-scribe is now active and the arming action may be tested by issuing a 'M
 
 The next step is to open the tool table editor in the GUI and enter the X and Y axes offsets. These are the distances in X and Y from the centre of the torch nozzle. In most cases, if standing at the front of the machine if the air-scribe is to the right of the torch it would be a positive value and if the air-scribe is to the rear of the torch it would also be a positive value. The offsets for the torch should always be zero.
 
-The final step is to set the delay from when the air-scribe begins to arm until when the air-scribe starts. See <<scribe-config,air-scribe delay>>. Save the Config parameters.
+The final step is to set the <<scribe-config,air-scribe delays>> required:
+
+. Arm Delay, allows time for the air scribe to descend to the surface of the material.
+. Start Delay, allows time for the air scribe to start before motion begins.
+
+Save the Config parameters.
 
 The material can then be lined up with the torch as previously and the offsets can be applied so both tools operate at the correct coordinates.
 
@@ -962,19 +989,14 @@ When the error is cleared the program may be resumed.
 These errors indicate the corresponding sensor was activated during cutting.
 
 * 'breakaway switch activated program is paused'
-
 * 'float switch activated program is paused'
-
 * 'ohmic probe activated program is paused'
-
 * 'valid arc lost program is paused'
 
 These errors indicate the corresponding sensor was activated before probing commenced.
 
 * 'ohmic probe detected before moving to probe height program is paused'
-
 * 'float switch detected before moving to probe height program is paused'
-
 * 'breakaway switch detected before moving to probe height program is paused'
 
 These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height.
@@ -982,7 +1004,6 @@ These errors indicate the corresponding sensor was activated while the Z axis is
 WARNING: Probe height is the height above the Z axis minimum limit.
 
 * 'float switch detected while moving to probe height program is paused'
-
 * 'ohmic probe detected while moving to probe height program is paused'
 
 The Z axis reached the bottom limit before the workpiece was detected.
@@ -1017,15 +1038,12 @@ Warning errors have no effect on a running program and are informational only.
 These errors indicate the corresponding sensor was activated before a probe test commenced.
 
 * 'ohmic probe detected before moving to probe height'
-
 * 'float switch detected before moving to probe height'
-
 * 'breakaway switch detected before moving to probe height'
 
 These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height during a probe test.
 
 * 'float switch detected while moving to probe height'
-
 * 'ohmic probe detected while moving to probe height'
 
 This indicates that probe contact was lost before probing up to the zero point.
@@ -1146,8 +1164,8 @@ EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -
 
 The Run Window can be displayed as one of:
 
-- A panel on the right side of the Axis GUI which is suitable for widescreen displays.
-- A tab behind the Preview tab which is suitable for 4:3 ratio displays.
+* A panel on the right side of the Axis GUI which is suitable for widescreen displays.
+* A tab behind the Preview tab which is suitable for 4:3 ratio displays.
 
 === Gmoccapy GUI Specific
 
@@ -1187,8 +1205,8 @@ EMBED_TAB_COMMAND  = gladevcp -c plasmac_monitor -x <XID> -u plasmac_monitor.py 
 
 The Run Window can be displayed as one of:
 
-- A panel on the left side of the Gmoccapy GUI which is suitable for widescreen displays.
-- A tab behind the Preview tab which is suitable for 4:3 ratio displays.
+* A panel on the left side of the Gmoccapy GUI which is suitable for widescreen displays.
+* A tab behind the Preview tab which is suitable for 4:3 ratio displays.
 
 [[custom-user-buttons]]
 
@@ -1212,7 +1230,7 @@ BUTTON_n_NAME = HAL Show
 
 Where n is the button number and HAL Show is the text.
 
-For text on multiple lines, split the text with a \
+For text on multiple lines in Axis, split the text with a \
 
 ----
 BUTTON_n_NAME = HAL\Show
@@ -1220,7 +1238,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds,External Commands>>, <<button-code,G-Code>> or two special functions, <<button-probe,Probe Test>> and <<button-ohmic,Ohmic Test>>.
+Buttons can run <<button-cmds,External Commands>>, <<button-code,G-Code>> or three special functions, <<button-probe,Probe Test>>, <<button-ohmic,Ohmic Test>> and <<button-cut,Cut Type>>.
 
 [[button-cmds]]
 
@@ -1286,6 +1304,16 @@ BUTTON_n_CODE = ohmic-test
 ----
 
 PlasmaC will enable the Ohmic Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
+
+[[button-cut]]
+
+.Cut Type
+
+----
+BUTTON_n_CODE = cut-type
+----
+
+This button if selected will toggle between the two <<cut-types, cut types>>.
 
 [[material-file]]
 
@@ -1422,7 +1450,6 @@ Normally there is no reason to run the Configurator after an upgrade.
 If you have decided to change the type of installation:
 
 * If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install,buildbot installation>> then do a <<configurator,buildbot configure>> and select upgrade.
-
 * If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install,run in place installation>> then do a <<configurator,run in place configure>> and select upgrade.
 
 This brings up the selection window:
@@ -1442,9 +1469,7 @@ Select the ini file of the PlasmaC configuration you wish to upgrade, click 'Upg
 The Configurator is able to modify:
 
 * The HAL pins connecting PlasmaC to the machine.
-
 * The mode used by PlacmaC.
-
 * The position of the Run Panel in the GUI.
 
 The type of installation determines where the Configurator (configurator.py) will installed:
@@ -1508,9 +1533,7 @@ image::images/plasmac_material_main.png[width=400]
 Select one of:
 
 * Manual - to manually create a new material file.
-
 * SheetCam - to convert a SheetCam tool file.
-
 * Fusion 360 - to convert a Fusion 360 tool file.
 
 For SheetCam only, select whether you would like a metric or imperial output file.
