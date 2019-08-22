@@ -3,7 +3,6 @@
   <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkAdjustment" id="air-scribe-delay-adj"/>
   <object class="GtkAdjustment" id="arc-fail-delay-adj"/>
   <object class="GtkAdjustment" id="arc-max-starts-adj"/>
   <object class="GtkAdjustment" id="arc-ok-high-adj"/>
@@ -23,6 +22,8 @@
   <object class="GtkAdjustment" id="probe-feed-rate-adj"/>
   <object class="GtkAdjustment" id="probe-start-height-adj"/>
   <object class="GtkAdjustment" id="safe-height-adj"/>
+  <object class="GtkAdjustment" id="scribe-arm-delay-adj"/>
+  <object class="GtkAdjustment" id="scribe-start-delay-adj"/>
   <object class="GtkAdjustment" id="setup-feed-rate-adj"/>
   <object class="GtkAdjustment" id="skip-ihs-distance-adj"/>
   <object class="GtkAdjustment" id="thc-delay-adj"/>
@@ -1443,28 +1444,12 @@ this also sets the maximum probe feed rate</property>
                           <object class="GtkTable" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_columns">3</property>
+                            <property name="n_columns">4</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <child>
-                              <object class="GtkLabel" id="labelC6">
-                                <property name="width_request">128</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to reach surface of material before start of scribing</property>
-                                <property name="xalign">0</property>
-                                <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Start Delay</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_SpinButton" id="air-scribe-delay">
-                                <property name="width_request">75</property>
+                              <object class="HAL_SpinButton" id="scribe-arm-delay">
+                                <property name="width_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1475,10 +1460,62 @@ this also sets the maximum probe feed rate</property>
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
-                                <property name="adjustment">air-scribe-delay-adj</property>
+                                <property name="adjustment">scribe-arm-delay-adj</property>
                                 <property name="wrap">True</property>
                               </object>
                               <packing>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="scribe-start-delay">
+                                <property name="width_request">48</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to start before motion begins</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">scribe-start-delay-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to start before motion begins</property>
+                                <property name="xalign">1</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Start Delay</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to reach surface of material before start of scribing</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Arm Delay</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                               </packing>
                             </child>
