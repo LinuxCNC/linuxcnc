@@ -216,9 +216,9 @@ pin in  float   puddle_jump_height          "puddle jump height (percentage of p
 pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
-pin in  float   scribe_arm-delay            "delay from scribe arm to scribe start";
+pin in  float   scribe_arm_delay            "delay from scribe arm to scribe start";
 pin in  bit     scribe_on                   "start a new scribe, connect to spindle.1.on";
-pin in  float   scribe_start-delay          "delay from scribe start to motion beginning";
+pin in  float   scribe_start_delay          "delay from scribe start to motion beginning";
 pin in  float   setup_feed_rate             "feed rate for moves to pierce and cut heights (machine units per minute)";
 pin in  float   skip_ihs_distance           "skip IHS if less than this distance from last cut";
 pin in  bit     spindle_on                  "start a new cut, connect to spindle.0.on";
@@ -237,6 +237,8 @@ pin in  bit     use_auto_volts              "use calculated voltage for thc base
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
+pin out bit     air_scribe_arm              "arm the air scribe";
+pin out bit     air_scribe_start            "start the air scribe";
 pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -256,8 +258,6 @@ pin out bit     program_resume              "resume the currently paused program
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
-pin out bit     scribe_arm                  "arm the air scribe";
-pin out bit     scribe_start                "start the air scribe";
 pin out s32     state_out                   "current state output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
@@ -1275,7 +1275,7 @@ FUNCTION(_) {
         case AIR_SCRIBE:
             if(scribe_on){
                 if(!program_is_paused){
-                    scribe_arm = TRUE;
+                    air_scribe_arm = TRUE;
 
                     if(scribe_arm_timer){
                         feed_hold = TRUE;
@@ -1289,22 +1289,22 @@ FUNCTION(_) {
                         if(scribe_start_timer < 0){
                             scribe_start_timer = 0;
                         }
-                    }else if(scribe_arm && !scribe_arm_timer && !scribe_start){
+                    }else if(air_scribe_arm && !scribe_arm_timer && !air_scribe_start){
                         feed_hold = TRUE;
                         scribe_start_timer = scribe_start_delay;
-                        scribe_start = TRUE;
-                    }else if(scribe_start && !scribe_start_timer){
+                        air_scribe_start = TRUE;
+                    }else if(air_scribe_start && !scribe_start_timer){
                         feed_hold = FALSE;
                     }
                 }else{
-                    scribe_arm = FALSE;
-                    scribe_start = FALSE;
+                    air_scribe_arm = FALSE;
+                    air_scribe_start = FALSE;
                     scribe_arm_timer = scribe_arm_delay;
                     scribe_start_timer = 0;
                 }
             }else{
-                scribe_arm = FALSE;
-                scribe_start = FALSE;
+                air_scribe_arm = FALSE;
+                air_scribe_start = FALSE;
                 scribe_arm_timer = 0;
                 scribe_start_timer = 0;
                 state = IDLE;
