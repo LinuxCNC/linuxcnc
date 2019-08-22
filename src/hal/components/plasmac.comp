@@ -159,8 +159,6 @@ All plasmac related software is released under the GPLv2. See the file LICENSE f
 """;
 
 /* INPUT PINS */
-pin in  float   air_scribe_delay            "delay from scribe arm to scribe start";
-pin in  bit     air_scribe_on               "start a new scribe, connect to spindle.1.on";
 pin in  float   arc_fail_delay              "arc failure timeout (seconds)";
 pin in  float   arc_ok_high                 "maximum voltage level for Arc OK signal [mode 0] (volts)";
 pin in  bit     arc_ok_in                   "external arc ok input signal [mode 1 & mode 2]";
@@ -218,6 +216,9 @@ pin in  float   puddle_jump_height          "puddle jump height (percentage of p
 pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
+pin in  float   scribe_arm-delay            "delay from scribe arm to scribe start";
+pin in  bit     scribe_on                   "start a new scribe, connect to spindle.1.on";
+pin in  float   scribe_start-delay          "delay from scribe start to motion beginning";
 pin in  float   setup_feed_rate             "feed rate for moves to pierce and cut heights (machine units per minute)";
 pin in  float   skip_ihs_distance           "skip IHS if less than this distance from last cut";
 pin in  bit     spindle_on                  "start a new cut, connect to spindle.0.on";
@@ -236,8 +237,6 @@ pin in  bit     use_auto_volts              "use calculated voltage for thc base
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
-pin out bit     air_scribe_arm              "arm the air scribe";
-pin out bit     air_scribe_start            "start the air scribe";
 pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -257,13 +256,13 @@ pin out bit     program_resume              "resume the currently paused program
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
+pin out bit     scribe_arm                  "arm the air scribe";
+pin out bit     scribe_start                "start the air scribe";
 pin out s32     state_out                   "current state output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 
 /* VARIABLES */
-variable bool   air_scribe_pause;           /* air-scribe pause flag */
-variable float  air_scribe_timer;           /* air-scribe timer */
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_fail_timer;             /* arc failure timer */
 variable float  arc_voltage;                /* calculated arc voltage before lowpass filter*/
@@ -315,6 +314,9 @@ variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_min;                   /* minimum safe height allowed */
 variable int    safe_preferred;             /* preferred safe height offset */
 variable int    safe_target;                /* safe height target offset */
+variable bool   scribe_pause;               /* air-scribe pause flag */
+variable float  scribe_arm_timer;           /* air-scribe timer arm to start*/
+variable float  scribe_start_timer;         /* air-scribe timer start to motion*/
 variable bool   target_sensed;              /* sensed top of stock */
 variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
@@ -562,7 +564,7 @@ FUNCTION(_) {
                 if(paused_motion_speed && stop_type == PAUSE){
                     state = PAUSED_MOTION;
                 /* if we get a torch start request and we are stopped or waiting for a restart */
-                }else if((((spindle_on && !air_scribe_on && multi_tool) || (spindle_on && !multi_tool)) || probe_test) && (stop_type == NONE || stop_type == WAIT)){
+                }else if((((spindle_on && !scribe_on && multi_tool) || (spindle_on && !multi_tool)) || probe_test) && (stop_type == NONE || stop_type == WAIT)){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -646,10 +648,10 @@ FUNCTION(_) {
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
                 /* if we get a air-scribe start request */
-                }else if(air_scribe_on && !spindle_on && !probe_test && multi_tool){
+                }else if(scribe_on && !spindle_on && !probe_test && multi_tool){
                     state = AIR_SCRIBE;
-                    air_scribe_timer = air_scribe_delay;
-                    air_scribe_pause = FALSE;
+                    scribe_arm_timer = scribe_arm_delay;
+                    scribe_pause = FALSE;
                 }else if(!cut_started){
                     feed_hold = FALSE;
                 }
@@ -1271,29 +1273,40 @@ FUNCTION(_) {
             }
             break;
         case AIR_SCRIBE:
-            if(!program_is_paused && air_scribe_on){
-                air_scribe_arm = TRUE;
-            }else{
-                air_scribe_arm = FALSE;
-            }
-            if(!program_is_paused && air_scribe_on && !air_scribe_timer && !program_is_idle){
-                air_scribe_start = TRUE;
-                feed_hold = FALSE;
-            }else{
-                air_scribe_start = FALSE;
-                feed_hold = TRUE;
-            }
-            if(program_is_paused){
-                air_scribe_timer = air_scribe_delay;
-            }
-            if(!program_is_paused && air_scribe_timer){
-                air_scribe_timer -= fperiod;
-                if(air_scribe_timer < 0){
-                    air_scribe_timer = 0;
+            if(scribe_on){
+                if(!program_is_paused){
+                    scribe_arm = TRUE;
+
+                    if(scribe_arm_timer){
+                        feed_hold = TRUE;
+                        scribe_arm_timer -= fperiod;
+                        if(scribe_arm_timer < 0){
+                            scribe_arm_timer = 0;
+                        }
+                    }else if(scribe_start_timer){
+                        feed_hold = TRUE;
+                        scribe_start_timer -= fperiod;
+                        if(scribe_start_timer < 0){
+                            scribe_start_timer = 0;
+                        }
+                    }else if(scribe_arm && !scribe_arm_timer && !scribe_start){
+                        feed_hold = TRUE;
+                        scribe_start_timer = scribe_start_delay;
+                        scribe_start = TRUE;
+                    }else if(scribe_start && !scribe_start_timer){
+                        feed_hold = FALSE;
+                    }
+                }else{
+                    scribe_arm = FALSE;
+                    scribe_start = FALSE;
+                    scribe_arm_timer = scribe_arm_delay;
+                    scribe_start_timer = 0;
                 }
-            }
-            if(!air_scribe_on){
-                air_scribe_timer = 0;
+            }else{
+                scribe_arm = FALSE;
+                scribe_start = FALSE;
+                scribe_arm_timer = 0;
+                scribe_start_timer = 0;
                 state = IDLE;
             }
             break;

@@ -1,6 +1,5 @@
 
 # outputs
-net plasmac:air-scribe-delay        plasmac_config.air-scribe-delay-f       =>  plasmac.air-scribe-delay
 net plasmac:arc-ok-high             plasmac_config.arc-ok-high-f            =>  plasmac.arc-ok-high
 net plasmac:arc-ok-low              plasmac_config.arc-ok-low-f             =>  plasmac.arc-ok-low
 net plasmac:arc-max-starts          plasmac_config.arc-max-starts-s         =>  plasmac.arc-max-starts
@@ -20,6 +19,8 @@ net plasmac:probe-feed-rate         plasmac_config.probe-feed-rate-f        =>  
 net plasmac:probe-start-height      plasmac_config.probe-start-height-f     =>  plasmac.probe-start-height
 net plasmac:restart-delay           plasmac_config.arc-restart-delay-f      =>  plasmac.restart-delay
 net plasmac:safe-height             plasmac_config.safe-height-f            =>  plasmac.safe-height
+net plasmac:scribe-arm-delay        plasmac_config.scribe-arm-delay-f       =>  plasmac.scribe-arm-delay
+net plasmac:scribe-start-delay      plasmac_config.scribe-start-delay-f     =>  plasmac.scribe-start-delay
 net plasmac:setup-feed-rate         plasmac_config.setup-feed-rate-f        =>  plasmac.setup-feed-rate
 net plasmac:skip-ihs-distance       plasmac_config.skip-ihs-distance-f      =>  plasmac.skip-ihs-distance
 net plasmac:thc-delay               plasmac_config.thc-delay-f              =>  plasmac.thc-delay
