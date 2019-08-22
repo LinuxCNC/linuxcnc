@@ -922,6 +922,8 @@ class configurator:
                 elif line.startswith('TOOL_EDITOR'):
                     outFile.write('TOOL_EDITOR = tooledit x y\n')
                     toolFile = True
+                elif line.startswith('PYVCP') or line.startswith('GLADEVCP'):
+                    pass
                 else:
                     outFile.write(line)
             else:
