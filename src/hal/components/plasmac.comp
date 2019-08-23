@@ -564,7 +564,7 @@ FUNCTION(_) {
                 if(paused_motion_speed && stop_type == PAUSE){
                     state = PAUSED_MOTION;
                 /* if we get a torch start request and we are stopped or waiting for a restart */
-                }else if((((spindle_on && !scribe_on && multi_tool) || (spindle_on && !multi_tool)) || probe_test) && (stop_type == NONE || stop_type == WAIT)){
+                }else if((spindle_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;

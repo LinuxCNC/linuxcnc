@@ -814,7 +814,7 @@ Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<conf
 
 .Overcut:
 
-The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes M62 or M64. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes M63 or M65, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
+The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes 'M62' or 'M64'. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes 'M63' or 'M65', this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
 
 After the torch is turned of the hole path should be followed for approximately 4mm (0.15")
 
@@ -915,7 +915,7 @@ M2 (end job)
 
 An air-scribe may be operated by PlasmaC in addition to the plasma torch, this is disabled by default so as not to affect existing configurations.
 
-Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'M6 Tn' command then a 'G43' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
+Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'Tn M6' command then a 'G43 H0' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
 
 There are two HAL output pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config,delay>> the other to start the air-scribe, then after a <<scribe-config,delay>> motion will beging
 
@@ -956,12 +956,12 @@ To use the air-scribe from GCode:
 ...
 M52 P1 (paused motion on)
 F#<_hal[plasmac.cut-feed-rate]>
-M6 T1 (select air-scribe)
-G43 (apply ofsets)
+T1 M6 (select air-scribe)
+G43 H0 (apply ofsets)
 M3 $1 S1 (start plasmac with air-scribe)
 ...
-M6 T0 (select torch)
-G43 (apply ofsets)
+T0 M6 (select torch)
+G43 H0(apply ofsets)
 G0 X0 Y0 (parking position)
 M5 (end)
 -----
@@ -970,7 +970,7 @@ It is a good idea to switch back to the torch at the end of the program before y
 
 You can switch between the torch and the air-scribe any number of times during a program by using the above code and issuing 'M3 $0 S1' to start PlasmaC with the torch.
 
-Issuing M3 S1 (without $n) will cause the machine to follow the GCode program with both the torch and air-scribe inactive as there was no specific tool to start.
+Issuing M3 S1 (without $n) will cause the machine to behave as if an 'M3 $0 S1' had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous GCode files.
 
 WARNING: If you have an existing manual toolchange in your machine HAL file then PlasmaC will convert it to an automatic toolchange.
 
