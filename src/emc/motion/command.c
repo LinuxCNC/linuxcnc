@@ -502,17 +502,17 @@ void emcmotCommandHandler(void *arg, long period)
                     || emcmotCommand->command == EMCMOT_JOG_ABS
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
-                && (joint->home_sequence < 0)
+                && get_home_is_synchronized(joint_num)
                 && !emcmotStatus->homing_active
                ) {
                   if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                       rtapi_print_msg(RTAPI_MSG_ERR,
                       "Homing is REQUIRED to jog requested coordinate\n"
-                      "because joint (%d) in home_sequence is negative (%d)\n"
+                      "because joint (%d) home_sequence is synchronized (%d)\n"
                       ,joint_num,joint->home_sequence);
                   } else {
                       rtapi_print_msg(RTAPI_MSG_ERR,
-                      "Cannot jog joint %d because home_sequence is negative (%d)\n"
+                      "Cannot jog joint %d because home_sequence is synchronized (%d)\n"
                       ,joint_num,joint->home_sequence);
                   }
                   return;

@@ -259,6 +259,7 @@ extern int emcmotGetRotaryIsUnlocked(int axis);
 /* homing is no longer in control.c, make functions public */
 extern void do_homing_sequence(void);
 extern void do_homing(void);
+extern int  get_home_is_synchronized(int);
 
 
 //
