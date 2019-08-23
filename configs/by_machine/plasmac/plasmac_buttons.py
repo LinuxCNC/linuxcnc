@@ -185,7 +185,7 @@ class HandlerClass:
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-        self.s = linuxcnc.stat();
+        self.s = linuxcnc.stat()
         self.c = linuxcnc.command()
         self.prefFile = self.i.find('EMC', 'MACHINE') + '.pref'
         self.iniButtonName = ['Names']
