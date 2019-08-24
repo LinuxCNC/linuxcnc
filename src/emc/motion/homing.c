@@ -1248,3 +1248,19 @@ void do_homing(void)
 	}
     }
 } // do_homing()
+
+bool get_home_is_synchronized(int jno) {
+    int joint_num;
+    int jno_sequence = H[jno].home_sequence;
+
+    if (jno_sequence < 0)  { return 1;}
+
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        if (joint_num == jno) continue;
+        if (   (H[joint_num].home_sequence < 0)
+            && (ABS(H[joint_num].home_sequence) == jno_sequence) )  {
+            return 1;
+        }
+    }
+    return 0;
+}
