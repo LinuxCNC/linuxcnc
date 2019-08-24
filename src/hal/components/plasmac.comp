@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.66 - 19 Aug 2019
+.I VERSION: 0.70 - 24 Aug 2019
 
 .I SUMMARY:
 .br
@@ -259,6 +259,7 @@ pin out bit     program_run                 "run the currently loaded program, c
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
 pin out s32     state_out                   "current state output";
+pin out bit     thc_active                  "thc status output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 
@@ -431,8 +432,11 @@ FUNCTION(_) {
         torch_on = FALSE;
     }
 
-    /* set THC state*/
+    /* set THC state */
     thc_enabled = (thc_enable && !thc_disable ? 1:0);
+
+    /* set THC status */
+    thc_active = (state == CUTTING) && target_volts && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
 
     /* set ohmic probe state */
     ohmic_detected = ohmic_probe && ohmic_probe_enable;

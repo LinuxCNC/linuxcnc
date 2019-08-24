@@ -348,12 +348,17 @@ w('label',fmonitor + '.lFlab','-text','Float Switch')
 w('canvas',fmonitor + '.led-breakaway','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-breakaway','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
 w('label',fmonitor + '.lBlab','-text','Breakaway')
+w('canvas',fmonitor + '.led-thc-active','-width',cwidth,'-height',cheight)
+w(fmonitor + '.led-thc-active','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#37F608','-disabledfill','grey')
+w('label',fmonitor + '.lTAlab','-text','THC Active')
+w('labelframe',fmonitor + '.updown','-text','','-relief','flat','-width','20')
 w('canvas',fmonitor + '.led-up','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-up','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lUlab','-text','THC Up')
-w('canvas',fmonitor + '.led-down','-width',cwidth,'-height',cheight)
-w(fmonitor + '.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lDlab','-text','THC Down')
+w('canvas',fmonitor + '.updown.led-down','-width',cwidth,'-height',cheight)
+w(fmonitor + '.updown.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
+w('label',fmonitor + '.updown.lab','-text','Up> THC <Down')
+w('pack',fmonitor + '.updown.led-down','-side','right','-fill','none','-expand','0')
+w('pack',fmonitor + '.updown.lab','-side','right','-fill','x','-expand','1')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
 w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock')
@@ -362,29 +367,28 @@ w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-f
 w('label',fmonitor + '.lKLlab','-text','THC Void Lock')
 # populate the monitor frame
 w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
-w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2')
+w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2','-sticky','w')
 w('grid',fmonitor + '.led-arc-ok','-row','2','-column','0','-sticky','e')
-w('grid',fmonitor + '.lAOlab','-row','2','-column','1')
+w('grid',fmonitor + '.lAOlab','-row','2','-column','1','-sticky','w')
 w('grid',fmonitor + '.led-torch','-row','3','-column','0','-sticky','e')
-w('grid',fmonitor + '.lTlab','-row','3','-column','1')
+w('grid',fmonitor + '.lTlab','-row','3','-column','1','-sticky','w')
 w('grid',fmonitor + '.led-thc-enabled','-row','0','-column','2','-sticky','e')
-w('grid',fmonitor + '.lTElab','-row','0','-column','3')
+w('grid',fmonitor + '.lTElab','-row','0','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-ohmic','-row','1','-column','2','-sticky','e')
-w('grid',fmonitor + '.lOlab','-row','1','-column','3')
+w('grid',fmonitor + '.lOlab','-row','1','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-float','-row','2','-column','2','-sticky','e')
-w('grid',fmonitor + '.lFlab','-row','2','-column','3')
+w('grid',fmonitor + '.lFlab','-row','2','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-breakaway','-row','3','-column','2','-sticky','e')
-w('grid',fmonitor + '.lBlab','-row','3','-column','3')
-w('grid',fmonitor + '.led-up','-row','0','-column','4','-sticky','e')
-w('grid',fmonitor + '.lUlab','-row','0','-column','5')
-w('grid',fmonitor + '.led-down','-row','1','-column','4','-sticky','e')
-w('grid',fmonitor + '.lDlab','-row','1','-column','5')
+w('grid',fmonitor + '.lBlab','-row','3','-column','3','-sticky','w')
+w('grid',fmonitor + '.led-thc-active','-row','0','-column','4','-sticky','e')
+w('grid',fmonitor + '.lTAlab','-row','0','-column','5','-sticky','w')
+w('grid',fmonitor + '.led-up','-row','1','-column','4','-sticky','e')
+w('grid',fmonitor + '.updown','-row','1','-column','5','-sticky','e')
 w('grid',fmonitor + '.led-corner-locked','-row','2','-column','4','-sticky','e')
-w('grid',fmonitor + '.lCLlab','-row','2','-column','5')
+w('grid',fmonitor + '.lCLlab','-row','2','-column','5','-sticky','w')
 w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
-w('grid',fmonitor + '.lKLlab','-row','3','-column','5')
+w('grid',fmonitor + '.lKLlab','-row','3','-column','5','-sticky','w')
 w('grid','rowconfigure',fmonitor,'0 1 2 3','-pad','4')
-
 w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','current arc voltage')
 w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','a valid arc is established')
 w('DynamicHelp::add',fmonitor + '.led-torch','-text','torch on signal is being sent to plasma supply')
@@ -392,8 +396,9 @@ w('DynamicHelp::add',fmonitor + '.led-thc-enabled','-text','THC is enabled')
 w('DynamicHelp::add',fmonitor + '.led-ohmic','-text','the ohmic probe is sensed')
 w('DynamicHelp::add',fmonitor + '.led-float','-text','the float switch is activated')
 w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','the breakaway switch is activated')
+w('DynamicHelp::add',fmonitor + '.led-thc-active','-text','THC is active')
 w('DynamicHelp::add',fmonitor + '.led-up','-text','THC is moving the Z axis up')
-w('DynamicHelp::add',fmonitor + '.led-down','-text','THC is moving the Z axis down')
+w('DynamicHelp::add',fmonitor + '.updown.led-down','-text','THC is moving the Z axis down')
 w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','THC is locked due to velocity constraints')
 w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','THC is locked due to void sensing constraints')
 
@@ -688,11 +693,6 @@ def user_live_update():
         w(foverride + '.raise','configure','-state','disabled')
         w(foverride + '.lower','configure','-state','disabled')
         w(foverride + '.reset','configure','-state','disabled')
-    # set thc state indicator
-    if hal.get_value('plasmac.thc-enabled'):
-        hal.set_p('axisui.led-thc-enabled','1')
-    else:
-        hal.set_p('axisui.led-thc-enabled','0')
     # decrement probe timer if active
     if probeTimer:
         if time.time() >= probeTimer:
@@ -709,6 +709,7 @@ def user_hal_pins():
     comp.newpin('led-ohmic', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-float', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-breakaway', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('led-thc-active', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-up', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-down', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-corner-locked', hal.HAL_BIT, hal.HAL_IN)
@@ -719,10 +720,12 @@ def user_hal_pins():
                 [1,'plasmac:axis-min-limit','ini.z.min_limit','plasmac.axis-z-min-limit'],\
                 [2,'plasmac:axis-max-limit','ini.z.max_limit','plasmac.axis-z-max-limit'],\
                 [3,'plasmac:arc-ok-out','plasmac.arc-ok-out','axisui.led-arc-ok'],\
-                [4,'plasmac:led-up','plasmac.led-up','axisui.led-up'],\
-                [5,'plasmac:led-down','plasmac.led-down','axisui.led-down'],\
-                [6,'plasmac:cornerlock-is-locked','plasmac.cornerlock-is-locked','axisui.led-corner-locked'],\
-                [7,'plasmac:kerfcross-is-locked','plasmac.kerfcross-is-locked','axisui.led-kerf-locked'],\
+                [4,'plasmac:thc-enabled','plasmac.thc-enabled','axisui.led-thc-enabled'],\
+                [5,'plasmac:thc-active','plasmac.thc-active','axisui.led-thc-active'],\
+                [6,'plasmac:led-up','plasmac.led-up','axisui.led-up'],\
+                [7,'plasmac:led-down','plasmac.led-down','axisui.led-down'],\
+                [8,'plasmac:cornerlock-is-locked','plasmac.cornerlock-is-locked','axisui.led-corner-locked'],\
+                [9,'plasmac:kerfcross-is-locked','plasmac.kerfcross-is-locked','axisui.led-kerf-locked'],\
                 ]
     for line in hal_data:
         if line[0] < 3:
@@ -764,8 +767,7 @@ wLabels = [\
     fmonitor + '.lFlab',\
     fmonitor + '.lBlab',\
     fmonitor + '.lOlab',\
-    fmonitor + '.lUlab',\
-    fmonitor + '.lDlab',\
+    fmonitor + '.updown.lab',\
     fmonitor + '.lCLlab',\
     fmonitor + '.lKLlab',\
     ]
@@ -783,8 +785,9 @@ wLeds = [\
     fmonitor + '.led-ohmic',\
     fmonitor + '.led-float',\
     fmonitor + '.led-breakaway',\
+    fmonitor + '.led-thc-active',\
     fmonitor + '.led-up',\
-    fmonitor + '.led-down',\
+    fmonitor + '.updown.led-down',\
     fmonitor + '.led-corner-locked',\
     fmonitor + '.led-kerf-locked',\
     ]

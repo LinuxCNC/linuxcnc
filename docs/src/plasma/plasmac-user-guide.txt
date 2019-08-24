@@ -538,6 +538,7 @@ image::images/plasmac_monitor.png[width=400]
 |Ohmic Probe|0,1,2|Indicates the probe has sensed the material
 |Float Switch|0,1,2|Indicates the float switch is activated
 |Breakaway|0,1,2|Indicates the breakaway sensor is activated
+|THC Active|0,1,2|Indicates THC is currently active
 |THC Up|0,1,2|Indicates THC is causing the Z axis to raise
 |THC Down|0,1,2|Indicates THC is causing the Z axis to lower
 |THC Velocity Lock|0,1,2|Indicates THC is locked due to velocity constraints
