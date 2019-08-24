@@ -78,23 +78,24 @@ static int  immediate_state;
 
 // local per-joint data (includes hal pin data)
 typedef struct {
-  home_state_t home_state;        // OUT pin
-  bool         homing;            // OUT pin
-  bool         homed;             // OUT pin
-  bool         home_sw;           // IN  pin
-  bool         index_enable;      // IO  pin
+  home_state_t home_state;           // OUT pin
+  bool         homing;               // OUT pin
+  bool         homed;                // OUT pin
+  bool         home_sw;              // IN  pin
+  bool         index_enable;         // IO  pin
   bool         at_home;
-  bool         sync_final_move;   // joints with neg sequence
+  bool         sync_final_move;      // joints with neg sequence
   bool         joint_in_sequence;
   int          pause_timer;
-  double       home_offset;       // intfc, updateable
-  double       home;              // intfc, updateable
-  double       home_final_vel;    // intfc
-  double       home_search_vel;   // intfc
-  double       home_latch_vel;    // intfc
-  int          home_flags;        // intfc
-  int          home_sequence;     // intfc, updateable
-  bool         volatile_home;     // intfc
+  double       home_offset;          // intfc, updateable
+  double       home;                 // intfc, updateable
+  double       home_final_vel;       // intfc
+  double       home_search_vel;      // intfc
+  double       home_latch_vel;       // intfc
+  int          home_flags;           // intfc
+  int          home_sequence;        // intfc, updateable
+  bool         volatile_home;        // intfc
+  bool         home_is_synchronized;
 } home_local_data;
 
 static  home_local_data H[EMCMOT_MAX_JOINTS];
@@ -176,6 +177,29 @@ static void home_do_moving_checks(emcmot_joint_t * joint,int jno)
     }
 } // home_do_moving_checks()
 
+static void update_home_is_synchronized(void) {
+    // invoke anytime H[*].home_sequence is altered
+    int jno,joint_num;
+
+    // first, clear all H[*].home_is_synchronized
+    for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+        H[jno].home_is_synchronized = 0;
+    }
+    for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
+        if (H[jno].home_sequence < 0) {
+            H[jno].home_is_synchronized = 1;
+            continue;
+        }
+        for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+            if (joint_num == jno) continue;
+            if (   (    H[joint_num].home_sequence < 0)
+                && (ABS(H[joint_num].home_sequence) == H[jno].home_sequence) )  {
+                H[jno].home_is_synchronized = 1;
+                H[joint_num].home_is_synchronized = 1;
+            }
+        }
+    }
+}
 /***********************************************************************
 *                      PUBLIC FUNCTIONS                                *
 ************************************************************************/
@@ -297,6 +321,7 @@ void set_joint_homing_params(int    jno,
     H[jno].home_flags      = home_flags;
     H[jno].home_sequence   = home_sequence;
     H[jno].volatile_home   = volatile_home;
+    update_home_is_synchronized();
 }
 
 void update_joint_homing_params (int    jno,
@@ -308,6 +333,7 @@ void update_joint_homing_params (int    jno,
     H[jno].home_offset   = offset;
     H[jno].home          = home;
     H[jno].home_sequence = home_sequence;
+    update_home_is_synchronized();
 }
 
 bool get_homing_is_active() {
@@ -1250,17 +1276,5 @@ void do_homing(void)
 } // do_homing()
 
 bool get_home_is_synchronized(int jno) {
-    int joint_num;
-    int jno_sequence = H[jno].home_sequence;
-
-    if (jno_sequence < 0)  { return 1;}
-
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-        if (joint_num == jno) continue;
-        if (   (H[joint_num].home_sequence < 0)
-            && (ABS(H[joint_num].home_sequence) == jno_sequence) )  {
-            return 1;
-        }
-    }
-    return 0;
+    return H[jno].home_is_synchronized;
 }
