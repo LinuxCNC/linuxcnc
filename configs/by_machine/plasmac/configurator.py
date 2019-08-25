@@ -664,7 +664,7 @@ class configurator:
             inFile = open('{}.old2'.format(halFile), 'r')
             outFile = open(halFile, 'w')
             for line in inFile:
-                if line.startswith('loadrt motmod') or line.startswith('loadrt [EMCMOT]EMCMOT'):
+                if line.replace(' ','').startswith('loadrtmotmod') or line.replace(' ','').startswith('loadrt[EMCMOT]EMCMOT'):
                     if 'num_spindles' in line:
                         line = line.split('num_spindles')[0].strip()
                     line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
@@ -777,12 +777,42 @@ class configurator:
         newHalFile = open('{}/{}{}'.format(self.configDir,self.machineName.lower(),self.halExt),'w')
         inHal = open(self.readHalFile,'r')
         for line in inHal:
-            if line.startswith('loadrt motmod') or line.startswith('loadrt [EMCMOT]EMCMOT'):
+            # add spindles to motmod
+            if line.replace(' ','').startswith('loadrtmotmod') or line.replace(' ','').startswith('loadrt[EMCMOT]EMCMOT'):
                 if 'num_spindles' in line:
                     line = line.split('num_spindles')[0].strip()
                 line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
+            # reformat lines from 7i96 config tool to run with twopass
+            elif line.replace(' ','').startswith('loadrt[HOSTMOT2]DRIVER') or \
+                 line.replace(' ','').startswith('loadrt[HOSTMOT2](DRIVER)'):
+                if line.replace(' ','').startswith('loadrt[HOSTMOT2](DRIVER)'):
+                 for r in (('(',''), (')','')):
+                     line = line.replace(*r)
+                hostmot = {}
+                inFile = open('{}'.format(self.orgIniFile), 'r')
+                while 1:
+                    inf = inFile.readline()
+                    if inf.startswith('[HOSTMOT2]'):
+                        break
+                    if not inf:
+                        inFile.close()
+                        self.dialog_ok('ERROR','Cannot find [HOSTMOT2] section in INI file')
+                        return None
+                while 1:
+                    inf = inFile.readline()
+                    if inf.startswith('[') or not inf:
+                        break
+                    elif '=' in inf:
+                        a,b = inf.strip().split('=')
+                        hostmot[a.strip()] = b.strip()
+                line = line.replace('[HOSTMOT2]DRIVER',hostmot['DRIVER'])
+                for param in ['IPADDRESS','ENCODERS','STEPGENS','PWMGENS','SSERIAL_PORT']:
+                    if param in hostmot:
+                        line = line.replace('[HOSTMOT2]' + param,hostmot[param])
+            # comment out old spindle lines
             elif 'spindle.0.on' in line:
                 line = '# {}'.format(line)
+            # comment out old toolchange lines
             elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
                 line = '# {}'.format(line)
             newHalFile.write(line)
