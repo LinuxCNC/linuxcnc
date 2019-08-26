@@ -41,6 +41,6 @@ net plasmac:axis-position        joint.3.pos-fb                  =>  plasmac.axi
 # gcode M3 S1 needs to be changed to:
 # M3 $0 S1 for the plasma torch'
 # M3 $1 S1 for the air scribe'
-setp plasmac.multi-tool = 0
+setp plasmac.multi-tool 0
 #net plasmac:air-scribe-arm      plasmac.air-scribe-arm          => ***YOUR_AIR_SCRIBE_ARMING_OUTPUT***
 #net plasmac:air-scribe-start    plasmac.air-scribe-start        => ***YOUR_AIR_SCRIBE_START_OUTPUT***
