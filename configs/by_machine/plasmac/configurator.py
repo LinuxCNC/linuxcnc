@@ -54,8 +54,9 @@ class configurator:
         if 'configs/by_machine/plasmac' not in os.path.realpath(sys.argv[0]):
             if self.dialog_ok(
                     'PATH ERROR',
-                    '\nThe plasmac configurator must be run from the original source directory\n'
-                    '\ne.g. ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py\n\n'):
+                    '\nThe plasmac configurator must be run from the original source directory\n\n'
+                    'e.g. python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py\n\n'
+                    'e.g. python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py\n\n'):
                 quit()
 
     def on_selection(self, button, event, selection):
@@ -92,7 +93,6 @@ class configurator:
         else:
             quit()
         self.W = gtk.Window()
-#        self.W.set_title('PlasmaC Configurator')
         self.W.connect('delete_event', self.on_window_delete_event)
         self.W.set_position(gtk.WIN_POS_CENTER)
         self.create_widgets()
@@ -121,21 +121,6 @@ class configurator:
             self.plasmacIniFile = self.copyPath + '/metric_plasmac.ini'
             self.inPlace = False
             self.set_mode()
-
-    # def start_dialog(self):
-    #     dialog = gtk.Dialog('SELECT',
-    #                         self.W,
-    #                         gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-    #                         ('New', 0, 
-    #                          'Upgrade', 1,
-    #                          'Reconfigure', 2,
-    #                          'Exit', 3,))
-    #     label = gtk.Label('Is this a new config, an upgrade or a reconfiguration?')
-    #     dialog.vbox.add(label)
-    #     label.show()
-    #     response = dialog.run()
-    #     dialog.destroy()
-    #     return response
 
     def dialog_ok_cancel(self,title,text,name1,name2):
         dialog = gtk.Dialog(title,
@@ -356,6 +341,7 @@ class configurator:
             return
         if not self.copy_ini_and_hal_files(): return
         if not self.get_traj_info(self.readIniFile,display): return
+        if not self.get_kins_info(self.readIniFile): return
         if not self.get_joint_info(self.readIniFile): return
         if not self.write_new_hal_file(): return
         if not self.write_connections_hal_file(): return
@@ -718,20 +704,43 @@ class configurator:
                     self.plasmacIniFile = '{}/{}/metric_plasmac.ini'.format(self.copyPath,display)
                 else:
                     self.plasmacIniFile = '{}/{}/imperial_plasmac.ini'.format(self.copyPath,display)
-            elif 'COORDINATES' in line:
-                result += 10
-                a,b = line.strip().replace(' ','').split('=')
-                self.zJoint = b.lower().index('z')
-                self.numJoints = len(b.strip())
             if line.startswith('[') or not line:
-                if result == 11:
+                if result == 1:
                     break
                 else:
                     inFile.close()
-                    if result == 1:
-                        self.dialog_ok('ERROR','Could not find COORDINATES in [TRAJ] section of INI file')
-                    else:
-                        self.dialog_ok('ERROR','Could not find LINEAR_UNITS in [TRAJ] section of INI file')
+                    self.dialog_ok('ERROR','Could not find LINEAR_UNITS in [TRAJ] section of INI file')
+                    return False
+        inFile.close()
+        return True
+
+    def get_kins_info(self,readFile):
+        # get some info from [KINS] section of INI file copy
+        inFile = open(readFile,'r')
+        while 1:
+            line = inFile.readline()
+            if '[KINS]' in line:
+                break
+            if not line:
+                inFile.close()
+                self.dialog_ok('ERROR','Cannot find [TRAJ] section in INI file')
+                return False
+        result = 0
+        while 1:
+            line = inFile.readline()
+            if 'KINEMATICS' in line:
+                result += 1
+                a,b = line.lower().strip().replace(' ','').split('coordinates=')
+                if 'kinstype' in b:
+                    b = b.split('kinstype')[0]
+                self.zJoint = b.index('z')
+                self.numJoints = len(b.strip())
+            if line.startswith('[') or not line:
+                if result == 1:
+                    break
+                else:
+                    inFile.close()
+                    self.dialog_ok('ERROR','Could not find KINEMATICS in [KINS] section of INI file')
                     return False
         inFile.close()
         return True
@@ -947,6 +956,7 @@ class configurator:
                 break
         openFile = False
         toolFile = False
+        cycleTime = False
         while 1:
             line = inFile.readline()
             if not line.startswith('['):
@@ -956,9 +966,12 @@ class configurator:
                 elif line.startswith('TOOL_EDITOR'):
                     outFile.write('TOOL_EDITOR = tooledit x y\n')
                     toolFile = True
+                elif line.startswith('CYCLE_TIME'):
+                    outFile.write('CYCLE_TIME = 0.1\n')
+                    cycleTime = True
                 elif line.startswith('PYVCP') or line.startswith('GLADEVCP'):
                     pass
-                else:
+                elif line.strip():
                     outFile.write(line)
             else:
                 inFile.close()
@@ -966,7 +979,14 @@ class configurator:
         if not openFile and display == 'axis':
             outFile.write('OPEN_FILE = \"\"\n')
         if not toolFile and display == 'axis':
-            outFile.write('TOOL_EDITOR = tooledit x y\n\n')
+            outFile.write('TOOL_EDITOR = tooledit x y\n')
+        if not cycleTime and display == 'axis':
+            outFile.write('CYCLE_TIME = 0.1\n')
+        outFile.write('\n')
+        if display == 'axis':
+            outFile.write(\
+                '# required\n'\
+                'USER_COMMAND_FILE = plasmac_axis.py\n\n')
         while 1:        
             line = plasmacIni.readline()
             if line.startswith('EMBED'):
@@ -1003,10 +1023,6 @@ class configurator:
                     outFile.write(line)
             else:
                 break
-        if display == 'axis':
-            outFile.write(\
-                '# required\n'\
-                'USER_COMMAND_FILE       = plasmac_axis.py\n\n')
         inFile.close()
         plasmacIni.close()
         done = ['[APPLICATIONS]',\
@@ -1426,17 +1442,17 @@ class configurator:
         self.set_mode()
 
     def print_success(self):
+        if '/usr/share/doc' in self.gitPath:
+            cmd = 'linuxcnc'
+        else:
+            cmd = '{}/scripts/linuxcnc'.format(self.gitPath)
         self.dialog_ok(\
             'SUCCESS',\
             '\nConfiguration is complete.\n\n'\
-            'You can run this configuration from a console as follows.\n\n'\
-            'Full installation:\n'\
-            'linuxcnc  '\
-            '{0}/{1}.ini\n\n'\
-            'Run In Place installation:\n'\
-            '{2}/scripts/linuxcnc  '\
-            '{0}/{1}.ini\n\n'\
-            .format(self.configDir,self.machineName.lower(),self.gitPath))
+            'You can run this configuration from a console as follows:\n\n'\
+            ' {} {}/{}.ini \n\n'\
+            'Then adjust required settings on the Config tab\n\n'\
+            .format(cmd,self.configDir,self.machineName.lower()))
 
     def create_widgets(self):
         self.VB = gtk.VBox()
