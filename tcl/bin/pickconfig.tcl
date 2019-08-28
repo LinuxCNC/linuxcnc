@@ -557,7 +557,7 @@ proc minimal_tree {node} {
   set p [$::tree parent $node]
   foreach c [$::tree nodes $p] {
     if {"$c" == "$node"} continue
-    $::tree closetree $c
+    $::tree closetree $c 0 ;# 0 ==> no recurse
   }
   minimal_tree $p ;#recursion
 } ;# minimal_tree
@@ -606,6 +606,19 @@ proc put_file_contents {f c} {
     set fd [open $f w]
     puts -nonewline $fd $c
     close $fd
+}
+
+proc fail_if_linkname_exists {linkname} {
+    if {   [file exists $linkname] \
+        && [file type $linkname] != "link"} {
+        set type [file type $linkname]
+        tk_messageBox -title "Make link fail" \
+          -icon error -type ok \
+          -message "Cannot create link for\n$linkname\n\
+                    because of existing $type with same name\n\n\
+                    Remove (or rename) $linkname"
+       exit 1
+    }
 }
 
 proc prompt_copy configname {
@@ -663,6 +676,7 @@ proc prompt_copy configname {
         file mkdir $ncfiles ;# tcl: ok if it exists
         set refname  $linuxcnc::NCFILES_DIR
         set linkname [file join $ncfiles examples]
+        fail_if_linkname_exists $linkname
 
         # tcl wont overwrite any existing link, so remove
         catch {file delete $linkname}
@@ -679,7 +693,8 @@ proc prompt_copy configname {
         foreach lib $liblist {
            set refname  [file join $linuxcnc::NCFILES_DIR $lib]
            set linkname [file join $ncfiles [file tail $lib]]
-           # note for link, file exists test target of link
+           fail_if_linkname_exists $linkname
+
            if {[file exists $linkname]} {
              # tcl wont overwrite any existing link, so remove
              file delete $linkname

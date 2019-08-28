@@ -77,7 +77,7 @@ class HandlerClass:
         self.builder.get_object('scribe-start-delay').set_digits(1)
         self.builder.get_object('scribe-start-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-delay').set_digits(1)
-        self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
+        self.builder.get_object('thc-delay-adj').configure(1.5,0,9,0.1,0,0)
         self.builder.get_object('thc-threshold').set_digits(2)
         self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         self.builder.get_object('torch-off-delay').set_digits(1)
