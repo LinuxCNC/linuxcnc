@@ -577,11 +577,11 @@ class configurator:
             inFile.close()
             outFile.close()
         # add air scibe for an upgrade from 0.2 or earlier
-        if version <= 0.2 and display == 'axis':
+        if version <= 0.2:
             shutil.copy(self.orgIniFile,'{}.old02'.format(self.orgIniFile))
             inFile = open('{}.old02'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
-            display = False
+            displaySect = False
             tooledit = False
             for line in inFile:
                 if line.startswith('[TRAJ]'):
@@ -592,13 +592,13 @@ class configurator:
                     halFile = line.split('=')[1].strip()
                     if halFile != 'plasmac.hal' and 'connections.hal' not in line:
                         self.add_spindle_to_halfile(halFile)
-                elif line.startswith('[DISPLAY]'):
+                elif line.startswith('[DISPLAY]') and display == 'axis':
                     outFile.write(line)
-                    display = True
-                elif line.startswith('TOOL_EDITOR'):
+                    displaySect = True
+                elif line.startswith('TOOL_EDITOR') and displaySect:
                     outFile.write('TOOL_EDITOR             = tooledit x y\n')
                     tooledit = True
-                elif (line.startswith('[') or line.strip() == '') and display and not tooledit:
+                elif (line.startswith('[') or line.strip() == '') and displaySect and not tooledit:
                     outFile.write('TOOL_EDITOR             = tooledit x y\n\n')
                     outFile.write(line)
                     tooledit = True
