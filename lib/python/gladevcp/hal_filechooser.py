@@ -93,6 +93,7 @@ class _EMC_FileChooser(_EMC_ActionBase):
         _EMC_ActionBase._hal_init(self)
         self.ini = None
         self.tmp = None
+        self.prefilter_path = None
         self.load_filters()
 
     def mktemp(self):
@@ -102,6 +103,7 @@ class _EMC_FileChooser(_EMC_ActionBase):
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
     def load_file(self, filename):
+        self.prefilter_path = filename
         flt = self.get_filter_program(filename)
         if not flt:
             return self._load_file(filename)
@@ -119,6 +121,11 @@ class _EMC_FileChooser(_EMC_ActionBase):
             self.linuxcnc.program_open(filename)
             if old == filename:
                 self.gstat.emit('file-loaded', filename)
+
+    def refilter(self):
+        if self.prefilter_path is None:
+            return
+        self.load_file(self.prefilter_path)
 
     def load_filters(self, inifile=None):
         inifile = inifile or os.environ.get('INI_FILE_NAME', '/dev/null')
