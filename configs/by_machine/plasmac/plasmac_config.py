@@ -65,7 +65,7 @@ class HandlerClass:
         self.builder.get_object('ohmic-max-attempts-adj').configure(0,0,10,1,0,0)
         self.builder.get_object('ohmic-max-attempts').set_value(0)
         self.builder.get_object('pid-p-gain').set_digits(0)
-        self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
+        self.builder.get_object('pid-p-gain-adj').configure(10,0,1000,1,0,0)
         self.builder.get_object('pid-i-gain').set_digits(0)
         self.builder.get_object('pid-i-gain-adj').configure(0,0,1000,1,0,0)
         self.builder.get_object('pid-i-gain').set_value(0)
