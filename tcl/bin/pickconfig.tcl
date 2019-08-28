@@ -557,7 +557,7 @@ proc minimal_tree {node} {
   set p [$::tree parent $node]
   foreach c [$::tree nodes $p] {
     if {"$c" == "$node"} continue
-    $::tree closetree $c
+    $::tree closetree $c 0 ;# 0 ==> no recurse
   }
   minimal_tree $p ;#recursion
 } ;# minimal_tree
