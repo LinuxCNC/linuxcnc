@@ -19,7 +19,10 @@ fault_code = c.pinNew("fault-code", halType.UNSIGNED, pinDir.IN)
 state = c.pinNew("state", halType.UNSIGNED, pinDir.IN)
 prog_size = c.pinNew("prog-size", halType.UNSIGNED, pinDir.IN)
 prog_counter = c.pinNew("prog-counter", halType.UNSIGNED, pinDir.IN)
-
+bitmap_position = c.pinNew("bitmap-position", halType.FLOAT, pinDir.IN)
+current_pixel_index = c.pinNew("current-pixel-index", halType.SIGNED, pinDir.IN)
+current_pixel_value = c.pinNew("current-pixel-value", halType.FLOAT, pinDir.IN)
+previous_pixel_value = c.pinNew("previous-pixel-value", halType.FLOAT, pinDir.IN)
 c.ready()
 
 prog = RasterProgrammer("programmer")
@@ -46,76 +49,72 @@ def sleep():
 
 
 
-def testProgram(pos, program, data):
+def testProgram(pos, offset, bpp, dpu, program, data):
     global prog
     position.value = pos
-    prog.begin(len(program))
+    prog.begin(offset, bpp, dpu, len(program))
 
-    for (pos, pow) in program:
-        prog.data(pos, pow)
+    prog.data(program)
 
     prog.run()
     assert fault.value == 0, "Fault should not have happend in program"
     assert enabled.value, "Raster not enabled after programming"
+
     for (pos, pow) in data:
         position.value = pos
         sleep()
         assert output.value == pow, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
-
-    prog.clear()
-    assert state.value == 2
+    #once prosition is exceeded the program should be finished and raster should reset
     assert not enabled.value
 
-testProgram(0.0,
- 
-            [(0.0, 0.0),
-             (1.0, 100.0)],
+#testProgram(-1.0,
+#            1.0,
+#            4,  #4 bpp, 15 values 0-15 and 16 is off
+#            1.0,
+#            "0EFE0", #10 pixels, 1 mm per pixel value
+#            [(-.5, -1.0),
+#             (0.0, 0.0),
+#             (0.5, 0.5),
+#             (1.0, 1.0),
+#             (1.5, -1.0),
+#             (2.0, -1.0),
+#             (2.5, -1.0),
+#             (3.0, 1.0),
+#             (3.5, 0.5),
+#             (4.0, 0.0),
+#             (5.0, -1.0)])
 
-            [(-1.0, -1.0),
-             (-.5, -1.0),
-             (0.0, 0.0),
-             (0.25, 25.0),
-             (0.5, 50.0),
-             (0.75, 75.0),
-             (1.0, 100.0),
-             (1.01, -1.0)])
+#c.exit()
+#prog.exit()
 
-testProgram(0.0,
+#os.system('halrun -U')
 
-           [(0.0, 0.0),
-           (1.0, 50.0),
-           (2.0, 100.0)],
 
-            [(0.0, 0.0),
-             (0.5, 25.0),
-             (1.0, 50.0),
-             (1.5, 75.0),
-             (2.0, 100.0),
-             (2.1, -1.0)])
+position.value = -1.0
+p = "01234567F89ABCDEF"
+prog.begin(1.0, 4, 1.0, len(p))
+prog.data(p)
+prog.run()
 
-testProgram(10.0,
+for p in [-1.0, -.5, 0.0, 0.0001, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17]:
+    position.value = p;
+    sleep()
+    print "pos {0}. bitpos {1}. pix-ind {2}. prev-v {3}, cur_v {4}, out {5}\n".format(position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, output.value)
 
-            [(0.0, -1.0),
-             (1, 50),
-             (2, 50),
-             (3, -1.0),
-             (4, 75),
-             (5, 75)],
 
-            [(10, -1.0),
-             (11, -1.0),
-            (11.5, 50),
-             (12.1, -1),
-             (13, -1),
-             (13.9, -1),
-             (14.1, 75),
-             (15, 75),
-             (15.001, -1)])
+print "state is {0}".format(state.value)
 
-c.exit()
-prog.exit()
+position.value = 11.0
+p = "0123456789ABCDE"
+prog.begin(-1.0, 4, 1.0, len(p))
+prog.data(p)
+prog.run()
+for p in [11.0, 10.5, 10.0, 9.5, 9.0, 8.5, 7.0, 6.5, 6.0, 5.5, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0, -.5, -1.0]:
+    position.value = p;
+    sleep()
+    print "pos {0}. bitpos {1}. pix-ind {2}. prev-v {3}, cur_v {4}, out {5}\n".format(position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, output.value)
 
-os.system('halrun -U')
+
 
 exit(0)
 

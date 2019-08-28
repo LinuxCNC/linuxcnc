@@ -1,6 +1,7 @@
 """
     The raster module is useful for controlling the raster realtime component.
 """
+from re import match
 from pyhal import *
 from struct import *
 from time import sleep, clock
@@ -54,17 +55,6 @@ class RasterProgrammer(object):
     def exit(self):
         """unloads this programmer component from hal"""
         self.component.exit()
-       
-    def __writeCmd(self, cmd):
-        t = clock()
-        while((clock() - t) < self.timeout):
-            if self.port.writable() > len(cmd):
-                self.port.write(cmd)
-                return
-            else:
-                sleep(0)
-
-        raise ProgrammerException("Programmer exceeded timeout waiting for port to become writable")
             
     def __checkStatus(self):
         if self.faultCode.value != faultCode_OK:
@@ -73,31 +63,55 @@ class RasterProgrammer(object):
     def __waitEnabled(self, enabled):
         while self.faultCode.value == faultCode_OK and enabled != self.enabled.value:
             sleep(0)
-
-    def clear(self):
-        """
-            Sends the program clear command to the raster. 
-            Waits until the raster program is cleared.
-        """
-        self.__checkStatus()
-        self.__writeCmd("clr;")
-        self.__waitEnabled(False)
         
-    def begin(self, count):
+    def begin(self, offset, bpp, ppu, count):
         """
-            Sends the program begin command along with the number of data points
-            that the raster should expect
+            Sends the program begin command along with relavent parameters.
+            
+            offset - The relative starting position that the incoming data starts. Data is always programmed from most negative on the axis to most positive.
+            bpp - Bits per pixel in increments of 4 bits, up to 32 bits
+            ppu - pixels per unit. The number of pixels per machine unit. count * dpu gives the total span of the raster line
+            count - the number of pixels that will be programmed on the line     
         """
-        self.__checkStatus()
-        self.__writeCmd("beg{0};".format(count))
+        allowedbpp = set([4, 8, 12, 16, 20, 24, 28, 32])
+        if not isinstance(bpp, int):
+            raise ProgrammerException("bpp must be an integer")
 
-    def data(self, pos, power):
-        """
-            Sends a data point to the raster programmer. Each subsequent data point position
-            must be greater than the previous or the raster will fault
-        """
+        if not bpp in allowedbpp:
+            raise ProgrammerException("bpp must be one of {0}. Given: {1}".format(allowedbpp, bpp))
+
+        if ppu <= 0.0:
+            raise ProgrammerException("dpu must be greater than 0. Given: {0}".format(dpu))
+
+        if not isinstance(count, int):
+            raise ProgrammerException("count must be an integer")
+
+        if count <= 0.0:
+            raise ProgrammerException("count must be greater than 0. Given: {0}".format(count))
+
+        self.bpp = bpp
+        self.ppu = ppu
+        self.countBytes = count * (bpp / 4)
         self.__checkStatus()
-        self.__writeCmd("dat{0:.3f},{1:.3f};".format(pos, power))
+        if not self.port.write("{0:.5f};{1};{2:.5f};{3};".format(offset, bpp, ppu, count)):
+            raise ProgrammerException("raster port appears to be full. Try enlarging the port buffer size")
+
+
+    def data(self, data):
+        """
+            Sends raster data to the raster component. data is a string of hexadecimal characters
+        """
+
+        pixelLen = self.bpp / 4
+
+        if (len(data) % pixelLen) != 0:
+            raise ProgrammerException("Improper data format.")
+
+        if not match("[a-fA-F0-9]+", data):
+            raise ProgrammerException("Data must be in hexadecimal format A-F,a-f,0-9")
+
+        if not self.port.write(data):
+            raise ProgrammerException("raster port appears to be full. Try enlarging the port buffer size")
 
     def run(self):
         """
@@ -105,5 +119,4 @@ class RasterProgrammer(object):
             Waits until the raster is enabled and running
         """
         self.__checkStatus()
-        self.__writeCmd("run;")
         self.__waitEnabled(True)

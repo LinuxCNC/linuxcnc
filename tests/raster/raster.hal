@@ -27,12 +27,17 @@ net fault-code => programmer.fault-code
 net state <= raster.state
 net state => test.state
 
-net prog-size <= raster.prog-size
-net prog-size => test.prog-size
+net bitmap-position <= raster.bitmap-position
+net bitmap-position => test.bitmap-position
 
-net prog-counter <= raster.prog-counter
-net prog-counter => test.prog-counter
+net current-pixel-index <= raster.current-pixel-index
+net current-pixel-index => test.current-pixel-index
 
+net previous-pixel-value <= raster.previous-pixel-value
+net previous-pixel-value => test.previous-pixel-value
+
+net current-pixel-value <= raster.current-pixel-value
+net current-pixel-value => test.current-pixel-value
 
 
 start
