@@ -21,6 +21,7 @@ class _Lcnc_Action(object):
         self.__class__._instanceNum += 1
         self.cmd = linuxcnc.command()
         self.tmp = None
+        self.prefilter_path = None
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -122,6 +123,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
 
     def OPEN_PROGRAM(self, fname):
+        self.prefilter_path = str(fname)
         self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
