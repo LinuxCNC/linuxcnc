@@ -62,7 +62,8 @@ FUNCTION(_) {
     }
 
     if(!enabled || command_power < 0.0) {
-        //if we aren'r performing a feed move we don't output any power
+        //if we aren't performing a feed move or
+        // command power is less than 0 we don't output any power no matter what given min and max are
         power = 0.0;
     } else {
         power = ((max_power-min_power) * vel_scale * (command_power / 100)) + min_power;
