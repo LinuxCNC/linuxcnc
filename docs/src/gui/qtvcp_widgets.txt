@@ -269,6 +269,8 @@ This can also display MDI history when linuxcnc is in MDI mode. +
 This can also display log entries when linuxcnc is in MANUAL mode. +
 This will also display preference file entries if you enter 'PREFERENCE' in capitals +
 into the MDILine widget. +
+It has a signal percentDone(int) that that can be connected to a slot (such as a +
+progressBar to display percent run)
 
 It is based on pyQT's QsciScintilla +
 
