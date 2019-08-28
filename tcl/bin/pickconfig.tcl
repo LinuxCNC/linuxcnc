@@ -467,7 +467,6 @@ proc treeopen {args} {
 } ;# treeopen
 
 proc treeclose {args} {
-  update
   set visible [$::tree visible $::selected_node]
   if {!$visible && ![info exists ::restorebox] } {
     set ::restorebox [$::detail_box get 1.0 end]
@@ -557,7 +556,7 @@ proc minimal_tree {node} {
   set p [$::tree parent $node]
   foreach c [$::tree nodes $p] {
     if {"$c" == "$node"} continue
-    $::tree closetree $c 0 ;# 0 ==> no recurse
+    $::tree closetree $c 1 ;# 1 ==> recurse
   }
   minimal_tree $p ;#recursion
 } ;# minimal_tree
