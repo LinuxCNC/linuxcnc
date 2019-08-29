@@ -64,19 +64,34 @@ class HandlerClass:
             if commands.lower().replace('probe-test','').strip():
                 self.probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
             hal.set_p('plasmac.probe-test','1')
-        elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
+        elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running') and self.s.file:
             self.cutType ^= 1
+            if not 'PlaSmaC' in self.s.file:
+                self.inFile = self.s.file
+            self.inPath = os.path.realpath(os.path.dirname(self.inFile))
+            self.inBase = os.path.basename(self.inFile)
             if self.cutType:
                 hal.set_p('plasmac_run.cut-type','1')
-                self.builder.get_object(button).set_style(self.buttonOrange)
-                self.builder.get_object(button).set_label('Pierce Only')
+                self.outFile = '{}/PlaSmaC1_{}'.format(self.inPath,self.inBase)
             else:
                 hal.set_p('plasmac_run.cut-type','0')
-                self.builder.get_object(button).set_style(self.buttonPlain)
-                self.builder.get_object(button).set_label('Pierce & Cut')
-            self.message(
-                    '\nSwitching between cut types requires re-opening of the program.\n\n'
-                    'Reload is NOT sufficient.\n\n')
+                self.outFile = '{}/PlaSmaC0_{}'.format(self.inPath,self.inBase)
+            import subprocess
+            outBuf = open(self.outFile, 'w')
+            filter = subprocess.Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac_gcode.py', self.inFile)],
+                                  stdin=subprocess.PIPE,
+                                  stdout=outBuf,
+                                  stderr=subprocess.PIPE)
+            filter.stdin.close()
+            stderr_text = []
+            try:
+                while filter.poll() is None:
+                    pass
+            finally:
+                outBuf.close()
+            self.c.program_open(self.outFile)
+            hal.set_p('plasmac_run.cut-type','0')
+
         else:
             for command in commands.split('\\'):
                 if command.strip()[0] == '%':
@@ -120,16 +135,6 @@ class HandlerClass:
             if not self.probeTimer and button == self.probeButton:
                 hal.set_p('plasmac.probe-test','0')
                 self.probeButton = ''
-
-    def message(self,msg):
-        md = gtk.MessageDialog(None, 
-                               gtk.DIALOG_DESTROY_WITH_PARENT,
-                               gtk.MESSAGE_WARNING,
-                               gtk.BUTTONS_CLOSE,
-                               msg)
-        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        md.run()
-        md.destroy()
 
     def set_theme(self):
         theme = gtk.settings_get_default().get_property('gtk-theme-name')
@@ -179,6 +184,15 @@ class HandlerClass:
                 self.probeTimer = 0
                 if not self.probePressed:
                     hal.set_p('plasmac.probe-test','0')
+        if self.inFile and self.inFile != self.s.file:
+            if not 'PlaSmaC' in self.s.file or 'PlaSmaC0' in self.s.file:
+                self.builder.get_object(self.cutButton).set_style(self.buttonPlain)
+                self.builder.get_object(self.cutButton).set_label('Pierce & Cut')
+                self.cutType = 0
+            elif 'PlaSmaC1' in self.s.file:
+                self.builder.get_object(self.cutButton).set_style(self.buttonOrange)
+                self.builder.get_object(self.cutButton).set_label('Pierce Only')
+                self.cutType = 1
         return True
 
     def __init__(self, halcomp,builder,useropts):
@@ -194,10 +208,15 @@ class HandlerClass:
         self.probeTimer = 0
         self.probeButton = ''
         self.cutType = 0
+        self.inFile = ''
+        self.cutButton = ''
         for button in range(1,5):
             bname = self.i.find('PLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
             self.iniButtonName.append(bname)
-            self.iniButtonCode.append(self.i.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'))
+            code = self.i.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE')
+            self.iniButtonCode.append(code)
+            if code == 'cut-type':
+                self.cutButton = 'button{}'.format(button)
             if bname != '0':
                 bname = bname.split('\\')
                 if len(bname) > 1:
