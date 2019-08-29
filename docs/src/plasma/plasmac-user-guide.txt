@@ -761,18 +761,16 @@ PlasmaC allows two different cut types:
 * Pierce and Cut - runs the loaded GCode program to pierce then cut.
 * Pierce Only - converts then runs the loaded GCode program to do piercing only.
 
-Pierce Only mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced then cleaned off and then cut.
+Pierce Only mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced and cleaned off before cutting.
 
-This also enables the use of near end of life consumables to be used for piercing and they can be swapped out for good consumables to be used in cutting.
+This also enables near end of life consumables to be used for piercing and they can be swapped out for good consumables to be used in cutting.
 
 There are two ways of enabling this feature:
 
 * Program a <<button-cut, cutom user button>> to toggle between the cut types.
 * Adding a line '<pierce-only> = 1' anywhere in a gcode file to enable Pierce Only mode for the current file.
 
-If using a custom user button then the Axis GUI is able to automatically reload the file when the cut type is toggled.
-
-This automatic feature is not available for Gmoccapy so the file must be manually reloaded for the selected cut type to take effect. A program reload is NOT effective.
+If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
 
 === Hole Cutting - Intro
 
