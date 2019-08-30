@@ -2637,20 +2637,6 @@ class TclCommands(nf.TclCommands):
             ensure_mode(linuxcnc.MODE_MANUAL)
             go_home(jnum)
 
-    def unhome_joint(event=None):
-        if not manual_ok(): return
-        jora = vars.ja_rbutton.get()
-        if jora in trajcoordinates:
-            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print _("unhome_joint <%s> Use joint mode for unhoming")%jora
-                return
-            jnum = trajcoordinates.index(jora)
-        else:
-            jnum = int(jora)
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        set_motion_teleop(0)
-        c.unhome(jnum)
-
     def home_joint_number(num):
         # invoked by machine menu/home widgets
         ensure_mode(linuxcnc.MODE_MANUAL)
