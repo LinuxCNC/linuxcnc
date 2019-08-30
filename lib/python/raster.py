@@ -2,15 +2,25 @@
     The raster module is useful for controlling the raster realtime component.
 """
 from re import match
+from enum import Enum
 from pyhal import *
 from struct import *
-from time import sleep, clock
+from time import clock
 
 class ProgrammerException(Exception):
     """exception type raised by the raster programmer"""
     pass
 
-faultCode_OK = 0
+class FaultCodes(Enum):
+    OK = 0
+    InvalidOffset = 1
+    InvalidBPP = 2
+    InvalidPPU = 3
+    InvalidCount = 4
+    BadPixelData = 5
+    ProgramWrongSize = 6
+    WrongDirection = 7
+
 """the fault code representing no error from raster"""
 
 
@@ -42,12 +52,15 @@ class RasterProgrammer(object):
                 fault-code - UNSIGNED IN - link to the raster's fault-code pin. Raster programmer uses this to detect errors
                 enabled - BIT IN - link to the raster's enabled pin. Raster programmer uses this to wait on rasters activation
         """
+        self.__timeout = 0.25
         self.component = component(name)
         self.port = self.component.pinNew("program", halType.PORT, pinDir.OUT)
         self.faultCode = self.component.pinNew("fault-code", halType.UNSIGNED, pinDir.IN)
         self.enabled = self.component.pinNew("enabled", halType.BIT, pinDir.IN)
+        self.run    = self.component.pinNew("run", halType.BIT, pinDir.OUT)
         self.component.ready()
-        self.timeout = 0.01 #wait for 1/100 of a second for before buffer becomes writable
+
+        self.run.value = False
 
     def __del__(self):
         self.component.exit()
@@ -56,13 +69,14 @@ class RasterProgrammer(object):
         """unloads this programmer component from hal"""
         self.component.exit()
             
-    def __checkStatus(self):
-        if self.faultCode.value != faultCode_OK:
-            raise ProgrammerException("Raster faulted with code {0}".format(self.faultCode.value))
-
     def __waitEnabled(self, enabled):
-        while self.faultCode.value == faultCode_OK and enabled != self.enabled.value:
-            sleep(0)
+        timeout = clock() + self.__timeout
+        while self.enabled.value != enabled:
+            if clock() > timeout:
+                raise ProgrammerException("Raster failed to respond before the timeout was reached")
+
+            if self.faultCode.value != FaultCodes.OK.value:
+                raise ProgrammerException("Raster faulted with error {0}".format(FaultCodes(self.faultCode.value)))
         
     def begin(self, offset, bpp, ppu, count):
         """
@@ -73,6 +87,9 @@ class RasterProgrammer(object):
             ppu - pixels per unit. The number of pixels per machine unit. count * dpu gives the total span of the raster line
             count - the number of pixels that will be programmed on the line     
         """
+
+        self.__waitEnabled(False)
+
         allowedbpp = set([4, 8, 12, 16, 20, 24, 28, 32])
         if not isinstance(bpp, int):
             raise ProgrammerException("bpp must be an integer")
@@ -92,8 +109,7 @@ class RasterProgrammer(object):
         self.bpp = bpp
         self.ppu = ppu
         self.countBytes = count * (bpp / 4)
-        self.__checkStatus()
-        if not self.port.write("{0:.5f};{1};{2:.5f};{3};".format(offset, bpp, ppu, count)):
+        if not self.port.write("{0:f};{1};{2:.5f};{3};".format(offset, bpp, ppu, count)):
             raise ProgrammerException("raster port appears to be full. Try enlarging the port buffer size")
 
 
@@ -101,6 +117,8 @@ class RasterProgrammer(object):
         """
             Sends raster data to the raster component. data is a string of hexadecimal characters
         """
+
+        self.__waitEnabled(False)
 
         pixelLen = self.bpp / 4
 
@@ -113,10 +131,20 @@ class RasterProgrammer(object):
         if not self.port.write(data):
             raise ProgrammerException("raster port appears to be full. Try enlarging the port buffer size")
 
-    def run(self):
+    def start(self):
         """
             Commands the raster to begin running the program
             Waits until the raster is enabled and running
         """
-        self.__checkStatus()
+        assert self.enabled.value == False, "Raster is in an enabled state which is not expected."
+        self.run.value = True
         self.__waitEnabled(True)
+
+    def stop(self):
+        """
+           Commands the raster to stop running the program
+           Waits until the raster is disabled
+        """
+        assert self.enabled.value == True, "Raster is not in an enabled state which is not expected."
+        self.run.value = False
+        self.__waitEnabled(False)

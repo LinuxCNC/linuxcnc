@@ -3,6 +3,22 @@ loadrt raster names="raster"
 
 addf raster fast
 
+
+net reset <= test.reset
+net reset => raster.reset
+
+net offset <= raster.program-offset
+net offset => test.offset
+
+net count <= raster.count
+net count => test.count
+
+net bpp <= raster.bpp
+net bpp => test.bpp
+
+net ppu <= raster.ppu
+net ppu => test.ppu
+
 net pos <= test.position
 net pos => raster.position
 
@@ -23,6 +39,9 @@ net fault => test.fault
 net fault-code <= raster.fault-code
 net fault-code => test.fault-code
 net fault-code => programmer.fault-code
+
+net raster-run <= programmer.run
+net raster-run => raster.run
 
 net state <= raster.state
 net state => test.state

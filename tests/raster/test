@@ -9,16 +9,21 @@ os.system('realtime start')
 
 c = component("test")
 
-position = c.pinNew("position", halType.FLOAT, pinDir.OUT)
-program = c.pinNew("program", halType.PORT, pinDir.OUT)
-reset = c.pinNew("reset", halType.BIT, pinDir.IO)
+
+theta = 0.005
+timeout = 0.25
+
+reset = c.pinNew("reset", halType.BIT, pinDir.OUT)
 enabled = c.pinNew("enabled", halType.BIT, pinDir.IN)
+position = c.pinNew("position", halType.FLOAT, pinDir.OUT)
 output = c.pinNew("output", halType.FLOAT, pinDir.IN)
+offset = c.pinNew("offset", halType.FLOAT, pinDir.IN)
+bpp = c.pinNew("bpp", halType.UNSIGNED, pinDir.IN)
+ppu = c.pinNew("ppu", halType.FLOAT, pinDir.IN)
+count = c.pinNew("count", halType.UNSIGNED, pinDir.IN)
 fault = c.pinNew("fault", halType.BIT, pinDir.IN)
 fault_code = c.pinNew("fault-code", halType.UNSIGNED, pinDir.IN)
 state = c.pinNew("state", halType.UNSIGNED, pinDir.IN)
-prog_size = c.pinNew("prog-size", halType.UNSIGNED, pinDir.IN)
-prog_counter = c.pinNew("prog-counter", halType.UNSIGNED, pinDir.IN)
 bitmap_position = c.pinNew("bitmap-position", halType.FLOAT, pinDir.IN)
 current_pixel_index = c.pinNew("current-pixel-index", halType.SIGNED, pinDir.IN)
 current_pixel_value = c.pinNew("current-pixel-value", halType.FLOAT, pinDir.IN)
@@ -32,89 +37,218 @@ prog = RasterProgrammer("programmer")
 #the test component here
 assert os.system('halcmd -f raster.hal') == 0, "raster.hal script failed"
 
-def printStats():
-    print "Program State {0}".format(state.value)
-    print "Last Command {0}".format(command.value)
-    print "Program Fault {0}".format(fault.value)
-    print "Program Fault Code {0}".format(fault_code.value)
-    print "Program Size {0}".format(prog_size.value)
-    print "Program Counter {0}".format(prog_counter.value)
-    print "Enabled {0}".format(enabled.value)
-    print "Output {0}".format(output.value)
-    print ""
+def fleq(a, b):
+    return (a - b) < theta
+    
+
+def assertIdle():
+    assert fault.value == 0, "Fault detected"
+    assert state.value == 0, "raster not idle"
+
+def waitEnabled():
+    stop = time.clock() + timeout
+    while not enabled.value:
+        assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
+        assert time.clock() < stop, "Timeout while wainting" 
+
+        
+def waitDisabled():
+    stop = time.clock() + timeout
+    while enabled.value:
+        assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
+        assert time.clock() < stop, "Timeout while waiting"
+
+def waitFault():
+    stop = time.clock() + timeout
+    while not fault.value:
+        assert time.clock() < stop, "Timeout while waiting"
+
+def waitIdle():
+    stop = time.clock() + timeout
+    while state.value != 0:
+        assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
+        assert time.clock() < stop, "Timeout while waiting"
+
+def resetRaster():
+    stop = time.clock() + timeout
+    prog.run.value = 0
+    reset.value = 1
+    while state.value != 0:
+        assert time.clock() < stop, "Timeout while waiting"
+    reset.value = 0
+    assertIdle()    
 
 
-def sleep():
-    time.sleep(0.01)
+def testValidBegin():
+    resetRaster()
+    prog.port.write("123.45;4;1.0;10;0000000000")
+    prog.run.value = 1
+
+    waitEnabled()
+
+    assert fault.value == 0, "Fault detected."
+    assert fleq(offset.value, 123.45), "Offset was not set correctly"
+    assert bpp.value == 4, "BPP was not set correctly, Given:{0}".format(bpp.value)
+    assert fleq(ppu.value, 1.0), "PPU was not set correctly"
+    assert count.value == 10, "count was not set correctly"
+
+    prog.run.value = 0
+    waitIdle()
+    assertIdle()
 
 
+def testInvalidOffset():
+    resetRaster()
+    prog.port.write("FOOB;41.0;2;00")
+    prog.run.value = 1
+
+    waitFault()
+    assert fault.value == 1, "Fault not detected"
+    assert fault_code.value == FaultCodes.InvalidOffset.value
+
+
+def testInvalidBPP():
+    for bpp in [0, 2, 10, 14, 54, -50.0]:
+        resetRaster()
+        prog.port.write("123.45;{0};1.0;2;00".format(bpp))
+        prog.run.value = 1
+        waitFault()
+        assert fault_code.value == FaultCodes.InvalidBPP.value
+
+def testValidBPP():
+    for bpp in [4, 8, 12, 16, 20, 24, 28, 32]:
+        resetRaster()
+        prog.port.write("123.45;{0};1.0;2;{1}".format(bpp, "0" * 2 * (bpp/4)))
+        prog.run.value = 1
+        waitEnabled()
+       
+def testInvalidPPU():
+    for ppu in [-1.0, 0.0]:
+        resetRaster()
+        prog.port.write("123.45;4;{0};2;00".format(ppu))
+        prog.run.value = 1
+        waitFault()
+        assert fault_code.value == FaultCodes.InvalidPPU.value
+
+def testValidPPU():
+    for tppu in [0.01, 1423.2343, 1000]:
+        resetRaster()
+        prog.port.write("123;4;{0};2;00".format(tppu))
+        prog.run.value = 1
+        waitEnabled()
+        assert fleq(ppu.value, tppu), "PPU failed to be set"
+
+def testValidCount():
+    for tcount in [2, 10, 500]:
+        resetRaster()
+        prog.port.write("-156;4;1.0;{0};{1}".format(tcount, "0" * tcount))
+        prog.run.value = 1
+        waitEnabled()
+        assert count.value == tcount, "Count was not valid"
+
+def testInvalidCount():
+    for tcount in [0, 1, -1, -100]:
+        resetRaster()
+        prog.port.write("2334.1223;4;1.0;{0};00000000".format(tcount))
+        prog.run.value = 1
+        waitFault()
+        assert fault_code.value == FaultCodes.InvalidCount.value, "Not expected fault code {0}. tcount {1}".format(fault_code.value, tcount)
+
+def testWrongDirection():
+    resetRaster()
+    position.value = -10
+    prog.port.write("10;4;1.0;10;0123456789")
+    prog.run.value = 1
+    waitEnabled()
+
+    position.value = -11
+    waitFault()
+    assert fault_code.value == FaultCodes.WrongDirection.value, "Expected fault WrongDirection. Got {0}".format(fault_code.value)
+
+    resetRaster()
+    position.value = 10
+    prog.port.write("-10;4;1.0;10;0123456789")
+    prog.run.value = 1
+    waitEnabled()
+    position.value = 11
+    waitFault()
+    assert fault_code.value == FaultCodes.WrongDirection.value, "Expected fault WrongDirection. Got {0}".format(fault_code.value)
+   
 
 def testProgram(pos, offset, bpp, dpu, program, data):
-    global prog
     position.value = pos
     prog.begin(offset, bpp, dpu, len(program))
-
     prog.data(program)
 
-    prog.run()
-    assert fault.value == 0, "Fault should not have happend in program"
-    assert enabled.value, "Raster not enabled after programming"
+    prog.start()
 
     for (pos, pow) in data:
         position.value = pos
-        sleep()
-        assert output.value == pow, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
-    #once prosition is exceeded the program should be finished and raster should reset
-    assert not enabled.value
+        assert (output.value - pow) < theta, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
+        #once prosition is exceeded the program should be finished and raster should reset
 
-#testProgram(-1.0,
-#            1.0,
-#            4,  #4 bpp, 15 values 0-15 and 16 is off
-#            1.0,
-#            "0EFE0", #10 pixels, 1 mm per pixel value
-#            [(-.5, -1.0),
-#             (0.0, 0.0),
-#             (0.5, 0.5),
-#             (1.0, 1.0),
-#             (1.5, -1.0),
-#             (2.0, -1.0),
-#             (2.5, -1.0),
-#             (3.0, 1.0),
-#             (3.5, 0.5),
-#             (4.0, 0.0),
-#             (5.0, -1.0)])
-
-#c.exit()
-#prog.exit()
-
-#os.system('halrun -U')
+    assert enabled.value == True, "raster should still be enabled"
+    prog.stop()
 
 
-position.value = -1.0
-p = "01234567F89ABCDEF"
-prog.begin(1.0, 4, 1.0, len(p))
-prog.data(p)
-prog.run()
+testInvalidOffset()
 
-for p in [-1.0, -.5, 0.0, 0.0001, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12, 12.5, 13, 13.5, 14, 14.5, 15, 15.5, 16, 16.5, 17]:
-    position.value = p;
-    sleep()
-    print "pos {0}. bitpos {1}. pix-ind {2}. prev-v {3}, cur_v {4}, out {5}\n".format(position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, output.value)
+testInvalidBPP()
+
+testValidBPP()
+
+testInvalidPPU()
+
+testValidPPU()
+
+testValidCount()
+
+testInvalidCount()
+
+testWrongDirection()
+
+resetRaster()
+
+testProgram(-1.0, 
+             0.01, 
+               4, 
+             1.0, 
+             "01234F43210", 
+             [(-1.0, -1.0),
+              (-0.01, -1.0),
+              (0.0, 0.0),
+              (0.5, 0.5),
+              (1.0, 1.0),
+              (2.0, 2.0),
+              (3.0, 3.0),
+              (3.9, 3.9),
+              (4.0, -1.0),
+              (5.0, -1.0),
+              (6.0, -1.0),
+              (6.001, 4.0),
+              (6.5, 3.5),
+              (7.0, 3.0),
+              (8.0, 2.0),
+              (8.5, 1.5),
+              (9.0, 1.0),
+              (10.0, 0.0),
+              (10.1, -1.0),
+              (1000.0, -1.0)])
 
 
-print "state is {0}".format(state.value)
-
-position.value = 11.0
-p = "0123456789ABCDE"
-prog.begin(-1.0, 4, 1.0, len(p))
-prog.data(p)
-prog.run()
-for p in [11.0, 10.5, 10.0, 9.5, 9.0, 8.5, 7.0, 6.5, 6.0, 5.5, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5, 0.0, -.5, -1.0]:
-    position.value = p;
-    sleep()
-    print "pos {0}. bitpos {1}. pix-ind {2}. prev-v {3}, cur_v {4}, out {5}\n".format(position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, output.value)
+testProgram(10.0,
+            -0.00,
+               4,
+             2.0,
+             "0A",
+             [(10.0, -1.0),
+              (8.0, 5.0),
+              (7.0, 10.0),
+              (6.9, -1.0)])
 
 
-
+c.exit()
+prog.exit()
+os.system('halrun -U')
 exit(0)
 
