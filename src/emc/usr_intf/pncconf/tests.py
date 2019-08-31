@@ -654,7 +654,7 @@ But there is not one in the machine-named folder.."""),True)
                 for i in pwminvertlist:
                     halrun.write("setp    "+i+".invert_output true\n")
             else: # sserial PWM
-                pwm_enable = self.d.make_pinname(pwm_sig,False,True) # get prefix only
+                pwm_enable = self.d.make_pinname(pwm_sig,gpionumber = False, prefixonly = True) # get prefix only
                 halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
                 halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
                 halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)

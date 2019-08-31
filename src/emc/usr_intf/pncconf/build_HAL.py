@@ -80,7 +80,7 @@ class HAL:
         print >>file, "loadrt [KINS]KINEMATICS"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS"
         # pre process mesa commands
-        mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string()
+        mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string(substitution = self.d.useinisubstitution)
         if self.d.number_pports:
             # pre process pport commands
             pport_load_cmnd,pport_read_cmnd,pport_write_cmnd = self.a.pport_command_string()
@@ -329,7 +329,7 @@ class HAL:
                 print >>file, "%s"%i
 
         if chargepump:
-            steppinname = self.d.make_pinname(chargepump)
+            steppinname = self.d.make_pinname(chargepump, substitution = self.d.useinisubstitution)
             print >>file
             print >>file, "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
             print >>file
@@ -479,7 +479,7 @@ class HAL:
             print >>file
 
         # check for shared MPG 
-        pinname = self.d.make_pinname(self.d.findsignal("select-mpg-a"))
+        pinname = self.d.make_pinname(self.d.findsignal("select-mpg-a"), substitution = self.d.useinisubstitution)
         if pinname:
             print "shared MPG", pinname
             ending = ""
@@ -507,7 +507,7 @@ class HAL:
         # check for dedicated axis MPG jogging option
         for axletter in axis_convert:
             if axletter in self.d.available_axes:
-                pinname = self.d.make_pinname(self.d.findsignal(axletter+"-mpg-a"))
+                pinname = self.d.make_pinname(self.d.findsignal(axletter+"-mpg-a"), substitution = self.d.useinisubstitution)
                 if pinname:
                     ending = ""
                     if "enc" in pinname: ending = ".count"
@@ -550,7 +550,7 @@ class HAL:
                 print >>file
 
         # check for dedicated feed override MPG
-        pinname = self.d.make_pinname(self.d.findsignal("fo-mpg-a"))
+        pinname = self.d.make_pinname(self.d.findsignal("fo-mpg-a"), substitution = self.d.useinisubstitution)
         if pinname:
             ending = ""
             if "enc" in pinname: ending = ".count"
@@ -600,7 +600,7 @@ class HAL:
                 print >>file
 
         # check for dedicated max velocity MPG
-        pinname = self.d.make_pinname(self.d.findsignal("mvo-mpg-a"))
+        pinname = self.d.make_pinname(self.d.findsignal("mvo-mpg-a"), substitution = self.d.useinisubstitution)
         if pinname:
             ending = ""
             if "enc" in pinname: ending = ".count"
@@ -654,7 +654,7 @@ class HAL:
                 print >>file
 
         # check for dedicated spindle override MPG
-        pinname = self.d.make_pinname(self.d.findsignal("so-mpg-a"))
+        pinname = self.d.make_pinname(self.d.findsignal("so-mpg-a"), substitution = self.d.useinisubstitution)
         if pinname:
             ending = ""
             if "enc" in pinname: ending = ".count"
@@ -1137,26 +1137,26 @@ class HAL:
             title = 'SPINDLE'
         closedloop = False
         pwmpin = self.a.pwmgen_sig(let)
-        pwmpinname = self.d.make_pinname(pwmpin)
+        pwmpinname = self.d.make_pinname(pwmpin, substitution = self.d.useinisubstitution)
         if pwmpinname and not 'serial' in pwmpin: # TODO allow sserial PWM to be inverted
             pwminvertlist = self.a.pwmgen_invert_pins(pwmpin)
         if not pwmpin == None:
             pwmtype = self.a.pwmgen_sig(let)+"type"
         else:
             pwmtype = None
-        tppwmpinname = self.d.make_pinname(self.a.tppwmgen_sig(let))
+        tppwmpinname = self.d.make_pinname(self.a.tppwmgen_sig(let), substitution = self.d.useinisubstitution)
         tppwm_six = self.a.tppwmgen_has_6(let)
-        steppinname = self.d.make_pinname(self.a.stepgen_sig(let))
+        steppinname = self.d.make_pinname(self.a.stepgen_sig(let), substitution = self.d.useinisubstitution)
         try:
             bldc_control = self.d[let+"bldc_option"]
         except:
             bldc_control = False
         if steppinname:
             stepinvertlist = self.a.stepgen_invert_pins(self.a.stepgen_sig(let))
-        encoderpinname = self.d.make_pinname(self.a.encoder_sig(let))
-        amp8i20pinname = self.d.make_pinname(self.a.amp_8i20_sig(let))
-        resolverpinname = self.d.make_pinname(self.a.resolver_sig(let))
-        potpinname = self.d.make_pinname(self.a.potoutput_sig(let))
+        encoderpinname = self.d.make_pinname(self.a.encoder_sig(let), substitution = self.d.useinisubstitution)
+        amp8i20pinname = self.d.make_pinname(self.a.amp_8i20_sig(let), substitution = self.d.useinisubstitution)
+        resolverpinname = self.d.make_pinname(self.a.resolver_sig(let), substitution = self.d.useinisubstitution)
+        potpinname = self.d.make_pinname(self.a.potoutput_sig(let), substitution = self.d.useinisubstitution)
         if potpinname:
             potinvertlist = self.a.spindle_invert_pins(self.a.potoutput_sig(let))
         if steppinname and encoderpinname and not let == 's': closedloop = True
@@ -1286,7 +1286,7 @@ class HAL:
             print >>file
             # sserial daughter board PWMGENS eg 7i77
             if "analogout" in pwmpinname:
-                rawpinname = self.d.make_pinname(pwmpin,False,True) # dont want the component name
+                rawpinname = self.d.make_pinname(pwmpin, gpionumber = False, prefixonly = True, substitution = self.d.useinisubstitution) # dont want the component name
 
                 if let == 's':
                     print >>file, "setp   "+pwmpinname+"-scalemax  [%s_%d]OUTPUT_SCALE"% (title, jnum)
@@ -1487,7 +1487,7 @@ class HAL:
             # for input pins
             if t == _PD.GPIOI:
                 if not p == "unused-input":
-                    pinname = self.d.make_pinname(pname) 
+                    pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution) 
                     print >>file, "\n# ---",p.upper(),"---"
                     if "parport" in pinname:
                         if i: print >>file, "net %s     <= %s-not" % (p, pinname)
@@ -1503,7 +1503,7 @@ class HAL:
                 if not p == "unused-encoder":
                     for sig in (self.d.halencoderinputsignames):
                        if p == sig+"-a":
-                            pinname = self.d.make_pinname(self.d.findsignal( p ))
+                            pinname = self.d.make_pinname(self.d.findsignal( p ), substitution = self.d.useinisubstitution)
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
@@ -1520,7 +1520,7 @@ class HAL:
                 if not p == "unused-resolver":
                     for sig in (self.d.halresolversignames):
                        if p == sig:
-                            pinname = self.d.make_pinname(self.d.findsignal( p ))
+                            pinname = self.d.make_pinname(self.d.findsignal( p ), substitution = self.d.useinisubstitution)
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s         <=  "% (sig+"-position")+pinname +".position"
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".count"
@@ -1538,7 +1538,7 @@ class HAL:
             # for analog in pins
             elif t == (_PD.ANALOGIN):
                 if not p == "unused-analog-input":
-                            pinname = self.d.make_pinname(self.d.findsignal( p ))
+                            pinname = self.d.make_pinname(self.d.findsignal( p ), substitution = self.d.useinisubstitution)
                             print >>file, "\n# ---",p.upper(),"---"
                             print >>file, "net %s         <=  "% (p)+pinname
 
@@ -1582,7 +1582,7 @@ class HAL:
             # for output /open drain pins
             if t in (_PD.GPIOO,_PD.GPIOD):
                 if not p == "unused-output":
-                    pinname = self.d.make_pinname(pname)
+                    pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print >>file, "\n# ---",p.upper(),"---"
                     if "parport" in pinname:
                         if p == "force-pin-true":
@@ -1614,7 +1614,7 @@ class HAL:
                 if not p == "unused-pwm":
                     for sig in (self.d.halpwmoutputsignames):
                         if p == (sig+"-pulse"):
-                            pinname = self.d.make_pinname(pname)
+                            pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution)
                             print >>file, "\n# ---",sig.upper(),"---"
                             if t == _PD.PWMP:
                                 print >>file, "setp    "+pinname +".output-type 1"
@@ -1635,7 +1635,7 @@ class HAL:
                 if not p == "unused-tppwmgen":
                     for sig in (self.d.haltppwmoutputsignames):
                         if p == (sig+"-a"):
-                            pinname = self.d.make_pinname(pname) 
+                            pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution) 
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"
                             print >>file, "net %s           <=  "% (sig+"-a-value")+pinname +".A-value"
@@ -1653,7 +1653,7 @@ class HAL:
                 if not p == "unused-stepgen":
                     for sig in (self.d.halsteppersignames):
                         if p == (sig+"-step"):
-                            pinname = self.d.make_pinname(pname) 
+                            pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution) 
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s           <=  "% (sig+"-enable")+pinname +".enable"  
                             print >>file, "net %s            <=  "% (sig+"-count")+pinname +".counts" 
@@ -1663,7 +1663,7 @@ class HAL:
                             pinlist = self.d.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
                             for i in pinlist:
                                 if self.d[i[0]+"inv"]:
-                                    gpioname = self.d.make_pinname(i[0],True)
+                                    gpioname = self.d.make_pinname(i[0],gpionumber = True, substitution = self.d.useinisubstitution)
                                     print >>file, "setp    "+gpioname+".invert_output true"
                             for ending in ("position-scale","maxvel","maxaccel","steplen","stepspace","dirsetup","dirhold","step_type"):
                                 title = sig + "-%s"% ending
@@ -1678,7 +1678,7 @@ class HAL:
                     for sig in (self.d.halpotsignames):
                         print "looking",p,sig
                         if p == (sig+"-output"):
-                            pinname = self.d.make_pinname(pname) 
+                            pinname = self.d.make_pinname(pname, substitution = self.d.useinisubstitution) 
                             print >>file, "\n# ---",sig.upper(),"---"
                             print >>file, "net %s            =>  "% (sig+"-enable")+pinname +".spinena"  
                             print >>file, "net %s            =>  "% (sig+"-output")+pinname +".spinout" 

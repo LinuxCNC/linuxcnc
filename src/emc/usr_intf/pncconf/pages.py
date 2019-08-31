@@ -223,6 +223,7 @@ class Pages:
         self.page_set_state(['options','external','realtime'],state)
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
+        self.d.useinisubstitution = self.w.useinisubstitution.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
         self.a.add_external_folder_boardnames()
         # here we initialise the mesa configure page data
