@@ -1722,11 +1722,11 @@ class App:
             #TODO what if there are no external firmware is this enough?
             self.warning_dialog(_("You have no hostmot2 firmware downloaded in folder:\n%s\n\
 PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
-
-        self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
-        self._p.MESA_BOARDNAMES.append('7i76e-Internal Data')
-        self._p.MESA_BOARDNAMES.append('7i92-Internal Data')
-        self._p.MESA_BOARDNAMES.append('7i80HD-Internal Data')
+        for firmware in self._p.MESA_INTERNAL_FIRMWAREDATA:
+            if 'internal' in firmware[0].lower():
+                if firmware[0] in self._p.MESA_BOARDNAMES:
+                    continue
+                self._p.MESA_BOARDNAMES.append(firmware[0])
         if self.d.advanced_option:
             self._p.MESA_BOARDNAMES.append('Discovery Option')
         # add any extra firmware boardnames from .pncconf-preference file 
@@ -2150,7 +2150,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     driver = "hm2_7i43"
                 elif "7i90" in boardname:
                     driver = "hm2_7i90"
-                elif '7i76e' in boardname or '7i92' in boardname or '7i80' in boardname:
+                elif '7i76e' in boardname or '7i92' in boardname or '7i80' in boardname \
+                    or '7i93' in boardname:
                     driver = 'hm2_eth'
                 else:
                     driver = 'hm2_pci'
