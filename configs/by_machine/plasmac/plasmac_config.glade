@@ -10,6 +10,7 @@
   <object class="GtkAdjustment" id="arc-restart-delay-adj"/>
   <object class="GtkAdjustment" id="arc-voltage-offset-adj"/>
   <object class="GtkAdjustment" id="arc-voltage-scale-adj"/>
+  <object class="GtkAdjustment" id="centre-spot-time-adj"/>
   <object class="GtkAdjustment" id="cornerlock-threshold-adj"/>
   <object class="GtkAdjustment" id="float-switch-travel-adj"/>
   <object class="GtkAdjustment" id="height-per-volt-adj"/>
@@ -1449,7 +1450,7 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-arm-delay">
-                                <property name="width_request">48</property>
+                                <property name="width_request">54</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1469,7 +1470,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-start-delay">
-                                <property name="width_request">48</property>
+                                <property name="width_request">54</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1539,6 +1540,91 @@ this also sets the maximum probe feed rate</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkFrame" id="frameC5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignmentC2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkTable" id="table4">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="n_columns">4</property>
+                            <property name="column_spacing">2</property>
+                            <property name="row_spacing">2</property>
+                            <child>
+                              <object class="HAL_SpinButton" id="centre-spot-time">
+                                <property name="width_request">60</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">torch on time for centre spot tool (mS)</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">centre-spot-time-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC8">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to start before motion begins</property>
+                                <property name="xalign">1</property>
+                                <property name="xpad">2</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC9">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">torch on time for centre spot tool (mS)</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Torch On Time (mS)</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="labelC10">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Centre Spot&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -1546,7 +1632,7 @@ this also sets the maximum probe feed rate</property>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
               </object>

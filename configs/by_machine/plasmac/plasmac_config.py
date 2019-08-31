@@ -56,6 +56,9 @@ class HandlerClass:
         self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.01,0,0)
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
+        self.builder.get_object('centre-spot-time').set_digits(0)
+        self.builder.get_object('centre-spot-time-adj').configure(0,0,999,1,0,0)
+        self.builder.get_object('centre-spot-time').set_value(0)
         self.builder.get_object('cornerlock-threshold').set_digits(0)
         self.builder.get_object('cornerlock-threshold-adj').configure(90,1,99,1,0,0)
         self.builder.get_object('kerfcross-override').set_digits(0)
@@ -306,6 +309,18 @@ class HandlerClass:
         else:
             print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
 
+    def check_hal_connections(self):
+        level = int(self.i.find('TRAJ', 'SPINDLES')) or 1
+        if hal.get_value('plasmac.multi-tool'):
+            if level >= 2:
+                hal.new_sig('plasmac:scribe-is-on',hal.HAL_BIT)
+                hal.connect('spindle.1.on','plasmac:scribe-is-on')
+                hal.connect('plasmac.scribe-on','plasmac:scribe-is-on')
+            if level == 3:
+                hal.new_sig('plasmac:centre-spot-is-on',hal.HAL_BIT)
+                hal.connect('spindle.2.on','plasmac:centre-spot-is-on')
+                hal.connect('plasmac.centre-spot-on','plasmac:centre-spot-is-on')
+
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
         self.builder = builder
@@ -325,6 +340,7 @@ class HandlerClass:
         self.builder.get_object('probe-feed-rate-adj').set_upper(self.builder.get_object('setup-feed-rate').get_value())
         self.load_settings()
         self.set_theme()
+        self.check_hal_connections()
         gobject.timeout_add(100, self.periodic)
 
 def get_handlers(halcomp,builder,useropts):

@@ -276,12 +276,33 @@ class configurator:
                 return True
 
     def b4_air_scribe(self):
-        inFile = open('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower()),'r')
-        for line in inFile:
-            if 'air-scribe' in line:
+        inFile = open(self.orgIniFile,'r')
+        while 1:
+            line = inFile.readline()
+            if line.startswith('[TRAJ]'): break
+        while 1:
+            line = inFile.readline()
+            if line.startswith('SPINDLES'):
                 inFile.close()
                 return False
-        return True
+            elif line.startswith('[') or not line:
+                inFile.close()
+                return True
+
+    def b4_centre_spot(self):
+        inFile = open(self.orgIniFile,'r')
+        while 1:
+            line = inFile.readline()
+            if line.startswith('[TRAJ]'): break
+        while 1:
+            line = inFile.readline()
+            if line.startswith('SPINDLES'):
+                if int(line.split('=')[1].strip()) < 3:
+                    inFile.close()
+                    return True
+            elif line.startswith('[') or not line:
+                inFile.close()
+                return False
 
     def set_mode(self):
         if self.mode == 0:
@@ -314,9 +335,12 @@ class configurator:
         # if version before adding air scribe
         elif self.b4_air_scribe():
             return 0.2
+        # if version before adding centre spot
+        elif self.b4_centre_spot():
+            return 0.3
         # must be the latest version
         else:
-            return 0.3
+            return 0.4
 
     def on_create_clicked(self,button):
         if not self.check_entries():
@@ -586,7 +610,7 @@ class configurator:
             for line in inFile:
                 if line.startswith('[TRAJ]'):
                     outFile.write(line)
-                    outFile.write('SPINDLES                = 2\n')
+                    outFile.write('SPINDLES = 2\n')
                 elif line.startswith('HALFILE'):
                     outFile.write(line)
                     halFile = line.split('=')[1].strip()
@@ -596,12 +620,25 @@ class configurator:
                     outFile.write(line)
                     displaySect = True
                 elif line.startswith('TOOL_EDITOR') and displaySect:
-                    outFile.write('TOOL_EDITOR             = tooledit x y\n')
+                    outFile.write('TOOL_EDITOR = tooledit x y\n')
                     tooledit = True
                 elif (line.startswith('[') or line.strip() == '') and displaySect and not tooledit:
-                    outFile.write('TOOL_EDITOR             = tooledit x y\n\n')
+                    outFile.write('TOOL_EDITOR = tooledit x y\n\n')
                     outFile.write(line)
                     tooledit = True
+                else:
+                    outFile.write(line)
+            inFile.close()
+            outFile.close()
+        # add centre spot for an upgrade from 0.3 or earlier
+        if version <= 0.3:
+            shutil.copy(self.orgIniFile,'{}.old03'.format(self.orgIniFile))
+            inFile = open('{}.old03'.format(self.orgIniFile), 'r')
+            outFile = open('{}'.format(self.orgIniFile), 'w')
+            traj = False
+            for line in inFile:
+                if line.startswith('SPINDLES') and int(line.split('=')[1].strip()) < 3:
+                    outFile.write('SPINDLES = 3\n')
                 else:
                     outFile.write(line)
             inFile.close()
