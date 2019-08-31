@@ -1,5 +1,5 @@
 # do not change the contents of this file as it will be overwiten by updates
-# make custom changes in {machinename}_connections.hal
+# make custom changes in <machinename>_connections.hal
 
 #***** PLASMAC COMPONENT *****
 loadrt  plasmac
@@ -18,7 +18,6 @@ net plasmac:ohmic-probe-out      debounce.0.2.out                =>  plasmac.ohm
 net plasmac:program-is-idle      halui.program.is-idle           =>  plasmac.program-is-idle
 net plasmac:program-is-paused    halui.program.is-paused         =>  plasmac.program-is-paused
 net plasmac:program-is-running   halui.program.is-running        =>  plasmac.program-is-running
-net plasmac:scribe-on            spindle.1.on                    =>  plasmac.scribe-on
 net plasmac:spindle-is-on        spindle.0.on                    =>  plasmac.spindle-on
 net plasmac:thc_disable          motion.digital-out-02           =>  plasmac.thc-disable
 net plasmac:torch-off            motion.digital-out-03           =>  plasmac.torch-off

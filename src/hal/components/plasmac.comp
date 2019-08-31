@@ -173,6 +173,8 @@ pin in  float   axis_z_position             "current z axis position, connect to
 pin in  float   axis_x_position             "current x axis position, connect to axis.x.pos-cmd";
 pin in  float   axis_y_position             "current y axis position, connect to axis.y.pos-cmd";
 pin in  bit     breakaway                   "torch breakaway switch (optional, see float_switch)";
+pin in  bit     centre_spot_on              "start a new centre spot, connect to spindle.2.on";
+pin in  float   centre_spot_time            "torch on time for a centre spot";
 pin in  bit     cornerlock_enable           "enable corner lock";
 pin in  float   cornerlock_threshold        "corner lock threshold (% of requested feed rate), speeds below this disable THC";
 pin in  float   current_velocity            "current machine velocity , connect to motion.current-vel";
@@ -272,6 +274,7 @@ variable float  axis_x_start;               /* axis x position at start of cut *
 variable float  axis_y_finish;              /* axis y position at end of cut */
 variable float  axis_y_start;               /* axis y position at start of cut */
 variable int    count;                      /* for counting */
+variable float  centre_spot_timer;          /* centre spot timer */
 variable int    cut_height_first;           /* cut height at start of cut */
 variable int    cut_height_last;            /* cut height at end of cut */
 variable float  cut_offset;                 /* offset from last cut end to this cut start */
@@ -469,7 +472,7 @@ FUNCTION(_) {
             stop_type = PAUSE;
             probe_required = TRUE;
             state = MAX_HEIGHT;
-        }else if(!spindle_on){
+        }else if(!spindle_on && !centre_spot_on){
             if(torch_off_delay > 0 && !torch_off){
                 torch_off_timer = torch_off_delay;
             }else{
@@ -568,7 +571,7 @@ FUNCTION(_) {
                 if(paused_motion_speed && stop_type == PAUSE){
                     state = PAUSED_MOTION;
                 /* if we get a torch start request and we are stopped or waiting for a restart */
-                }else if((spindle_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
+                }else if((spindle_on || centre_spot_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -652,7 +655,7 @@ FUNCTION(_) {
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
                 /* if we get a air-scribe start request */
-                }else if(scribe_on && !spindle_on && !probe_test && multi_tool){
+                }else if(scribe_on && !spindle_on && !centre_spot_on && !probe_test && multi_tool){
                     state = AIR_SCRIBE;
                     scribe_arm_timer = scribe_arm_delay;
                     scribe_pause = FALSE;
@@ -844,7 +847,7 @@ FUNCTION(_) {
                     }else if(!torch_enable){
                         pierce_timer = pierce_delay;
                         state = PIERCE_DELAY;
-                    }else if(spindle_on){
+                    }else if(spindle_on || centre_spot_on){
                         state = TORCH_ON;
                     }
                 }
@@ -878,6 +881,7 @@ FUNCTION(_) {
                         torch_on = TRUE;
                         pierce_count += 1;
                     }
+                    centre_spot_timer = centre_spot_time * 0.001;
                     state = ARC_OK;
                 }
             }
@@ -886,15 +890,26 @@ FUNCTION(_) {
             /* wait for arc ok
              * if timeout occurs turn torch off then return to TORCH_ON for another attempt */
             feed_hold = TRUE;
-            arc_fail_timer -= fperiod;
-            if(arc_fail_timer <= 0){
-                torch_on = FALSE;
-                restart_timer = restart_delay;
-                arc_starts += 1;
-                state = TORCH_ON;
-            }else if(arc_ok_out){
-                    pierce_timer = pierce_delay;
-                    state = PIERCE_DELAY;
+            if(centre_spot_on && !spindle_on && multi_tool){
+                centre_spot_timer -= fperiod;
+                if(centre_spot_timer <= 0){
+                    centre_spot_timer = 0;
+                    torch_on = FALSE;
+                    stop_type = WAIT;
+                    state = SAFE_HEIGHT;
+                }
+            }else{
+                arc_fail_timer -= fperiod;
+                centre_spot_timer -= fperiod;
+                if(arc_fail_timer <= 0){
+                    torch_on = FALSE;
+                    restart_timer = restart_delay;
+                    arc_starts += 1;
+                    state = TORCH_ON;
+                }else if(arc_ok_out){
+                        pierce_timer = pierce_delay;
+                        state = PIERCE_DELAY;
+                }
             }
             break;
         case PIERCE_DELAY:

@@ -350,6 +350,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.font_linespace = linespace
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
+        if s.file: self.load()
 
     # gettter / setters
     def get_font_info(self):

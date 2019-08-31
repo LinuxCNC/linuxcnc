@@ -459,6 +459,14 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 |Start Delay|Delay to allow air-scribe to start before beginning motion.
 |===
 
+.Center Spot
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Torch On Time|The length of time in milli-seconds the torch is on for each center spot.
+|===
+
 The *'Save'* button will save the currently displayed parameters as the default.
 
 The *'Reload'* button will reload the last saved parameters.
@@ -616,7 +624,29 @@ image::images/plasmac_stats.png[width=400]
 
 The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 $0 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
 
-If you are using PlasmaC without an <<air-scribe, air-scribe>> enabled then it is permissible to use 'M3 S1' in lieu of 'M3 $0 S1'. If the <<air-scribe, air-scribe>> is enabled then 'M3 S1' will cause the machine to follow the GCode program with both the torch and air-scribe inactive.
+If you are using PlasmaC without multiple tools enabled then it is permissible to use 'M3 S1' in lieu of 'M3 $0 S1'.
+
+[[multi-tool]]
+
+If multiple tools are enabled then a tool number is required in the 'M3 command to selected the required tool.
+
+* 'M3 $0 S1' will select the plasma cutting tool.
+* 'M3 $1 S1' will select the air scribe.
+* 'M3 $2 S1' will select the plasma centre spotting tool.
+
+To enable multiple tools, edit the following line in <MACHINE_NAME>_connections.hal.
+
+from:
+
+-----
+setp plasmac.multi-tool 0
+-----
+
+to:
+
+-----
+setp plasmac.multi-tool 1
+-----
 
 PlasmaC will read the cut parameters from the Run Panel and use them where required.
 
@@ -920,19 +950,7 @@ There are two HAL output pins used to operate the air-scribe, one to arm the air
 
 Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
 
-To enable scribing, edit the following line in <MACHINE_NAME>_connections.hal.
-
-from:
-
------
-setp plasmac.multi-tool 0
------
-
-to:
-
------
-setp plasmac.multi-tool 1
------
+To enable scribing, see <<multi-tool, multiple tools>>.
 
 If you haven't yet assigned the HAL pins for the air-scribe in the Configurator then you will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
 
@@ -972,6 +990,38 @@ You can switch between the torch and the air-scribe any number of times during a
 Issuing M3 S1 (without $n) will cause the machine to behave as if an 'M3 $0 S1' had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous GCode files.
 
 WARNING: If you have an existing manual toolchange in your machine HAL file then PlasmaC will convert it to an automatic toolchange.
+
+== Center Spotting
+
+For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
+
+This is done by first adjusting the on time for the torch in the Config panel. Times are adjustable from 1 to 999 milli-seconds.
+
+The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
+
+To enable centre spotting, see <<multi-tool, multiple tools>>.
+
+LinuxCNC requires some motion bewtween an 'M3' command and a 'M5' command so a minimal movement at a high speed is needed.
+
+An example GCode is:
+
+-----
+G21 (metric)
+F99999 (high feed rate)
+
+g0 x10 y10
+m3 $2 s1 (centre Spot on)
+g91 (relative distance mode)
+g1 x0.000001
+g90 (absolute distance mode)
+m5 (centre punch off)
+
+g0 x0 y0
+g90
+m30
+-----
+
+NOTE: The 'high feed rate' is to ensure that the motion is at the machines highest feed rate.
 
 == Error Messages
 
@@ -1115,7 +1165,7 @@ NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as t
 .[TRAJ] Section
 
 -----
-SPINDLES = 2
+SPINDLES = 3
 -----
 
 .[AXIS_Z] Section

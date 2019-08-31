@@ -6,6 +6,7 @@ net plasmac:arc-max-starts          plasmac_config.arc-max-starts-s         =>  
 net plasmac:arc-fail-delay          plasmac_config.arc-fail-delay-f         =>  plasmac.arc-fail-delay
 net plasmac:arc-voltage-offset      plasmac_config.arc-voltage-offset-f     =>  plasmac.arc-voltage-offset
 net plasmac:arc-voltage-scale       plasmac_config.arc-voltage-scale-f      =>  plasmac.arc-voltage-scale
+net plasmac:centre-spot-time        plasmac_config.centre-spot-time-f       =>  plasmac.centre-spot-time
 net plasmac:cornerlock-threshold    plasmac_config.cornerlock-threshold-f   =>  plasmac.cornerlock-threshold
 net plasmac:float-switch-travel     plasmac_config.float-switch-travel-f    =>  plasmac.float-switch-travel
 net plasmac:height-per-volt         plasmac_config.height-per-volt-f        =>  plasmac.height-per-volt

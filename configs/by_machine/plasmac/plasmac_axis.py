@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 
+# call to tk window
 w = root_window.tk.call
 
 ################################################################################
@@ -43,17 +44,16 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15','16']
+    heights = ['668','698','736','748','816','858','900','950']
     if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-        heights = ['658','680','742','764','790','842','900','932']
         aspect = 1.5
     else:
-        heights = ['704','728','800','826','850','900','960','990']
         aspect = 1.7
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(
             str(int(float(heights[fsizes.index(fsize)]) * aspect)),\
             str(int(float(heights[fsizes.index(fsize)]))),
-            '40',\
-            '40'\
+            '20',\
+            '20'\
             ))
 else:
     # change pad_width and pad_height for smaller than fullscreen
