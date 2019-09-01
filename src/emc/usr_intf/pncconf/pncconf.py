@@ -192,7 +192,8 @@ class Data:
 
         # pncconf default options
         self.createsymlink = 1
-        self.createshortcut = 0  
+        self.createshortcut = 0
+        self.useinisubstitution = False
         self._lastconfigname= ""
         self._chooselastconfig = True
         self._preference_version = 1.0
@@ -1052,6 +1053,12 @@ If you have a REALLY large config that you wish to convert to this newer version
         n2 = d2.createElement('property')
         e2.appendChild(n2)
         n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "use_ini_substitution")
+        n2.setAttribute('value', str("%s"% self.useinisubstitution))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
         n2.setAttribute('name', "show_advanced_pages")
         n2.setAttribute('value', str("%s"% self.advanced_option))
 
@@ -1263,7 +1270,12 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     # because you actually must invert the GPIO that would be in that position
     # prefixonly flag is used when we want the pin name without the component name.
     # used with sserial when we want the sserial port and channel so we can add out own name (eg enable pins)
-    def make_pinname(self, pin, gpionumber = False, prefixonly = False):
+    def make_pinname(self, pin, gpionumber = False, prefixonly = False, substitution = False):
+        def make_name(bname,bnum):
+            if substitution:
+                return "[HMOT]CARD%d"% (bnum)
+            else:
+                return "hm2_%s.%d"% (bname, bnum)
         test = str(pin)  
         halboardnum = 0
         if test == "None": return None
@@ -1280,6 +1292,9 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
+            meta = self.get_board_meta(boardname)
+            num_of_pins = meta.get('PINS_PER_CONNECTOR')
+
             ptype = self[pin+"type"]
             if boardnum == 1 and self.mesa1_currentfirmwaredata[_PD._BOARDNAME] == self.mesa0_currentfirmwaredata[_PD._BOARDNAME]:
                 halboardnum = 1
@@ -1316,37 +1331,37 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                             comptype = "input"
                             if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                            return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
                             pinnum -= 24
                         elif ptype == _PD.GPIOI:
                             comptype = "input"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     elif "7i70" in (subboardname) or "7i71" in (subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
                         elif ptype == _PD.GPIOI:
                             comptype = "input"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     else:
                         print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype,pin
                         return None
                 elif ptype in (_PD.AMP8I20,_PD.POTO,_PD.POTE,_PD.POTD) or prefixonly:
-                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel)
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel)
                 elif ptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU):
                     comptype = "analogout"
-                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (_PD.ANALOGIN):
                     if "7i64" in(subboardname):
                         comptype = "analog"
                     else:
                         comptype = "analogin"
-                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (_PD.ENCA):
                     comptype = "enc"
-                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 else:
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype,pin
                     return None
@@ -1370,24 +1385,21 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
                     comptype = "gpio"
-                    if '5i25' in boardname or '7i76e' in boardname or '7i92' in boardname:
-                        compnum = int(pinnum)+(concount*17)
-                    else:
-                        compnum = int(pinnum)+(concount*24)
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
+                    compnum = int(pinnum)+(concount* num_of_pins )
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%03d"% (compnum)          
                 elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
                     _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
                     _PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum)
                 elif ptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
                     temp = (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5)
                     for num,dummy in enumerate(temp):
                         if ptype == dummy:break
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum*6+num)
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum*6+num)
                 elif ptype in (_PD.MXE0,_PD.MXE1):
                     num = 0
                     if ptype == _PD.MXE1: num = 1
-                    return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% ((compnum * 2 + num))
+                    return "%s."% (make_name(make_name(boardname,halboardnum))) + comptype+".%02d"% ((compnum * 2 + num))
 
         elif 'pp' in test:
             print test
@@ -1500,20 +1512,22 @@ class App:
                 text = n.getAttribute('value')
                 if name == "version":
                     version = eval(text)
-                if name == "always_shortcut":
+                elif name == "always_shortcut":
                     short = eval(text)
-                if name == "always_link":
+                elif name == "always_link":
                     link = eval(text)
-                if name == "show_advanced_pages":
+                elif name == "use_ini_substitution":
+                    self.widgets.useinisubstitution.set_active(eval(text))
+                elif name == "show_advanced_pages":
                     show_pages = eval(text)
-                if name == "machinename":
+                elif name == "machinename":
                     self.d._lastconfigname = text
-                if name == "chooselastconfig":
+                elif name == "chooselastconfig":
                     self.d._chooselastconfig = eval(text)
-                if name == "MESABLACKLIST":
+                elif name == "MESABLACKLIST":
                     if version == self.d._preference_version:
                         self._p.MESABLACKLIST = eval(text)
-                if name == "EXTRA_MESA_FIRMWAREDATA":
+                elif name == "EXTRA_MESA_FIRMWAREDATA":
                     self.d._customfirmwarefilename = text
                     rcfile = os.path.expanduser(self.d._customfirmwarefilename)
                     print rcfile
@@ -1578,6 +1592,30 @@ class App:
             gtk.main_quit()
 
 # helper functions
+
+    def get_board_meta(self, name):
+        name = name.lower()
+        meta = _PD.MESA_BOARD_META.get(name)
+        if meta:
+            return meta
+        else:
+            print 'boardname %s not found in hardware metadata array'% name
+            self.widgets.boardmetadialog.set_title(_("%s metadata update") % name)
+            self.widgets.cardname_label.set_text('Boardname:  %s'%name)
+            self.widgets.boardmetadialog.show_all()
+            self.widgets.window1.set_sensitive(0)
+            result = self.widgets.boardmetadialog.run()
+            self.widgets.boardmetadialog.hide()
+            self.widgets.window1.set_sensitive(1)
+            if result == gtk.RESPONSE_OK:
+                itr = self.widgets.interface_combobox.get_active_iter()
+                d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
+                ppc = int(self.widgets.ppc_combobox.get_active_text())
+                tp = int(self.widgets.noc_spinbutton.get_value())
+                _PD.MESA_BOARD_META[name] = {'DRIVER':d,'PINS_PER_CONNECTOR':ppc,'TOTAL_CONNECTORS':tp}
+        meta = _PD.MESA_BOARD_META.get(name)
+        if meta:
+            return meta
 
     def splash_screen(self):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -2146,15 +2184,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             hifreq = int(text)/1000000
             modules = root.findall(".//modules")[0]
             if driver == None:
-                if "7i43" in boardname:
-                    driver = "hm2_7i43"
-                elif "7i90" in boardname:
-                    driver = "hm2_7i90"
-                elif '7i76e' in boardname or '7i92' in boardname or '7i80' in boardname \
-                    or '7i93' in boardname:
-                    driver = 'hm2_eth'
-                else:
-                    driver = 'hm2_pci'
+                meta = self.get_board_meta(currentboard)
+                driver = meta.get('DRIVER')
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
                 print k
@@ -3555,6 +3586,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             except:
                 pass
 
+        currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
+        meta = self.get_board_meta(currentboard)
+        ppc = meta.get('PINS_PER_CONNECTOR')
+
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
@@ -3575,7 +3610,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
                 self.widgets[p].handler_block(self.d[blocksignal]) 
                 self.widgets[p].child.handler_block(self.d[actblocksignal])
-                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
+                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
 
         self.d["mesa%d_numof_stepgens"% boardnum] = numofstepgens
@@ -3635,12 +3670,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
             self.widgets[p].handler_block(self.d[blocksignal])
             self.widgets[p].child.handler_block(self.d[actblocksignal])
+            ppc = 0
             concount = 0
             numofencoders = 10
             numofpwmgens = 12
             numoftppwmgens = 0
             numofstepgens = 0
-            self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,
+            self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                     numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,self._p._SSCOMBOLEN):
@@ -3669,7 +3705,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(numofsserialchannels)
         self.window.hide()
 
-    def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
+    def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc, pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
                 currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
@@ -4043,10 +4079,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
                             else:
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
-                    elif '5i25' in currentboard or '7i76e' in currentboard or '7i92' in currentboard:
-                         self.widgets[complabel].set_text("%03d:"%(concount*17+pin))# 5i25 mainboard GPIO
                     else:
-                         self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
+                         self.widgets[complabel].set_text("%03d:"%(concount*ppc+pin))# mainboard GPIO
+
                     if compnum == 100 and widgettext == firmptype:
                         return
                     elif not compnum == 100 and (widgettext in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD)):
@@ -5980,7 +6015,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
             print formatted_lines[-1]
 
-    def hostmot2_command_string(self):
+    def hostmot2_command_string(self, substitution = False):
+            def make_name(bname,bnum):
+                if substitution:
+                    return "[HMOT]CARD%d"% (bnum)
+                else:
+                    return "hm2_%s.%d"% (bname,bnum)
             # mesa stuff
             load_cmnds = []
             board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
@@ -6070,37 +6110,33 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     halnum = 1
                 else:
                     halnum = 0
+                prefix = make_name(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum)
                 if self.d["mesa%d_numof_pwmgens"% boardnum] > 0:
-                    load_cmnds.append( "setp    hm2_%s.%d.pwmgen.pwm_frequency %d"% (
-                     self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum, self.d["mesa%d_pwm_frequency"% boardnum] ))
-                    load_cmnds.append( "setp    hm2_%s.%d.pwmgen.pdm_frequency %d"% ( 
-                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_pdm_frequency"% boardnum] ))
-                load_cmnds.append( "setp    hm2_%s.%d.watchdog.timeout_ns %d"% ( 
-                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_watchdog_timeout"% boardnum] ))
+                    load_cmnds.append( "setp    %s.pwmgen.pwm_frequency %d"% (prefix, self.d["mesa%d_pwm_frequency"% boardnum] ))
+                    load_cmnds.append( "setp    %s.pwmgen.pdm_frequency %d"% (prefix, self.d["mesa%d_pdm_frequency"% boardnum] ))
+                load_cmnds.append( "setp    %s.watchdog.timeout_ns %d"% (prefix, self.d["mesa%d_watchdog_timeout"% boardnum] ))
             # READ
             read_cmnds = []
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
                     halnum = 1
                 else:
-                    halnum = 0         
-                read_cmnds.append( "addf hm2_%s.%d.read          servo-thread"%
-                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                    halnum = 0
+                prefix = make_name(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum)
+                read_cmnds.append( "addf %s.read          servo-thread"% (prefix))
             # WRITE
             write_cmnds = []
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
                     halnum = 1
                 else:
-                    halnum = 0         
-                write_cmnds.append( "addf hm2_%s.%d.write         servo-thread"%
-                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                    halnum = 0
+                prefix = make_name(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum)
+                write_cmnds.append( "addf %s.write         servo-thread"% (prefix))
                 if '7i76e' in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME] or \
                     '7i92' in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]:
-                    write_cmnds.append( "setp hm2_%s.%d.dpll.01.timer-us -50"%
-                        (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
-                    write_cmnds.append( "setp hm2_%s.%d.stepgen.timer-number 1"%
-                        (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                    write_cmnds.append( "setp %s.dpll.01.timer-us -50"% (prefix))
+                    write_cmnds.append( "setp %s.stepgen.timer-number 1"% (prefix))
             return load_cmnds,read_cmnds,write_cmnds
 
     def pport_command_string(self):

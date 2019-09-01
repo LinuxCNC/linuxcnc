@@ -118,13 +118,12 @@ class INI:
         #print >>file, "BASE_PERIOD = %d" % self.d.baseperiod
         print >>file, "SERVO_PERIOD = %d" % self.d.servoperiod
         print >>file
-        print >>file, "[HOSTMOT2]"
-        print >>file, "# **** This is for info only ****"
-        print >>file, "# DRIVER0=%s"% self.d.mesa0_currentfirmwaredata[_PD._HALDRIVER]
-        print >>file, "# BOARD0=%s"% self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
+        print >>file, "[HMOT]"
+        if not self.d.useinisubstitution:
+            print >>file, "# **** This is for info only ****"
+        print >>file, "CARD0=hm2_%s.0"% self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
         if self.d.number_mesa == 2:
-            print >>file, "# DRIVER1=%s" % self.d.mesa1_currentfirmwaredata[_PD._HALDRIVER]
-            print >>file, "# BOARD1=%s"% self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
+            print >>file, "CARD1=hm_%s.1"% self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
         if self.d._substitution_list:
             print >>file, "# These are to ease setting custom component's parameters in a custom HAL file"
             print >>file
