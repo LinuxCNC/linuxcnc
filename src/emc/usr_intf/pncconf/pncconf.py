@@ -1171,252 +1171,6 @@ Choosing no will mean AXIS options such as size/position and force maximum might
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-    # This method returns I/O pin designation (name and number) of a given HAL signalname.
-    # It does not check to see if the signalname is in the list more then once.
-    # if parports are not used then signals are not searched.
-    def findsignal(self, sig):
-        if self.number_pports:
-            ppinput = {}
-            ppoutput = {}
-            for i in (1,2,3):
-                for s in (2,3,4,5,6,7,8,9,10,11,12,13,15):
-                    key = self["pp%d_Ipin%d" %(i,s)]
-                    ppinput[key] = "pp%d_Ipin%d" %(i,s) 
-                for s in (1,2,3,4,5,6,7,8,9,14,16,17):
-                    key = self["pp%d_Opin%d" %(i,s)]
-                    ppoutput[key] = "pp%d_Opin%d" %(i,s) 
-        mesa = {}
-        for boardnum in range(0,int(self.number_mesa)):
-            for concount,connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
-                for s in range(0,24):
-                    key =   self["mesa%dc%dpin%d"% (boardnum,connector,s)]
-                    mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)
-            if self["mesa%d_numof_sserialports"% boardnum]:
-                sserial = {}
-                port = 0
-                for channel in range (0,self["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
-                        if channel ==_PD._NUM_CHANNELS: break # TODO may not be all channels available
-                        for pin in range (0,_PD._SSCOMBOLEN):       
-                            key = self['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
-                            sserial[key] = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
-        try:
-            return mesa[sig]
-        except:
-            try:
-                return sserial[sig]
-            except:
-                pass
-        if self.number_pports:
-            try:
-                return ppinput[sig]
-            except:
-                try:
-                    return ppoutput[sig]
-                except:
-                    return None
-        else: return None
-
-    # search all the current firmware array for related pins
-    # if not the same component number as the pin that changed or
-    # if not in the relate component type keep searching
-    # if is the right component type and number, check the relatedsearch array for a match
-    # if its a match add it to a list of pins (pinlist) that need to be updated
-    def list_related_pins(self, relatedsearch, boardnum, connector, channel, pin, style):
-        #print relatedsearch, boardnum, connector, channel, pin, style
-        pinlist =[]
-        if not channel == None:
-            subfirmname = self["mesa%dsserial%d_%dsubboard"% (boardnum, connector, channel)]
-            for subnum,temp in enumerate(_PD.MESA_DAUGHTERDATA):
-                if _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME] == subfirmname: break
-            subboardname = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBBOARDNAME]
-            currentptype,currentcompnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+pin]
-            for t_pin in range (0,_PD._SSCOMBOLEN):
-                comptype,compnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+t_pin]
-                if compnum != currentcompnum: continue
-                if comptype not in (relatedsearch): continue
-                if style == 0:
-                    tochange = ['mesa%dsserial%d_%dpin%d'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
-                if style == 1:
-                    tochange = ['mesa%dsserial%d_%dpin%dtype'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
-                if style == 2:
-                    tochange = ['mesa%dsserial%d_%dpin%dinv'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
-                pinlist.append(tochange)
-
-        else:
-            for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
-                if i == connector:
-                    currentptype,currentcompnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pin+(concount*24)]
-                    for t_concount,t_connector in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
-                        for t_pin in range (0,24):
-                            comptype,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+t_pin+(t_concount*24)]
-                            if compnum != currentcompnum: continue
-                            if comptype not in (relatedsearch): continue
-                            if style == 0:
-                                tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
-                            if style == 1:
-                                tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
-                            if style == 2:
-                                tochange = ['mesa%dc%dpin%dinv'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
-                            pinlist.append(tochange)
-        return pinlist
-
-    # This method takes a signalname data pin (eg mesa0c3pin1)
-    # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
-    # component number conversion is for adjustment of position of pins related to the
-    # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
-    # (a,b,i are related pins for encoder component)
-    # gpionumber is a flag to return a gpio piname instead of the component pinname
-    # this is used when we want to invert the pins of a component output (such as a stepper)
-    # because you actually must invert the GPIO that would be in that position
-    # prefixonly flag is used when we want the pin name without the component name.
-    # used with sserial when we want the sserial port and channel so we can add out own name (eg enable pins)
-    def make_pinname(self, pin, gpionumber = False, prefixonly = False, substitution = False):
-        def make_name(bname,bnum):
-            if substitution:
-                return "[HMOT]CARD%d"% (bnum)
-            else:
-                return "hm2_%s.%d"% (bname, bnum)
-        test = str(pin)  
-        halboardnum = 0
-        if test == "None": return None
-        elif 'mesa' in test:
-            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio",
-                _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
-                _PD.RES0:"resolver",_PD.RES1:"resolver",_PD.RES2:"resolver",_PD.RES3:"resolver",_PD.RES4:"resolver",_PD.RES5:"resolver",
-                _PD.MXE0:"encoder", _PD.MXE1:"encoder",
-                _PD.PWMP:"pwmgen",_PD.PWMD:"pwmgen", _PD.PWME:"pwmgen", _PD.PDMP:"pwmgen", _PD.PDMD:"pwmgen", _PD.PDME:"pwmgen",
-                _PD.UDMU:"pwmgen",_PD.UDMD:"pwmgen", _PD.UDME:"pwmgen",_PD.STEPA:"stepgen", _PD.STEPB:"stepgen",
-                _PD.TPPWMA:"tppwmgen",_PD.TPPWMB:"tppwmgen",_PD.TPPWMC:"tppwmgen",
-                _PD.TPPWMAN:"tppwmgen",_PD.TPPWMBN:"tppwmgen",_PD.TPPWMCN:"tppwmgen",
-                _PD.TPPWME:"tppwmgen",_PD.TPPWMF:"tppwmgen",_PD.AMP8I20:"8i20",_PD.POTO:"spinout",
-                _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
-            boardnum = int(test[4:5])
-            boardname = self["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-            meta = self.get_board_meta(boardname)
-            num_of_pins = meta.get('PINS_PER_CONNECTOR')
-
-            ptype = self[pin+"type"]
-            if boardnum == 1 and self.mesa1_currentfirmwaredata[_PD._BOARDNAME] == self.mesa0_currentfirmwaredata[_PD._BOARDNAME]:
-                halboardnum = 1
-            if 'serial' in test:
-                # sample pin name = mesa0sserial0_0pin24
-                pinnum = int(test[18:])
-                portnum = int(test[12:13])
-                channel = int(test[14:15])
-                subfirmname = self["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channel)]
-                for subnum,temp in enumerate(_PD.MESA_DAUGHTERDATA):
-                    #print "pinname search -",_PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME],subfirmname
-                    if _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME] == subfirmname: break
-                #print "pinname -found subboard name:",_PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME],subfirmname,subnum,"channel:",channel
-                subboardname = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBBOARDNAME]
-                firmptype,compnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+pinnum]
-                # we iter over this dic because of locale translation problems when using
-                # comptype = type_name[ptype]
-                comptype = "ERROR FINDING COMPONENT TYPE"
-                for key,value in type_name.iteritems():
-                    if key == ptype: comptype = value
-                if value == "Error":
-                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
-                    return None
-                # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
-                    if "7i77" in (subboardname) or "7i76" in(subboardname)or "7i84" in(subboardname):
-                        if ptype in(_PD.GPIOO,_PD.GPIOD):
-                            comptype = "output"
-                            if pinnum >15 and pinnum <24:
-                                pinnum = pinnum-16
-                            elif pinnum >39:
-                                pinnum = pinnum -32
-                        elif ptype == _PD.GPIOI:
-                            comptype = "input"
-                            if pinnum >23 and pinnum < 40:
-                                pinnum = pinnum-8
-                            return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
-                        if ptype in(_PD.GPIOO,_PD.GPIOD):
-                            comptype = "output"
-                            pinnum -= 24
-                        elif ptype == _PD.GPIOI:
-                            comptype = "input"
-                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i70" in (subboardname) or "7i71" in (subboardname):
-                        if ptype in(_PD.GPIOO,_PD.GPIOD):
-                            comptype = "output"
-                        elif ptype == _PD.GPIOI:
-                            comptype = "input"
-                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    else:
-                        print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype,pin
-                        return None
-                elif ptype in (_PD.AMP8I20,_PD.POTO,_PD.POTE,_PD.POTD) or prefixonly:
-                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel)
-                elif ptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU):
-                    comptype = "analogout"
-                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
-                elif ptype == (_PD.ANALOGIN):
-                    if "7i64" in(subboardname):
-                        comptype = "analog"
-                    else:
-                        comptype = "analogin"
-                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
-                elif ptype == (_PD.ENCA):
-                    comptype = "enc"
-                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
-                else:
-                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype,pin
-                    return None
-            else:
-                # sample pin name = mesa0c3pin1
-                pinnum = int(test[10:])
-                connum = int(test[6:7])
-                # we iter over this dic because of locale translation problems when using
-                # comptype = type_name[ptype]
-                comptype = "ERROR FINDING COMPONENT TYPE"
-                # we need concount (connector designations are not in numerical order, pin names are) and comnum from this
-                for concount,i in enumerate(self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
-                        if i == connum:
-                            dummy,compnum = self["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pinnum+(concount*24)]
-                            break
-                for key,value in type_name.iteritems():
-                    if key == ptype: comptype = value
-                if value == "Error":
-                    print "**** ERROR PNCCONF: pintype error in make_pinname: (mesa) ptype = ",ptype
-                    return None
-                # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
-                    comptype = "gpio"
-                    compnum = int(pinnum)+(concount* num_of_pins )
-                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%03d"% (compnum)          
-                elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
-                    _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
-                    _PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
-                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum)
-                elif ptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
-                    temp = (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5)
-                    for num,dummy in enumerate(temp):
-                        if ptype == dummy:break
-                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum*6+num)
-                elif ptype in (_PD.MXE0,_PD.MXE1):
-                    num = 0
-                    if ptype == _PD.MXE1: num = 1
-                    return "%s."% (make_name(make_name(boardname,halboardnum))) + comptype+".%02d"% ((compnum * 2 + num))
-
-        elif 'pp' in test:
-            print test
-            ending = "-out"
-            test = str(pin) 
-            print  self[pin]
-            pintype = str(test[4:5])
-            print pintype
-            pinnum = int(test[8:])
-            print pinnum
-            connum = int(test[2:3])-1
-            print connum
-            if pintype == 'I': ending = "-in"
-            return "parport."+str(connum)+".pin-%02d"%(pinnum)+ending
-        else:
-            print "pintype error in make_pinname: pinname = ",test
-            return None
 
 class App:
     def __init__(self, dbgstate=0):
@@ -3495,7 +3249,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[ptype].set_model(controlliststore)
                     self.widgets[ptype].set_active(display)
                     self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
-                    pinlist = self.d.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
+                    pinlist = self.list_related_pins(relatedpins, boardnum, connector, channel, pin, 1)
                     for i in (pinlist):
                         relatedptype = i[0]
                         if relatedptype == ptype :continue
@@ -4741,7 +4495,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
-                    pinlist = self.d.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
+                    pinlist = self.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
                 #print pinlist
                 # Now we have a list of pins that need to be updated
                 # first check if the name is a custom name if it is
@@ -4861,13 +4615,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         do_error = False
         for i in self.d.available_axes:
             tppwm = pwm = amp_8i20 = False
-            step = self.d.findsignal(i+"-stepgen-step")
-            step2 = self.d.findsignal(i+"2-stepgen-step")
-            enc = self.d.findsignal(i+"-encoder-a")
-            resolver = self.d.findsignal(i+"-resolver")
-            if self.d.findsignal("%s-8i20"% i): amp_8i20 = pwm =True
-            if self.d.findsignal(i+"-pwm-pulse"): pwm = True
-            if self.d.findsignal(i+"-tppwm-a"): tppwm = pwm = True
+            step = self.findsignal(i+"-stepgen-step")
+            step2 = self.findsignal(i+"2-stepgen-step")
+            enc = self.findsignal(i+"-encoder-a")
+            resolver = self.findsignal(i+"-resolver")
+            if self.findsignal("%s-8i20"% i): amp_8i20 = pwm =True
+            if self.findsignal(i+"-pwm-pulse"): pwm = True
+            if self.findsignal(i+"-tppwm-a"): tppwm = pwm = True
             #print "signal sanity check: axis",i,"\n    pwm = ",pwm,"\n    3pwm =",tppwm,"\n    encoder =",enc,"\n    step=",step
             if i == 's':
                 if step and pwm:
@@ -4890,10 +4644,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 warnings.append(_("If using a tandem axis stepper, you must select a master stepgen for axis %s\n")% i)
                 do_error = True
         if self.d.frontend == _PD._TOUCHY:# TOUCHY GUI
-            abort = self.d.findsignal("abort")
-            cycle = self.d.findsignal("cycle-start")
-            single = self.d.findsignal("single-step")
-            mpg = self.d.findsignal("select-mpg-a")
+            abort = self.findsignal("abort")
+            cycle = self.findsignal("cycle-start")
+            single = self.findsignal("single-step")
+            mpg = self.findsignal("select-mpg-a")
             if not cycle: 
                 warnings.append(_("Touchy require an external cycle start signal\n"))
                 do_warning = True
@@ -4954,18 +4708,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         stepdriven = encoder = pwmgen = resolver = tppwm = digital_at_speed = amp_8i20 = False
         spindlepot = sserial_scaling = False
         vfd_spindle = self.d.serial_vfd and (self.d.mitsub_vfd or self.d.gs2_vfd) 
-        if self.d.findsignal("%s-8i20"% axis):amp_8i20 = True
-        if self.d.findsignal("spindle-at-speed"): digital_at_speed = True
-        if self.d.findsignal(axis+"-stepgen-step"): stepdriven = True
-        if self.d.findsignal(axis+"-encoder-a"): encoder = True
-        if self.d.findsignal(axis+"-resolver"): encoder = resolver = True
-        temp = self.d.findsignal(axis+"-pwm-pulse")
+        if self.findsignal("%s-8i20"% axis):amp_8i20 = True
+        if self.findsignal("spindle-at-speed"): digital_at_speed = True
+        if self.findsignal(axis+"-stepgen-step"): stepdriven = True
+        if self.findsignal(axis+"-encoder-a"): encoder = True
+        if self.findsignal(axis+"-resolver"): encoder = resolver = True
+        temp = self.findsignal(axis+"-pwm-pulse")
         if temp:
             pwmgen = True
-            pinname = self.d.make_pinname(temp)
+            pinname = self.make_pinname(temp)
             if "analog" in pinname: sserial_scaling = True
-        if self.d.findsignal(axis+"-tppwm-a"): pwmgen = tppwm = True
-        if self.d.findsignal(axis+"-pot-output"): spindlepot = sserial_scaling = True
+        if self.findsignal(axis+"-tppwm-a"): pwmgen = tppwm = True
+        if self.findsignal(axis+"-pot-output"): spindlepot = sserial_scaling = True
 
         model = w[axis+"drivertype"].get_model()
         model.clear()
@@ -5181,7 +4935,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis,"max-home-" + axis, "both-home-" + axis))
             homes = False
             for i in thisaxishome:
-                test = self.d.findsignal(i)
+                test = self.findsignal(i)
                 if test: homes = True
             w[axis + "homesw"].set_sensitive(homes)
             w[axis + "homesearchvel"].set_sensitive(homes)
@@ -5290,9 +5044,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         def get_text(n): d[axis + n] = get_value(w[axis + n])
         def get_pagevalue(n): d[axis + n] = get_value(w[axis + n])
         def get_active(n): d[axis + n] = w[axis + n].get_active()
-        stepdrive = self.d.findsignal(axis+"-stepgen-step")
-        encoder = self.d.findsignal(axis+"-encoder-a")
-        resolver = self.d.findsignal(axis+"-resolver")
+        stepdrive = self.findsignal(axis+"-stepgen-step")
+        encoder = self.findsignal(axis+"-encoder-a")
+        resolver = self.findsignal(axis+"-resolver")
         get_pagevalue("P")
         get_pagevalue("I")
         get_pagevalue("D")
@@ -5409,9 +5163,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
     def calculate_spindle_scale(self):
         def get(n): return get_value(self.widgets[n])
-        stepdrive = bool(self.d.findsignal("s-stepgen-step"))
-        encoder = bool(self.d.findsignal("s-encoder-a"))
-        resolver = bool(self.d.findsignal("s-resolver"))
+        stepdrive = bool(self.findsignal("s-stepgen-step"))
+        encoder = bool(self.findsignal("s-encoder-a"))
+        resolver = bool(self.findsignal("s-resolver"))
         twoscales = self.widgets.suseoutputrange2.get_active()
 
         data_list=[ "steprev","microstep","motor_pulleydriver","motor_pulleydriven","motor_gear1driver","motor_gear1driven",
@@ -5532,9 +5286,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
     def calculate_scale(self,axis):
         def get(n): return get_value(self.widgets[n])
-        stepdrive = self.d.findsignal(axis+"-stepgen-step")
-        encoder = self.d.findsignal(axis+"-encoder-a")
-        resolver = self.d.findsignal(axis+"-resolver")
+        stepdrive = self.findsignal(axis+"-stepgen-step")
+        encoder = self.findsignal(axis+"-encoder-a")
+        resolver = self.findsignal(axis+"-resolver")
         data_list=[ "steprev","microstep","motor_pulleydriver","motor_pulleydriven","motor_wormdriver","motor_wormdriven",
                     "encoder_pulleydriver","encoder_pulleydriven","encoder_wormdriver","encoder_wormdriven","motor_leadscrew",
                     "encoder_leadscrew","motor_leadscrew_tpi","encoder_leadscrew_tpi",
@@ -5584,9 +5338,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         w = self.widgets
         d = self.d
         def get(n): return get_value(w[n])
-        stepdrive = self.d.findsignal(axis+"-stepgen-step")
-        encoder = self.d.findsignal(axis+"-encoder-a")
-        resolver = self.d.findsignal(axis+"-resolver")
+        stepdrive = self.findsignal(axis+"-stepgen-step")
+        encoder = self.findsignal(axis+"-encoder-a")
+        resolver = self.findsignal(axis+"-resolver")
         motor_pulley_ratio = encoder_pulley_ratio = 1
         motor_worm_ratio = encoder_worm_ratio = 1
         encoder_scale = motor_scale = 0
@@ -5715,10 +5469,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
     def motor_encoder_sanity_check(self,widgets,axis):
         stepdrive = encoder = bad = resolver = pot = False
-        if self.d.findsignal(axis+"-stepgen-step"): stepdrive = True
-        if self.d.findsignal(axis+"-encoder-a"): encoder = True
-        if self.d.findsignal(axis+"-resolver"): resolver = True
-        if self.d.findsignal(axis+"-pot-outpot"): pot = True
+        if self.findsignal(axis+"-stepgen-step"): stepdrive = True
+        if self.findsignal(axis+"-encoder-a"): encoder = True
+        if self.findsignal(axis+"-resolver"): resolver = True
+        if self.findsignal(axis+"-pot-outpot"): pot = True
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
                 self.widgets[axis+"encoderscale"].modify_bg(gtk.STATE_NORMAL, self.widgets[axis+"encoderscale"].get_colormap().alloc_color("red"))
@@ -5795,7 +5549,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def has_spindle_speed_control(self):
         for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
                     "s-pot-output"):
-            has_spindle = self.d.findsignal(test)
+            has_spindle = self.findsignal(test)
             print test,has_spindle
             if has_spindle:
                 return True
@@ -5894,14 +5648,14 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 #********************
 
     def tandem_check(self, letter):
-        tandem_stepper = self.d.make_pinname(self.stepgen_sig("%s2"%letter))
-        tandem_pwm = self.d.make_pinname(self.pwmgen_sig("%s2"%letter))
+        tandem_stepper = self.make_pinname(self.stepgen_sig("%s2"%letter))
+        tandem_pwm = self.make_pinname(self.pwmgen_sig("%s2"%letter))
         print letter, bool(tandem_stepper or tandem_pwm), tandem_stepper, tandem_pwm
         return bool(tandem_stepper or tandem_pwm)
 
     def stepgen_sig(self, axis):
            thisaxisstepgen =  axis + "-stepgen-step" 
-           test = self.d.findsignal(thisaxisstepgen)
+           test = self.findsignal(thisaxisstepgen)
            return test
 
     def stepgen_invert_pins(self,pinnumber):
@@ -5911,11 +5665,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         connector = int(pinnumber[6:7])
         boardnum = int(pinnumber[4:5])
         channel = None
-        pinlist = self.d.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
+        pinlist = self.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
         #print pinlist
         for i in pinlist:
             if self.d[i[0]+"inv"]:
-                gpioname = self.d.make_pinname(self.d.findsignal( self.d[i[0]] ),True)
+                gpioname = self.make_pinname(self.findsignal( self.d[i[0]] ),True)
                 #print gpioname
                 signallist.append(gpioname)
         return signallist
@@ -5927,7 +5681,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         port = int(pinnumber[12:13])
         boardnum = int(pinnumber[4:5])
         channel = int(pinnumber[14:15])
-        pinlist = self.d.list_related_pins([_PD.POTO,_PD.POTE], boardnum, port, channel, pin, 0)
+        pinlist = self.list_related_pins([_PD.POTO,_PD.POTE], boardnum, port, channel, pin, 0)
         for i in pinlist:
             if self.d[i[0]+"inv"]:
                 name = self.d[i[0]+"type"]
@@ -5936,27 +5690,27 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
     def encoder_sig(self, axis): 
            thisaxisencoder = axis +"-encoder-a"
-           test = self.d.findsignal(thisaxisencoder)
+           test = self.findsignal(thisaxisencoder)
            return test
 
     def resolver_sig(self, axis):
         thisaxisresolver = axis +"-resolver"
-        test = self.d.findsignal(thisaxisresolver)
+        test = self.findsignal(thisaxisresolver)
         return test
 
     def amp_8i20_sig(self, axis):
         thisaxis8i20 = "%s-8i20"% axis
-        test = self.d.findsignal(thisaxis8i20)
+        test = self.findsignal(thisaxis8i20)
         return test
 
     def potoutput_sig(self,axis):
         thisaxispot = "%s-pot-output"% axis
-        test = self.d.findsignal(thisaxispot)
+        test = self.findsignal(thisaxispot)
         return test
 
     def pwmgen_sig(self, axis):
            thisaxispwmgen =  axis + "-pwm-pulse" 
-           test = self.d.findsignal( thisaxispwmgen)
+           test = self.findsignal( thisaxispwmgen)
            return test
 
     def pwmgen_invert_pins(self,pinnumber):
@@ -5967,41 +5721,41 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         connector = int(pinnumber[6:7])
         boardnum = int(pinnumber[4:5])
         channel = None
-        pinlist = self.d.list_related_pins([_PD.PWMP, _PD.PWMD, _PD.PWME], boardnum, connector, channel, pin, 0)
+        pinlist = self.list_related_pins([_PD.PWMP, _PD.PWMD, _PD.PWME], boardnum, connector, channel, pin, 0)
         print pinlist
         for i in pinlist:
             if self.d[i[0]+"inv"]:
-                gpioname = self.d.make_pinname(self.d.findsignal( self.d[i[0]] ),True)
+                gpioname = self.make_pinname(self.findsignal( self.d[i[0]] ),True)
                 print gpioname
                 signallist.append(gpioname)
         return signallist
 
     def tppwmgen_sig(self, axis):
            thisaxispwmgen =  axis + "-tppwm-a" 
-           test = self.d.findsignal(thisaxispwmgen)
+           test = self.findsignal(thisaxispwmgen)
            return test
 
     def tppwmgen_has_6(self, axis):
            thisaxispwmgen =  axis + "-tppwm-anot" 
-           test = self.d.findsignal(thisaxispwmgen)
+           test = self.findsignal(thisaxispwmgen)
            return test
 
     def home_sig(self, axis):
         thisaxishome = set(("all-home", "home-" + axis, "min-home-" + axis, "max-home-" + axis, "both-home-" + axis))
         for i in thisaxishome:
-            if self.d.findsignal(i): return i
+            if self.findsignal(i): return i
         return None
 
     def min_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "min-" + axis,"min-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               if self.d.findsignal(i): return i
+               if self.findsignal(i): return i
            return None
 
     def max_lim_sig(self, axis):
            thisaxishome = set(("all-limit", "max-" + axis, "max-home-" + axis, "both-" + axis, "both-home-" + axis))
            for i in thisaxishome:
-               if self.d.findsignal(i): return i
+               if self.findsignal(i): return i
            return None
 
     def get_value(self,w):
@@ -6177,6 +5931,260 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.d.number_pports > 2:
             write_cmnds.append( "addf parport.2.write          servo-thread")
         return load_cmnds,read_cmnds,write_cmnds
+
+
+
+
+    # This method returns I/O pin designation (name and number) of a given HAL signalname.
+    # It does not check to see if the signalname is in the list more then once.
+    # if parports are not used then signals are not searched.
+    def findsignal(self, sig):
+        if self.d.number_pports:
+            ppinput = {}
+            ppoutput = {}
+            for i in (1,2,3):
+                for s in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+                    key = self.d["pp%d_Ipin%d" %(i,s)]
+                    ppinput[key] = "pp%d_Ipin%d" %(i,s) 
+                for s in (1,2,3,4,5,6,7,8,9,14,16,17):
+                    key = self.d["pp%d_Opin%d" %(i,s)]
+                    ppoutput[key] = "pp%d_Opin%d" %(i,s) 
+        mesa = {}
+        for boardnum in range(0,int(self.d.number_mesa)):
+            for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
+                for s in range(0,24):
+                    key =   self.d["mesa%dc%dpin%d"% (boardnum,connector,s)]
+                    mesa[key] = "mesa%dc%dpin%d" %(boardnum,connector,s)
+            if self.d["mesa%d_numof_sserialports"% boardnum]:
+                sserial = {}
+                port = 0
+                for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
+                        if channel ==_PD._NUM_CHANNELS: break # TODO may not be all channels available
+                        for pin in range (0,_PD._SSCOMBOLEN):       
+                            key = self.d['mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)]
+                            sserial[key] = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
+        try:
+            return mesa[sig]
+        except:
+            try:
+                return sserial[sig]
+            except:
+                pass
+        if self.d.number_pports:
+            try:
+                return ppinput[sig]
+            except:
+                try:
+                    return ppoutput[sig]
+                except:
+                    return None
+        else: return None
+
+    # search all the current firmware array for related pins
+    # if not the same component number as the pin that changed or
+    # if not in the relate component type keep searching
+    # if is the right component type and number, check the relatedsearch array for a match
+    # if its a match add it to a list of pins (pinlist) that need to be updated
+    def list_related_pins(self, relatedsearch, boardnum, connector, channel, pin, style):
+        #print relatedsearch, boardnum, connector, channel, pin, style
+        pinlist =[]
+        if not channel == None:
+            subfirmname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, connector, channel)]
+            for subnum,temp in enumerate(_PD.MESA_DAUGHTERDATA):
+                if _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME] == subfirmname: break
+            subboardname = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBBOARDNAME]
+            currentptype,currentcompnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+pin]
+            for t_pin in range (0,_PD._SSCOMBOLEN):
+                comptype,compnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+t_pin]
+                if compnum != currentcompnum: continue
+                if comptype not in (relatedsearch): continue
+                if style == 0:
+                    tochange = ['mesa%dsserial%d_%dpin%d'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
+                if style == 1:
+                    tochange = ['mesa%dsserial%d_%dpin%dtype'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
+                if style == 2:
+                    tochange = ['mesa%dsserial%d_%dpin%dinv'% (boardnum,connector,channel,t_pin),boardnum,connector,channel,t_pin]
+                pinlist.append(tochange)
+
+        else:
+            for concount,i in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
+                if i == connector:
+                    currentptype,currentcompnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pin+(concount*24)]
+                    for t_concount,t_connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
+                        for t_pin in range (0,24):
+                            comptype,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+t_pin+(t_concount*24)]
+                            if compnum != currentcompnum: continue
+                            if comptype not in (relatedsearch): continue
+                            if style == 0:
+                                tochange = ['mesa%dc%dpin%d'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
+                            if style == 1:
+                                tochange = ['mesa%dc%dpin%dtype'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
+                            if style == 2:
+                                tochange = ['mesa%dc%dpin%dinv'% (boardnum,t_connector,t_pin),boardnum,t_connector,None,t_pin]
+                            pinlist.append(tochange)
+        return pinlist
+
+    # This method takes a signalname data pin (eg mesa0c3pin1)
+    # and converts it to a HAL pin names (eg hm2_5i20.0.gpio.01)
+    # component number conversion is for adjustment of position of pins related to the
+    # 'controlling pin' eg encoder-a (controlling pin) encoder-b encoder -I
+    # (a,b,i are related pins for encoder component)
+    # gpionumber is a flag to return a gpio piname instead of the component pinname
+    # this is used when we want to invert the pins of a component output (such as a stepper)
+    # because you actually must invert the GPIO that would be in that position
+    # prefixonly flag is used when we want the pin name without the component name.
+    # used with sserial when we want the sserial port and channel so we can add out own name (eg enable pins)
+    def make_pinname(self, pin, gpionumber = False, prefixonly = False, substitution = False):
+        def make_name(bname,bnum):
+            if substitution:
+                return "[HMOT]CARD%d"% (bnum)
+            else:
+                return "hm2_%s.%d"% (bname, bnum)
+        test = str(pin)  
+        halboardnum = 0
+        if test == "None": return None
+        elif 'mesa' in test:
+            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio",
+                _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
+                _PD.RES0:"resolver",_PD.RES1:"resolver",_PD.RES2:"resolver",_PD.RES3:"resolver",_PD.RES4:"resolver",_PD.RES5:"resolver",
+                _PD.MXE0:"encoder", _PD.MXE1:"encoder",
+                _PD.PWMP:"pwmgen",_PD.PWMD:"pwmgen", _PD.PWME:"pwmgen", _PD.PDMP:"pwmgen", _PD.PDMD:"pwmgen", _PD.PDME:"pwmgen",
+                _PD.UDMU:"pwmgen",_PD.UDMD:"pwmgen", _PD.UDME:"pwmgen",_PD.STEPA:"stepgen", _PD.STEPB:"stepgen",
+                _PD.TPPWMA:"tppwmgen",_PD.TPPWMB:"tppwmgen",_PD.TPPWMC:"tppwmgen",
+                _PD.TPPWMAN:"tppwmgen",_PD.TPPWMBN:"tppwmgen",_PD.TPPWMCN:"tppwmgen",
+                _PD.TPPWME:"tppwmgen",_PD.TPPWMF:"tppwmgen",_PD.AMP8I20:"8i20",_PD.POTO:"spinout",
+                _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
+            boardnum = int(test[4:5])
+            boardname = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
+            meta = self.get_board_meta(boardname)
+            num_of_pins = meta.get('PINS_PER_CONNECTOR')
+
+            ptype = self.d[pin+"type"]
+            if boardnum == 1 and self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]:
+                halboardnum = 1
+            if 'serial' in test:
+                # sample pin name = mesa0sserial0_0pin24
+                pinnum = int(test[18:])
+                portnum = int(test[12:13])
+                channel = int(test[14:15])
+                subfirmname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channel)]
+                for subnum,temp in enumerate(_PD.MESA_DAUGHTERDATA):
+                    #print "pinname search -",_PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME],subfirmname
+                    if _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME] == subfirmname: break
+                #print "pinname -found subboard name:",_PD.MESA_DAUGHTERDATA[subnum][_PD._SUBFIRMNAME],subfirmname,subnum,"channel:",channel
+                subboardname = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBBOARDNAME]
+                firmptype,compnum = _PD.MESA_DAUGHTERDATA[subnum][_PD._SUBSTARTOFDATA+pinnum]
+                # we iter over this dic because of locale translation problems when using
+                # comptype = type_name[ptype]
+                comptype = "ERROR FINDING COMPONENT TYPE"
+                for key,value in type_name.iteritems():
+                    if key == ptype: comptype = value
+                if value == "Error":
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
+                    return None
+                # if gpionumber flag is true - convert to gpio pin name
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
+                    if "7i77" in (subboardname) or "7i76" in(subboardname)or "7i84" in(subboardname):
+                        if ptype in(_PD.GPIOO,_PD.GPIOD):
+                            comptype = "output"
+                            if pinnum >15 and pinnum <24:
+                                pinnum = pinnum-16
+                            elif pinnum >39:
+                                pinnum = pinnum -32
+                        elif ptype == _PD.GPIOI:
+                            comptype = "input"
+                            if pinnum >23 and pinnum < 40:
+                                pinnum = pinnum-8
+                            return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                    elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
+                        if ptype in(_PD.GPIOO,_PD.GPIOD):
+                            comptype = "output"
+                            pinnum -= 24
+                        elif ptype == _PD.GPIOI:
+                            comptype = "input"
+                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                    elif "7i70" in (subboardname) or "7i71" in (subboardname):
+                        if ptype in(_PD.GPIOO,_PD.GPIOD):
+                            comptype = "output"
+                        elif ptype == _PD.GPIOI:
+                            comptype = "input"
+                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                    else:
+                        print "**** ERROR PNCCONF: subboard name ",subboardname," in make_pinname: (sserial) ptype = ",ptype,pin
+                        return None
+                elif ptype in (_PD.AMP8I20,_PD.POTO,_PD.POTE,_PD.POTD) or prefixonly:
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel)
+                elif ptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU):
+                    comptype = "analogout"
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                elif ptype == (_PD.ANALOGIN):
+                    if "7i64" in(subboardname):
+                        comptype = "analog"
+                    else:
+                        comptype = "analogin"
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                elif ptype == (_PD.ENCA):
+                    comptype = "enc"
+                    return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                else:
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype,pin
+                    return None
+            else:
+                # sample pin name = mesa0c3pin1
+                pinnum = int(test[10:])
+                connum = int(test[6:7])
+                # we iter over this dic because of locale translation problems when using
+                # comptype = type_name[ptype]
+                comptype = "ERROR FINDING COMPONENT TYPE"
+                # we need concount (connector designations are not in numerical order, pin names are) and comnum from this
+                for concount,i in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
+                        if i == connum:
+                            dummy,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pinnum+(concount*24)]
+                            break
+                for key,value in type_name.iteritems():
+                    if key == ptype: comptype = value
+                if value == "Error":
+                    print "**** ERROR PNCCONF: pintype error in make_pinname: (mesa) ptype = ",ptype
+                    return None
+                # if gpionumber flag is true - convert to gpio pin name
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
+                    comptype = "gpio"
+                    compnum = int(pinnum)+(concount* num_of_pins )
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%03d"% (compnum)          
+                elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
+                    _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
+                    _PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum)
+                elif ptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
+                    temp = (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5)
+                    for num,dummy in enumerate(temp):
+                        if ptype == dummy:break
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% (compnum*6+num)
+                elif ptype in (_PD.MXE0,_PD.MXE1):
+                    num = 0
+                    if ptype == _PD.MXE1: num = 1
+                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%02d"% ((compnum * 2 + num))
+
+        elif 'pp' in test:
+            print test
+            ending = "-out"
+            test = str(pin) 
+            print  self.d[pin]
+            pintype = str(test[4:5])
+            print pintype
+            pinnum = int(test[8:])
+            print pinnum
+            connum = int(test[2:3])-1
+            print connum
+            if pintype == 'I': ending = "-in"
+            return "parport."+str(connum)+".pin-%02d"%(pinnum)+ending
+        else:
+            print "pintype error in make_pinname: pinname = ",test
+            return None
+
+
+
+
 
 # Boiler code
     def __getitem__(self, item):

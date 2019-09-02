@@ -1285,7 +1285,7 @@ class Pages:
                     self.d.ladderhaltype = 0
             if self.w.ladder1.get_active() == True:
                 self.d.laddername = 'estop.clp'
-                has_estop = self.d.findsignal("estop-ext")
+                has_estop = self.a.findsignal("estop-ext")
                 if not has_estop:
                     self.a.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
                     return True
@@ -1296,7 +1296,7 @@ class Pages:
                 self.w.modbus.set_active(self.d.modbus) 
                 self.d.ladderhaltype = 0
             if self.w.laddertouchz.get_active() == True:
-                has_probe = self.d.findsignal("probe-in")
+                has_probe = self.a.findsignal("probe-in")
                 if not has_probe:
                     self.a.warning_dialog(_("You need to designate a probe input pin for this ladder program."),True)
                     return True
