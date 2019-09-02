@@ -153,7 +153,7 @@ class INI:
 
         # add X axis
         num_joints = 1; coords = "X"; tandemflag = False
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("x2"))
+        tandemjoint = self.a.make_pinname(self.a.stepgen_sig("x2"))
         print 'tandem:',tandemjoint
         if tandemjoint:
             #add tandem to X
@@ -165,7 +165,7 @@ class INI:
             # add Y axis
             num_joints += 1
             coords += 'Y'
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("y2"))
+            tandemjoint = self.a.make_pinname(self.a.stepgen_sig("y2"))
             if tandemjoint:
                 #add tandem to Y
                 tandemflag = True
@@ -175,7 +175,7 @@ class INI:
         # add Z axis
         num_joints += 1
         coords += 'Z'
-        tandemjoint = self.d.make_pinname(self.a.stepgen_sig("z2"))
+        tandemjoint = self.a.make_pinname(self.a.stepgen_sig("z2"))
         if tandemjoint:
             tandemflag = True
             num_joints += 1
@@ -185,7 +185,7 @@ class INI:
             # add A axis 
             num_joints += 1
             coords += 'A'
-            tandemjoint = self.d.make_pinname(self.a.stepgen_sig("a2"))
+            tandemjoint = self.a.make_pinname(self.a.stepgen_sig("a2"))
             if tandemjoint:
                 # add tandem to A
                 tandemflag = True
@@ -317,7 +317,7 @@ class INI:
 
         print >>file
         if letter == 's':
-            print >>file, "[SPINDLE_%d]" % num
+            print >>file, "[SPINDLE_%d]" % 0
         else:
             print >>file, "[JOINT_%d]" % num
             print >>file, "TYPE = %s" % type
@@ -375,7 +375,7 @@ class INI:
                 print >>file
             else:
                 print >>file, "OUTPUT_SCALE = %s" % (get("outputscale") * temp)
-                pwmpinname = self.d.make_pinname(pwmgen)
+                pwmpinname = self.a.make_pinname(pwmgen)
                 if (pwmgen and "analog" in pwmpinname) or potoutput:
                     print >>file, "OUTPUT_MIN_LIMIT = %s"% (get("outputminlimit"))
                     print >>file, "OUTPUT_MAX_LIMIT = %s"% (get("outputmaxlimit"))
@@ -403,7 +403,7 @@ class INI:
         ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
         homes = False
         for i in thisaxishome:
-            if self.d.findsignal(i): homes = True
+            if self.a.findsignal(i): homes = True
         # set homing speeds and directions
         # search direction : True = positive direction
         # latch direction :  True = opposite direction
@@ -426,7 +426,7 @@ class INI:
             else: useindex = "NO"   
             print >>file, "HOME_USE_INDEX = %s" % useindex
             for i in ignore:
-                if self.d.findsignal(i):
+                if self.a.findsignal(i):
                     print >>file, "HOME_IGNORE_LIMITS = YES"
                     break
             # if all axis have homing switches and user doesn't request

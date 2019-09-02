@@ -1,4 +1,4 @@
-PNCCONF_MODULES = pages build_INI build_HAL private_data tests
+PNCCONF_MODULES = pages build_INI build_HAL private_data tests data
 
 PYTARGETS += ../bin/pncconf  ../lib/python/pncconf/__init__.py $(patsubst %,../lib/python/pncconf/%.py,$(PNCCONF_MODULES)) \
 	../share/linuxcnc/pncconf/main_page.glade \
