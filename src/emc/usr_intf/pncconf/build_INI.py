@@ -317,7 +317,7 @@ class INI:
 
         print >>file
         if letter == 's':
-            print >>file, "[SPINDLE_%d]" % num
+            print >>file, "[SPINDLE_%d]" % 0
         else:
             print >>file, "[JOINT_%d]" % num
             print >>file, "TYPE = %s" % type
