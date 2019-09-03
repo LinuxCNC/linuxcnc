@@ -49,12 +49,10 @@ if wsize == '0':
         aspect = 1.5
     else:
         aspect = 1.7
-    w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(
-            str(int(float(heights[fsizes.index(fsize)]) * aspect)),\
-            str(int(float(heights[fsizes.index(fsize)]))),
-            '20',\
-            '20'\
-            ))
+    width = str(int(float(heights[fsizes.index(fsize)]) * aspect))
+    height = str(int(float(heights[fsizes.index(fsize)])))
+    wxpos = '20'
+    wypos = '20'
 else:
     # change pad_width and pad_height for smaller than fullscreen
     pad_width = 0
@@ -68,9 +66,8 @@ else:
     height = str(int(fullsize[1])-pad_height)
     wxpos = str(pad_width/2)
     wypos = str(pad_height/2)
-    print '\nAxis window is {0} x {1}\n'.format(width,height)
-    w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
-
+w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
+print '\nAxis window is {0} x {1}\n'.format(width,height)
 
 
 ################################################################################

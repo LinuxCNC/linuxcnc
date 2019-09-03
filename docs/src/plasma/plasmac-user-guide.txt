@@ -83,17 +83,19 @@ LinuxCNC v2.9 or later provides full functionality.
 
 === If You Do Not Have Linux Installed
 
-Download an iso image from one of the following and write it to a bootable device:
+Download an ISO image from one of the following and write it to a bootable device:
 
 * RTPREEMPT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
-For a machine using MESA hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
+For a machine using Mesa Electronics hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
+
+All PlasmaC development has been done on a Stretch ISO installation.
 
 * RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso +
 For a machine using the parallel port.
 
 Then boot from the device and follow the prompts.
 
-This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. The 'buildbot' is recommended of you are not doing any linuxcnc development.
+This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. The 'buildbot' is recommended if you are not doing any linuxcnc development.
 
 === If You Have LinuxCNC v2.7
 
@@ -218,6 +220,13 @@ You now have all the requirements to run PlasmaC, the next step is to create a w
 
 Base machine configuration means a complete working system. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
+Do NOT add any plasma specific connections here, these will be added later.
+
+A good rule of thumb for setting the Z axis soft limits is:
+
+* minimum limit should be 0 - <float_switch_travel> - <enough_to_cover_table_discrepencies>
+* maximum limit should be the highest you want the Z axis to travel (must not be lower than HOME_OFFSET)
+
 You should be able to home your machine, touch off and run some test G-Code without any errors.
 
 When this stage is completed you can configure PlasmaC on top of your working machine.
@@ -246,7 +255,7 @@ https://forum.linuxcnc.org/49-basic-configuration/33079-how-to-2-or-more-motors-
 
 === Add PlasmaC To Base Machine
 
-You need to have a fully tested and working base machine configuration before proceeding.
+You need to have a fully tested and working base machine configuration without any connections to plasma specific equipment before proceeding.
 
 CAUTION: Do *NOT* proceed until this has been done
 
@@ -263,7 +272,7 @@ The type of installation determines where the Configurator (configurator.py) wil
 |Run In Place|~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
 |===
 
-The Configurator can be started by double clicking the file in a file manager or by opening a terminal and typing the following:
+The Configurator can be started by double clicking the file in a file manager or by the preferred method of opening a terminal and typing the following:
 
 ----
 $ python <path>/<to>/configurator.py
@@ -319,6 +328,8 @@ image::images/plasmac_configurator_new.png[width=400]
 |Scribe Start|only required if using an air-scribe +
               the HAL pin to start the air-scriber
 |===
+
+NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
 
 Fill in the required entries to suit your machine wiring, click 'Create' and you should end up with a working PlasmaC configuration in ~/linuxcnc/configs/<machine-name>
 
@@ -995,7 +1006,7 @@ WARNING: If you have an existing manual toolchange in your machine HAL file then
 
 For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
 
-This is done by first adjusting the on time for the torch in the Config panel. Times are adjustable from 1 to 999 milli-seconds.
+This is done by first adjusting the on time for the torch in the <<config-panel,Config Panel>>. Times are adjustable from 1 to 999 milli-seconds.
 
 The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
 

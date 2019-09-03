@@ -172,7 +172,7 @@ class materialConverter:
                 self.outLabel.set_text('missing output filename')
                 return
             self.outLabel.set_text('converting...')
-            version = '[VERSION 1]'
+            version = '[VERSION 1.1]'
 #            try:
             with open(self.outFileName, 'w') as f_out:
                 f_out.write(\
