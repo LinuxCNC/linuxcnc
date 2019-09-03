@@ -98,15 +98,8 @@ class HandlerClass:
         self.pin_select_so = self.hal.newpin('select-spindleoverride',hal.HAL_BIT, hal.HAL_IN)
 
     def before_loop__(self):
-        STATUS.connect('state-estop',self.showclose)
+        STATUS.connect('state-estop',lambda q:self.w.close())
         self.w.close()
-
-    # This is because STATUS actual sends two of every message
-    def showclose(self,w):
-        self.flag +=1
-        if self. flag ==2:
-            self.w.close()
-            self.flag=0
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
