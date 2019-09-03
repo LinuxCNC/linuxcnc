@@ -59,11 +59,10 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         self.setIcon(QMessageBox.Critical)
         self.setDetailedText('')
-        self.OK_TYPE = 1
-        self.YN_TYPE = 0
+        self.mtype = 'OK'
+        self._possibleTypes = ('OK','YESNO','OKCANCEL','CLOSEPROMPT')
         self._state = False
         self._color = QColor(0, 0, 0, 150)
-        self.focus_text = ''
         self._request_name = 'MESSAGE'
         self.hide()
 
@@ -96,19 +95,20 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             mess = message.get('MESSAGE') or None
             more = message.get('MORE') or None
             details = message.get('DETAILS') or None
-            ok_type = message.get('TYPE')
-            if ok_type == None: ok_type = True
+            mtype = message.get('TYPE')
+            if mtype is None: mtype = 'OK'
             icon = message.get('ICON') or 'INFO'
-            pin = message.get('PINNAME') or None
-            ftext = message.get('FOCUS_TEXT') or None
-            fcolor = message.get('FOCUS_COLOR') or None
-            alert = message.get('PLAY_ALERT') or None
-            rtrn = self.showdialog(mess, more, details, ok_type, 
+            pin = message.get('PINNAME')
+            ftext = message.get('FOCUSTEXT')
+            fcolor = message.get('FOCUSCOLOR')
+            alert = message.get('PLAYALERT')
+            rtrn = self.showdialog(mess, more, details, mtype, 
                                     icon, pin, ftext, fcolor, alert)
+            print 'sent',rtrn
             message['RETURN'] = rtrn
             STATUS.emit('general', message)
 
-    def showdialog(self, message, more_info=None, details=None, display_type=1,
+    def showdialog(self, message, more_info=None, details=None, display_type='OK',
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
                    focus_color=None, play_alert=None):
 
@@ -118,8 +118,6 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
                             #Qt.X11BypassWindowManagerHint
 
-        if focus_text is not None:
-            self.focus_text = focus_text
         if focus_color is not None:
             color = focus_color
         else:
@@ -132,32 +130,41 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self.setIcon(icon)
 
         self.setText('<b>%s</b>' % message)
+
         if more_info is not None:
             self.setInformativeText(more_info)
         else:
             self.setInformativeText('')
+
         if details is not None:
             self.setDetailedText(details)
         else:
             self.setDetailedText('')
-        if display_type == self.OK_TYPE:
+
+        display_type = display_type.upper()
+        if display_type not in self._possibleTypes:
+            display_type = 'OK'
+        if display_type == 'OK':
             self.setStandardButtons(QMessageBox.Ok)
-        else:
+        elif display_type == 'YESNO':
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        elif display_type == 'OKCANCEL':
+            self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
         self.buttonClicked.connect(self.msgbtn)
-        STATUS.emit('focus-overlay-changed', True, self.focus_text, color)
+        STATUS.emit('focus-overlay-changed', True, focus_text, color)
         if play_alert:
             STATUS.emit('play-sound', play_alert)
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        LOG.debug("Value of pressed button: {}".format(retval))
-        if display_type == self.OK_TYPE:
-            if retval == QMessageBox.No:
-                return False
-            else:
-                return True
-        else:
-            return retval
+        LOG.debug('Value of pressed button: {}'.format(retval))
+        return self.qualifiedReturn(retval)
+
+    def qualifiedReturn(self, retval):
+        if retval in(QMessageBox.No, QMessageBox.Cancel):
+            return False
+        elif retval in(QMessageBox.Ok, QMessageBox.Yes):
+            return True
 
     def showEvent(self, event):
         geom = self.frameGeometry()
@@ -166,7 +173,7 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         super(LcncDialog, self).showEvent(event)
 
     def msgbtn(self, i):
-        LOG.debug("Button pressed is: {}".format(i.text()))
+        LOG.debug('Button pressed is: {}'.format(i.text()))
         return
 
     # **********************
@@ -191,8 +198,16 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'MESSAGE'
+
     overlay_color = pyqtProperty(QColor, getColor, setColor)
     state = pyqtProperty(bool, getState, setState, resetState)
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
 
 ################################################################################
 # Close Dialog
@@ -201,6 +216,15 @@ class CloseDialog(LcncDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(CloseDialog, self).__init__(parent)
         self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
+        self._request_name = 'CLOSEPROMPT'
+
+    def qualifiedReturn(self, retval):
+        if retval in(QMessageBox.No, QMessageBox.Cancel):
+            return False
+        elif retval in(QMessageBox.Ok, QMessageBox.Yes):
+            return True
+        else:
+            return -1
 
 ################################################################################
 # Tool Change Dialog
@@ -248,7 +272,7 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
         else:
             self.play_sound = False
 
-    def showtooldialog(self, message, more_info=None, details=None, display_type=1,
+    def showtooldialog(self, message, more_info=None, details=None, display_type='OK',
                        icon=QMessageBox.Information):
 
         self.setWindowModality(Qt.ApplicationModal)
@@ -264,9 +288,9 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
             self.setInformativeText('')
         if details:
             self.setDetailedText(details)
-        if display_type == self.OK_TYPE:
+        if display_type.upper() == 'OK':
             self.setStandardButtons(QMessageBox.Ok)
-        else:
+        elif display_type.upper() == 'YESNO':
             self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             self.setDefaultButton(QMessageBox.Ok)
 
@@ -466,6 +490,22 @@ class FileDialog(QFileDialog, _HalWidgetBase):
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
+    def getLoadIdName(self):
+        return self._load_request_name
+    def setLoadIdName(self, name):
+        self._load_request_name = name
+    def resetLoadIdName(self):
+        self._load_request_name = 'LOAD'
+
+    def getSaveIdName(self):
+        return self._save_request_name
+    def setSaveIdName(self, name):
+        self._save_request_name = name
+    def resetSaveIdName(self):
+        self._save_request_name = 'SAVE'
+
+    launch_load_id = pyqtProperty(str, getLoadIdName, setLoadIdName, resetLoadIdName)
+    launch_save_id = pyqtProperty(str, getSaveIdName, setSaveIdName, resetSaveIdName)
 
 ################################################################################
 # origin Offset Dialog
@@ -579,6 +619,14 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'ORIGINOFFSET'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
@@ -695,6 +743,14 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'TOOLOFFSET'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
@@ -716,7 +772,7 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.setMinimumSize(200, 200)
         h = QHBoxLayout()
         h.addStretch(1)
-        self.b = QPushButton("Close")
+        self.b = QPushButton('Close')
         self.b.clicked.connect(lambda: self.close())
         h.addWidget(self.b)
         l = QVBoxLayout()
@@ -778,6 +834,14 @@ class CamViewDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'CAMVIEW'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
@@ -883,6 +947,14 @@ class MacroTabDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'MACROTAB'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
@@ -963,6 +1035,14 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'VERSAPROBE'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
@@ -1046,7 +1126,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
-        LOG.debug("Value of pressed button: {}".format(retval))
+        LOG.debug('Value of pressed button: {}'.format(retval))
         if retval:
             try:
                 return float(self.Num.text())
@@ -1064,6 +1144,14 @@ class EntryDialog(QDialog, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'ENTRY'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
 ############################################
@@ -1126,7 +1214,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         retval = self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
-        LOG.debug("Value of pressed button: {}".format(retval))
+        LOG.debug('Value of pressed button: {}'.format(retval))
         if retval:
             try:
                 return float(self.display.text())
@@ -1144,8 +1232,19 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
     def resetState(self):
         self._color = QColor(0, 0, 0, 150)
 
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'CALCULATOR'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
+#########################################
+# geometry helper functions
+#########################################
 
 # This general function parses the geometry string and places
 # the dialog based on what it finds.
@@ -1221,5 +1320,5 @@ def main():
     widget = CalculatorDialog()
     widget.showdialog()
     sys.exit(app.exec_())
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

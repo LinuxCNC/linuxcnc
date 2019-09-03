@@ -259,22 +259,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  None,
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
-                                                                 display_type=MSG.YN_TYPE,
+                                                                 display_type='YESNO',
                                                                  focus_text='Close Linuxcnc?',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
-            if answer == QtWidgets.QMessageBox.Yes:
-                if self.play_sounds and self.play_shutdown_sounds:
-                    STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                    event.accept()
-            elif answer == QtWidgets.QMessageBox.No:
-                event.ignore()
-                return
-            elif answer == 0:
+            if answer == -1:
                 from qtvcp.core import Action
                 ACTION = Action()
                 ACTION.SHUT_SYSTEM_DOWN_PROMPT()
                 event.accept()
+            elif answer:
+                if self.play_sounds and self.play_shutdown_sounds:
+                    STATUS.emit('play-sound', self.shutdown_exit_sound_type)
+                    event.accept()
+            elif answer == False:
+                event.ignore()
+                return
 
         # [0] = tool number
         # [1] = pocket number
