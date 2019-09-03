@@ -114,7 +114,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
             if INFO.MACHINE_IS_LATHE:
-                STATUS.connect('current-x-rel-position', lambda w, data: _set_work_diameter(data))
+                STATUS.connect('current-x-rel-position', lambda w, data: self._set_work_diameter(data))
             else:
                 STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
