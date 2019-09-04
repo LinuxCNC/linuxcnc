@@ -1922,6 +1922,7 @@ class gmoccapy(object):
             if hasattr(widget, "set_has_tooltip"):
                 self.widgets_with_tooltips.append(widget)
         self.hide_tooltips = self.prefs.getpref('hide_tooltips', False, bool)
+        self.widgets.chk_hide_tooltips.set_active(self.hide_tooltips)
         self._set_enable_tooltips(not self.hide_tooltips)
 
 # =============================================================
