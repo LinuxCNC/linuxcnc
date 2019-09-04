@@ -139,6 +139,17 @@ In a terminal:
 
 ----
 $ sudo apt-get update
+----
+
+Then for rtpreempt:
+
+----
+$ sudo apt-get install linuxcnc-uspace
+----
+
+or for rt:
+
+----
 $ sudo apt-get install linuxcnc
 ----
 
