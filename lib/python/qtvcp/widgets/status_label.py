@@ -114,11 +114,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
         elif self.actual_surface_speed:
             if INFO.MACHINE_IS_LATHE:
-                STATUS.connect('current-x-rel-position', lambda w, data: _set_work_diameter(data))
+                STATUS.connect('current-x-rel-position', lambda w, data: self._set_work_diameter(data*2))
             else:
                 STATUS.connect('tool-info-changed', lambda w, data: self._ss_tool_diam(data))
             STATUS.connect('actual-spindle-speed-changed', lambda w, data: self._ss_spindle_speed(data))
             STATUS.connect('metric-mode-changed', self._switch_units)
+            STATUS.connect('metric-mode-changed', lambda o, state: self._set_surface_speed())
+
         elif self.filename or self.filepath:
             STATUS.connect('file-loaded', self._file_loaded)
         elif self.machine_state:
@@ -213,21 +215,27 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         else:
             self._diameter = 1
         self. _set_surface_speed()
-    def _set_work_diameter(self, radius):
-        self._diameter = radius * 2
+    def _set_work_diameter(self, dia):
+        self._diameter = dia
         self._set_surface_speed()
     def _ss_spindle_speed(self, rpm):
         self._actual_RPM = rpm
         self._set_surface_speed()
     def _set_surface_speed(self):
-        # TODO some sort of metric conversion for tool diameter
-        #if self.display_units_mm != INFO.MACHINE_IS_METRIC:
-        #    data = INFO.convert_units(self._diameter)
-        circ = 3.14 * self._actual_RPM * self._diameter
+        diam = self.conversion(self._diameter)
+        circ = 3.14 * self._actual_RPM * diam
         if self.display_units_mm:
-            self._set_alt_text(circ)
+            self._set_alt_text(circ/1000) # meters per minute
         else:
-            self._set_text(circ)
+            self._set_text(circ/12) # feet per minute
+
+    # This does the conversion units
+    # data must always be in machine units
+    def conversion(self, data):
+        if self.display_units_mm :
+            return INFO.convert_machine_to_metric(data)
+        else:
+            return INFO.convert_machine_to_imperial(data)
 
     def _file_loaded(self, w, name):
         if self.filename:
