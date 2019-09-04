@@ -1104,7 +1104,7 @@ Limits</string>
            <item row="2" column="4">
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>Chip Load</string>
+              <string>Surface Speed</string>
              </property>
             </widget>
            </item>
@@ -1165,8 +1165,17 @@ Limits</string>
            </item>
            <item row="2" column="5">
             <widget class="StatusLabel" name="statuslabel_6">
+             <property name="textTemplate" stdset="0">
+              <string>%d</string>
+             </property>
+             <property name="alt_textTemplate" stdset="0">
+              <string>%d</string>
+             </property>
              <property name="feed_override_status" stdset="0">
               <bool>false</bool>
+             </property>
+             <property name="actual_surface_speed_status" stdset="0">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
