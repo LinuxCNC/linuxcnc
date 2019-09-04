@@ -221,6 +221,18 @@ class _IStat(object):
             log.warning('INI Parcing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
+    def convert_machine_to_metric(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data
+        else:
+            return data * 25.4
+
+    def convert_machine_to_imperial(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data * (1/25.4)
+        else:
+            return data
+
     def convert_metric_to_machine(self, data):
         if self.MACHINE_IS_METRIC:
             return data
