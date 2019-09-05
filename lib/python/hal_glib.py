@@ -202,6 +202,7 @@ class _GStat(gobject.GObject):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
+        self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
         try:
@@ -331,10 +332,12 @@ class _GStat(gobject.GObject):
         try:
             self.stat.poll()
         except:
+            self._status_active = False
             # some things might not need linuxcnc status but do need periodic
             self.emit('periodic')
             # Reschedule
             return True
+        self._status_active = True
         old = dict(self.old)
         self.merge()
 
@@ -853,6 +856,9 @@ class _GStat(gobject.GObject):
         except:
             return None
         return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
+
+    def is_status_valid(self):
+        return self._status_active
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
