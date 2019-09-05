@@ -956,6 +956,12 @@
                  <blue>184</blue>
                 </color>
                </property>
+               <property name="toolOffsetDialog_option" stdset="0">
+                <bool>true</bool>
+               </property>
+               <property name="originOffsetDialog_option" stdset="0">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1056,10 +1062,10 @@
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
              </property>
              <property name="textTemplate" stdset="0">
-              <string>%d FPM</string>
+              <string>%.2f SFPM</string>
              </property>
              <property name="alt_textTemplate" stdset="0">
-              <string>%dMPM</string>
+              <string>%.2fSMPM</string>
              </property>
              <property name="actual_spindle_speed_status" stdset="0">
               <bool>false</bool>
@@ -1749,6 +1755,8 @@
     <addaction name="actionEdit"/>
     <addaction name="actionSave"/>
     <addaction name="actionProperties"/>
+    <addaction name="actionToolOffsetDialog"/>
+    <addaction name="actionOriginOffsetDialog"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -2160,6 +2168,24 @@
    </property>
    <property name="toolTip">
     <string>Shutdown System Immediately</string>
+   </property>
+  </action>
+  <action name="actionToolOffsetDialog">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit tooltable</string>
+   </property>
+  </action>
+  <action name="actionOriginOffsetDialog">
+   <property name="icon">
+    <iconset>
+     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+   </property>
+   <property name="text">
+    <string>View Origintable</string>
    </property>
   </action>
  </widget>

@@ -95,6 +95,8 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
         TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
+        TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
+        TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -187,9 +189,9 @@ class HandlerClass:
 
     def tool_offset_clicked(self):
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        joint = STATUS.get_selected_joint()
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[joint],
-            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
+        axis = conversion[STATUS.get_selected_joint()]
+        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':axis,
+            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Axis {} Tool Offset'.format(axis)}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
 
