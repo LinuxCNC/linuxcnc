@@ -48,6 +48,7 @@ static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 static int num_spindles = 1; /* default number of spindles is 1 */
 RTAPI_MP_INT (num_spindles, "number of spindles");
+int motion_num_spindles;
 static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
 RTAPI_MP_INT(num_joints, "number of joints");
 static int num_dio = DEFAULT_DIO;	/* default number of motion synched DIO */
@@ -222,6 +223,7 @@ int rtapi_app_main(void)
 	hal_exit(mot_comp_id);
 	return -1;
     }
+    motion_num_spindles = num_spindles;
 
     if (( num_dio < 1 ) || ( num_dio > EMCMOT_MAX_DIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
