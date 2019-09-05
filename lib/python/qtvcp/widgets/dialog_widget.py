@@ -528,7 +528,10 @@ class OriginOffsetDialog(QDialog, _HalWidgetBase):
         STATUS.connect('all-homed', lambda w: buttonBox.setEnabled(True))
         STATUS.connect('state-estop', lambda w: buttonBox.setEnabled(False))
         STATUS.connect('state-estop-reset', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
-                                                                           and STATUS.is_all_homed()))
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-idle', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-run', lambda w: buttonBox.setEnabled(False))
         for i in('X', 'Y', 'Z'):
             b = 'button_%s' % i
             self[b] = QPushButton('Zero %s' % i)
@@ -714,7 +717,7 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         ACTION.SET_AXIS_ORIGIN(index, 0)
 
     def load_dialog(self):
-        STATUS.emit('focus-overlay-changed', True, 'Set Origin Offsets', self._color)
+        STATUS.emit('focus-overlay-changed', True, 'Set Tool Offsets', self._color)
         self.calculate_placement()
         self.show()
         self.exec_()
