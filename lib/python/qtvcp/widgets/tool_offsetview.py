@@ -52,7 +52,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
         self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
-        self.IS_RUNNING = False
         self.editing_flag = False
         self.current_system = None
         self.current_tool = 0
@@ -83,22 +82,20 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         else:
             self.hideColumn(8)
 
-    # only update every 100th time periodic calls
+    # only update every 10th time periodic calls
     # if editing don't update
     #
     def periodic_check(self, w):
-        try:
-            STATUS.stat.poll()
-            self.IS_RUNNING = True
-        except:
-            self.IS_RUNNING = False
-            return
         if self.delay < 9:
             self.delay += 1
             return
-        if self.editing_flag: return
+        if STATUS.is_status_valid() == False:
+            return
         self.delay = 0
-        self.tablemodel.update(TOOL.GET_TOOL_FILE())
+        if self.editing_flag: return
+        # check if hash of tool file changed
+        if not TOOL.IS_HASH_CURRENT():
+            self.tablemodel.update(TOOL.GET_TOOL_FILE())
         return True
 
     def currentTool(self, data):
@@ -169,8 +166,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             print ' QUALIFIED:', qualified
         # now update linuxcnc to the change
         try:
-            if self.IS_RUNNING:
-                
+            if STATUS.is_status_valid():
                 TOOL.SAVE_TOOLFILE(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
                 ACTION.RECORD_CURRENT_MODE()
                 ACTION.CALL_MDI('g43')
@@ -183,7 +179,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.editing_flag = False
 
     def add_tool(self):
-        if not self.IS_RUNNING:
+        if not STATUS.is_auto_running():
+            LOG.debug('add tool request')
             TOOL.ADD_TOOL(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
 
 #########################################
