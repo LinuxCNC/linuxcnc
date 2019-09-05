@@ -207,6 +207,10 @@ class ToolBarActions():
             function = (self.actOnQuit)
         elif action == 'system_shutdown':
             function = (self.actOnSystemShutdown)
+        elif action == 'tooloffsetdialog':
+            function = (self.actOnToolOffsetDialog)
+        elif action == 'originoffsetdialog':
+            function = (self.actOnOriginOffsetDialog)
 
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
@@ -381,6 +385,12 @@ class ToolBarActions():
 
     def actOnRunFromLine(self, widget, state=False):
         ACTION.RUN(self.selected_line)
+
+    def actOnToolOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
+
+    def actOnOriginOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
 
     #########################################################
     # Sub menus
