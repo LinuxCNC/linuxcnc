@@ -16,14 +16,14 @@
 ###############################################################################
 
 import os
-import linuxcnc
 import hashlib
 
-from qtvcp.core import Info
+from qtvcp.core import Info, Action
 # Set up logging
 import logger
 
 INFO = Info()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
 LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -76,7 +76,7 @@ class _TStat(object):
         self._save(array)
 
     def ADD_TOOL(self, model, blanktool = [-99,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','New Tool']):
-        model.append(blanktool)
+        model.insert(0, blanktool)
         self._save(model)
 
     # [0] = tool number
@@ -264,7 +264,7 @@ class _TStat(object):
         os.fsync(file.fileno())
         # tell linuxcnc we changed the tool table entries
         try:
-            linuxcnc.command().load_tool_table()
+            ACTION.RELOAD_TOOLTABLE()
         except:
             LOG.error("reloading of tool table into linuxcnc: {}".format(self.toolfile))
 
@@ -280,9 +280,11 @@ class _TStat(object):
 
         # check the hash code on the toolfile against
         # the saved hash code when last reloaded.
-    def file_current_check(self):
+    def IS_HASH_CURRENT(self):
         m = self.hash_code
         m1 = self.md5sum(self.toolfile)
         if m1 and m != m1:
             self._reload()
+            return False
+        return True
 
