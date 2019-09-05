@@ -219,10 +219,14 @@ may require additional user edits to ini or hal files.
 
 LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
 Existing G-code will run without modification and most configurations
-will default to single spindles. To add spindles both the "num_spindles"
-modparam to the motion module in the HAL file and the [TRAJ]SPINDLES
-entry in the INI file should be changed/added to choose the required
-number. These /must/ match. 
+will default to single spindles. To specify more than one spindle
+set the [TRAJ]SPINDLES= entry in the INI file *and* include the num_spindles=
+parameter for the motion module (set with either [EMCMOT]EMCMOT = motmod num_spindles=
+or included in a halfile loadrt entry for motmod).
+
+The motion module num_spindles= parameter and the [TRAJ]SPINDLES= settings
+*must* match.
+
 The spindle control pin names have been changed to make spindles look
 more like axes and joints. motion.spindle-speed-out is now spindle.0.speed-out
 for example. The automatic update script will take care of these changes.
