@@ -75,8 +75,9 @@ class _TStat(object):
     def SAVE_TOOLFILE(self, array):
         self._save(array)
 
-    def ADD_TOOL(self, tool_array = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']):
-        pass
+    def ADD_TOOL(self, model, blanktool = [-99,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','New Tool']):
+        model.append(blanktool)
+        self._save(model)
 
     # [0] = tool number
     # [1] = pocket number

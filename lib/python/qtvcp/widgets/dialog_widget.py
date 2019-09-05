@@ -646,13 +646,23 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
         self.setMinimumSize(200, 200)
+
+        self._o = TOOLVIEW_WIDGET()
+        self._o._hal_init()
+
         buttonBox = QDialogButtonBox()
         buttonBox.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
         STATUS.connect('all-homed', lambda w: buttonBox.setEnabled(True))
         STATUS.connect('state-estop', lambda w: buttonBox.setEnabled(False))
         STATUS.connect('state-estop-reset', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
-                                                                           and STATUS.is_all_homed()))
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-idle', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-run', lambda w: buttonBox.setEnabled(False))
+        self.addtool = QPushButton('Add Tool')
+        self.addtool.clicked.connect(lambda: self.addTool())
+        buttonBox.addButton(self.addtool, 3)
         for i in('X', 'Y', 'Z'):
             b = 'button_%s' % i
             self[b] = QPushButton('Zero %s' % i)
@@ -661,8 +671,6 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
 
         v = QVBoxLayout()
         h = QHBoxLayout()
-        self._o = TOOLVIEW_WIDGET()
-        self._o._hal_init()
         self.setLayout(v)
         v.addWidget(self._o)
         b = QPushButton('OK')
@@ -689,6 +697,9 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:
             self.load_dialog()
+
+    def addTool(self):
+        self._o.add_tool()
 
     # This weird code is just so we can get the axis
     # letter

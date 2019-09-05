@@ -66,6 +66,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def _hal_init(self):
         self.delay = 0
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
@@ -179,8 +182,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             LOG.exception("offsetpage widget error: MDI call error", exc_info=e)
         self.editing_flag = False
 
-
-
+    def add_tool(self):
+        if not self.IS_RUNNING:
+            TOOL.ADD_TOOL(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
 
 #########################################
 # custom model
