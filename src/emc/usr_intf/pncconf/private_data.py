@@ -978,7 +978,9 @@ class Private_Data:
         self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
             "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
-
+        self.MESS_REPLACE_RC_FILE = _("Ok to replace AXIS's .axisrc file?\n\
+ If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
+Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n")
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):

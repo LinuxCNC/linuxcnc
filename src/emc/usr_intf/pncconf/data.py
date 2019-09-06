@@ -1009,9 +1009,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         # write AXIS rc file for geometry
         if self.frontend == _PD._AXIS and (self.axisposition[0] or self.axissize[0] or self.axisforcemax):
             filename = os.path.expanduser("~/.axisrc")
-            if App.warning_dialog(app,"Ok to replace AXIS's .axisrc file?\n\
- If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
-Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n",False):
+            if _APP.warning_dialog(_PD.MESS_REPLACE_RC_FILE, False):
                 f1 = open(filename, "w")
                 if self.axisposition[0] or self.axissize[0]:
                     #print "Setting AXIS geometry option"
