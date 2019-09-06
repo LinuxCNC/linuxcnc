@@ -382,7 +382,7 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
-        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
+        log.debug('Opening filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))

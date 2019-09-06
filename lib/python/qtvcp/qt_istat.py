@@ -193,7 +193,7 @@ class _IStat(object):
         if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
             log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
         if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
-            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCACTION - guessng default.')
+            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCATION - guessng default.')
             for num,i in enumerate(self.TAB_NAMES):
                 try:
                     if self.TAB_LOCATIONS[num]:
@@ -218,7 +218,7 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.warning('INI Parcing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+            log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
     def convert_machine_to_metric(self, data):
