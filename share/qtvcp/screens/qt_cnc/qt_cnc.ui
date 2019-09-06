@@ -181,6 +181,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <property name="zero_axis_action" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="zero_g5x_action" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="joint_number" stdset="0">
       <number>0</number>
      </property>
@@ -1205,6 +1208,41 @@ Origion Zero</string>
        </property>
        <property name="command_text_string" stdset="0">
         <string>G53 G0 X0Y0Z0</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_38">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>286</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Zero G5x</string>
+       </property>
+       <property name="zero_g5x_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_72">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>340</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Zero G92</string>
+       </property>
+       <property name="zero_g5x_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="zero_g92_action" stdset="0">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>

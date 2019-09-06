@@ -163,6 +163,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                  ('Pause',['pause', 0], []),
                 ('Override Limits',['limits_override', 0], []),
                 ('Zero Axis',['zero_axis', 1], []),
+                ('Zero G5x',['zero_g5x', 0], []),
+                ('Zero G92',['zero_g92', 0], []),
                 ('Block Delete',['block_delete', 0], []),
                 ('Optional Stop',['optional_stop', 0], []),
                 ('Food Coolant',['flood', 0], []),
