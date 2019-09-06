@@ -54,6 +54,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.run = False
         self.abort = False
         self.pause = False
+        self.step = False
         self.load_dialog = False
         self.macro_dialog = False
         self.origin_offset_dialog = False
@@ -63,6 +64,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.jog_selected_pos = False
         self.jog_selected_neg = False
         self.zero_axis = False
+        self.zero_g5x = False
+        self.zero_g92 = False
         self.launch_halmeter = False
         self.launch_status = False
         self.launch_halshow = False
@@ -214,7 +217,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             # leave early to aviod the standard 'clicked' signal
             return
 
-        elif self.zero_axis or self.run:
+        elif True in(self.zero_axis, self.zero_g5x,self.zero_g92, self.run):
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
@@ -225,7 +228,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             if self.run:
                 STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
 
-        elif self.abort or self.pause:
+        elif True in(self.abort, self.pause, self.step):
             self.setEnabled(False)
             if self.pause:
                 STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
@@ -356,6 +359,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             ACTION.ABORT()
         elif self.pause:
             ACTION.PAUSE()
+        elif self.step:
+            ACTION.STEP()
         elif self.load_dialog:
             STATUS.emit('dialog-request',{'NAME':'LOAD'})
         elif self.camview_dialog:
@@ -371,6 +376,10 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             except IndexError:
                 LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
+        elif self.zero_g5x:
+            ACTION.ZERO_G5X_OFFSET(0)
+        elif self.zero_g92:
+            ACTION.ZERO_G92_OFFSET()
         elif self.launch_halmeter:
             AUX_PRGM.load_halmeter()
         elif self.launch_status:
@@ -595,7 +604,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause',
+        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause', 'step'
                 'load_dialog', 'jog_joint_pos', 'jog_joint_neg',
                 'jog_selected_pos', 'jog_selected_neg', 'zero_axis',
                 'launch_halmeter', 'launch_status', 'launch_halshow',
@@ -606,7 +615,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
-                 'exit')
+                 'exit', 'zero_g5x', 'zero_g92')
 
         for i in data:
             if not i == picked:
@@ -648,6 +657,24 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.zero_axis
     def reset_zero_axis(self):
         self.zero_axis = False
+
+    def set_zero_g5x(self, data):
+        self.zero_g5x = data
+        if data:
+            self._toggle_properties('zero_g5x')
+    def get_zero_g5x(self):
+        return self.zero_g5x
+    def reset_zero_g5x(self):
+        self.zero_g5x = False
+
+    def set_zero_g92(self, data):
+        self.zero_g92 = data
+        if data:
+            self._toggle_properties('zero_g92')
+    def get_zero_g92(self):
+        return self.zero_g92
+    def reset_zero_g92(self):
+        self.zero_g92 = False
 
     def set_load_dialog(self, data):
         self.load_dialog = data
@@ -747,6 +774,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.pause
     def reset_pause(self):
         self.pause = False
+
+    def set_step(self, data):
+        self.step = data
+        if data:
+            self._toggle_properties('step')
+    def get_step(self):
+        return self.step
+    def reset_step(self):
+        self.step = False
 
     def set_launch_halmeter(self, data):
         self.launch_halmeter = data
@@ -1112,6 +1148,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     run_action = QtCore.pyqtProperty(bool, get_run, set_run, reset_run)
     abort_action = QtCore.pyqtProperty(bool, get_abort, set_abort, reset_abort)
     pause_action = QtCore.pyqtProperty(bool, get_pause, set_pause, reset_pause)
+    step_action = QtCore.pyqtProperty(bool, get_step, set_step, reset_step)
     load_dialog_action = QtCore.pyqtProperty(bool, get_load_dialog, set_load_dialog, reset_load_dialog)
     camview_dialog_action = QtCore.pyqtProperty(bool,
                                                 get_camview_dialog, set_camview_dialog, reset_camview_dialog)
@@ -1125,6 +1162,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     launch_halscope_action = QtCore.pyqtProperty(bool, get_launch_halscope, set_launch_halscope, reset_launch_halscope)
     home_action = QtCore.pyqtProperty(bool, get_home, set_home, reset_home)
     zero_axis_action = QtCore.pyqtProperty(bool, get_zero_axis, set_zero_axis, reset_zero_axis)
+    zero_g5x_action = QtCore.pyqtProperty(bool, get_zero_g5x, set_zero_g5x, reset_zero_g5x)
+    zero_g92_action = QtCore.pyqtProperty(bool, get_zero_g92, set_zero_g92, reset_zero_g92)
     jog_joint_pos_action = QtCore.pyqtProperty(bool, get_jog_joint_pos, set_jog_joint_pos, reset_jog_joint_pos)
     jog_joint_neg_action = QtCore.pyqtProperty(bool, get_jog_joint_neg, set_jog_joint_neg, reset_jog_joint_neg)
     jog_selected_pos_action = QtCore.pyqtProperty(bool, get_jog_selected_pos, set_jog_selected_pos, reset_jog_selected_pos)

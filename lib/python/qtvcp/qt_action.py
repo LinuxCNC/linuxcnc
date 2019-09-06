@@ -175,11 +175,21 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
 
     def RUN(self, line=0):
-        self.ensure_mode(linuxcnc.MODE_AUTO)
-        if STATUS.is_auto_paused() and line ==0:
+        if not STATUS.is_auto_mode():
+            self.ensure_mode(linuxcnc.MODE_AUTO)
+        if STATUS.is_auto_paused() and line == 0:
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
-        self.cmd.auto(linuxcnc.AUTO_RUN,line)
+        elif not STATUS.is_auto_running():
+            self.cmd.auto(linuxcnc.AUTO_RUN,line)
+
+    def STEP(self):
+        if STATUS.is_auto_running() and not STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+            return
+        if STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_STEP)
+            return
 
     def ABORT(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -382,7 +392,7 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
-        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
+        log.debug('Opening filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))
