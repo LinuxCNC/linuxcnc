@@ -54,6 +54,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.run = False
         self.abort = False
         self.pause = False
+        self.step = False
         self.load_dialog = False
         self.macro_dialog = False
         self.origin_offset_dialog = False
@@ -227,7 +228,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             if self.run:
                 STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
 
-        elif self.abort or self.pause:
+        elif True in(self.abort, self.pause, self.step):
             self.setEnabled(False)
             if self.pause:
                 STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
@@ -358,6 +359,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             ACTION.ABORT()
         elif self.pause:
             ACTION.PAUSE()
+        elif self.step:
+            ACTION.STEP()
         elif self.load_dialog:
             STATUS.emit('dialog-request',{'NAME':'LOAD'})
         elif self.camview_dialog:
@@ -601,7 +604,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause',
+        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause', 'step'
                 'load_dialog', 'jog_joint_pos', 'jog_joint_neg',
                 'jog_selected_pos', 'jog_selected_neg', 'zero_axis',
                 'launch_halmeter', 'launch_status', 'launch_halshow',
@@ -771,6 +774,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.pause
     def reset_pause(self):
         self.pause = False
+
+    def set_step(self, data):
+        self.step = data
+        if data:
+            self._toggle_properties('step')
+    def get_step(self):
+        return self.step
+    def reset_step(self):
+        self.step = False
 
     def set_launch_halmeter(self, data):
         self.launch_halmeter = data
@@ -1136,6 +1148,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     run_action = QtCore.pyqtProperty(bool, get_run, set_run, reset_run)
     abort_action = QtCore.pyqtProperty(bool, get_abort, set_abort, reset_abort)
     pause_action = QtCore.pyqtProperty(bool, get_pause, set_pause, reset_pause)
+    step_action = QtCore.pyqtProperty(bool, get_step, set_step, reset_step)
     load_dialog_action = QtCore.pyqtProperty(bool, get_load_dialog, set_load_dialog, reset_load_dialog)
     camview_dialog_action = QtCore.pyqtProperty(bool,
                                                 get_camview_dialog, set_camview_dialog, reset_camview_dialog)

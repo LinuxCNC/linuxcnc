@@ -161,6 +161,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Run',['run', 0], []),
                 ('Abort',['abort', 0], []),
                  ('Pause',['pause', 0], []),
+                 ('Step',['step', 0], []),
                 ('Override Limits',['limits_override', 0], []),
                 ('Zero Axis',['zero_axis', 1], []),
                 ('Zero G5x',['zero_g5x', 0], []),
