@@ -148,7 +148,7 @@ class App:
         self.firmware_block = False
         # Private data holds the array of pages to load, signals, and messages
         _PD = self._p = private_data.Private_Data(self,BIN,BASE)
-        self.d = data.Data(self, _PD)
+        self.d = data.Data(self, _PD, BASE)
         
         self.splash_screen()
         #self.pbar.set_fraction(.2)

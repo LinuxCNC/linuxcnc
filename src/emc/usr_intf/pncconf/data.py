@@ -35,11 +35,13 @@ def md5sum(filename):
 # warning any data that doesn't start with a _ will be saved
 # and reloaded - this could change the type
 class Data:
-    def __init__(self, app, private_data_instance):
+    def __init__(self, app, private_data_instance,base_dir):
         global _PD
         global _APP
+        global _BASE
         _APP = app
         _PD = private_data_instance
+        _BASE = base_dir
         # custom signal name lists
         self.halencoderinputsignames = []
         self.halmuxencodersignames = []
@@ -881,9 +883,9 @@ If you have a REALLY large config that you wish to convert to this newer version
         ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
         if not os.path.exists(ncfiles):
             _APP.makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
+            examples = os.path.join(_BASE, "share", "linuxcnc", "ncfiles")
             if not os.path.exists(examples):
-                examples = os.path.join(BASE, "nc_files")
+                examples = os.path.join(_BASE, "nc_files")
             if os.path.exists(examples):
                 os.symlink(examples, os.path.join(ncfiles, "examples"))
         _APP.makedirs(base)
@@ -1043,8 +1045,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 os.symlink(base,shortcut)
 
         if self.createshortcut and os.path.exists(desktop):
-            if os.path.exists(BASE + "/scripts/linuxcnc"):
-                scriptspath = (BASE + "/scripts/linuxcnc")
+            if os.path.exists(_BASE + "/scripts/linuxcnc"):
+                scriptspath = (_BASE + "/scripts/linuxcnc")
             else:
                 scriptspath ="linuxcnc"
 
