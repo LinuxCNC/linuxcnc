@@ -71,7 +71,7 @@ If 'ohmic probe' is used then 'ohmic enable' is required.
 
 NOTE: The minimum I/O requirement for a PlasmaC configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, PlasmaC treats the float switch as a breakaway switch when it is not probing.
 
-IMPORTANT: These pins will be entered later into the Configurator, they should *NOT* be used in your base machine HAL file.
+IMPORTANT: These pins will be entered later into the Configurator, they should *NOT* be used in your base machine .hal file.
 
 == Installation
 
@@ -207,7 +207,7 @@ $ ~/linuxcnc-dev/scripts/linuxcnc
 
 This script will set the environment variables and start linuxcnc.
 
-You could then point this to an ini file and open a configuration. This command can then be put in a desktop shortcut.
+You could then point this to an .ini file and open a configuration. This command can then be put in a desktop shortcut.
 
 ----
 $ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/plasmac/plasmac.ini
@@ -312,9 +312,9 @@ image::images/plasmac_configurator_new.png[width=400]
       0 if using an arc voltage signal for Arc Voltage and Arc OK +
       1 if using external arc ok for Arc OK +
       2 if using up/down from an external THC +
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your ini file will be <name>.ini
-|Ini File|this is the ini file you created for your base machine config
-|HAL File|this is the HAL file you created for your base machine config
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini
+|Ini File|this is the .ini file you created for your base machine config
+|HAL File|this is the .hal file you created for your base machine config
 |Arc OK|Modes 1 and 2 only +
         the HAL pin you have connected your arc ok signal to
 |Arc Voltage|Modes 0 An 1 only +
@@ -394,7 +394,7 @@ Some functions are only used for particular modes and are not displayed if not r
 === Config Panel
 This panel is for configuration parameters that are modified infrequently.
 
-It is possible to disable this panel so machine settings cannot be modified by unauthorised personnel. This is achieved by setting a variable in the ini file:
+It is possible to disable this panel so machine settings cannot be modified by unauthorised personnel. This is achieved by setting a variable in the .ini file:
 
 ----
 [PLASMAC] CONFIG_DISABLE = 1
@@ -582,7 +582,7 @@ NOTE: The Ohmic Probe LED will show the status of the probe input regardless of 
 
 The button panel contains buttons useful for the operation of the machine.
 
-Both GUIs have a 'Torch Enable' button and all other buttons are user programmable in the ini file. Axis has five user buttons and Gmoccapy has four user buttons.
+Both GUIs have a 'Torch Enable' button and all other buttons are user programmable in the .ini file. Axis has five user buttons and Gmoccapy has four user buttons.
 
 See <<custom-user-buttons,Custom User Buttons>>
 
@@ -646,17 +646,43 @@ image::images/plasmac_stats.png[width=400]
 
 The only mandatory G-Code requirement for a PlasmaC configuration is 'M3 $0 S1' to begin a cut and 'M5' to end a cut, plus of course standard motion codes to move from start to end.
 
-If you are using PlasmaC without multiple tools enabled then it is permissible to use 'M3 S1' in lieu of 'M3 $0 S1'.
+If you are using PlasmaC without <<multi-tool, multiple tools>> enabled then it is permissible to use 'M3 S1' in lieu of 'M3 $0 S1'.
+
+=== Coordinates
+
+Each time LinuxCNC is started it requires homing. This allows LinuxCNC to know where in the world the torch is and sets the soft limits to the values specified in the .ini file thus preventing the machine from crashing into a hard stop during normal use.
+
+If your machine does not have home switches then you need to ensure that all axes are at the home coordinates specified in the .ini file before homing.
+
+If your machine has home switches then it will move to the specified home coordinates when directed.
+
+Depending on your configuration you may have a 'Home All' button or you may need to home each axis individually. Use the appropriate button/buttons to home the machine.
+
+After homing the torch needs to know where the material is, this is achieved with 'Touch Off'.
+
+It is recommended that at the first use of the machine you jog the Z axis down to near the slats and 'Touch Off' the Z axis with a zero offset. When done, jog the Z axis up to where it was originally. This should not need to be done again.
+
+If you intend to place your material in the same place on the table every time then you could jog the X and Y axes to the X0,Y0 position of the material and then 'Touch Off' both axes with a zero offset.
+
+If you intend to place the material randomly on the table then before each job you will need to 'Touch Off' as above or place the material at the previous location.
 
 [[multi-tool]]
 
-If multiple tools are enabled then a tool number is required in the 'M3 command to selected the required tool.
+=== Multiple Tools
+
+Multiple tools allows the use of more than one tool, valid tools are:
+
+* Plasma Torch - for normal cutting
+* Air Scribe - for engraving
+* Plasma Torch - for centre spotting
+
+If multiple tools are enabled then a LinuxCNC tool number is required in the 'M3 command to selected the required tool.
 
 * 'M3 $0 S1' will select the plasma cutting tool.
 * 'M3 $1 S1' will select the air scribe.
 * 'M3 $2 S1' will select the plasma centre spotting tool.
 
-To enable multiple tools, edit the following line in <MACHINE_NAME>_connections.hal.
+To enable the multiple tools feature you need to edit the following line in <MACHINE_NAME>_connections.hal.
 
 from:
 
@@ -778,7 +804,7 @@ WARNING: If Cut Feed Rate in the Run Panel is set to Zero then PlasmaC will use 
 
 === Cutter Compensation
 
-To use cutter compensation you will need to use G41.1, G42.1 and G40 with the kerf width hal pin:
+To use cutter compensation you will need to use G41.1, G42.1 and G40 with the kerf width HAL pin:
 
 * 'G41.1 D#<_hal[plasmac_run.kerf-width-f]>' ; for left of programmed path
 * 'G42.1 D#<_hal[plasmac_run.kerf-width-f]>' for right of programmed path
@@ -1011,7 +1037,7 @@ You can switch between the torch and the air-scribe any number of times during a
 
 Issuing M3 S1 (without $n) will cause the machine to behave as if an 'M3 $0 S1' had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous GCode files.
 
-WARNING: If you have an existing manual toolchange in your machine HAL file then PlasmaC will convert it to an automatic toolchange.
+WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
 
 == Center Spotting
 
@@ -1131,7 +1157,7 @@ This indicates that the safe height has been reduced due to THC raising the Z ax
 
 == INI File
 
-PlasmaC requires some specific ini file variables as follows:
+PlasmaC requires some specific .ini file variables as follows:
 
 === Common
 
@@ -1166,16 +1192,16 @@ ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments
 -----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
 SUBROUTINE_PATH       = ./:../../nc_files/subroutines (./ must be in this path)
-FEATURES              = 12 (for reading ini and hal variables)
+FEATURES              = 12 (for reading .ini and HAL variables)
 USER_M_PATH           = ./ (for M190 material change)
 -----
 
 .[HAL] Section
 
 -----
-TWOPASS = on (needed for multiple HAL files)
-HALFILE = <MACHINE_NAME>.hal (your base machine hal)
-HALFILE = plasmac.hal (the standard PlasmaC HAL file )
+TWOPASS = on (needed for multiple .hal files)
+HALFILE = <MACHINE_NAME>.hal (your base machine .hal file)
+HALFILE = plasmac.hal (the standard PlasmaC .hal file )
 HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
@@ -1283,13 +1309,13 @@ The Run Window can be displayed as one of:
 
 == Custom User Buttons
 
-There are buttons available that are programmable in the ini file.
+There are buttons available that are programmable in the .ini file.
 
 Five buttons in the Axis GUI, numbered 1 - 5 from left to right.
 
 Four buttons in the Gmoccapy GUI, numbered 1 - 4 from top to bottom.
 
-All ini file settings for the buttons are in the [PLASMAC] section.
+All .ini file settings for the buttons are in the [PLASMAC] section.
 
 === Button Names
 
@@ -1299,7 +1325,7 @@ The text that appears on the button is set the following way:
 BUTTON_n_NAME = HAL Show
 ----
 
-Where n is the button number and HAL Show is the text.
+Where n is the button number and 'HAL Show' is the text.
 
 For text on multiple lines in Axis, split the text with a \
 
@@ -1337,7 +1363,7 @@ To run an existing subroutine.
 BUTTON_n_CODE = o<my_subroutine> call
 ----
 
-Ini file variables can be entered by using <> (you must put a space after the >)
+.ini file variables can be entered by using <> (you must put a space after the >)
 
 ----
 BUTTON_n_CODE = G0 X<JOINT_0 HOME> Y1
@@ -1445,11 +1471,11 @@ Files in the example configurations are:
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|xxx_plasmac_ini|configuration file
-|plasmac.hal|hal connections for the PlasmaC component
-|plasmac_connections.hal|hal connections to the i/o HAL pins
+|<MACHINE>.ini|configuration file
+|<MACHINE>.hal|HAL connections for the PlasmaC component
+|<MACHINE>_connections.hal|HAL connections to the i/o HAL pins
 |plasmac_xxx.glade|a gladevcp panel connecting to the PlasmaC component
-|plasmac_xxx.hal|hal connections for the panel
+|plasmac_xxx.hal|HAL connections for the panel
 |plasmac_xxx.py|python code for the panel
 |xxx_startup.ngc|startup G-Code commands
 |plasmac_gcode.py|removes z axis moves from the opened G-Code file
@@ -1462,16 +1488,16 @@ Files in the example configurations are:
 The Configurator creates the following files:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* (<MACHINE> = name of machine in ini file)
-|<MACHINE>.ini|your new ini file
-|<MACHINE>.hal|your new hal file
-|<MACHINE>_connections.hal|connections to your i/o hal pins
+|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
+|<MACHINE>.ini|your new .ini file
+|<MACHINE>.hal|your new .hal file
+|<MACHINE>_connections.hal|HAL connections to your I/O HAL pins
 |===
 
 After running a new working configuration the first time the following will be created:
 [width="100%",cols="1,2"]
 |===
-|*Filename*|*Function* (<MACHINE> = name of machine in ini file)
+|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
 |<MACHINE>_config.cfg|configuration settings for the config tab
 |<MACHINE>_run.cfg|configuration settings for the Run Panel
 |<MACHINE>_material.cfg|material file for cut parameters
@@ -1488,9 +1514,9 @@ There are some sample G-Code files in nc_files/plasmac.
 
 == Test Panel
 
-There is a ./test directory in the source which has a simple test panel and associated python file which can be used to test the example configuration as referenced in the ini file.
+There is a ./test directory in the source which has a simple test panel and associated python file which can be used to test the example configuration as referenced in the .ini file.
 
-If you wish to use this in your own sim configuration then you will need to create a link to this directory and edit your ini file to suit.
+If you wish to use this in your own sim configuration then you will need to create a link to this directory and edit your .ini file to suit.
 
 == Upgrade An Existing Configuration
 
@@ -1531,7 +1557,7 @@ Select 'Upgrade' from the selection window, this shows an info dialog, select 'C
 
 image::images/plasmac_configurator_upgrade.png[width=400]
 
-Select the ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
+Select the .ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
 
 [[modify-config]]
 
@@ -1569,7 +1595,7 @@ Select 'Reconfigure' from the selection window, this shows an info dialog, selec
 
 image::images/plasmac_configurator_reconfigure.png[width=400]
 
-Select the ini file of the PlasmaC configuration you wish to reconfigure.
+Select the .ini file of the PlasmaC configuration you wish to reconfigure.
 
 If you change modes then you will notice that entry boxes change depending on the currently selected mode.
 
@@ -1577,7 +1603,7 @@ When all entries are correct, click 'Reconfigure' and your PlasmaC configuration
 
 Entry descriptions can be found <<configurator-table, here>>
 
-NOTE: Machine Name and HAL File can not be modified.
+NOTE: Machine Name and .hal File can not be modified.
 
 == Materialverter
 
@@ -1627,9 +1653,9 @@ NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this 
 
 The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
-You will need to manually add a scale and counter mode to your base machine HAL file before running the Configurator.
+You will need to manually add a scale and counter mode to your base machine .hal file before running the Configurator.
 
-If you connected your THCAD to a mesa 7i76e then the commands required in the HAL file would be:
+If you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
 
 ----
 setp  hm2_7i76e.0.encoder.00.scale -1
