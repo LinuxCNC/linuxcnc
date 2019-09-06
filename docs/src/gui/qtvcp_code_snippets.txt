@@ -11,8 +11,8 @@ under the 'def initialized__(self):' function add:
 ----
         if self.w.PREFS_:
             # variable name                     (entry name, default value, type, section name)
-            self.int_value = self.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
-            self.string_value = self.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
+            self.int_value = self.w.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
+            self.string_value = self.w.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
 ----
 
 under the 'def closing_cleanup__(self):' function add:
@@ -20,8 +20,8 @@ under the 'def closing_cleanup__(self):' function add:
 ----
         if self.w.PREFS_:
             #                     entry name, variable name, type, section name)
-            self.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
-            self.PREFS_.putpref('String_value', self.string_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.w.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.w.PREFS_.putpref('String_value', self.string_value, str, 'CUSTOM_FORM_ENTRIES')
 
 ----
 
