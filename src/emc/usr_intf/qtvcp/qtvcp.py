@@ -455,7 +455,8 @@ Pressing cancel will close linuxcnc.""" % target)
 
         lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
         message = ("Qtvcp encountered an error.  The following "
-                    + "information may be useful in troubleshooting:\n")
+                    + "information may be useful in troubleshooting:\n"
+                    + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
         if ERROR_COUNT > 5:
             log.critical("Too many errors: {}".format(message))
             self.shutdown()
