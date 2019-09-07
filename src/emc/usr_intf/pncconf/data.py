@@ -35,13 +35,14 @@ def md5sum(filename):
 # warning any data that doesn't start with a _ will be saved
 # and reloaded - this could change the type
 class Data:
-    def __init__(self, app, private_data_instance,base_dir):
+    def __init__(self, app, private_data_instance,base_dir, linuxcnc_version):
         global _PD
         global _APP
         global _BASE
         _APP = app
         _PD = private_data_instance
         _BASE = base_dir
+        self.linuxcnc_version = linuxcnc_version
         # custom signal name lists
         self.halencoderinputsignames = []
         self.halmuxencodersignames = []
