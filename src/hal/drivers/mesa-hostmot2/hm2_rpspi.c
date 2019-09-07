@@ -99,19 +99,12 @@ typedef struct hm2_rpspi_struct {
 	int		spiceid;	// The SPI CE id [012]
 } hm2_rpspi_t;
 
-typedef enum {
-	RPI_UNSUPPORTED,
-	RPI_1,		// Version 1
-	RPI_2		// Version 2 and 3
-} platform_t;
-
 static uint32_t *peripheralmem = (uint32_t *)MAP_FAILED;	// mmap'ed peripheral memory
 static size_t peripheralsize;					// Size of the mmap'ed block
 static bcm2835_gpio_t *gpio;					// GPIO peripheral structure in mmap'ed address space
 static bcm2835_spi_t *spi;					// SPI peripheral structure in mmap'ed address space
 static bcm2835_aux_t *aux;					// AUX peripheral structure in mmap'ed address space
 static uint32_t aux_enables;					// Previous state of SPI1 enable
-static platform_t platform;					// The RPI version
 
 static hm2_rpspi_t boards[RPSPI_MAX_BOARDS];	// Connected boards
 static int comp_id;				// Upstream assigned component ID
@@ -885,34 +878,12 @@ static int probe_board(hm2_rpspi_t *board) {
 }
 
 /*************************************************/
-static int peripheral_map(void)
+static int peripheral_map(uint32_t membase, uint32_t memsize)
 {
 	int fd;
 	int err;
-	uint32_t membase = BCM2835_GPIO_BASE;	// We know that the GPIO peripheral is first in the map
-	long pagesize = sysconf(_SC_PAGESIZE);	// Default mapped page size multiple
 
-	// error, zero or not power of two
-	if(-1 == pagesize || !pagesize || (pagesize & (pagesize-1))) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Pagesize is bad (%ld), assuming 4kByte\n", pagesize);
-		pagesize = 4096;	// We assume this is a 12-bit (4k) page system, pretty safe
-	}
-
-	// Size is independent of the Pi we are running on
-	peripheralsize = BCM2835_AUX_END - membase;	// We know that the AUX peripheral is last in the map
-	peripheralsize += pagesize - 1;			// Round up to next full page
-	peripheralsize &= ~(uint32_t)(pagesize - 1);	// Round up to next full page
-
-	switch(platform) {
-	case RPI_1:
-		break;
-	case RPI_2:	// for RPI 3 too
-		membase += BCM2709_OFFSET;
-		break;
-	default:
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Platform not supported\n");
-		return -1;
-	}
+	peripheralsize = memsize;
 
 	if((fd = rtapi_open_as_root("/dev/mem", O_RDWR | O_SYNC)) < 0) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: can't open /dev/mem\n");
@@ -920,7 +891,7 @@ static int peripheral_map(void)
 	}
 
 	/* mmap BCM2835 GPIO and SPI peripherals */
-	peripheralmem = mmap(NULL, peripheralsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, membase);
+	peripheralmem = mmap(NULL, peripheralsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, (off_t)membase);
 	err = errno;
 	close(fd);
 
@@ -929,9 +900,9 @@ static int peripheral_map(void)
 		return -err;
 	}
 
-	gpio = (bcm2835_gpio_t *)peripheralmem;
-	spi  = (bcm2835_spi_t *)(peripheralmem + (BCM2835_SPI_OFFSET - BCM2835_GPIO_OFFSET) / sizeof(*peripheralmem));
-	aux  = (bcm2835_aux_t *)(peripheralmem + (BCM2835_AUX_OFFSET - BCM2835_GPIO_OFFSET) / sizeof(*peripheralmem));
+	gpio = (bcm2835_gpio_t *)(peripheralmem + (BCM2835_GPIO_OFFSET / sizeof(*peripheralmem)));
+	spi  = (bcm2835_spi_t *)(peripheralmem + (BCM2835_SPI_OFFSET  / sizeof(*peripheralmem)));
+	aux  = (bcm2835_aux_t *)(peripheralmem + (BCM2835_AUX_OFFSET  / sizeof(*peripheralmem)));
 
 	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Mapped peripherals from 0x%08x (size 0x%08x) to gpio:0x%p, spi:0x%p, aux:0x%p\n",
 			membase, (uint32_t)peripheralsize, gpio, spi, aux);
@@ -1088,65 +1059,44 @@ static void peripheral_restore(void)
 }
 
 /*************************************************/
-#define CPUINFO_BUFSIZE	(16*1024)	// Should be large enough for now
-static platform_t check_platform(void)
+static uint8_t *read_file(const char *fname, size_t maxsize, size_t minsize)
 {
 	FILE *fp;
-	char *buf;
-	size_t fsize;
-	platform_t rv = RPI_UNSUPPORTED;
+	struct stat sb;
+	uint8_t *buf;
+	size_t nn, fsize;
 
-	if(!(buf = rtapi_kmalloc(CPUINFO_BUFSIZE, RTAPI_GFP_KERNEL))) {
+	if(-1 == stat(fname, &sb)) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot stat '%s'\n", fname);
+		return NULL;
+	}
+
+	nn = sb.st_size > maxsize ? maxsize : sb.st_size;
+	if(!(buf = rtapi_kmalloc(nn+1, RTAPI_GFP_KERNEL))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: No dynamic memory\n");
-		return RPI_UNSUPPORTED;
+		return NULL;
 	}
-	if(!(fp = fopen("/proc/cpuinfo", "r"))) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Failed to open /proc/cpuinfo\n");
-		goto check_exit;
+	memset(buf, 0, nn+1);
+	if(!(fp = fopen(fname, "r"))) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot open '%s' for read\n", fname);
+		rtapi_kfree(buf);
+		return NULL;
 	}
-	fsize = fread(buf, 1, CPUINFO_BUFSIZE - 1, fp);
+
+	fsize = fread(buf, 1, nn, fp);
 	fclose(fp);
-
-	// we have truncated cpuinfo return unsupported
-	if(!fsize || fsize == CPUINFO_BUFSIZE - 1) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Platform detection memory buffer too small\n");
-		goto check_exit;
+	if(!fsize) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Nothing read from '%s' (errno=%d)\n", fname, errno);
+		rtapi_kfree(buf);
+		return NULL;
+	}
+	if(fsize < minsize) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Short read from '%s'; read=%zu required>=%zu\n", fname, fsize, minsize);
+		rtapi_kfree(buf);
+		return NULL;
 	}
 
-	/* NUL terminate the buffer */
-	buf[fsize] = '\0';
-
-	if(strstr(buf, "BCM2708")) {
-		rv = RPI_1;
-	} else if(strstr(buf, "BCM2709")) {
-		rv = RPI_2;	//for RPI 3 too
-	} else if(strstr(buf, "BCM2835")) {	// starting with 4.8 kernels revision tag has board details
-		char *rev_val = strstr(buf, "Revision");
-		if(rev_val) {
-			char *rev_start = strstr(rev_val, ": ");
-			unsigned long rev = strtol(rev_start + 2, NULL, 16);
-
-			if(rev <= 0xffff)
-				rv = RPI_1; // pre pi2 revision scheme
-			else {
-				switch((rev & 0xf000) >> 12) {
-				case 0: //bcm2835
-					rv = RPI_1;
-					break;
-				case 1: //bcm2836
-				case 2: //bcm2837
-					rv = RPI_2;	// peripheral base is same on pi2/3
-					break;
-				default:
-					break;
-				}
-			}
-		}
-	}
-
-check_exit:
-	rtapi_kfree(buf);
-	return rv;
+	return buf;
 }
 
 /*************************************************/
@@ -1164,17 +1114,42 @@ static int hm2_rpspi_setup(void)
 {
 	int i, j;
 	int retval = -1;
+	uint8_t *buf;
+	uint32_t pmembase;
+	uint32_t pmemsize;
 
 	// Set process-level message level if requested
 	if(spi_debug >= RTAPI_MSG_NONE && spi_debug <= RTAPI_MSG_ALL)
 		rtapi_set_msg_level(spi_debug);
 
-	platform = check_platform();
-
-	if(platform == RPI_UNSUPPORTED) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Unsupported Platform, only Raspberry1/2/3 supported.\n");
+	// Info about the hardware platform
+	if(!(buf = read_file("/proc/device-tree/model", 255, -1))) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Unsupported Platform.\n");
 		return -1;
 	}
+	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Platform: %s\n", (const char *)buf);
+	rtapi_kfree(buf);
+
+	// Extract the IO base and size
+	if(!(buf = read_file("/proc/device-tree/soc/ranges", 255, 12))) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot determine IO base address and size.\n");
+		return -1;
+	}
+
+	pmembase = ((uint32_t *)buf)[1];
+	if(!pmembase) {
+		pmembase = ((uint32_t *)buf)[2];
+		pmemsize = ((uint32_t *)buf)[3];
+	} else {
+		pmemsize = ((uint32_t *)buf)[2];
+	}
+	rtapi_kfree(buf);
+	if(!pmembase || !pmemsize) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: IO base address or size are zero.\n");
+		return -1;
+	}
+	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Base address 0x%08x size 0x%08x\n", pmembase, pmemsize);
+
 
 	if(-1 == spiclk_rate_rd)
 		spiclk_rate_rd = spiclk_rate;
@@ -1194,7 +1169,7 @@ static int hm2_rpspi_setup(void)
 		return -EINVAL;
 	}
 
-	if((retval = peripheral_map()) < 0) {
+	if((retval = peripheral_map(pmembase, pmemsize)) < 0) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: cannot map peripheral memory.\n");
 		return retval;
 	}
