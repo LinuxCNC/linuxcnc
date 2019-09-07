@@ -1136,12 +1136,11 @@ static int hm2_rpspi_setup(void)
 		return -1;
 	}
 
-	pmembase = ((uint32_t *)buf)[1];
+	pmembase = be32toh(((uint32_t *)buf)[1]);
+	pmemsize = be32toh(((uint32_t *)buf)[2]);
 	if(!pmembase) {
-		pmembase = ((uint32_t *)buf)[2];
-		pmemsize = ((uint32_t *)buf)[3];
-	} else {
-		pmemsize = ((uint32_t *)buf)[2];
+		pmembase = be32toh(((uint32_t *)buf)[2]);
+		pmemsize = be32toh(((uint32_t *)buf)[3]);
 	}
 	rtapi_kfree(buf);
 	if(!pmembase || !pmemsize) {
