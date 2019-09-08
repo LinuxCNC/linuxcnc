@@ -57,6 +57,10 @@ from pncconf import private_data
 import cairo
 import hal
 #import mesatest
+try:
+    LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
+except:
+    LINUXCNCVERSION = 'UNAVAILABLE'
 
 def get_value(w):
     try:
@@ -91,7 +95,7 @@ def excepthook(exc_type, exc_obj, exc_tb):
                 gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
                 _("PNCconf encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
-                + "".join(lines))
+                + "LinuxCNC Version:  %s\n\n"% LINUXCNCVERSION + ''.join(lines))
     m.show()
     m.run()
     m.destroy()
@@ -148,8 +152,8 @@ class App:
         self.firmware_block = False
         # Private data holds the array of pages to load, signals, and messages
         _PD = self._p = private_data.Private_Data(self,BIN,BASE)
-        self.d = data.Data(self, _PD, BASE)
-        
+        self.d = data.Data(self, _PD, BASE, LINUXCNCVERSION)
+
         self.splash_screen()
         #self.pbar.set_fraction(.2)
         #while gtk.events_pending():

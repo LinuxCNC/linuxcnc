@@ -1901,7 +1901,7 @@ file</string>
         <string>Step</string>
        </property>
        <property name="estop_action" stdset="0">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="run_action" stdset="0">
         <bool>false</bool>

@@ -8,6 +8,11 @@ log = logger.getLogger(__name__)
 # Set the log level for this module
 log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+try:
+    LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
+except:
+    LINUXCNCVERSION = 'UNAVAILABLE'
+
 class _IStat(object):
     def __init__(self):
         # only initialize once for all instances
@@ -16,6 +21,7 @@ class _IStat(object):
         self.__class__._instanceNum += 1
 
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+        self.LINUXCNC_VERSION = LINUXCNCVERSION
         self.inifile = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
