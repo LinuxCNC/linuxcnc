@@ -22,7 +22,6 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.core import Status, Action, Info
-from qtvcp.widgets.entry_widget import SoftInputWidget
 from qtvcp import logger
 
 # Instiniate the libraries with global reference

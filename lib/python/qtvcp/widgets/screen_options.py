@@ -93,6 +93,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._entryDialogSoftkey = True
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
@@ -353,6 +354,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.entryDialog_ = EntryDialog()
         w.entryDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.entryDialog_, w, w.PATHS, self.PREFS_)
+        w.entryDialog_.soft_keyboard_option = self._entryDialogSoftkey
         w.entryDialog_.overlay_color = self._entryDialogColor
 
     def init_file_dialog(self):
@@ -547,6 +549,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_entryDialog(self):
         self.add_entry_dialog = False
     entryDialog_option = QtCore.pyqtProperty(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
+    def set_entryDialogSoftkey(self, data):
+        self._entryDialogSoftkey = data
+    def get_entryDialogSoftkey(self):
+        return self._entryDialogSoftkey
+    def reset_entryDialogSoftkey(self):
+        self._entryDialogSoftkey = False
+    entryDialogSoftkey_option = QtCore.pyqtProperty(bool, get_entryDialogSoftkey, set_entryDialogSoftkey, reset_entryDialogSoftkey)
     def get_entryDialogColor(self):
         return self._entryDialogColor
     def set_entryDialogColor(self, value):

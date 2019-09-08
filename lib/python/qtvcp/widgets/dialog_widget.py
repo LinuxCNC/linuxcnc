@@ -1077,13 +1077,14 @@ class EntryDialog(QDialog, _HalWidgetBase):
         l = QVBoxLayout()
         self.setLayout(l)
 
-        o = TouchInputWidget()
-        l.addWidget(o)
+        self.softkey = TouchInputWidget(self)
+        l.addWidget(self.softkey)
 
         self.Num = QLineEdit()
         # actiate touch input
-        self.Num.keyboard_type = 'numeric'
         self.Num.returnPressed.connect(lambda: self.accept())
+        self.Num.keyboard_type = 'numeric'
+        self.Num.keyboard_enable = True
 
         gl = QVBoxLayout()
         gl.addWidget(self.Num)
@@ -1095,7 +1096,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self.bBox.accepted.connect(self.accept)
 
         gl.addWidget(self.bBox)
-        o.setLayout(gl)
+        self.softkey.setLayout(gl)
 
     def _hal_init(self):
         x = self.geometry().x()
@@ -1165,8 +1166,17 @@ class EntryDialog(QDialog, _HalWidgetBase):
     def resetIdName(self):
         self._request_name = 'ENTRY'
 
+    def set_soft_keyboard(self, data):
+        self.Num.keyboard_enable = data
+    def get_soft_keyboard(self):
+        return self.Num.keyboard_enable
+    def reset_soft_keyboard(self):
+        self.Num.keyboard_enable = True
+
+    # designer will show these properties in this order:
     launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
+    soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
 
 ############################################
 # Calculator Dialog

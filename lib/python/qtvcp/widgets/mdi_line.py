@@ -113,10 +113,10 @@ class MDILine(MDI):
         if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
             if self.soft_keyboard:
                 self._input_panel_full.show_input_panel(widget)
-                try:
-                    ACTION.SET_MDI_MODE()
-                except:
-                    pass
+            try:
+                ACTION.SET_MDI_MODE()
+            except:
+                pass
         return False
 
     #########################################################################
