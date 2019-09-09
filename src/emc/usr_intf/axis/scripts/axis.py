@@ -603,18 +603,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
-        i = 0
-        for ts in t:
-            if i < len(homed) and homed[i]:
-                t[i] += "*"
-            else:
-                t[i] += " "
-            if i < len(homed) and limit[i]:
-                t[i] += "!" # !!!1!
-            else:
-                t[i] += " "
-            i+=1
-
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
