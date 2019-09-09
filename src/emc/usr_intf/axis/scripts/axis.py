@@ -3448,6 +3448,13 @@ while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
             "More information may be available when running from a terminal.")
     s.poll()
 
+if s.num_extrajoints > 0:
+    # Preview display for extra joints is shared with offsets.
+    # Initially ignore preference for show_offsets in order
+    # to show extra joints in preview, (user can still set
+    # show_offsets)
+    vars.show_offsets.set(False)
+
 if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
     ja_name = _("Axes")
 else:

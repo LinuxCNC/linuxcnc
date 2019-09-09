@@ -38,11 +38,11 @@ menu .menu.file \
 menu .menu.file.recent \
 	-tearoff 0
 menu .menu.machine \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.home \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.unhome \
-	-tearoff 0
+	-tearoff 1
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
