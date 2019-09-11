@@ -186,7 +186,7 @@ class INI:
             # add A axis 
             num_joints += 1
             coords += 'A'
-            tandemjoint = self.a.tandem_check('z')
+            tandemjoint = self.a.tandem_check('a')
             if tandemjoint:
                 # add tandem to A
                 tandemflag = True
