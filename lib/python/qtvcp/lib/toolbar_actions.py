@@ -38,8 +38,9 @@ _DIALOG = Dialog()
 CONFIGDIR = os.environ['CONFIG_DIR']
 
 class ToolBarActions():
-    def __init__(self, path=None):
-        self.path = path
+    def __init__(self, widgetInstance=None):
+        self.qtvcpWidgets = widgetInstance
+        self._recentActionWidget = None
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
@@ -244,12 +245,14 @@ class ToolBarActions():
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             self.addUnHomeActions(widget)
         elif submenu == 'recent_submenu':
+            self._recentActionWidget = widget
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecentPaths(widget, d))
+            self.addRecentPaths()
         elif submenu == 'zero_systems_submenu':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -462,7 +465,7 @@ class ToolBarActions():
 
 
 
-    def updateRecent(self, widget, filename):
+    def updateRecentPaths(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 
@@ -492,3 +495,16 @@ class ToolBarActions():
             widget.removeAction(alist[self.maxRecent])
         else:
             self.recentNum +=1
+
+    def addRecentPaths(self):
+        if self._recentActionWidget is not None and self.qtvcpWidgets.PREFS_ is not None:
+            for num in range(self.maxRecent,-1,-1):
+                path_string = self.qtvcpWidgets.PREFS_.getpref('RecentPath_%d'% num, None, str, 'BOOK_KEEPING')
+                if not path_string in ('None', None):
+                    self.updateRecentPaths(self._recentActionWidget,path_string)
+
+    def saveRecentPaths(self):
+        if self._recentActionWidget is not None and self.qtvcpWidgets.PREFS_ is not None:
+            for num, i in enumerate(self._recentActionWidget.actions()):
+                self.qtvcpWidgets.PREFS_.putpref('RecentPath_%d'% num, i.text(), str, 'BOOK_KEEPING')
+

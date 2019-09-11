@@ -29,7 +29,6 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
-TOOLBAR = None
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -47,7 +46,7 @@ class HandlerClass:
         self.PATHS = paths
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
-        TOOLBAR = ToolBarActions(path=paths)
+        TOOLBAR = ToolBarActions(widgets)
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
@@ -148,6 +147,9 @@ class HandlerClass:
             LOG.debug('Exception in KEYBINDING:', exc_info=e)
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             return False
+
+    def closing_cleanup__(self):
+        TOOLBAR.saveRecentPaths()
 
     ########################
     # callbacks from STATUS #
