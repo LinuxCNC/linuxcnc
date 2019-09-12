@@ -73,7 +73,7 @@ proc consistent_coords_for_trivkins {trivcoords} {
   if [info exists ::TRAJ(COORDINATES)] {
     set trajcoords [string map $m [lindex $::TRAJ(COORDINATES) 0]]
   }
-  if {"$trivcoords" != "$trajcoords"} {
+  if {[string toupper "$trivcoords"] != [string toupper "$trajcoords"]} {
     lappend ::wmsg "INCONSISTENT coordinates specifications:
                trivkins coordinates=$trivcoords
                \[TRAJ\]COORDINATES=$trajcoords"

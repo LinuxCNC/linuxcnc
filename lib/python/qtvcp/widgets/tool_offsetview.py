@@ -120,7 +120,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         hh = self.horizontalHeader()
         hh.setMinimumSectionSize(75)
         hh.setStretchLastSection(True)
-        hh.setSortIndicator(0,Qt.DescendingOrder)
+        hh.setSortIndicator(0,Qt.AscendingOrder)
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -148,25 +148,11 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         col = new.column()
         data = self.tablemodel.data(new)
         print 'Entered data:', data, row,col
-        if col is not 18:
-            # set the text style based on unit type
-            if self.metric_display:
-                tmpl = lambda s: self.mm_text_template % s
-            else:
-                tmpl = lambda s: self.imperial_text_template % s
-
-            # #TODO make sure we switch to correct units for machine when saving file
-            try:
-                    qualified = float(data)
-                    #qualified = float(locale.atof(data))
-            except Exception as e:
-                LOG.exception(e)
-                qualified = None
-
-            print ' QUALIFIED:', qualified
         # now update linuxcnc to the change
         try:
             if STATUS.is_status_valid():
+                #for i in self.tablemodel.arraydata:
+                #    LOG.debug("2>>> = {}".format(i))
                 TOOL.SAVE_TOOLFILE(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
                 ACTION.RECORD_CURRENT_MODE()
                 ACTION.CALL_MDI('g43')
@@ -245,27 +231,55 @@ class MyTableModel(QAbstractTableModel):
     # Returns true if successful; otherwise returns false.
     # The dataChanged() signal should be emitted if the data was successfully set.
     def setData(self, index, value, role):
+        col = index.column()
         if not index.isValid():
+            LOG.error(">>> index not valid {}".format(index))
             return False
-        LOG.debug("original value:{}".format(self.arraydata[index.row()][index.column()]))
+        LOG.debug("original value:{}".format(self.arraydata[index.row()][col]))
         LOG.debug(">>> setData() role = {}".format(role))
-        LOG.debug(">>> setData() index.column() = {}".format(index.column()))
+        LOG.debug(">>> setData() column() = {}".format(col))
+
+
+        # TODO make valuse actually change in metric/impeial mode
+        # currently it displays always in machine units.
+        # there needs to be conversion added to this code
+        # and this class needs access to templates and units mode.
+        # don't convert tool,pocket,A, B, C, front angle, back angle, orintation or comments
+        if not col in (0,1,8,9,10,15,16,17,18):
+            # set the text style based on unit type
+            if 1 == True:#self.metric_display:
+                tmpl = lambda s: self.mm_text_template % s
+            else:
+                tmpl = lambda s: self.imperial_text_template % s
+
+            # #TODO make sure we switch to correct units for machine when saving file
+            try:
+                    qualified = float(value)
+                    #qualified = float(locale.atof(data))
+            except Exception as e:
+                LOG.exception(e)
+                qualified = None
+            LOG.debug("Qualified entry = {}".format(qualified))
+            # qualified value is not actually used yet
+
         try:
-            if index.column() in (0,1):
+            if col in (0,1):
                 v = int(value)
-            elif index.column() == 18:
+            elif col == 18:
                 v = str(value)
             else:
                 v = float(value)
         except:
-            LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), index.column()))
+            LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), col))
             return False
         LOG.debug(">>> setData() value = {} ".format(value))
         LOG.debug(">>> setData() qualified value = {}".format(v))
         LOG.debug(">>> setData() index.row = {}".format(index.row()))
-        LOG.debug(">>> setData() index.column = {}".format(index.column()))
-        self.arraydata[index.row()][index.column()] = v
-        print self.arraydata[index.row()][index.column()]
+        LOG.debug(">>> setData() index.column = {}".format(col))
+        self.arraydata[index.row()][col] = v
+        LOG.debug(">>> = {}".format(self.arraydata[index.row()][col]))
+        for i in self.arraydata:
+            LOG.debug(">>> = {}".format(i))
         self.dataChanged.emit(index, index)
         return True
 

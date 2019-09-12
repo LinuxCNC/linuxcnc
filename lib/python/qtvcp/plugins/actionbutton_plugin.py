@@ -158,6 +158,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         node_1 = (('Estop',['estop', 0], []),
                  ('Machine On',['machine_on', 0], []),
                 ('Home',['home', 1], []),
+                ('Unhome',['unhome', 1], []),
                 ('Run',['run', 0], []),
                 ('Abort',['abort', 0], []),
                  ('Pause',['pause', 0], []),
