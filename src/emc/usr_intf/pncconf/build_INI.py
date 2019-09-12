@@ -296,8 +296,9 @@ class INI:
             jnum += 1
             print >>file, "#******************************************"
 
-        # always add SPINDLE
-        self.write_one_joint(file, 9, "s", "null", all_homes, False)
+        # usually add SPINDLE
+        if self.d.include_spindle:
+            self.write_one_joint(file, 9, "s", "null", all_homes, False)
         file.close()
         self.d.add_md5sum(filename)
 

@@ -110,6 +110,7 @@ class Data:
         self.machinename = _("my_LinuxCNC_machine")
         self.frontend = _PD._AXIS 
         self.axes = 0 # XYZ
+        self.include_spindle = True
         self.available_axes = []
         self.baseperiod = 50000
         self.servoperiod = 1000000
