@@ -188,7 +188,6 @@ class _TStat(object):
                     new_line[6] = i
                 elif cnum in(5,6,7,8,9,10,11,12,13,14,15):
                     new_line[cnum+3] = i
-            #print new_line
             full_tool_list.append(new_line)
 
         # any tool number over 10000 is a wear offset
@@ -218,9 +217,13 @@ class _TStat(object):
                 elif cnum == 3 and i !='0':
                     wear_flag = True
                     new_wear_line[2] = float(i)
+                elif cnum == 4 and i !='0':
+                    new_line[cnum-1] = float(i)
                 elif cnum == 5 and i !='0':
                     wear_flag = True
                     new_wear_line[3] = float(i)
+                elif cnum == 6 and i !='0':
+                    new_line[cnum-2] = float(i)
                 elif cnum == 7 and i !='0':
                     wear_flag = True
                     new_wear_line[4] = float(i)
