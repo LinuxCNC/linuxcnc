@@ -51,6 +51,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.estop = False
         self.machine_on = False
         self.home = False
+        self.unhome = False
         self.run = False
         self.abort = False
         self.pause = False
@@ -176,7 +177,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-on', lambda w: _safecheck(True))
             STATUS.connect('state-off', lambda w: _safecheck(False))
 
-        elif self.home:
+        elif True in(self.home, self.unhome):
             #self.setEnabled(False)
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -353,6 +354,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     ACTION.SET_MACHINE_UNHOMED(self.joint)
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint)
+        elif self.unhome:
+            ACTION.SET_MACHINE_UNHOMED(self.joint)
         elif self.run:
             ACTION.RUN()
         elif self.abort:
@@ -604,7 +607,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('estop', 'machine_on', 'home', 'run', 'abort', 'pause', 'step'
+        data = ('estop', 'machine_on', 'home', 'unhome', 'run', 'abort', 'pause', 'step'
                 'load_dialog', 'jog_joint_pos', 'jog_joint_neg',
                 'jog_selected_pos', 'jog_selected_neg', 'zero_axis',
                 'launch_halmeter', 'launch_status', 'launch_halshow',
@@ -648,6 +651,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.home
     def reset_home(self):
         self.home = False
+
+    def set_unhome(self, data):
+        self.unhome = data
+        if data:
+            self._toggle_properties('unhome')
+    def get_unhome(self):
+        return self.unhome
+    def reset_unhome(self):
+        self.unhome = False
 
     def set_zero_axis(self, data):
         self.zero_axis = data
@@ -1161,6 +1173,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     launch_halshow_action = QtCore.pyqtProperty(bool, get_launch_halshow, set_launch_halshow, reset_launch_halshow)
     launch_halscope_action = QtCore.pyqtProperty(bool, get_launch_halscope, set_launch_halscope, reset_launch_halscope)
     home_action = QtCore.pyqtProperty(bool, get_home, set_home, reset_home)
+    unhome_action = QtCore.pyqtProperty(bool, get_unhome, set_unhome, reset_unhome)
     zero_axis_action = QtCore.pyqtProperty(bool, get_zero_axis, set_zero_axis, reset_zero_axis)
     zero_g5x_action = QtCore.pyqtProperty(bool, get_zero_g5x, set_zero_g5x, reset_zero_g5x)
     zero_g92_action = QtCore.pyqtProperty(bool, get_zero_g92, set_zero_g92, reset_zero_g92)
