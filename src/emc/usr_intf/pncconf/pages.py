@@ -240,6 +240,7 @@ class Pages:
         self.d.help = "help-basic.txt"
         self.w.machinename.set_text(self.d.machinename)
         self.w.axes.set_active(self.d.axes)
+        self.w.include_spindle_checkbutton.set_active(self.d.include_spindle)
         self.w.units.set_active(self.d.units)
         self.w.servoperiod.set_value(self.d.servoperiod)
         self.w.machinename.grab_focus()
@@ -277,6 +278,7 @@ class Pages:
         if self.d.axes == 0: self.d.available_axes = ['x','y','z','s']
         elif self.d.axes == 1: self.d.available_axes = ['x','y','z','a','s']
         elif self.d.axes == 2: self.d.available_axes = ['x','z','s']
+        self.d.include_spindle = self.w.include_spindle_checkbutton.get_active()
         self.d.units = self.w.units.get_active()
         self.d.servoperiod = self.w.servoperiod.get_value()
         self.page_set_state('mesa1',self.w.mesa1_checkbutton.get_active())
@@ -287,6 +289,8 @@ class Pages:
                 state = True
             self.page_set_state('%s_axis'%let,state)
             self.page_set_state('%s_motor'%let,state)
+            self.page_set_state('s_axis',self.d.include_spindle)
+            self.page_set_state('s_motor',self.d.include_spindle)
         i = self.w.mesa0_checkbutton.get_active()
         j = self.w.mesa1_checkbutton.get_active()
         self.d.number_mesa = int(i)+int(j)

@@ -398,8 +398,9 @@ class HAL:
                 jnum += 1
                 self.connect_joint(file, jnum, 'a2')
 
-        # Always add Spindle ##################
-        self.connect_joint(file, 9, 's') # 9 for [SPINDLE_9]
+        # usually add Spindle ##################
+        if self.d.include_spindle:
+            self.connect_joint(file, 0, 's') # 9 for [SPINDLE_9]
 
         print >>file
         print >>file, "#******************************"

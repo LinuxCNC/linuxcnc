@@ -154,7 +154,7 @@ class INI:
 
         # add X axis
         num_joints = 1; coords = "X"; tandemflag = False
-        tandemjoint = self.a.make_pinname(self.a.stepgen_sig("x2"))
+        tandemjoint = self.a.tandem_check('x')
         print 'tandem:',tandemjoint
         if tandemjoint:
             #add tandem to X
@@ -166,7 +166,7 @@ class INI:
             # add Y axis
             num_joints += 1
             coords += 'Y'
-            tandemjoint = self.a.make_pinname(self.a.stepgen_sig("y2"))
+            tandemjoint = self.a.tandem_check('y')
             if tandemjoint:
                 #add tandem to Y
                 tandemflag = True
@@ -176,7 +176,7 @@ class INI:
         # add Z axis
         num_joints += 1
         coords += 'Z'
-        tandemjoint = self.a.make_pinname(self.a.stepgen_sig("z2"))
+        tandemjoint = self.a.tandem_check('z')
         if tandemjoint:
             tandemflag = True
             num_joints += 1
@@ -186,7 +186,7 @@ class INI:
             # add A axis 
             num_joints += 1
             coords += 'A'
-            tandemjoint = self.a.make_pinname(self.a.stepgen_sig("a2"))
+            tandemjoint = self.a.tandem_check('a')
             if tandemjoint:
                 # add tandem to A
                 tandemflag = True
@@ -296,8 +296,9 @@ class INI:
             jnum += 1
             print >>file, "#******************************************"
 
-        # always add SPINDLE
-        self.write_one_joint(file, 9, "s", "null", all_homes, False)
+        # usually add SPINDLE
+        if self.d.include_spindle:
+            self.write_one_joint(file, 9, "s", "null", all_homes, False)
         file.close()
         self.d.add_md5sum(filename)
 
