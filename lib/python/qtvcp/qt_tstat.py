@@ -59,8 +59,6 @@ class _TStat(object):
         self.toolfile = INFO.TOOL_FILE_PATH
         self.tool_wear_info = None
         self.current_tool_num = -1
-        self.model = []
-        self.wear_model = []
         self.toolinfo = None
 
     def GET_TOOL_INFO(self, toolnum):
@@ -68,16 +66,20 @@ class _TStat(object):
         self._reload()
         return self.toolinfo
 
-    def GET_TOOL_FILE(self):
-        self._reload()
-        return self.model, self.wear_model
+    def GET_TOOL_ARRAY(self):
+        info = self.GET_TOOL_MODELS()
+        return info[0]+info[1]
+
+    def GET_TOOL_MODELS(self):
+        return self._reload()
 
     def SAVE_TOOLFILE(self, array):
-        self._save(array)
+        return self._save(array)
 
-    def ADD_TOOL(self, model, blanktool = [-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool']):
-        model.insert(0, blanktool)
-        self._save(model)
+    def ADD_TOOL(self, newtool = [-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool']):
+        info = self.GET_TOOL_MODELS()
+        info[0].insert(0, newtool)
+        return self._save(info[0]+info[1])
 
     # [0] = tool number
     # [1] = pocket number
@@ -104,8 +106,8 @@ class _TStat(object):
             return None
         self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
-        self.model = []
-        self.wear_model = []
+        tool_model = []
+        wear_model = []
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = None
         toolinfo_flag = False
@@ -160,14 +162,18 @@ class _TStat(object):
 
             # add array line to model array
             if wear_flag:
-                self.wear_model.append(array)
+                wear_model.append(array)
             else:
-                self.model.append(array)
+                tool_model.append(array)
         if toolinfo_flag:
             self.toolinfo = temp
         else:
             self.toolinfo = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']
+        return (tool_model, wear_model)
 
+    # converts from linuxcnc toolfile array to toolwear array
+    # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
+    # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_WEAR_TYPE(self, data):
         if not INFO.MACHINE_IS_LATHE:
             maintool = data[0] + data[1]
@@ -204,7 +210,10 @@ class _TStat(object):
             full_tool_list[parent_tool][7] = values[4]
         return full_tool_list
 
-    def CONVERT_TO_STANDARD(self, data):
+    # converts from toolwear array to linuxcnc toolfile array
+    # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
+    # qtvcp just adds the extra tool wear positions (x and z) to the original array 
+    def CONVERT_TO_STANDARD_TYPE(self, data):
         tool_wear_list = []           
         full_tool_list = []
         for rnum, row in enumerate(data):
@@ -248,8 +257,10 @@ class _TStat(object):
         return full_tool_list
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
+    
     def _save(self, new_model):
-        if self.toolfile == None:return
+        if self.toolfile == None:
+            return True
         file = open(self.toolfile, "w")
         for row in new_model:
             values = [ value for value in row ]
@@ -276,7 +287,7 @@ class _TStat(object):
             ACTION.RELOAD_TOOLTABLE()
         except:
             LOG.error("reloading of tool table into linuxcnc: {}".format(self.toolfile))
-
+            return True
 
         # create a hash code
     def md5sum(self,filename):
@@ -293,7 +304,6 @@ class _TStat(object):
         m = self.hash_code
         m1 = self.md5sum(self.toolfile)
         if m1 and m != m1:
-            self._reload()
             return False
         return True
 
