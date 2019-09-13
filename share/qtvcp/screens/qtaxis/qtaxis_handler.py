@@ -97,6 +97,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
+        self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -349,6 +350,8 @@ class HandlerClass:
         msg.show()
         retval = msg.exec_()
 
+    def launch_log_dialog(self):
+        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
