@@ -75,7 +75,7 @@ class _TStat(object):
     def SAVE_TOOLFILE(self, array):
         self._save(array)
 
-    def ADD_TOOL(self, model, blanktool = [-99,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','New Tool']):
+    def ADD_TOOL(self, model, blanktool = [-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool']):
         model.insert(0, blanktool)
         self._save(model)
 
@@ -120,7 +120,7 @@ class _TStat(object):
                 line = rawline.rstrip(comment)
             else:
                 line = rawline
-            array = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
+            array = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,comment]
             wear_flag = False
             # search beginning of each word for keyword letters
             # if i = ';' that is the comment and we have already added it
@@ -140,11 +140,14 @@ class _TStat(object):
                             # check if tool is greater then 10000 -then it's a wear tool
                             if int(word.lstrip(i)) > 10000:
                                 wear_flag = True
-                        if offset in(0,1):
+                        if offset in(0,1,14):
                             try:
                                 array[offset]= int(word.lstrip(i))
-                            except:
-                                 LOG.error("toolfile integer access: {}".format(self.toolfile))
+                            except ValueError as e:
+                                try:
+                                    array[offset]= int(float(word.lstrip(i)))
+                                except Exception as e:
+                                    LOG.error("toolfile integer access: {} : {}".format(word.lstrip(i), e))
                         else:
                             try:
                                 if float(word.lstrip(i)) < 0.000001:
@@ -163,7 +166,7 @@ class _TStat(object):
         if toolinfo_flag:
             self.toolinfo = temp
         else:
-            self.toolinfo = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']
+            self.toolinfo = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']
 
     def CONVERT_TO_WEAR_TYPE(self, data):
         if not INFO.MACHINE_IS_LATHE:
@@ -175,7 +178,7 @@ class _TStat(object):
         tool_num_list = {}
         full_tool_list = []
         for rnum, row in enumerate(maintool):
-            new_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']
+            new_line = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']
             values = [ value for value in row ]
             for cnum,i in enumerate(values):
                 if cnum == 0:
@@ -205,11 +208,12 @@ class _TStat(object):
         tool_wear_list = []           
         full_tool_list = []
         for rnum, row in enumerate(data):
-            new_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','']
-            new_wear_line = [0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','Wear Offset']
+            new_line = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'']
+            new_wear_line = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'Wear Offset']
             wear_flag = False
             values = [ value for value in row ]
             for cnum,i in enumerate(values):
+                print cnum, i, type(i)
                 if cnum in(0,1):
                     new_line[cnum] = int(i)
                 elif cnum == 2:
@@ -227,8 +231,10 @@ class _TStat(object):
                 elif cnum == 7 and i !='0':
                     wear_flag = True
                     new_wear_line[4] = float(i)
-                elif cnum in(8,9,10,11,12,13,14,15,16,17):
+                elif cnum in(8,9,10,11,12,13,14,15,16):
                     new_line[cnum-3] = float(i)
+                elif cnum == 17:
+                    new_line[cnum-3] = int(i)
                 elif cnum == 18:
                     new_line[cnum-3] = str(i)
             if wear_flag:
@@ -250,8 +256,8 @@ class _TStat(object):
             #print values
             line = ""
             for num,i in enumerate(values):
-                #print i
-                if num in (0,1): # tool# pocket#
+                print KEYWORDS[num], i, type(i)
+                if num in (0,1,14): # tool# pocket# orientation
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 15: # comments
                     test = i.strip()
