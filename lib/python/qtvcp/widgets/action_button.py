@@ -60,6 +60,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.macro_dialog = False
         self.origin_offset_dialog = False
         self.camview_dialog = False
+        self.machine_log_dialog = False
         self.jog_joint_pos = False
         self.jog_joint_neg = False
         self.jog_selected_pos = False
@@ -317,7 +318,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
-        elif self.exit:
+        elif True in(self.exit, self.machine_log_dialog):
             pass
 
         # connect a signal and callback function to the button
@@ -365,13 +366,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.step:
             ACTION.STEP()
         elif self.load_dialog:
-            STATUS.emit('dialog-request',{'NAME':'LOAD'})
+            STATUS.emit('dialog-request',{'NAME':'LOAD', 'ID':'_%s_'% self.objectName()})
         elif self.camview_dialog:
-            STATUS.emit('dialog-request', {'NAME':'CAMVIEW'})
+            STATUS.emit('dialog-request', {'NAME':'CAMVIEW', 'ID':'_%s_'% self.objectName()})
         elif self.macro_dialog:
-            STATUS.emit('dialog-request', {'NAME':'MACRO'})
+            STATUS.emit('dialog-request', {'NAME':'MACRO', 'ID':'_%s_'% self.objectName()})
         elif self.origin_offset_dialog:
-            STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET'})
+            STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
@@ -504,6 +505,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.emit('dro-reference-change-request', 2)
         elif self.exit:
             self.QTVCP_INSTANCE_.close()
+        elif self.machine_log_dialog:
+            STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
         # defult error case
         elif not self._python_command:
             LOG.error('No action recognised')
@@ -618,7 +621,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
-                 'exit', 'zero_g5x', 'zero_g92')
+                 'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92')
 
         for i in data:
             if not i == picked:
@@ -1079,6 +1082,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_exit(self):
         self.exit = False
 
+    def set_machine_log_dialog(self, data):
+        self.machine_log_dialog = data
+        if data:
+            self._toggle_properties('machine_log_dialog')
+    def get_machine_log_dialog(self):
+        return self.machine_log_dialog
+    def reset_machine_log_dialog(self):
+        self.machine_log_dialog = False
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1204,6 +1216,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     dro_relative_action = QtCore.pyqtProperty(bool, get_dro_relative, set_dro_relative, reset_dro_relative)
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
     exit_action = QtCore.pyqtProperty(bool, get_exit, set_exit, reset_exit)
+    machine_log_dialog_action = QtCore.pyqtProperty(bool, get_machine_log_dialog, set_machine_log_dialog, reset_machine_log_dialog)
 
     def set_template_label(self, data):
         self.template_label = data

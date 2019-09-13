@@ -50,6 +50,9 @@
       <property name="originOffsetDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="machineLogDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <property name="leftMargin">
         <number>0</number>
@@ -1829,6 +1832,7 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionQuickRef"/>
+    <addaction name="actionMachineLog"/>
    </widget>
    <widget class="QMenu" name="menuStstem">
     <property name="title">
@@ -2194,6 +2198,11 @@
    </property>
    <property name="text">
     <string>View Origintable</string>
+   </property>
+  </action>
+  <action name="actionMachineLog">
+   <property name="text">
+    <string>Machine Log</string>
    </property>
   </action>
  </widget>

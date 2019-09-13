@@ -452,6 +452,15 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 #############################################
 # For Editing Gcode
@@ -770,6 +779,16 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def reset_auto_show_mdi(self):
         self.editor.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
+
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.editor.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.editor.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.editor.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 # for direct testing
 if __name__ == "__main__":

@@ -68,7 +68,7 @@ class StateLED(LED):
             STATUS.connect('all-homed', lambda w: self._flip_state(True))
             STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False))
         elif self.is_idle:
-            STATUS.connect('interp-idle', lambda w: self._flip_state(False))
+            STATUS.connect('interp-idle', lambda w: self._flip_state(True))
             STATUS.connect('interp-run', lambda w: self._flip_state(False))
         elif self.is_paused:
             STATUS.connect('program-pause-changed', lambda w, data: self._flip_state(data))

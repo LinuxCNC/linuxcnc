@@ -103,12 +103,12 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     # process the STATUS return message
     def return_value(self, w, message):
         num = message['RETURN']
-        code = bool(message['ID'] == '%s__'% self.objectName())
-        name = bool(message['NAME'] == self.dialog_code)
-        if num is not None and code and name:
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
             LOG.debug('message return:{}'.format (message))
-            axis = message['AXIS']
-            self._last = message['CURRENT']
+            axis = message.get('AXIS')
+            self._last = message.get('CURRENT')
             ACTION.SET_AXIS_ORIGIN(axis, num)
             STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 

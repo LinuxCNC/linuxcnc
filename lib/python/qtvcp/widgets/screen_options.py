@@ -87,6 +87,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_originoffset_dialog = False
         self.add_tooloffset_dialog = False
         self.add_calculator_dialog = False
+        self.add_machinelog_dialog = False
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._default_tab_name = ''
@@ -103,6 +104,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -144,6 +146,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_calculator_dialog:
             self.init_calculator_dialog()
+
+        if self.add_machinelog_dialog:
+            self.init_machinelog_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -422,6 +427,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
              w.calculatorDialog_, w, w.PATHS, self.PREFS_)
         w.calculatorDialog_.overlay_color = self._calculatorDialogColor
 
+    def init_machinelog_dialog(self):
+        from qtvcp.widgets.dialog_widget import MachineLogDialog
+        w = self.QTVCP_INSTANCE_
+        w.machineLogDialog_ = MachineLogDialog()
+        w.machineLogDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.machineLogDialog_, w, w.PATHS, self.PREFS_)
+        w.machineLogDialog_.overlay_color = self._machineLogDialogColor
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -665,6 +678,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_calculatorDialogColor(self, value):
         self._calculatorDialogColor = value
     calculator_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
+
+    def set_machineLogDialog(self, data):
+        self.add_machinelog_dialog = data
+    def get_machineLogDialog(self):
+        return self.add_machinelog_dialog
+    def reset_machineLogDialog(self):
+        self.add_machinelog_dialog = False
+    machineLogDialog_option = QtCore.pyqtProperty(bool, get_machineLogDialog, set_machineLogDialog, reset_machineLogDialog)
+    def get_machineLogDialogColor(self):
+        return self._machineLogDialogColor
+    def set_machineLogDialogColor(self, value):
+        self._machineLogDialogColor = value
+    machineLog_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
 
     ##############################
     # required boiler code #
