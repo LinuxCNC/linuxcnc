@@ -188,7 +188,7 @@ class MyTableModel(QAbstractTableModel):
         #print 'update'
         data = TOOL.CONVERT_TO_WEAR_TYPE(info)
         if data is None:
-            data = [[0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','No Tool']]
+            data = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
         self.arraydata = data
         self.layoutChanged.emit()
 
@@ -230,6 +230,8 @@ class MyTableModel(QAbstractTableModel):
     # Sets the role data for the item at index to value.
     # Returns true if successful; otherwise returns false.
     # The dataChanged() signal should be emitted if the data was successfully set.
+    # these column numbers correspond to our included wear columns
+    # it will be converted when saved
     def setData(self, index, value, role):
         col = index.column()
         if not index.isValid():
@@ -263,10 +265,10 @@ class MyTableModel(QAbstractTableModel):
             # qualified value is not actually used yet
 
         try:
-            if col in (0,1):
+            if col in (0,1,17): # tool, pocket, orientation
                 v = int(value)
             elif col == 18:
-                v = str(value)
+                v = str(value) # comment
             else:
                 v = float(value)
         except:

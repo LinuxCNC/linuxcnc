@@ -366,7 +366,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.step:
             ACTION.STEP()
         elif self.load_dialog:
-            STATUS.emit('dialog-request',{'NAME':'LOAD', 'ID':'_%s_'% self.objectName()})
+            STATUS.emit('dialog-request',{'NAME':'LOAD', 'ID':None})
         elif self.camview_dialog:
             STATUS.emit('dialog-request', {'NAME':'CAMVIEW', 'ID':'_%s_'% self.objectName()})
         elif self.macro_dialog:
