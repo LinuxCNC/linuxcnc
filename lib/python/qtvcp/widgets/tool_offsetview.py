@@ -95,7 +95,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         if self.editing_flag: return
         # check if hash of tool file changed
         if not TOOL.IS_HASH_CURRENT():
-            self.tablemodel.update(TOOL.GET_TOOL_FILE())
+            self.tablemodel.update()
         return True
 
     def currentTool(self, data):
@@ -153,12 +153,14 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             if STATUS.is_status_valid():
                 #for i in self.tablemodel.arraydata:
                 #    LOG.debug("2>>> = {}".format(i))
-                TOOL.SAVE_TOOLFILE(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
+                error = TOOL.SAVE_TOOLFILE(TOOL.CONVERT_TO_STANDARD_TYPE(self.tablemodel.arraydata))
+                if error:
+                    raise
                 ACTION.RECORD_CURRENT_MODE()
                 ACTION.CALL_MDI('g43')
                 ACTION.RESTORE_RECORDED_MODE()
                 STATUS.emit('reload-display')
-                self.tablemodel.update(TOOL.GET_TOOL_FILE())
+                self.tablemodel.update()
                 self.resizeColumnsToContents()
         except Exception as e:
             LOG.exception("offsetpage widget error: MDI call error", exc_info=e)
@@ -167,7 +169,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def add_tool(self):
         if not STATUS.is_auto_running():
             LOG.debug('add tool request')
-            TOOL.ADD_TOOL(TOOL.CONVERT_TO_STANDARD(self.tablemodel.arraydata))
+            self.tablemodel.addTool()
 
 #########################################
 # custom model
@@ -180,20 +182,20 @@ class MyTableModel(QAbstractTableModel):
             headerdata: a list of strings
         """
         super(MyTableModel, self).__init__(parent)
-        self.arraydata = TOOL.CONVERT_TO_WEAR_TYPE(TOOL.GET_TOOL_FILE())
         self.headerdata = ['tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
         self.vheaderdata = []
+        self.update()
 
-    def update(self, info):
+    def addTool(self):
+        TOOL.ADD_TOOL()
+
+    def update(self):
         #print 'update'
-        data = TOOL.CONVERT_TO_WEAR_TYPE(info)
+        data = TOOL.CONVERT_TO_WEAR_TYPE(TOOL.GET_TOOL_MODELS())
         if data is None:
             data = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
         self.arraydata = data
         self.layoutChanged.emit()
-
-    def wear_save(self):
-        TOOL.CONVERT_TO_STANDARD(self.arraydata)
 
     # Returns the number of rows under the given parent.
     # When the parent is valid it means that rowCount is
