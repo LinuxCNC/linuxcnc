@@ -233,10 +233,11 @@ Base machine configuration means a complete working system. All axes should be w
 
 Do NOT add any plasma specific connections here, these will be added later.
 
-A good rule of thumb for setting the Z axis soft limits is:
+Recommended settings for the Z axis are:
 
-* minimum limit should be 0 - <float_switch_travel> - <enough_to_cover_table_discrepencies>
-* maximum limit should be the highest you want the Z axis to travel (must not be lower than HOME_OFFSET)
+* Z MINIMUM_LIMIT should be 0 - <float_switch_travel> - <enough_to_cover_table_discrepencies>
+* Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (must not be lower than Z HOME_OFFSET)
+* Z HOME should be just below the maximum limit
 
 You should be able to home your machine, touch off and run some test G-Code without any errors.
 
