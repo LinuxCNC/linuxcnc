@@ -332,10 +332,10 @@ if not codeError:
                 print(line)
             # if z axis in line but no other axes comment it
             elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and\
-                 line.split('z')[0][0].isdigit():
+                 line.split('z')[1][0].isdigit():
                 print('({})'.format(line))
             # if z axis and other axes in line, comment out the Z axis
-            elif 'z' in line and line.split('z')[0][0].isdigit():
+            elif 'z' in line and line.split('z')[1][0].isdigit():
                 if holeEnable:
                     lastX, lastY = get_last_position(lastX, lastY)
                 comment_out_z_commands()
