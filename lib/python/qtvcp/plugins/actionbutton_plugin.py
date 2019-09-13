@@ -181,6 +181,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         node_3 = (('Load Dialog',['load_dialog', 0], []),
                 ('Macro Dialog',['macro_dialog', 0], []),
                 ('CamView Dialog',['camview_dialog', 0], []),
+                ('Machine Log Dialog',['machine_log_dialog', 0], []),
                 ('Origin Offset Dialog',['origin_offset_dialog', 0], []))
         node_4 = (('Launch HALmeter',['launch_halmeter', 0], []),
                 ('Launch Status',['launch_status', 0], []),

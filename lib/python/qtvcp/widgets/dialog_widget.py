@@ -29,6 +29,7 @@ from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import TouchInputWidget
 from qtvcp.widgets.calculator import Calculator
+from qtvcp.widgets.machine_log import MachineLog
 from qtvcp.lib.notify import Notify
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -1263,6 +1264,108 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
     def resetIdName(self):
         self._request_name = 'CALCULATOR'
 
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
+############################################
+# machine Log Dialog
+############################################
+class MachineLogDialog(QDialog, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(MachineLogDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self.play_sound = False
+        self._request_name = 'MACHINELOG'
+        self.title = 'Machine Log'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+
+        l = QVBoxLayout()
+        self.setLayout(l)
+
+        self.Log = MachineLog()
+        gl = QVBoxLayout()
+        gl.addWidget(self.Log)
+
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        #self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        #self.bBox.rejected.connect(self.reject)
+        self.bBox.accepted.connect(self.accept)
+
+        gl.addWidget(self.bBox)
+        l.addLayout(gl)
+
+    def _hal_init(self):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        w = self.geometry().width()
+        h = self.geometry().height()
+        geo = '%s %s %s %s'% (x,y,w,h)
+        self._default_geometry=[x,y,w,h]
+        if self.PREFS_:
+            self._geometry_string = self.PREFS_.getpref('MachineLogDialog-geometry', geo, str, 'DIALOG_OPTIONS')
+        else:
+            self._geometry_string = 'default'
+        if self.PREFS_:
+            self.play_sound = self.PREFS_.getpref('MachineLogDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
+            self.sound_type = self.PREFS_.getpref('MachineLogDialog_sound_type', 'RING', str, 'DIALOG_OPTIONS')
+        else:
+            self.play_sound = False
+        STATUS.connect('dialog-request', self._external_request)
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            t = message.get('TITLE')
+            if t:
+                self.title = t
+            else:
+                self.title = 'Machine Log'
+            num = self.showdialog()
+            message['RETURN'] = num
+            STATUS.emit('general', message)
+
+    def showdialog(self):
+        STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
+        self.setWindowTitle(self.title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        self.calculate_placement()
+        retval = self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        record_geometry(self,'MachineLogDialog-geometry')
+        LOG.debug('Value of pressed button: {}'.format(retval))
+        if retval:
+            try:
+                return float(self.Num.text())
+            except Exception as e:
+                print e
+        return None
+
+    def calculate_placement(self):
+        geometry_parsing(self,'MachineLogDialog-geometry')
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'ENTRY'
+
+    # designer will show these properties in this order:
     launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
