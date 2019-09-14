@@ -175,6 +175,8 @@ class _TStat(object):
     # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
     # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_WEAR_TYPE(self, data):
+        if data is None:
+            data = ([],[])
         if not INFO.MACHINE_IS_LATHE:
             maintool = data[0] + data[1]
             weartool = []
@@ -214,6 +216,8 @@ class _TStat(object):
     # linuxcnc handles toolwear by having tool wear as extra tools with tool numbers above 10000 (fanuc style)
     # qtvcp just adds the extra tool wear positions (x and z) to the original array 
     def CONVERT_TO_STANDARD_TYPE(self, data):
+        if data is None:
+            data = ([])
         tool_wear_list = []           
         full_tool_list = []
         for rnum, row in enumerate(data):
@@ -222,7 +226,7 @@ class _TStat(object):
             wear_flag = False
             values = [ value for value in row ]
             for cnum,i in enumerate(values):
-                print cnum, i, type(i)
+                #print cnum, i, type(i)
                 if cnum in(0,1):
                     new_line[cnum] = int(i)
                 elif cnum == 2:
@@ -267,7 +271,7 @@ class _TStat(object):
             #print values
             line = ""
             for num,i in enumerate(values):
-                print KEYWORDS[num], i, type(i)
+                #print KEYWORDS[num], i, type(i)
                 if num in (0,1,14): # tool# pocket# orientation
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 15: # comments
@@ -277,7 +281,7 @@ class _TStat(object):
                     test = str(i).lstrip()  # floats
                     line = line + "%s%s "%(KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
-            print >>file,line
+            #print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
