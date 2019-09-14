@@ -281,7 +281,7 @@ class _TStat(object):
                     test = str(i).lstrip()  # floats
                     line = line + "%s%s "%(KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
-            #print >>file,line
+            print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
