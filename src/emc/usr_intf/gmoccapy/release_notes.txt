@@ -1,3 +1,8 @@
+ver 3.0.8.2
+- minor bug in enable_dro handling from gremlin dro, 
+  special case for non identical kinematics
+- some additional print statements and code clearance
+
 ver 3.0.8.1
 - bug reported by Markus, jogging in diameter mode would only jog half the requested
   distance, what is OK for X axis, but not for all other axis.
