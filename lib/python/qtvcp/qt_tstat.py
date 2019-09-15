@@ -18,10 +18,11 @@
 import os
 import hashlib
 
-from qtvcp.core import Info, Action
+from qtvcp.core import Status, Info, Action
 # Set up logging
 import logger
 
+STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
@@ -38,7 +39,8 @@ class _TStat(object):
         if self.__class__._instanceNum >=1:
             return
         self.__class__._instanceNum += 1
-
+        self._delay = 0
+        self._hash_code = None
         self.NUM = 0
         self.POCKET = 1
         self.X = 2
@@ -60,6 +62,8 @@ class _TStat(object):
         self.tool_wear_info = None
         self.current_tool_num = -1
         self.toolinfo = None
+        STATUS.connect('periodic', self.periodic_check)
+        STATUS.connect('forced-update',lambda o: self.emit_update())
 
     def GET_TOOL_INFO(self, toolnum):
         self.current_tool_num = int(toolnum)
@@ -81,6 +85,12 @@ class _TStat(object):
         info[0].insert(0, newtool)
         return self._save(info[0]+info[1])
 
+    def DELETE_TOOLS(self, tools):
+        ta = self.GET_TOOL_ARRAY()
+        if type(tools) == int:
+            tools = [tools]
+        return self._save(ta, tools)
+
     # [0] = tool number
     # [1] = pocket number
     # [2] = X offset
@@ -99,12 +109,9 @@ class _TStat(object):
     # [15] = tool comments
     # Reload the tool file into the array model and update tool_info
     def _reload(self):
-        if self.toolfile == None:
+        if self.toolfile == None or not os.path.exists(self.toolfile):
+            LOG.debug("Toolfile does not exist' {}".format(self.toolfile))
             return None
-        if not os.path.exists(self.toolfile):
-            print "Toolfile does not exist"
-            return None
-        self.hash_code = self.md5sum(self.toolfile)
         # clear the current liststore, search the tool file, and add each tool
         tool_model = []
         wear_model = []
@@ -262,7 +269,7 @@ class _TStat(object):
 
     # TODO check for linnuxcnc ON and IDLE which is the only safe time to edit/SAVE the tool file.
     
-    def _save(self, new_model):
+    def _save(self, new_model, delete=()):
         if self.toolfile == None:
             return True
         file = open(self.toolfile, "w")
@@ -270,8 +277,12 @@ class _TStat(object):
             values = [ value for value in row ]
             #print values
             line = ""
+            skip = False
             for num,i in enumerate(values):
-                #print KEYWORDS[num], i, type(i)
+                #print KEYWORDS[num], i, #type(i), int(i)
+                if num == 0 and i in delete:
+                    LOG.debug("delete tool ' {}".format(i))
+                    skip = True
                 if num in (0,1,14): # tool# pocket# orientation
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 15: # comments
@@ -281,7 +292,8 @@ class _TStat(object):
                     test = str(i).lstrip()  # floats
                     line = line + "%s%s "%(KEYWORDS[num], test)
             LOG.debug("Save line: {}".format(line))
-            print >>file,line
+            if not skip:
+                print >>file,line
         # Theses lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
@@ -302,12 +314,23 @@ class _TStat(object):
         else:
             return hashlib.md5(f.read()).hexdigest()
 
-        # check the hash code on the toolfile against
-        # the saved hash code when last reloaded.
-    def IS_HASH_CURRENT(self):
-        m = self.hash_code
+    # push the update to whoever using STATUS
+    def emit_update(self):
+        data = self.GET_TOOL_MODELS()
+        if data is not None:
+            STATUS.emit('toolfile-stale',data)
+
+    # check the hash code on the toolfile against
+    # the saved hash code when last reloaded.
+    def periodic_check(self, w):
+        if self._delay < 9:
+            self._delay += 1
+            return
+        if STATUS.is_status_valid() == False:
+            return
+        self._delay = 0
         m1 = self.md5sum(self.toolfile)
-        if m1 and m != m1:
-            return False
-        return True
+        if m1 and self._hash_code != m1:
+            self._hash_code = m1
+            self.emit_update()
 
