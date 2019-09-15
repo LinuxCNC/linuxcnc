@@ -99,6 +99,10 @@ INI = Info()
 class Status(GStat):
     _instance = None
     _instanceNum = 0
+    __gsignals__ = {
+        'toolfile-stale': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+    }
+
     # only make one instance of the class - pass it to all other
     # requested instances
     def __new__(cls, *args, **kwargs):
@@ -110,6 +114,7 @@ class Status(GStat):
         # only initialize once for all instances
         if self.__class__._instanceNum >=1:
             return
+        gobject.GObject.__init__(self)
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL

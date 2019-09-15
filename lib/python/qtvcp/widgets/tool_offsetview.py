@@ -68,7 +68,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
                                                     and STATUS.is_all_homed()))
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
-        STATUS.connect('periodic', self.periodic_check)
+        #STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
         conversion = {4:"Y", 5:'Y', 6:"Z", 7:'Z', 8:"A", 9:"B", 10:"C", 11:"U", 12:"V", 13:"W"}
@@ -82,22 +82,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         else:
             self.hideColumn(8)
 
-    # only update every 10th time periodic calls
-    # if editing don't update
-    #
-    def periodic_check(self, w):
-        if self.delay < 9:
-            self.delay += 1
-            return
-        if STATUS.is_status_valid() == False:
-            return
-        self.delay = 0
-        if self.editing_flag: return
-        # check if hash of tool file changed
-        if not TOOL.IS_HASH_CURRENT():
-            self.tablemodel.update()
-        return True
-
     def currentTool(self, data):
         self.current_tool = data
     def metricMode(self, state):
@@ -106,6 +90,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def createAllView(self):
         # create the view
         self.setSelectionMode(QAbstractItemView.SingleSelection)
+        #self.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         # set the table model
         self.tablemodel = MyTableModel(self)
@@ -160,8 +145,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
                 ACTION.CALL_MDI('g43')
                 ACTION.RESTORE_RECORDED_MODE()
                 STATUS.emit('reload-display')
-                self.tablemodel.update()
-                self.resizeColumnsToContents()
+                #self.tablemodel.update()
+                #self.resizeColumnsToContents()
         except Exception as e:
             LOG.exception("offsetpage widget error: MDI call error", exc_info=e)
         self.editing_flag = False
@@ -184,14 +169,15 @@ class MyTableModel(QAbstractTableModel):
         super(MyTableModel, self).__init__(parent)
         self.headerdata = ['tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
         self.vheaderdata = []
-        self.update()
+        self.arraydata = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
+        STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
+        #self.update()
 
     def addTool(self):
         TOOL.ADD_TOOL()
 
-    def update(self):
-        #print 'update'
-        data = TOOL.CONVERT_TO_WEAR_TYPE(TOOL.GET_TOOL_MODELS())
+    def update(self, models):
+        data = TOOL.CONVERT_TO_WEAR_TYPE(models)
         if data is None:
             data = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
         self.arraydata = data
