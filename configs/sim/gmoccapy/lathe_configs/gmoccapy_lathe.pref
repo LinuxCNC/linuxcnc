@@ -57,7 +57,7 @@ use_frames = True
 reload_tool = True
 blockdel = False
 opstop = False
-enable_dro = True
+enable_dro = False
 show_offsets = False
 show_dtg = False
 view_tool_path = True
@@ -74,4 +74,5 @@ offset_axis_x = 0.0
 offset_axis_z = 0.0
 offset_axis_r = 50.0
 radius offset_axis_x = 0
+use_toolmeasurement = False
 

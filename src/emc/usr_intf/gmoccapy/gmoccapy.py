@@ -89,7 +89,7 @@ if debug:
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.0.8"
+_RELEASE = " 3.0.8.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1055,10 +1055,9 @@ class gmoccapy(object):
         JOGMODE = self._get_jog_mode()
 
         if self.distance <> 0:  # incremental jogging
-            if self.lathe_mode and self.diameter_mode:
+            distance = self.distance
+            if self.lathe_mode and self.diameter_mode and button_name[0] == "x":
                 distance = self.distance/2
-            else:
-                distance = self.distance
             self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_no_or_axis_index, dir * velocity, distance)
         else:  # continuous jogging
             self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_no_or_axis_index, dir * velocity)
