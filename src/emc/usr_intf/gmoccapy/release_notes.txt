@@ -1,3 +1,7 @@
+ver 3.0.8.1
+- bug reported by Markus, jogging in diameter mode would only jog half the requested
+  distance, what is OK for X axis, but not for all other axis.
+
 ver 3.0.8
 - added the possibility to add also images to macro button. The images will be 
   resized to fit the buttons (72x48). The macro file need to contain a line like
