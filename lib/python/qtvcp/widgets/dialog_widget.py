@@ -667,11 +667,14 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
         self.addtool = QPushButton('Add Tool')
         self.addtool.clicked.connect(lambda: self.addTool())
         buttonBox.addButton(self.addtool, 3)
-        for i in('X', 'Y', 'Z'):
-            b = 'button_%s' % i
-            self[b] = QPushButton('Zero %s' % i)
-            self[b].clicked.connect(self.zeroPress('%s' % i))
-            buttonBox.addButton(self[b], 3)
+        self.deletetool = QPushButton('Delete Tool')
+        self.deletetool.clicked.connect(lambda: self.deleteTool())
+        buttonBox.addButton(self.deletetool, 3)
+        #for i in('X', 'Y', 'Z'):
+        #    b = 'button_%s' % i
+        #    self[b] = QPushButton('Zero %s' % i)
+        #    self[b].clicked.connect(self.zeroPress('%s' % i))
+        #    buttonBox.addButton(self[b], 3)
 
         v = QVBoxLayout()
         h = QHBoxLayout()
@@ -704,6 +707,9 @@ class ToolOffsetDialog(QDialog, _HalWidgetBase):
 
     def addTool(self):
         self._o.add_tool()
+
+    def deleteTool(self):
+        self._o.delete_tools()
 
     # This weird code is just so we can get the axis
     # letter

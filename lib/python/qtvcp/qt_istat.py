@@ -212,7 +212,7 @@ class _IStat(object):
             self.ZIPPED_TABS = None
 
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
-        self.TOOL_FILE_PATH = str(self.get_error_safe_setting("EMCIO", "TOOL_TABLE"))
+        self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
 
     ###################

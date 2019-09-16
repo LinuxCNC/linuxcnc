@@ -109,9 +109,10 @@ class _TStat(object):
     # [15] = tool comments
     # Reload the tool file into the array model and update tool_info
     def _reload(self):
-        if self.toolfile == None or not os.path.exists(self.toolfile):
+        if self.toolfile is None or not os.path.exists(self.toolfile):
             LOG.debug("Toolfile does not exist' {}".format(self.toolfile))
             return None
+        #print 'file',self.toolfile
         # clear the current liststore, search the tool file, and add each tool
         tool_model = []
         wear_model = []
@@ -190,33 +191,42 @@ class _TStat(object):
         else:
             maintool = data[0]
             weartool = data[1]
+        #print 'main',data
         tool_num_list = {}
         full_tool_list = []
         for rnum, row in enumerate(maintool):
-            new_line = [0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']
-            values = [ value for value in row ]
-            for cnum,i in enumerate(values):
+            new_line = [False, 0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']
+            valuesInRow = [ value for value in row ]
+            for cnum,i in enumerate(valuesInRow):
                 if cnum == 0:
+                    # keep a dict of actual tools numbers vrs row index
                     tool_num_list[i] = rnum
-                if cnum in(0,1,2,):
-                    new_line[cnum] = i
+                if cnum in(0,1,2):
+                    # transfer these positions directly to new line (offset by 1 for checkbox)
+                    new_line[cnum +1] = i
                 elif cnum == 3:
-                    new_line[4] = i
+                    # move Y past x wear position
+                    new_line[5] = i
                 elif cnum == 4:
-                    new_line[6] = i
+                    # move z past y wear position
+                    new_line[7] = i
                 elif cnum in(5,6,7,8,9,10,11,12,13,14,15):
-                    new_line[cnum+3] = i
+                    # a;; the rest past z wear position
+                    new_line[cnum+4] = i
             full_tool_list.append(new_line)
-
+            #print 'row',row
+            #print 'new row',new_line
         # any tool number over 10000 is a wear offset
-        # add it's value to the parent tool
-        # eg 10001 goes to tool 1
+        # It's already been separated in the weartool variable.
+        # now we pull the values we need out and put it in our
+        # full tool list's  tool variable's parent tool row
+        # eg 10001 goes to tool 1, 10002 goes to tool 2 etc
         for rnum, row in enumerate(weartool):
             values = [ value for value in row ]
             parent_tool = tool_num_list[( values[0]-10000)]
-            full_tool_list[parent_tool][3] = values[2]
-            full_tool_list[parent_tool][5] = values[3]
-            full_tool_list[parent_tool][7] = values[4]
+            full_tool_list[parent_tool][4] = values[2]
+            full_tool_list[parent_tool][6] = values[3]
+            full_tool_list[parent_tool][8] = values[4]
         return full_tool_list
 
     # converts from toolwear array to linuxcnc toolfile array
@@ -234,32 +244,32 @@ class _TStat(object):
             values = [ value for value in row ]
             for cnum,i in enumerate(values):
                 #print cnum, i, type(i)
-                if cnum in(0,1):
-                    new_line[cnum] = int(i)
-                elif cnum == 2:
-                    new_line[cnum] = float(i)
-                elif cnum == 3 and i !='0':
+                if cnum in(1,2):
+                    new_line[cnum-1] = int(i)
+                elif cnum == 3:
+                    new_line[cnum-1] = float(i)
+                elif cnum == 4 and i !='0':
                     wear_flag = True
                     new_wear_line[2] = float(i)
-                elif cnum == 4 and i !='0':
-                    new_line[cnum-1] = float(i)
                 elif cnum == 5 and i !='0':
+                    new_line[cnum-2] = float(i)
+                elif cnum == 6 and i !='0':
                     wear_flag = True
                     new_wear_line[3] = float(i)
-                elif cnum == 6 and i !='0':
-                    new_line[cnum-2] = float(i)
                 elif cnum == 7 and i !='0':
+                    new_line[cnum-3] = float(i)
+                elif cnum == 8 and i !='0':
                     wear_flag = True
                     new_wear_line[4] = float(i)
-                elif cnum in(8,9,10,11,12,13,14,15,16):
-                    new_line[cnum-3] = float(i)
-                elif cnum == 17:
-                    new_line[cnum-3] = int(i)
+                elif cnum in(9,10,11,12,13,14,15,16,17):
+                    new_line[cnum-4] = float(i)
                 elif cnum == 18:
-                    new_line[cnum-3] = str(i)
+                    new_line[cnum-4] = int(i)
+                elif cnum == 19:
+                    new_line[cnum-4] = str(i)
             if wear_flag:
-                new_wear_line[0] = int(values[0]+10000)
-                new_wear_line[15] = 'Wear Offset Tool %d'% values[0]
+                new_wear_line[0] = int(values[1]+10000)
+                new_wear_line[15] = 'Wear Offset Tool %d'% values[1]
                 tool_wear_list.append(new_wear_line)
             # add tool line to tool list
             full_tool_list.append(new_line)
@@ -309,7 +319,7 @@ class _TStat(object):
     def md5sum(self,filename):
         try:
             f = open(filename, "rb")
-        except IOError:
+        except:
             return None
         else:
             return hashlib.md5(f.read()).hexdigest()

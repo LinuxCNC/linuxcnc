@@ -34,7 +34,7 @@ class QTPanel():
     def __init__(self,halcomp,path,window,debug):
         xmlname = path.XML
         self.window = window
-        window['PREFS_'] = None
+        self.window['PREFS_'] = None
         self._screenOptions = None
         self._geo_string = ''
 
@@ -48,9 +48,10 @@ class QTPanel():
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
                     try:
-                        window['PREFS_'], pref_fn = widget._pref_init()
-                    except:
-                        window['PREFS_'], pref_fn = (None,None)
+                        self.window['PREFS_'], pref_fn = widget._pref_init()
+                    except Exception as e:
+                        LOG.warning('Preferebce instance error: {}'.format(e))
+                        self.window['PREFS_'], pref_fn = (None,None)
                     path.PREFS_FILENAME = pref_fn
         # parse for HAL objects:
         # initiate the hal function on each
@@ -59,7 +60,7 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 idname = widget.objectName()
                 LOG.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(halcomp, str(idname), widget, window, window. PATHS, window['PREFS_'])
+                widget.hal_init(halcomp, str(idname), widget, window, window. PATHS, self.window['PREFS_'])
 
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings
