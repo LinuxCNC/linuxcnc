@@ -20,7 +20,7 @@ import locale
 import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant
-from PyQt5.QtWidgets import QTableView, QAbstractItemView
+from PyQt5.QtWidgets import QTableView, QAbstractItemView, QCheckBox
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
@@ -59,6 +59,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.mm_text_template = '%10.3f'
         self.imperial_text_template = '%9.4f'
         self.setEnabled(False)
+
         # create table
         self.createAllView()
 
@@ -68,19 +69,18 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
                                                     and STATUS.is_all_homed()))
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
-        #STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
-        conversion = {4:"Y", 5:'Y', 6:"Z", 7:'Z', 8:"A", 9:"B", 10:"C", 11:"U", 12:"V", 13:"W"}
+        conversion = {5:"Y", 6:'Y', 7:"Z", 8:'Z', 9:"A", 10:"B", 11:"C", 12:"U", 13:"V", 14:"W"}
         for num, let in conversion.iteritems():
             if let in (INFO.AVAILABLE_AXES):
                 continue
             self.hideColumn(num)
         if not INFO.MACHINE_IS_LATHE:
-            for i in (3,5,7,15,16,17):
+            for i in (4,6,8,16,17,18):
                 self.hideColumn(i)
         else:
-            self.hideColumn(8)
+            self.hideColumn(15)
 
     def currentTool(self, data):
         self.current_tool = data
@@ -105,7 +105,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         hh = self.horizontalHeader()
         hh.setMinimumSectionSize(75)
         hh.setStretchLastSection(True)
-        hh.setSortIndicator(0,Qt.AscendingOrder)
+        hh.setSortIndicator(1,Qt.AscendingOrder)
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -154,7 +154,14 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def add_tool(self):
         if not STATUS.is_auto_running():
             LOG.debug('add tool request')
-            self.tablemodel.addTool()
+            TOOL.ADD_TOOL()
+
+    def delete_tools(self):
+        if not STATUS.is_auto_running():
+            LOG.debug('delete tools request')
+            dtools = self.tablemodel.listCheckedTools()
+            if dtools:
+                error = TOOL.DELETE_TOOLS(dtools)
 
 #########################################
 # custom model
@@ -167,19 +174,30 @@ class MyTableModel(QAbstractTableModel):
             headerdata: a list of strings
         """
         super(MyTableModel, self).__init__(parent)
-        self.headerdata = ['tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
+        self.text_template = '%.4f'
+        self.headerdata = ['Select','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
         self.vheaderdata = []
         self.arraydata = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
         STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
-        #self.update()
+        self.update(None)
 
-    def addTool(self):
-        TOOL.ADD_TOOL()
+    # make a list of all the checked tools
+    def listCheckedTools(self):
+        checkedlist = []
+        for row in self.arraydata:
+            if row[0].isChecked():
+                checkedlist.append(row[1])
+        return checkedlist
 
+    # update the internal array from STATUS's toolfile read array
+    # we make sure the first array is switched to a QCheckbox widget
     def update(self, models):
         data = TOOL.CONVERT_TO_WEAR_TYPE(models)
-        if data is None:
-            data = [[0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
+        if data in (None, []):
+            data = [[QCheckBox(),0, 0,'0','0','0','0','0','0','0','0','0','0','0','0','0','0', 0,'No Tool']]
+        for line in data:
+                if line[0] != QCheckBox:
+                    line[0] = QCheckBox()
         self.arraydata = data
         self.layoutChanged.emit()
 
@@ -204,8 +222,15 @@ class MyTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
-        if role == Qt.DisplayRole:
+        elif role == Qt.DisplayRole:
             return self.arraydata[index.row()][index.column()]
+        elif role == Qt.CheckStateRole:
+            if index.column() == 0:
+                # print(">>> data() row,col = %d, %d" % (index.row(), index.column()))
+                if self.arraydata[index.row()][index.column()].isChecked():
+                    return Qt.Checked
+                else:
+                    return Qt.Unchecked
         return QVariant()
 
 
@@ -213,7 +238,10 @@ class MyTableModel(QAbstractTableModel):
     def flags(self, index):
         if not index.isValid():
             return None
-        return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        if index.column() == 0:
+            return Qt.ItemIsEnabled | Qt.ItemIsUserCheckable
+        else:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     # Sets the role data for the item at index to value.
     # Returns true if successful; otherwise returns false.
@@ -228,37 +256,33 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug("original value:{}".format(self.arraydata[index.row()][col]))
         LOG.debug(">>> setData() role = {}".format(role))
         LOG.debug(">>> setData() column() = {}".format(col))
-
+        if role == Qt.CheckStateRole and index.column() == 0:
+            #print(">>> setData() role = ", role)
+            #print(">>> setData() index.column() = ", index.column())
+            if value == Qt.Checked:
+                self.arraydata[index.row()][index.column()].setChecked(True)
+                #self.arraydata[index.row()][index.column()].setText("Delete")
+                #print 'selected',self.arraydata[index.row()][1]
+            else:
+                self.arraydata[index.row()][index.column()].setChecked(False)
+                #self.arraydata[index.row()][index.column()].setText("Un")
+            # don't emit dataChanged - return right away
+            return True
 
         # TODO make valuse actually change in metric/impeial mode
         # currently it displays always in machine units.
         # there needs to be conversion added to this code
         # and this class needs access to templates and units mode.
         # don't convert tool,pocket,A, B, C, front angle, back angle, orintation or comments
-        if not col in (0,1,8,9,10,15,16,17,18):
-            # set the text style based on unit type
-            if 1 == True:#self.metric_display:
-                tmpl = lambda s: self.mm_text_template % s
-            else:
-                tmpl = lambda s: self.imperial_text_template % s
-
-            # #TODO make sure we switch to correct units for machine when saving file
-            try:
-                    qualified = float(value)
-                    #qualified = float(locale.atof(data))
-            except Exception as e:
-                LOG.exception(e)
-                qualified = None
-            LOG.debug("Qualified entry = {}".format(qualified))
-            # qualified value is not actually used yet
-
+        tmpl = lambda s: self.text_template % s
         try:
-            if col in (0,1,17): # tool, pocket, orientation
+            if col in (1,2,18): # tool, pocket, orientation
                 v = int(value)
-            elif col == 18:
+            elif col == 19:
                 v = str(value) # comment
             else:
                 v = float(value)
+            self.arraydata[index.row()][col] = v
         except:
             LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), col))
             return False
@@ -266,10 +290,11 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug(">>> setData() qualified value = {}".format(v))
         LOG.debug(">>> setData() index.row = {}".format(index.row()))
         LOG.debug(">>> setData() index.column = {}".format(col))
-        self.arraydata[index.row()][col] = v
+
         LOG.debug(">>> = {}".format(self.arraydata[index.row()][col]))
         for i in self.arraydata:
             LOG.debug(">>> = {}".format(i))
+
         self.dataChanged.emit(index, index)
         return True
 
