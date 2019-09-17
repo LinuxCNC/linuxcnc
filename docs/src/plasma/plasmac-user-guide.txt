@@ -482,6 +482,7 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 |Start Delay|Delay to allow air-scribe to start before beginning motion.
 |===
 
+////
 .Center Spot
 
 [width="100%",cols="4,16"]
@@ -489,6 +490,7 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 |*Name*|*Description*
 |Torch On Time|The length of time in milli-seconds the torch is on for each center spot.
 |===
+////
 
 The *'Save'* button will save the currently displayed parameters as the default.
 
@@ -675,13 +677,13 @@ Multiple tools allows the use of more than one tool, valid tools are:
 
 * Plasma Torch - for normal cutting
 * Air Scribe - for engraving
-* Plasma Torch - for centre spotting
+//* Plasma Torch - for centre spotting
 
 If multiple tools are enabled then a LinuxCNC tool number is required in the 'M3 command to selected the required tool.
 
 * 'M3 $0 S1' will select the plasma cutting tool.
 * 'M3 $1 S1' will select the air scribe.
-* 'M3 $2 S1' will select the plasma centre spotting tool.
+//* 'M3 $2 S1' will select the plasma centre spotting tool.
 
 To enable the multiple tools feature you need to edit the following line in <MACHINE_NAME>_connections.hal.
 
@@ -1040,6 +1042,7 @@ Issuing M3 S1 (without $n) will cause the machine to behave as if an 'M3 $0 S1' 
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
 
+////
 == Center Spotting
 
 For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
@@ -1071,6 +1074,7 @@ m30
 -----
 
 NOTE: The 'high feed rate' is to ensure that the motion is at the machines highest feed rate.
+////
 
 == Error Messages
 
