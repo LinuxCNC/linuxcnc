@@ -13,6 +13,8 @@ try:
 except:
     LINUXCNCVERSION = 'UNAVAILABLE'
 
+INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+
 class _IStat(object):
     def __init__(self):
         # only initialize once for all instances
@@ -20,7 +22,11 @@ class _IStat(object):
             return
         self.__class__._instanceNum += 1
 
-        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+        self.LINUXCNC_IS_RUNNING = bool(INIPATH is None)
+        if not self.LINUXCNC_IS_RUNNING:
+            # Reset the log level for this module
+            # Linuxcnc isn't running so we expect INI errors
+            log.setLevel(logger.CRITICAL)
         self.LINUXCNC_VERSION = LINUXCNCVERSION
         self.inifile = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'

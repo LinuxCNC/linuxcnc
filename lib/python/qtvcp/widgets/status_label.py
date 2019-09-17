@@ -42,6 +42,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._actual_RPM = 0
         self._diameter = 1
         self._index = 0
+        self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
 
         self.feed_override = True
         self.rapid_override = False
@@ -124,11 +125,12 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.filename or self.filepath:
             STATUS.connect('file-loaded', self._file_loaded)
         elif self.machine_state:
-            STATUS.connect('state-estop', lambda w: self._machine_state('Estopped'))
-            STATUS.connect('interp-run', lambda w: self._machine_state('Running'))
-            STATUS.connect('interp-idle', lambda w: self._machine_state('Stopped'))
-            STATUS.connect('interp-paused', lambda w: self._machine_state('Paused'))
-            #STATUS.connect('interp-waiting', lambda w: self._machine_state('Waiting'))
+            STATUS.connect('state-estop', lambda w: self._machine_state(self._state_label_list[0]))
+            STATUS.connect('interp-run', lambda w: self._machine_state(self._state_label_list[1]))
+            STATUS.connect('interp-idle', lambda w: self._machine_state(self._state_label_list[2]))
+            STATUS.connect('interp-paused', lambda w: self._machine_state(self._state_label_list[3]))
+            STATUS.connect('interp-waiting', lambda w: self._machine_state(self._state_label_list[4]))
+            STATUS.connect('interp-reading', lambda w: self._machine_state(self._state_label_list[5]))
         elif self.time_stamp:
             STATUS.connect('periodic', self._set_timestamp)
         elif self.tool_offset:
@@ -243,7 +245,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._set_text(name)
 
     def _machine_state(self, text):
-        self.setText(text)
+        self._set_text(text)
 
     def _set_timestamp(self, w):
         self.setText(time.strftime(self._textTemplate))
@@ -552,6 +554,14 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_tool_offset(self):
         self.tool_offset = False
 
+    def set_state_label_l(self, data):
+        self._state_label_list = data
+    def get_state_label_l(self):
+        return self._state_label_list
+    def reset_state_label_l(self):
+        self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
+
+
     textTemplate = QtCore.pyqtProperty(str, get_textTemplate, set_textTemplate, reset_textTemplate)
     alt_textTemplate = QtCore.pyqtProperty(str, get_alt_textTemplate, set_alt_textTemplate, reset_alt_textTemplate)
     index_number = QtCore.pyqtProperty(int, get_index, set_index, reset_index)
@@ -590,6 +600,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
                                                       reset_machine_state)
     time_stamp_status = QtCore.pyqtProperty(bool, get_time_stamp, set_time_stamp,
                                                       reset_time_stamp)
+    state_label_list = QtCore.pyqtProperty(QtCore.QVariant.typeToName(QtCore.QVariant.StringList), get_state_label_l, set_state_label_l, reset_state_label_l)
 
     # boilder code
     def __getitem__(self, item):

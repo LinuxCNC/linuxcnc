@@ -206,7 +206,7 @@ class QTVCP:
         # ToDo: pass specific log levels as an argument, or use an INI setting
         if not opts.debug:
             # Log level defaults to DEBUG, so set higher if not debug
-            logger.setGlobalLevel(logger.ERROR)
+            logger.setGlobalLevel(logger.INFO)
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
@@ -226,7 +226,7 @@ class QTVCP:
         # Screen specific
         #################
         if INIPATH:
-            log.debug('Building A Linuxcnc Main Screen')
+            log.info('green<Building A Linuxcnc Main Screen>')
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -282,7 +282,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # VCP specific
         #################
         else:
-            log.debug('Building A VCP Panel')
+            log.info('green<Building A VCP Panel>')
             # if no handler file specified, use stock test one
             if not opts.usermod:
                 log.info('No handler file specified - using {}'.format(PATH.HANDLER))

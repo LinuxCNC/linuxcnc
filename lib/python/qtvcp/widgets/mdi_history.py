@@ -129,7 +129,6 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.rows = self.model.rowCount(parent) - 1
         if style == 'last':
             self.row = self.rows
-            print 'last =',self.row
         elif style == 'up':
             if self.row > 0:
                 self.row -= 1
