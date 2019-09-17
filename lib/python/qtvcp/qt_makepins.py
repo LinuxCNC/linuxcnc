@@ -28,7 +28,7 @@ from PyQt5.QtWidgets import QDesktopWidget
 import logger
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
     def __init__(self,halcomp,path,window,debug):
@@ -72,7 +72,7 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 if 'closing_cleanup__' in dir(widget):
                     idname = widget.objectName()
-                    LOG.debug('Closing cleanup on: {}'.format(idname))
+                    LOG.info('Closing cleanup on: {}'.format(idname))
                     widget.closing_cleanup__()
 
     # if there is a prefrence file and it is has digits (so no key word), then record
@@ -94,7 +94,7 @@ class QTPanel():
         if self.window['PREFS_']:
             self.geometry_parsing()
         else:
-            LOG.debug('No preference file - can not set preference geometry.')
+            LOG.info('No preference file - can not set preference geometry.')
 
     def geometry_parsing(self):
         def go(x,y,w,h):
