@@ -35,13 +35,13 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+if not INFO.LINUXCNC_IS_RUNNING:
+    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
 except:
     LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
-
 
 ###############################################################
 # helper widget for SVG display on Button
