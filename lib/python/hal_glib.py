@@ -837,6 +837,26 @@ class _GStat(gobject.GObject):
     def is_auto_paused(self):
         return self.old['paused']
 
+    def is_interp_running(self):
+        self.stat.poll()
+        return self.stat.interp_state != linuxcnc.INTERP_IDLE
+
+    def is_interp_paused(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_PAUSED
+
+    def is_interp_reading(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_READING
+
+    def is_interp_waiting(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_WAITING
+
+    def is_interp_idle(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_IDLE
+
     def is_file_loaded(self):
         self.stat.poll()
         if self.stat.file:
