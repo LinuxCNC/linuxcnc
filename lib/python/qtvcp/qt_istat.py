@@ -15,6 +15,12 @@ except:
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
+HOME = os.environ.get('EMC2_HOME2', None)
+if HOME is not None:
+    IMAGEDIR = os.path.join(HOME, "share","qtvcp","images")
+else:
+    IMAGEDIR = None
+
 class _IStat(object):
     def __init__(self):
         # only initialize once for all instances
@@ -33,7 +39,8 @@ class _IStat(object):
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
-
+        self.IMAGE_PATH = IMAGEDIR
+ 
         self.MACHINE_IS_LATHE = False
         self.MACHINE_IS_METRIC = False
         self.MACHINE_UNIT_CONVERSION = 1
