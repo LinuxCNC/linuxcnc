@@ -171,7 +171,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: _safecheck(True))
             STATUS.connect('state-estop-reset', lambda w: _safecheck(False))
 
-        elif self.machine_on:
+        elif self.machine_on or self.abort:
             #self.setEnabled(False)
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
@@ -230,14 +230,14 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             if self.run:
                 STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
 
-        elif True in(self.abort, self.pause, self.step):
+        elif True in(self.pause, self.step):
             self.setEnabled(False)
             if self.pause:
                 STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_loaded_test()))
-            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(homed_on_test()))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
 
         elif self.launch_halmeter:
             pass
