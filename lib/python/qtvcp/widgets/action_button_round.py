@@ -35,15 +35,11 @@ class RoundButton(ActionButton):
 
     def action(self, state):
         super(RoundButton, self).action(state)
-        if state:
-            self.clearMask()
-        else:
-            self.setMask(self.clip_region)
+        self.setMask(self.clip_region)
 
     def resizeEvent(self, event):
         self.clip_region = QtGui.QRegion(QtCore.QRect(5, 5, self.width()-10, self.height()-10), QtGui.QRegion.Ellipse)
-        if not self.isChecked():
-            self.setMask(self.clip_region)
+        self.setMask(self.clip_region)
 
     def paintEvent(self, event):
         p = QtGui.QPainter(self)
