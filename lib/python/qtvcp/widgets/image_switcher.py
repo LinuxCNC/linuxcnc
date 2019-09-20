@@ -36,13 +36,18 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+if INFO.IMAGE_PATH is not None:
+    DEFAULTIMAGE = (os.path.join(INFO.IMAGE_PATH,'applet-critical.png')) or ''
+else:
+    INFO.IMAGE_PATH = ''
+    DEFAULTIMAGE = ''
+
 class ImageSwitcher(QLabel, _HalWidgetBase):
     widgetChanged = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(ImageSwitcher, self).__init__(parent)
-        self.IMAGEDIR = os.path.join(os.environ['EMC2_HOME'], "share","qtvcp","images")
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png')]
+        self._imagePath = [DEFAULTIMAGE]
         self._current_number = 0
 
     def _hal_init(self):
@@ -77,7 +82,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
     def get_image_l(self):
         return self._imagePath
     def reset_image_l(self):
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png')]
+        self._imagePath = [DEFAULTIMAGE]
     image_list = pyqtProperty(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
 
     ##############################
@@ -95,9 +100,9 @@ class StatusImageSwitcher(ImageSwitcher):
 
     def __init__(self, parent=None):
         super(StatusImageSwitcher, self).__init__(parent)
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png'),
-                    os.path.join(self.IMAGEDIR,'spindle_ccw.gif'),
-                    os.path.join(self.IMAGEDIR,'spindle_cw.gif')]
+        self._imagePath = [os.path.join(INFO.IMAGE_PATH,'applet-critical.png'),
+                    os.path.join(INFO.IMAGE_PATH,'spindle_ccw.gif'),
+                    os.path.join(INFO.IMAGE_PATH,'spindle_cw.gif')]
         self.spindle = True
         self.all_homed = False
         self.hard_limits = False

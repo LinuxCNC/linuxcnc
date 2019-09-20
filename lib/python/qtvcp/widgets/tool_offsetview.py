@@ -163,6 +163,9 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
             if dtools:
                 error = TOOL.DELETE_TOOLS(dtools)
 
+    def get_checked_list(self):
+        return self.tablemodel.listCheckedTools()
+
 #########################################
 # custom model
 #########################################
