@@ -1137,28 +1137,39 @@ class EntryDialog(QDialog, _HalWidgetBase):
                 self.title = t
             else:
                 self.title = 'Entry'
-            num = self.showdialog()
+            preload = message.get('PRELOAD')
+            num = self.showdialog(preload)
             message['RETURN'] = num
             STATUS.emit('general', message)
 
-    def showdialog(self):
+    def showdialog(self, preload=None):
+        conversion = {'x':0, 'y':1, "z":2, 'a':3, "b":4, "c":5, 'u':6, 'v':7, 'w':8}
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
         self.setWindowTitle(self.title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
+        if preload is not None:
+            self.Num.setText(str(preload))
         flag = False
         while flag == False:
             retval = self.exec_()
             if retval:
-                print retval
                 try:
                     answer = float(self.Num.text())
                     flag = True
                 except Exception as e:
                     try:
-                        process = eval(self.Num.text())
+                        p,relp,dtg = STATUS.get_position()
+                        otext = text = self.Num.text().lower()
+                        for let in INFO.AVAILABLE_AXES:
+                            let = let.lower()
+                            if let in text:
+                                Pos = relp[conversion[let]]
+                                text = text.replace('%s'%let,'%s'%Pos)
+                        process = eval(text)
                         answer = float(process)
+                        STATUS.emit('update-machine-log', 'Convert Entry from: {} to {}'.format(otext,text), 'TIME')
                         flag = True
                     except Exception as e:
                         self.setWindowTitle('%s'%e)
