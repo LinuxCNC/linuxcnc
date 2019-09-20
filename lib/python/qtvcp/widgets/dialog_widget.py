@@ -1371,16 +1371,10 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
-        retval = self.exec_()
+        self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'MachineLogDialog-geometry')
-        LOG.debug('Value of pressed button: {}'.format(retval))
-        if retval:
-            try:
-                return float(self.Num.text())
-            except Exception as e:
-                print e
-        return None
+        return False
 
     def calculate_placement(self):
         geometry_parsing(self,'MachineLogDialog-geometry')
