@@ -416,10 +416,11 @@ Device_Init(Device *this, MotencRegMap *pCard)
 	this->numFpga = 1;
     } else {
 	// No idea what it is.
-	this->boardType = 0;
+	this->boardType = 2;
 	this->pTypeName = "unknown";
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: unknown board type - %i\n", status);
 	this->numFpga = 0;
-	return -1;
+	//return -1;
     }
 
     // Extract board id from first FPGA. The user sets this via jumpers on the card.
