@@ -47,28 +47,42 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(ImageSwitcher, self).__init__(parent)
+        self._defaultImage = DEFAULTIMAGE
         self._imagePath = [DEFAULTIMAGE]
         self._current_number = 0
+        self.setScaledContents(True)
 
     def _hal_init(self):
         self.show_image_by_number(self._current_number)
 
+    def _designerInit(self):
+        self._hal_init()
+
     # Show the widgets based on a reference number
     def show_image_by_number(self, number):
         #print self.objectName(),len(self._imagePath),number
-        if self._imagePath[number].upper() == 'NONE':
-            return
-        if number <0 or number > len(self._imagePath)-1:
-            LOG.debug('Path reference number out of range: {}'.format(number))
-            return
+        try:
+            if self._imagePath[number].upper() == 'NONE':
+                return
+            if number <0 or number > len(self._imagePath)-1:
+                LOG.debug('Path reference number out of range: {}'.format(number))
+                return
+            path = os.path.expanduser(self._imagePath[number])
+        except Exception as e:
+            LOG.error('Path reference number: {}'.format(e))
+            path = os.path.expanduser(self._defaultImage)
         #print 'requested:',number,self._imagePath[number]
-        path = os.path.expanduser(self._imagePath[number])
         if not os.path.exists(path):
             LOG.debug('No Path: {}'.format(path))
         pixmap = QPixmap(path)
         self.setPixmap(pixmap)
 
+    def set_default_image(self, path):
+        self._defaultImage = path
+
     def set_image_number(self, data):
+        if data <0: data = 0
+        if data > len(self._imagePath)-1: data = len(self._imagePath)-1
         self._current_number = data
         self.show_image_by_number(data)
     def get_image_number(self):
@@ -82,7 +96,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
     def get_image_l(self):
         return self._imagePath
     def reset_image_l(self):
-        self._imagePath = [DEFAULTIMAGE]
+        self._imagePath = [self._defaultImage]
     image_list = pyqtProperty(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
 
     ##############################
@@ -118,6 +132,9 @@ class StatusImageSwitcher(ImageSwitcher):
             STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
         elif self.hard_limits:
             STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
+
+    def _designerInit(self):
+        self.show_image_by_number(0)
 
     def switch_on_spindle(self, b, data):
         if data <0: data= 2

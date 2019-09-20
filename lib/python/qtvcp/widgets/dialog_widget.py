@@ -13,6 +13,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+from __future__ import division
+
 import os
 
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
@@ -1145,16 +1147,31 @@ class EntryDialog(QDialog, _HalWidgetBase):
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
-        retval = self.exec_()
+        flag = False
+        while flag == False:
+            retval = self.exec_()
+            if retval:
+                print retval
+                try:
+                    answer = float(self.Num.text())
+                    flag = True
+                except Exception as e:
+                    try:
+                        process = eval(self.Num.text())
+                        answer = float(process)
+                        flag = True
+                    except Exception as e:
+                        self.setWindowTitle('%s'%e)
+            else:
+                flag = True
+                answer = None
+
         STATUS.emit('focus-overlay-changed', False, None, None)
         record_geometry(self,'EntryDialog-geometry')
         LOG.debug('Value of pressed button: {}'.format(retval))
-        if retval:
-            try:
-                return float(self.Num.text())
-            except Exception as e:
-                print e
-        return None
+        if answer is None:
+            return None
+        return answer
 
     def calculate_placement(self):
         geometry_parsing(self,'EntryDialog-geometry')

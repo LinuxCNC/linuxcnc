@@ -68,6 +68,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.zero_axis = False
         self.zero_g5x = False
         self.zero_g92 = False
+        self.zero_zrot = False
         self.launch_halmeter = False
         self.launch_status = False
         self.launch_halshow = False
@@ -219,7 +220,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             # leave early to aviod the standard 'clicked' signal
             return
 
-        elif True in(self.zero_axis, self.zero_g5x,self.zero_g92, self.run):
+        elif True in(self.zero_axis, self.zero_g5x,self.zero_g92, self.run, self.zero_zrot):
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
@@ -384,6 +385,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             ACTION.ZERO_G5X_OFFSET(0)
         elif self.zero_g92:
             ACTION.ZERO_G92_OFFSET()
+        elif self.zero_zrot:
+            ACTION.ZERO_ROTATIONAL_OFFSET()
         elif self.launch_halmeter:
             AUX_PRGM.load_halmeter()
         elif self.launch_status:
@@ -621,7 +624,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
-                 'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92')
+                 'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot')
 
         for i in data:
             if not i == picked:
@@ -690,6 +693,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.zero_g92
     def reset_zero_g92(self):
         self.zero_g92 = False
+
+    def set_zero_zrot(self, data):
+        self.zero_zrot = data
+        if data:
+            self._toggle_properties('zero_zrot')
+    def get_zero_zrot(self):
+        return self.zero_zrot
+    def reset_zero_zrot(self):
+        self.zero_zrot = False
 
     def set_load_dialog(self, data):
         self.load_dialog = data
@@ -1189,6 +1201,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     zero_axis_action = QtCore.pyqtProperty(bool, get_zero_axis, set_zero_axis, reset_zero_axis)
     zero_g5x_action = QtCore.pyqtProperty(bool, get_zero_g5x, set_zero_g5x, reset_zero_g5x)
     zero_g92_action = QtCore.pyqtProperty(bool, get_zero_g92, set_zero_g92, reset_zero_g92)
+    zero_zrot_action = QtCore.pyqtProperty(bool, get_zero_zrot, set_zero_zrot, reset_zero_zrot)
     jog_joint_pos_action = QtCore.pyqtProperty(bool, get_jog_joint_pos, set_jog_joint_pos, reset_jog_joint_pos)
     jog_joint_neg_action = QtCore.pyqtProperty(bool, get_jog_joint_neg, set_jog_joint_neg, reset_jog_joint_neg)
     jog_selected_pos_action = QtCore.pyqtProperty(bool, get_jog_selected_pos, set_jog_selected_pos, reset_jog_selected_pos)
