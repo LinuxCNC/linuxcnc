@@ -460,7 +460,9 @@ class ImageSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return ImageSwitcher(parent)
+        w = ImageSwitcher(parent)
+        w._designerInit()
+        return w
     def name(self):
         return "ImageSwitcher"
     def group(self):
@@ -474,7 +476,16 @@ class ImageSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
     def isContainer(self):
         return False
     def domXml(self):
-        return '''<widget class="ImageSwitcher" name="imageswitcher"></widget>'''
+        return '''<widget class="ImageSwitcher" name="imageswitcher">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>50</width>
+         <height>50</height>
+        </rect>
+       </property>
+        </widget>'''
     def includeFile(self):
         return "qtvcp.widgets.image_switcher"
 
@@ -492,7 +503,9 @@ class StatusImageSwitcherPlugin(QPyDesignerCustomWidgetPlugin):
     def isInitialized(self):
         return self.initialized
     def createWidget(self, parent):
-        return StatusImageSwitcher(parent)
+        w = StatusImageSwitcher(parent)
+        w._designerInit()
+        return w
     def name(self):
         return "StatusImageSwitcher"
     def group(self):
