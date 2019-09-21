@@ -64,7 +64,7 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
-#include <asm/uaccess.h>	/* copy_from_user() */
+#include <linux/uaccess.h>	/* copy_from_user() */
 #include <asm/msr.h>		/* rdtscll() */
 
 /* get inb(), outb(), ioperm() */
