@@ -31,7 +31,6 @@ class RadioAxisSelector(QtWidgets.QRadioButton, _HalWidgetBase):
             if STATUS.is_joint_mode():
                 ACTION.SET_SELECTED_JOINT(self.joint)
             else:
-                print isinstance(self.axis, (str))
                 ACTION.SET_SELECTED_AXIS(self.axis)
 
     # change of joints mode / axis mode
