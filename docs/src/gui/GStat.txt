@@ -149,9 +149,9 @@ Sends a list of joints not currently homed.
 *override_limits_changed* :: '(returns string)' -
 Sent if linuxcnc has been directed to override it's limits.
 
-*hard-limit-tripped* :: '(returns bool, Python List)' -
+*hard-limits-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
-bool indicates it any limit is tripped, the list shows all available joint's current limit values.
+bool indicates if any limit is tripped, the list shows all available joint's current limit values.
 
 *mode-manual* :: '(returns nothing)' -
 Sent when linuxcnc switches to manual mode.
@@ -313,8 +313,8 @@ Sent when active G code change
 *metric-mode-changed* :: '(returns bool)' -
 Sent when G21 status changes
 
-*user_system-changed* :: '(returns string)' -
-Sent when G20 status changes
+*user-system-changed* :: '(returns string)' -
+Sent when the reference coordinate system (G5x) changes
 
 *mdi-line-selected* :: '(returns string, string)' -
 intended to be sent when an MDI line is selected by user. +

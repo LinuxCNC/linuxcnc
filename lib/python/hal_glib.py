@@ -653,7 +653,7 @@ class _GStat(gobject.GObject):
         self.emit('optional-stop-changed',optional_stop_new)
         # user system G5x
         system_new = self.old['g5x-index']
-        self.emit('user_system_changed',system_new)
+        self.emit('user-system_changed',system_new)
         # radius mode g8
         radius_new = self.old['radius']
         self.emit('radius-mode',radius_new)
