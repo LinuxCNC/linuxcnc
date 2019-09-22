@@ -19,7 +19,7 @@ import os
 
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
-        QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox)
+        QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty
 
@@ -1315,23 +1315,9 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
 
-        l = QVBoxLayout()
-        self.setLayout(l)
-
-        self.Log = MachineLog()
-        gl = QVBoxLayout()
-        gl.addWidget(self.Log)
-
-        self.bBox = QDialogButtonBox()
-        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
-        #self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
-        #self.bBox.rejected.connect(self.reject)
-        self.bBox.accepted.connect(self.accept)
-
-        gl.addWidget(self.bBox)
-        l.addLayout(gl)
 
     def _hal_init(self):
+        self.buildWidget()
         x = self.geometry().x()
         y = self.geometry().y()
         w = self.geometry().width()
@@ -1348,6 +1334,33 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
         else:
             self.play_sound = False
         STATUS.connect('dialog-request', self._external_request)
+
+    def buildWidget(self):
+        # add a vertical layout to dialog
+        l = QVBoxLayout()
+        self.setLayout(l)
+
+        # build tab widget
+        tabs = QTabWidget()
+        # build tabs
+        tab_mlog = MachineLog()
+        tab_mlog._hal_init()
+        tab_ilog = MachineLog()
+        tab_ilog.set_integrator_log(True)
+        tab_ilog._hal_init()
+        # add tabs to tab widget
+        tabs.addTab(tab_mlog,'Machine Log')
+        tabs.addTab(tab_ilog,'Integrator Log')
+        # add tab to layout
+        l.addWidget(tabs)
+
+        # build dialog buttons
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        self.bBox.accepted.connect(self.accept)
+        # add buttons to layout
+        l.addWidget(self.bBox)
+
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us
