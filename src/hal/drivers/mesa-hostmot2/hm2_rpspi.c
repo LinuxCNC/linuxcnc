@@ -1040,6 +1040,16 @@ static int peripheral_map(uint32_t membase, uint32_t memsize)
 		return -err;
 	}
 
+	// The Right Way(TM) may be to extract the reg mappings for the
+	// specific devices at /dev/device-tree/soc/*. Then we'd need to
+	// inspect the gpio@... and spi@... device nodes, read the
+	// corresponding reg file and correct the address with respect to the
+	// virtual vs. physical mappings. Too much work... These are all
+	// compatible devices and nobody in their right mind (famous last
+	// words) will change that after the large quantity of devices out in
+	// the wild.
+	// Lets just say, when somebody decides to change the world, then we'll
+	// fix all this code too.
 	gpio = (bcm2835_gpio_t *)(peripheralmem + (BCM2835_GPIO_OFFSET / sizeof(*peripheralmem)));
 	spi  = (bcm2835_spi_t *)(peripheralmem + (BCM2835_SPI_OFFSET  / sizeof(*peripheralmem)));
 	aux  = (bcm2835_aux_t *)(peripheralmem + (BCM2835_AUX_OFFSET  / sizeof(*peripheralmem)));
@@ -1211,6 +1221,11 @@ static uint8_t *read_file(const char *fname, size_t maxsize, size_t minsize)
 		return NULL;
 	}
 
+	if((size_t)sb.st_size < minsize) {
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Target file '%s' stat's less than minimum size of %zu bytes (st_size=%zu)\n", fname, minsize, (size_t)sb.st_size);
+		return NULL;
+	}
+
 	nn = sb.st_size > maxsize ? maxsize : sb.st_size;
 	if(!(buf = rtapi_kmalloc(nn+1, RTAPI_GFP_KERNEL))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: No dynamic memory\n");
@@ -1263,28 +1278,68 @@ static int hm2_rpspi_setup(void)
 		rtapi_set_msg_level(spi_debug);
 
 	// Info about the hardware platform
-	if(!(buf = read_file("/proc/device-tree/model", 255, -1))) {
+	// This should read something like: "Raspberry Pi X Model Y Rev A.B"
+	//
+	// A 4095(+1) byte maximum buffer size should be somewhat future proof
+	// for now, I guess. anyway, it is freed very fast again. Setting a
+	// maximum prevents run-away allocations.
+	if(!(buf = read_file("/proc/device-tree/model", 4095, 0))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Unsupported Platform.\n");
 		return -1;
 	}
-	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Platform: %s\n", (const char *)buf);
+	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Platform: %s\n", *buf ? (const char *)buf : "<no data from /proc/device-tree/model>");
 	rtapi_kfree(buf);
 
 	// Extract the IO base and size
-	if(!(buf = read_file("/proc/device-tree/soc/ranges", 255, 12))) {
+	// The ranges file in the device-tree has the physical mappings of the
+	// IO space we need to map. There are several interesting values in big
+	// endian:
+	// RPi3 (BCM2836)
+	//	[0]: Real register file address
+	//	[1]: IO register file base address
+	//	[2]: IO register file size
+	//	...
+	// RPi4 (BCM2838)
+	//	[0]: Real register file address
+	//	[1]: 0x00000000
+	//	[2]: IO register file base address
+	//	[3]: IO register file size
+	//	...
+	//
+	// The definitions for the device-tree are in the (rpi) linux source
+	// tree to be found at arch/arm/boot/dts/bcm283[568]*.
+	//
+	// A 4095(+1) byte maximum buffer size should be somewhat future proof
+	// for now, I guess. anyway, it is freed very fast again. Setting a
+	// maximum prevents run-away allocations.
+	//
+	// We require the ranges file to contain at least three 32-bit words.
+	// These are required to be present for the RPi3 and RPi4 (and older
+	// versions).
+	if(!(buf = read_file("/proc/device-tree/soc/ranges", 4095, 12))) {
 		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot determine IO base address and size.\n");
 		return -1;
 	}
 
-	pmembase = be32toh(((uint32_t *)buf)[1]);
+	pmembase = be32toh(((uint32_t *)buf)[1]);	// This should do the trick for RPi3
 	pmemsize = be32toh(((uint32_t *)buf)[2]);
+
 	if(!pmembase) {
+		// This is (probably) a RPi4 and the ranges file has a zero at
+		// the base address. Here we need to read four 32-bit words to
+		// get to the right values.
+		rtapi_kfree(buf);
+		if(!(buf = read_file("/proc/device-tree/soc/ranges", 4095, 16))) {
+			rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: Cannot determine IO base address and size.\n");
+			return -1;
+		}
 		pmembase = be32toh(((uint32_t *)buf)[2]);
 		pmemsize = be32toh(((uint32_t *)buf)[3]);
 	}
 	rtapi_kfree(buf);
+
 	if(!pmembase || !pmemsize) {
-		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: IO base address or size are zero.\n");
+		rtapi_print_msg(RPSPI_ERR, "hm2_rpspi: IO base address (0x%08x) or size (0x%08x) are zero.\n", pmembase, pmemsize);
 		return -1;
 	}
 	rtapi_print_msg(RPSPI_INFO, "hm2_rpspi: Base address 0x%08x size 0x%08x\n", pmembase, pmemsize);
