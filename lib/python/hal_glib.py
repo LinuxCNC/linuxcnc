@@ -89,7 +89,7 @@ class _GStat(gobject.GObject):
         'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
 
         'hard-limits-tripped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
 
@@ -269,13 +269,16 @@ class _GStat(gobject.GObject):
         or_limit_list=[]
         hard_limit_list = []
         hard_limit = False
+        or_limit_set = False
         for j in range(0, self.stat.joints):
             or_limit_list.append( self.stat.joint[j]['override_limits'])
+            or_limit_set = or_limit_set or self.stat.joint[j]['override_limits']
             min_hard_limit = self.stat.joint[j]['min_hard_limit']
             max_hard_limit = self.stat.joint[j]['max_hard_limit']
             hard_limit = hard_limit or min_hard_limit or max_hard_limit
             hard_limit_list.append([min_hard_limit,max_hard_limit])
         self.old['override-limits'] = or_limit_list
+        self.old['override-limits-set'] = bool(or_limit_set)
         self.old['hard-limits-tripped'] = bool(hard_limit)
         self.old['hard-limits-list'] = hard_limit_list
 
@@ -449,8 +452,9 @@ class _GStat(gobject.GObject):
         # override limts
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
+        or_limits_set_new = self.old['override-limits-set']
         if or_limits_new != or_limits_old:
-            self.emit('override-limits-changed',or_limits_new)
+            self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
         # hard limits tripped
         t_list_old = old.get('hard-limits-list')
         t_list_new = self.old['hard-limits-list']
@@ -616,9 +620,10 @@ class _GStat(gobject.GObject):
             self.emit('state-estop')
         self.emit('state-off')
         self.emit('interp-idle')
-        # override limts
+        # override limits
         or_limits_new = self.old['override-limits']
-        self.emit('override-limits-changed',or_limits_new)
+        or_limits_set_new = self.old['override-limits-set']
+        self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
         # overrides
         feed_or_new = self.old['feed-or']
         self.emit('feed-override-changed',feed_or_new * 100)
@@ -879,6 +884,12 @@ class _GStat(gobject.GObject):
 
     def is_status_valid(self):
         return self._status_active
+
+    def is_limits_override_set(self):
+        return self.old['override-limits-set']
+
+    def is_hard_limits_tripped(self):
+        return self.old['hard-limits-tripped']
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
