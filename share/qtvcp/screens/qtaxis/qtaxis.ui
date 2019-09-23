@@ -752,6 +752,19 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="2" column="0">
+                   <widget class="ActionButton" name="actionbutton_7">
+                    <property name="text">
+                     <string>Override Limits</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="limits_override_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                 <item>
@@ -1748,7 +1761,7 @@
      <x>0</x>
      <y>0</y>
      <width>602</width>
-     <height>27</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
