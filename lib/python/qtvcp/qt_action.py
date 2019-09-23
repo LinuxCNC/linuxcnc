@@ -50,8 +50,17 @@ class _Lcnc_Action(object):
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
 
-    def SET_LIMITS_OVERRIDE(self):
-        self.cmd.override_limits()
+    # if called while on hard limit will set the flag and allow machine on
+    # if called with flag set and now off hard limits - resets the flag
+    def TOGGLE_LIMITS_OVERRIDE(self):
+        if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'''Can Not Reset Limits Override - Still On Hard Limits''')
+        elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
+            self.cmd.override_limits()
+        else:
+            STATUS.emit('error',linuxcnc.OPERATOR_TEXT,'Hard Limits Are Reset To Active!')
+            self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MDI)

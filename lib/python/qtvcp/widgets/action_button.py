@@ -165,6 +165,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        def limits_override_test(data):
+            if data:
+                self.setEnabled(True)
+            else:
+                self.setEnabled(False)
+                self.setChecked(False)
+                ACTION.TOGGLE_LIMITS_OVERRIDE()
+
         if self.estop:
             # Estop starts with button down - in estop which
             # backwards logic for the button...
@@ -287,7 +296,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('spindle-control-changed', lambda w, e, d: _safecheck(not e))
 
         elif self.limits_override:
-            STATUS.connect('hard-limits-tripped', lambda w, data, group: self.setEnabled(data))
+            self.setEnabled(False)
+            #STATUS.connect('override-limits-changed', lambda w, data, group: limits_override_test(data))
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: limits_override_test(data))
         elif self.flood:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
@@ -460,7 +471,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             else:
                 ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.limits_override:
-            ACTION.SET_LIMITS_OVERRIDE()
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
         elif self.flood:
             if self.isCheckable() is False:
                 ACTION.TOGGLE_FLOOD()
