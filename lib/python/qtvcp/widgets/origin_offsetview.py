@@ -285,7 +285,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     # only update every 10th time periodic calls
     def periodic_check(self, w):
-        if self.delay < 99:
+        if self.delay < 9:
             self.delay += 1
             return
         else:
