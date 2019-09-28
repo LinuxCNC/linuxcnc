@@ -42,7 +42,7 @@ TOOL = Tool()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class ToolOffsetView(QTableView, _HalWidgetBase):
