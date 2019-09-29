@@ -968,6 +968,7 @@ void do_homing(void)
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
+		joint_in_sequence[joint_num]=0;
 		joint->free_tp.enable = 0;
 		joint->home_state = HOME_IDLE;
 		joint->index_enable = 0;
