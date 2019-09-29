@@ -1246,6 +1246,7 @@ void do_homing(void)
                 H[joint_num].homing = 0;
                 H[joint_num].homed = 0;
                 H[joint_num].at_home = 0;
+                H[joint_num].joint_in_sequence = 0;
 		joint->free_tp.enable = 0;
 		H[joint_num].home_state = HOME_IDLE;
 		H[joint_num].index_enable = 0;
