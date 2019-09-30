@@ -5046,7 +5046,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # comptype = type_name[ptype]
                 comptype = "ERROR FINDING COMPONENT TYPE"
                 for key,value in type_name.iteritems():
-                    if key == ptype: comptype = value
+                    if key == ptype:
+                        comptype = value
+                        break
                 if value == "Error":
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
                     return None
@@ -5063,7 +5065,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             comptype = "input"
                             if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
-                            return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
+                        return "%s.%s.%d.%d."% (make_name(boardname,halboardnum),subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
                     elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
