@@ -5046,7 +5046,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # comptype = type_name[ptype]
                 comptype = "ERROR FINDING COMPONENT TYPE"
                 for key,value in type_name.iteritems():
-                    if key == ptype: comptype = value
+                    if key == ptype:
+                        comptype = value
+                        break
                 if value == "Error":
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
                     return None
