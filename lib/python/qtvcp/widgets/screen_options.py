@@ -185,6 +185,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
+            print self.QTVCP_INSTANCE_.originalCloseEvent_
 
         if self.play_sounds:
             try:
@@ -269,15 +270,21 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  focus_text='Close Linuxcnc?',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
+            # system shutdown
             if answer == -1:
-                from qtvcp.core import Action
-                ACTION = Action()
-                ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+                if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
+                    self.QTVCP_INSTANCE_.system_shutdown_request__()
+                else:
+                    from qtvcp.core import Action
+                    ACTION = Action()
+                    ACTION.SHUT_SYSTEM_DOWN_PROMPT()
                 event.accept()
+            # close linuxcnc
             elif answer:
                 if self.play_sounds and self.play_shutdown_sounds:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
                     event.accept()
+            # cancel
             elif answer == False:
                 event.ignore()
                 return

@@ -566,6 +566,11 @@ the processed_key_event. +
 This function is called just before the Qt event loop is entered. +
 At the point all widgets/libraries/initialization code has completed and the screen is already displayed. +
 
+==== system_shutdown_request__(self):
+If present, this function overrides the normal function called when a user selects a total system shutdown. +
+It could be used to do pre-shutdown housekeeping. The system will not shutdown if using this function, you will +
+have to do that yourself. qtvcp/linuxcnc will shutdown wihtout a prompt after this function returns +
+ 
 ==== closing_cleanup__(self):
 This function is called just before the screen closes. It can be used +
 to do cleanup before closing. +

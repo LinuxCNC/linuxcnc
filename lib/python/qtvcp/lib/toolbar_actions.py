@@ -365,7 +365,16 @@ class ToolBarActions():
         STATUS.emit('shutdown')
 
     def actOnSystemShutdown(self, widget, state=None):
-        ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+        if 'system_shutdown_request__' in dir(self.qtvcpWidgets):
+            # do whatever the handler file's function requires
+            self.qtvcpWidgets.system_shutdown_request__()
+            # make sure to close qtvcp/linuxcnc properly
+            # screenoptions widget redirects the close function to add a prompt
+            # now we re-redirect to remove the prompt 
+            self.qtvcpWidgets.closeEvent = self.qtvcpWidgets.originalCloseEvent_
+            self.qtvcpWidgets.close()
+        else:
+            ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
     def actOnAbout(self,widget, state=None):
         msg = QtWidgets.QMessageBox()
