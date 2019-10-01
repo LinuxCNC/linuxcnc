@@ -81,6 +81,7 @@ class MyWindow(QtWidgets.QMainWindow):
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
+        self.originalCloseEvent_ = self.closeEvent
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):
