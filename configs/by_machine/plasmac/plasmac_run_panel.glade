@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-requires VCP Macro Select 0.0 -->
   <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="cut-amps-adj"/>
@@ -86,14 +87,13 @@ indicator only, not used.</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200120">
-                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -140,14 +140,13 @@ only used if not using auto volts</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="cut-volts-label">
-                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -190,11 +189,11 @@ only used if not using auto volts</property>
                               <packing>
                                 <property name="top_attach">3</property>
                                 <property name="bottom_attach">4</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200000">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -212,7 +211,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200010">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -230,7 +228,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200100">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -248,7 +245,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200130">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -267,7 +263,6 @@ setting this to 0 will use feed rate from program</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR1">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump height as a percentage of pierce height
@@ -286,7 +281,6 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200020">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump delay in seconds
@@ -323,6 +317,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">4</property>
                                 <property name="bottom_attach">5</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -345,6 +340,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">5</property>
                                 <property name="bottom_attach">6</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -368,6 +364,7 @@ set this to 0 to use feed rate from gcode</property>
                               <packing>
                                 <property name="top_attach">6</property>
                                 <property name="bottom_attach">7</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -391,6 +388,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">9</property>
                                 <property name="bottom_attach">10</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -414,11 +412,11 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">10</property>
                                 <property name="bottom_attach">11</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR5">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -454,11 +452,11 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="thc-enable-label">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -476,11 +474,11 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="GtkHBox" id="hbox2">
+                                <property name="width_request">75</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR300000">
-                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -503,7 +501,7 @@ set to 0 to disable</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -511,11 +509,12 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkComboBox" id="material">
-                                <property name="width_request">205</property>
+                                <property name="width_request">180</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">material number and material name
@@ -647,10 +646,12 @@ turn off to use cut volts from parameters</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
+                                  <packing>
+                                    <property name="x_options"/>
+                                  </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="use-auto-volts-label">
-                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -679,12 +680,11 @@ turn off to use cut volts from parameters</property>
                                   <packing>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
-                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="x_options"/>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label4375">
-                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -714,12 +714,11 @@ turn off to use cut volts from parameters</property>
                                   <packing>
                                     <property name="top_attach">2</property>
                                     <property name="bottom_attach">3</property>
-                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="x_options"/>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="kerfcross-enable-label">
-                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -780,7 +779,6 @@ turn off to use cut volts from parameters</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="GtkLabel" id="labelR3">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -806,7 +804,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                               <packing>
-                                <property name="x_options">GTK_FILL</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                           </object>
