@@ -113,8 +113,26 @@ proc ::tp::loadusr_substitute {args} {
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     # do loadusr in pass 0 only
+    set prog  [lindex $args end]
+    set ptype [file pathtype $prog]
     puts "twopass:pass0: loadusr $args"
-    eval orig_loadusr $args
+    if {[catch {exec which $prog} msg]} {
+       # prog not in PATH:
+       if {[file exists $prog]} {
+          if {[file executable $prog]} {
+             eval orig_loadusr $args
+          } else {
+             puts "twopass:loadusr <$prog> not executable"
+             puts "        Continuing\n"
+          }
+       } else {
+          puts "twopass:loadusr <$prog> not found"
+          puts "        Continuing\n"
+       }
+    } else {
+       # prog in PATH:
+       eval orig_loadusr $args
+    }
   } else {
     #"twopass: Ignore pass1: loadusr $args"
   }
