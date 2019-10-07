@@ -737,10 +737,10 @@ class configurator:
             if 'LINEAR_UNITS' in line:
                 result += 1
                 a,b = line.strip().replace(' ','').split('=')
-                if b.lower() == 'mm':
-                    self.plasmacIniFile = '{}/{}/metric_plasmac.ini'.format(self.copyPath,display)
-                else:
+                if b.lower() == 'inch':
                     self.plasmacIniFile = '{}/{}/imperial_plasmac.ini'.format(self.copyPath,display)
+                else:
+                    self.plasmacIniFile = '{}/{}/metric_plasmac.ini'.format(self.copyPath,display)
             if line.startswith('[') or not line:
                 if result == 1:
                     break
