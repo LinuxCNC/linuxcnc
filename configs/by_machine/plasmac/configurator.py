@@ -691,11 +691,11 @@ class configurator:
                     if 'num_spindles' in line:
                         line = line.split('num_spindles')[0].strip()
                     line = '{} num_spindles=[TRAJ]SPINDLES\n'.format(line.strip())
-                elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
+                elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool' in line:
                     line = '# {}'.format(line)
                 outFile.write(line)
             outFile.write(\
-                '\n#Toolchange passthrough\n'
+                '\n# toolchange passthrough\n'
                 'net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed\n'
                 'net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared\n')
             inFile.close()
@@ -859,11 +859,11 @@ class configurator:
             elif 'spindle.0.on' in line:
                 line = '# {}'.format(line)
             # comment out old toolchange lines
-            elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool-prepare' in line:
+            elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool' in line:
                 line = '# {}'.format(line)
             newHalFile.write(line)
         newHalFile.write(\
-            '\n#Toolchange passthrough\n'
+            '\n# toolchange passthrough\n'
             'net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed\n'
             'net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared\n')
         newHalFile.close()
