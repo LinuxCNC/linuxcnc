@@ -261,6 +261,29 @@ class configurator:
     def on_cancel_clicked(self,button):
         self.W.hide()
 
+    def check_typos(self):
+        with open(self.orgIniFile) as f:
+            inData = f.readlines()
+        for line in inData:
+            if 'PAUSED-MOTION-SPEED' in line or 'TORCH-PULSE-TIME' in line:
+                return True
+        return False
+
+    def fix_typos(self):
+        print('Fixing Typos')
+        shutil.copy(self.orgIniFile,'{}.tmp'.format(self.orgIniFile))
+        inFile = open('{}.tmp'.format(self.orgIniFile), 'r')
+        outFile = open('{}'.format(self.orgIniFile), 'w')
+        for line in inFile:
+            if line.startswith('PAUSED-MOTION-SPEED'):
+                line = line.replace('-','_')
+            elif line.startswith('TORCH-PULSE-TIME'):
+                line = line.replace('-','_')
+            outFile.write(line)
+        inFile.close()
+        outFile.close()
+        os.remove('{}.tmp'.format(self.orgIniFile))
+
     def b4_pmt_tpt(self):
         inFile = open(self.orgIniFile,'r')
         while 1:
@@ -355,7 +378,10 @@ class configurator:
         if display == None: return
         if not self.check_new_path(): return
         if self.configureType == 'upgrade':
+            if self.check_typos():
+                self.fix_typos()
             version = self.check_version()
+            print('PlasmaC Config Version: {}'.format(version))
             self.upgrade_ini_file(version,display)
             self.upgrade_material_file(version)
             self.upgrade_connections_file(version)
@@ -569,9 +595,9 @@ class configurator:
             outFile = open('{}'.format(self.orgIniFile), 'w')
             for line in inFile:
                 if line.startswith('# multiply cut-fe'): pass
-                elif line.startswith('PAUSED-MOTION'): pass
+                elif line.startswith('PAUSED_MOTION'): pass
                 elif line.startswith('# torch on time'): pass
-                elif line.startswith('TORCH-PULSE-TIM'): pass
+                elif line.startswith('TORCH_PULSE_TIM'): pass
                 elif line.startswith('# for the five ')  or line.startswith('# for the four '):
                     outFile.write(\
                         '# percentage of cut-feed-rate used for paused motion speed\n'\

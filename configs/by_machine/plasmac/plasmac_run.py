@@ -390,8 +390,8 @@ class HandlerClass:
             for item in self.configDict:
                 if item == 'material':
                     self.builder.get_object(item).set_active(0)
-                elif item == 'kerf-width':
-                    self.builder.get_object(item).set_value(0)
+#                elif item == 'kerf-width':
+#                    self.builder.get_object(item).set_value(0)
                 elif isinstance(self.builder.get_object(item), gladevcp.hal_widgets.HAL_SpinButton):
                     if item in tmpDict:
                         self.builder.get_object(item).set_value(float(self.configDict.get(item)))
@@ -414,9 +414,10 @@ class HandlerClass:
             with open(self.configFile, 'w') as f_out:
                 f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
                 for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number' or key == 'kerf-width':
+                    if key == 'material-number': # or key == 'kerf-width':
                         pass
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                        self.builder.get_object(key).update()
                         value = self.builder.get_object(key).get_value()
                         f_out.write(key + '=' + str(value) + '\n')
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
@@ -428,6 +429,12 @@ class HandlerClass:
         except:
             self.dialog_error('Error opening {}'.format(self.configFile))
             print('*** error opening {}'.format(self.configFile))
+
+    def idle_changed(self, halpin):
+        if not halpin.get():
+            for key in sorted(self.configDict.iterkeys()):
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
 
     def __init__(self, halcomp,builder,useropts):
         self.W = gtk.Window()
@@ -442,6 +449,9 @@ class HandlerClass:
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
+        self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
+        hal.connect('plasmac_run.program-is-idle', 'plasmac:program-is-idle') 
+        self.idlePin.connect('value-changed', self.idle_changed)
         self.thcFeedRate = (float(self.i.find('AXIS_Z', 'MAX_VELOCITY')) * \
                               float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
         hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))

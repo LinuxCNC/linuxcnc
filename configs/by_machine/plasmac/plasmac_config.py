@@ -269,6 +269,7 @@ class HandlerClass:
                 f_out.write('version=0.1\n\n')
                 for key in sorted(self.configDict.iterkeys()):
                     if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                        self.builder.get_object(key).update()
                         value = self.builder.get_object(key).get_value()
                         f_out.write(key + '=' + str(value) + '\n')
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
@@ -321,6 +322,12 @@ class HandlerClass:
                 hal.connect('spindle.2.on','plasmac:centre-spot-is-on')
                 hal.connect('plasmac.centre-spot-on','plasmac:centre-spot-is-on')
 
+    def idle_changed(self, halpin):
+        if not halpin.get():
+            for key in sorted(self.configDict.iterkeys()):
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
+
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
         self.builder = builder
@@ -328,6 +335,9 @@ class HandlerClass:
         hal_glib.GPin(halcomp.newpin('config-disable', hal.HAL_BIT, hal.HAL_IN))
         configDisable = self.i.find('PLASMAC', 'CONFIG_DISABLE') or '0'
         hal.set_p('plasmac_config.config-disable',configDisable)
+        self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
+        hal.connect('plasmac_config.program-is-idle', 'plasmac:program-is-idle') 
+        self.idlePin.connect('value-changed', self.idle_changed)
         self.thcFeedRate = (float(self.i.find('AXIS_Z', 'MAX_VELOCITY')) * \
                               float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_config.cfg'
