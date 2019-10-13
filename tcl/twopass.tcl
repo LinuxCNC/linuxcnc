@@ -113,7 +113,23 @@ proc ::tp::loadusr_substitute {args} {
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     # do loadusr in pass 0 only
-    set prog  [lindex $args end]
+    # determine executeable prog:
+    set prog "_unspecified_"
+    foreach arg $args {
+      if [info exists skipnextarg] {
+         unset skipnextarg; continue
+      }
+      switch -glob $arg {
+        -Wn       {set skipnextarg 1}
+        -*        {# ignore other options}
+        {default} {set prog $arg; break ;# first non-option}
+      }
+    }
+    if {"$prog" == "_unspecified_"} {
+       puts "twopass:loadusr has no unix-command"
+       puts "        Continuing\n"
+       return
+    }
     set ptype [file pathtype $prog]
     puts "twopass:pass0: loadusr $args"
     if {[catch {exec which $prog} msg]} {
