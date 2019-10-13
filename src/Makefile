@@ -1,3 +1,16 @@
+# buster gcc (Debian 8.3.0-6) emits many warnings
+# use at your own risk
+ifeq ($(origin SUPPRESS_WARNINGS), undefined)
+else
+  QUIETFLAGS    ?=
+  QUIETFLAGS    += -Wno-unused-label
+  QUIETFLAGS    += -Wno-format-overflow
+  QUIETFLAGS    += -Wno-format-truncation
+  QUIETFLAGS    += -Wno-stringop-truncation
+  CXXQUIETFLAGS := $(QUIETFLAGS)
+  CXXQUIETFLAGS += -Wno-catch-value
+endif
+
 ifeq ($(origin KERNELRELEASE), undefined)
 MAKEFLAGS += --warn-undefined-variables
 endif
@@ -192,8 +205,8 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(QUIETFLAGS) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS) $(CXXQUIETFLAGS) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
