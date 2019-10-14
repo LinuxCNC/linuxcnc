@@ -158,7 +158,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         print ' Inside xmyp_released'
         result = self.read_page_data()
         if result:
-            self.probe_inside_xmtp()
+            self.probe_inside_xmyp()
     def pbtn_inside_yp_released(self):
         print ' Inside yp1_released'
         result = self.read_page_data()
@@ -380,7 +380,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def set_z_offset(self):
         ACTION.SET_AXIS_ORIGIN('Z'.float(self.input_adj_x.text()))
     def set_angle_offset(self):
-        self.status_a.setText( "%.3f" % float(self.w.input_adj_angle.text()) )
+        self.status_a.setText( "%.3f" % float(self.input_adj_angle.text()) )
         s="G10 L2 P0"
         if self.pbtn_allow_auto_zero.isChecked():
             s +=  " X%.4f"% float(self.data_input_adj_x)      
