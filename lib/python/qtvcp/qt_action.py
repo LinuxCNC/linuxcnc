@@ -359,15 +359,20 @@ class _Lcnc_Action(object):
             STATUS.emit('view-changed',view)
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
-        from subprocess import Popen, PIPE
+        import subprocess
         try:
-            process = Popen(['gnome-session-quit --power-off'], stdout=PIPE, stderr=PIPE).communicate()
-        except:
             try:
-                process = Popen(['xfce4-session-logout'], stdout=PIPE, stderr=PIPE).communicate()
+                subprocess.call('gnome-session-quit --power-off',shell=True)
             except:
-                import subprocess
-                subprocess.call('systemctl poweroff')
+                try:
+                    subprocess.call('xfce4-session-logout', shell=True)
+                except:
+                    try:
+                        subprocess.call('systemctl poweroff', shell=True)
+                    except:
+                        raise
+        except Exception as e:
+            log.warning("Couldn't shut system down: {}".format(e))
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess

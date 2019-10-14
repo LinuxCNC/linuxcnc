@@ -50,7 +50,7 @@ class QTPanel():
                     try:
                         self.window['PREFS_'], pref_fn = widget._pref_init()
                     except Exception as e:
-                        LOG.warning('Preferebce instance error: {}'.format(e))
+                        LOG.warning('Preference instance error: {}'.format(e))
                         self.window['PREFS_'], pref_fn = (None,None)
                     path.PREFS_FILENAME = pref_fn
         # parse for HAL objects:

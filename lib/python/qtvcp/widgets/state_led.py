@@ -100,7 +100,7 @@ class StateLED(LED):
         if str(self.joint_number) in jlist:
             self._flip_state(False)
 
-    def check_override_limits(self, w, data):
+    def check_override_limits(self, w, state, data):
         for i in data:
             if i == 1:
                 self._flip_state(True)

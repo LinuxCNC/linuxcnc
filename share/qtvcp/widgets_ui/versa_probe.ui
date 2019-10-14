@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>421</height>
+    <width>626</width>
+    <height>418</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>619</width>
-    <height>421</height>
+    <width>626</width>
+    <height>418</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -36,27 +36,21 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QFrame" name="frame_probing">
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
+    <widget class="QWidget" name="widget_probing" native="true">
      <widget class="QFrame" name="frame_settings">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>298</y>
-        <width>600</width>
-        <height>102</height>
+        <y>310</y>
+        <width>621</width>
+        <height>106</height>
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
       <widget class="QLabel" name="lab_z_2">
        <property name="geometry">
@@ -77,10 +71,10 @@
       <widget class="QLabel" name="lab_clearances">
        <property name="geometry">
         <rect>
-         <x>512</x>
+         <x>501</x>
          <y>2</y>
-         <width>80</width>
-         <height>17</height>
+         <width>91</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="font">
@@ -129,7 +123,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>length</string>
+        <string>Length</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -280,7 +274,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Latch Return Dist</string>
+        <string>Latch Rtn Dist</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -320,10 +314,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -353,10 +347,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -386,10 +380,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -419,10 +413,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -452,10 +446,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -485,10 +479,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -518,16 +512,19 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
        </property>
        <property name="frame">
         <bool>true</bool>
+       </property>
+       <property name="cursorPosition">
+        <number>7</number>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -551,10 +548,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -575,13 +572,19 @@
          <height>20</height>
         </rect>
        </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="font">
         <font>
          <pointsize>8</pointsize>
         </font>
        </property>
        <property name="text">
-        <string>x1Probing  Panel</string>
+        <string>Probing  Panel</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -605,10 +608,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -638,10 +641,10 @@
         <cursorShape>IBeamCursor</cursorShape>
        </property>
        <property name="inputMask">
-        <string>99.9999</string>
+        <string>999.999</string>
        </property>
        <property name="text">
-        <string>00.0000</string>
+        <string>0.0</string>
        </property>
        <property name="maxLength">
         <number>7</number>
@@ -701,7 +704,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>Tool Probe H</string>
+        <string>Probe H</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -738,29 +741,35 @@
         </rect>
        </property>
        <property name="text">
-        <string>Tool Block H</string>
+        <string>Block H</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_offesets">
+     <widget class="QFrame" name="frame_offsets">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>182</y>
-        <width>341</width>
-        <height>116</height>
+        <y>200</y>
+        <width>356</width>
+        <height>106</height>
        </rect>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>120</height>
+       </size>
+      </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
-      <widget class="QFrame" name="frame_zero_set">
+      <widget class="QWidget" name="widget_zero_set" native="true">
        <property name="geometry">
         <rect>
          <x>13</x>
@@ -768,12 +777,6 @@
          <width>71</width>
          <height>95</height>
         </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
        </property>
        <widget class="PushButton" name="pbtn_allow_auto_skew">
         <property name="geometry">
@@ -859,7 +862,7 @@ Zero</string>
         </property>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_angle_adjust">
+      <widget class="QWidget" name="widget_angle_adjust" native="true">
        <property name="geometry">
         <rect>
          <x>191</x>
@@ -867,12 +870,6 @@ Zero</string>
          <width>136</width>
          <height>46</height>
         </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
        </property>
        <widget class="QLabel" name="label_adjust_angle">
         <property name="geometry">
@@ -884,7 +881,7 @@ Zero</string>
          </rect>
         </property>
         <property name="text">
-         <string>Adjust Angle</string>
+         <string>Adj Angle</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -908,13 +905,13 @@ Zero</string>
          <cursorShape>IBeamCursor</cursorShape>
         </property>
         <property name="inputMask">
-         <string>999.9999</string>
+         <string>99.99</string>
         </property>
         <property name="text">
-         <string>000.0000</string>
+         <string>0.0</string>
         </property>
         <property name="maxLength">
-         <number>8</number>
+         <number>5</number>
         </property>
         <property name="frame">
          <bool>true</bool>
@@ -947,7 +944,7 @@ Angle</string>
         </property>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_probe">
+      <widget class="QWidget" name="widget_probe" native="true">
        <property name="geometry">
         <rect>
          <x>87</x>
@@ -955,12 +952,6 @@ Angle</string>
          <width>94</width>
          <height>94</height>
         </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
        </property>
        <widget class="QLabel" name="label_y">
         <property name="geometry">
@@ -1001,7 +992,7 @@ Angle</string>
          <enum>QFrame::Plain</enum>
         </property>
         <property name="text">
-         <string>Adjust offset</string>
+         <string>Adj Offset</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1060,19 +1051,19 @@ Angle</string>
          <bool>false</bool>
         </property>
         <property name="inputMask">
-         <string>999.9999</string>
+         <string>999.999</string>
         </property>
         <property name="text">
-         <string>000.0000</string>
+         <string>0.0</string>
         </property>
         <property name="maxLength">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="frame">
          <bool>true</bool>
         </property>
         <property name="cursorPosition">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1096,13 +1087,13 @@ Angle</string>
          <cursorShape>IBeamCursor</cursorShape>
         </property>
         <property name="inputMask">
-         <string>999.9999</string>
+         <string>999.999</string>
         </property>
         <property name="text">
-         <string>000.0000</string>
+         <string>0.0</string>
         </property>
         <property name="maxLength">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="frame">
          <bool>true</bool>
@@ -1129,13 +1120,13 @@ Angle</string>
          <cursorShape>IBeamCursor</cursorShape>
         </property>
         <property name="inputMask">
-         <string>999.9999</string>
+         <string>999.999</string>
         </property>
         <property name="text">
-         <string>000.0000</string>
+         <string>0.0</string>
         </property>
         <property name="maxLength">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="frame">
          <bool>true</bool>
@@ -1145,7 +1136,7 @@ Angle</string>
         </property>
        </widget>
       </widget>
-      <widget class="QFrame" name="frame_buttons">
+      <widget class="QWidget" name="widget_buttons" native="true">
        <property name="geometry">
         <rect>
          <x>191</x>
@@ -1153,12 +1144,6 @@ Angle</string>
          <width>136</width>
          <height>44</height>
         </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
        </property>
        <widget class="PushButton" name="pbtn_set_x">
         <property name="geometry">
@@ -1231,20 +1216,20 @@ Z</string>
        </widget>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_6">
+     <widget class="QFrame" name="frame_results">
       <property name="geometry">
        <rect>
-        <x>474</x>
-        <y>0</y>
-        <width>126</width>
-        <height>298</height>
+        <x>490</x>
+        <y>5</y>
+        <width>131</width>
+        <height>301</height>
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
       <widget class="QLabel" name="lab_ang">
        <property name="geometry">
@@ -1436,6 +1421,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1462,6 +1450,9 @@ Z</string>
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
@@ -1490,6 +1481,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1517,11 +1511,17 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
        </property>
        <property name="text">
         <string>0</string>
@@ -1543,6 +1543,9 @@ Z</string>
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
@@ -1571,6 +1574,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1597,6 +1603,9 @@ Z</string>
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
@@ -1625,6 +1634,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1651,6 +1663,9 @@ Z</string>
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
@@ -1679,6 +1694,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1705,6 +1723,9 @@ Z</string>
         <font>
          <pointsize>11</pointsize>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
@@ -1733,6 +1754,9 @@ Z</string>
          <pointsize>11</pointsize>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(240, 240, 240);</string>
+       </property>
        <property name="frameShape">
         <enum>QFrame::WinPanel</enum>
        </property>
@@ -1747,1087 +1771,992 @@ Z</string>
        </property>
       </widget>
      </widget>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="frame_skew">
       <property name="geometry">
        <rect>
-        <x>344</x>
-        <y>0</y>
-        <width>130</width>
-        <height>130</height>
+        <x>360</x>
+        <y>5</y>
+        <width>128</width>
+        <height>301</height>
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
-      <widget class="PushButton" name="pbtn_skew_xp">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_skew_ym">
-       <property name="geometry">
-        <rect>
-         <x>67</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_skew_yp">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleY+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_skew_xm">
-       <property name="geometry">
-        <rect>
-         <x>67</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/angleX-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_skewed_label">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>130</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Skew Measure</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_skewed_label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Skew Measure</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_skew" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>106</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>106</width>
+           <height>270</height>
+          </size>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="PushButton" name="pbtn_skew_xp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/angleX+.png</normaloff>../images/probe_icons/angleX+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="PushButton" name="pbtn_skew_ym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/angleY-.png</normaloff>../images/probe_icons/angleY-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="PushButton" name="pbtn_skew_yp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/angleY+.png</normaloff>../images/probe_icons/angleY+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="PushButton" name="pbtn_skew_xm">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/angleX-.png</normaloff>../images/probe_icons/angleX-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="PushButton" name="pbtn_inside_length_x">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inside_xl.png</normaloff>../images/probe_icons/inside_xl.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="PushButton" name="pbtn_outside_length_x">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/outside_xl.png</normaloff>../images/probe_icons/outside_xl.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="PushButton" name="pbtn_inside_length_y">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inside_yl.png</normaloff>../images/probe_icons/inside_yl.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="PushButton" name="pbtn_outside_length_y">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/outside_yl.png</normaloff>../images/probe_icons/outside_yl.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="PushButton" name="pbtn_down">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/down.png</normaloff>../images/probe_icons/down.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="PushButton" name="pbtn_measure_diam">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/tool_dia.png</normaloff>../images/probe_icons/tool_dia.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QFrame" name="frame_inside_measure">
       <property name="geometry">
        <rect>
-        <x>172</x>
-        <y>0</y>
-        <width>172</width>
-        <height>182</height>
+        <x>180</x>
+        <y>5</y>
+        <width>176</width>
+        <height>191</height>
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
-      <widget class="PushButton" name="pbtn_inside_xmym">
-       <property name="geometry">
-        <rect>
-         <x>6</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xmyp">
-       <property name="geometry">
-        <rect>
-         <x>6</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-Y+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xm">
-       <property name="geometry">
-        <rect>
-         <x>6</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_ym">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_yp">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inY+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xy_hole">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</normaloff>../../../../share/qtvcp/images/probe_icons/inHole.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xpym">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xpyp">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+Y+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_xp">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</normaloff>../../../../share/qtvcp/images/probe_icons/inX+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QFrame" name="frame_inside_label">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>151</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QLabel" name="label_inside_measure">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>172</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Inside Measurements</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_inside_measure">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Inside Measurements</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_inside_measure" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>166</width>
+           <height>166</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>166</width>
+           <height>166</height>
+          </size>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="PushButton" name="pbtn_inside_xmyp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX-Y+.png</normaloff>../images/probe_icons/inX-Y+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="PushButton" name="pbtn_inside_yp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inY+.png</normaloff>../images/probe_icons/inY+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="PushButton" name="pbtn_inside_xpyp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX+Y+.png</normaloff>../images/probe_icons/inX+Y+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="PushButton" name="pbtn_inside_xm">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX-.png</normaloff>../images/probe_icons/inX-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="PushButton" name="pbtn_inside_xy_hole">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inHole.png</normaloff>../images/probe_icons/inHole.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="PushButton" name="pbtn_inside_xp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX+.png</normaloff>../images/probe_icons/inX+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="PushButton" name="pbtn_inside_xmym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX-Y-.png</normaloff>../images/probe_icons/inX-Y-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="PushButton" name="pbtn_inside_ym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inY-.png</normaloff>../images/probe_icons/inY-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="PushButton" name="pbtn_inside_xpym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/inX+Y-.png</normaloff>../images/probe_icons/inX+Y-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QFrame" name="frame_outside_measure">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>172</width>
-        <height>182</height>
+        <y>5</y>
+        <width>176</width>
+        <height>191</height>
        </rect>
       </property>
       <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
+       <enum>QFrame::Box</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Sunken</enum>
       </property>
-      <widget class="PushButton" name="pbtn_outside_xpyp">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X+Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+Y+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xpym">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X+Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+Y-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xp">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_yp">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/Y+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_ym">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/Y-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_center">
-       <property name="geometry">
-        <rect>
-         <x>62</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>8</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/xy_center.png</normaloff>../../../../share/qtvcp/images/probe_icons/xy_center.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xmyp">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>125</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X-Y+.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-Y+.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xmym">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>21</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X-Y-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-Y-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xm">
-       <property name="geometry">
-        <rect>
-         <x>114</x>
-         <y>73</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/X-.png</normaloff>../../../../share/qtvcp/images/probe_icons/X-.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QFrame" name="frame_outside_label">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>154</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QLabel" name="label_outside_measure">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>172</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Outside Measurements</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_xpym_3">
-       <property name="geometry">
-        <rect>
-         <x>424</x>
-         <y>19</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../configs/sim/x1Mill/x1Probing/x1Probe_icons/outside_1.png</normaloff>../../../../configs/sim/x1Mill/x1Probing/x1Probe_icons/outside_1.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QFrame" name="frame">
-      <property name="geometry">
-       <rect>
-        <x>344</x>
-        <y>130</y>
-        <width>130</width>
-        <height>171</height>
-       </rect>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::WinPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <widget class="PushButton" name="pbtn_measure_diam">
-       <property name="geometry">
-        <rect>
-         <x>67</x>
-         <y>112</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/tool_dia.png</normaloff>../../../../share/qtvcp/images/probe_icons/tool_dia.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_down">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>112</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/down.png</normaloff>../../../../share/qtvcp/images/probe_icons/down.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_length_x">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>4</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inside_xl.png</normaloff>../../../../share/qtvcp/images/probe_icons/inside_xl.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_inside_length_y">
-       <property name="geometry">
-        <rect>
-         <x>15</x>
-         <y>56</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/inside_yl.png</normaloff>../../../../share/qtvcp/images/probe_icons/inside_yl.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_length_y">
-       <property name="geometry">
-        <rect>
-         <x>67</x>
-         <y>56</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/outside_yl.png</normaloff>../../../../share/qtvcp/images/probe_icons/outside_yl.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="PushButton" name="pbtn_outside_length_x">
-       <property name="geometry">
-        <rect>
-         <x>67</x>
-         <y>4</y>
-         <width>50</width>
-         <height>50</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>../../../../share/qtvcp/images/probe_icons/outside_xl.png</normaloff>../../../../share/qtvcp/images/probe_icons/outside_xl.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
-       </property>
-       <property name="indicator_option" stdset="0">
-        <bool>false</bool>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_outside_measure">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Outside Measurements</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="widget_outside_measure" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>166</width>
+           <height>166</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>166</width>
+           <height>166</height>
+          </size>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="PushButton" name="pbtn_outside_xpym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X+Y-.png</normaloff>../images/probe_icons/X+Y-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="PushButton" name="pbtn_outside_ym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/Y-.png</normaloff>../images/probe_icons/Y-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="PushButton" name="pbtn_outside_xmym">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X-Y-.png</normaloff>../images/probe_icons/X-Y-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="PushButton" name="pbtn_outside_xp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X+.png</normaloff>../images/probe_icons/X+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="PushButton" name="pbtn_outside_center">
+            <property name="font">
+             <font>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/xy_center.png</normaloff>../images/probe_icons/xy_center.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="PushButton" name="pbtn_outside_xm">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X-.png</normaloff>../images/probe_icons/X-.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="PushButton" name="pbtn_outside_xpyp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X+Y+.png</normaloff>../images/probe_icons/X+Y+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="PushButton" name="pbtn_outside_yp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/Y+.png</normaloff>../images/probe_icons/Y+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="PushButton" name="pbtn_outside_xmyp">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>../images/probe_icons/X-Y+.png</normaloff>../images/probe_icons/X-Y+.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="indicator_option" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
