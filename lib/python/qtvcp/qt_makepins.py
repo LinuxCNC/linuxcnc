@@ -55,12 +55,14 @@ class QTPanel():
                     path.PREFS_FILENAME = pref_fn
         # parse for HAL objects:
         # initiate the hal function on each
+        # keep a register list of these widgets for later
         LOG.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
+                self.window.registerHalWidget(widget)
                 idname = widget.objectName()
                 LOG.debug('HAL-ified instance found: {}'.format(idname))
-                widget.hal_init(halcomp, str(idname), widget, window, window. PATHS, self.window['PREFS_'])
+                widget.hal_init(halcomp, str(idname), widget, window, window.PATHS, self.window['PREFS_'])
 
     # Search all hal-ifed widgets for closing clean up functions and call them
     # used for such things as preference recording current settings
@@ -68,12 +70,11 @@ class QTPanel():
         if self.window['PREFS_']:
             self.record_preference_geometry()
         LOG.debug('search for widget closing cleanup functions')
-        for widget in self.window.findChildren(QObject):
-            if isinstance(widget, _HalWidgetBase):
-                if 'closing_cleanup__' in dir(widget):
-                    idname = widget.objectName()
-                    LOG.info('Closing cleanup on: {}'.format(idname))
-                    widget.closing_cleanup__()
+        for widget in self.window.getRegisteredHalWidgetList():
+            if 'closing_cleanup__' in dir(widget):
+                idname = widget.objectName()
+                LOG.info('Closing cleanup on: {}'.format(idname))
+                widget.closing_cleanup__()
 
     # if there is a prefrence file and it is has digits (so no key word), then record
     # the window geometry
