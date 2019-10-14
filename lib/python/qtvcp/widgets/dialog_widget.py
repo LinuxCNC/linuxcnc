@@ -1020,6 +1020,9 @@ class VersaProbeDialog(QDialog, _HalWidgetBase):
         self.topParent = self.QTVCP_INSTANCE_
         STATUS.connect('dialog-request', self._external_request)
 
+    def closing_cleanup__(self):
+        self._o.closing_cleanup__()
+
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:
             self.load_dialog()

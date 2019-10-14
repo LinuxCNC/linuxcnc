@@ -185,7 +185,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.close_event:
             self.QTVCP_INSTANCE_.closeEvent = self.closeEvent
-            print self.QTVCP_INSTANCE_.originalCloseEvent_
 
         if self.play_sounds:
             try:
@@ -389,6 +388,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
         w.versaProbeDialog_ = VersaProbeDialog()
+        w.versaProbeDialog_.setObjectName('versaProbeDialog_')
+        w.registerHalWidget(w.versaProbeDialog_)
         w.versaProbeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.versaProbeDialog_, w, w.PATHS, self.PREFS_)
         w.versaProbeDialog_.overlay_color = self._versaProbeDialogColor
