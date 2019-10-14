@@ -40,7 +40,8 @@ class _IStat(object):
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
         self.IMAGE_PATH = IMAGEDIR
- 
+        self.LIB_PATH = os.path.join(HOME, "share","qtvcp")
+
         self.MACHINE_IS_LATHE = False
         self.MACHINE_IS_METRIC = False
         self.MACHINE_UNIT_CONVERSION = 1
