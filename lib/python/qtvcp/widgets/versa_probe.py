@@ -34,14 +34,14 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
-DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
+
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
         self.setMinimumSize(600, 420)
         # Load the widgets UI file:
-        self.filename = os.path.join(DATADIR, 'versa_probe.ui')
+        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
