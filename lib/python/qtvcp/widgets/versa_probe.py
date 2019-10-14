@@ -90,6 +90,26 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.data_input_rapid_vel = self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')
         self.read_page_data()
 
+    # when qtvcp closes this gets called
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            LOG.debug('Saving Versa probe data data to preference file.')
+            self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_max", float(self.input_max_travel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_latch", float(self.input_latch_return_dist.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_diam", float(self.input_probe_diam.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_xy_clearance", float(self.input_xy_clearances.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_side_edge_length", float(self.input_side_edge_length.text()), float, 'VERSA_PROBE_OPTIONS')
+
+            self.PREFS_.putpref( "ps_offs_x", float(self.input_adj_x.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_offs_y", float(self.input_adj_y.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.data_input_rapid_vel), float, 'VERSA_PROBE_OPTIONS')
+
+
 #####################################################
 # button callbacks
 #####################################################
@@ -158,7 +178,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         print ' Inside xmyp_released'
         result = self.read_page_data()
         if result:
-            self.probe_inside_xmtp()
+            self.probe_inside_xmyp()
     def pbtn_inside_yp_released(self):
         print ' Inside yp1_released'
         result = self.read_page_data()
@@ -380,7 +400,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def set_z_offset(self):
         ACTION.SET_AXIS_ORIGIN('Z'.float(self.input_adj_x.text()))
     def set_angle_offset(self):
-        self.status_a.setText( "%.3f" % float(self.w.input_adj_angle.text()) )
+        self.status_a.setText( "%.3f" % float(self.input_adj_angle.text()) )
         s="G10 L2 P0"
         if self.pbtn_allow_auto_zero.isChecked():
             s +=  " X%.4f"% float(self.data_input_adj_x)      

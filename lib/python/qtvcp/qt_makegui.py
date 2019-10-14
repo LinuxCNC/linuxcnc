@@ -82,6 +82,13 @@ class MyWindow(QtWidgets.QMainWindow):
         self.PATHS = path
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
+        self._halWidgetList = []
+
+    def registerHalWidget(self, widget):
+        self._halWidgetList.append(widget)
+
+    def getRegisteredHalWidgetList(self):
+        return self._halWidgetList
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):
