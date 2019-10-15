@@ -581,6 +581,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/qtvcp/images \
 		$(DESTDIR)$(datadir)/qtvcp/screens \
 		$(DESTDIR)$(datadir)/qtvcp/panels \
+		$(DESTDIR)$(datadir)/qtvcp/widgets_ui \
 		$(DESTDIR)$(datadir)/gmoccapy/images \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
