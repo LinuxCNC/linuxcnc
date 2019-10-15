@@ -19,7 +19,7 @@ Note that no spaces are allowed in the string unless it is delimited by double
 quotes. 
 
 The UART instance names are printed to the dmesg buffer during the Hostmot2 
-setup sequence, one for each bspi instance included in the bitfile loaded to 
+setup sequence, one for each UART instance included in the bitfile loaded to 
 each installed card during the Hostmot2 setup sequence. Type "dmesg" at the 
 terminal prompt to view the output.
 
@@ -30,8 +30,8 @@ The above example will output data on UART channels 0 and 7 and the pins will
 have the names of the individual UARTS. (they need not be on the same card, or
 even the same bus).
 
-Read the documents on "comp" for help with writing realtime components:
-http://www.linuxcnc.org/docview/html/hal/comp.html""";
+Read the documents on "halcompile" for help with writing realtime components:
+http://linuxcnc.org/docs/html/hal/comp.html""";
 
 author "Andy Pugh andy@bodgesoc.org";
 license "GPL";
@@ -90,7 +90,8 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to 
                         "parameter, see man mesa_uart for details\n");
         return -1;
     }
-    name = prefix;
+    name = hal_malloc(strlen(prefix)+1);
+    strcpy(name, prefix);
     // 250000bps, no delay, tx enable)
     hm2_uart_setup(name, 250000, 0x40, -1);
     return 0;
