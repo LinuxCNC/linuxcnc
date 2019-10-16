@@ -56,6 +56,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 # IMAGEDIR is for icons
 class Paths():
     def __init__(self,filename, isscreen = True):
+        self.PREFS_FILENAME = None
         self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen
         if isscreen:
