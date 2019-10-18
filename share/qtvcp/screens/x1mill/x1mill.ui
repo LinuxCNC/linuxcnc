@@ -53,15 +53,15 @@
     <property name="notify_option" stdset="0">
      <bool>true</bool>
     </property>
+    <property name="focusOverlay_option" stdset="0">
+     <bool>true</bool>
+    </property>
     <property name="close_overlay_color" stdset="0">
      <color alpha="150">
       <red>0</red>
       <green>0</green>
       <blue>0</blue>
      </color>
-    </property>
-    <property name="focusOverlay_option" stdset="0">
-     <bool>true</bool>
     </property>
     <property name="toolDialog_option" stdset="0">
      <bool>true</bool>
@@ -2874,6 +2874,9 @@ MODE</string>
             <property name="joint_number" stdset="0">
              <number>3</number>
             </property>
+            <property name="axis_letter" stdset="0">
+             <string>A</string>
+            </property>
             <property name="jog_joint_number" stdset="0">
              <number>2</number>
             </property>
@@ -2921,6 +2924,9 @@ MODE</string>
             </property>
             <property name="joint_number" stdset="0">
              <number>2</number>
+            </property>
+            <property name="axis_letter" stdset="0">
+             <string>Z</string>
             </property>
             <property name="jog_joint_number" stdset="0">
              <number>2</number>
@@ -2970,6 +2976,9 @@ MODE</string>
             <property name="joint_number" stdset="0">
              <number>3</number>
             </property>
+            <property name="axis_letter" stdset="0">
+             <string>A</string>
+            </property>
             <property name="jog_joint_number" stdset="0">
              <number>2</number>
             </property>
@@ -3015,6 +3024,9 @@ MODE</string>
             <property name="jog_rate_action" stdset="0">
              <bool>false</bool>
             </property>
+            <property name="axis_letter" stdset="0">
+             <string>X</string>
+            </property>
            </widget>
            <widget class="ActionButton" name="abtn_jog_pos_x">
             <property name="geometry">
@@ -3053,6 +3065,9 @@ MODE</string>
             </property>
             <property name="jog_selected_pos_action" stdset="0">
              <bool>false</bool>
+            </property>
+            <property name="axis_letter" stdset="0">
+             <string>X</string>
             </property>
            </widget>
            <widget class="ActionButton" name="abtn_jog_pos_z">
@@ -3095,6 +3110,9 @@ MODE</string>
             </property>
             <property name="joint_number" stdset="0">
              <number>2</number>
+            </property>
+            <property name="axis_letter" stdset="0">
+             <string>Z</string>
             </property>
             <property name="jog_joint_number" stdset="0">
              <number>2</number>
@@ -3144,6 +3162,9 @@ MODE</string>
             <property name="joint_number" stdset="0">
              <number>1</number>
             </property>
+            <property name="axis_letter" stdset="0">
+             <string>Y</string>
+            </property>
             <property name="jog_joint_number" stdset="0">
              <number>1</number>
             </property>
@@ -3191,6 +3212,9 @@ MODE</string>
             </property>
             <property name="joint_number" stdset="0">
              <number>1</number>
+            </property>
+            <property name="axis_letter" stdset="0">
+             <string>Y</string>
             </property>
             <property name="jog_joint_number" stdset="0">
              <number>1</number>
@@ -9134,6 +9158,12 @@ Jog Ovr</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>StatusSlider</class>
    <extends>QSlider</extends>
    <header>qtvcp.widgets.status_slider</header>
@@ -9219,12 +9249,6 @@ Jog Ovr</string>
    <class>MDIHistory</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.mdi_history</header>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.origin_offsetview</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
