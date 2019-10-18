@@ -72,18 +72,26 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
-    def CALL_MDI_WAIT(self, code):
-        log.debug('MDI_WAIT_COMMAND= {}'.format(code))
+    def CALL_MDI_WAIT(self, code, time = 5):
+        log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
         self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
+            log.debug('MDI_COMMAND: {}'.format(l))
             self.cmd.mdi( l )
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR:
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
+                ACTION.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
+                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error',result[0],result[1])
-                log.error('MDI_COMMAND_WAIT Error: {}'.format(result[1]))
+                log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
         return 0
 
@@ -98,15 +106,19 @@ class _Lcnc_Action(object):
         for code in(mdi_list):
             self.cmd.mdi('%s'% code)
 
-    def CALL_OWORD(self, code):
+    def CALL_OWORD(self, code, time=5 ):
         log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(code)
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
                         STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR :
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.error('Oword timeout oast () Error = # {}'.format(time, result))
+                ACTION.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
                 log.error('Oword RCS Error = # {}'.format(result))
                 return -1
             result = linuxcnc.error_channel().poll()
@@ -115,7 +127,7 @@ class _Lcnc_Action(object):
                 log.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
-        result = self.cmd.wait_complete()
+        result = self.cmd.wait_complete(time)
         if result == -1 or result == linuxcnc.RCS_ERROR or linuxcnc.error_channel().poll():
             log.error('Oword RCS Error = # {}'.format(result))
             return -1
