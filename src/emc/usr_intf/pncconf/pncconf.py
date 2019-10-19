@@ -321,20 +321,24 @@ class App:
         if meta:
             return meta
         else:
-            print 'boardname %s not found in hardware metadata array'% name
-            self.widgets.boardmetadialog.set_title(_("%s metadata update") % name)
-            self.widgets.cardname_label.set_text('Boardname:  %s'%name)
-            self.widgets.boardmetadialog.show_all()
-            self.widgets.window1.set_sensitive(0)
-            result = self.widgets.boardmetadialog.run()
-            self.widgets.boardmetadialog.hide()
-            self.widgets.window1.set_sensitive(1)
-            if result == gtk.RESPONSE_OK:
-                itr = self.widgets.interface_combobox.get_active_iter()
-                d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
-                ppc = int(self.widgets.ppc_combobox.get_active_text())
-                tp = int(self.widgets.noc_spinbutton.get_value())
-                _PD.MESA_BOARD_META[name] = {'DRIVER':d,'PINS_PER_CONNECTOR':ppc,'TOTAL_CONNECTORS':tp}
+            for key in _PD.MESA_BOARD_META:
+                if key in name:
+                    return _PD.MESA_BOARD_META.get(key)
+
+        print 'boardname %s not found in hardware metadata array'% name
+        self.widgets.boardmetadialog.set_title(_("%s metadata update") % name)
+        self.widgets.cardname_label.set_text('Boardname:  %s'%name)
+        self.widgets.boardmetadialog.show_all()
+        self.widgets.window1.set_sensitive(0)
+        result = self.widgets.boardmetadialog.run()
+        self.widgets.boardmetadialog.hide()
+        self.widgets.window1.set_sensitive(1)
+        if result == gtk.RESPONSE_OK:
+            itr = self.widgets.interface_combobox.get_active_iter()
+            d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
+            ppc = int(self.widgets.ppc_combobox.get_active_text())
+            tp = int(self.widgets.noc_spinbutton.get_value())
+            _PD.MESA_BOARD_META[name] = {'DRIVER':d,'PINS_PER_CONNECTOR':ppc,'TOTAL_CONNECTORS':tp}
         meta = _PD.MESA_BOARD_META.get(name)
         if meta:
             return meta
@@ -940,6 +944,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     sserialports = int(l)
                 elif k in ("None","NONE"): 
                     l = modules[i].find("numinstances").text;#print l,k
+                elif k in ("ssr","SSR"): 
+                    l = modules[i].find("numinstances").text;#print l,k
                 elif k in ("IOPort","AddrX","MuxedQCountSel"):
                     continue
                 else:
@@ -986,7 +992,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             count = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
-                is_gpio = False
+                is_gpio = is_gpioo = False
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
@@ -1055,6 +1061,10 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     elif modulename in ("None","NONE"):
                         is_gpio = True
                         #convertedname = pinconvertnone[tempfunc]
+                    elif modulename.lower() == 'ac ref':
+                        is_gpoo = True
+                    elif 'out-' in  modulename.lower():
+                        is_gpioo = True
                     else: is_gpio = True
                 except:
                     is_gpio = True
@@ -1070,6 +1080,9 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     # or if pinconvert fails eg. StepTable instance default to GPIO 
                     temppinunit.append(_PD.GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
+                elif is_gpioo:
+                    temppinunit.append(_PD.GPIOO)
+                    temppinunit.append(100) # 0 signals to pncconf that GPIOO cannot be changed
                 else:
                     instance_num = int(pins[i].find("secondaryinstance").text)
                     # this is a workaround for the 7i77_7i776 firmware. it uses a mux encoder for the 7i76 but only uses half of it
@@ -1170,7 +1183,10 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )
         output = discover.communicate()[0]
-        if output == '': return None
+        if output == '':
+            text = _("Discovery is  unavailable\n Is mesaflash installed?")
+            self.warning_dialog(text,True)
+            return None
         textbuffer = self.widgets.textoutput.get_buffer()
         try :         
             textbuffer.set_text(output)
@@ -1308,6 +1324,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 LEDS = tline[4].lstrip()
                 new = add_element(mod_ele,'module')
                 add_text(new,'tagname','LED')
+                add_text(new,'numinstances',tline[4].lstrip())
+            if 'MODULE: SSR' in i:
+                tline = lines[l_num+1].split(" ")
+                LEDS = tline[4].lstrip()
+                new = add_element(mod_ele,'module')
+                add_text(new,'tagname','SSR')
                 add_text(new,'numinstances',tline[4].lstrip())
             if 'IO CONNECTIONS FOR' in i:
                 if pinsflag:
@@ -1882,9 +1904,17 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets["mesa%d_discovery"% boardnum].hide()
         for i in(1,2,3,4,5,6,7,8,9):
             self.widgets['mesa%dcon%dtable'%(boardnum,i)].hide()
+            self.widgets["mesa{}con{}tab".format(boardnum,i)].set_text('I/O\n Connector %d'%i)
         for i in(0,1,2,3,4,5):
             self.widgets["mesa%dsserial0_%d"%(boardnum,i)].hide()
         if title == None: return
+        if 'Discovery Option' not in title:
+            meta = self.get_board_meta(title)
+            names = meta.get('TAB_NAMES')
+            tnums = meta.get('TAB_NUMS')
+            if names and tnums:
+                for index, tabnum in enumerate(tnums):
+                    self.widgets["mesa{}con{}tab".format(boardnum,tabnum)].set_text(names[index])
         #print 'title',title
         self.fill_firmware(boardnum)
 
