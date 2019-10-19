@@ -4740,7 +4740,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def hostmot2_command_string(self, substitution = False):
             def make_name(bname,bnum):
                 if substitution:
-                    return "[HMOT]CARD%d"% (bnum)
+                    return "[HMOT](CARD%d)"% (bnum)
                 else:
                     return "hm2_%s.%d"% (bname,bnum)
             # mesa stuff
@@ -5005,7 +5005,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def make_pinname(self, pin, gpionumber = False, prefixonly = False, substitution = False):
         def make_name(bname,bnum):
             if substitution:
-                return "[HMOT]CARD%d"% (bnum)
+                return "[HMOT](CARD%d)"% (bnum)
             else:
                 return "hm2_%s.%d"% (bname, bnum)
         test = str(pin)  
