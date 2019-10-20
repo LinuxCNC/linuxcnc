@@ -82,7 +82,7 @@ class _Lcnc_Action(object):
             if result == -1:
                 log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( time, result))
                 #STATUS.emit('MDI time out error',)
-                ACTION.ABORT()
+                self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
                 log.debug('MDI_COMMAND_WAIT RCS error: {}'.format( time, result))
@@ -116,7 +116,7 @@ class _Lcnc_Action(object):
             result = self.cmd.wait_complete(time)
             if result == -1:
                 log.error('Oword timeout oast () Error = # {}'.format(time, result))
-                ACTION.ABORT()
+                self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
                 log.error('Oword RCS Error = # {}'.format(result))
