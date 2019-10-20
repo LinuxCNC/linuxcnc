@@ -9,9 +9,9 @@ PlasmaC and all its related software is released under GPLv2.
 
 == Introduction
 
-PlasmaC is a LinuxCNC configuration for plasma cutting incorporating the PlasmaC HAL component with GUI configurations for both <<cha:axis-gui,Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
+PlasmaC is a LinuxCNC configuration for plasma cutting incorporating the PlasmaC HAL component with GUI configurations for both <<cha:axis-gui, Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
 
-If you are new user, it may be worthwhile having a read through the <<cha:plasma-primer,Plasma CNC Primer>> document which is a generic introduction to CNC plasma cutting.
+If you are new user, it may be worthwhile having a read through the <<cha:plasma-primer, Plasma CNC Primer>> document which is a generic introduction to CNC plasma cutting.
 
 PlasmaC uses one of three different operating modes.
 
@@ -99,13 +99,13 @@ This will give you a machine with the current stable (v2.7) branch of LinuxCNC, 
 
 === If You Have LinuxCNC v2.7
 
-You can then choose between a standard package installation from the <<buildbot-install,buildbot>> or you can compile you own <<rip-install,run in place>> installation.
+You can then choose between a standard package installation from the <<buildbot-install, buildbot>> or you can compile you own <<rip-install, run in place>> installation.
 
 [[buildbot-install]]
 
 .Buildbot Installation
 
-For more information on the buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
+The LinuxCNC Buildbot provides pre-built packages which can be directly installed in a Linux installation.
 
 To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
 
@@ -113,9 +113,13 @@ To use the buildbot packages on your computer, first add the buildbot archive si
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
 ----
 
-From the main menu, open Synaptic Package Manager and find the Repositories list.
+Close the terminal, then from the Main Menu, open Synaptic Package Manager.
 
-You can either edit or delete existing LinuxCNC entries but you need to end up with the following set of stanzas:
+Select Search in the menu bar and do a search using linuxcnc as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be deleted.
+
+Click Settings from the menu and select Repositories.
+
+You can then either edit or delete existing LinuxCNC entries but you need to end up with the following set of stanzas as the only references to LinuxCNC:
 
 ----
 deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
@@ -135,25 +139,21 @@ deb     http://buildbot.linuxcnc.org/ stretch master-rtpreempt
 deb-src http://buildbot.linuxcnc.org/ stretch master-rtpreempt
 ----
 
-In a terminal:
+When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
 
-----
-$ sudo apt-get update
-----
+Now do a Search with linuxcnc as the search term and the result should be a list of newly available LinuxCNC packages
 
-Then for rtpreempt:
+Right click on the package you want to install and then select Mark for Installation.
 
-----
-$ sudo apt-get install linuxcnc-uspace
-----
+For rtpreempt you would select linuxcnc-uspace and for rt it would be linuxcnc.
 
-or for rt:
+You may also select the documentation if you want it installed locally and/or the -dev package if you intend to build new realtime components and/or alternate front-ends for linuxcnc.
 
-----
-$ sudo apt-get install linuxcnc
-----
+When you have made all your selections, click Apply on the menu bar and the selected packages will be installed.
 
-Go to <<sec:testing-linuxcnc,testing the linuxCNC installation>>
+Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
+
+NOTE:  For more information on the buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
 
 [[rip-install]]
 
@@ -247,13 +247,13 @@ You can create a base machine manually or you may use existing configuration hel
 
 NOTE: It is probably best to keep the base machine config simple until you have it fully tested and tuned. If you are using stepconf or pncconf then deselect the VCP panel, manual tool change and classic ladder options these can be manually added later if you have a need for them.
 
-If using a Mesa Electronics board, use the <<cha:pncconf-wizard,pncconf wizard>>:
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard, pncconf wizard>>:
 
 ----
 $ pncconf
 ----
 
-If using a parallel port, use the <<cha:stepconf-wizard,stepconf wizard>>:
+If using a parallel port, use the <<cha:stepconf-wizard, stepconf wizard>>:
 
 ----
 $ stepconf
@@ -271,7 +271,7 @@ You need to have a fully tested and working base machine configuration without a
 
 CAUTION: Do *NOT* proceed until this has been done
 
-If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad,Mesa THCAD>> before proceeding
+If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
 
 [[configurator]]
 
@@ -364,7 +364,7 @@ After creating a new configuration some initial setup is required.
 LinuxCNC should now be running with the PlasmaC panels visible.
 Open the 'Plasma Config' tab/panel and ensure every one of these settings suits your machine.
 
-See <<config-panel,Config Panel>>
+See <<config-panel, Config Panel>>
 
 IMPORTANT: If using a Mesa THCAD then up until now the 'Voltage Scale' value was obtained mathematically. If you intend to use cut voltages from manufactures cut charts then it would be advisable to do measurements of actual voltages and fine tune the 'Voltage Scale' and 'Voltage Offset'.
 
@@ -410,12 +410,12 @@ image::images/plasmac_config.png[width=400]
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Float Travel|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons,Custom User Buttons>>.
+|Float Travel|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons, Custom User Buttons>>.
 |Probe Speed|This is the speed the Z axis will probe down at after it moves to Probe Height.
 |Probe Height|This is the height above the Z axis bottom limit that probing begins from.
 |Ohmic Probe Offset|The Z axis offset of the ohmic probe.
 |Ohmic Retries|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
-|Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip,IHS Skip>>.
+|Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip, IHS Skip>>.
 |===
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
@@ -451,7 +451,7 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
-|Off Delay|0,1,2|The delay from an M5 command until torch turns off and the Z axis raises.
+|Off Delay|0,1,2|The delay from an M5 command until the torch turns off and the Z axis raises.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
@@ -504,7 +504,7 @@ There are two formats for this panel, a tab behind the preview tab or a panel at
 
 image::images/plasmac_run.png[width=600]
 
-See <<axis-display-section,Axis [DISPLAY] Section>> or <<gmoccapy-display-section,Gmoccapy [DISPLAY] section>>
+See <<axis-display-section, Axis [DISPLAY] Section>> or <<gmoccapy-display-section, Gmoccapy [DISPLAY] section>>
 
 .Cut Parameters
 
@@ -587,7 +587,7 @@ The button panel contains buttons useful for the operation of the machine.
 
 Both GUIs have a 'Torch Enable' button and all other buttons are user programmable in the .ini file. Axis has five user buttons and Gmoccapy has four user buttons.
 
-See <<custom-user-buttons,Custom User Buttons>>
+See <<custom-user-buttons, Custom User Buttons>>
 
 .Axis:
 
@@ -669,6 +669,12 @@ If you intend to place your material in the same place on the table every time t
 
 If you intend to place the material randomly on the table then before each job you will need to 'Touch Off' as above or place the material at the previous location.
 
+[[path-tolerance]]
+
+=== Path Tolerance
+
+The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each GCode file.
+
 [[multi-tool]]
 
 === Multiple Tools
@@ -709,7 +715,7 @@ Material handling has nothing at all to do with the LinuxCNC tool table, instead
 
 The LinuxCNC tool table and tool commands only come into play if your are using an <<air-scribe, air-scribe>> in addition to the plasma torch.
 
-There is a <<material-file,material file>> with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
+There is a <<material-file, material file>> with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
 It is not a requirement that you use a material file, if required you can change the cut parameters manually in the Run Panel. It is also not a requirement to use the automatic material changes, just omit them from the G-Code file.
 
@@ -890,7 +896,7 @@ See the <<velocity_thc,Velocity Based THC>> section.
 
 .Arc Dwell:
 
-Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
 
 .Overcut:
 
@@ -941,7 +947,7 @@ PlasmaC hole sensing is enabled/disabled by setting the following GCode paramete
 
 .Arc Dwell:
 
-Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel,Config Panel>>
+Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
 
 Use #<holes> = 1 to allow velocity reduction.
 
@@ -997,7 +1003,7 @@ An air-scribe may be operated by PlasmaC in addition to the plasma torch, this i
 
 Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'Tn M6' command then a 'G43 H0' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
 
-There are two HAL output pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config,delay>> the other to start the air-scribe, then after a <<scribe-config,delay>> motion will beging
+There are two HAL output pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config, delay>> the other to start the air-scribe, then after a <<scribe-config, delay>> motion will beging
 
 Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
 
@@ -1009,7 +1015,7 @@ The air-scribe is now active and the arming action may be tested by issuing a 'M
 
 The next step is to open the tool table editor in the GUI and enter the X and Y axes offsets. These are the distances in X and Y from the centre of the torch nozzle. In most cases, if standing at the front of the machine if the air-scribe is to the right of the torch it would be a positive value and if the air-scribe is to the rear of the torch it would also be a positive value. The offsets for the torch should always be zero.
 
-The final step is to set the <<scribe-config,air-scribe delays>> required:
+The final step is to set the <<scribe-config, air-scribe delays>> required:
 
 . Arm Delay, allows time for the air scribe to descend to the surface of the material.
 . Start Delay, allows time for the air scribe to start before motion begins.
@@ -1047,7 +1053,7 @@ WARNING: If you have an existing manual toolchange in your machine .hal file the
 
 For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
 
-This is done by first adjusting the on time for the torch in the <<config-panel,Config Panel>>. Times are adjustable from 1 to 999 milli-seconds.
+This is done by first adjusting the on time for the torch in the <<config-panel, Config Panel>>. Times are adjustable from 1 to 999 milli-seconds.
 
 The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
 
@@ -1192,6 +1198,8 @@ PROGRAM_EXTENSION = .ngc (filter *.ngc files)
 ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments out any Z axis motion)
 -----
 
+[[rs274]]
+
 .[RS274NGC] Section
 
 -----
@@ -1200,6 +1208,8 @@ SUBROUTINE_PATH       = ./:../../nc_files/subroutines (./ must be in this path)
 FEATURES              = 12 (for reading .ini and HAL variables)
 USER_M_PATH           = ./ (for M190 material change)
 -----
+
+IMPORTANT: see <<path-tolerance, path tolerance>>
 
 .[HAL] Section
 
@@ -1340,7 +1350,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds,External Commands>>, <<button-code,G-Code>> or three special functions, <<button-probe,Probe Test>>, <<button-ohmic,Ohmic Test>> and <<button-cut,Cut Type>>.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or three special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>> and <<button-cut, Cut Type>>.
 
 [[button-cmds]]
 
@@ -1421,7 +1431,7 @@ This button if selected will toggle between the two <<cut-types, cut types>>.
 
 == Material File
 
-PlasmaC uses a file containing cut parameters for materials. This file is used for <<material-handling,material handling>>.
+PlasmaC uses a file containing cut parameters for materials. This file is used for <<material-handling, material handling>>.
 
 The file name is derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
@@ -1551,8 +1561,8 @@ Normally there is no reason to run the Configurator after an upgrade.
 
 If you have decided to change the type of installation:
 
-* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install,buildbot installation>> then do a <<configurator,buildbot configure>> and select upgrade.
-* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install,run in place installation>> then do a <<configurator,run in place configure>> and select upgrade.
+* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install, buildbot installation>> then do a <<configurator, buildbot configure>> and select upgrade.
+* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install, run in place installation>> then do a <<configurator, run in place configure>> and select upgrade.
 
 This brings up the selection window:
 
@@ -1738,4 +1748,4 @@ The THCAD-10 example above would be:
 121100/32 = 3784.375
 ----
 
-There is a <<lowpass,lowpass filter>> available which may be useful if using a THCAD.
+There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD.
