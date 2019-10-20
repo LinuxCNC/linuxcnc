@@ -411,6 +411,11 @@ proc save_hal_cmds {savefilename {options ""} } {
   set tmpfile /tmp/save_hal_cmds_tmp
   set date [clock format [clock seconds]]
   set script [info script]
+  set save_arg all  ;# suffices if only basic_sim in use
+  if {[llength $::HAL(HALFILE)] > 1} {
+    set save_arg allu ;# do *all* unconnected pins including
+                      ;# pins from other HALFILEs
+  }
   set fd [open $savefilename w] ;# overwrite any existing file
   puts $fd "# $date
 #
@@ -418,10 +423,11 @@ proc save_hal_cmds {savefilename {options ""} } {
 # Created by:   $script
 # With options: $::argv
 # From inifile: $::env(INI_FILE_NAME)
+# Halfiles:     $::HAL(HALFILE)
 #
 # This file contains the hal commands produced by [file tail $script]
 # (and any hal commands executed prior to its execution).
-#
+# ------------------------------------------------------------------
 # To use $savefilename in the original inifile (or a copy of it),
 # edit to change:
 #     \[HAL\]
@@ -430,9 +436,13 @@ proc save_hal_cmds {savefilename {options ""} } {
 #     \[HAL\]
 #     HALFILE = $savefilename
 #
-# Note: Inifile Variables substitutions specified in the inifile
-#       and interpreted by halcmd are automatically substituted
-#       in the created halfile ($savefilename).
+# Notes:
+#  1) Inifile Variables substitutions specified in the inifile
+#     and interpreted by halcmd are automatically substituted
+#     in the created halfile ($savefilename).
+#  2) Input pins connected to a signal with no writer are
+#     not included in the setp listings herein so must be added
+#     manually
 #
 "
   if {[lsearch $options use_hal_manualtoolchange] >= 0} {
@@ -440,22 +450,32 @@ proc save_hal_cmds {savefilename {options ""} } {
     puts $fd "loadusr -W hal_manualtoolchange"
     puts $fd ""
   }
-  close $fd
 
-  hal save all $tmpfile
+  hal save $save_arg $tmpfile
 
-  set fd [open $savefilename a]
   set ftmp [open $tmpfile r]
+  set gave_msg 0
+  set setp_fmt   "%-3s %-30s %s"
   while {![eof $ftmp]} {
     gets $ftmp line
-    puts $fd $line
+    if {([string first "unconnected pin values" $line] >0) && !$gave_msg} {
+      set gave_msg 1
+      puts $fd "# Note: ALL unconnected pins follow"
+      puts $fd "#       (includes pins using default with no explicit setp command)"
+    } else {
+      scan $line "%s %s %s" cmd arg1 remainder
+      switch $cmd {
+        setp    {puts $fd [format $setp_fmt $cmd $arg1 $remainder]}
+        default {puts $fd $line}
+      }
+    }
   } ;# while
   close $ftmp
   file delete $tmpfile
-  if [info exists ::SIM_LIB(setp_list)] {
+  if {("$save_arg" != "allu") && [info exists ::SIM_LIB(setp_list)]} {
     puts $fd "# setp commands for unconnected input pins"
     foreach {pname value} $::SIM_LIB(setp_list) {
-       puts $fd "setp $pname $value"
+       puts $fd [format $setp_fmt setp $pname $value]
     }
   }
   close $fd
