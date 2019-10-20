@@ -75,7 +75,7 @@ class VersaProbe():
             if line.rstrip() == 'kill':
                 sys.exit(0)
             cmd = line.rstrip().split(' ')
-            LOG.error("command: {}".format(cmd))
+            LOG.debug("command: {}".format(cmd))
             try:
                 self.arguments = cmd[1]
                 self[cmd[0]]()
