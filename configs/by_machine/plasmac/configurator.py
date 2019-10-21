@@ -327,6 +327,20 @@ class configurator:
                 inFile.close()
                 return False
 
+    def b4_change_consumables(self):
+        inFile = open(self.orgIniFile,'r')
+        while 1:
+            line = inFile.readline()
+            if line.startswith('[PLASMAC]'): break
+        while 1:
+            line = inFile.readline()
+            if 'change-consumables' in line:
+                inFile.close()
+                return True
+            elif line.startswith('[') or not line:
+                inFile.close()
+                return False
+
     def set_mode(self):
         if self.mode == 0:
             self.modeLabel.set_text('Use arc voltage for both arc-OK and THC')
@@ -361,9 +375,12 @@ class configurator:
         # if version before adding centre spot
         elif self.b4_centre_spot():
             return 0.3
+        # if version before adding change consumables
+        elif self.b4_change_consumables():
+            return 0.4
         # must be the latest version
         else:
-            return 0.4
+            return 0.5
 
     def on_create_clicked(self,button):
         if not self.check_entries():
@@ -392,7 +409,6 @@ class configurator:
         if not self.copy_ini_and_hal_files(): return
         if not self.get_traj_info(self.readIniFile,display): return
         if not self.get_kins_info(self.readIniFile): return
-        if not self.get_joint_info(self.readIniFile): return
         if not self.write_new_hal_file(): return
         if not self.write_connections_hal_file(): return
         if not self.write_postgui_hal_file(): return
@@ -669,6 +685,44 @@ class configurator:
                     outFile.write(line)
             inFile.close()
             outFile.close()
+        # add change consumables for an upgrade from 0.4 or earlier
+        if version <= 0.4:
+            shutil.copy(self.orgIniFile,'{}.old04'.format(self.orgIniFile))
+            inFile = open('{}.old04'.format(self.orgIniFile), 'r')
+            outFile = open('{}'.format(self.orgIniFile), 'w')
+            axis = False
+            for line in inFile:
+                if line.startswith('# there are three'):
+                    outFile.write('# there are four special commands:\n')
+                elif line.startswith('# probe-test, ohmic-test'):
+                    outFile.write('# probe-test, ohmic-test, cut-type and change-consumables\n')
+                elif line.startswith('# cut-type switches'):
+                    outFile.write(line)
+                    outFile.write('# change-consumables moves the torch to the specified machine coordinates when paused\n'\
+                                  '# e.g. change-consumables x10 f1000 will move to X10 at 1000 units per minute\n'\
+                                  '# valid entries are Xnnn Ynnn Fnnn. F is mandatory and at least one of X or Y are required\n')
+                elif line.strip() == '[AXIS_X]' or line.strip() == '[AXIS_Y]':
+                    outFile.write(line)
+                    axis = True
+                elif line.startswith('['):
+                    outFile.write(line)
+                    axis = False
+                elif axis and line.startswith('MAX_VELOCITY'):
+                    a,b = line.strip().replace(' ','').split('=')
+                    outFile.write(
+                        '# set to double the value in the corresponding joint\n'\
+                        'MAX_VELOCITY = {}\n'.format(float(b) * 2))
+                elif axis and line.startswith('MAX_ACCELERATION'):
+                    a,b = line.strip().replace(' ','').split('=')
+                    outFile.write(
+                        '# set to double the value in the corresponding joint\n'\
+                        'MAX_ACCELERATION = {}\n'\
+                        '# shares the above two equally between the joint and the offset\n'\
+                        'OFFSET_AV_RATIO = 0.5\n'.format(float(b) * 2))
+                else:
+                    outFile.write(line)
+            inFile.close()
+            outFile.close()
 
     def upgrade_material_file(self,version):
         materialFile = '{}/{}_material.cfg'.format(self.configDir,self.machineName.lower())
@@ -804,42 +858,6 @@ class configurator:
                 else:
                     inFile.close()
                     self.dialog_ok('ERROR','Could not find KINEMATICS in [KINS] section of INI file')
-                    return False
-        inFile.close()
-        return True
-
-    def get_joint_info(self,readFile):
-        # get some info from [JOINT_n] section of INI file copy
-        inFile = open(readFile,'r')
-        self.zVel = self.zAcc = 0
-        while 1:
-            line = inFile.readline()
-            if '[JOINT_{:d}]'.format(self.zJoint) in line:
-                break
-            if not line:
-                inFile.close()
-                self.dialog_ok('ERROR','Cannot find [JOINT_{d}] section in INI file'.format(self.zJoint))
-                return False
-        result = 0
-        while 1:
-            line = inFile.readline()
-            if line.startswith('MAX_VELOCITY'):
-                result += 1
-                a,b = line.strip().replace(' ','').split('=')
-                self.zVel = b
-            elif line.startswith('MAX_ACCELERATION'):
-                result += 10
-                a,b = line.strip().replace(' ','').split('=')
-                self.zAcc = b
-            if line.startswith('[') or not line:
-                if result == 11:
-                    break
-                else:
-                    inFile.close()
-                    if result == 1:
-                        self.dialog_ok('ERROR','Could not find MAX_ACCELERATION in [JOINT_{:d}] section of INI file'.format(self.zJoint))
-                    else:
-                        self.dialog_ok('ERROR','Could not find MAX_VELOCITY in [JOINT_{:d}] section of INI file'.format(self.zJoint))
                     return False
         inFile.close()
         return True
@@ -1099,10 +1117,13 @@ class configurator:
         editSection = False
         offsetAxis = False
         newName = False
-        addSpindle =False
+        addSpindle = False
         while 1:
             line = inFile.readline()
             if line.startswith('['):
+                newName = False
+                offsetAxis = False
+                addSpindle = False
                 if line.strip() in done:
                     editSection = False
                 else:
@@ -1112,12 +1133,8 @@ class configurator:
                     newName = True
                 elif line.strip() == '[TRAJ]' and editSection:
                     addSpindle = True
-                elif line.strip() == '[AXIS_Z]' and editSection:
+                elif (line.strip() == '[AXIS_X]' or line.strip() == '[AXIS_Y]' or line.strip() == '[AXIS_Z]') and editSection:
                     offsetAxis = True
-                else:
-                    newName = False
-                    offsetAxis = False
-                    addSpindle = False
             if editSection:
                 if newName:
                     if line.startswith('MACHINE'):
@@ -1132,15 +1149,17 @@ class configurator:
                         outFile.write(line)
                 elif offsetAxis:
                     if line.startswith('MAX_VELOCITY'):
+                        a,b = line.strip().replace(' ','').split('=')
                         outFile.write(
                             '# set to double the value in the corresponding joint\n'\
-                            'MAX_VELOCITY = {}\n'.format(float(self.zVel) * 2))
+                            'MAX_VELOCITY = {}\n'.format(float(b) * 2))
                     elif line.startswith('MAX_ACCELERATION'):
+                        a,b = line.strip().replace(' ','').split('=')
                         outFile.write(\
                             '# set to double the value in the corresponding joint\n'\
                             'MAX_ACCELERATION = {}\n'\
                             '# shares the above two equally between the joint and the offset\n'\
-                            'OFFSET_AV_RATIO = 0.5\n'.format(float(self.zAcc) * 2))
+                            'OFFSET_AV_RATIO = 0.5\n'.format(float(b) * 2))
                     else:
                         outFile.write(line)
                 else:
