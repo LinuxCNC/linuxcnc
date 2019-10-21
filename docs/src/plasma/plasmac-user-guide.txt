@@ -854,7 +854,7 @@ This also enables near end of life consumables to be used for piercing and they 
 
 There are two ways of enabling this feature:
 
-* Program a <<button-cut, cutom user button>> to toggle between the cut types.
+* Program a <<button-cut, custom user button>> to toggle between the cut types.
 * Adding a line '<pierce-only> = 1' anywhere in a gcode file to enable Pierce Only mode for the current file.
 
 If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
@@ -1350,7 +1350,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or three special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>> and <<button-cut, Cut Type>>.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>.
 
 [[button-cmds]]
 
@@ -1426,6 +1426,26 @@ BUTTON_n_CODE = cut-type
 ----
 
 This button if selected will toggle between the two <<cut-types, cut types>>.
+
+[[button-consumables]]
+
+.Change Consumables
+
+----
+BUTTON_n_CODE = change-consumables X10 Y10 F1000
+----
+
+This button moves the torch to the specified coordinates when the machine is paused to allow easy access to change consumables.
+
+Valid entries are Xnnn Ynnn Fnnn. F is mandatory and at least one of X or Y are required.
+
+The X and Y entries are in absolute machine coordinates. If X or Y are missing then the current coordinate for that axis is used.
+
+There are three methods to return to the previous coordinates:
+
+- Press the button again and the torch will return and the machine will wait for a resume command.
+- Resume the program which causes the torch to return then the program will begin running.
+- Stop the program which causes the torch to return then the program will abort.
 
 [[material-file]]
 
