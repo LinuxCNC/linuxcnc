@@ -6,7 +6,7 @@
 [widgets]
 	turn.sf = 500.0
 	thread.pitch = 4.0
-	turn.tool = 1.0
+	turn.tool = 2.0
 	turn.angle = 0.0
 	chamfer.bo = False
 	face.tool = 1.0
@@ -29,9 +29,9 @@
 	turn.x = 25.0
 	turn.z = -25.0
 	face.z = -10.0
-	face.x = 0.0
+	face.x = 4.0
 	face.feed = 0.25
-	thread.tool = 1.0
+	thread.tool = 2.0
 	radius.x = 0.0
 	radius.z = 0.0
 	face.cut = 0.5
@@ -50,4 +50,4 @@
 	bore.rad = 0.0
 	thread.external = True
 	radius.fi = False
-# last update  by gladevcp.persistence.save_state() on Sat Aug  3 11:54:53 2019 
+# last update  by gladevcp.persistence.save_state() on Sun Aug  4 02:52:32 2019 
