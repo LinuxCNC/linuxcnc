@@ -215,59 +215,66 @@ class HandlerClass:
             hal.set_p('plasmac.consumable-change', '0')
         return True
 
-    def consumable_change_setup(self):
-        ccParm = self.i.find('PLASMAC','BUTTON_1_CODE').replace('change-consumables','').replace(' ','').lower() or None
-        if ccParm:
-            self.ccX = self.ccY = ccF = ''
-            X = Y = F = ''
-            ccAxis = [X, Y, F]
-            ccName = ['x', 'y', 'f']
-            for loop in range(3):
-                count = 0
-                if ccName[loop] in ccParm:
-                    while 1:
-                        if not ccParm[count]: break
-                        if ccParm[count] == ccName[loop]:
-                            count += 1
-                            break
+    def consumable_change_setup(self, ccParm):
+        self.ccX = self.ccY = ccF = ''
+        X = Y = F = ''
+        ccAxis = [X, Y, F]
+        ccName = ['x', 'y', 'f']
+        for loop in range(3):
+            count = 0
+            if ccName[loop] in ccParm:
+                while 1:
+                    if not ccParm[count]: break
+                    if ccParm[count] == ccName[loop]:
                         count += 1
-                    while 1:
-                        if count == len(ccParm): break
-                        if ccParm[count].isdigit() or ccParm[count] in '.-':
-                            ccAxis[loop] += ccParm[count]
-                        else:
-                            break
-                        count += 1
-                    if ccName[loop] == 'x':
-                        self.ccX = float(ccAxis[loop])
-                    elif ccName[loop] == 'y':
-                        self.ccY = float(ccAxis[loop])
-                    elif ccName[loop] == 'f':
-                        ccF = float(ccAxis[loop])
-            if self.ccX and \
-               (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
-               self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
-                print('x out of bounds for consumable change\n')
-                raise SystemExit()
-            if self.ccY and \
-               (self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
-               self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-                print('y out of bounds for consumable change\n')
-                raise SystemExit()
-            if not ccF:
-                print('invalid consumable change feed rate\n')
-                raise SystemExit()
-            self.ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
-            ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
-            hal.set_p('axis.x.eoffset-scale', str(self.ccScale))
-            hal.set_p('axis.y.eoffset-scale', str(self.ccScale))   
-            hal.set_p('plasmac.x-y-velocity', str(ccVel))
-            hal.set_p('axis.x.eoffset-enable', '1')
-            hal.set_p('axis.y.eoffset-enable', '1')
-        else:
-            print('consumable change parameters required\n')
+                        break
+                    count += 1
+                while 1:
+                    if count == len(ccParm): break
+                    if ccParm[count].isdigit() or ccParm[count] in '.-':
+                        ccAxis[loop] += ccParm[count]
+                    else:
+                        break
+                    count += 1
+                if ccName[loop] == 'x' and ccAxis[loop]:
+                    self.ccX = float(ccAxis[loop])
+                elif ccName[loop] == 'y' and ccAxis[loop]:
+                    self.ccY = float(ccAxis[loop])
+                elif ccName[loop] == 'f' and ccAxis[loop]:
+                    ccF = float(ccAxis[loop])
+        if self.ccX and \
+           (self.ccX < round(float(self.i.find('AXIS_X', 'MIN_LIMIT')), 6) or \
+           self.ccX > round(float(self.i.find('AXIS_X', 'MAX_LIMIT')), 6)):
+            self.dialog_error('X out of limits for consumable change\n\nCheck .ini file settings\n')
+            print('x out of bounds for consumable change\n')
+            raise SystemExit()
+        if self.ccY and \
+           (self.ccY < round(float(self.i.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
+           self.ccY > round(float(self.i.find('AXIS_Y', 'MAX_LIMIT')), 6)):
+            self.dialog_error('Y out of limits for consumable change\n\nCheck .ini file settings\n')
+            print('y out of bounds for consumable change\n')
+            raise SystemExit()
+        if not ccF:
+            self.dialog_error('invalid feed rate for consumable change\n\nCheck .ini file settings\n')
+            print('invalid consumable change feed rate\n')
+            raise SystemExit()
+        self.ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
+        ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
+        hal.set_p('axis.x.eoffset-scale', str(self.ccScale))
+        hal.set_p('axis.y.eoffset-scale', str(self.ccScale))   
+        hal.set_p('plasmac.x-y-velocity', str(ccVel))
+        hal.set_p('axis.x.eoffset-enable', '1')
+        hal.set_p('axis.y.eoffset-enable', '1')
+
+    def dialog_error(self, error):
+        md = gtk.MessageDialog(self.W, 
+            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+            gtk.BUTTONS_CLOSE, error)
+        md.run()
+        md.destroy()
 
     def __init__(self, halcomp,builder,useropts):
+        self.W = gtk.Window()
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -298,7 +305,11 @@ class HandlerClass:
                 self.builder.get_object('button' + str(button)).set_label(blabel)
                 self.builder.get_object('button' + str(button)).children()[0].set_justify(gtk.JUSTIFY_CENTER)
             if 'change-consumables' in code:
-                self.consumable_change_setup()
+                ccParm = self.i.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
+                if ccParm:
+                    self.consumable_change_setup(ccParm)
+                else:
+                    self.dialog_error('Parameters required for consumable change\n\nCheck .ini file settings\n')
         self.set_theme()
         self.builder.get_object('button1').connect('realize', self.set_style)
         gobject.timeout_add(100, self.periodic)
