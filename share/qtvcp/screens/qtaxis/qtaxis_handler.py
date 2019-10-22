@@ -29,7 +29,6 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
-TOOLBAR = None
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -47,7 +46,7 @@ class HandlerClass:
         self.PATHS = paths
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
-        TOOLBAR = ToolBarActions(path=paths)
+        TOOLBAR = ToolBarActions(widgets)
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
@@ -95,7 +94,10 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
         TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
+        TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
+        TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
+        self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -147,6 +149,9 @@ class HandlerClass:
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             return False
 
+    def closing_cleanup__(self):
+        TOOLBAR.saveRecentPaths()
+
     ########################
     # callbacks from STATUS #
     ########################
@@ -187,9 +192,9 @@ class HandlerClass:
 
     def tool_offset_clicked(self):
         conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        joint = STATUS.get_selected_joint()
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[joint],
-            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
+        axis = conversion[STATUS.get_selected_joint()]
+        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':axis,
+            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Axis {} Tool Offset'.format(axis)}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
 
@@ -345,6 +350,8 @@ class HandlerClass:
         msg.show()
         retval = msg.exec_()
 
+    def launch_log_dialog(self):
+        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 

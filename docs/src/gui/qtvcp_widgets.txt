@@ -76,7 +76,7 @@ It is based on pyQT's QLCDNumber
 
 This widget displays a image from a web camera. +
 It overlays an adjustable circular and cross hair target over the image. +
-Camview was built with precision visually positioning in mind. +
+Camview was built with precise visual positioning in mind. +
 
 === GeneralHALInput Widget
 
@@ -97,8 +97,8 @@ place it in it's page with a different layout then it originally had. +
 The original widget must be in a layout for switcher to put it back. +
  +
 In Designer you will add the widgetswitcher widget on screen. +
-Right click the widgetswitcher and add a page, 
-Then populate it with widgets/layouts you wish to see in a default form. +
+Right click the widgetswitcher and add a page, +
+then populate it with widgets/layouts you wish to see in a default form. +
 Then add as many pages as there are views to switch to. +
 on each page add a layout widget. +
 After adding the layout you must right click the widget switcher again +
@@ -269,6 +269,8 @@ This can also display MDI history when linuxcnc is in MDI mode. +
 This can also display log entries when linuxcnc is in MANUAL mode. +
 This will also display preference file entries if you enter 'PREFERENCE' in capitals +
 into the MDILine widget. +
+It has a signal percentDone(int) that that can be connected to a slot (such as a +
+progressBar to display percent run)
 
 It is based on pyQT's QsciScintilla +
 
@@ -326,7 +328,7 @@ It is based on pyQT's combobox
 === ScreenOption widget
 
 This widget doesn't add anything visually to a screen but sets up important +
-options. this is the proffered way to use these options +
+options. This is the prefered way to use these options +
 
 .These include: 
 * monitoring the linuxcnc error channel.
@@ -418,61 +420,13 @@ It is based on pyQT's QGridLayout +
 
 == Dialog Widgets
 
-===  Lcnc_Dialog
+Dialogs are used to present or request immediately required information in a focused way. +
+The typical used dialogs can be loaded using the screenoptions widget. +
+You can also add them directly to the ui - but each dialog must have a unique launch name +
+or you will see multiple dialogs displayed, one after another. +
+You can show dialogs directly with python code but a safer way is to use STATUS messages to +
+request the dialog to launch and to return the gathered information. +
 
-This is a general dialog widget. +
-If there is an Focus Overlay widget present, it can signal it to display. +
-If the sound library is set up it can play sounds. +
-
-It is based on pyQT's QMessagebox
-
-===  Dialog Tool Change Widget
-This is used as a manual tool change prompt. +
-It has HAL pins to connect to the machine controller +
-The pins are named the same as the original AXIS manual tool prompt and works +
-the same. +
-If there is a Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT's QMessagebox
-
-===  Dialog File Chooser Widget
-This is used to load Gcode files +
-If there is a Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT's QMessagebox
-
-===  Dialog Origin Offset Widget
-This widget allows one to modify User System origin offsets directly +
-It is in a dialog form +
-If there is an Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT's QDialog
-
-===  Dialog tool Offset Widget
-This widget allows one to modify Tool offsets directly +
-It is in a dialog form +
-If there is an Focus Overlay widget present, it will signal it to display. +
-
-It is based on pyQT's QDialog
-
-===  Dialog MacroTab
-
-This is a dialog for displaying the macrotab widget. +
-Macrotab displays a choice of macro programs to run using icons. +
-If there is a Focus Overlay widget present, it will signal it to display. +
-
-===  Dialog camview
-
-This is a dialog to display the camview object for Webcam part alignment. +
-It is based on pyQT's QDialog
-
-===  Dialog entry
-
-This is a dialog to display an edit line for information entry, such as origin offset. +
-It returns the entry via STATUS messages using a python DICT. +
-The DICT contains at minimum, the name of the dialog requested and an id code. +
-The code name for this dialog is 'ENTRY' +
- +
 To set this up first register to catch the 'general' message from STATUS:
 [source,python]
 ----
@@ -482,10 +436,10 @@ STATUS.connect('general',self.return_value)
 Add a function to call a dialog: +
 This function must build a message DICT to send to the dialog. +
 This message will be passed back in the general message with the addition +
-of the RETURN varaible. It is possible to add extra user information to the message. +
+of the RETURN variable. It is possible to add extra user information to the message. +
 The dialog will ignore these and pass them back. +
-'NAME' = code name of dialog to show. +
-'ID' = a unique id so we process only an entry that we requested. +
+'NAME' = launch code name of dialog to show. +
+'ID' = a unique id so we process only a dialog that we requested. +
 'TITLE' = the title to use on the dialog
 
 [source,python]
@@ -496,7 +450,7 @@ The dialog will ignore these and pass them back. +
             STATUS.emit('dialog-request', mess)
 ----
 
-Add a callback function that processes the general message:
+Add a callback function that processes the general message: +
 This function should check the the name and id is the same as +
 we sent, then it can extract the return value and any user variables. +
 Keep in mind this function will get all general messages so the DICT keynames +
@@ -509,11 +463,86 @@ is advisable.
         rtn = message.get('RETURN')
         code = bool(message.get('ID') == '__test1__')
         name = bool(message.get('NAME') == 'ENTRY')
-        if rtn and code and name:
-            Print ('Entry return value from {} = {}').format(code, rtn)
-
-
+        if code and name and not rtn is None:
+            print ('Entry return value from {} = {}').format(code, rtn)
 ----
+
+
+===  Lcnc_Dialog
+
+This is a general message dialog widget. +
+If there is an Focus Overlay widget present, it can signal it to display. +
+If the sound library is set up it can play sounds. +
+There are options that can be set when requesting a dialog, these would be added to +
+the message dict. +
+
+* 'TITLE':'Attention'      -Title of the dialog window
+* 'MESSAGE':'your text'    -Title message text in bold
+* 'MORE':'your more text' - standard text under the heading
+* 'DETAILS':'hidden text' - initial hidden text
+* 'TYPE':'OK' -type can be 'OK', 'YESNO', 'OKCANCEL' 
+* 'ICON':'INFO' -icon can be 'QUESTION','INFO','CRITICAL','WARNING'
+* 'PINNAME' -not implemented yet
+* 'FOCUSTEXT':None -text to display if focus overlay is used. Use None for no text.
+* 'FOCUSCOLOR':QColor(0, 0, 0, 150) - color to use if focus overlay is used
+* 'PLAYALERT' :'SPEAK alert!'- sound to play if sound is available
+
+When using STATUS's 'request-dialog' function, the default launch name is 'MESSAGE' +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog Tool Change Widget
+This is used as a manual tool change prompt. +
+It has HAL pins to connect to the machine controller +
+The pins are named the same as the original AXIS manual tool prompt and works the same. +
+the tool change dialog can only be launched by HAL pins. +
+If there is a Focus Overlay widget present, it will signal it to display. +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog File Chooser Widget
+This is used to load Gcode files +
+If there is a Focus Overlay widget present, it will signal it to display. +
+When using STATUS's 'request-dialog' function, the default launch names are 'LOAD' or 'SAVE' +
+
+It is based on pyQT's QMessagebox
+
+===  Dialog Origin Offset Widget
+This widget allows one to modify User System origin offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+When using STATUS's 'request-dialog' function, the default launch name is 'ORIGINOFFSET' +
+
+It is based on pyQT's QDialog
+
+===  Dialog tool Offset Widget
+This widget allows one to modify Tool offsets directly +
+It is in a dialog form +
+If there is an Focus Overlay widget present, it will signal it to display. +
+When using STATUS's 'request-dialog' function, the default launch name is 'TOOLOFFSET' +
+
+It is based on pyQT's QDialog
+
+===  Dialog MacroTab
+
+This is a dialog for displaying the macrotab widget. +
+Macrotab displays a choice of macro programs to run using icons. +
+If there is a Focus Overlay widget present, it will signal it to display. +
+When using STATUS's 'request-dialog' function, the default launch name is 'MACROTAB' +
+
+===  Dialog camview
+
+This is a dialog to display the camview object for Webcam part alignment. +
+When using STATUS's 'request-dialog' function, the default launch name is 'CAMVIEW' +
+It is based on pyQT's QDialog
+
+===  Dialog entry
+
+This is a dialog to display an edit line for information entry, such as origin offset. +
+It returns the entry via STATUS messages using a python DICT. +
+The DICT contains at minimum, the name of the dialog requested and an id code. +
+When using STATUS's 'request-dialog' function, the default launch name is 'ENTRY' +
+ +
 
 It is based on pyQT's QDialog
 

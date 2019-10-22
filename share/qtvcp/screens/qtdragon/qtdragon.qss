@@ -1,0 +1,192 @@
+QMainWindow {
+    background: lightgray;
+}
+
+QStatusBar {
+    background: lightgray;
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QPushButton, ActionButton, SystemToolButton, AxisToolButton {
+    background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(200, 200, 200, 255), stop:1 rgba(160, 160, 160, 255));
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 4px;
+    border-left-color: white;
+    border-top-color: white;
+    border-right-color: black;
+    border-bottom-color: black;
+    font: 10pt "Lato Heavy";
+}
+
+QPushButton:checked, QPushButton:pressed {
+  border-left-color: black;
+  border-top-color: black;
+  border-right-color: white;
+  border-bottom-color: white;
+}
+
+QPushButton:hover, ActionButton:hover, SystemToolButton:hover, AxisToolButton:hover {
+  border-left-color: black;
+  border-top-color: black;
+  border-right-color: white;
+  border-bottom-color: white;
+}
+
+QPushButton:disabled, ActionButton:disabled {
+    background-color: gray;
+    border-color: gray;
+    color: #303030;
+}
+
+QLabel {
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+StatusLabel, StateLabel, QLineEdit {
+    background: rgb(240, 240, 240);
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QCheckBox {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    background-color: rgb(240, 240, 240);
+}
+
+QComboBox {
+    border: 2px solid black;
+    width: 20px;
+    font: 10pt "Lato Heavy";
+    color: black;    
+}
+
+QGroupBox {
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-top: 8px;
+    font: 10pt "Lato Heavy";
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 3px;
+    color: black;
+}
+
+QProgressBar {
+    background-color: rgb(240, 240, 240);
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 9 pt "Lato Heavy";
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+}
+
+.QFrame {
+    background: #B0B0A0;
+    border: 1px solid black;
+    border-radius: 4px;
+}
+
+QTabWidget::pane > QWidget {
+    background: lightgray;
+    border: none;
+}
+
+QTabWidget::tab-bar {
+    left: 2px; /* move to the right by 2px */
+}
+
+QTabBar::tab {
+    background-color: qlineargradient(spread:reflect, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(200, 200, 200, 255), stop:1 rgba(160, 160, 160, 255));
+    margin-top: 2px;
+    margin-bottom: 4px;
+    margin-left: 2px;
+    margin-right: 2px;
+    border: 2px solid;
+    border-left-color: white;
+    border-top-color: white;
+    border-right-color: black;
+    border-bottom-color: black;
+    border-radius: 4px;
+    min-width: 80px;
+    min-height: 40px;
+    padding: 2px;
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    border-left-color: black;
+    border-top-color: black;
+    border-right-color: white;
+    border-bottom-color: white;
+}
+
+QHeaderView {
+    background-color: #F0F0F0;
+    border: 0px transparent #32414B;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 0px;
+    font: 10pt "Lato Heavy";
+}
+
+QHeaderView::section::vertical::first, QHeaderView::section::vertical::only-one {
+    width: 60px;
+}
+
+OriginOffsetView, ToolOffsetView {
+    font: 10pt "Lato Heavy";
+}
+
+QSlider::groove:horizontal {
+    border: 1px black;
+    height: 16px;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+    border: 1px solid #777;
+    border-radius: 3px;
+    height: 16px;
+}
+
+QSlider::add-page:horizontal {
+    background: gray;
+    border: 1px solid #777;
+    border-radius: 3px;
+    height: 16px;
+}
+
+QSlider::handle:horizontal {
+    background: lightgray;
+    border: 1px solid black;
+    width: 12px;
+    margin-top: -2px;
+    margin-bottom: -2px;
+    border-radius: 2px;
+}
+
+QTextEdit {
+    background: rgb(240,240,240);
+    font: 10pt "Lato Heavy";
+}
+
+/*GcodeEditor {
+    background-color: rgb(240,240,240);
+    font: 10pt "Lato Heavy";
+}
+*/

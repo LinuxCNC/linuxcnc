@@ -171,6 +171,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     # VIEW
     def setview(self, view):
+        self.current_view = view
         self.set_view(view)
     def getview(self):
         return self.current_view

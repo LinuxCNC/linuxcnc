@@ -219,10 +219,14 @@ may require additional user edits to ini or hal files.
 
 LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
 Existing G-code will run without modification and most configurations
-will default to single spindles. To add spindles both the "num_spindles"
-modparam to the motion module in the HAL file and the [TRAJ]SPINDLES
-entry in the INI file should be changed/added to choose the required
-number. These /must/ match. 
+will default to single spindles. To specify more than one spindle
+set the [TRAJ]SPINDLES= entry in the INI file *and* include the num_spindles=
+parameter for the motion module (set with either [EMCMOT]EMCMOT = motmod num_spindles=
+or included in a halfile loadrt entry for motmod).
+
+The motion module num_spindles= parameter and the [TRAJ]SPINDLES= settings
+*must* match.
+
 The spindle control pin names have been changed to make spindles look
 more like axes and joints. motion.spindle-speed-out is now spindle.0.speed-out
 for example. The automatic update script will take care of these changes.
@@ -959,6 +963,29 @@ axis (X) with requested speed=1.234 in any mode (free or teleop).
 This command now attemps to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'
+
+== Tools
+
+=== Calibration (emccalib.tcl)
+
+The calibration/tuning tool now supports stanzas:
+
+  [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
+
+where N is a joint number (0 .. ([KINS]JOINTS-1) ),
+L is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
+and S is a spindle number (0 .. 9)
+
+[NOTE]
+
+The number of allowed spindles is 8 but legacy configurations
+may include a stanza [SPINDLE_9] unrelated to an actual spindle
+number.
+
+[NOTE]
+
+The [TUNE] stanza may be used for specifying tunable items
+not relevant to the other supported stanzas.
 
 == Obsolete Guis (removed for 2.8.x)
 

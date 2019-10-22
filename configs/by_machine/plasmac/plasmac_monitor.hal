@@ -8,5 +8,6 @@ net plasmac:kerfcross-is-locked     plasmac.kerfcross-is-locked     =>  plasmac_
 net plasmac:led-down                plasmac.led-down                =>  plasmac_monitor.led-down
 net plasmac:led-up                  plasmac.led-up                  =>  plasmac_monitor.led-up
 net plasmac:ohmic-probe-out                                         =>  plasmac_monitor.ohmic-probe
+net plasmac:thc-active              plasmac.thc-active              =>  plasmac_monitor.led-thc-active
 net plasmac:thc-enabled             plasmac.thc-enabled             =>  plasmac_monitor.led-thc-enabled
 net plasmac:torch-on                                                =>  plasmac_monitor.torch-on

@@ -103,12 +103,12 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
     # process the STATUS return message
     def return_value(self, w, message):
         num = message['RETURN']
-        code = bool(message['ID'] == '%s__'% self.objectName())
-        name = bool(message['NAME'] == self.dialog_code)
-        if num is not None and code and name:
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
             LOG.debug('message return:{}'.format (message))
-            axis = message['AXIS']
-            self._last = message['CURRENT']
+            axis = message.get('AXIS')
+            self._last = message.get('CURRENT')
             ACTION.SET_AXIS_ORIGIN(axis, num)
             STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 
@@ -155,7 +155,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 if self._halpin_option:
                     self.hal_pin_joint.set(self.isChecked())
             else:
-                ACTION.SET_SELECTED_axis(self._axis)
+                ACTION.SET_SELECTED_AXIS(self._axis)
                 if self._halpin_option:
                     self.hal_pin_axis.set(self.isChecked())
 
@@ -172,7 +172,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 self._block_signal = True
                 self.setChecked(False)
                 self._block_signal = False
-                if self._halpin_option and self.axis != '':
+                if self._halpin_option and self._axis != '':
                     self.hal_pin_joint.set(False)
 
     def modeChanged(self, mode):
@@ -207,7 +207,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
-            self._axis = data.upper()
+            self._axis = str(data.upper())
     def get_axis(self):
         return self._axis
     def reset_axis(self):

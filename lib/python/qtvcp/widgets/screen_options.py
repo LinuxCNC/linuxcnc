@@ -87,12 +87,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_originoffset_dialog = False
         self.add_tooloffset_dialog = False
         self.add_calculator_dialog = False
+        self.add_machinelog_dialog = False
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._default_tab_name = ''
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._entryDialogSoftkey = True
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
@@ -102,6 +104,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -143,6 +146,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_calculator_dialog:
             self.init_calculator_dialog()
+
+        if self.add_machinelog_dialog:
+            self.init_machinelog_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -259,22 +265,28 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  None,
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
-                                                                 display_type=MSG.YN_TYPE,
+                                                                 display_type='YESNO',
                                                                  focus_text='Close Linuxcnc?',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
-            if answer == QtWidgets.QMessageBox.Yes:
+            # system shutdown
+            if answer == -1:
+                if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
+                    self.QTVCP_INSTANCE_.system_shutdown_request__()
+                else:
+                    from qtvcp.core import Action
+                    ACTION = Action()
+                    ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+                event.accept()
+            # close linuxcnc
+            elif answer:
                 if self.play_sounds and self.play_shutdown_sounds:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
                     event.accept()
-            elif answer == QtWidgets.QMessageBox.No:
+            # cancel
+            elif answer == False:
                 event.ignore()
                 return
-            elif answer == 0:
-                from qtvcp.core import Action
-                ACTION = Action()
-                ACTION.SHUT_SYSTEM_DOWN_PROMPT()
-                event.accept()
 
         # [0] = tool number
         # [1] = pocket number
@@ -353,6 +365,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.entryDialog_ = EntryDialog()
         w.entryDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.entryDialog_, w, w.PATHS, self.PREFS_)
+        w.entryDialog_.soft_keyboard_option = self._entryDialogSoftkey
         w.entryDialog_.overlay_color = self._entryDialogColor
 
     def init_file_dialog(self):
@@ -375,6 +388,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
         w.versaProbeDialog_ = VersaProbeDialog()
+        w.versaProbeDialog_.setObjectName('versaProbeDialog_')
+        w.registerHalWidget(w.versaProbeDialog_)
         w.versaProbeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.versaProbeDialog_, w, w.PATHS, self.PREFS_)
         w.versaProbeDialog_.overlay_color = self._versaProbeDialogColor
@@ -419,6 +434,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.calculatorDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.calculatorDialog_, w, w.PATHS, self.PREFS_)
         w.calculatorDialog_.overlay_color = self._calculatorDialogColor
+
+    def init_machinelog_dialog(self):
+        from qtvcp.widgets.dialog_widget import MachineLogDialog
+        w = self.QTVCP_INSTANCE_
+        w.machineLogDialog_ = MachineLogDialog()
+        w.machineLogDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.machineLogDialog_, w, w.PATHS, self.PREFS_)
+        w.machineLogDialog_.overlay_color = self._machineLogDialogColor
 
     ########################################################################
     # This is how designer can interact with our widget properties.
@@ -547,6 +570,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_entryDialog(self):
         self.add_entry_dialog = False
     entryDialog_option = QtCore.pyqtProperty(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
+    def set_entryDialogSoftkey(self, data):
+        self._entryDialogSoftkey = data
+    def get_entryDialogSoftkey(self):
+        return self._entryDialogSoftkey
+    def reset_entryDialogSoftkey(self):
+        self._entryDialogSoftkey = False
+    entryDialogSoftkey_option = QtCore.pyqtProperty(bool, get_entryDialogSoftkey, set_entryDialogSoftkey, reset_entryDialogSoftkey)
     def get_entryDialogColor(self):
         return self._entryDialogColor
     def set_entryDialogColor(self, value):
@@ -656,6 +686,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_calculatorDialogColor(self, value):
         self._calculatorDialogColor = value
     calculator_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
+
+    def set_machineLogDialog(self, data):
+        self.add_machinelog_dialog = data
+    def get_machineLogDialog(self):
+        return self.add_machinelog_dialog
+    def reset_machineLogDialog(self):
+        self.add_machinelog_dialog = False
+    machineLogDialog_option = QtCore.pyqtProperty(bool, get_machineLogDialog, set_machineLogDialog, reset_machineLogDialog)
+    def get_machineLogDialogColor(self):
+        return self._machineLogDialogColor
+    def set_machineLogDialogColor(self, value):
+        self._machineLogDialogColor = value
+    machineLog_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
 
     ##############################
     # required boiler code #

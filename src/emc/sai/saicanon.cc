@@ -1021,6 +1021,11 @@ void FINISH(void) {
     PRINT("FINISH()\n");
 }
 
+void ON_RESET(void)
+{
+    PRINT("ON_RESET()\n");
+}
+
 void START_CHANGE(void) {
     PRINT("START_CHANGE()\n");
 }

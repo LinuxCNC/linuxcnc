@@ -35,13 +35,13 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+if not INFO.LINUXCNC_IS_RUNNING:
+    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
 except:
     LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
-
 
 ###############################################################
 # helper widget for SVG display on Button
@@ -163,7 +163,6 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.buildStack()
 
     def _hal_init(self):
-        print self.HAL_GCOMP_
         self.runButton.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))

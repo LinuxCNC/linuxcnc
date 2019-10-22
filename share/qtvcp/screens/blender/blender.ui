@@ -54,6 +54,9 @@
         <blue>0</blue>
        </color>
       </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="overlay_color" stdset="0">
        <color alpha="186">
         <red>0</red>
@@ -1000,12 +1003,267 @@
           <attribute name="title">
            <string>File</string>
           </attribute>
-          <layout class="QVBoxLayout" name="verticalLayout_5"/>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="FileManager" name="filemanager"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tab_3">
           <attribute name="title">
            <string>Tool</string>
           </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="OriginOffsetView" name="originoffsetview"/>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
+              <string>Offsets Managment</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="ActionButton" name="actionbutton">
+                <property name="text">
+                 <string>Zero G5x</string>
+                </property>
+                <property name="zero_g5x_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_5">
+                <property name="text">
+                 <string>Zero Rotated Z</string>
+                </property>
+                <property name="zero_g5x_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="zero_zrot_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_2">
+                <property name="text">
+                 <string>Zero G92</string>
+                </property>
+                <property name="zero_g92_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="ToolOffsetView" name="tooloffsetview"/>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Tool File Managment</string>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <item>
+                 <widget class="PushButton" name="pushbutton">
+                  <property name="text">
+                   <string>Add</string>
+                  </property>
+                  <property name="python_command_option" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="true_python_cmd_string" stdset="0">
+                   <string>INSTANCE.tooloffsetview.add_tool()</string>
+                  </property>
+                  <property name="false_python_cmd_string" stdset="0">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="PushButton" name="pushbutton_2">
+                  <property name="text">
+                   <string>Delete</string>
+                  </property>
+                  <property name="python_command_option" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="true_python_cmd_string" stdset="0">
+                   <string>INSTANCE.tooloffsetview.delete_tools()</string>
+                  </property>
+                  <property name="false_python_cmd_string" stdset="0">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -1241,6 +1499,9 @@
               <property name="axis_letter" stdset="0">
                <string>Z</string>
               </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1387,6 +1648,9 @@
               <property name="axis_letter" stdset="0">
                <string>Y</string>
               </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1527,6 +1791,9 @@
               <property name="axis_letter" stdset="0">
                <string>X</string>
               </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
              </widget>
             </item>
             <item>
@@ -1657,6 +1924,9 @@
               </property>
               <property name="axis_letter" stdset="0">
                <string>A</string>
+              </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
               </property>
              </widget>
             </item>
@@ -2013,7 +2283,11 @@
                </widget>
               </item>
               <item>
-               <widget class="MDILine" name="mdiline"/>
+               <widget class="MDILine" name="mdiline">
+                <property name="soft_keyboard_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -2087,6 +2361,12 @@
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>LcncDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
@@ -2124,6 +2404,11 @@
    <header>qtvcp.widgets.adjustment_bar</header>
   </customwidget>
   <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -2132,6 +2417,12 @@
    <class>ImageSwitcher</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.image_switcher</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.tool_offsetview</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>DROLabel</class>
@@ -2145,6 +2436,11 @@
    <header>qtvcp.widgets.action_button_round</header>
   </customwidget>
   <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
    <class>SystemToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.system_tool_button</header>
@@ -2156,6 +2452,11 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
@@ -2165,11 +2466,6 @@
    <extends>QWidget</extends>
    <header>qtvcp.widgets.overlay_widget</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ToolDialog</class>
-   <extends>LcncDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
  </customwidgets>
  <resources>

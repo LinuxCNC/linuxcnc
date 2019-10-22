@@ -319,6 +319,10 @@ proc simulated_home {number_of_joints} {
             default { # use component default }
           }
         }
+        if {    [info exists ::JOINT_[set jno](HOME_SEARCH_VEL)]
+            &&  [set ::JOINT_[set jno](HOME_SEARCH_VEL)] < 0} {
+            do_setp J${jno}_switch.home-pos -[getp J${jno}_switch.home-pos]
+        }
       }
     } ;# type
   } ;# for

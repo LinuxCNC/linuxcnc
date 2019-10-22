@@ -8,6 +8,19 @@ log = logger.getLogger(__name__)
 # Set the log level for this module
 log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+try:
+    LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
+except:
+    LINUXCNCVERSION = 'UNAVAILABLE'
+
+INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+
+HOME = os.environ.get('EMC2_HOME', None)
+if HOME is not None:
+    IMAGEDIR = os.path.join(HOME, "share","qtvcp","images")
+else:
+    IMAGEDIR = None
+
 class _IStat(object):
     def __init__(self):
         # only initialize once for all instances
@@ -15,12 +28,19 @@ class _IStat(object):
             return
         self.__class__._instanceNum += 1
 
-        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+        self.LINUXCNC_IS_RUNNING = bool(INIPATH is None)
+        if not self.LINUXCNC_IS_RUNNING:
+            # Reset the log level for this module
+            # Linuxcnc isn't running so we expect INI errors
+            log.setLevel(logger.CRITICAL)
+        self.LINUXCNC_VERSION = LINUXCNCVERSION
         self.inifile = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
+        self.IMAGE_PATH = IMAGEDIR
+        self.LIB_PATH = os.path.join(HOME, "share","qtvcp")
 
         self.MACHINE_IS_LATHE = False
         self.MACHINE_IS_METRIC = False
@@ -158,7 +178,7 @@ class _IStat(object):
         self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_LINEAR_VELOCITY",1)) * 60
         self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_LINEAR_VELOCITY",5)) * 60
         self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","DEFAULT_ANGULAR_VELOCITY",6)) * 60
-        self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ABGULAR_VELOCITY",1)) * 60
+        self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ANGULAR_VELOCITY",1)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
         self.DEFAULT_SPINDLE_SPEED = int(self.get_error_safe_setting("DISPLAY","DEFAULT_SPINDLE_SPEED",200))
         self.MAX_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_OVERRIDE",1)) * 100
@@ -193,7 +213,7 @@ class _IStat(object):
         if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
             log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
         if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
-            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCACTION - guessng default.')
+            log.warning('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_LOCATION - guessng default.')
             for num,i in enumerate(self.TAB_NAMES):
                 try:
                     if self.TAB_LOCATIONS[num]:
@@ -206,7 +226,7 @@ class _IStat(object):
             self.ZIPPED_TABS = None
 
         self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
-        self.TOOL_FILE_PATH = str(self.get_error_safe_setting("EMCIO", "TOOL_TABLE"))
+        self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
 
     ###################
@@ -218,8 +238,20 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.warning('INI Parcing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+            log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
+
+    def convert_machine_to_metric(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data
+        else:
+            return data * 25.4
+
+    def convert_machine_to_imperial(self, data):
+        if self.MACHINE_IS_METRIC:
+            return data * (1/25.4)
+        else:
+            return data
 
     def convert_metric_to_machine(self, data):
         if self.MACHINE_IS_METRIC:

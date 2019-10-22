@@ -601,7 +601,7 @@ elif test -e $KERNELDIR/include/generated/utsrelease.h; then
 else
     VERSION_FILE=$KERNELDIR/include/linux/version.h
 fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -s -d '"' -f 2`
 
 if test -z "$KERNEL_VERS"; then 
     AC_MSG_ERROR(Kernel version string not found)

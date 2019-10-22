@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.65 - 03 Aug 2019
+.I VERSION: 0.71 - 21 Sep 2019
 
 .I SUMMARY:
 .br
@@ -24,7 +24,7 @@ Three different operating modes:
 2 Use the plasmac.arc-ok-in input pin for arc-OK, use the plasmac.move-up and the plasmac.move-down input pins for THC, kerf crossing lockout is disabled.
 .RE
 
-A spindle on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
+A spindle 0 on signal (connected to the plasmac.spindle-on input pin) begins the sequence of:
 .RS 1
 .br
 - set feedhold.
@@ -112,7 +112,7 @@ If you want to use different feed rates throughout the file then set the plasmac
 .br
 G1 X2 F100
 .br
-blah
+...
 .br
 G1 X3 F125
 .br
@@ -133,6 +133,11 @@ This feature is disabled after any error. For example if there is a arc failure 
 .I SAFE HEIGHT
 .br
 If plasmac.safe-height is zero then Z axis maximum limit will be used as the safe height and the safe height reduced error will be disabled.
+
+.I AIR SCRIBE
+.br
+A spindle 1 on signal (connected to the plasmac.scribe-on input pin) begins a scribing sequence:
+.br
 
 .I NOTES
 .RS 1
@@ -168,6 +173,9 @@ pin in  float   axis_z_position             "current z axis position, connect to
 pin in  float   axis_x_position             "current x axis position, connect to axis.x.pos-cmd";
 pin in  float   axis_y_position             "current y axis position, connect to axis.y.pos-cmd";
 pin in  bit     breakaway                   "torch breakaway switch (optional, see float_switch)";
+pin in  bit     centre_spot_on              "start a new centre spot, connect to spindle.2.on";
+pin in  float   centre_spot_time            "torch on time for a centre spot";
+pin in  bit     consumable_change           "change consumables in torch";
 pin in  bit     cornerlock_enable           "enable corner lock";
 pin in  float   cornerlock_threshold        "corner lock threshold (% of requested feed rate), speeds below this disable THC";
 pin in  float   current_velocity            "current machine velocity , connect to motion.current-vel";
@@ -187,6 +195,7 @@ pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc vo
 pin in  s32     mode                        "operating mode";
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
+pin in  bit     multi_tool                  "allows the use of multiple tools";
 pin in  float   offset_current              "current z axis offset, connect to axis.z.eoffset";
 pin in  bit     ohmic_probe_enable          "ohmic probe enable input";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
@@ -210,6 +219,9 @@ pin in  float   puddle_jump_height          "puddle jump height (percentage of p
 pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
+pin in  float   scribe_arm_delay            "delay from scribe arm to scribe start";
+pin in  bit     scribe_on                   "start a new scribe, connect to spindle.1.on";
+pin in  float   scribe_start_delay          "delay from scribe start to motion beginning";
 pin in  float   setup_feed_rate             "feed rate for moves to pierce and cut heights (machine units per minute)";
 pin in  float   skip_ihs_distance           "skip IHS if less than this distance from last cut";
 pin in  bit     spindle_on                  "start a new cut, connect to spindle.0.on";
@@ -225,9 +237,14 @@ pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
+pin in  s32     x_y_velocity                "velocity for consumable change";
+pin in  float   x_offset                    "offest to apply to axis x for consumable change";
+pin in  float   y_offset                    "offest to apply to axis y for consumable change";
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
+pin out bit     air_scribe_arm              "arm the air scribe";
+pin out bit     air_scribe_start            "start the air scribe";
 pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -248,10 +265,14 @@ pin out bit     program_run                 "run the currently loaded program, c
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
 pin out s32     state_out                   "current state output";
+pin out bit     thc_active                  "thc status output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
+pin out s32     x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
+pin out s32     y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
 
 /* VARIABLES */
+variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_fail_timer;             /* arc failure timer */
 variable float  arc_voltage;                /* calculated arc voltage before lowpass filter*/
@@ -259,6 +280,8 @@ variable float  axis_x_finish;              /* axis x position at end of cut */
 variable float  axis_x_start;               /* axis x position at start of cut */
 variable float  axis_y_finish;              /* axis y position at end of cut */
 variable float  axis_y_start;               /* axis y position at start of cut */
+variable float  centre_spot_timer;          /* centre spot timer */
+variable bool   consumable_changing;        /* consumables are being changed */
 variable int    count;                      /* for counting */
 variable int    cut_height_first;           /* cut height at start of cut */
 variable int    cut_height_last;            /* cut height at end of cut */
@@ -303,6 +326,9 @@ variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_min;                   /* minimum safe height allowed */
 variable int    safe_preferred;             /* preferred safe height offset */
 variable int    safe_target;                /* safe height target offset */
+variable bool   scribe_pause;               /* air-scribe pause flag */
+variable float  scribe_arm_timer;           /* air-scribe timer arm to start*/
+variable float  scribe_start_timer;         /* air-scribe timer start to motion*/
 variable bool   target_sensed;              /* sensed top of stock */
 variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
@@ -313,10 +339,12 @@ variable float  torch_off_timer;            /* arc off delay timer */
 variable bool   torch_pulse;                /* torch pulse flag */
 variable float  torch_pulse_timer;          /* torch pulse timer */
 variable float  velocity_scale;             /* the velocity multipler */
+variable int    x_velocity;                 /* velocity for x motion for consumable change */
+variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    zero_target;                /* zero height target offset */
 
 /* DEBUGGING PINS */
-/* pin out s32     stop_type_out; */
+//pin out s32     stop_type_out;
 
 function _;
 
@@ -349,6 +377,9 @@ typedef enum{IDLE,
              PAUSED_MOTION,
              OHMIC_TEST,
              PROBE_TEST,
+             AIR_SCRIBE,
+             CONSUMABLE_CHANGE_ON,
+             CONSUMABLE_CHANGE_OFF,
              DEBUG} state_t;
 
 typedef enum{NONE,
@@ -371,7 +402,7 @@ probe_type_t probe_type = FLOAT;
 FUNCTION(_) {
 
     /* DEBUGGING STUFF */
-    /* stop_type_out = stop_type; */
+//    stop_type_out = stop_type;
 
     /* do these first run only */
     if(!initialized && units_per_mm){
@@ -416,8 +447,11 @@ FUNCTION(_) {
         torch_on = FALSE;
     }
 
-    /* set THC state*/
+    /* set THC state */
     thc_enabled = (thc_enable && !thc_disable ? 1:0);
+
+    /* set THC status */
+    thc_active = (state == CUTTING) && target_volts && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
 
     /* set ohmic probe state */
     ohmic_detected = ohmic_probe && ohmic_probe_enable;
@@ -450,7 +484,7 @@ FUNCTION(_) {
             stop_type = PAUSE;
             probe_required = TRUE;
             state = MAX_HEIGHT;
-        }else if(!spindle_on){
+        }else if(!spindle_on && !centre_spot_on){
             if(torch_off_delay > 0 && !torch_off){
                 torch_off_timer = torch_off_delay;
             }else{
@@ -548,8 +582,16 @@ FUNCTION(_) {
                 /* if we get a paused motion request and we are paused */
                 if(paused_motion_speed && stop_type == PAUSE){
                     state = PAUSED_MOTION;
-                /* if we get a start request and we are stopped or waiting for a restart */
-                }else if((spindle_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
+                /* if we get a consumable change start request and we are paused */
+                }else if(consumable_change && stop_type == PAUSE && !consumable_changing){
+                    state = CONSUMABLE_CHANGE_ON;
+
+                /* if we get a consumable change stop request and we are changing consumables */
+                }else if(!consumable_change && stop_type == PAUSE && consumable_changing){
+                        state = CONSUMABLE_CHANGE_OFF;
+
+                /* if we get a torch start request and we are stopped or waiting for a restart */
+                }else if((spindle_on || centre_spot_on || probe_test) && (stop_type == NONE || stop_type == WAIT)){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -621,6 +663,9 @@ FUNCTION(_) {
                     }
                 /* if we get a resume request and we are paused */
                 }else if(!program_is_paused && stop_type == PAUSE){
+                    if(consumable_changing){
+                        state = CONSUMABLE_CHANGE_OFF;
+                    }
                     feed_hold = TRUE;
                     stop_type = NONE;
                 /* if torch pulse requested */
@@ -632,6 +677,11 @@ FUNCTION(_) {
                     feed_hold = TRUE;
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
+                /* if we get a air-scribe start request */
+                }else if(scribe_on && !spindle_on && !centre_spot_on && !probe_test && multi_tool){
+                    state = AIR_SCRIBE;
+                    scribe_arm_timer = scribe_arm_delay;
+                    scribe_pause = FALSE;
                 }else if(!cut_started){
                     feed_hold = FALSE;
                 }
@@ -820,7 +870,7 @@ FUNCTION(_) {
                     }else if(!torch_enable){
                         pierce_timer = pierce_delay;
                         state = PIERCE_DELAY;
-                    }else if(spindle_on){
+                    }else if(spindle_on || centre_spot_on){
                         state = TORCH_ON;
                     }
                 }
@@ -854,6 +904,7 @@ FUNCTION(_) {
                         torch_on = TRUE;
                         pierce_count += 1;
                     }
+                    centre_spot_timer = centre_spot_time * 0.001;
                     state = ARC_OK;
                 }
             }
@@ -862,15 +913,26 @@ FUNCTION(_) {
             /* wait for arc ok
              * if timeout occurs turn torch off then return to TORCH_ON for another attempt */
             feed_hold = TRUE;
-            arc_fail_timer -= fperiod;
-            if(arc_fail_timer <= 0){
-                torch_on = FALSE;
-                restart_timer = restart_delay;
-                arc_starts += 1;
-                state = TORCH_ON;
-            }else if(arc_ok_out){
-                    pierce_timer = pierce_delay;
-                    state = PIERCE_DELAY;
+            if(centre_spot_on && !spindle_on && multi_tool){
+                centre_spot_timer -= fperiod;
+                if(centre_spot_timer <= 0){
+                    centre_spot_timer = 0;
+                    torch_on = FALSE;
+                    stop_type = WAIT;
+                    state = SAFE_HEIGHT;
+                }
+            }else{
+                arc_fail_timer -= fperiod;
+                centre_spot_timer -= fperiod;
+                if(arc_fail_timer <= 0){
+                    torch_on = FALSE;
+                    restart_timer = restart_delay;
+                    arc_starts += 1;
+                    state = TORCH_ON;
+                }else if(arc_ok_out){
+                        pierce_timer = pierce_delay;
+                        state = PIERCE_DELAY;
+                }
             }
             break;
         case PIERCE_DELAY:
@@ -1181,6 +1243,9 @@ FUNCTION(_) {
                         cut_started = FALSE;
                         /* do height override here for one cut only */
                         /* height_ovr_old = 0; */
+                        if(consumable_changing){
+                            state = CONSUMABLE_CHANGE_OFF;
+                        }
                     }
                 }
             }else{
@@ -1250,6 +1315,108 @@ FUNCTION(_) {
                     offset_counts = 0;
                     state = FINISH;
                 }
+            }
+            break;
+        case AIR_SCRIBE:
+            if(scribe_on){
+                if(!program_is_paused){
+                    air_scribe_arm = TRUE;
+
+                    if(scribe_arm_timer){
+                        feed_hold = TRUE;
+                        scribe_arm_timer -= fperiod;
+                        if(scribe_arm_timer < 0){
+                            scribe_arm_timer = 0;
+                        }
+                    }else if(scribe_start_timer){
+                        feed_hold = TRUE;
+                        scribe_start_timer -= fperiod;
+                        if(scribe_start_timer < 0){
+                            scribe_start_timer = 0;
+                        }
+                    }else if(air_scribe_arm && !scribe_arm_timer && !air_scribe_start){
+                        feed_hold = TRUE;
+                        scribe_start_timer = scribe_start_delay;
+                        air_scribe_start = TRUE;
+                    }else if(air_scribe_start && !scribe_start_timer){
+                        feed_hold = FALSE;
+                    }
+                }else{
+                    air_scribe_arm = FALSE;
+                    air_scribe_start = FALSE;
+                    scribe_arm_timer = scribe_arm_delay;
+                    scribe_start_timer = 0;
+                }
+            }else{
+                air_scribe_arm = FALSE;
+                air_scribe_start = FALSE;
+                scribe_arm_timer = 0;
+                scribe_start_timer = 0;
+                state = IDLE;
+            }
+            break;
+        case CONSUMABLE_CHANGE_ON:
+            if(!consumable_changing){
+                if(x_offset == 0 && y_offset == 0){
+                    x_velocity = 0;
+                    y_velocity = 0;
+                }else if(x_offset == 0){
+                    x_velocity = 0;
+                    if(y_offset > 0){
+                        y_velocity = x_y_velocity;
+                    }else{
+                        y_velocity = x_y_velocity * -1;
+                    }
+                }else if(y_offset == 0){
+                    if(x_offset > 0){
+                        x_velocity = x_y_velocity;
+                    }else{
+                        x_velocity = x_y_velocity * -1;
+                    }
+                }else{
+                    angle_x_y = atan2(y_offset, x_offset);
+                    x_velocity = x_y_velocity * cos(angle_x_y);
+                    y_velocity = x_y_velocity * sin(angle_x_y);
+                }
+                consumable_changing = TRUE;
+            }else{
+                if(x_velocity && x_offset_counts != x_offset){
+                    if(fabs(x_offset_counts) + fabs(x_velocity) < fabs(x_offset)){
+                        x_offset_counts += x_velocity;
+                    }else{
+                        x_offset_counts = x_offset;
+                    }
+                }
+                if(y_velocity && y_offset_counts != y_offset){
+                    if(fabs(y_offset_counts) + fabs(y_velocity) < fabs(y_offset)){
+                        y_offset_counts += y_velocity;
+                    }else{
+                        y_offset_counts = y_offset;
+                    }
+                }
+            }
+            if(x_offset_counts == x_offset && y_offset_counts == y_offset){
+                state = IDLE;
+            }
+            break;
+        case CONSUMABLE_CHANGE_OFF:
+            if(x_velocity){
+                if(fabs(x_offset_counts) - fabs(x_velocity) > 0){
+                    x_offset_counts -= x_velocity;
+                }else{
+                    x_offset_counts = 0;
+                }
+            }
+            if(y_velocity){
+                if(fabs(y_offset_counts) - fabs(y_velocity) > 0){
+                    y_offset_counts -= y_velocity;
+                }else{
+                    y_offset_counts = 0;
+                }
+            }
+            if(!x_offset_counts && !y_offset_counts){
+                consumable_changing = FALSE;
+                state = IDLE;
             }
             break;
         case DEBUG:

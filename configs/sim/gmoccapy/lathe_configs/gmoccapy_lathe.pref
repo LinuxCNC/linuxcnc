@@ -74,4 +74,5 @@ offset_axis_x = 0.0
 offset_axis_z = 0.0
 offset_axis_r = 50.0
 radius offset_axis_x = 0
+use_toolmeasurement = False
 

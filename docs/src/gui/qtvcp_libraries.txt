@@ -229,6 +229,52 @@ jnum_check(num)
 ensure_mode(modes)
 open_filter_program(filename, filter)
 ----
+
+== TOOL
+
+This library handles tool offset file changes. +
+Linuxcnc doesn't handle third party manipulation of the tool file well. +
+
+=== GET_TOOL_INFO(toolnumber)
+This will return a Python list of information on the requested tool number. +
+
+=== GET_TOOL_ARRAY()
+This return a single python list of python lists of tool information. +
+This is a raw list formed from the system tool file. +
+
+=== GET_TOOL_MODELS()
+This will return a python tuple of two Python lists of Python lists of tool information. +
+[0] will be real tools information +
+[1] will be wear tool information (tool numbers will be over 10000; Fanuc style tool wear) +
+
+=== ADD_TOOL(newtool = [-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool']) +
+This will by default, add a black tool entry with tool number -99. +
+You can preload the 'newtool' array with tool information. +
+
+=== SAVE_TOOLFILE(toolarray)
+This will parse the toolarray and save it to the file specified in the INI as the tool path. +
+This tool array must contain all the available tools information. +
+This array is expected to use the linuxcnc raw tool array - (doesn't have tool wear entries) +
+it will return True if there was an error. +
+
+=== CONVERT_TO_WEAR_TYPE(toolarray)
+This function converts a linuxcnc raw tool array to a qtvcp tool wear array. +
+Qtvcp's array includes entries for X and Z axis tool wear. +
+inuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
+This also requires remap code to add the wear offsets at tool change time.+
+
+=== CONVERT_TO_STANDARD_TYPE(toolarray)
+This function converts qtvcp's tool array into a linuxcnc raw tool array. +
+Qtvcp's array includes entries for X and Z axis tool wear. +
+linuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
+This also requires remap code to add the wear offsets t tool change time.+
+
+=== IS_HASH_CURRENT()
+Each time the tool information is saved the HASH number is calculated and recorded. +
+Calling this function will calculate the HASH number of the system tool file and +
+if it is different will return False, otherwise returns True. +
+Typically this function would be called regularly and if returns False, a display would be updated. +
+
 == aux_program_loader
 
 This module allows an easy way to load auxiliary programs linuxcnc often uses. +

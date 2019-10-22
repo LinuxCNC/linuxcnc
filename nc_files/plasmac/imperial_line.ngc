@@ -1,0 +1,13 @@
+;line
+
+G20
+G64 P0.0005
+M52 P1 ;to enable reverse-run
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+
+G0 X0.5 Y0.5
+M3 $0 S1 (select plasma torch)
+G1 X23.5
+M5
+G0 X0 Y0
+M2

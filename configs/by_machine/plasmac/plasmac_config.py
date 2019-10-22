@@ -56,6 +56,9 @@ class HandlerClass:
         self.builder.get_object('arc-voltage-offset-adj').configure(0,-999999,999999,0.01,0,0)
         self.builder.get_object('arc-voltage-scale').set_digits(6)
         self.builder.get_object('arc-voltage-scale-adj').configure(1,-9999,9999,0.000001,0,0)
+        self.builder.get_object('centre-spot-time').set_digits(0)
+        self.builder.get_object('centre-spot-time-adj').configure(0,0,999,1,0,0)
+        self.builder.get_object('centre-spot-time').set_value(0)
         self.builder.get_object('cornerlock-threshold').set_digits(0)
         self.builder.get_object('cornerlock-threshold-adj').configure(90,1,99,1,0,0)
         self.builder.get_object('kerfcross-override').set_digits(0)
@@ -63,14 +66,21 @@ class HandlerClass:
         self.builder.get_object('max-offset-velocity-in').set_label(str(int(self.thcFeedRate)))
         self.builder.get_object('ohmic-max-attempts').set_digits(0)
         self.builder.get_object('ohmic-max-attempts-adj').configure(0,0,10,1,0,0)
+        self.builder.get_object('ohmic-max-attempts').set_value(0)
         self.builder.get_object('pid-p-gain').set_digits(0)
-        self.builder.get_object('pid-p-gain-adj').configure(25,0,1000,1,0,0)
+        self.builder.get_object('pid-p-gain-adj').configure(10,0,1000,1,0,0)
         self.builder.get_object('pid-i-gain').set_digits(0)
         self.builder.get_object('pid-i-gain-adj').configure(0,0,1000,1,0,0)
+        self.builder.get_object('pid-i-gain').set_value(0)
         self.builder.get_object('pid-d-gain').set_digits(0)
         self.builder.get_object('pid-d-gain-adj').configure(0,0,1000,1,0,0)
+        self.builder.get_object('pid-d-gain').set_value(0)
+        self.builder.get_object('scribe-arm-delay').set_digits(1)
+        self.builder.get_object('scribe-arm-delay-adj').configure(0,0,9,0.1,0,0)
+        self.builder.get_object('scribe-start-delay').set_digits(1)
+        self.builder.get_object('scribe-start-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-delay').set_digits(1)
-        self.builder.get_object('thc-delay-adj').configure(0,0,9,0.1,0,0)
+        self.builder.get_object('thc-delay-adj').configure(1.5,0,9,0.1,0,0)
         self.builder.get_object('thc-threshold').set_digits(2)
         self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         self.builder.get_object('torch-off-delay').set_digits(1)
@@ -92,6 +102,7 @@ class HandlerClass:
             self.builder.get_object('setup-feed-rate-adj').configure(int(self.thcFeedRate * 0.8),1,self.thcFeedRate,1,0,0)
             self.builder.get_object('skip-ihs-distance').set_digits(0)
             self.builder.get_object('skip-ihs-distance-adj').configure(0,0,999,1,0,0)
+            self.builder.get_object('skip-ihs-distance').set_value(0)
         elif self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
             self.builder.get_object('float-switch-travel').set_digits(3)
             self.builder.get_object('float-switch-travel-adj').configure(0.06,0,1,0.001,0,0)
@@ -109,6 +120,7 @@ class HandlerClass:
             self.builder.get_object('setup-feed-rate-adj').configure(int(self.thcFeedRate * 0.8),.1,self.thcFeedRate,.1,0,0)
             self.builder.get_object('skip-ihs-distance').set_digits(1)
             self.builder.get_object('skip-ihs-distance-adj').configure(0,0,99,.1,0,0)
+            self.builder.get_object('skip-ihs-distance').set_value(0)
         else:
             print '*** incorrect [TRAJ]LINEAR_UNITS in ini file'
 
@@ -208,6 +220,7 @@ class HandlerClass:
             self.configDict[item] = '0'
         convertFile = False
         if os.path.exists(self.configFile):
+            self.upgrade_check()
             try:
                 tmpDict = {}
                 with open(self.configFile, 'r') as f_in:
@@ -256,6 +269,7 @@ class HandlerClass:
                 f_out.write('version=0.1\n\n')
                 for key in sorted(self.configDict.iterkeys()):
                     if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                        self.builder.get_object(key).update()
                         value = self.builder.get_object(key).get_value()
                         f_out.write(key + '=' + str(value) + '\n')
                     elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
@@ -268,36 +282,51 @@ class HandlerClass:
             print('*** error opening {}'.format(self.configFile))
 
     def upgrade_check(self):
-        if os.path.exists(self.configFile):
-            with open(self.configFile, 'r') as f_in:
+        with open(self.configFile, 'r') as f_in:
+            for line in f_in:
+                if line.startswith('version=0.1'):
+                    return
+                elif line.startswith('arc-fail-delay'):
+                    break
+                elif line.startswith('arc-max-starts'):
+                    return
+        with open(self.configFile, 'r') as f_in:
+            contents = f_in.readlines()
+        contents[0] = '# plasmac config tab configuration file\n'
+        contents[1] = '# format is: name = value\n'
+        contents.insert(3, 'version=0.1\n\n')
+        runFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
+        if os.path.exists(runFile):
+            with open(runFile, 'r') as f_in:
                 for line in f_in:
-                    if line.startswith('version=0.1'):
-                        return
-                    elif line.startswith('arc-fail-delay'):
-                        break
-                    elif line.startswith('arc-max-starts'):
-                        return
-            with open(self.configFile, 'r') as f_in:
-                contents = f_in.readlines()
-            contents[0] = '# plasmac config tab configuration file\n'
-            contents[1] = '# format is: name = value\n'
-            contents.insert(3, 'version=0.1\n\n')
-            runFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
-            if os.path.exists(runFile):
-                with open(runFile, 'r') as f_in:
-                    for line in f_in:
-                        if line.startswith('cornerlock-threshold') or \
-                           line.startswith('kerfcross-override') or \
-                           line.startswith('pid-p-gain') or \
-                           line.startswith('thc-delay') or \
-                           line.startswith('thc-threshold'):
-                            contents.append(line)
-                f_out = open(self.configFile, 'w')
-                f_out.writelines(contents)
-            else:
-                print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
+                    if line.startswith('cornerlock-threshold') or \
+                       line.startswith('kerfcross-override') or \
+                       line.startswith('pid-p-gain') or \
+                       line.startswith('thc-delay') or \
+                       line.startswith('thc-threshold'):
+                        contents.append(line)
+            f_out = open(self.configFile, 'w')
+            f_out.writelines(contents)
         else:
-            print('*** plasmac config tab configuration file, {} is invalid ***'.format(self.configFile))
+            print('*** plasmac run tab configuration file, {} is invalid ***'.format(runFile))
+
+    def check_hal_connections(self):
+        level = int(self.i.find('TRAJ', 'SPINDLES')) or 1
+        if hal.get_value('plasmac.multi-tool'):
+            if level >= 2:
+                hal.new_sig('plasmac:scribe-is-on',hal.HAL_BIT)
+                hal.connect('spindle.1.on','plasmac:scribe-is-on')
+                hal.connect('plasmac.scribe-on','plasmac:scribe-is-on')
+            if level == 3:
+                hal.new_sig('plasmac:centre-spot-is-on',hal.HAL_BIT)
+                hal.connect('spindle.2.on','plasmac:centre-spot-is-on')
+                hal.connect('plasmac.centre-spot-on','plasmac:centre-spot-is-on')
+
+    def idle_changed(self, halpin):
+        if not halpin.get():
+            for key in sorted(self.configDict.iterkeys()):
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
@@ -306,6 +335,9 @@ class HandlerClass:
         hal_glib.GPin(halcomp.newpin('config-disable', hal.HAL_BIT, hal.HAL_IN))
         configDisable = self.i.find('PLASMAC', 'CONFIG_DISABLE') or '0'
         hal.set_p('plasmac_config.config-disable',configDisable)
+        self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
+        hal.connect('plasmac_config.program-is-idle', 'plasmac:program-is-idle') 
+        self.idlePin.connect('value-changed', self.idle_changed)
         self.thcFeedRate = (float(self.i.find('AXIS_Z', 'MAX_VELOCITY')) * \
                               float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_config.cfg'
@@ -316,9 +348,9 @@ class HandlerClass:
         self.maxHeight = hal.get_value('ini.z.max_limit') - hal.get_value('ini.z.min_limit')
         self.configure_widgets()
         self.builder.get_object('probe-feed-rate-adj').set_upper(self.builder.get_object('setup-feed-rate').get_value())
-        self.upgrade_check()
         self.load_settings()
         self.set_theme()
+        self.check_hal_connections()
         gobject.timeout_add(100, self.periodic)
 
 def get_handlers(halcomp,builder,useropts):

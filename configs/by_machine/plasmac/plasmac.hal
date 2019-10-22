@@ -1,5 +1,5 @@
 # do not change the contents of this file as it will be overwiten by updates
-# make custom changes in {machinename}_connections.hal
+# make custom changes in <machinename>_connections.hal
 
 #***** PLASMAC COMPONENT *****
 loadrt  plasmac
@@ -22,6 +22,8 @@ net plasmac:spindle-is-on        spindle.0.on                    =>  plasmac.spi
 net plasmac:thc_disable          motion.digital-out-02           =>  plasmac.thc-disable
 net plasmac:torch-off            motion.digital-out-03           =>  plasmac.torch-off
 net plasmac:units-per-mm         halui.machine.units-per-mm      =>  plasmac.units-per-mm
+net plasmac:x-offset-counts     plasmac.x-offset-counts          =>  axis.x.eoffset-counts
+net plasmac:y-offset-counts     plasmac.y-offset-counts          =>  axis.y.eoffset-counts
 
 # outputs
 net plasmac:adaptive-feed        plasmac.adaptive-feed           =>  motion.adaptive-feed

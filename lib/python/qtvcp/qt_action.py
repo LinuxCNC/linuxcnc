@@ -21,6 +21,7 @@ class _Lcnc_Action(object):
         self.__class__._instanceNum += 1
         self.cmd = linuxcnc.command()
         self.tmp = None
+        self.prefilter_path = None
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -49,8 +50,17 @@ class _Lcnc_Action(object):
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
 
-    def SET_LIMITS_OVERRIDE(self):
-        self.cmd.override_limits()
+    # if called while on hard limit will set the flag and allow machine on
+    # if called with flag set and now off hard limits - resets the flag
+    def TOGGLE_LIMITS_OVERRIDE(self):
+        if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'''Can Not Reset Limits Override - Still On Hard Limits''')
+        elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
+            self.cmd.override_limits()
+        else:
+            STATUS.emit('error',linuxcnc.OPERATOR_TEXT,'Hard Limits Are Reset To Active!')
+            self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MDI)
@@ -62,18 +72,26 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
-    def CALL_MDI_WAIT(self, code):
-        log.debug('MDI_WAIT_COMMAND= {}'.format(code))
+    def CALL_MDI_WAIT(self, code, time = 5):
+        log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
         self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
+            log.debug('MDI_COMMAND: {}'.format(l))
             self.cmd.mdi( l )
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR:
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
+                self.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
+                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error',result[0],result[1])
-                log.error('MDI_COMMAND_WAIT Error: {}'.format(result[1]))
+                log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
         return 0
 
@@ -88,15 +106,19 @@ class _Lcnc_Action(object):
         for code in(mdi_list):
             self.cmd.mdi('%s'% code)
 
-    def CALL_OWORD(self, code):
+    def CALL_OWORD(self, code, time=5 ):
         log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(code)
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
                         STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR :
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.error('Oword timeout oast () Error = # {}'.format(time, result))
+                self.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
                 log.error('Oword RCS Error = # {}'.format(result))
                 return -1
             result = linuxcnc.error_channel().poll()
@@ -105,7 +127,7 @@ class _Lcnc_Action(object):
                 log.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
-        result = self.cmd.wait_complete()
+        result = self.cmd.wait_complete(time)
         if result == -1 or result == linuxcnc.RCS_ERROR or linuxcnc.error_channel().poll():
             log.error('Oword RCS Error = # {}'.format(result))
             return -1
@@ -122,6 +144,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
 
     def OPEN_PROGRAM(self, fname):
+        self.prefilter_path = str(fname)
         self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
@@ -173,11 +196,21 @@ class _Lcnc_Action(object):
         self.RELOAD_DISPLAY()
 
     def RUN(self, line=0):
-        self.ensure_mode(linuxcnc.MODE_AUTO)
-        if STATUS.is_auto_paused() and line ==0:
+        if not STATUS.is_auto_mode():
+            self.ensure_mode(linuxcnc.MODE_AUTO)
+        if STATUS.is_auto_paused() and line == 0:
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
-        self.cmd.auto(linuxcnc.AUTO_RUN,line)
+        elif not STATUS.is_auto_running():
+            self.cmd.auto(linuxcnc.AUTO_RUN,line)
+
+    def STEP(self):
+        if STATUS.is_auto_running() and not STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+            return
+        if STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_STEP)
+            return
 
     def ABORT(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -339,7 +372,19 @@ class _Lcnc_Action(object):
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
-        subprocess.call('''gnome-session-quit --power-off''', shell=True)
+        try:
+            try:
+                subprocess.call('gnome-session-quit --power-off',shell=True)
+            except:
+                try:
+                    subprocess.call('xfce4-session-logout', shell=True)
+                except:
+                    try:
+                        subprocess.call('systemctl poweroff', shell=True)
+                    except:
+                        raise
+        except Exception as e:
+            log.warning("Couldn't shut system down: {}".format(e))
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
@@ -380,7 +425,7 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
-        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
+        log.debug('Opening filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))

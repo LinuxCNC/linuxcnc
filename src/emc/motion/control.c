@@ -1016,15 +1016,15 @@ static void handle_jjogwheels(void)
             reportError("Can't wheel jog locking joint_num=%d",joint_num);
             continue;
         }
-        if (joint->home_sequence < 0) {
+        if (get_home_is_synchronized(joint_num)) {
             if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                 "Homing is REQUIRED to wheel jog requested coordinate\n"
-                "because joint (%d) in home_sequence is negative (%d)\n"
+                "because joint (%d) home_sequence is synchronized (%d)\n"
                 ,joint_num,joint->home_sequence);
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                "Cannot wheel jog joint %d because home_sequence is negative (%d)\n"
+                "Cannot wheel jog joint %d because home_sequence synchronized (%d)\n"
                 ,joint_num,joint->home_sequence);
             }
             continue;

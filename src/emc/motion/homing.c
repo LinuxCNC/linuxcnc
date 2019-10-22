@@ -968,6 +968,7 @@ void do_homing(void)
 		SET_JOINT_HOMING_FLAG(joint, 0);
 		SET_JOINT_HOMED_FLAG(joint, 0);
 		SET_JOINT_AT_HOME_FLAG(joint, 0);
+		joint_in_sequence[joint_num]=0;
 		joint->free_tp.enable = 0;
 		joint->home_state = HOME_IDLE;
 		joint->index_enable = 0;
@@ -995,4 +996,23 @@ void do_homing(void)
 	    emcmotStatus->homing_active = 0;
 	}
     }
+}
+
+int get_home_is_synchronized(int jno) {
+    int joint_num;
+    emcmot_joint_t *joint;
+    joint = &joints[jno];
+    int jno_sequence = joint->home_sequence;
+
+    if (jno_sequence < 0)  { return 1;}
+
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        if (joint_num == jno) continue;
+        joint = &joints[joint_num];
+        if (   (joint->home_sequence < 0)
+            && (ABS(joint->home_sequence) == jno_sequence) )  {
+            return 1;
+        }
+    }
+    return 0;
 }

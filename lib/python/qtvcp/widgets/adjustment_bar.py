@@ -74,7 +74,7 @@ class HAdjustmentBar(QWidget):
         self.step = 1
         self.hi_value = 100
         self.low_value = 50
-        self.timer_value = 25
+        self.timer_value = 100
         self.texttemplate = 'Value =  %s'
         self.timer = QBasicTimer()
         self.showToggleButton = True
@@ -184,6 +184,9 @@ class HAdjustmentBar(QWidget):
             self.low_value = data
         self.bar.setMinimum(data)
 
+    def setStep(self, data):
+        self.step = data
+
 class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def __init__(self, parent=None):
         super(StatusAdjustmentBar, self).__init__(parent)
@@ -193,6 +196,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.spindle = False
         self.jograte = False
         self.jograte_angular = False
+        self.maxv = False
         self.texttemplate = 'Value =  %s'
 
     # self.PREFS_
@@ -225,6 +229,9 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
             print int(INFO.MAX_ANGULAR_JOG_VEL)
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
+        elif self.maxv:
+            STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(int(INFO.MAX_TRAJ_VELOCITY))
         else:
            LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
 
@@ -254,6 +261,8 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             ACTION.SET_JOG_RATE(value)
         elif self.jograte_angular:
             ACTION.SET_JOG_RATE_ANGULAR(value)
+        elif self.maxv:
+            ACTION.SET_MAX_VELOCITY_RATE(value)
         else:
            LOG.error('{} no action recognised'.format(self.HAL_NAME_))
     #########################################################################
@@ -265,7 +274,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular')
+        data = ('rapid', 'feed', 'spindle', 'jograte', 'jograte_angular', 'maxv')
 
         for i in data:
             if not i == picked:
@@ -316,6 +325,15 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def resetjograteangular(self):
         self.jograte_angular = False
 
+    def setmaxv(self, data):
+        self.maxv = data
+        if data:
+            self._toggle_properties('maxv')
+    def getmaxv(self):
+        return self.maxv
+    def resetmaxv(self):
+        self.maxv = False
+
     def setshowtoggle(self, data):
         self.showToggleButton = data
     def getshowtoggle(self):
@@ -340,14 +358,24 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
     def resettexttemplate(self):
         self.texttemplate = 'Value = %s'
 
+    def setsteprate(self, data):
+        self.step = data
+    def getsteprate(self):
+        return self.step
+    def resetsteprate(self):
+        self.steprate = 1
+
     rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
     spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)
     jograte_rate = pyqtProperty(bool, getjograte, setjograte, resetjograte)
     jograte_angular_rate = pyqtProperty(bool, getjograteangular, setjograteangular, resetjograteangular)
+    max_velocity_rate = pyqtProperty(bool, getmaxv, setmaxv, resetmaxv)
     show_toggle_button = pyqtProperty(bool, getshowtoggle, setshowtoggle, resetshowtoggle)
     show_setting_menu = pyqtProperty(bool, getsettingmenu, setsettingmenu, resetsettingmenu)
+
     text_template = pyqtProperty(str, gettexttemplate, settexttemplate, resettexttemplate)
+    step_rate = pyqtProperty(int, getsteprate, setsteprate, resetsteprate)
 
     ##############################
     # required class boiler code #

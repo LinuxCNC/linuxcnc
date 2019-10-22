@@ -181,6 +181,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <property name="zero_axis_action" stdset="0">
       <bool>true</bool>
      </property>
+     <property name="zero_g5x_action" stdset="0">
+      <bool>false</bool>
+     </property>
      <property name="joint_number" stdset="0">
       <number>0</number>
      </property>
@@ -1207,6 +1210,41 @@ Origion Zero</string>
         <string>G53 G0 X0Y0Z0</string>
        </property>
       </widget>
+      <widget class="ActionButton" name="actionbutton_38">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>286</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Zero G5x</string>
+       </property>
+       <property name="zero_g5x_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_72">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>340</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Zero G92</string>
+       </property>
+       <property name="zero_g5x_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="zero_g92_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_auto">
@@ -1254,7 +1292,7 @@ file</string>
          <x>100</x>
          <y>10</y>
          <width>61</width>
-         <height>61</height>
+         <height>31</height>
         </rect>
        </property>
        <property name="text">
@@ -1850,6 +1888,67 @@ file</string>
         <number>0</number>
        </property>
       </widget>
+      <widget class="ActionButton" name="actionbutton_39">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>50</y>
+         <width>61</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Step</string>
+       </property>
+       <property name="estop_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="run_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="step_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="template_label_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="joint_number" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="incr_imperial_number" stdset="0">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="incr_mm_number" stdset="0">
+        <double>0.025000000000000</double>
+       </property>
+       <property name="incr_angular_number" stdset="0">
+        <double>-1.000000000000000</double>
+       </property>
+       <property name="toggle_float_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="float_num" stdset="0">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="float_alt_num" stdset="0">
+        <double>50.000000000000000</double>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>P</string>
+       </property>
+       <property name="command_text_string" stdset="0">
+        <string/>
+       </property>
+       <property name="ini_mdi_number" stdset="0">
+        <number>0</number>
+       </property>
+       <property name="textTemplate" stdset="0">
+        <string>%1.3f in</string>
+       </property>
+       <property name="alt_textTemplate" stdset="0">
+        <string>%1.2f mm</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>
@@ -2424,6 +2523,41 @@ View</string>
      </property>
      <property name="checkable">
       <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="StatusLabel" name="statuslabel_3">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>170</y>
+       <width>111</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#f6f80a;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#f6f80a;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="machine_state_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>170</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Intepeter State:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>
@@ -3301,6 +3435,9 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
             <width>200</width>
             <height>200</height>
            </size>
+          </property>
+          <property name="auto_show_manual_status" stdset="0">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

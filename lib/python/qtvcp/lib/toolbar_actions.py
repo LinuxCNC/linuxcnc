@@ -38,8 +38,9 @@ _DIALOG = Dialog()
 CONFIGDIR = os.environ['CONFIG_DIR']
 
 class ToolBarActions():
-    def __init__(self, path=None):
-        self.path = path
+    def __init__(self, widgetInstance=None):
+        self.qtvcpWidgets = widgetInstance
+        self._recentActionWidget = None
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
@@ -207,6 +208,10 @@ class ToolBarActions():
             function = (self.actOnQuit)
         elif action == 'system_shutdown':
             function = (self.actOnSystemShutdown)
+        elif action == 'tooloffsetdialog':
+            function = (self.actOnToolOffsetDialog)
+        elif action == 'originoffsetdialog':
+            function = (self.actOnOriginOffsetDialog)
 
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
@@ -240,12 +245,14 @@ class ToolBarActions():
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             self.addUnHomeActions(widget)
         elif submenu == 'recent_submenu':
+            self._recentActionWidget = widget
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecentPaths(widget, d))
+            self.addRecentPaths()
         elif submenu == 'zero_systems_submenu':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -358,7 +365,16 @@ class ToolBarActions():
         STATUS.emit('shutdown')
 
     def actOnSystemShutdown(self, widget, state=None):
-        ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+        if 'system_shutdown_request__' in dir(self.qtvcpWidgets):
+            # do whatever the handler file's function requires
+            self.qtvcpWidgets.system_shutdown_request__()
+            # make sure to close qtvcp/linuxcnc properly
+            # screenoptions widget redirects the close function to add a prompt
+            # now we re-redirect to remove the prompt 
+            self.qtvcpWidgets.closeEvent = self.qtvcpWidgets.originalCloseEvent_
+            self.qtvcpWidgets.close()
+        else:
+            ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
     def actOnAbout(self,widget, state=None):
         msg = QtWidgets.QMessageBox()
@@ -382,6 +398,12 @@ class ToolBarActions():
     def actOnRunFromLine(self, widget, state=False):
         ACTION.RUN(self.selected_line)
 
+    def actOnToolOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
+
+    def actOnOriginOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
+
     #########################################################
     # Sub menus
     #########################################################
@@ -395,7 +417,8 @@ class ToolBarActions():
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
             homeAct = QtWidgets.QAction('Home %s'%i, widget)
-            homeAct.triggered.connect(lambda: home(conversion[i]))
+            # weird lambda i=i to work around 'function closure'
+            homeAct.triggered.connect(lambda state, i=i: home(conversion[i]))
             widget.addAction(homeAct)
 
     def addUnHomeActions(self,widget):
@@ -408,7 +431,8 @@ class ToolBarActions():
         widget.addAction(homeAct)
         for i in INFO.AVAILABLE_AXES:
             homeAct = QtWidgets.QAction('Unhome %s'%i, widget)
-            homeAct.triggered.connect(lambda: unHome(conversion[i]))
+            # weird lambda i=i to work around 'function closure'
+            homeAct.triggered.connect(lambda state, i=i: unHome(conversion[i]))
             widget.addAction(homeAct)
 
     def addZeroSystemsActions(self, widget):
@@ -450,7 +474,7 @@ class ToolBarActions():
 
 
 
-    def updateRecent(self, widget, filename):
+    def updateRecentPaths(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 
@@ -480,3 +504,16 @@ class ToolBarActions():
             widget.removeAction(alist[self.maxRecent])
         else:
             self.recentNum +=1
+
+    def addRecentPaths(self):
+        if self._recentActionWidget is not None and self.qtvcpWidgets.PREFS_ is not None:
+            for num in range(self.maxRecent,-1,-1):
+                path_string = self.qtvcpWidgets.PREFS_.getpref('RecentPath_%d'% num, None, str, 'BOOK_KEEPING')
+                if not path_string in ('None', None):
+                    self.updateRecentPaths(self._recentActionWidget,path_string)
+
+    def saveRecentPaths(self):
+        if self._recentActionWidget is not None and self.qtvcpWidgets.PREFS_ is not None:
+            for num, i in enumerate(self._recentActionWidget.actions()):
+                self.qtvcpWidgets.PREFS_.putpref('RecentPath_%d'% num, i.text(), str, 'BOOK_KEEPING')
+

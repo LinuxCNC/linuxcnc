@@ -239,7 +239,7 @@ Called By: external programs
 
 int Interp::close()
 {
-    logOword("close()");
+    logOword("Interp::close()");
     // be "lazy" only if we're not aborting a call in progress
     // in which case we need to reset() the call stack
     // this does not reset the filename properly 
@@ -1763,7 +1763,10 @@ int Interp::reset()
     _setup.linetext[0] = 0;
     _setup.blocktext[0] = 0;
     _setup.line_length = 0;
-
+    
+    // drop any queued points in canon
+    ON_RESET();
+    
     unwind_call(INTERP_OK, __FILE__,__LINE__,__FUNCTION__);
     return INTERP_OK;
 }
@@ -2509,8 +2512,9 @@ int Interp::on_abort(int reason, const char *message)
     _setup.probe_flag = false;
     _setup.input_flag = false;
 
-    if (_setup.on_abort_command == NULL)
+    if (_setup.on_abort_command == NULL) {
 	return -1;
+    }
 
     char cmd[LINELEN];
 

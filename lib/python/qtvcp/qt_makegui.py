@@ -6,7 +6,7 @@ import traceback
 import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
-#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -81,6 +81,14 @@ class MyWindow(QtWidgets.QMainWindow):
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
+        self.originalCloseEvent_ = self.closeEvent
+        self._halWidgetList = []
+
+    def registerHalWidget(self, widget):
+        self._halWidgetList.append(widget)
+
+    def getRegisteredHalWidgetList(self):
+        return self._halWidgetList
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):

@@ -14,14 +14,14 @@ from qtvcp.lib import xembed
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-log = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
+LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
 
 # If log_file is none, logger.py will attempt to find the log file specified in
 # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
 
 # Note: In all other modules it is best to use the `__name__` attribute
 #   to ensure we get a logger with the correct hierarchy.
-#   Ex: log = logger.getLogger(__name__)
+#   Ex: LOG = logger.getLogger(__name__)
 
 STATUS = Status()
 INFO = Info()
@@ -56,6 +56,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 # IMAGEDIR is for icons
 class Paths():
     def __init__(self,filename, isscreen = True):
+        self.PREFS_FILENAME = None
         self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen
         if isscreen:
@@ -71,7 +72,7 @@ class Paths():
         self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
         # PyQt's .ui file's basename 
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
-        log.debug('BASENAME {}'.format(self.BASENAME))
+        LOG.debug('BASENAME {}'.format(self.BASENAME))
         # python library directory
         self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
         sys.path.insert(0, self.LIBDIR)
@@ -89,21 +90,21 @@ class Paths():
                     local_handler_path = os.path.join(root, handler_fn)
                     break
         else:
-            local_handler_path = os.path.join(self.WORKINGDIR, self.BASENAME, handler_fn)
+            local_handler_path = os.path.join(self.WORKINGDIR, handler_fn)
             default_handler_path = os.path.join(self.PANELDIR, self.BASENAME, handler_fn)
-        log.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
+        LOG.debug("Checking for handler file in: yellow<{}>".format(local_handler_path))
 
         if os.path.exists(local_handler_path):
             self.HANDLER = local_handler_path
-            log.info("Using specified handler file path: yellow<{}>".format(self.HANDLER))
+            LOG.info("Using specified handler file path: yellow<{}>".format(self.HANDLER))
         else:
-            log.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
+            LOG.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 self.HANDLER = default_handler_path
-                log.info("Using default handler file path: yellow<{}>".format(self.HANDLER))
+                LOG.info("Using default handler file path: yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
-                log.info("No handler file found")
+                LOG.info("No handler file found")
 
         # look for custom ui file
         ui_fn = "{}.ui".format(self.BASENAME)
@@ -115,43 +116,48 @@ class Paths():
                     localui = os.path.join(root, ui_fn)
                     break
         else:
-            localui = os.path.join(self.WORKINGDIR, self.BASENAME, ui_fn)
+            localui = os.path.join(self.WORKINGDIR, ui_fn)
             defaultui = os.path.join(self.PANELDIR, self.BASENAME, ui_fn)
-        log.debug("Checking for .ui in: yellow<{}>".format(localui))
+        LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
-            log.info("Using specified ui file from yellow<{}>".format(localui))
+            LOG.info("Using specified ui file from yellow<{}>".format(localui))
             self.XML = localui
         else:
-            log.debug("Checking for .ui in: yellow<{}>".format(defaultui))
+            LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                log.info("Using DEFAULT ui file from yellow<{}>".format(defaultui))
+                LOG.info("Using DEFAULT ui file from yellow<{}>".format(defaultui))
                 self.XML = defaultui
             else:
                 # error
                 self.XML = None
-                log.critical("No UI file found")
+                LOG.critical("No UI file found")
                 sys.exit(0)
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASENAME)
-        defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
-        localqss = 'None Found'
-        for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
-            if qss_fn in(files):
-                localqss = os.path.join(root, qss_fn)
-                break
-        log.debug("Checking for .qss in: yellow<{}>".format(localqss))
+        if self.IS_SCREEN:
+            defaultqss = os.path.join(self.SCREENDIR, self.BASENAME, qss_fn)
+            localqss = 'None Found'
+            for (root,dirs,files) in os.walk(self.CONFIGPATH, topdown=True):
+                if qss_fn in(files):
+                    localqss = os.path.join(root, qss_fn)
+                    break
+        else:
+            localqss = os.path.join(self.WORKINGDIR, qss_fn)
+            defaultqss = os.path.join(self.PANELDIR, self.BASENAME, qss_fn)
+
+        LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
         if os.path.exists(localqss):
-            log.info("Using specified qss file from yellow<{}>".format(localqss))
+            LOG.info("Using specified qss file from yellow<{}>".format(localqss))
             self.QSS = localqss
         else:
-            log.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
+            LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
-                log.info("Using DEFAULT qss file from yellow<{}>".format(defaultqss))
+                LOG.info("Using DEFAULT qss file from yellow<{}>".format(defaultqss))
                 self.QSS = defaultqss
             else:
                 self.QSS = None
-                log.info("No qss file found")
+                LOG.info("No qss file found")
 
     def add_screen_paths(self):
         # check for a local translation folder
@@ -159,13 +165,13 @@ class Paths():
         if os.path.exists(locallocale):
             self.LOCALEDIR = locallocale
             self.DOMAIN = self.BASENAME
-            log.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
+            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
         else:
             locallocale = os.path.join(self.SCREENDIR,"%s/locale"% self.BASENAME)
             if os.path.exists(locallocale):
                 self.LOCALEDIR = locallocale
                 self.DOMAIN = self.BASENAME
-                log.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
+                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR,self.BASENAME))
             else:
                 self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
                 self.DOMAIN = "linuxcnc"
@@ -201,7 +207,7 @@ class QTVCP:
         # ToDo: pass specific log levels as an argument, or use an INI setting
         if not opts.debug:
             # Log level defaults to DEBUG, so set higher if not debug
-            logger.setGlobalLevel(logger.ERROR)
+            logger.setGlobalLevel(logger.INFO)
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
@@ -211,7 +217,7 @@ class QTVCP:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            log.error('Error in path')
+            LOG.error('Error in path')
             sys.exit()
 
         # set paths using basename
@@ -221,7 +227,7 @@ class QTVCP:
         # Screen specific
         #################
         if INIPATH:
-            log.debug('Building A Linuxcnc Main Screen')
+            LOG.info('green<Building A Linuxcnc Main Screen>')
             import linuxcnc
             # internationalization and localization
             import locale, gettext
@@ -239,7 +245,7 @@ class QTVCP:
 
             # if no handler file specified, use stock test one
             if not opts.usermod:
-                log.info('No handler file specified on command line')
+                LOG.info('No handler file specified on command line')
                 target =  os.path.join(PATH.CONFIGPATH, '%s_handler.py' % PATH.BASENAME)
                 source =  os.path.join(PATH.SCREENDIR, 'tester/tester_handler.py')
                 if PATH.HANDLER is None:
@@ -257,35 +263,35 @@ Pressing cancel will close linuxcnc.""" % target)
                         try:
                             shutil.copy(source, target)
                         except IOError as e:
-                            log.critical("Unable to copy handler file. %s" % e)
+                            LOG.critical("Unable to copy handler file. %s" % e)
                             sys.exit(0)
                         except:
-                            log.critical("Unexpected error copying handler file:", sys.exc_info())
+                            LOG.critical("Unexpected error copying handler file:", sys.exc_info())
                             sys.exit(0)
                         opts.usermod = PATH.HANDLER = target
                     else:
-                        log.critical('No handler file found or specified. User requested stopping')
+                        LOG.critical('No handler file found or specified. User requested stopping')
                 else:
                     opts.usermod = PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
-                log.info('No HAL component base name specified on command line using: {}'.format(PATH.BASENAME))
+                LOG.info('No HAL component base name specified on command line using: {}'.format(PATH.BASENAME))
                 opts.component = PATH.BASENAME
 
         #################
         # VCP specific
         #################
         else:
-            log.debug('Building A VCP Panel')
+            LOG.info('green<Building A VCP Panel>')
             # if no handler file specified, use stock test one
             if not opts.usermod:
-                log.info('No handler file specified - using {}'.format(PATH.HANDLER))
+                LOG.info('No handler file specified - using {}'.format(PATH.HANDLER))
                 opts.usermod = PATH.HANDLER
 
             # specify the HAL component name if missing
             if opts.component is None:
-                log.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
+                LOG.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
                 opts.component = PATH.BASENAME
 
         ##############
@@ -301,7 +307,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.halcomp = hal.component(opts.component)
             self.hal = QComponent(self.halcomp)
         except:
-            log.critical("Asking for a HAL component using a name that already exists?")
+            LOG.critical("Asking for a HAL component using a name that already exists?")
             sys.exit(0)
 
         # initialize the window
@@ -309,13 +315,13 @@ Pressing cancel will close linuxcnc.""" % target)
  
         # load optional user handler file
         if opts.usermod:
-            log.debug('Loading the handler file')
+            LOG.debug('Loading the handler file')
             window.load_extension(opts.usermod)
             # do any class patching now
             if "class_patch__" in dir(window.handler_instance):
                 window.handler_instance.class_patch__()
             # add filter to catch keyboard events
-            log.debug('Adding the key events filter')
+            LOG.debug('Adding the key events filter')
             myFilter = qt_makegui.MyEventFilter(window)
             self.app.installEventFilter(myFilter)
 
@@ -328,20 +334,20 @@ Pressing cancel will close linuxcnc.""" % target)
         # call handler file's initialized function
         if opts.usermod:
             if "initialized__" in dir(window.handler_instance):
-                log.debug('''Calling the handler file's initialized__ function''')
+                LOG.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
         # All Widgets should be added now - synch them to linuxcnc
         STATUS.forced_update()
 
         # User components are set up so report that we are ready
-        log.debug('Set HAL ready')
+        LOG.debug('Set HAL ready')
         self.halcomp.ready()
 
         # embed us into an X11 window (such as AXIS)
         if opts.parent:
             window = xembed.reparent_qt_to_x11(window, opts.parent)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
-            log.critical('Forwarding events to AXIS is not well tested yet')
+            LOG.critical('Forwarding events to AXIS is not well tested yet')
             if forward:
                 xembed.XEmbedFowarding(window, forward)
 
@@ -353,17 +359,17 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # for window resize and or position options
         if "+" in opts.geometry:
-            log.debug('-g option: moving window')
+            LOG.debug('-g option: moving window')
             try:
                 j =  opts.geometry.partition("+")
                 pos = j[2].partition("+")
                 window.move( int(pos[0]), int(pos[2]) )
             except:
-                log.critical("With window position data")
+                LOG.critical("With window position data")
                 parser.print_usage()
                 sys.exit(1)
         if "x" in opts.geometry:
-            log.debug('-g option: resizing')
+            LOG.debug('-g option: resizing')
             try:
                 if "+" in opts.geometry:
                     j =  opts.geometry.partition("+")
@@ -372,7 +378,7 @@ Pressing cancel will close linuxcnc.""" % target)
                     t = window_geometry.partition("x")
                 window.resize( int(t[0]), int(t[2]) )
             except:
-                log.critical("With window resize data")
+                LOG.critical("With window resize data")
                 parser.print_usage()
                 sys.exit(1)
 
@@ -394,7 +400,7 @@ Pressing cancel will close linuxcnc.""" % target)
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
 
-        log.debug('Show window')
+        LOG.debug('Show window')
         # maximize
         if opts.maximum:
             window.showMaximized()
@@ -411,9 +417,11 @@ Pressing cancel will close linuxcnc.""" % target)
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
-        if "before_loop__" in dir(window.handler_instance):
-            log.debug('''Calling the handler file's before_loop__ function''')
+        if opts.usermod and "before_loop__" in dir(window.handler_instance):
+            LOG.debug('''Calling the handler file's before_loop__ function''')
             window.handler_instance.before_loop__()
+
+        LOG.info('Preference path: {}'.format(PATH.PREFS_FILENAME))
         # start loop
         self.app.exec_()
 
@@ -423,7 +431,7 @@ Pressing cancel will close linuxcnc.""" % target)
     # finds the postgui file name and INI file path
     def postgui(self):
         postgui_halfile = INFO.POSTGUI_HALFILE_PATH
-        log.info("postgui filename: yellow<{}>".format(postgui_halfile))
+        LOG.info("postgui filename: yellow<{}>".format(postgui_halfile))
         if postgui_halfile:
             if postgui_halfile.lower().endswith('.tcl'):
                 res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, postgui_halfile])
@@ -450,9 +458,10 @@ Pressing cancel will close linuxcnc.""" % target)
 
         lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
         message = ("Qtvcp encountered an error.  The following "
-                    + "information may be useful in troubleshooting:\n")
+                    + "information may be useful in troubleshooting:\n"
+                    + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
         if ERROR_COUNT > 5:
-            log.critical("Too many errors: {}".format(message))
+            LOG.critical("Too many errors: {}".format(message))
             self.shutdown()
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Critical)
@@ -464,7 +473,7 @@ Pressing cancel will close linuxcnc.""" % target)
         msg.show()
         retval = msg.exec_()
         if retval == 4194304: #cancel button
-            log.critical("Canceled from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
+            LOG.critical("Canceled from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
             self.shutdown()
 
 # starts Qtvcp

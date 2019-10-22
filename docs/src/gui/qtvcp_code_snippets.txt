@@ -11,8 +11,8 @@ under the 'def initialized__(self):' function add:
 ----
         if self.w.PREFS_:
             # variable name                     (entry name, default value, type, section name)
-            self.int_value = self.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
-            self.string_value = self.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
+            self.int_value = self.w.PREFS_.getpref('Integer_value', 75, int, 'CUSTOM_FORM_ENTRIES')
+            self.string_value = self.w.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
 ----
 
 under the 'def closing_cleanup__(self):' function add:
@@ -20,8 +20,8 @@ under the 'def closing_cleanup__(self):' function add:
 ----
         if self.w.PREFS_:
             #                     entry name, variable name, type, section name)
-            self.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
-            self.PREFS_.putpref('String_value', self.string_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.w.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
+            self.w.PREFS_.putpref('String_value', self.string_value, str, 'CUSTOM_FORM_ENTRIES')
 
 ----
 
@@ -80,6 +80,8 @@ In the 'GENERAL FUNCTIONS SECTION'
         STATUS.emit('dialog-request', mess)
 ----
 This is the function to request an entry dialog. +
+NAME needs to be set to the dialogs unique launch name. +
+ID needs to be set to a unique name that the function supplies +
 It creates a python dict. The NAME sets which dialog to request - 'ENTRY' or 'CALCULATOR' allows entering numbers. +
 The ID should be a unique key. TITLE sets the dialog title. You can also add arbitrary data to the dict -+
 the dialog will ignore them but send them back to the return code. +
@@ -89,13 +91,14 @@ In the 'CALLBACKS FROM STATUS SECTION'
 ----
    # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
-        num = message['RETURN']
-        id_code = bool(message['ID'] == 'FORM__')
-        name = bool(message['NAME'] == 'ENTRY')
-        if num is not None and id_code and name:
+        num = message.get('RETURN')
+        id_code = bool(message.get('ID') == 'FORM__NUMBER')
+        name = bool(message.get('NAME') == 'ENTRY')
+        if id_code and name and num is not None:
             print 'The {} number from {} was: {}'.format(name, id_code, num)
 ----
 This catches all general messages so must check the dialog type and id code to confirm it's our dialog. +
+In this case we had requested an 'ENTRY' dialog and our unique id was 'ENTRY_NUMBER', so now we know the message is for us. +
 Entry or Calculator dialogs return a float number. +
 
 == Speak a Startup Greeting
