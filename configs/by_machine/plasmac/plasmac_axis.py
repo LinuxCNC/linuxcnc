@@ -765,60 +765,57 @@ def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
     w(fpausedmotion + '.paused-motion-speed','configure','-from','0','-to','100','-resolution','1')
 
-def consumable_change_setup():
+def consumable_change_setup(ccParm):
+    print('ccParm: {}'.format(ccParm))
     global ccX
     global ccY
     global ccScale
-    ccParm = inifile.find('PLASMAC','BUTTON_1_CODE').replace('change-consumables','').replace(' ','').lower() or None
-    if ccParm:
-        ccX = ccY = ccF = ''
-        X = Y = F = ''
-        ccAxis = [X, Y, F]
-        ccName = ['x', 'y', 'f']
-        for loop in range(3):
-            count = 0
-            if ccName[loop] in ccParm:
-                while 1:
-                    if not ccParm[count]: break
-                    if ccParm[count] == ccName[loop]:
-                        count += 1
-                        break
+    ccX = ccY = ccF = ''
+    X = Y = F = ''
+    ccAxis = [X, Y, F]
+    ccName = ['x', 'y', 'f']
+    for loop in range(3):
+        count = 0
+        if ccName[loop] in ccParm:
+            while 1:
+                if not ccParm[count]: break
+                if ccParm[count] == ccName[loop]:
                     count += 1
-                while 1:
-                    if count == len(ccParm): break
-                    if ccParm[count].isdigit() or ccParm[count] in '.-':
-                        ccAxis[loop] += ccParm[count]
-                    else:
-                        break
-                    count += 1
-                if ccName[loop] == 'x':
-                    ccX = float(ccAxis[loop])
-                elif ccName[loop] == 'y':
-                    ccY = float(ccAxis[loop])
-                elif ccName[loop] == 'f':
-                    ccF = float(ccAxis[loop])
-        if ccX and \
-           (ccX < round(float(inifile.find('AXIS_X', 'MIN_LIMIT')), 6) or \
-           ccX > round(float(inifile.find('AXIS_X', 'MAX_LIMIT')), 6)):
-            print('x out of bounds for consumable change\n')
-            raise SystemExit()
-        if ccY and \
-           (ccY < round(float(inifile.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
-           ccY > round(float(inifile.find('AXIS_Y', 'MAX_LIMIT')), 6)):
-            print('y out of bounds for consumable change\n')
-            raise SystemExit()
-        if not ccF:
-            print('invalid consumable change feed rate\n')
-            raise SystemExit()
-        ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
-        ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
-        hal.set_p('axis.x.eoffset-scale', str(ccScale))
-        hal.set_p('axis.y.eoffset-scale', str(ccScale))   
-        hal.set_p('plasmac.x-y-velocity', str(ccVel))
-        hal.set_p('axis.x.eoffset-enable', '1')
-        hal.set_p('axis.y.eoffset-enable', '1')
-    else:
-        print('consumable change parameters required\n')
+                    break
+                count += 1
+            while 1:
+                if count == len(ccParm): break
+                if ccParm[count].isdigit() or ccParm[count] in '.-':
+                    ccAxis[loop] += ccParm[count]
+                else:
+                    break
+                count += 1
+            if ccName[loop] == 'x' and ccAxis[loop]:
+                ccX = float(ccAxis[loop])
+            elif ccName[loop] == 'y' and ccAxis[loop]:
+                ccY = float(ccAxis[loop])
+            elif ccName[loop] == 'f': and ccAxis[loop]
+                ccF = float(ccAxis[loop])
+    if ccX and \
+       (ccX < round(float(inifile.find('AXIS_X', 'MIN_LIMIT')), 6) or \
+       ccX > round(float(inifile.find('AXIS_X', 'MAX_LIMIT')), 6)):
+        print('x out of bounds for consumable change\n')
+        raise SystemExit()
+    if ccY and \
+       (ccY < round(float(inifile.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
+       ccY > round(float(inifile.find('AXIS_Y', 'MAX_LIMIT')), 6)):
+        print('y out of bounds for consumable change\n')
+        raise SystemExit()
+    if not ccF:
+        print('invalid consumable change feed rate\n')
+        raise SystemExit()
+    ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
+    ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
+    hal.set_p('axis.x.eoffset-scale', str(ccScale))
+    hal.set_p('axis.y.eoffset-scale', str(ccScale))   
+    hal.set_p('plasmac.x-y-velocity', str(ccVel))
+    hal.set_p('axis.x.eoffset-enable', '1')
+    hal.set_p('axis.y.eoffset-enable', '1')
 
 
 
@@ -837,7 +834,11 @@ w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA000
 w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
 for button in range(1,6):
     if 'change-consumables' in inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'):
-        consumable_change_setup()
+        ccParm = inifile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
+        if ccParm:
+            consumable_change_setup(ccParm)
+        else:
+            print ('consumable change parameters required\n')
         break
 wLabels = [\
     fmonitor + '.aVlab',\
