@@ -61,11 +61,15 @@ This section only touches on the I/O required for PlasmaC itself, base machine r
            Connected to the up output of the external THC control
 |Move Down|2|Digital input +
              Connected to the down output of the external THC control
+|Scribe Arming|0,1,2|Digital output +
+                     Connected to air-scribe arming circuit
+|Scribe Start|0,1,2|Digital output +
+                     Connected to air-scribe start circuit
 |===
 
 Only one of either 'float switch' or 'ohmic probe' is required. If both are used then 'float switch' will be a fallback if 'ohmic probe' is not sensed.
 
-If 'ohmic probe' is used then 'ohmic enable' is required.
+If 'ohmic probe' is used then 'ohmic probe enable' is required.
 
 'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, the could be combined and connected as a 'float switch'
 
@@ -546,7 +550,7 @@ See <<axis-display-section, Axis [DISPLAY] Section>> or <<gmoccapy-display-secti
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Ohmic Enable|This is to enable or disable the ohmic probe input.
+|Ohmic Probe Enable|This is to enable or disable the ohmic probe input.
 |===
 
 NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
@@ -1231,6 +1235,22 @@ NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as t
 SPINDLES = 3
 -----
 
+.[AXIS_X] Section
+
+-----
+MAX_VELOCITY     = double the value in the corresponding joint
+MAX_ACCELERATION = double the value in the corresponding joint
+OFFSET_AV_RATIO  = 0.5
+-----
+
+.[AXIS_Y] Section
+
+-----
+MAX_VELOCITY     = double the value in the corresponding joint
+MAX_ACCELERATION = double the value in the corresponding joint
+OFFSET_AV_RATIO  = 0.5
+-----
+
 .[AXIS_Z] Section
 
 -----
@@ -1240,7 +1260,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 -----
 
-PlasmaC relies on the External Offsets feature for all Z axis motion, for more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the Linuxcnc documentation.
+NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused, for more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the Linuxcnc documentation.
 
 === Axis GUI Specific
 
@@ -1257,18 +1277,19 @@ MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 .[DISPLAY] Section
 
 -----
-TOOL_EDITOR       = tooledt x y
+TOOL_EDITOR       = tooledit x y
 USER_COMMAND_FILE = plasmac_axis.py.py
 EMBED_TAB_NAME    = Statistics
 EMBED_TAB_COMMAND = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
-use one of the next two
 
-run frame in tab behind preview
+#use one of the next two
+
+#run frame in tab behind preview
 EMBED_TAB_NAME    = Plasma Run
 EMBED_TAB_COMMAND = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 
-run frame in panel on left side
-GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
+#run frame in panel on left side
+#GLADEVCP = -c plasmac_run -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
 EMBED_TAB_NAME    = Plasma Config
 EMBED_TAB_COMMAND = gladevcp -c plasmac_config -x <XID> -u ./plasmac_config.py -H plasmac_config.hal plasmac_config.glade
@@ -1297,13 +1318,13 @@ EMBED_TAB_LOCATION = ntb_preview
 EMBED_TAB_COMMAND  = gladevcp -c plasmac_stats -x <XID> -u ./plasmac_stats.py -H ./plasmac_stats.hal plasmac_stats.glade
 EMBED_TAB_NAME     = Plasma Run
 
-use one of the next two
+#use one of the next two
 
-run panel in tab behind preview
+#run panel in tab behind preview
 EMBED_TAB_LOCATION  = ntb_preview
 EMBED_TAB_COMMAND   = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_tab.glade
 
-run panel in panel on left side
+#run panel in panel on left side
 #EMBED_TAB_LOCATION = box_left
 #EMBED_TAB_COMMAND  = gladevcp -c plasmac_run -x <XID> -u ./plasmac_run.py -H plasmac_run.hal plasmac_run_panel.glade
 
@@ -1378,11 +1399,11 @@ To run an existing subroutine.
 BUTTON_n_CODE = o<my_subroutine> call
 ----
 
-.ini file variables can be entered by using <> (you must put a space after the >)
+.ini file variables can be entered by using {} (you must put a space after the })
 
 ----
-BUTTON_n_CODE = G0 X<JOINT_0 HOME> Y1
-BUTTON_n_CODE = G53 G0 Z[<AXIS_Z MAX_LIMIT> - 1.001]
+BUTTON_n_CODE = G0 X{JOINT_0 HOME} Y1
+BUTTON_n_CODE = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
 ----
 
 Multiple codes can be run by separating the codes with a \
@@ -1415,7 +1436,7 @@ PlasmaC will begin a probe and when the probe is detected, the Z axis will rise 
 BUTTON_n_CODE = ohmic-test
 ----
 
-PlasmaC will enable the Ohmic Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
+PlasmaC will enable the Ohmic Probe Enable and if the ohmic probe is sensed, the LED indicator in the monitor panel will light. The main purpose of this is to allow a quick test for a shorted torch tip.
 
 [[button-cut]]
 
