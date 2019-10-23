@@ -794,7 +794,7 @@ def consumable_change_setup(ccParm):
                 ccX = float(ccAxis[loop])
             elif ccName[loop] == 'y' and ccAxis[loop]:
                 ccY = float(ccAxis[loop])
-            elif ccName[loop] == 'f': and ccAxis[loop]
+            elif ccName[loop] == 'f' and ccAxis[loop]:
                 ccF = float(ccAxis[loop])
     if ccX and \
        (ccX < round(float(inifile.find('AXIS_X', 'MIN_LIMIT')), 6) or \
