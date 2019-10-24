@@ -167,18 +167,14 @@ FUNCTION(_){
         i = 0;
         pow = 1;
         while (i < inst_sense){
-            if (i < inst_sense) d += sense(i) << (i % 4);
-            i++;
-            if (i < inst_sense) d += sense(i) << (i % 4);
-            i++;
-            if (i < inst_sense) d += sense(i) << (i % 4);
-            i++;
-            if (i < inst_sense) d += sense(i) << (i % 4);
-            i++;
+            int lim;
+            d = 0;
+            for (lim = i + 4; i < lim && i < inst_sense; i++) {
+                d += sense(i) << (i % 4);
+                pcalc ^= sense(i);
+            }
             p += d * pow;
             pow *= 10;
-            d = 0;
-        pcalc ^= sense(i);
         }
         break;
     case 'S': // individual sensors
