@@ -1427,7 +1427,11 @@ different program to copy to your configuration file.\nThe edited program will b
         self.t.oloop_resetencoder(1)
     def on_resetbutton_released(self, w):
         self.t.oloop_resetencoder(0)
-
+######################
+# mesa_discovery interface dialog
+######################
+    def on_discovery_interface_combobox_changed(self,w):
+        self.a.discovery_interface_combobox_changed(w)
 # BOILER CODE
     def __getitem__(self, item):
         return getattr(self, item)

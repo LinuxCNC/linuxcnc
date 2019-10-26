@@ -315,6 +315,30 @@ class App:
 
 # helper functions
 
+    def get_discovery_meta(self):
+        self.widgets.boarddiscoverydialog.set_title(_("Discovery metadata update"))
+        #self.widgets.cardname_label.set_text('Boardname:  %s'%name)
+        self.widgets.boarddiscoverydialog.show_all()
+        self.widgets.window1.set_sensitive(0)
+        result = self.widgets.boarddiscoverydialog.run()
+        self.widgets.boarddiscoverydialog.hide()
+        self.widgets.window1.set_sensitive(1)
+        if result == gtk.RESPONSE_OK:
+            n = self.widgets.discovery_name_entry.get_text()
+            itr = self.widgets.discovery_interface_combobox.get_active_iter()
+            d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
+            a = self.widgets.discovery_address_entry.get_text()
+        print 'discovery:',n,d,a
+        return n,d,a
+
+    def discovery_interface_combobox_changed(self,w):
+        itr = w.get_active_iter()
+        d = w.get_model().get_value(itr, 1)
+        if d == '--addr':
+            self.widgets.discovery_address_entry.set_sensitive(True)
+        else:
+            self.widgets.discovery_address_entry.set_sensitive(False)
+
     def get_board_meta(self, name):
         name = name.lower()
         meta = _PD.MESA_BOARD_META.get(name)
@@ -1144,12 +1168,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return temp
 
     def discover_mesacards(self):
-        name = self.query_dialog('Discovery Search','Specify device name')
+        name, interface, address = self.get_discovery_meta()
         if name is None: return
         print 'try to discover board:',name
         if not name:
             name = '5i25'
-        info = self.call_mesaflash(name)
+        info = self.call_mesaflash(name,interface,address)
         print 'INFO:',info,'<-'
         if info is None: return None
         lines = info.splitlines()
@@ -1170,12 +1194,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return None
         return info
 
-    def call_mesaflash(self, devicename):
-        print 'DEVICE NAME SPECIFIED',devicename
+    def call_mesaflash(self, devicename, interface, address):
+        if address == ' ':
+            address = None
+        textbuffer = self.widgets.textoutput.get_buffer()
+        print 'DEVICE NAME SPECIFIED',devicename, interface, address
+
         # 7i43 needs it's firmware loaded before it can be 'discovered'
         if '7i43' in devicename.lower():
-            devicename = '7i43 --epp'
-
             halrun = os.popen("halrun -Is > /dev/null", "w")
             halrun.write("echo\n")
             load,read,write = self.hostmot2_command_string()
@@ -1185,19 +1211,28 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             halrun.flush()
             time.sleep(.001)
             halrun.close()
-        elif '7i90' in devicename.lower():
-            devicename = '7i90 --epp'
+        if interface == '--addr' and address:
+            board_command = ' -- device %s %s %s' %(devicename, interface, address)
+        elif interface == '--epp':
+            board_command = ' -- device %s %s' %(devicename, interface)
+        else:
+            board_command = ' -- device %s' %(devicename)
 
-        cmd ="""gksudo "sh -c 'mesaflash --device %s';'mesaflash --device %s --sserial';'mesaflash --device %s --readhmid' " """%(devicename,devicename,devicename)
+        cmd ="""gksudo "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
         #cmd ="""  mesaflash --device %s;mesaflash --device %s --sserial;mesaflash --device %s --readhmid  """%(devicename,devicename,devicename)
 
-        discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )
-        output = discover.communicate()[0]
+        discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
+        output, error = discover.communicate()
         if output == '':
-            text = _("Discovery is  unavailable\n Is mesaflash installed?")
+            text = _("Discovery is  got an error\n\n Is mesaflash installed?\n\n %s"%error)
             self.warning_dialog(text,True)
+            try :         
+                textbuffer.set_text('Command:\n%s\n gave:\n%s'%(cmd,error))
+                self.widgets.helpnotebook.set_current_page(2)
+            except Exception as e :
+                print e
             return None
-        textbuffer = self.widgets.textoutput.get_buffer()
+ 
         try :         
             textbuffer.set_text(output)
             self.widgets.helpnotebook.set_current_page(2)
@@ -1205,6 +1240,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         except:
             text = _("Discovery is  unavailable\n")
             self.warning_dialog(text,True)
+
         print 'cmd=',cmd
         return output
 
