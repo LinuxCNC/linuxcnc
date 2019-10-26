@@ -995,7 +995,10 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 is_gpio = is_gpioo = False
                 temppinunit = []
                 temp = pins[i].find("connector").text
-                tempcon = int(temp.strip("P"))
+                if 'P' in tempcon:
+                    tempcon = int(temp.strip("P"))
+                else:
+                    tempcon = tempconf
                 tempfunc = pins[i].find("secondaryfunctionname").text
                 tempfunc = tempfunc.upper() # normalise capitalization: Peters XMLs are different from linuxcncs
 
@@ -1121,6 +1124,13 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         temppinlist.append((_PD.NUSED,0))
             if not sserialchannels == 0:
                 sserialchannels +=1
+            # 7i96 doesn't number the connectors with P numbers so we fake it
+            # TODO
+            # probably should move the connector numbers to board data rather then firmware
+            for j in tempconlist:
+                if not isinstance(j, (int, long)):
+                    tempconflist = [i for i in range(1,len(temconlist)+1)]
+
             temp = [boardtitle,boardname,firmname,boardtitle,driver,encoder + muxedqcount,
                     numencoderpins,resolver,numresolverpins,pwmgen,numpwmpins,
                     tppwmgen,numttpwmpins,stepgen,numstepperpins,
