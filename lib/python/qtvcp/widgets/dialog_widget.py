@@ -67,6 +67,8 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self._state = False
         self._color = QColor(0, 0, 0, 150)
         self._request_name = 'MESSAGE'
+        self._nblock = False
+        self._massage = None
         self.hide()
 
     def _hal_init(self):
@@ -89,6 +91,7 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
     # if all good show the dialog
     # and then send back the dialog response via a general message
     def _external_request(self, w, message):
+        self._message = message
         if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
@@ -105,21 +108,28 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             ftext = message.get('FOCUSTEXT')
             fcolor = message.get('FOCUSCOLOR')
             alert = message.get('PLAYALERT')
+            nblock = message.get('NONBLOCKING')
             rtrn = self.showdialog(mess, more, details, mtype, 
-                                    icon, pin, ftext, fcolor, alert)
-            print 'sent',rtrn
-            message['RETURN'] = rtrn
-            STATUS.emit('general', message)
+                                    icon, pin, ftext, fcolor, alert, nblock)
+            if not nblock:
+                message['RETURN'] = rtrn
+                STATUS.emit('general', message)
 
     def showdialog(self, message, more_info=None, details=None, display_type='OK',
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
-                   focus_color=None, play_alert=None):
+                   focus_color=None, play_alert=None, nblock=False):
 
-        self.setWindowModality(Qt.ApplicationModal)
-        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+        self._nblock = nblock
+        if nblock:
+            self.setWindowModality(Qt.NonModal)
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint
+                            | Qt.WindowSystemMenuHint)
+        else:
+            self.setWindowModality(Qt.ApplicationModal)
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.FramelessWindowHint | Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-                            #Qt.X11BypassWindowManagerHint
 
         if focus_color is not None:
             color = focus_color
@@ -155,29 +165,47 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
 
         self.buttonClicked.connect(self.msgbtn)
-        STATUS.emit('focus-overlay-changed', True, focus_text, color)
+        if not nblock:
+            STATUS.emit('focus-overlay-changed', True, focus_text, color)
         if play_alert:
             STATUS.emit('play-sound', play_alert)
-        retval = self.exec_()
-        STATUS.emit('focus-overlay-changed', False, None, None)
-        LOG.debug('Value of pressed button: {}'.format(retval))
-        return self.qualifiedReturn(retval)
+        if not nblock:
+            retval = self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            LOG.debug('Value of pressed button: {}'.format(retval))
+            return self.qualifiedReturn(retval)
+        else:
+            self.show()
 
     def qualifiedReturn(self, retval):
         if retval in(QMessageBox.No, QMessageBox.Cancel):
             return False
         elif retval in(QMessageBox.Ok, QMessageBox.Yes):
             return True
+        else:
+            return -1
 
     def showEvent(self, event):
-        geom = self.frameGeometry()
-        geom.moveCenter(QDesktopWidget().availableGeometry().center())
-        self.setGeometry(geom)
+        if self._nblock:
+            geometry_parsing(self,'LncMessage-geometry')
+        else:
+            geom = self.frameGeometry()
+            geom.moveCenter(QDesktopWidget().availableGeometry().center())
+            self.setGeometry(geom)
         super(LcncDialog, self).showEvent(event)
 
     def msgbtn(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
-        return
+        if self._nblock:
+            self.hide()
+            btn = i.text().encode('utf-8')
+            if btn in ('&OK','&Yes'):
+                self._message['RETURN'] = True
+            else:
+                self._message['RETURN'] = False
+            record_geometry(self,'LncMessage-geometry')
+            STATUS.emit('general', self._message)
+            self._massage = None
 
     # **********************
     # Designer properties
@@ -220,14 +248,6 @@ class CloseDialog(LcncDialog, _HalWidgetBase):
         super(CloseDialog, self).__init__(parent)
         self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
         self._request_name = 'CLOSEPROMPT'
-
-    def qualifiedReturn(self, retval):
-        if retval in(QMessageBox.No, QMessageBox.Cancel):
-            return False
-        elif retval in(QMessageBox.Ok, QMessageBox.Yes):
-            return True
-        else:
-            return -1
 
 ################################################################################
 # Tool Change Dialog
@@ -394,7 +414,6 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         if message.get('NAME') == self._load_request_name:
             # if there is an ID then a file name response is expected
             if message.get('ID'):
-                print message.get('ID')
                 message['RETURN'] = self.load_dialog(ext, pre, dir, True)
                 STATUS.emit('general', message)
             else:
@@ -1377,20 +1396,25 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
                 self.title = t
             else:
                 self.title = 'Machine Log'
-            num = self.showdialog()
+            nonblock = message.get('NONBLOCKING')
+            num = self.showdialog(nonblock)
             message['RETURN'] = num
             STATUS.emit('general', message)
 
-    def showdialog(self):
-        STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
+    def showdialog(self, nonblock):
+        if not nonblock:
+            STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
         self.setWindowTitle(self.title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
-        self.exec_()
-        STATUS.emit('focus-overlay-changed', False, None, None)
-        record_geometry(self,'MachineLogDialog-geometry')
-        return False
+        if not nonblock:
+            self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            record_geometry(self,'MachineLogDialog-geometry')
+            return False
+        else:
+            self.show()
 
     def calculate_placement(self):
         geometry_parsing(self,'MachineLogDialog-geometry')
