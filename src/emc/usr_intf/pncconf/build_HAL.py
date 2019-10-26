@@ -1364,17 +1364,18 @@ class HAL:
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb"
-            print >>file
-            print >>file, "# ---closedloop stepper signals---"
-            print >>file
-            print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
-            print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
-            print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
-            print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
-            print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
-            print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
-            print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
-            print >>file
+            else:
+                print >>file
+                print >>file, "# ---closedloop stepper signals---"
+                print >>file
+                print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
+                print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
+                print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
+                print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
+                print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
+                print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
+                print >>file
 
         if encoderpinname:             
             countmode = 0

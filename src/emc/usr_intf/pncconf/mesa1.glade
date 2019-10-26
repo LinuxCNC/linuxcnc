@@ -2601,7 +2601,6 @@ Discovery</property>
             <child>
               <object class="GtkButton" id="m5i20panel6">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
               </object>
@@ -4800,7 +4799,6 @@ Connector 1</property>
             <child>
               <object class="GtkButton" id="m5i20panel2">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_mesapanel_clicked" swapped="no"/>
@@ -5987,7 +5985,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel1">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_mesapanel_clicked" swapped="no"/>
@@ -8058,7 +8055,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel4">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_mesapanel_clicked" swapped="no"/>
@@ -10202,7 +10198,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel3">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -12297,7 +12292,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel5">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -15255,7 +15249,6 @@ Connector 6</property>
             <child>
               <object class="GtkButton" id="m5i20panel10">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -19443,7 +19436,6 @@ Connector 8</property>
             <child>
               <object class="GtkButton" id="m5i20panel12">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -24192,6 +24184,12 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>
@@ -30065,6 +30063,12 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label51">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -35480,6 +35484,12 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>
@@ -41353,6 +41363,12 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label113">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -46997,6 +47013,12 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label149">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -52412,6 +52434,12 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>
