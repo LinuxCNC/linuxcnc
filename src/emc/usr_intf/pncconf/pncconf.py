@@ -1019,7 +1019,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 is_gpio = is_gpioo = False
                 temppinunit = []
                 temp = pins[i].find("connector").text
-                if 'P' in tempcon:
+                if 'P' in temp:
                     tempcon = int(temp.strip("P"))
                 else:
                     tempcon = tempconf
