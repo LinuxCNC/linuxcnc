@@ -50,9 +50,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         except AttributeError as e:
             LOG.critical(e)
 
-
     def _hal_init(self):
-        self.proc = subprocess.Popen([ 'python {}'.format(SUBPROGRAM)], stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+        self.process = QtCore.QProcess()
+        self.process.start('python {}'.format(SUBPROGRAM))
+        self.process.readyReadStandardOutput.connect(lambda: self._process())
+        self.process.readyReadStandardError.connect(lambda: self._error())
 
         def homed_on_test():
             return (STATUS.machine_is_on()
@@ -95,6 +97,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.data_input_rapid_vel = self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')
         self.read_page_data()
 
+    def _process(self,):
+        print '_Data:',self.process.readData(200).strip()
+    def _error(self,):
+        print '_Error:',self.process.readAllStandardError()
+
     # when qtvcp closes this gets called
     def closing_cleanup__(self):
         if self.PREFS_:
@@ -113,8 +120,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.data_input_rapid_vel), float, 'VERSA_PROBE_OPTIONS')
-        self.proc.stdin.write('kill')
-        self.proc.stdin.flush()
+        self.process.terminate()
 
 #####################################################
 # button callbacks
@@ -126,205 +132,196 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         print 'angle_yp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_angle_yp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_angle_yp {}\n'.format(result))
 
     # Y-Y- 
     def pbtn_skew_ym_released(self):
         print 'angle_ym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_angle_ym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_angle_ym {}\n'.format(result))
 
     # X+X+ 
     def pbtn_skew_xp_released(self):
         print 'angle_xp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_angle_xp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_angle_xp {}\n'.format(result))
 
     # X-X- 
     def pbtn_skew_xm_released(self):
         print 'angle_xm_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_angle_xm {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_angle_xm {}\n'.format(result))
 
     ###### inside #######################
     def pbtn_inside_xpyp_released(self):
         print ' Inside xpyp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_xpyp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_xpyp {}\n'.format(result))
+
     def pbtn_inside_xpym_released(self):
         print ' Inside xpym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_xpym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_xpym {}\n'.format(result))
+
     def pbtn_inside_ym_released(self):
         print ' Inside ym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_ym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_ym {}\n'.format(result))
+
     def pbtn_inside_xp_released(self):
         print ' Inside xp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xp {}\n'.format(result))
+
     def pbtn_inside_xmym_released(self):
         print ' Inside xmym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_xmym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_xmym {}\n'.format(result))
+
     def pbtn_inside_xm_released(self):
         print ' Inside xm_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xm {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xm {}\n'.format(result))
+
     def pbtn_inside_xmyp_released(self):
         print ' Inside xmyp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_xmyp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_xmyp {}\n'.format(result))
+
     def pbtn_inside_yp_released(self):
         print ' Inside yp1_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_yp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_yp {}\n'.format(result))
+
     def pbtn_inside_xy_hole_released(self):
         print ' Inside xy_hole_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xy_hole {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xy_hole {}\n'.format(result))
+
     def pbtn_inside_length_x_released(self):
         print ' Inside inside_length_x_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_length_x {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_length_x {}\n'.format(result))
+
     def pbtn_inside_length_y_released(self):
         print ' Inside inside_length_y_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_inside_length_y {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_inside_length_y {}\n'.format(result))
 
     ####### outside #######################
     def pbtn_outside_xpyp_released(self):
         print ' Outside xpyp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_xpyp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_xpyp {}\n'.format(result))
+
     def pbtn_outside_xp_released(self):
         print ' Outside xp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xp {}\n'.format(result))
+
     def pbtn_outside_xpym_released(self):
         print ' Outside xpym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_xpym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_xpym {}\n'.format(result))
+
     def pbtn_outside_ym_released(self):
         print ' Outside ym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_ym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_ym {}\n'.format(result))
+
     def pbtn_outside_yp_released(self):
         print ' Outside yp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_yp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_yp {}\n'.format(result))
+
     def pbtn_outside_xmym_released(self):
         print ' Outside xmym_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_xmym {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_xmym {}\n'.format(result))
+
     def pbtn_outside_xm_released(self):
         print ' Outside xm_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xm {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xm {}\n'.format(result))
+
     def pbtn_outside_xmyp_released(self):
         print ' Outside xmyp_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_xmyp {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_xmyp {}\n'.format(result))
+
     def pbtn_outside_center_released(self):
         print ' Outside xy_center_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_xy_hole {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_xy_hole {}\n'.format(result))
+
     def pbtn_outside_length_x_released(self):
         print ' Outside length X_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_length_x {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_length_x {}\n'.format(result))
+
     def pbtn_outside_length_y_released(self):
         print ' Outside_length_Y_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_outside_length_y {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_outside_length_y {}\n'.format(result))
 
     ####### straight #######################
     def pbtn_down_released(self):
         print 'Straight down_released'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_down {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_down {}\n'.format(result))
 
     def pbtn_measure_diam_released(self):
         print 'Mesaure diameter'
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('probe_measure_diam {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('probe_measure_diam {}\n'.format(result))
 
     ###### set origin offset ######################
     def pbtn_set_x_released(self):
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('set_x_offset {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('set_x_offset {}\n'.format(result))
+
     def pbtn_set_y_released(self):
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('set_y_offset {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('set_y_offset {}\n'.format(result))
+
     def pbtn_set_z_released(self):
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('set_z_offset {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('set_z_offset {}\n'.format(result))
+
     def pbtn_set_angle_released(self):
         result = self.read_page_data()
         if result:
-            self.proc.stdin.write('set_angle_offset {}\n'.format(result))
-            self.proc.stdin.flush()
+            self.process.writeData('set_angle_offset {}\n'.format(result))
 
 #####################################################
 # Helper functions
@@ -350,7 +347,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         LOG.error("No 'SUBROUTINE_PATH' entry in the INI file for Versa_probe Macros")
         
     def check_probe(self):
-            self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 
 ########################################
 # required boiler code
