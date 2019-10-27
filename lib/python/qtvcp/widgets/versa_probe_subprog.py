@@ -20,7 +20,6 @@ import os
 import math
 import time
 import hal
-from optparse import Option, OptionParser
 
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -31,64 +30,108 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
-LOG = logger.getLogger(__name__)
-
-
-options = [ Option( '-H', dest='halfile', metavar='FILE'
-                  , help="execute hal statements from FILE with halcmd after the component is set up and ready")
-          , Option( '-p', dest='subpath', metavar='NAME'
-                  , help="path to subroutine")
-          , Option( '-f', dest='function', metavar='FILE'
-                  , help="function to call")
-          , Option( '-a', dest='arguments', metavar='FILE'
-                  , help="arguments for function")
-          ]
-
+LOG = logger.getLogger('VersaProbeSub')
+LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class VersaProbe():
     def __init__(self ):
-        usage = "usage: %prog [options] myfile.ui"
-        parser = OptionParser(usage=usage)
-        parser.disable_interspersed_args()
-        parser.add_options(options)
-        # remove [-ini filepath] that linuxcnc adds if being launched as a screen
-        # keep a reference of that path
-        for i in range(len(sys.argv)):
-            print sys.argv[i]
-        (opts, args) = parser.parse_args()
+        self.data_input_search_vel = 1.5
+        self.data_input_probe_vel = 1.5
+        self.data_input_z_clearance = 1.5
+        self.data_input_max_travel = 1.5
+        self.data_input_latch_return_dist = 1.5
+        self.data_input_probe_diam = 1.5
+        self.data_input_xy_clearances = 1.5
+        self.data_input_side_edge_length = 1.5
 
-        self.arguments = opts.arguments
-        self.subpath = opts.subpath
-        error = self._hal_init()
-        LOG.error("error flag {}".format(error))
-        if not error:
-            self.process()
+        self.data_input_adj_x = 1.5
+        self.data_input_adj_y = 1.5
+        self.data_input_adj_z = 1.5
+        self.data_input_adj_angle = 1.5
+        self.data_input_rapid_vel = 10
+        self.data_allow_auto_zero = True
+
+        self.status_xm = '0'
+        self.status_xp = '0'
+        self.status_ym = '0'
+        self.status_yp = '0'
+        self.input_adj_x = '0'
+        self.input_adj_y = '0'
+        self.input_offs_x = '0'
+        self.input_offs_y = '0'
+        self.input_adj_angle = '0'
+
+        self._hal_init()
+        self.process()
 
     def process(self):
+            error = -1
             while 1:
                 try:
                     line = sys.stdin.readline()
                 except KeyboardInterrupt:
+                    line ='kill'
                     break
                 if line:
                     break
             if line.rstrip() == 'kill':
                 sys.exit(0)
             cmd = line.rstrip().split(' ')
-            LOG.debug("command: {}".format(cmd))
+            #LOG.debug("command: {}".format(cmd))
+            status = self.collectStatus()
             try:
-                self.arguments = cmd[1]
-                self[cmd[0]]()
+                self.updateData(cmd[1])
+
+                error = self[cmd[0]]()
             except Exception as e:
-                LOG.error("Command Error: {}".format(e))
+                LOG.debug('command exception: {}\n status: {}'.format(e, status))
+                error = -1
+            status = self.collectStatus()
+            if error <0:
+                sys.stdout.write('command error: {}\n status: {}'.format(error, status))
+            else:
+                sys.stdout.write('Done! Status:{}\n'.format(status))
+            sys.stdout.flush()
             self.process()
+
+    def updateData(self,data):
+            temp = data.split(',')
+            if len(temp) == 16:
+                for num, i in enumerate(['data_input_z_clearance','data_input_xy_clearances',
+                    'data_input_side_edge_length', 'data_input_tool_probe_height',
+                    'data_input_tool_block_height','data_input_probe_diam',
+                    'data_input_max_travel','data_input_latch_return_dist',
+                    'data_input_search_vel','data_input_probe_vel',
+                    'data_input_adj_angle','data_input_adj_x',
+                    'data_input_adj_y','data_input_adj_z','data_input_rapid_vel','data_allow_auto_zero']):
+                    self[i] = float(temp[num])
+                    #print i, float(temp[num])
+            else:
+                LOG.error("{} is not the right amount (16) of arguments for Versa_probe Macros".format(len(temp)))
+
+    def collectStatus(self):
+        arg = ''
+        for num, i in enumerate(['status_xm',
+        'status_xp',
+        'status_ym',
+        'status_yp',
+        'input_adj_x',
+        'input_adj_y',
+        'input_offs_x',
+        'input_offs_y',
+        'input_adj_angle']):
+            arg = arg +',{}'.format(self[i])
+        # If no path to probe Owords we can't probe...
+        if self.path is not None:
+            return arg.lstrip(',')
+
 
     def _hal_init(self):
         STATUS.connect('periodic', lambda w: self.check_probe())
 
         # check for probing subroutine path in INI and if they exist
         try:
-            tpath = os.path.expanduser(self.subpath)
+            tpath = os.path.expanduser(INFO.SUB_PATH)
             self.path = os.path.join(tpath, '')
             # look for NGC macros in path
             for f in os.listdir(self.path):
@@ -99,41 +142,8 @@ class VersaProbe():
             if INFO.SUB_PATH is None:
                 LOG.error("No 'SUBROUTINE_PATH' entry in the INI file for Versa_probe Macros")
             else:
-                LOG.error('No Versa_probe Macros found in: \n{}'.format( e))
+                LOG.error('No Versa_probe Macros found in: \n{}'.format(e))
             self.path = 'None'
-
-            self.data_input_search_vel = 1.5
-            self.data_input_probe_vel = 1.5
-            self.data_input_z_clearance = 1.5
-            self.data_input_max_travel = 1.5
-            self.data_input_latch_return_dist = 1.5
-            self.data_input_probe_diam = 1.5
-            self.data_input_xy_clearances = 1.5
-            self.data_input_side_edge_length = 1.5
-
-            self.data_input_adj_x = 1.5
-            self.data_input_adj_y = 1.5
-            self.data_input_adj_z = 1.5
-            self.data_input_adj_angle = 1.5
-            self.data_input_rapid_vel = 10
-            self.data_allow_auto_zero = True
-
-        if self.arguments:
-            temp = self.arguments.split(',')
-            if len(temp) == 16:
-                for num, i in enumerate(['input_z_clearance','input_xy_clearances',
-                    'input_side_edge_length', 'input_tool_probe_height',
-                    'input_tool_block_height','input_probe_diam',
-                    'input_max_travel','input_latch_return_dist',
-                    'input_search_vel','input_probe_vel',
-                    'input_adj_angle','input_adj_x',
-                    'input_adj_y','input_adj_z','input_rapid_vel','data_allow_auto_zero']):
-                    self[i] = float(temp[num])
-                    print i, float(temp[num])
-            else:
-                LOG.error("{} is not the right amount (16) of arguments for Versa_probe Macros".format(len(temp)))
-                print temp
-                return True
 
 #####################################################
 # Helper functions
@@ -159,10 +169,10 @@ class VersaProbe():
 
     def length_x(self):
         res=0
-        if self.status_xm.text() == "" or self.status_xp.text() == "" :
+        if self.status_xm == "" or self.status_xp == "" :
             return res
-        xm = float(self.status_xm.text())
-        xp = float(self.status_xp.text())
+        xm = float(self.status_xm)
+        xp = float(self.status_xp)
         if xm < xp :
             res=xp-xm
         else:
@@ -172,10 +182,10 @@ class VersaProbe():
 
     def length_y(self):
         res=0
-        if self.status_ym.text() == "" or self.status_yp.text() == "" :
+        if self.status_ym == "" or self.status_yp == "" :
             return res
-        ym = float(self.status_ym.text())
-        yp = float(self.status_yp.text())
+        ym = float(self.status_ym)
+        yp = float(self.status_yp)
         if ym < yp :
             res=yp-ym
         else:
@@ -207,8 +217,8 @@ class VersaProbe():
             self.status_a.setText( "%.3f" % a)
             s="G10 L2 P0"
             if self.data_allow_auto_zero :
-                s +=  " X%s"%self.input_offs_x.text()      
-                s +=  " Y%s"%self.input_offs_y.text()      
+                s +=  " X%s"%self.input_offs_x      
+                s +=  " Y%s"%self.input_offs_y      
             else :
                 STATUS.stat.poll()
                 x = STATUS.stat.position[0]
@@ -226,13 +236,13 @@ class VersaProbe():
 
 
     def set_x_offset(self):
-        ACTION.SET_AXIS_ORIGIN('X'.float(self.input_adj_x.text()))
+        ACTION.SET_AXIS_ORIGIN('X'.float(self.input_adj_x))
     def set_y_offset(self):
-        ACTION.SET_AXIS_ORIGIN('Y'.float(self.input_adj_x.text()))
+        ACTION.SET_AXIS_ORIGIN('Y'.float(self.input_adj_x))
     def set_z_offset(self):
-        ACTION.SET_AXIS_ORIGIN('Z'.float(self.input_adj_x.text()))
+        ACTION.SET_AXIS_ORIGIN('Z'.float(self.input_adj_x))
     def set_angle_offset(self):
-        self.status_a.setText( "%.3f" % float(self.input_adj_angle.text()) )
+        self.status_a.setText( "%.3f" % float(self.input_adj_angle) )
         s="G10 L2 P0"
         if self.data_allow_auto_zero:
             s +=  " X%.4f"% float(self.data_input_adj_x)      
