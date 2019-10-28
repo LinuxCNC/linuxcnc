@@ -36,6 +36,7 @@ class _IStat(object):
         self.LINUXCNC_VERSION = LINUXCNCVERSION
         self.inifile = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
+        self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
@@ -66,7 +67,8 @@ class _IStat(object):
 
     def update(self):
         self.MDI_HISTORY_PATH = self.inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
-        self.MACHINE_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'MESSAGE_HISTORY_FILE') or '~/.machine_log_history'
+        self.QTVCP_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
+        self.MACHINE_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
         self.PREFERENCE_PATH = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH") or None
         self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
         if self.SUB_PATH is not None:
