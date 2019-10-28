@@ -1016,6 +1016,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             pinconvertnone = {"NOT USED":_PD.GPIOI}
 
             count = 0
+            fakecon = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
                 is_gpio = is_ssr = False
@@ -1024,7 +1025,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 if 'P' in temp:
                     tempcon = int(temp.strip("P"))
                 else:
-                    tempcon = tempconf
+                    tempcon = temp
                 tempfunc = pins[i].find("secondaryfunctionname").text
                 tempfunc = tempfunc.upper() # normalise capitalization: Peters XMLs are different from linuxcncs
 
@@ -1216,14 +1217,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             time.sleep(.001)
             halrun.close()
         if interface == '--addr' and address:
-            board_command = ' -- device %s %s %s' %(devicename, interface, address)
+            board_command = '--device %s %s %s' %(devicename, interface, address)
         elif interface == '--epp':
-            board_command = ' -- device %s %s' %(devicename, interface)
+            board_command = '--device %s %s' %(devicename, interface)
         else:
-            board_command = ' -- device %s' %(devicename)
+            board_command = '--device %s' %(devicename)
 
-        cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
-        #cmd ="""  mesaflash --device %s;mesaflash --device %s --sserial;mesaflash --device %s --readhmid  """%(devicename,devicename,devicename)
+        #cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
+        cmd =""" mesaflash -%s;mesaflash %s --sserial;mesaflash %s --readhmid  """%(board_command, board_command, board_command)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
