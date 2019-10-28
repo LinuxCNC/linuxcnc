@@ -655,6 +655,9 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     <property name="originOffsetDialog_option" stdset="0">
      <bool>true</bool>
     </property>
+    <property name="machineLogDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="StatusLabel" name="StatusLabel_2">
     <property name="geometry">
