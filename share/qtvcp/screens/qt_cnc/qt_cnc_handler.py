@@ -212,7 +212,7 @@ class HandlerClass:
             STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
     def on_keycall_F8(self,event,state,shift,cntrl):
         if state:
-            STATUS.emit('dialog-request',{'NAME':'MACHINELOG'})
+            STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
