@@ -533,6 +533,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         # notused
         self.d._notusedliststore = gtk.ListStore(str,int)
         self.d._notusedliststore.append([_PD.pintype_notused[0],0])
+        self.d._ssrliststore = gtk.ListStore(str,int)
+        self.d._ssrliststore.append([_PD.pintype_ssr[0],0])
         # gpio
         self.d._gpioliststore = gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_gpio):
@@ -1016,7 +1018,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             count = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
-                is_gpio = is_gpioo = False
+                is_gpio = is_ssr = False
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 if 'P' in temp:
@@ -1088,10 +1090,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     elif modulename in ("None","NONE"):
                         is_gpio = True
                         #convertedname = pinconvertnone[tempfunc]
-                    elif modulename.lower() == 'ac ref':
-                        is_gpoo = True
-                    elif 'out-' in  modulename.lower():
-                        is_gpioo = True
+                    elif modulename == 'AC REF':
+                        convertedname = _PD.SSR
+                        is_ssr = True
+                    elif 'OUT-' in  modulename:
+                        convertedname = _PD.SSR
+                        is_ssr = True
                     else: is_gpio = True
                 except:
                     is_gpio = True
@@ -1107,8 +1111,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     # or if pinconvert fails eg. StepTable instance default to GPIO 
                     temppinunit.append(_PD.GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
-                elif is_gpioo:
-                    temppinunit.append(_PD.GPIOO)
+                elif is_ssr:
+                    temppinunit.append(_PD.SSR)
                     temppinunit.append(100) # 0 signals to pncconf that GPIOO cannot be changed
                 else:
                     instance_num = int(pins[i].find("secondaryinstance").text)
@@ -2133,6 +2137,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif pintype in (_PD.GPIOO,_PD.GPIOD):
                     ptypetree = self.d._gpioliststore
                     signaltocheck = _PD.hal_output_names
+                elif pintype == _PD.SSR:
+                    ptypetree = self.d._ssrliststore
+                    signaltocheck = _PD.hal_output_names
                 #type encoder
                 elif pintype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM):
                     ptypetree = self.d._encoderliststore
@@ -2223,7 +2230,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    print "ptypetree: ",widgetptype
-                if pintype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.MXE0,_PD.MXE1,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU,_PD.SS7I76M0,
+                if pintype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR,_PD.MXE0,_PD.MXE1,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU,_PD.SS7I76M0,
                                 _PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4) or (index == 0):
                     index2 = 0
                 elif pintype in ( _PD.TXDATA0,_PD.RXDATA0,_PD.TXEN0,_PD.TXDATA1,_PD.RXDATA1,_PD.TXEN1,_PD.TXDATA2,_PD.RXDATA2,
@@ -2855,7 +2862,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # check if firmptype is in GPIO family
                 # check if widget is already configured
                 # we now set everything in a known state.
-                if firmptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
+                if firmptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR):
                     if self.widgets[ptype].get_model():
                         widgettext = self.widgets[ptype].get_active_text()
                     else:
@@ -2890,12 +2897,24 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         self.widgets[p].set_sensitive(1)
                         self.widgets[pinv].set_sensitive(1)
                         self.widgets[ptype].set_sensitive(not compnum == 100) # compnum = 100 means GPIO cannot be changed by user
-                        self.widgets[ptype].set_model(self.d._gpioliststore)
+                        if firmptype == _PD.SSR:
+                            self.widgets[ptype].set_model(self.d._ssrliststore)
+                        else:
+                            self.widgets[ptype].set_model(self.d._gpioliststore)
                         if firmptype == _PD.GPIOI:
                             # set pin treestore to gpioi signals
                             if not self.widgets[p].get_model() == self.d._gpioisignaltree:
                                 self.widgets[p].set_model(self.d._gpioisignaltree)
                                 # set ptype gpioi
+                                self.widgets[ptype].set_active(0)
+                                # set p unused signal
+                                self.widgets[p].set_active(0)
+                                # set pinv unset
+                                self.widgets[pinv].set_active(False)
+                        elif firmptype == _PD.SSR:
+                            if not self.widgets[p].get_model() == self.d._gpioosignaltree:
+                                self.widgets[p].set_model(self.d._gpioosignaltree)
+                                # set ptype gpioo
                                 self.widgets[ptype].set_active(0)
                                 # set p unused signal
                                 self.widgets[p].set_active(0)
@@ -2910,7 +2929,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                 self.widgets[p].set_active(0)
                                 # set pinv unset
                                 self.widgets[pinv].set_active(False)
-
 
 
     def find_sig_name_iter(self,model, signal_name):
@@ -2986,7 +3004,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # type GPIO
                 # if compnum  = 100  then it means that the GPIO type can not
                 # be changed from what the firmware designates it as.
-                if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
+                if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR):
                         #print "data ptype index:",_PD.pintype_gpio.index(dataptype)
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
@@ -2994,17 +3012,20 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         #print "compnum = ",compnum
                         if compnum == 100: dataptype = widgetptype 
                         self.widgets[pinv].set_active(self.d[pinv])
-                        try:
-                            self.widgets[ptype].set_active( _PD.pintype_gpio.index(dataptype) )
-                        except:
-                            self.widgets[ptype].set_active( _PD.pintype_gpio.index(widgetptype) )
+                        if widgetptype == _PD.SSR:
+                            self.widgets[ptype].set_active(0)
+                        else:
+                            try:
+                                self.widgets[ptype].set_active( _PD.pintype_gpio.index(dataptype) )
+                            except:
+                                self.widgets[ptype].set_active( _PD.pintype_gpio.index(widgetptype) )
                         # if GPIOI or dataptype not in GPIO family force it GPIOI
-                        if dataptype == _PD.GPIOI or dataptype not in(_PD.GPIOO,_PD.GPIOI,_PD.GPIOD):
+                        if dataptype == _PD.GPIOI or dataptype not in(_PD.GPIOO,_PD.GPIOI,_PD.GPIOD,_PD.SSR):
                             human = _PD.human_input_names
                             signal = _PD.hal_input_names
                             tree = self.d._gpioisignaltree
                         # signal names for GPIO OUTPUT and OPEN DRAIN OUTPUT
-                        elif dataptype in (_PD.GPIOO,_PD.GPIOD):
+                        elif dataptype in (_PD.GPIOO,_PD.GPIOD,_PD.SSR):
                             human = _PD.human_output_names
                             signal = _PD.hal_output_names
                             tree = self.d._gpioosignaltree
@@ -3291,7 +3312,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.PDMD,_PD.PDME,_PD.PWMD,_PD.PWME,_PD.UDMD,_PD.UDME,
                                     _PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF,
                                     _PD.RXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXEN1,_PD.RXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXEN3,
-                                    _PD.POTE,_PD.POTD
+                                    _PD.POTE,_PD.POTD, _PD.SSR
                                     ):return
                 # for GPIO output
                 if widgetptype in (_PD.GPIOO,_PD.GPIOD):
@@ -3535,7 +3556,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
                 # this components have no related pins - fake the list
-                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,
+                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR,_PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,
                                     _PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
@@ -5088,7 +5109,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         halboardnum = 0
         if test == "None": return None
         elif 'mesa' in test:
-            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio",
+            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio", _PD.SSR:"ssr",
                 _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
                 _PD.RES0:"resolver",_PD.RES1:"resolver",_PD.RES2:"resolver",_PD.RES3:"resolver",_PD.RES4:"resolver",_PD.RES5:"resolver",
                 _PD.MXE0:"encoder", _PD.MXE1:"encoder",
@@ -5129,7 +5150,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR):
                     if "7i77" in (subboardname) or "7i76" in(subboardname)or "7i84" in(subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
@@ -5193,10 +5214,14 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     print "**** ERROR PNCCONF: pintype error in make_pinname: (mesa) ptype = ",ptype
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
-                    comptype = "gpio"
-                    compnum = int(pinnum)+(concount* num_of_pins )
-                    return "%s."% (make_name(boardname,halboardnum)) + comptype+".%03d"% (compnum)          
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR):
+                    print '->',ptype,dummy,compnum,pin
+                    if ptype == _PD.SSR:
+                        compnum = int(pinnum)+(concount* num_of_pins )
+                        return "%s."% (make_name(boardname,halboardnum)) + "ssr.%03d"% (compnum)
+                    else:
+                        compnum = int(pinnum)+(concount* num_of_pins )
+                        return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)          
                 elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
                     _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
                     _PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
