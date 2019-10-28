@@ -1450,7 +1450,7 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
     def setIdName(self, name):
         self._request_name = name
     def resetIdName(self):
-        self._request_name = 'ENTRY'
+        self._request_name = 'MACHINELOG'
 
     # designer will show these properties in this order:
     launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
