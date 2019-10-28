@@ -840,7 +840,27 @@ class CamViewDialog(QDialog, _HalWidgetBase):
 
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:
-            self.load_dialog()
+            nblock = message.get('NONBLOCKING')
+            if nblock:
+                self.setWindowModality(Qt.NonModal)
+                self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint
+                            | Qt.WindowSystemMenuHint)
+                self.load_dialog_nonblocking()
+            else:
+                self.setWindowModality(Qt.ApplicationModal)
+                self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.FramelessWindowHint | Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+                self.load_dialog()
+
+    def close(self):
+        record_geometry(self,'CamViewDialog-geometry')
+        super(CamViewDialog, self).close()
+
+    def load_dialog_nonblocking(self):
+        self.calculate_placement()
+        self.show()
 
     def load_dialog(self):
         STATUS.emit('focus-overlay-changed', True, 'Cam View Dialog', self._color)
@@ -848,7 +868,6 @@ class CamViewDialog(QDialog, _HalWidgetBase):
         self.show()
         self.exec_()
         STATUS.emit('focus-overlay-changed', False, None, None)
-        record_geometry(self,'CamViewDialog-geometry')
 
     def calculate_placement(self):
         geometry_parsing(self,'CamViewDialog-geometry')
