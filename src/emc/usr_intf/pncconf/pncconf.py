@@ -3312,8 +3312,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.PDMD,_PD.PDME,_PD.PWMD,_PD.PWME,_PD.UDMD,_PD.UDME,
                                     _PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF,
                                     _PD.RXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXEN1,_PD.RXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXEN3,
-                                    _PD.POTE,_PD.POTD, _PD.SSR
-                                    ):return
+                                    _PD.POTE,_PD.POTD, _PD.SSR):
+                    self.p.set_buttons_sensitive(1,1)
+                    return
                 # for GPIO output
                 if widgetptype in (_PD.GPIOO,_PD.GPIOD):
                     #print"ptype GPIOO\n"
@@ -3424,6 +3425,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets[BASE].hide()
                                 self.d[BASE+"subboard"] = "none"
+                                self.p.set_buttons_sensitive(1,1)
                                 return
                             else:
                                 self.widgets[BASE].show()
@@ -3497,6 +3499,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     self.widgets[table].hide()
                                     table = BASE+"table1"
                                     self.widgets[table].hide()
+                                    self.p.set_buttons_sensitive(1,1)
                                     return
                                 # set sserial tab names to corresond to connector numbers so users have a clue
                                 # first we have to find the daughter board in pncconf's internal list
