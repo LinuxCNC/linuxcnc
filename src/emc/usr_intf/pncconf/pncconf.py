@@ -1016,6 +1016,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             pinconvertnone = {"NOT USED":_PD.GPIOI}
 
             count = 0
+            fakecon = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
                 is_gpio = is_ssr = False
@@ -1024,7 +1025,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 if 'P' in temp:
                     tempcon = int(temp.strip("P"))
                 else:
-                    tempcon = tempconf
+                    tempcon = temp
                 tempfunc = pins[i].find("secondaryfunctionname").text
                 tempfunc = tempfunc.upper() # normalise capitalization: Peters XMLs are different from linuxcncs
 
@@ -1216,14 +1217,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             time.sleep(.001)
             halrun.close()
         if interface == '--addr' and address:
-            board_command = ' -- device %s %s %s' %(devicename, interface, address)
+            board_command = '--device %s %s %s' %(devicename, interface, address)
         elif interface == '--epp':
-            board_command = ' -- device %s %s' %(devicename, interface)
+            board_command = '--device %s %s' %(devicename, interface)
         else:
-            board_command = ' -- device %s' %(devicename)
+            board_command = '--device %s' %(devicename)
 
-        cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
-        #cmd ="""  mesaflash --device %s;mesaflash --device %s --sserial;mesaflash --device %s --readhmid  """%(devicename,devicename,devicename)
+        #cmd ="""pkexec "sh -c 'mesaflash %s';'mesaflash %s --sserial';'mesaflash %s --readhmid' " """%(board_command, board_command, board_command)
+        cmd =""" mesaflash -%s;mesaflash %s --sserial;mesaflash %s --readhmid  """%(board_command, board_command, board_command)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
@@ -3312,8 +3313,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     _PD.PDMD,_PD.PDME,_PD.PWMD,_PD.PWME,_PD.UDMD,_PD.UDME,
                                     _PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF,
                                     _PD.RXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXEN1,_PD.RXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXEN3,
-                                    _PD.POTE,_PD.POTD, _PD.SSR
-                                    ):return
+                                    _PD.POTE,_PD.POTD, _PD.SSR):
+                    self.p.set_buttons_sensitive(1,1)
+                    return
                 # for GPIO output
                 if widgetptype in (_PD.GPIOO,_PD.GPIOD):
                     #print"ptype GPIOO\n"
@@ -3424,6 +3426,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets[BASE].hide()
                                 self.d[BASE+"subboard"] = "none"
+                                self.p.set_buttons_sensitive(1,1)
                                 return
                             else:
                                 self.widgets[BASE].show()
@@ -3497,6 +3500,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     self.widgets[table].hide()
                                     table = BASE+"table1"
                                     self.widgets[table].hide()
+                                    self.p.set_buttons_sensitive(1,1)
                                     return
                                 # set sserial tab names to corresond to connector numbers so users have a clue
                                 # first we have to find the daughter board in pncconf's internal list

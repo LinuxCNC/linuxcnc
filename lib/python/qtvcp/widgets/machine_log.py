@@ -42,7 +42,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         self._hash_code = None
         self._machine_log = True
         self._integrator_log = False
-        self.integratorPath = os.path.expanduser('~/qtvcp.log')
+        self.integratorPath = os.path.expanduser(INFO.QTVCP_LOG_HISTORY_PATH)
         self.machineLogPath = os.path.expanduser(INFO.MACHINE_LOG_HISTORY_PATH)
 
     def _hal_init(self):
@@ -82,6 +82,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')
+        file.close()
         self.setPlainText(logText)
 
     def loadIntegratorLog(self):
@@ -94,6 +95,7 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         except NameError:
             # Python v3.
             logText = str(logText, encoding='utf8')
+        file.close()
         self.setPlainText(logText)
 
 

@@ -71,6 +71,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
+        KEYBIND.add_call('Key_F8','on_keycall_F8')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
@@ -79,7 +80,8 @@ class HandlerClass:
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F6,
+                    QtCore.Qt.Key_F7,QtCore.Qt.Key_F8,QtCore.Qt.Key_F12):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -198,7 +200,7 @@ class HandlerClass:
             STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            STATUS.emit('dialog-request',{'NAME':'CAMVIEW'})
+            STATUS.emit('dialog-request',{'NAME':'CAMVIEW','NONBLOCKING':True})
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'MACROTAB'})
@@ -208,6 +210,9 @@ class HandlerClass:
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
+    def on_keycall_F8(self,event,state,shift,cntrl):
+        if state:
+            STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
