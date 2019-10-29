@@ -1583,7 +1583,7 @@ class HAL:
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
-            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR):
+            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print >>file, "\n# ---",p.upper(),"---"
@@ -1597,9 +1597,12 @@ class HAL:
                             temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
-                            if not t == _PD.SSR: print >>file, "setp %s true"% (pinname + ".is_output")
+                            if not t == _PD.SSR0: print >>file, "setp %s true"% (pinname + ".is_output")
                             if t == _PD.GPIOD: print >>file, "setp    "+pinname+".is_opendrain  true"
-                            temp = pinname + ".out"
+                            if t == _PD.SSR0:
+                                temp = pinname
+                            else:
+                                temp = pinname + ".out"
                         # set pin true if force-pin-true otherwise connect to a signal
                         if p == "force-pin-true":
                             print >>file, "setp %s true"% (temp)
