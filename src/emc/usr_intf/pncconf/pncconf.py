@@ -1158,8 +1158,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             # probably should move the connector numbers to board data rather then firmware
             for j in tempconlist:
                 if not isinstance(j, (int, long)):
-                    tempconflist = [i for i in range(1,len(temconlist)+1)]
-
+                    tempconlist = [i for i in range(1,len(tempconlist)+1)]
+                    break
             temp = [boardtitle,boardname,firmname,boardtitle,driver,encoder + muxedqcount,
                     numencoderpins,resolver,numresolverpins,pwmgen,numpwmpins,
                     tppwmgen,numttpwmpins,stepgen,numstepperpins,
