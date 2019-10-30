@@ -94,9 +94,9 @@ pack .f2 -fill both -expand 1
 
 insert_file .f2.t "Print file information:" $::print_file
 insert_file .f2.t "Debug file information:" $::debug_file
-if {$linuxcnc::SIMULATOR != "yes"} {
+if {"$linuxcnc::RTS" != "uspace"} {
     insert_file .f2.t "Kernel message information:" {|dmesg} \
-	"^.*Adeos: Pipelining started\.|^.*I-pipe: Domain RTAI registered\."
+	"^.*Adeos: Pipelining started\.|^.*RTAI registered\."
 }
 .f2.t configure -state disabled
 
