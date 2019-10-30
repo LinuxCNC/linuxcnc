@@ -1005,7 +1005,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             pinconverttppwm = {"PWM A":_PD.TPPWMA,"PWM B":_PD.TPPWMB,"PWM C":_PD.TPPWMC,
                 "PWM /A":_PD.TPPWMAN,"PWM /B":_PD.TPPWMBN,"PWM /C":_PD.TPPWMCN,
                 "FAULT":_PD.TPPWMF,"ENABLE":_PD.TPPWME}
-            pinconvertsserial = {"RXDATA1":_PD.RXDATA0,"TXDATA1":_PD.TXDATA0,"TXE1":_PD.TXEN0,"TXEN1":_PD.TXEN0,
+            pinconvertsserial = {"RXDATA0":_PD.RXDATA0,"TXDATA0":_PD.TXDATA0,"TXE0":_PD.TXEN0,"TXEN0":_PD.TXEN0,
+                                "RXDATA1":_PD.RXDATA0,"TXDATA1":_PD.TXDATA0,"TXE1":_PD.TXEN0,"TXEN1":_PD.TXEN0,
                                 "RXDATA2":_PD.RXDATA1,"TXDATA2":_PD.TXDATA1,"TXE2":_PD.TXEN1,"TXEN2":_PD.TXEN1,
                                 "RXDATA3":_PD.RXDATA2,"TXDATA3":_PD.TXDATA2,"TXE3":_PD.TXEN2,"TXEN3":_PD.TXEN2,
                                 "RXDATA4":_PD.RXDATA3,"TXDATA4":_PD.TXDATA3,"TXE4":_PD.TXEN3,"TXEN4":_PD.TXEN3,
@@ -1027,7 +1028,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 else:
                     tempcon = temp
                 tempfunc = pins[i].find("secondaryfunctionname").text
-                tempfunc = tempfunc.upper() # normalise capitalization: Peters XMLs are different from linuxcncs
+                tempfunc = tempfunc.upper().strip() # normalise capitalization: Peters XMLs are different from linuxcncs
 
                 if "(IN)" in tempfunc:
                     tempfunc = tempfunc.rstrip(" (IN)")
@@ -1038,7 +1039,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
 
                 try:
                     secmodname = pins[i].find("secondarymodulename")
-                    modulename = secmodname.text.upper()
+                    modulename = secmodname.text.upper().strip()
                     dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firmraw")
                     if modulename in ("ENCODER","QCOUNT","MUXEDQCOUNT","MUXEDQCOUNTSEL"):
                         convertedname = pinconvertenc[tempfunc]
@@ -1056,7 +1057,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                             founddevice = temp.text.upper()
                         else:
                             founddevice = None
-                        print tempfunc,founddevice
+                        #print tempfunc,founddevice
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 uses some of the sserial channels for it's pins.
                         if boardname in ("5i25","7i92"):
@@ -1088,16 +1089,20 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                             else: convertedname = pinconvertsserial[tempfunc]
                         else:
                             convertedname = pinconvertsserial[tempfunc]
+                    elif modulename in ('SSR','SSR'):
+                        if tempfunc == 'AC':
+                            convertedname = _PD.NUSED
+                        elif 'OUT-' in tempfunc:
+                            convertedname = _PD.SSR0
+                            # ssr outputs encode the HAL number in the XML name
+                            # add it to 100 so it's not change from output
+                            iocode = 100 + int(tempfunc[4:])
                     elif modulename in ("None","NONE"):
                         iocode = 0
                         #convertedname = pinconvertnone[tempfunc]
-                    elif modulename == 'AC REF':
-                        convertedname = _PD.NUSED
-                        iocode = 100
-                    elif 'OUT-' in  modulename:
-                        convertedname = _PD.SSR0
-                        iocode = 100 + int(modulename.strip()[4:])
-                    else: iocode = 100
+                    else:
+                         print 'unknon module - setting to unusable',modulename, tempfunc
+                         convertedname = _PD.NUSED
                 except:
                     iocode = 0
                     exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -1114,7 +1119,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 elif iocode >= 100:
                     temppinunit.append(_PD.SSR0)
-                    temppinunit.append(100) # 0 signals to pncconf that GPIOO cannot be changed
+                    temppinunit.append(iocode)
                 else:
                     instance_num = int(pins[i].find("secondaryinstance").text)
                     # this is a workaround for the 7i77_7i776 firmware. it uses a mux encoder for the 7i76 but only uses half of it
@@ -1144,13 +1149,15 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     tempconlist.append(tempcon)
                 temppinlist.append(temppinunit)
                 # add NONE place holders for boards with less then 24 pins per connector.
-                if not placeholders == 0 and i == (portwidth + count-1):
-                    #print "loop %d"% i
-                    count =+ portwidth
-                    #print "count %d" % count
-                    for k in range(0,placeholders):
-                        #print "%d fill here with %d parts"% (k,placeholders)
-                        temppinlist.append((_PD.NUSED,0))
+                if not placeholders == 0:
+                    #print i,portwidth*numcnctrs
+                    if  i == (portwidth + count-1) or i == portwidth*numcnctrs-1:
+                        #print "loop %d %d"% (i,portwidth + count-1)
+                        count =+ portwidth
+                        #print "count %d" % count
+                        for k in range(0,placeholders):
+                            #print "%d fill here with %d parts"% (k,placeholders)
+                            temppinlist.append((_PD.NUSED,0))
             if not sserialchannels == 0:
                 sserialchannels +=1
             # 7i96 doesn't number the connectors with P numbers so we fake it
