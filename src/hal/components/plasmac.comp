@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.71 - 21 Sep 2019
+.I VERSION: 0.72 - 24 Sep 2019
 
 .I SUMMARY:
 .br
@@ -270,6 +270,7 @@ pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 pin out s32     x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
 pin out s32     y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
+pin out float   z_relative                  "distance of Z from last probed height";
 
 /* VARIABLES */
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
@@ -416,6 +417,13 @@ FUNCTION(_) {
 
     /* output the current state */
     state_out = state;
+
+    /* output the relative Z height */
+    if(zero_target){
+        z_relative = offset_current - zero_target * offset_scale;
+    }else{
+        z_relative = axis_z_position - axis_z_min_limit;
+    }
 
     /* convert feed rates to velocity */
     setup_velocity = setup_feed_rate * velocity_scale;
