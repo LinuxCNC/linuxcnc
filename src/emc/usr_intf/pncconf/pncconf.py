@@ -1175,10 +1175,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def discover_mesacards(self):
         name, interface, address = self.get_discovery_meta()
         if name is None: return
-        print 'try to discover board:',name
+
         if not name:
             name = '5i25'
-        info = self.call_mesaflash(name,interface,address)
+
+        if self.debugstate:
+            print 'try to discover board by reading help text input:',name
+            buf = self.widgets.textinput.get_buffer()
+            info = buf.get_text(buf.get_start_iter(),
+                        buf.get_end_iter(),
+                        True)
+        else:
+            info = self.call_mesaflash(name,interface,address)
         print 'INFO:',info,'<-'
         if info is None: return None
         lines = info.splitlines()
@@ -1951,8 +1959,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if title:
             if 'Discovery Option' in title:
                 self.widgets["mesa%d_discovery"% boardnum].show()
+            if self.debugstate:
+                self.widgets.textinput.set_visible(True)
             else:
                 self.widgets["mesa%d_discovery"% boardnum].hide()
+            if self.debugstate:
+                self.widgets.textinput.set_visible(False)
         for i in(1,2,3,4,5,6,7,8,9):
             self.widgets['mesa%dcon%dtable'%(boardnum,i)].hide()
             self.widgets["mesa{}con{}tab".format(boardnum,i)].set_text('I/O\n Connector %d'%i)
