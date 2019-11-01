@@ -459,6 +459,10 @@ class App:
         self.widgets.help_window.set_title(_("Help Pages") )
         self.widgets.helpnotebook.set_current_page(0)
         self.widgets.help_window.show_all()
+        if self.debugstate:
+            self.widgets.input_tab.set_visible(True)
+        else:
+            self.widgets.input_tab.set_visible(False)
         self.widgets.help_window.present()
 
     def print_page(self,print_dialog, context, n, imagename):
@@ -1966,12 +1970,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if title:
             if 'Discovery Option' in title:
                 self.widgets["mesa%d_discovery"% boardnum].show()
-            if self.debugstate:
-                self.widgets.textinput.set_visible(True)
             else:
                 self.widgets["mesa%d_discovery"% boardnum].hide()
-            if self.debugstate:
-                self.widgets.textinput.set_visible(False)
         for i in(1,2,3,4,5,6,7,8,9):
             self.widgets['mesa%dcon%dtable'%(boardnum,i)].hide()
             self.widgets["mesa{}con{}tab".format(boardnum,i)].set_text('I/O\n Connector %d'%i)
