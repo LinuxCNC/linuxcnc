@@ -4,7 +4,7 @@ description
 """
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.72 - 24 Sep 2019
+.I VERSION: 0.78 - 2019 Nov 02
 
 .I SUMMARY:
 .br
@@ -264,7 +264,6 @@ pin out bit     program_resume              "resume the currently paused program
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
-pin out s32     state_out                   "current state output";
 pin out bit     thc_active                  "thc status output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
@@ -345,7 +344,8 @@ variable int    y_velocity;                 /* velocity for y motion for consuma
 variable int    zero_target;                /* zero height target offset */
 
 /* DEBUGGING PINS */
-//pin out s32     stop_type_out;
+pin out s32     state_out                   "current state";
+pin out s32     stop_type_out               "current stop type";
 
 function _;
 
@@ -402,9 +402,6 @@ probe_type_t probe_type = FLOAT;
 
 FUNCTION(_) {
 
-    /* DEBUGGING STUFF */
-//    stop_type_out = stop_type;
-
     /* do these first run only */
     if(!initialized && units_per_mm){
         offset_scale = units_per_mm * fperiod;
@@ -414,9 +411,6 @@ FUNCTION(_) {
         initialized = TRUE;
         probe_force_val = 0.125 * units_per_mm / offset_scale;
     }
-
-    /* output the current state */
-    state_out = state;
 
     /* output the relative Z height */
     if(zero_target){
@@ -1432,4 +1426,9 @@ FUNCTION(_) {
             rtapi_print_msg(RTAPI_MSG_ERR, "I have no idea how we got here...\n");
             break;
     }
+
+    /* set debugging pins */
+    state_out = state;
+    stop_type_out = stop_type;
+
 }
