@@ -444,11 +444,12 @@ class _GStat(gobject.GObject):
                 else:
                     unhomed_joints += str(joint)
             if homed_joints == self.stat.joints:
-                self.emit('all-homed')
                 self._is_all_homed = True
+                self.emit('all-homed')
             else:
-                self.emit('not-all-homed', unhomed_joints)
                 self._is_all_homed = False
+                self.emit('not-all-homed', unhomed_joints)
+
         # override limts
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
