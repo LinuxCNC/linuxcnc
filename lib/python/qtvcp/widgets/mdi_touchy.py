@@ -113,8 +113,11 @@ class mdi:
     
     def get_words(self, gcode):
         self.gcode = gcode
-        if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
-            return ['P', 'Q']
+        try:
+            if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
+                return ['P', 'Q']
+        except IndexError:
+            return []
         if not self.codes.has_key(gcode):
             return []
         # strip description
@@ -174,6 +177,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         self.selected = 0
         self.plaintext = ['','','','','','','','','','','','']
         self.dColor = self.label_0.palette().button().color()
+        self.dialog_code = 'CALCULATOR'
 
     def _hal_init(self):
         def homed_on_test():
@@ -183,7 +187,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-
+        STATUS.connect('general',self.return_value)
 
     def gxClicked(self):
         self.update("G")
@@ -247,9 +251,26 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
     def macroClicked(self):
         pass
 
+    def calcClicked(self):
+            mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'MDI Calculator'}
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
+
     #######################################
     #
     #######################################
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
+            LOG.debug('message return:{}'.format (message))
+            t = self.get_text().rstrip("0123456789.-")
+            self.set_text('{}{}'.format(t, num))
+            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME')
 
     def run_command(self):
         self.fill_out()
