@@ -23,23 +23,25 @@
 from xml.dom.minidom import parseString
 import sys
 import os
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
-filter = gtk.FileFilter()
+filter = Gtk.FileFilter()
 filter.add_pattern("*.xml")
 filter.set_name(_("Mach configuration files"))
-fcd = gtk.FileChooserDialog("Open...",
+fcd = Gtk.FileChooserDialog("Open...",
            None,
-           gtk.FILE_CHOOSER_ACTION_OPEN,
-           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+           Gtk.FileChooserAction.OPEN,
+           (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 fcd.set_current_folder(os.path.expanduser('~/Desktop'))
 fcd.add_filter(filter)
 response = fcd.run()
-if response == gtk.RESPONSE_OK:
+if response == Gtk.ResponseType.OK:
   file_name =  fcd.get_filename()
   machinename = os.path.splitext(os.path.basename(fcd.get_filename()))[0]
 fcd.destroy()
-if response == gtk.RESPONSE_CANCEL:
+if response == Gtk.ResponseType.CANCEL:
   quit(1)
 print file_name
 print machinename
