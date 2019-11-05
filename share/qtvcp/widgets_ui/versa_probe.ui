@@ -239,7 +239,7 @@
                <cursorShape>IBeamCursor</cursorShape>
               </property>
               <property name="toolTip">
-               <string>Maximum travel</string>
+               <string>Maximum travel during search</string>
               </property>
               <property name="text">
                <string/>
@@ -860,6 +860,9 @@
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
+              <property name="toolTip">
+               <string>Distance to move before starting search</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -919,6 +922,9 @@
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
+              <property name="toolTip">
+               <string>Distance to move Z up or down during search</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -941,41 +947,25 @@
              <number>4</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_panel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>23</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <pointsize>8</pointsize>
-               </font>
-              </property>
+             <widget class="QLabel" name="label">
               <property name="text">
-               <string>PROBE PANEL</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::AutoText</enum>
-              </property>
-              <property name="scaledContents">
-               <bool>false</bool>
+               <string>Versa Probe</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
-              <property name="margin">
-               <number>0</number>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="indent">
-               <number>2</number>
+              <property name="text">
+               <string>Help</string>
               </property>
              </widget>
             </item>
@@ -1061,6 +1051,9 @@
               <height>50</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>Enable auto zero of probed location</string>
+            </property>
             <property name="text">
              <string>AUTO
 ZERO</string>
@@ -1105,6 +1098,9 @@ ZERO</string>
               <width>80</width>
               <height>50</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>Enable auto rotation to probed skew measurement</string>
             </property>
             <property name="text">
              <string>AUTO
@@ -1372,6 +1368,9 @@ SKEW</string>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
               </property>
+              <property name="toolTip">
+               <string>Set Z axis to offset value</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -1436,6 +1435,9 @@ SKEW</string>
               </property>
               <property name="cursor">
                <cursorShape>IBeamCursor</cursorShape>
+              </property>
+              <property name="toolTip">
+               <string>Set rotation to offset value</string>
               </property>
               <property name="text">
                <string/>
@@ -1511,6 +1513,9 @@ SKEW</string>
                 <height>0</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Set X axis to offset value</string>
+              </property>
               <property name="text">
                <string>SET
 X</string>
@@ -1540,6 +1545,9 @@ X</string>
                 <height>0</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Set Y axis to offset value</string>
+              </property>
               <property name="text">
                <string>SET
 Y</string>
@@ -1568,6 +1576,9 @@ Y</string>
                 <width>0</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="toolTip">
+               <string>Set Z axis to offset value</string>
               </property>
               <property name="text">
                <string>SET
@@ -1611,6 +1622,9 @@ Z</string>
                 <height>16777215</height>
                </size>
               </property>
+              <property name="toolTip">
+               <string>Set axis rotation angle</string>
+              </property>
               <property name="text">
                <string>SET
 ANGLE</string>
@@ -1651,6 +1665,9 @@ ANGLE</string>
                 <family>DejaVu Sans</family>
                 <pointsize>10</pointsize>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>This button not implemented</string>
               </property>
               <property name="text">
                <string>MEASURE
@@ -2911,6 +2928,9 @@ TOOL</string>
           </item>
           <item row="2" column="0">
            <widget class="PushButton" name="pbtn_inside_length_x">
+            <property name="toolTip">
+             <string>Inside length X</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2943,6 +2963,9 @@ TOOL</string>
           </item>
           <item row="2" column="1">
            <widget class="PushButton" name="pbtn_outside_length_x">
+            <property name="toolTip">
+             <string>Outside length X</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -2975,6 +2998,9 @@ TOOL</string>
           </item>
           <item row="3" column="0">
            <widget class="PushButton" name="pbtn_inside_length_y">
+            <property name="toolTip">
+             <string>Inside length Y</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3007,6 +3033,9 @@ TOOL</string>
           </item>
           <item row="3" column="1">
            <widget class="PushButton" name="pbtn_outside_length_y">
+            <property name="toolTip">
+             <string>Outside length Y</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3039,6 +3068,9 @@ TOOL</string>
           </item>
           <item row="4" column="0">
            <widget class="PushButton" name="pbtn_down">
+            <property name="toolTip">
+             <string>Probe Z down</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3071,6 +3103,9 @@ TOOL</string>
           </item>
           <item row="4" column="1">
            <widget class="PushButton" name="pbtn_measure_diam">
+            <property name="toolTip">
+             <string>This button not implemented</string>
+            </property>
             <property name="text">
              <string/>
             </property>
@@ -3094,11 +3129,8 @@ TOOL</string>
              <bool>false</bool>
             </property>
             <property name="probe" stdset="0">
-             <string>probe_measure_diam</string>
+             <string>probe_help</string>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">length_buttonGroup</string>
-            </attribute>
            </widget>
           </item>
          </layout>
@@ -3950,6 +3982,22 @@ TOOL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Form</receiver>
+   <slot>help_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>541</x>
+     <y>408</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>629</x>
+     <y>415</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>pbtn_outside_xpym_released()</slot>
@@ -4012,8 +4060,14 @@ TOOL</string>
   <slot>status_d_setText()</slot>
   <slot>status_ym_setText()</slot>
   <slot>status_xp_setText()</slot>
+  <slot>help_clicked()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="length_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
@@ -4025,11 +4079,6 @@ TOOL</string>
    </property>
   </buttongroup>
   <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

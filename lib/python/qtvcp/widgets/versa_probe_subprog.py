@@ -68,7 +68,7 @@ class VersaSubprog(QObject):
         self.status_z = 0.0
         self.status_d = 0.0
         self.status_a = 0.0
-        
+
         self.history_log = ""
         self.error_status = None
         self.process()
@@ -84,9 +84,10 @@ class VersaSubprog(QObject):
                 line = None
                 try:
                     error = self.process_command(cmd)
-# a successfully completed command will return 1 - anything else is an error
+# a successfully completed command will return 1 - None means ignore - anything else is an error
                     if error is not None:
                         if error != 1:
+                            ACTION.CALL_MDI("G90")
                             sys.stdout.write("[ERROR] Probe routine returned with error\n")
                         else:
                             status = self.collect_status()
@@ -101,13 +102,18 @@ class VersaSubprog(QObject):
                     sys.stdout.write("[ERROR] Command Error: {}\n".format(e))
                     sys.stdout.flush()
 
+    # check for an error messsage was sent to us or
+    # check that the command is actually a method in our class else
+    # this message isn't for us - ignore it
     def process_command(self, cmd):
         if cmd[0] == 'ERROR':
             self.process_error(cmd[1])
             return 0
-        else:
+        elif cmd[0] in dir(self):
             self.update_data(cmd[1])
             return self[cmd[0]]()
+        else:
+            return None
 
     # This is not actually used anywhere right now
     def process_error(self, cmd):
@@ -123,10 +129,13 @@ class VersaSubprog(QObject):
                                      'data_side_edge_length', 'data_tool_probe_height', 'data_tool_block_height',
                                      'data_xy_clearances', 'data_z_clearance']):
                 self[i] = float(temp[num])
-                self.allow_auto_zero = bool(temp[15])
-                self.allow_auto_skew = bool(temp[16])
+                self.allow_auto_zero = temp[15] == 'True'
+                self.allow_auto_skew = temp[16] == 'True'
         else:
             LOG.error("{} is not the right number (17) of arguments for Versa_probe Macros".format(len(temp)))
+        # clear all previous probe results
+        for i in ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a']:
+            self['status_' + i] = 0.0
 
     def collect_status(self):
         arg = ''
@@ -158,29 +167,35 @@ class VersaSubprog(QObject):
         G90""".format(self.data_rapid_vel, self.data_z_clearance)        
         return self.CALL_MDI_WAIT(s, 30)
 
-    def set_zero(self,s="XYZ",x=0.,y=0.,z=0.):
-        if self.allow_auto_zero :
-            #  Z current position
-            tmpz = STATUS.get_probed_position_with_offsets()[2]
+    def length_x(self):
+        if self.status_xp == 0 or self.status_xm == 0: return 0
+        len = abs(self.status_xp - self.status_xm)
+        self.status_lx = len
+        return len
+
+    def length_y(self):
+        if self.status_yp == 0 or self.status_ym == 0: return 0
+        len = abs(self.status_yp - self.status_ym)
+        self.status_ly = len
+        return len
+
+    def set_zero(self, s):
+        if self.allow_auto_zero is True:
             c = "G10 L20 P0"
-            s = s.upper()
-            if "X" in s :
-                x += self.data_adj_x
-                c += " X%s"%x
-            if "Y" in s :
-                y += self.data_adj_y
-                c += " Y%s"%y
-            if "Z" in s :
-                tmpz = tmpz-z+self.data_adj_z
-                c += " Z%s"%tmpz
-            self.CALL_MDI_WAIT(c)
+            if "X" in s:
+                c += " X{}".format(self.data_adj_x)
+            if "Y" in s:
+                c += " Y{}".format(self.data_adj_y)
+            if "Z" in s:
+                c += " Z{}".format(self.data_adj_z)
+            ACTION.CALL_MDI(c)
             ACTION.RELOAD_DISPLAY()
 
     def rotate_coord_system(self,a=0.):
-        if self.allow_auto_skew:
-            self.status_a = a
+        self.status_a = a
+        if self.allow_auto_skew is True:
             s="G10 L2 P0"
-            if self.allow_auto_zero:
+            if self.allow_auto_zero is True:
                 s += " X{}".format(self.data_adj_x)
                 s += " Y{}".format(self.data_adj_y)
             else:
@@ -205,10 +220,8 @@ class VersaSubprog(QObject):
             if list[i] in s:
                 c += ' ' + list[i] + "[" + tpl%(arg[i]) + ']'
         self.history_log = c
-#        LOG.debug(self.history_log)
 
     def probe(self, name):
-        position = STATUS.get_probed_position_with_offsets()
         if name == "xminus" or name == "yminus" :
             travel = 0 - self.data_max_travel
             latch = 0 - self.data_latch_return_dist
@@ -218,16 +231,20 @@ class VersaSubprog(QObject):
         else:
             return -1
         axis = name[0].upper()
-        pos = "XY".index(axis)
+        # probe toward target
         s = """G91
         G38.2 {}{} F{}""".format(axis, travel, self.data_search_vel)
         if self.CALL_MDI_WAIT(s, 30) == -1: return -1
-        s = "G1 {}{} F{}".format(axis, latch, self.data_rapid_vel)
+        # retract
+        s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
         if self.CALL_MDI_WAIT(s, 30) == -1: return -1
+        # wait and probe toward target
         s = """G4 P0.5
-        G38.2 {}{} F{}""".format(axis, 2*travel, self.data_probe_vel)
+        G38.2 {}{} F{}""".format(axis, 1.2*latch, self.data_probe_vel)
         if self.CALL_MDI_WAIT(s, 30) == -1: return -1
-        if self.CALL_MDI_WAIT("G90 G1 {}{}".format(axis, position[pos])) == -1: return -1
+        # retract
+        s = "G1 {}{} F{}".format(axis, -latch, self.data_rapid_vel)
+        if self.CALL_MDI_WAIT(s, 30) == -1: return -1
 
     def CALL_MDI_WAIT(self, code, timeout = 5):
         LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, timeout))
@@ -282,7 +299,6 @@ class VersaSubprog(QObject):
     ###################################
 
     def probe_angle_yp(self):
-        xstart = STATUS.get_probed_position_with_offsets()[0]
         # move Y - xy_clearance
         s="""G91
         G1 F%s Y-%f
@@ -291,7 +307,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
@@ -305,7 +320,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
@@ -318,15 +332,10 @@ class VersaSubprog(QObject):
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move XY to adj start point
-        s="G1 F%s X%f Y%f" % (self.data_rapid_vel, xstart,ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
         self.rotate_coord_system(alfa)
         return 1
 
     def probe_angle_ym(self):
-        xstart = STATUS.get_probed_position_with_offsets()[0]
         # move Y + xy_clearance
         s="""G91
         G1 F%s Y%f
@@ -335,7 +344,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
@@ -348,7 +356,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
@@ -360,15 +367,10 @@ class VersaSubprog(QObject):
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move XY to adj start point
-        s="G1 F%s X%f Y%f" % (self.data_rapid_vel, xstart,ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
         self.rotate_coord_system(alfa)
         return 1
 
     def probe_angle_xp(self):
-        ystart = STATUS.get_probed_position_with_offsets()[1]
         # move X - xy_clearance
         s="""G91
         G1 F%s X-%f
@@ -377,7 +379,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
@@ -391,7 +392,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
@@ -403,15 +403,10 @@ class VersaSubprog(QObject):
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move XY to adj start point
-        s="G1 F%s X%f Y%f" % (self.data_rapid_vel, xcres,ystart)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
         self.rotate_coord_system(alfa)
         return 1
 
     def probe_angle_xm(self):
-        ystart = STATUS.get_probed_position_with_offsets()[1]
         # move X + xy_clearance
         s="""G91
         G1 F%s X%f
@@ -420,7 +415,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
@@ -434,7 +428,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
@@ -445,10 +438,6 @@ class VersaSubprog(QObject):
         self.add_history('Rotation XM ',"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
         # move Z to start point
         if self.z_clearance_up() == -1:
-            return
-        # move XY to adj start point
-        s="G1 F%s X%f Y%f" % (self.data_rapid_vel, xcres,ystart)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
             return
         self.rotate_coord_system(alfa)
         return 1
@@ -468,7 +457,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpx)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
@@ -483,19 +471,18 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpx)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres = float(a[0])+0.5*self.data_probe_diam
         self.status_xp = xpres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         xcres = 0.5*(xmres+xpres)
         self.status_xc = xcres
-        self.status_lx = len_x
         # move X to new center
-        s="""G1 F%s X%f""" % (self.data_rapid_vel, xcres)        
+        s="""G90
+        G1 F%s X%f""" % (self.data_rapid_vel, xcres)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
 
@@ -506,7 +493,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
@@ -521,28 +507,26 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1])+0.5*self.data_probe_diam
         self.status_yp = ypres
-        len_y = abs(ypres - ymres)
-        # find, show and move to finded  point
+        len_y = self.length_y()
+        # find, show and move to found  point
         ycres = 0.5*(ymres+ypres)
         self.status_yc = ycres
-        self.status_ly = len_y
         diam = 0.5*((xpres-xmres)+(ypres-ymres))
         self.status_d = diam
 
         self.add_history('Inside Hole ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,len_x,ymres,ycres,ypres,len_y,0,diam,0)
+        if self.z_clearance_up() == -1:
+            return
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # move Z to start point
-        self.z_clearance_up()
         self.set_zero("XY")
         return 1
         
@@ -558,14 +542,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe("xplus") == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0])+0.5*self.data_probe_diam
         self.status_xp = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
 
         # move X - edge_length Y - xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearances
@@ -574,19 +557,18 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yplus.ngc
         if self.probe("yplus") == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])+0.5*self.data_probe_diam
         self.status_yp = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Inside XPYP ',"XpLxYpLy",0,0,xres,len_x,0,0,yres,len_y,0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -603,14 +585,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe("xplus") == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0])+0.5*self.data_probe_diam
         self.status_xp = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
 
         # move X - edge_length Y + xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearances
@@ -619,19 +600,18 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yminus.ngc
         if self.probe("yminus") == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Inside XPYM ',"XpLxYmLy",0,0,xres,len_x,yres,0,0,len_y,0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -648,14 +628,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe("xminus") == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0])-0.5*self.data_probe_diam
         self.status_xm = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
 
         # move X + edge_length Y - xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearances
@@ -664,7 +643,6 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yplus.ngc
         if self.probe("yplus") == -1:
             return
 
@@ -672,12 +650,12 @@ class VersaSubprog(QObject):
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])+0.5*self.data_probe_diam
         self.status_yp = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Inside XMYP',"XmLxYpLy",xres,0,0,len_x,0,0,yres,len_y,0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -694,14 +672,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe("xminus") == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0])-0.5*self.data_probe_diam
         self.status_xm = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
 
         # move X + edge_length Y - xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearances
@@ -710,19 +687,18 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yminus.ngc
         if self.probe("yminus") == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Inside XMYM',"XmLxYmLy",xres,0,0,len_x,yres,0,0,len_y,0,0,0)
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -743,7 +719,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-       # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         a = STATUS.get_probed_position_with_offsets()
@@ -754,7 +729,7 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -771,7 +746,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         a = STATUS.get_probed_position_with_offsets()
@@ -782,7 +756,7 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -799,7 +773,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         a = STATUS.get_probed_position_with_offsets()
@@ -810,7 +783,7 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -827,7 +800,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         a = STATUS.get_probed_position_with_offsets()
@@ -838,7 +810,7 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -857,14 +829,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0]+0.5*self.data_probe_diam)
         self.status_xp = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -878,19 +849,18 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])+0.5*self.data_probe_diam
         self.status_yp = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Outside XPYP ',"XpLxYpLy",0,0,xres,len_x,0,0,yres,len_y,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -907,14 +877,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0]+0.5*self.data_probe_diam)
         self.status_xp = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -928,18 +897,18 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = yres
+        len_y = self.length_y()
         self.add_history('Outside XPYM ',"XpLxYmLy",0,0,xres,len_x,yres,0,0,len_y,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -956,14 +925,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0]-0.5*self.data_probe_diam)
         self.status_xm = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -977,19 +945,18 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])+0.5*self.data_probe_diam
         self.status_yp = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Outside XMYP ',"XmLxYpLy",xres,0,0,len_x,0,0,yres,len_y,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -1006,14 +973,13 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xres=float(a[0]-0.5*self.data_probe_diam)
         self.status_xm = xres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -1027,19 +993,18 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         yres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = yres
-        len_y = abs(ypres - ymres)
+        len_y = self.length_y()
         self.add_history('Outside XMYM ',"XmLxYmLy",xres,0,0,len_x,yres,0,0,len_y,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -1056,7 +1021,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
@@ -1076,7 +1040,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
 
         if self.probe('xminus') == -1:
             return
@@ -1084,15 +1047,12 @@ class VersaSubprog(QObject):
         a = STATUS.get_probed_position_with_offsets()
         xmres=float(a[0])-0.5*self.data_probe_diam
         self.status_xm = xmres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         xcres=0.5*(xpres+xmres)
         self.status_xc = xcres
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # distance to the new center of X from current position
-#        self.stat.poll()
-#        to_new_xc=self.stat.position[0]-self.stat.g5x_offset[0] - self.stat.g92_offset[0] - self.stat.tool_offset[0] - xcres
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -1106,7 +1066,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
@@ -1126,24 +1085,23 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ymres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = ymres
-        len_y = abs(ypres - ymres)
-        # find, show and move to finded  point
+        len_y = self.length_y()
+        # find, show and move to found  point
         ycres=0.5*(ypres+ymres)
         self.status_yc = ycres
         diam=0.5*((xmres-xpres)+(ymres-ypres))
         self.status_d = diam
-        self.add_history('Outside Hole ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,len_x,ymres,ycres,ypres,len_y,0,diam,0)
+        self.add_history('Outside Circle ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,len_x,ymres,ycres,ypres,len_y,0,diam,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
@@ -1156,20 +1114,20 @@ class VersaSubprog(QObject):
 ###################################
 
     def probe_down(self):
-        a = STATUS.get_probed_position_with_offsets()
         ACTION.CALL_MDI("G91")
         c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         c = "G1 Z{} F{}".format(self.data_latch_return_dist, self.data_rapid_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         ACTION.CALL_MDI("G4 P0.5")
-        c = "G38.2 Z-{} F{}".format(2*self.data_latch_return_dist, self.data_probe_vel)
+        c = "G38.2 Z-{} F{}".format(1.2*self.data_latch_return_dist, self.data_probe_vel)
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
-        ACTION.CALL_MDI("G90")
-        c = "G1 Z{} F{}".format(a[2], self.data_rapid_vel)
+        a = STATUS.get_probed_position_with_offsets()
         self.status_z = float(a[2])
         self.add_history('Straight Down ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
-        self.set_zero("Z",0,0,a[2])
+        self.set_zero("Z")
+        if self.z_clearance_up() == -1:
+            return
         return 1
 
 ###################################
@@ -1185,7 +1143,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
@@ -1195,13 +1152,9 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point X
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xpres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
 
         # move X + 2 edge_length +  xy_clearance
-        aa=2*self.data_side_edge_length+self.data_xy_clearances
+        aa=2*(self.data_side_edge_length + self.data_xy_clearances)
         s="""G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
@@ -1209,7 +1162,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
 
         if self.probe('xminus') == -1:
             return
@@ -1217,7 +1169,7 @@ class VersaSubprog(QObject):
         a=STATUS.get_probed_position_with_offsets()
         xmres=float(a[0])-0.5*self.data_probe_diam
         self.status_xm = xmres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         xcres=0.5*(xpres+xmres)
         self.status_xc = xcres
         self.add_history('Outside Length X ',"XmXcXpLx",xmres,xcres,xpres,len_x,0,0,0,0,0,0,0)
@@ -1228,7 +1180,7 @@ class VersaSubprog(QObject):
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        self.set_zero("XY")
+        self.set_zero("X")
         return 1
 
     # Ly OUT
@@ -1242,7 +1194,6 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
@@ -1252,13 +1203,9 @@ class VersaSubprog(QObject):
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point Y
-        s = "G1 F%s Y%f" % (self.data_rapid_vel, ypres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
 
         # move Y + 2 edge_length +  xy_clearance
-        aa=2*self.data_side_edge_length+self.data_xy_clearances
+        aa=2*(self.data_side_edge_length + self.data_xy_clearances)
         s="""G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)
@@ -1266,40 +1213,38 @@ class VersaSubprog(QObject):
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
         a=STATUS.get_probed_position_with_offsets()
         ymres=float(a[1])-0.5*self.data_probe_diam
         self.status_ym = ymres
-        len_y = abs(ypres - ymres)
-        # find, show and move to finded  point
+        len_y = self.length_y()
+        # find, show and move to found  point
         ycres=0.5*(ypres+ymres)
         self.status_yc = ycres
         self.add_history('Outside Length Y ',"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,len_y,0,0,0)
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        self.set_zero("XY")
+        self.set_zero("Y")
         return 1
 
     # Lx IN
     def probe_inside_length_x(self):
         if self.z_clearance_down() == -1:
             return
-        # move X - edge_length Y + xy_clearance
+        # move X - edge_length Y - xy_clearance
         tmpx=self.data_side_edge_length-self.data_xy_clearances
         s="""G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, tmpx)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xminus.ngc
         if self.probe('xminus') == -1:
             return
         # show X result
@@ -1314,38 +1259,37 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpx)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start xplus.ngc
         if self.probe('xplus') == -1:
             return
         # show X result
         a=STATUS.get_probed_position_with_offsets()
         xpres=float(a[0])+0.5*self.data_probe_diam
         self.status_xp = xpres
-        len_x = abs(xpres - xmres)
+        len_x = self.length_x()
         xcres=0.5*(xmres+xpres)
         self.status_xc = xcres
         self.add_history('Inside Length X ',"XmXcXpLx",xmres,xcres,xpres,len_x,0,0,0,0,0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
         # move X to new center
         s = """G1 F%s X%f""" % (self.data_rapid_vel, xcres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # move Z to start point
-        self.z_clearance_up()
-        self.set_zero("XY")
+        self.set_zero("X")
         return 1
 
     # Ly IN
     def probe_inside_length_y(self):
         if self.z_clearance_down() == -1:
             return
-        # move Y - edge_length + xy_clearance
+        # move Y - edge_length - xy_clearance
         tmpy=self.data_side_edge_length-self.data_xy_clearances
         s="""G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, tmpy)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yminus.ngc
         if self.probe('yminus') == -1:
             return
         # show Y result
@@ -1360,140 +1304,25 @@ class VersaSubprog(QObject):
         G90""" % (self.data_rapid_vel, tmpy)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # Start yplus.ngc
         if self.probe('yplus') == -1:
             return
         # show Y result
         a=STATUS.get_probed_position_with_offsets()
         ypres=float(a[1])+0.5*self.data_probe_diam
         self.status_yp = ypres
-        len_y = abs(ypres - ymres)
-        # find, show and move to finded  point
+        len_y = self.length_y()
+        # find, show and move to found  point
         ycres=0.5*(ymres+ypres)
         self.status_yc = ycres
         self.add_history('Inside Length Y ',"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,len_y,0,0,0)
+        # move Z to start point
+        if self.z_clearance_up() == -1:
+            return
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
         if self.CALL_MDI_WAIT(s, 30) == -1:
             return
-        # move Z to start point
-        self.z_clearance_up()
-        self.set_zero("XY")
-        return 1
-
-    # TOOL DIA
-    def probe_measure_diam(self):
-        # move XY to Tool Setter point
-        # Start gotots.ngc
-        if self.probe('gotots') == -1:
-            return
-        # move X - edge_length- xy_clearance
-        s="""G91
-        G1 F%s X-%f
-        G90""" % (self.data_rapid_vel, 0.5 * self.tsdiam + self.data_xy_clearances)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        # Start xplus.ngc
-        if self.probe('xplus') == -1:
-            return
-        # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.data_probe_diam
-        self.status_xp = xpres
-        # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
-        # move to finded  point X
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xpres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-
-        # move X + tsdiam +  xy_clearance
-        aa=self.tsdiam+self.data_xy_clearances
-        s="""G91
-        G1 F%s X%f
-        G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        # Start xminus.ngc
-
-        if self.probe('xminus') == -1:
-            return
-        # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.data_probe_diam
-        self.status_xm = xmres
-        len_x = abs(xpres - xmres)
-        xcres=0.5*(xpres+xmres)
-        self.status_xc = xcres
-        # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
-        # go to the new center of X
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-
-        # move Y - tsdiam/2 - xy_clearance
-        a=0.5*self.tsdiam+self.data_xy_clearances
-        s="""G91
-        G1 F%s Y-%f
-        G90""" % (self.data_rapid_vel, a)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        # Start yplus.ngc
-        if self.probe('yplus') == -1:
-            return
-        # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.data_probe_diam
-        self.status_yp = ypres
-        # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
-        # move to finded  point Y
-        s = "G1 F%s Y%f" % (self.data_rapid_vel, ypres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-
-        # move Y + tsdiam +  xy_clearance
-        aa=self.tsdiam+self.data_xy_clearances
-        s="""G91
-        G1 F%s Y%f
-        G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        # Start xminus.ngc
-        if self.probe('yminus') == -1:
-            return
-        # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.data_probe_diam
-        self.status_ym = ymres
-        len_y = abs(ypres - ymres)
-        # find, show and move to finded  point
-        ycres=0.5*(ypres+ymres)
-        self.status_yc = ycres
-        diam=self.data_probe_diam + (ymres-ypres-self.tsdiam)
-        self.status_d = diam
-        # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
-        self.STATUS.stat.poll()
-        tmpz=self.STATUS.stat.position[2] - 4
-        self.add_history('Measure Tool Diameter ',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
-        # move to finded  point
-        s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        self.set_zero("Y")
         return 1
 
 ########################################

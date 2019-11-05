@@ -1,0 +1,56 @@
+<H1>Versa Probe Usage</H1>
+
+<p>Install the probe into the spindle.</p>
+<p>Manually jog the probe tip to about 2-10 mm above the workpiece surface.</p>
+<p>Manually jog the XY position to about the position indicated by the colored dot on the appropriate button of the Probe Screen.</p>
+<p>Fill in the probing parameters. When you change any of the parameters, they are automatically saved in the PREFERENCES file specified in the INI file.</p>
+
+<p>Hit <b>only</b> the button that corresponds to the position of the probe above the workpiece.</p>
+
+<p>All the probe routines end with XY moving to the probed point (or edge, or corner, or center). The Z height is restored to the original starting position.</p>
+
+<H3>DIAMETER</H3>
+This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+
+<H3>TRAVEL</H3>
+<p>The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.</p>
+
+<H3>LATCH RTN</H3>
+<p>The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm</p>
+
+<H3>SEARCH</H3>
+This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+
+<H3>PROBE</H3>
+<p>Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.</p>
+
+<H3>RAPID</H3>
+<p>Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.</p>
+
+<H3>SIDE/EDGE LENGTH</H3>
+<p>This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. <b>Note: NOT the diameter.</b> </p>
+<H3>PROBE HT</H3>
+<p>The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.</p>
+
+<H3>BLOCK HT</H3>
+<p>The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.</p>
+
+<H3>XY CLEARANCE</H3>
+<p>The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.</p>
+
+<H3>Z CLEARANCE</H3>
+<p>The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.</p>
+
+<center><img src="../images/probe_icons/outside_corner_help.png"/></center>
+<center>Sequence of movements for Outside Corner</center>
+<p></p>
+<center><img src="../images/probe_icons/inside_corner_help.png"/></center>
+<center>Sequence of movements for Inside Corner</center>
+<p></p>
+<center><img src="../images/probe_icons/boss_center_help.png"/></center>
+<center>Sequence of movements for Outside Circle Diameter</center>
+<p></p>
+<center><img src="../images/probe_icons/hole_center_help.png"/></center>
+<center>Sequence of movements for Inside Circle Diameter</center>
+
+

@@ -35,6 +35,7 @@ LOG = logger.getLogger(__name__)
 
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'versa_probe_subprog.py'))
+HELP = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_usage.html')
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -138,7 +139,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         if not result:
             LOG.error("Error reading page data")
             return
+        # clear all previous offsets
+        ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
         string_to_send = cmd.encode('utf-8') + ' ' + result + '\n'
+#        print("String to send ", string_to_send)
         self.proc.writeData(string_to_send)
         self.process_busy = True
 
@@ -168,6 +172,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         elif "INFO" in line:
             print(line)
         elif "STATUS" in line:
+            line = line.rstrip('\n')
             temp = line.strip('[STATUS] ').split(',')
             for num, i in enumerate(['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a']):
                 self['status_' + i].setText(temp[num])
@@ -186,6 +191,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 #####################################################
 # button callbacks
 #####################################################
+
+    def help_clicked(self):
+        self.pop_help()
 
     def btn_outside_clicked(self, button):
         cmd = button.property('probe')
@@ -228,7 +236,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             s +=  " X%.4f"%a[0]
             s +=  " Y%.4f"%a[1]
         s +=  " R%.4f"% float(self.input_adj_angle.text())
-#        print "s=",s
         ACTION.CALL_MDI_WAIT(s, 30)
 
 #####################################################
@@ -249,7 +256,34 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         
     def check_probe(self):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
-                
+
+    def pop_help(self):
+        d = QtWidgets.QDialog()
+        d.setMinimumWidth(600)
+        l = QtWidgets.QVBoxLayout()
+        t = QtWidgets.QTextEdit()
+        t.setReadOnly(False)
+        l.addWidget(t)
+
+        bBox = QtWidgets.QDialogButtonBox()
+        bBox.addButton('Ok', QtWidgets.QDialogButtonBox.AcceptRole)
+        bBox.accepted.connect(d.accept)
+        l.addWidget(bBox)
+        d.setLayout(l)
+
+        try:
+            file = QtCore.QFile(HELP)
+            file.open(QtCore.QFile.ReadOnly)
+            html = file.readAll()
+            html = unicode(html, encoding='utf8')
+            html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
+            t.setHtml(html)
+        except Exception as e:
+            t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+
+        d.show()
+        d.exec_()
+
 ########################################
 # required boiler code
 ########################################
