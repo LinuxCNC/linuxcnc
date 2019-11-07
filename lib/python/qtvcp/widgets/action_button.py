@@ -59,6 +59,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.load_dialog = False
         self.macro_dialog = False
         self.origin_offset_dialog = False
+        self.tool_offset_dialog = False
         self.camview_dialog = False
         self.machine_log_dialog = False
         self.jog_joint_pos = False
@@ -215,7 +216,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             STATUS.connect('all-homed', lambda w: _safecheck(True))
 
-        elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog:
+        elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog or \
+                self.tool_offset_dialog:
             pass
         elif self.jog_joint_pos or self.jog_joint_neg or \
                     self.jog_selected_pos or self.jog_selected_neg:
@@ -396,6 +398,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.emit('dialog-request', {'NAME':'MACRO', 'ID':'_%s_'% self.objectName()})
         elif self.origin_offset_dialog:
             STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET', 'ID':'_%s_'% self.objectName()})
+        elif self.tool_offset_dialog:
+            STATUS.emit('dialog-request', {'NAME':'TOOLOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
             j = "XYZABCUVW"
             try:
@@ -646,7 +650,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
-                 'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot')
+                 'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
+                 'origin_offset_dialog')
 
         for i in data:
             if not i == picked:
@@ -751,6 +756,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.origin_offset_dialog
     def reset_origin_offset_dialog(self):
         self.origin_offset_dialog = False
+
+    def set_tool_offset_dialog(self, data):
+        self.tool_offset_dialog = data
+        if data:
+            self._toggle_properties('tool_offset_dialog')
+    def get_tool_offset_dialog(self):
+        return self.tool_offset_dialog
+    def reset_tool_offset_dialog(self):
+        self.tool_offset_dialog = False
 
     def set_camview_dialog(self, data):
         self.camview_dialog = data
@@ -1213,6 +1227,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     origin_offset_dialog_action = QtCore.pyqtProperty(bool,
                                                       get_origin_offset_dialog, set_origin_offset_dialog,
                                                       reset_origin_offset_dialog)
+    tool_offset_dialog_action = QtCore.pyqtProperty(bool,
+                                                      get_tool_offset_dialog, set_tool_offset_dialog,
+                                                      reset_tool_offset_dialog)
     macro_dialog_action = QtCore.pyqtProperty(bool, get_macro_dialog, set_macro_dialog, reset_macro_dialog)
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
