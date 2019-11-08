@@ -293,8 +293,8 @@ class HandlerClass:
                 self.c.mdi('G90')
                 self.c.mdi('M5')
                 self.c.wait_complete()
-                self.c.mode(linuxcnc.MODE_MANUAL)
-                self.c.wait_complete()
+#                self.c.mode(linuxcnc.MODE_MANUAL)
+#                self.c.wait_complete()
             else:
                 print('current mode prevents a single cut')
 
