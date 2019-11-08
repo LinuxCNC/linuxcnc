@@ -589,6 +589,18 @@ Parameters related to ohmic probing.
 
 NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
 
+.Single Cut
+
+Parameters for a single cut.
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|X Axis Length|The X axis distance to travel for a single cut.
+|Y Axis Length|The Y axis distance to travel for a single cut.
+|Start Cut|Press to commence a single cut.
+|===
+
 .Save & Reload Buttons
 
 The *'Save'* button will save the currently displayed parameters as the default.
@@ -1038,6 +1050,60 @@ M2 (end job)
 * It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
 * It is OK to have multiple and mixed #<holes> commands in a GCode file.
 ====
+
+=== Single Cut
+
+A single cut is a single unidirectional cutting move often used to cut a sheet into smaller pieces prior to running a GCode program.
+
+The machine needs to be homed before commencing a single cut.
+
+A single cut will commence from the machines current X/Y position.
+
+.Automatic Single Cut
+
+This is the preferred method and the parameters for this method are entered in the Run Panel.
+
+. Jog to the required X/Y start position. +
+. Set required Cut Feed Rate in Cut Parameters of the Run Panel. +
+. Enter the length of the cut along the X and/or Y axes. +
+. Press the 'Start Cut' button and the cut will commence.
+
+
+.Pendant Single Cut
+
+If you have a pendant that can start and stop the spindle plus jog the X and Y axes then you can manually perform a single cut.
+
+. Jog to the required X/Y start position. +
+. Set the required feed rate with the Jog Speed slider. +
+. Start the procedure by starting the spindle. +
+. After probing the torch will fire. +
+. When the Arc OK is received the machine can be jogged along the cut line using the jog buttons. +
+. When the cut is complete stop the spindle. +
+. The torch will turn off and the Z axis returns to the starting position.
+
+.Manual Single Cut In Axis
+
+. Jog to the required X/Y start position. +
+. Set the required feed rate with the Jog Speed slider. +
+. Start the procedure by pressing 'F9'. +
+. After probing the torch will fire. +
+. When the Arc OK is received the machine can be jogged along the cut line using the jog keys. +
+. When the cut is complete press 'F9' or 'Esc'. +
+. The torch will turn off and the Z axis returns to the starting position.
+
+.Manual Single Cut In Gmoccapy
+
+If you wish to use the keyboard jogging keys then enable keyboard shortcuts in the Hardware tab of the Settings page, otherwise use the GUI jog buttons.
+
+. Jog to the required X/Y start position. +
+. Set the required feed rate with the Jog Speed slider. +
+. Enter MDI mode. +
+. Start the procedure by entering 'M3 S1'. +
+. Enter Manual mode. +
+. After probing the torch will fire. +
+. When the Arc OK is received the machine can be jogged along the cut line using the jog buttons (or jog keys if enabled). +
+. When the cut is complete press 'Esc'. +
+. The torch will turn off and the Z axis returns to the starting position.
 
 [[air-scribe]]
 
