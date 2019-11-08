@@ -275,6 +275,29 @@ class HandlerClass:
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
 
+    def on_single_cut_pressed(self, widget):
+        self.builder.get_object('x-single-cut').update()
+        self.builder.get_object('y-single-cut').update()
+        x = self.builder.get_object('x-single-cut').get_value()
+        y = self.builder.get_object('y-single-cut').get_value()
+        print('X:{}  Y:{}'.format(x, y))
+        if x <> 0 or y <> 0:
+            self.s.poll()
+            if not self.s.estop and self.s.enabled and self.s.homed.count(1) == self.s.joints and self.s.interp_state == linuxcnc.INTERP_IDLE:
+                self.c.mode(linuxcnc.MODE_MDI)
+                self.c.wait_complete()
+                self.c.mdi('M3 $0 S1')
+                self.c.mdi('G91')
+                self.c.mdi('G1 X{} Y{} F#<_hal[plasmac.cut-feed-rate]>'.format(x, y))
+                self.c.wait_complete()
+                self.c.mdi('G90')
+                self.c.mdi('M5')
+                self.c.wait_complete()
+                self.c.mode(linuxcnc.MODE_MANUAL)
+                self.c.wait_complete()
+            else:
+                print('current mode prevents a single cut')
+
     def configure_widgets(self):
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
@@ -302,6 +325,10 @@ class HandlerClass:
             self.builder.get_object('cut-height-adj').configure(1,0,25,0.01,0,0)
             self.builder.get_object('pierce-height').set_digits(2)
             self.builder.get_object('pierce-height-adj').configure(4,0,25,0.01,0,0)
+            self.builder.get_object('x-single-cut').set_digits(0)
+            self.builder.get_object('x-single-cut-adj').configure(0,-9999,9999,1,0,0)
+            self.builder.get_object('y-single-cut').set_digits(0)
+            self.builder.get_object('y-single-cut-adj').configure(0,-9999,9999,1,0,0)
         elif self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
             self.builder.get_object('kerf-width').set_digits(3)
             self.builder.get_object('kerf-width-adj').configure(0.02,0,0.25,1,0,0)
@@ -311,6 +338,10 @@ class HandlerClass:
             self.builder.get_object('cut-height-adj').configure(0.04,0,1,0.001,0,0)
             self.builder.get_object('pierce-height').set_digits(3)
             self.builder.get_object('pierce-height-adj').configure(0.16,0,1,0.001,0,0)
+            self.builder.get_object('x-single-cut').set_digits(1)
+            self.builder.get_object('x-single-cut-adj').configure(0,-999,999,0.1,0,0)
+            self.builder.get_object('y-single-cut').set_digits(1)
+            self.builder.get_object('y-single-cut-adj').configure(0,-999,999,0.1,0,0)
         else:
             self.dialog_error('incorrect [TRAJ]LINEAR_UNITS in ini file')
             print('*** incorrect [TRAJ]LINEAR_UNITS in ini file')
@@ -336,6 +367,16 @@ class HandlerClass:
             else:
                 pass
             self.oldMode = mode
+        self.s.poll()
+        homed = True
+        for n in range(self.s.joints):
+            if not self.s.homed[n]:
+                homed = False
+        hal.set_p('plasmac.homed', str(homed))
+        if homed and self.s.interp_state == linuxcnc.INTERP_IDLE:
+            self.builder.get_object('single-cut').set_sensitive(True)
+        else:
+            self.builder.get_object('single-cut').set_sensitive(False)
         return True
 
     def set_theme(self):
