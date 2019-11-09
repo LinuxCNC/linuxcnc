@@ -119,8 +119,10 @@ class StatusImageSwitcher(ImageSwitcher):
                     os.path.join(INFO.IMAGE_PATH,'spindle_cw.gif')]
         self.spindle = True
         self.all_homed = False
+        self.axis_homed = False
         self.hard_limits = False
         self._last_limit = []
+        self.axis = 'X'
         for i in range(0,len(INFO.AVAILABLE_JOINTS)):
             self._last_limit.append([0,0])
 
@@ -130,6 +132,9 @@ class StatusImageSwitcher(ImageSwitcher):
         elif self.all_homed:
             STATUS.connect('not-all-homed', lambda w, data: self.switch_on_homed(0))
             STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
+        elif self.axis_homed:
+            STATUS.connect('unhomed', lambda w, data: self.switch_on_axis_unhomed(data))
+            STATUS.connect('homed', lambda w, data: self.switch_on_axis_homed(data))
         elif self.hard_limits:
             STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
 
@@ -143,6 +148,16 @@ class StatusImageSwitcher(ImageSwitcher):
     def switch_on_homed(self, data):
         if not data <0:
             self.set_image_number(data)
+
+    def switch_on_axis_homed(self, num):
+        data = INFO.GET_NAME_FROM_JOINT[int(num)] 
+        if data == self.axis:
+            self.set_image_number(1)
+
+    def switch_on_axis_unhomed(self, num):
+        data = INFO.GET_NAME_FROM_JOINT[int(num)]
+        if data == self.axis:
+            self.set_image_number(0)
 
     def switch_on_hard_limits(self, data, group):
         if not data:
@@ -175,7 +190,7 @@ class StatusImageSwitcher(ImageSwitcher):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('spindle','all_homed', 'hard_limits' )
+        data = ('spindle','all_homed', 'axis_homed','hard_limits' )
 
         for i in data:
             if not i == picked:
@@ -205,6 +220,18 @@ class StatusImageSwitcher(ImageSwitcher):
         self.all_homed = False
     watch_all_homed = pyqtProperty(bool, get_homed, set_homed, reset_homed)
 
+    # machine_axis_homed status
+    def set_axis_homed(self, data):
+        self.axis_homed = data
+        if data:
+            self._toggle_properties('axis_homed')
+    def get_axis_homed(self):
+        return self.axis_homed
+    def reset_axis_homed(self):
+        self.axis_homed = False
+    watch_axis_homed = pyqtProperty(bool, get_axis_homed, set_axis_homed, reset_axis_homed)
+
+
     # machine_limits status
     def set_limits(self, data):
         self.hard_limits = data
@@ -215,6 +242,15 @@ class StatusImageSwitcher(ImageSwitcher):
     def reset_limits(self):
         self.hard_limits = False
     watch_hard_limits = pyqtProperty(bool, get_limits, set_limits, reset_limits)
+
+    def set_axis(self, data):
+        if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
+            self.axis = data.upper()
+    def get_axis(self):
+        return self.axis
+    def reset_axis(self):
+        self.axis = 'X'
+    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
 
     ##############################
     # required class boiler code #
