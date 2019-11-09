@@ -353,7 +353,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         for num, i in enumerate(('P','X','Y','Y2','Z','Z2','Clear',
             'zoom-in','zoom-out','pan-up','pan-down','pan-left',
             'pan-right','rotate-up','rotate-down','rotate-cw',
-            'rotate-ccw')):
+            'rotate-ccw','reload')):
             if widget.view_type.lower() == i.lower():
                 flag = num
             self.viewComboBox.addItem(i)

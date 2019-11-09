@@ -465,10 +465,13 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self._toggle_state -= 1
             self._toggle_state = self._toggle_state * -1
         elif self.view_change:
-            try:
-                STATUS.emit('graphics-view-changed', '%s' % self.view_type)
-            except:
-                pass
+            if self.view_type =='reload':
+                 STATUS.emit('reload-display')
+            else:
+                try:
+                    STATUS.emit('graphics-view-changed', '%s' % self.view_type)
+                except:
+                    pass
         elif self.spindle_fwd:
             ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)
         elif self.spindle_rev:
@@ -1188,7 +1191,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
                     'zoom-in','zoom-out','pan-up','pan-down',
                     'pan-left','pan-right','rotate-up','rotate-down',
-                    'rotate-cw','rotate-ccw'):
+                    'rotate-cw','rotate-ccw','reload'):
             data = 'p'
         self.view_type = data
     def get_view_type(self):
