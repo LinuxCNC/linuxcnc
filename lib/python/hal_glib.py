@@ -87,6 +87,7 @@ class _GStat(gobject.GObject):
         'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
         'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'unhomed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
@@ -442,6 +443,7 @@ class _GStat(gobject.GObject):
                     homed_joints += 1
                     self.emit('homed', joint)
                 else:
+                    self.emit('unhomed', joint)
                     unhomed_joints += str(joint)
             if homed_joints == self.stat.joints:
                 self._is_all_homed = True
