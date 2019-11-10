@@ -122,6 +122,8 @@ class TreeComboBox(QtWidgets.QComboBox):
         if event.type() == QtCore.QEvent.MouseButtonPress and object is self.view().viewport():
             index = self.view().indexAt(event.pos())
             #print index.parent(),index.row(),index.column(),index.data(),index.data(QtCore.Qt.UserRole + 1)
+            #print self.view().isExpanded(self.view().currentIndex())
+            #if self.itemAt(event.pos()) is None
             self.__skip_next_hide = not self.view().visualRect(index).contains(event.pos())
         return False
 
@@ -145,11 +147,45 @@ class ActionButtonDialog(QtWidgets.QDialog):
     def __init__(self, widget, parent = None):
         QtWidgets.QDialog.__init__(self, parent)
 
+        self.setWindowTitle(self.tr("Set Options"))
         self.setGeometry(300, 300, 200, 200)
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.widget = widget
         self.previewWidget = ActionButton()
 
+        tab = QtWidgets.QTabWidget()
+        self.tab1 = QtWidgets.QWidget()
+        self.tab2 = QtWidgets.QWidget()
+		
+        tab.addTab(self.tab1,'Actions')
+        tab.addTab(self.tab2,'Indicator Action')
+        self.buildtab1()
+        self.buildtab2()
+
+        vbox = QtWidgets.QVBoxLayout()
+        vbox.addWidget(tab)
+
+        wid = QtWidgets.QWidget()
+        vbox2 = QtWidgets.QVBoxLayout(wid)
+        label = QtWidgets.QLabel('Default Text Template')
+        self.defaultTextTemplateEditBox = QtWidgets.QLineEdit()
+        self.defaultTextTemplateEditBox.setText(self.widget.text())
+        vbox2.addWidget(label)
+        vbox2.addWidget(self.defaultTextTemplateEditBox)
+        vbox.addWidget(wid)
+
+        # Dialog control buttons
+        buttonBox = QtWidgets.QDialogButtonBox()
+        okButton = buttonBox.addButton(buttonBox.Ok)
+        cancelButton = buttonBox.addButton(buttonBox.Cancel)
+        okButton.clicked.connect(self.updateWidget)
+        cancelButton.clicked.connect(self.reject)
+        vbox.addWidget(buttonBox, 1)
+        self.setLayout(vbox)
+
+        self.onSetOptions()
+
+    def buildtab1(self):
         self.combo = TreeComboBox()
         model = QtGui.QStandardItemModel()
         model.setHeaderData(0, QtCore.Qt.Horizontal, 'Name', QtCore.Qt.DisplayRole)
@@ -207,8 +243,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
         node_9 = (('View Change',['view_change', 128], []),)
         node_10 = (('MDI Commands',['mdi_command', 256], []),
                   ('MDI Commands From INI',['ini_mdi_command', 512], []) )
+        node_none = (('Unused',['unused', 0], []),)
 
-        parent_node = [ ('Unset', ['unset',None], []),
+        parent_node = [ ('Unset', [None,None], node_none),
                     ('MACHINE CONTROL',[None, None], node_1),
                     ('JOGGING CONTROLS',[None, None], node_2),
                     ('DIALOG LAUNCH',[None, None], node_3),
@@ -224,7 +261,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.combo.setModel(model)
         #self.combo.view().hideColumn (1)
         #self.combo.resize(300, 30)
-        self.combo.currentIndexChanged.connect(self.selectionChanged)
+        self.combo.activated.connect(self.selectionChanged)
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.combo)
@@ -241,7 +278,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         label = QtWidgets.QLabel('Joint/axis number')
         self.JNumSpinBox = QtWidgets.QSpinBox()
         self.JNumSpinBox.setRange(-1,8)
-        self.JNumSpinBox.setValue(widget.joint_number)
+        self.JNumSpinBox.setValue(self.widget.joint_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.JNumSpinBox)
@@ -257,7 +294,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.jogIncImpSpinBox = QtWidgets.QDoubleSpinBox()
         self.jogIncImpSpinBox.setRange(-1,1000)
         self.jogIncImpSpinBox.setDecimals(4)
-        self.jogIncImpSpinBox.setValue(widget.jog_incr_imperial)
+        self.jogIncImpSpinBox.setValue(self.widget.jog_incr_imperial)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.jogIncImpSpinBox)
@@ -273,7 +310,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.jogIncMMSpinBox = QtWidgets.QDoubleSpinBox()
         self.jogIncMMSpinBox.setRange(-1,100000)
         self.jogIncMMSpinBox.setDecimals(4)
-        self.jogIncMMSpinBox.setValue(widget.jog_incr_mm)
+        self.jogIncMMSpinBox.setValue(self.widget.jog_incr_mm)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.jogIncMMSpinBox)
@@ -289,7 +326,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.jogIncAngSpinBox = QtWidgets.QDoubleSpinBox()
         self.jogIncAngSpinBox.setRange(-1,100000)
         self.jogIncAngSpinBox.setDecimals(4)
-        self.jogIncAngSpinBox.setValue(widget.jog_incr_angle)
+        self.jogIncAngSpinBox.setValue(self.widget.jog_incr_angle)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.jogIncAngSpinBox)
@@ -305,7 +342,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.floatSpinBox = QtWidgets.QDoubleSpinBox()
         self.floatSpinBox.setRange(-1000,1000)
         self.floatSpinBox.setDecimals(4)
-        self.floatSpinBox.setValue(widget.float)
+        self.floatSpinBox.setValue(self.widget.float)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.floatSpinBox)
@@ -321,7 +358,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.floatAltSpinBox = QtWidgets.QDoubleSpinBox()
         self.floatAltSpinBox.setRange(-1000,1000)
         self.floatAltSpinBox.setDecimals(4)
-        self.floatAltSpinBox.setValue(widget.float_alt)
+        self.floatAltSpinBox.setValue(self.widget.float_alt)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.floatAltSpinBox)
@@ -335,7 +372,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Toggle Float Option')
         self.toggleCheckBox = QtWidgets.QCheckBox()
-        self.toggleCheckBox.setChecked(widget.toggle_float)
+        self.toggleCheckBox.setChecked(self.widget.toggle_float)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.toggleCheckBox)
@@ -354,7 +391,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
             'zoom-in','zoom-out','pan-up','pan-down','pan-left',
             'pan-right','rotate-up','rotate-down','rotate-cw',
             'rotate-ccw','reload')):
-            if widget.view_type.lower() == i.lower():
+            if self.widget.view_type.lower() == i.lower():
                 flag = num
             self.viewComboBox.addItem(i)
         self.viewComboBox.setCurrentIndex(flag)
@@ -371,7 +408,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         vbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('MDI Command Line')
         self.commandEditBox = QtWidgets.QLineEdit()
-        self.commandEditBox.setText(widget.command_text)
+        self.commandEditBox.setText(self.widget.command_text)
         vbox.addWidget(label)
         vbox.addWidget(self.commandEditBox)
         self.ud256.setLayout(vbox)
@@ -385,7 +422,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         label = QtWidgets.QLabel('MDI Command from INI File')
         self.MDISpinBox = QtWidgets.QSpinBox()
         self.MDISpinBox.setRange(0,50)
-        #self.MDISpinBox.setValue(widget.INI_MDI_number)
+        #self.MDISpinBox.setValue(self.widget.INI_MDI_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.MDISpinBox)
@@ -401,7 +438,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Template Label Option')
         self.textTemplateCheckBox = QtWidgets.QCheckBox()
-        self.textTemplateCheckBox.setChecked(widget.template_label)
+        self.textTemplateCheckBox.setChecked(self.widget.template_label)
         self.textTemplateCheckBox.clicked.connect(self.onSetOptions)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -412,13 +449,13 @@ class ActionButtonDialog(QtWidgets.QDialog):
         vbox2 = QtWidgets.QVBoxLayout(self.vbox)
         label = QtWidgets.QLabel('Imperial Text Template')
         self.textTemplateEditBox = QtWidgets.QLineEdit()
-        self.textTemplateEditBox.setText(widget._textTemplate)
+        self.textTemplateEditBox.setText(self.widget._textTemplate)
         vbox2.addWidget(label)
         vbox2.addWidget(self.textTemplateEditBox)
 
         label = QtWidgets.QLabel('Metric Text Template')
         self.altTextTemplateEditBox = QtWidgets.QLineEdit()
-        self.altTextTemplateEditBox.setText(widget._alt_textTemplate)
+        self.altTextTemplateEditBox.setText(self.widget._alt_textTemplate)
         vbox2.addWidget(label)
         vbox2.addWidget(self.altTextTemplateEditBox)
         vbox.addWidget(self.vbox)
@@ -427,27 +464,20 @@ class ActionButtonDialog(QtWidgets.QDialog):
         layout.addWidget(self.ud1024)
         self.ud1024.hide()
 
-        # Dialog control buttons
-        buttonBox = QtWidgets.QDialogButtonBox()
-        okButton = buttonBox.addButton(buttonBox.Ok)
-        cancelButton = buttonBox.addButton(buttonBox.Cancel)
-        okButton.clicked.connect(self.updateWidget)
-        cancelButton.clicked.connect(self.reject)
-        layout.addWidget(buttonBox, 1)
-
-        self.setLayout(layout)
-
-        self.setWindowTitle(self.tr("Set Options"))
+        self.tab1.setLayout(layout)
 
         # set combo to currently set property
         # widget[cdata[1][0]] will tell us the widgets property state
         # eg widget.estop or widget.machine_on
         flag = False
+        #print parent_node
         for pnum, pdata in enumerate(parent_node):
+            #print pnum,pdata[0]
+            if pnum == 0: continue
             if pdata[0]:
                 for cnum, cdata in enumerate(pdata[2]):
-                    #print 'child,state:',cdata[1][0],widget[cdata[1][0]]
-                    if widget[cdata[1][0]]:
+                    #print 'child,state:',cdata[1][0],self.widget[cdata[1][0]]
+                    if self.widget[cdata[1][0]]:
                         flag = True
                         #print 'found index:',pnum,cnum
                         break
@@ -455,20 +485,18 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 break
         if flag:
             self.combo.select(pnum,cnum)
-        self.onSetOptions()
-
-    def onSetOptions(self):
-        if self.textTemplateCheckBox.isChecked():
-            self.vbox.show()
         else:
-            self.vbox.hide()
-        self.adjustSize()
+            self.combo.select(0,0)
 
     def selectionChanged(self,i):
         winPropertyName = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
         userDataCode = self.combo.itemData(i,role = QtCore.Qt.UserRole + 2)
-        #print 'selected property,related data code:',winPropertyName,userDataCode
-        if winPropertyName is None: return True
+        #print 'selected property,related data code:',winPropertyName,userDataCode,i
+        if winPropertyName is None:
+            #collapsed = self.combo.view().isExpanded(self.combo.view().currentIndex())
+            #if collapsed: return True
+            #self.combo.select(0,0)
+            return True
         if not userDataCode is None:
             for i in (1,2,4,8,16,32,64,128,256,512,1024):
                 widg = self['ud%s'% i]
@@ -478,104 +506,40 @@ class ActionButtonDialog(QtWidgets.QDialog):
                     widg.hide()
         self.adjustSize()
 
-    def updateWidget(self):
-        i = self.combo.currentIndex()
-        winProperty = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
-        if winProperty is None:
-            return
-        formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
-        if formWindow and winProperty =='unset':
-            formWindow.cursor().setProperty('estop_action',
-                QtCore.QVariant(True))
-            formWindow.cursor().setProperty('estop_action',
-                QtCore.QVariant(False))
-        elif formWindow:
-            # set widget option
-            formWindow.cursor().setProperty(winProperty+'_action',
-              QtCore.QVariant(True))
-            # set related data
-            formWindow.cursor().setProperty('joint_number',
-              QtCore.QVariant(self.JNumSpinBox.value()))
-            formWindow.cursor().setProperty('incr_imperial_number',
-              QtCore.QVariant(self.jogIncImpSpinBox.value()))
-            formWindow.cursor().setProperty('incr_mm_number',
-              QtCore.QVariant(self.jogIncMMSpinBox.value()))
-            formWindow.cursor().setProperty('incr_angular_number',
-              QtCore.QVariant(self.jogIncAngSpinBox.value()))
-            formWindow.cursor().setProperty('float_num',
-              QtCore.QVariant(self.floatSpinBox.value()))
-            formWindow.cursor().setProperty('float_alt_num',
-              QtCore.QVariant( self.floatAltSpinBox.value()))
-            formWindow.cursor().setProperty('view_type_string',
-              QtCore.QVariant(self.viewComboBox.currentText()))
-            formWindow.cursor().setProperty('toggle_float_option',
-              QtCore.QVariant(self.toggleCheckBox.isChecked()))
-            formWindow.cursor().setProperty('command_text_string',
-              QtCore.QVariant(self.commandEditBox.text()))
-            formWindow.cursor().setProperty('ini_mdi_number',
-              QtCore.QVariant(self.MDISpinBox.value()))
-            formWindow.cursor().setProperty('template_label_option',
-              QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
-            # block signal so button text doesn't change when selecting action
-            self.widget._designer_block_signal = True
-            formWindow.cursor().setProperty('textTemplate',
-              QtCore.QVariant(self.textTemplateEditBox.text()))
-            formWindow.cursor().setProperty('alt_textTemplate',
-              QtCore.QVariant(self.altTextTemplateEditBox.text()))
-            self.widget._designer_block_signal = False
-        self.accept()
-
-    ##############################
-    # required class boiler code #
-    ##############################
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-    def __setitem__(self, item, value):
-        return setattr(self, item, value)
-
-class IndicatorButtonDialog(QtWidgets.QDialog):
-    def __init__(self, widget, parent = None):
-        QtWidgets.QDialog.__init__(self, parent)
-
-        self.setGeometry(300, 300, 300, 200)
-        self.widget = widget
-        self.previewWidget = ActionButton()
-        self.setWindowTitle(self.tr("Set Indicator Options"))
-
+    def buildtab2(self):
         layout = QtWidgets.QGridLayout()
 
         # Indicator option
-        self.ud1 = QtWidgets.QFrame()
+        self.iud1 = QtWidgets.QFrame()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('<b>State Indicator Option<\b>')
         self.indicatorCheckBox = QtWidgets.QCheckBox()
-        self.indicatorCheckBox.setChecked(widget.draw_indicator)
+        self.indicatorCheckBox.setChecked(self.widget.draw_indicator)
         self.indicatorCheckBox.clicked.connect(self.onSetOptions)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.indicatorCheckBox)
-        self.ud1.setLayout(hbox)
-        layout.addWidget(self.ud1)
-        #self.ud1.hide()
+        self.iud1.setLayout(hbox)
+        layout.addWidget(self.iud1)
+        #self.iud1.hide()
 
         # HAL pin option
-        self.ud4 = QtWidgets.QWidget()
+        self.iud4 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Hal Pin Option')
         self.halCheckBox = QtWidgets.QCheckBox()
-        self.halCheckBox.setChecked(widget._HAL_pin)
+        self.halCheckBox.setChecked(self.widget._HAL_pin)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.halCheckBox)
-        self.ud4.setLayout(hbox)
-        layout.addWidget(self.ud4)
-        self.ud4.hide()
+        self.iud4.setLayout(hbox)
+        layout.addWidget(self.iud4)
+        self.iud4.hide()
 
         # indicator size
-        self.ud256 = QtWidgets.QWidget()
+        self.iud256 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Indicator Size')
@@ -583,169 +547,164 @@ class IndicatorButtonDialog(QtWidgets.QDialog):
         self.floatSpinBox.setRange(0,2)
         self.floatSpinBox.setDecimals(4)
         self.floatSpinBox.setSingleStep(0.1)
-        self.floatSpinBox.setValue(widget._size)
+        self.floatSpinBox.setValue(self.widget._size)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.floatSpinBox)
-        self.ud256.setLayout(hbox)
-        layout.addWidget(self.ud256)
-        self.ud256.hide()
+        self.iud256.setLayout(hbox)
+        layout.addWidget(self.iud256)
+        self.iud256.hide()
 
         # true state indicator color
-        self.ud512 = QtWidgets.QWidget()
+        self.iud512 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         button = QtWidgets.QLabel('True State Indicator Color')
         self.trueColorButton = QtWidgets.QPushButton()
         self.trueColorButton.setToolTip('Opens color dialog')
         self.trueColorButton.clicked.connect(self.on_trueColorClick)
-        self.trueColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% widget._on_color.name())
-        self._onColor = widget._on_color.name()
+        self.trueColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self.widget._on_color.name())
+        self._onColor = self.widget._on_color.name()
         hbox.addWidget(button)
         hbox.addWidget(self.trueColorButton)
-        self.ud512.setLayout(hbox)
-        layout.addWidget(self.ud512)
-        self.ud512.hide()
+        self.iud512.setLayout(hbox)
+        layout.addWidget(self.iud512)
+        self.iud512.hide()
 
         # False state indicator color
-        self.ud1024 = QtWidgets.QWidget()
+        self.iud1024 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         button = QtWidgets.QLabel('Falsee State Indicator Color')
         self.falseColorButton = QtWidgets.QPushButton()
         self.falseColorButton.setToolTip('Opens color dialog')
         self.falseColorButton.clicked.connect(self.on_falseColorClick)
-        self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% widget._off_color.name())
-        self._offColor = widget._off_color.name()
+        self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self.widget._off_color.name())
+        self._offColor = self.widget._off_color.name()
         hbox.addWidget(button)
         hbox.addWidget(self.falseColorButton)
-        self.ud1024.setLayout(hbox)
-        layout.addWidget(self.ud1024)
-        self.ud1024.hide()
+        self.iud1024.setLayout(hbox)
+        layout.addWidget(self.iud1024)
+        self.iud1024.hide()
 
 
 
         # State Text option
-        self.ud2 = QtWidgets.QWidget()
+        self.iud2 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('<b>State Text Option<\b?')
         self.textCheckBox = QtWidgets.QCheckBox()
-        self.textCheckBox.setChecked(widget._state_text)
+        self.textCheckBox.setChecked(self.widget._state_text)
         self.textCheckBox.clicked.connect(self.onSetOptions)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.textCheckBox)
-        self.ud2.setLayout(hbox)
-        layout.addWidget(self.ud2)
-        #self.ud2.hide()
+        self.iud2.setLayout(hbox)
+        layout.addWidget(self.iud2)
+        #self.iud2.hide()
 
         # True text edit box
-        self.ud64 = QtWidgets.QWidget()
+        self.iud64 = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('True State Text Line')
         self.tTextEditBox = QtWidgets.QLineEdit()
-        self.tTextEditBox.setText(widget._true_string)
+        self.tTextEditBox.setText(self.widget._true_string)
         vbox.addWidget(label)
         vbox.addWidget(self.tTextEditBox)
-        self.ud64.setLayout(vbox)
-        layout.addWidget(self.ud64)
-        self.ud64.hide()
+        self.iud64.setLayout(vbox)
+        layout.addWidget(self.iud64)
+        self.iud64.hide()
 
         # False text edit box
-        self.ud128 = QtWidgets.QWidget()
+        self.iud128 = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('False State Text Line')
         self.fTextEditBox = QtWidgets.QLineEdit()
-        self.fTextEditBox.setText(widget._false_string)
+        self.fTextEditBox.setText(self.widget._false_string)
         vbox.addWidget(label)
         vbox.addWidget(self.fTextEditBox)
-        self.ud128.setLayout(vbox)
-        layout.addWidget(self.ud128)
-        self.ud128.hide()
+        self.iud128.setLayout(vbox)
+        layout.addWidget(self.iud128)
+        self.iud128.hide()
 
 
 
         # Python Text option
-        self.ud8 = QtWidgets.QWidget()
+        self.iud8 = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('<b>Python Command Option<\b>')
         self.pythonCheckBox = QtWidgets.QCheckBox()
-        self.pythonCheckBox.setChecked(widget._python_command)
+        self.pythonCheckBox.setChecked(self.widget._python_command)
         self.pythonCheckBox.clicked.connect(self.onSetOptions)
         hbox.addWidget(label)
         hbox.addStretch(1)
         hbox.addWidget(self.pythonCheckBox)
-        self.ud8.setLayout(hbox)
-        layout.addWidget(self.ud8)
-        #self.ud8.hide()
+        self.iud8.setLayout(hbox)
+        layout.addWidget(self.iud8)
+        #self.iud8.hide()
 
         # True command edit box
-        self.ud16 = QtWidgets.QWidget()
+        self.iud16 = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('True State Command Line')
         self.tCommandEditBox = QtWidgets.QLineEdit()
-        self.tCommandEditBox.setText(widget.true_python_command)
+        self.tCommandEditBox.setText(self.widget.true_python_command)
         vbox.addWidget(label)
         vbox.addWidget(self.tCommandEditBox)
-        self.ud16.setLayout(vbox)
-        layout.addWidget(self.ud16)
-        self.ud16.hide()
+        self.iud16.setLayout(vbox)
+        layout.addWidget(self.iud16)
+        self.iud16.hide()
 
         # False command edit box
-        self.ud32 = QtWidgets.QWidget()
+        self.iud32 = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout()
         vbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('False State Command Line')
         self.fCommandEditBox = QtWidgets.QLineEdit()
-        self.fCommandEditBox.setText(widget.false_python_command)
+        self.fCommandEditBox.setText(self.widget.false_python_command)
         vbox.addWidget(label)
         vbox.addWidget(self.fCommandEditBox)
-        self.ud32.setLayout(vbox)
-        layout.addWidget(self.ud32)
-        self.ud32.hide()
+        self.iud32.setLayout(vbox)
+        layout.addWidget(self.iud32)
+        self.iud32.hide()
 
-
-        # Dialog control buttons
-        buttonBox = QtWidgets.QDialogButtonBox()
-        okButton = buttonBox.addButton(buttonBox.Ok)
-        cancelButton = buttonBox.addButton(buttonBox.Cancel)
-        okButton.clicked.connect(self.updateWidget)
-        cancelButton.clicked.connect(self.reject)
-        layout.addWidget(buttonBox, 11, 0, 1, 2)
-
-        self.setLayout(layout)
-        self.onSetOptions()
+        self.tab2.setLayout(layout)
 
     def onSetOptions(self):
-        if self.indicatorCheckBox.isChecked():
-            self.ud4.show()
-            self.ud256.show()
-            self.ud512.show()
-            self.ud1024.show()
+        if self.textTemplateCheckBox.isChecked():
+            self.vbox.show()
         else:
-            self.ud4.hide()
-            self.ud256.hide()
-            self.ud512.hide()
-            self.ud1024.hide()
+            self.vbox.hide()
+
+        if self.indicatorCheckBox.isChecked():
+            self.iud4.show()
+            self.iud256.show()
+            self.iud512.show()
+            self.iud1024.show()
+        else:
+            self.iud4.hide()
+            self.iud256.hide()
+            self.iud512.hide()
+            self.iud1024.hide()
 
         if self.pythonCheckBox.isChecked():
-            self.ud16.show()
-            self.ud32.show()
+            self.iud16.show()
+            self.iud32.show()
         else:
-            self.ud16.hide()
-            self.ud32.hide()
+            self.iud16.hide()
+            self.iud32.hide()
 
         if  self.textCheckBox.isChecked():
-            self.ud64.show()
-            self.ud128.show()
+            self.iud64.show()
+            self.iud128.show()
         else:
-            self.ud64.hide()
-            self.ud128.hide()
+            self.iud64.hide()
+            self.iud128.hide()
 
         self.adjustSize()
 
@@ -762,6 +721,11 @@ class IndicatorButtonDialog(QtWidgets.QDialog):
             self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self._offColor)
 
     def updateWidget(self):
+        i = self.combo.currentIndex()
+        winProperty = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
+        if winProperty is None:
+            self.combo.select(0,0)
+            return
         formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
         if formWindow:
             # set widget option
@@ -790,7 +754,60 @@ class IndicatorButtonDialog(QtWidgets.QDialog):
               QtCore.QVariant(self.tCommandEditBox.text()))
             formWindow.cursor().setProperty('false_python_cmd_string',
               QtCore.QVariant(self.fCommandEditBox.text()))
+
+        if formWindow and winProperty =='unused' :
+            formWindow.cursor().setProperty('estop_action',
+                QtCore.QVariant(True))
+            formWindow.cursor().setProperty('estop_action',
+                QtCore.QVariant(False))
+        elif formWindow:
+            # set widget option
+            formWindow.cursor().setProperty(winProperty+'_action',
+              QtCore.QVariant(True))
+
+        # set related data
+        formWindow.cursor().setProperty('joint_number',
+          QtCore.QVariant(self.JNumSpinBox.value()))
+        formWindow.cursor().setProperty('incr_imperial_number',
+          QtCore.QVariant(self.jogIncImpSpinBox.value()))
+        formWindow.cursor().setProperty('incr_mm_number',
+          QtCore.QVariant(self.jogIncMMSpinBox.value()))
+        formWindow.cursor().setProperty('incr_angular_number',
+          QtCore.QVariant(self.jogIncAngSpinBox.value()))
+        formWindow.cursor().setProperty('float_num',
+          QtCore.QVariant(self.floatSpinBox.value()))
+        formWindow.cursor().setProperty('float_alt_num',
+          QtCore.QVariant( self.floatAltSpinBox.value()))
+        formWindow.cursor().setProperty('view_type_string',
+          QtCore.QVariant(self.viewComboBox.currentText()))
+        formWindow.cursor().setProperty('toggle_float_option',
+          QtCore.QVariant(self.toggleCheckBox.isChecked()))
+        formWindow.cursor().setProperty('command_text_string',
+          QtCore.QVariant(self.commandEditBox.text()))
+        formWindow.cursor().setProperty('ini_mdi_number',
+          QtCore.QVariant(self.MDISpinBox.value()))
+        formWindow.cursor().setProperty('template_label_option',
+          QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
+        # block signal so button text doesn't change when selecting action
+        self.widget._designer_block_signal = True
+        formWindow.cursor().setProperty('text',
+          QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
+        formWindow.cursor().setProperty('textTemplate',
+          QtCore.QVariant(self.textTemplateEditBox.text()))
+        formWindow.cursor().setProperty('alt_textTemplate',
+          QtCore.QVariant(self.altTextTemplateEditBox.text()))
+        self.widget._designer_block_signal = False
+
         self.accept()
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
 
