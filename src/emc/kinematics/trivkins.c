@@ -13,26 +13,26 @@
 #include "motion.h"
 #include "hal.h"
 #include "rtapi.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi.h"      /* RTAPI realtime OS API */
+#include "rtapi_app.h"  /* RTAPI realtime module decls */
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 
 struct data { 
-    hal_s32_t joints[EMCMOT_MAX_JOINTS];
+    hal_s32_t axis_idx_for_jno[EMCMOT_MAX_JOINTS];
 } *data;
 
 #define SET(f) pos->f = joints[i]
 
 int kinematicsForward(const double *joints,
-		      EmcPose * pos,
-		      const KINEMATICS_FORWARD_FLAGS * fflags,
-		      KINEMATICS_INVERSE_FLAGS * iflags)
+                      EmcPose * pos,
+                      const KINEMATICS_FORWARD_FLAGS * fflags,
+                      KINEMATICS_INVERSE_FLAGS * iflags)
 {
     int i;
 
     for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
-        switch(data->joints[i]) {
+        switch(data->axis_idx_for_jno[i]) {
             case 0: SET(tran.x); break;
             case 1: SET(tran.y); break;
             case 2: SET(tran.z); break;
@@ -49,13 +49,13 @@ int kinematicsForward(const double *joints,
 }
 
 int kinematicsInverse(const EmcPose * pos,
-		      double *joints,
-		      const KINEMATICS_INVERSE_FLAGS * iflags,
-		      KINEMATICS_FORWARD_FLAGS * fflags)
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS * iflags,
+                      KINEMATICS_FORWARD_FLAGS * fflags)
 {
     int i;
     for(i = 0; i < EMCMOT_MAX_JOINTS; i++) {
-        switch(data->joints[i]) {
+        switch(data->axis_idx_for_jno[i]) {
             case 0: joints[i] = pos->tran.x; break;
             case 1: joints[i] = pos->tran.y; break;
             case 2: joints[i] = pos->tran.z; break;
@@ -73,9 +73,9 @@ int kinematicsInverse(const EmcPose * pos,
 
 /* implemented for these kinematics as giving joints preference */
 int kinematicsHome(EmcPose * world,
-		   double *joint,
-		   KINEMATICS_FORWARD_FLAGS * fflags,
-		   KINEMATICS_INVERSE_FLAGS * iflags)
+                   double *joint,
+                   KINEMATICS_FORWARD_FLAGS * fflags,
+                   KINEMATICS_INVERSE_FLAGS * iflags)
 {
     *fflags = 0;
     *iflags = 0;
@@ -103,22 +103,22 @@ MODULE_LICENSE("GPL");
 
 static int next_axis_number(void) {
     while(*coordinates) {
-	switch(*coordinates) {
-	    case 'x': case 'X': coordinates++; return 0;
-	    case 'y': case 'Y': coordinates++; return 1;
-	    case 'z': case 'Z': coordinates++; return 2;
-	    case 'a': case 'A': coordinates++; return 3;
-	    case 'b': case 'B': coordinates++; return 4;
-	    case 'c': case 'C': coordinates++; return 5;
-	    case 'u': case 'U': coordinates++; return 6;
-	    case 'v': case 'V': coordinates++; return 7;
-	    case 'w': case 'W': coordinates++; return 8;
-	    case ' ': case '\t': coordinates++; continue;
-	}
-	rtapi_print_msg(RTAPI_MSG_ERR,
-		"trivkins: ERROR: Invalid character '%c' in coordinates\n",
-		*coordinates);
-		return -1;
+      switch(*coordinates) {
+        case 'x': case 'X': coordinates++; return 0;
+        case 'y': case 'Y': coordinates++; return 1;
+        case 'z': case 'Z': coordinates++; return 2;
+        case 'a': case 'A': coordinates++; return 3;
+        case 'b': case 'B': coordinates++; return 4;
+        case 'c': case 'C': coordinates++; return 5;
+        case 'u': case 'U': coordinates++; return 6;
+        case 'v': case 'V': coordinates++; return 7;
+        case 'w': case 'W': coordinates++; return 8;
+        case ' ': case '\t': coordinates++; continue;
+      }
+      rtapi_print_msg(RTAPI_MSG_ERR,
+          "trivkins: ERROR: Invalid character '%c' in coordinates\n",
+          *coordinates);
+          return -1;
     }
     return -1;
 }
@@ -131,7 +131,7 @@ int rtapi_app_main(void) {
     data = hal_malloc(sizeof(struct data));
 
     for(i=0; i<EMCMOT_MAX_JOINTS; i++) {
-	data->joints[i] = next_axis_number();
+        data->axis_idx_for_jno[i] = next_axis_number();
     }
     switch (*kinstype) {
       case 'b': case 'B': ktype = KINEMATICS_BOTH;         break;
