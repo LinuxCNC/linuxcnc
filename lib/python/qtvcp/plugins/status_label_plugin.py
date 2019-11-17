@@ -328,7 +328,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
         node_2 = (('Jog Rate',['jograte', 6], []), 
                 ('Jog Rate Angular',['jograte_angular', 6], []),
                 ('Jog Increment',['jogincr', 6], []),
-                ('Jog Increment Angular',['joginct_angular', 2], [])  )
+                ('Jog Increment Angular',['jogincr_angular', 2], [])  )
         node_3 = (('Spindle Rate Requested',['requested_spindle_speed', 2], []),
                 ('Spindle Rate Actual',['actual_spindle_speed', 2], [])  )
         node_4 = (('Current Feed Rate',['current_feedrate', 6], []),
