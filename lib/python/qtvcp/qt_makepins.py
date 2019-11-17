@@ -80,6 +80,7 @@ class QTPanel():
     # the window geometry
     def record_preference_geometry(self):
         temp = self._geo_string.replace(' ','')
+        temp = temp.strip('-')
         if temp == '' or temp.isdigit():
             LOG.debug('Saving Main Window geometry to preference file.')
             x = self.window.geometry().x()
