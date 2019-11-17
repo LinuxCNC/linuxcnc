@@ -1514,6 +1514,7 @@ def geometry_parsing(widget, prefname):
 def record_geometry(widget, prefname):
     if widget.PREFS_ :
         temp = widget._geometry_string.replace(' ','')
+        temp = temp.strip('-')
         if temp =='' or temp.isdigit():
             LOG.debug('Saving {} data from widget {} to file.'.format( prefname,widget.HAL_NAME_))
             x = widget.geometry().x()

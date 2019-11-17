@@ -328,7 +328,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
         node_2 = (('Jog Rate',['jograte', 6], []), 
                 ('Jog Rate Angular',['jograte_angular', 6], []),
                 ('Jog Increment',['jogincr', 6], []),
-                ('Jog Increment Angular',['joginct_angular', 2], [])  )
+                ('Jog Increment Angular',['jogincr_angular', 2], [])  )
         node_3 = (('Spindle Rate Requested',['requested_spindle_speed', 2], []),
                 ('Spindle Rate Actual',['actual_spindle_speed', 2], [])  )
         node_4 = (('Current Feed Rate',['current_feedrate', 6], []),
@@ -338,7 +338,8 @@ class StatusLabelDialog(QtWidgets.QDialog):
                 ('Tool Offset',['tool_offset', 3], []),
                 ('Tool Comment',['tool_comment', 2], [])  )
         node_6 = (('Active G Codes',['gcodes', 2], []),
-                ('Active M Codes',['mcodes', 2], [])  )
+                ('Active M Codes',['mcodes', 2], []),
+                ('Active G5X System',['user_system', 2], []) )
         node_7 = (('File Name',['filename', 2], []),
                 ('File Path',['filepath', 2], [])  )
         node_8 = (('Machine State',['machine_state', 2], []),  )
@@ -425,7 +426,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
 
         # set combo to currently set property
         # widget[cdata[1][0]] will tell us the widgets property state
-        # eg widget.estop or widget.machine_on
+        # eg widget.feed_override etc
         flag = False
         #print parent_node
         for pnum, pdata in enumerate(parent_node):
@@ -481,9 +482,9 @@ class StatusLabelDialog(QtWidgets.QDialog):
         formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
 
         if formWindow and winProperty =='unused' :
-            formWindow.cursor().setProperty('estop_action',
+            formWindow.cursor().setProperty('feed_override_status',
                 QtCore.QVariant(True))
-            formWindow.cursor().setProperty('estop_action',
+            formWindow.cursor().setProperty('feed_override_status',
                 QtCore.QVariant(False))
         elif formWindow:
             # set widget option

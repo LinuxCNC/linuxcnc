@@ -24,6 +24,7 @@ from qtvcp.plugins.led_plugin import LEDPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
+from qtvcp.plugins.container_plugin import JointEnableWidgetPlugin
 from qtvcp.plugins.graphics_plugin import GCodeGraphicsPlugin
 from qtvcp.plugins.widgets_plugin import *
 from qtvcp.plugins.state_led_plugin import StateLEDPlugin
@@ -39,3 +40,4 @@ from qtvcp.plugins.jogincrements_plugin import JogIncrementsPlugin
 from qtvcp.plugins.camview_plugin import CamViewPlugin
 from qtvcp.plugins.toolbutton_plugin import SystemToolButtonPlugin
 from qtvcp.plugins.versa_probe_plugin import VersaProbePlugin
+from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin 

@@ -51,7 +51,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.jograte = False
         self.jograte_angular = False
         self.jogincr = False
-        self.joginct_angle = False
+        self.jogincr_angular = False
         self.tool_number = False
         self.current_feedrate = False
         self.current_feedunit = False
@@ -88,7 +88,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('jograte-angular-changed', lambda w, data: _f(data))
         elif self.jogincr:
             STATUS.connect('jogincrement-changed', lambda w, data, text: _f(text))
-        elif self.joginct_angle:
+        elif self.jogincr_angular:
             STATUS.connect('jogincrement-angular-changed', lambda w, data, text: _f(text))
         elif self.tool_number:
             STATUS.connect('tool-in-spindle-changed', lambda w, data: _f(data))
@@ -260,7 +260,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     def _toggle_properties(self, picked):
         data = ('feed_override', 'rapid_override', 'spindle_override', 'jograte',
-                'jograte_angular', 'jogincr', 'joginct_angle', 'tool_number',
+                'jograte_angular', 'jogincr', 'jogincr_angular', 'tool_number',
                 'current_feedrate', 'current_feedunit',
                 'requested_spindle_speed', 'actual_spindle_speed',
                 'user_system', 'gcodes', 'mcodes', 'tool_diameter',
@@ -384,15 +384,15 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_jogincr(self):
         self.jogincr = False
 
-    # joginct_angle status
-    def set_joginct_angle(self, data):
-        self.joginct_angle = data
+    # jogincr_angular status
+    def set_jogincr_angular(self, data):
+        self.jogincr_angular = data
         if data:
-            self._toggle_properties('joginct_angle')
-    def get_joginct_angle(self):
-        return self.joginct_angle
-    def reset_joginct_angle(self):
-        self.joginct_angle = False
+            self._toggle_properties('jogincr_angular')
+    def get_jogincr_angular(self):
+        return self.jogincr_angular
+    def reset_jogincr_angular(self):
+        self.jogincr_angular = False
 
     # tool number status
     def set_tool_number(self, data):
@@ -574,7 +574,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     jograte_status = QtCore.pyqtProperty(bool, get_jograte, set_jograte, reset_jograte)
     jograte_angular_status = QtCore.pyqtProperty(bool, get_jograte_angular, set_jograte_angular, reset_jograte_angular)
     jogincr_status = QtCore.pyqtProperty(bool, get_jogincr, set_jogincr, reset_jogincr)
-    joginct_angle_status = QtCore.pyqtProperty(bool, get_joginct_angle, set_joginct_angle, reset_joginct_angle)
+    jogincr_angular_status = QtCore.pyqtProperty(bool, get_jogincr_angular, set_jogincr_angular, reset_jogincr_angular)
     current_feedrate_status = QtCore.pyqtProperty(bool, get_current_feedrate, set_current_feedrate,
                                                   reset_current_feedrate)
     current_FPU_status = QtCore.pyqtProperty(bool, get_current_feedunit, set_current_feedunit, reset_current_feedunit)
