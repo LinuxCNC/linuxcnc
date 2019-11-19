@@ -1252,6 +1252,8 @@ a user-customized homing.c file.
 lib/hallib/sim_lib.tcL: simulate encoder index if [JOINT_n]HOME_USE_INDEX
 is specified.
 
+lib/python/vismach.py: new hal pin vismach.plotclear
+
 === Hal
 
 ==== Components
