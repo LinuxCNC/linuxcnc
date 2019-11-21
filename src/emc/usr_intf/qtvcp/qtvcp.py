@@ -55,7 +55,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 # DATADIR is where the standarad UI files are
 # IMAGEDIR is for icons
 class Paths():
-    def __init__(self,filename, isscreen = True):
+    def __init__(self,filename='dummy', isscreen = False):
         self.PREFS_FILENAME = None
         self.WORKINGDIR = os.getcwd()
         self.IS_SCREEN = isscreen
@@ -130,7 +130,19 @@ class Paths():
             else:
                 # error
                 self.XML = None
-                LOG.critical("No UI file found")
+                LOG.critical("No UI file found - Did you add the .ui name/path?")
+                print('\n')
+                if self.IS_SCREEN:
+                    dirs = next(os.walk(self.SCREENDIR))[1]
+                    LOG.error('Available built-in Machine Control Screens:')
+                    for i in dirs:
+                        print('{}'.format(i))
+                else:
+                    dirs = next(os.walk(self.PANELDIR))[1]
+                    LOG.error('Available built-in VCP Panels:')
+                    for i in dirs:
+                        print('{}'.format(i))
+                print('\n')
                 sys.exit(0)
 
         # check for qss file
@@ -217,8 +229,7 @@ class QTVCP:
         elif INIPATH:
             basepath = "qt_cnc"
         else:
-            LOG.error('Error in path')
-            sys.exit()
+            PATH = Paths()
 
         # set paths using basename
         PATH = Paths(basepath, bool(INIPATH))
