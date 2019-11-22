@@ -144,6 +144,23 @@ class _IStat(object):
                     log.critical('MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
         self.NO_HOME_REQUIRED = int(self.inifile.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
+        # home all check
+        self.HOME_ALL_FLAG = 1
+        # set Home All Flage only if ALL joints specify a HOME_SEQUENCE
+        jointcount = len(self.AVAILABLE_JOINTS)
+        for j in range(jointcount):
+            if self.inifile.find("JOINT_"+str(j), "HOME_SEQUENCE") is None:
+                self.HOME_ALL_FLAG = 0
+                break
+
+        # joint sequence/type
+        self.JOINT_TYPE = [None] * jointcount
+        self.JOINT_SEQUENCE = [None] * jointcount
+        for j in range(jointcount):
+            section = "JOINT_%d" % j
+            self.JOINT_TYPE[j] = self.inifile.find(section, "TYPE") or "LINEAR"
+            self.JOINT_SEQUENCE[j]  = self.inifile.find(section, "HOME_SEQUENCE") or ""
+
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
@@ -188,6 +205,7 @@ class _IStat(object):
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_FEED_OVERRIDE",1.5)) * 100
         self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ","MAX_LINEAR_VELOCITY",
                                     self.get_error_safe_setting("AXIS_X","MAX_VELOCITY", 5) )) * 60
+
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
         self.USRMESS_TEXT = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
