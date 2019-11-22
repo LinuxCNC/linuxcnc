@@ -87,7 +87,6 @@ class VersaSubprog(QObject):
 # a successfully completed command will return 1 - None means ignore - anything else is an error
                     if error is not None:
                         if error != 1:
-                            ACTION.CALL_MDI("G90")
                             sys.stdout.write("[ERROR] Probe routine returned with error\n")
                         else:
                             status = self.collect_status()
@@ -106,12 +105,16 @@ class VersaSubprog(QObject):
     # check that the command is actually a method in our class else
     # this message isn't for us - ignore it
     def process_command(self, cmd):
-        if cmd[0] == 'ERROR':
+        if cmd[0] == '_ErroR_':
             self.process_error(cmd[1])
-            return 0
+            return None
         elif cmd[0] in dir(self):
+            if not STATUS.is_on_and_idle(): return None
             self.update_data(cmd[1])
-            return self[cmd[0]]()
+            error = self[cmd[0]]()
+            if error != 1 and STATUS.is_on_and_idle():
+                ACTION.CALL_MDI("G90")
+            return error
         else:
             return None
 
@@ -272,7 +275,7 @@ class VersaSubprog(QObject):
                     line = sys.stdin.readline()
                 if line:
                     cmd = line.rstrip().split(' ')
-                    error = bool(cmd[0] =='ERROR')
+                    error = bool(cmd[0] =='_ErroR_')
                 # check for abort state error
                 STATUS.stat.poll()
                 error = error or bool(STATUS.stat.state == 2)

@@ -98,6 +98,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
+        if not INFO.HOME_ALL_FLAG:
+            self.w.actionButton_home.setText("Home Selected")
+            self.w.actionButton_home.set_home_select(True)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions

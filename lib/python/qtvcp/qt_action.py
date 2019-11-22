@@ -39,7 +39,10 @@ class _Lcnc_Action(object):
         log.info('Homing Joint: {}'.format(joint))
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        self.cmd.home(joint)
+        if not INFO.HOME_ALL_FLAG and joint == -1:
+            STATUS.emit('error',linuxcnc.NML_ERROR,'Home-all not available according to INI Joint Home sequence')
+        else:
+            self.cmd.home(joint)
 
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)

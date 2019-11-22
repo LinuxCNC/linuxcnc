@@ -506,16 +506,22 @@
                    <number>0</number>
                   </property>
                   <item row="1" column="0">
-                   <widget class="ActionButton" name="actionbutton_3">
+                   <widget class="ActionButton" name="actionButton_home">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
                     <property name="minimumSize">
                      <size>
-                      <width>75</width>
+                      <width>108</width>
                       <height>0</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>75</width>
+                      <width>108</width>
                       <height>20</height>
                      </size>
                     </property>
@@ -1761,7 +1767,7 @@
      <x>0</x>
      <y>0</y>
      <width>602</width>
-     <height>20</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
