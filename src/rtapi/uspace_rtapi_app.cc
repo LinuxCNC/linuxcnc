@@ -981,13 +981,13 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   task->period = period_nsec;
   task->ratio = period_nsec / period;
 
-  // limit PLL correction values to +/-1% of cycle time
-  task->pll_correction_limit = period_nsec / 100;
-  task->pll_correction = 0;
-
   struct sched_param param;
   memset(&param, 0, sizeof(param));
   param.sched_priority = task->prio;
+
+  // limit PLL correction values to +/-1% of cycle time
+  task->pll_correction_limit = period_nsec / 100;
+  task->pll_correction = 0;
 
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
