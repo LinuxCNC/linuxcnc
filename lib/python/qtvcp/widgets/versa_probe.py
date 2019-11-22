@@ -185,7 +185,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
-        message ='ERROR {},{} \n'.format(kind,text)
+        message ='_ErroR_ {},{} \n'.format(kind,text)
         self.proc.writeData(message)
 
 #####################################################
