@@ -50,6 +50,7 @@ class HandlerClass:
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
+        STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -101,6 +102,9 @@ class HandlerClass:
         if not INFO.HOME_ALL_FLAG:
             self.w.actionButton_home.setText("Home Selected")
             self.w.actionButton_home.set_home_select(True)
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -189,6 +193,11 @@ class HandlerClass:
             print 'Mode Teleop'
             self.show_axes()
 
+    def update_spindle(self,w,data):
+        self.w.rpm_bar.setInvertedAppearance(bool(data<0))
+        self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
+        self.w.rpm_bar.setValue(abs(data))
+
     #######################
     # callbacks from form #
     #######################
@@ -200,6 +209,10 @@ class HandlerClass:
             'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Axis {} Tool Offset'.format(axis)}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
+
+    def leftTabChanged(self, num):
+        if num == 0:
+            ACTION.SET_MANUAL_MODE()
 
     #####################
     # general functions #

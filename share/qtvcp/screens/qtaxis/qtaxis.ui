@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
-    <height>673</height>
+    <width>747</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1400,7 +1400,7 @@
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab">
             <attribute name="title">
@@ -1766,7 +1766,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>602</width>
+     <width>747</width>
      <height>27</height>
     </rect>
    </property>
@@ -2293,8 +2293,26 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>leftTab</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>leftTabChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>132</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>15</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>tool_offset_clicked()</slot>
+  <slot>leftTabChanged()</slot>
  </slots>
 </ui>

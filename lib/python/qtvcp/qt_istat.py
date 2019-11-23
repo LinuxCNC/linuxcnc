@@ -59,6 +59,7 @@ class _IStat(object):
         self.DEFAULT_LINEAR_VELOCITY = 15.0
 
         self.DEFAULT_SPINDLE_SPEED = 200
+        self.MAX_SPINDLE_SPEED = 2500
         self.MAX_FEED_OVERRIDE = 1.5
         self.MAX_SPINDLE_OVERRIDE = 1.5
         self.MIN_SPINDLE_OVERRIDE = 0.5
@@ -200,6 +201,7 @@ class _IStat(object):
         self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ANGULAR_VELOCITY",1)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
         self.DEFAULT_SPINDLE_SPEED = int(self.get_error_safe_setting("DISPLAY","DEFAULT_SPINDLE_SPEED",200))
+        self.MAX_SPINDLE_SPEED = int(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_SPEED",2500))
         self.MAX_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_OVERRIDE",1)) * 100
         self.MIN_SPINDLE_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_OVERRIDE",0.5)) * 100
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY","MAX_FEED_OVERRIDE",1.5)) * 100
