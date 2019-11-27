@@ -320,26 +320,40 @@ class configurator:
         while 1:
             line = inFile.readline()
             if line.startswith('SPINDLES'):
-                if int(line.split('=')[1].strip()) < 3:
+                if int(line.split('=')[1].strip()) >= 3:
                     inFile.close()
-                    return True
+                    return False
             elif line.startswith('[') or not line:
                 inFile.close()
-                return False
+                return True
 
     def b4_change_consumables(self):
         inFile = open(self.orgIniFile,'r')
         while 1:
             line = inFile.readline()
-            if line.startswith('[PLASMAC]'): break
+            if line.strip() == '[AXIS_X]': break
         while 1:
             line = inFile.readline()
-            if 'change-consumables' in line:
-                inFile.close()
-                return True
-            elif line.startswith('[') or not line:
+            if 'OFFSET_AV_RATIO' in line:
                 inFile.close()
                 return False
+            elif line.startswith('[') or not line:
+                inFile.close()
+                return True
+
+    def b4_extras(self):
+        inFile = open(self.orgIniFile,'r')
+        while 1:
+            line = inFile.readline()
+            if line.strip() == '[PLASMAC]': break
+        while 1:
+            line = inFile.readline()
+            if 'BUTTON_10' in line:
+                inFile.close()
+                return False
+            elif line.startswith('[') or not line:
+                inFile.close()
+                return True
 
     def set_mode(self):
         if self.mode == 0:
@@ -363,6 +377,8 @@ class configurator:
 
     # check existing version so we know what to upgrade
     def check_version(self):
+        # set latest version number
+        self.latest_version = 0.6
         # see if this is a version before creating {MACHINE}_connections.hal
         if not os.path.exists('{}/{}_connections.hal'.format(self.configDir,self.machineName.lower())):
             return 0.0
@@ -378,9 +394,12 @@ class configurator:
         # if version before adding change consumables
         elif self.b4_change_consumables():
             return 0.4
+        # if version before adding Extras panel
+        elif self.b4_extras():
+            return 0.5
         # must be the latest version
         else:
-            return 0.5
+            return self.latest_version
 
     def on_create_clicked(self,button):
         if not self.check_entries():
@@ -398,7 +417,10 @@ class configurator:
             if self.check_typos():
                 self.fix_typos()
             version = self.check_version()
-            print('PlasmaC Config Version: {}'.format(version))
+            if version == self.latest_version:
+                print('Upgrade not required from v{}'.format(self.latest_version))
+            else:
+                print('Upgrading from v{} to v{}'.format(version, self.latest_version))
             self.upgrade_ini_file(version,display)
             self.upgrade_material_file(version)
             self.upgrade_connections_file(version)
@@ -719,6 +741,69 @@ class configurator:
                         'MAX_ACCELERATION = {}\n'\
                         '# shares the above two equally between the joint and the offset\n'\
                         'OFFSET_AV_RATIO = 0.5\n'.format(float(b) * 2))
+                else:
+                    outFile.write(line)
+            inFile.close()
+            outFile.close()
+        if version <= 0.5:
+            shutil.copy(self.orgIniFile,'{}.old05'.format(self.orgIniFile))
+            inFile = open('{}.old05'.format(self.orgIniFile), 'r')
+            outFile = open('{}'.format(self.orgIniFile), 'w')
+            buttons = [['',''],['',''],['',''],['',''],['','']]
+            buttons_do = False
+            extras = False
+            for line in inFile:
+                if line.startswith('TORCH_PULSE_TIME'):
+                    outFile.write('{}\n'.format(line))
+                    buttons_do = True
+                elif buttons_do:
+                    if line.startswith('BUTTON_'):
+                        n = int(filter(str.isdigit, line.split('=')[0])) - 1
+                        if '_NAME' in line:
+                            buttons[n][0] = line
+                        elif '_CODE' in line:
+                            buttons[n][1] = line
+                    elif 'removing z axis moves' in line:
+                        outFile.write('# for the four user buttons in the main window\n')
+                        for n in range(5):
+                            outFile.write(buttons[n][0])
+                            outFile.write(buttons[n][1])
+                        outFile.write('\n'\
+                            '# for the ten user buttons in the Extras panel\n'\
+                            'BUTTON_10_NAME           = \nBUTTON_10_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_11_NAME           = \nBUTTON_11_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_12_NAME           = \nBUTTON_12_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_13_NAME           = \nBUTTON_13_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_14_NAME           = \nBUTTON_14_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_15_NAME           = \nBUTTON_15_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_16_NAME           = \nBUTTON_16_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_17_NAME           = \nBUTTON_17_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_18_NAME           = \nBUTTON_18_CODE           = \nBUTTON_10_IMAGE          = \n'\
+                            'BUTTON_19_NAME           = \nBUTTON_19_CODE           = \nBUTTON_10_IMAGE          = \n\n')
+                        outFile.write(line)
+                        buttons_do = False
+                elif line.startswith('DISPLAY'):
+                    outFile.write('{}\n'.format(line))
+                    extras = True
+                elif line.startswith('EMBED_TAB_NAME') and extras:
+                    if line.split('=')[1].strip() == 'Plasma Run':
+                        outFile.write('EMBED_TAB_NAME          = Run\n')
+                    elif line.split('=')[1].strip() == 'Plasma Config':
+                        outFile.write('EMBED_TAB_NAME          = Config\n')
+                    else:
+                        outFile.write(line)
+                elif line.startswith('[') and extras:
+                    if display == 'axis':
+                        outFile.write(\
+                            'EMBED_TAB_NAME          = Extras\n'\
+                            'EMBED_TAB_COMMAND       = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade\n\n')
+                    elif display == 'gmoccapy':
+                        outFile.write(\
+                            'EMBED_TAB_NAME          = Extras\n'\
+                            'EMBED_TAB_LOCATION      = ntb_preview\n'\
+                            'EMBED_TAB_COMMAND       = halcmd loadusr -Wn plasmac_wizards gladevcp -c plasmac_wizards -x {XID} -u ./plasmac_wizards.py plasmac_wizards.glade\n\n')
+                    outFile.write(line)
+                    extras = False
                 else:
                     outFile.write(line)
             inFile.close()
@@ -1078,7 +1163,7 @@ class configurator:
             line = plasmacIni.readline()
             if not line.startswith('['):
                 if display == 'axis' and self.panel:
-                    if 'Plasma Run' in line:
+                    if '= Run' in line:
                         outFile.write('#{}'.format(line))
                     elif 'plasmac_run_tab.glade' in line:
                         outFile.write('#{}'.format(line))
@@ -1087,7 +1172,7 @@ class configurator:
                     else:
                         outFile.write(line)
                 elif display == 'gmoccapy' and self.panel:
-                    if 'Plasma Run' in line:
+                    if '= Run' in line:
                         plasmaRun = True
                     if 'ntb_preview' in line and plasmaRun:
                         outFile.write('#{}'.format(line))
@@ -1144,7 +1229,7 @@ class configurator:
                 elif addSpindle:
                     if line.strip() == '[TRAJ]':
                         outFile.write(line)
-                        outFile.write('SPINDLES = 2\n')
+                        outFile.write('SPINDLES = 3\n')
                     else:
                         outFile.write(line)
                 elif offsetAxis:
@@ -1171,7 +1256,7 @@ class configurator:
         return True
 
     def make_links(self,display):
-        # make links plasmac application files in configuration directory
+        # make links to plasmac application files in configuration directory
         for fileName in self.get_files_to_link(display):
             src = '{}/{}'.format(self.copyPath,fileName)
             dst = '{}/{}'.format(self.configDir,fileName)
@@ -1766,9 +1851,12 @@ class configurator:
                     'plasmac_stats.glade',\
                     'plasmac_stats.hal',\
                     'plasmac_stats.py',\
+                    'plasmac_wizards.glade',\
+                    'plasmac_wizards.py',\
                     'README.md',\
                     'tool.tbl',\
                     'test',\
+                    'wizards',\
                     ]
         elif display == 'gmoccapy':
             return ['imperial_startup.ngc',\
@@ -1796,9 +1884,12 @@ class configurator:
                     'plasmac_stats.glade',\
                     'plasmac_stats.hal',\
                     'plasmac_stats.py',\
+                    'plasmac_wizards.glade',\
+                    'plasmac_wizards.py',\
                     'README.md',\
                     'tool.tbl',\
                     'test',\
+                    'wizards',\
                     ]
         else:
             return None
