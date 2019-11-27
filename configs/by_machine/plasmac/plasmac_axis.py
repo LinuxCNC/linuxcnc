@@ -766,7 +766,6 @@ def configure_widgets():
     w(fpausedmotion + '.paused-motion-speed','configure','-from','0','-to','100','-resolution','1')
 
 def consumable_change_setup(ccParm):
-    print('ccParm: {}'.format(ccParm))
     global ccX
     global ccY
     global ccScale

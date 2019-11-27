@@ -1,6 +1,6 @@
 ;wrench with offsets
 
-#<x_offset> = 40
+#<x_offset> = 0
 #<y_offset> = 0
 
 G21

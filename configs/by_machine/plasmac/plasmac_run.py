@@ -280,7 +280,6 @@ class HandlerClass:
         self.builder.get_object('y-single-cut').update()
         x = self.builder.get_object('x-single-cut').get_value()
         y = self.builder.get_object('y-single-cut').get_value()
-        print('X:{}  Y:{}'.format(x, y))
         if x <> 0 or y <> 0:
             self.s.poll()
             if not self.s.estop and self.s.enabled and self.s.homed.count(1) == self.s.joints and self.s.interp_state == linuxcnc.INTERP_IDLE:
@@ -293,8 +292,7 @@ class HandlerClass:
                 self.c.mdi('G90')
                 self.c.mdi('M5')
                 self.c.wait_complete()
-#                self.c.mode(linuxcnc.MODE_MANUAL)
-#                self.c.wait_complete()
+                self.c.mdi('M30')
             else:
                 print('current mode prevents a single cut')
 
