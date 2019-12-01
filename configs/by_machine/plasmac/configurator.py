@@ -40,10 +40,19 @@ class configurator:
         self.upg = gtk.Button('Upgrade')
         self.rec = gtk.Button('Reconfigure')
         self.can = gtk.Button(stock=gtk.STOCK_CLOSE)
-        SB.pack_start(self.new, True, True, 0)
-        SB.pack_start(self.upg, True, True, 0)
-        SB.pack_start(self.rec, True, True, 0)
-        SB.pack_start(self.can, True, True, 0)
+        if 'configs/by_machine/plasmac' in sys.argv[0]:
+            self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
+            self.S.set_default_size(240, 0)
+            SB.pack_start(self.new, True, True, 0)
+            SB.pack_end(self.can, True, True, 0)
+        elif 'linuxcnc/configs' in sys.argv[0]:
+            self.copyPath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(sys.argv[0]), 'M190'))))
+            SB.pack_start(self.upg, True, True, 0)
+            SB.pack_start(self.rec, True, True, 0)
+            SB.pack_start(self.can, True, True, 0)
+        else:
+            print('Configurator started from unknown directory')
+            quit()
         SB.set_border_width(5)
         self.S.add(SB)
         self.S.show_all()
@@ -51,13 +60,6 @@ class configurator:
         self.upg.connect('button_press_event', self.on_selection, 'upgrade')
         self.rec.connect('button_press_event', self.on_selection, 'reconfigure')
         self.can.connect('button_press_event', self.on_selection, 'cancel')
-        if 'configs/by_machine/plasmac' not in os.path.realpath(sys.argv[0]):
-            if self.dialog_ok(
-                    'PATH ERROR',
-                    '\nThe plasmac configurator must be run from the original source directory\n\n'
-                    'e.g. python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py\n\n'
-                    'e.g. python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py\n\n'):
-                quit()
 
     def on_selection(self, button, event, selection):
         self.configureType = selection
@@ -100,7 +102,6 @@ class configurator:
         self.create.connect('clicked', self.on_create_clicked)
         self.cancel.connect('clicked', self.on_cancel_clicked)
         self.configPath = os.path.expanduser('~') + '/linuxcnc/configs'
-        self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
         self.gitPath = self.copyPath.split('/config')[0]
         self.orgIniFile = ''
         self.configDir = ''
@@ -1834,7 +1835,8 @@ class configurator:
 
     def get_files_to_link(self,display):
         if display == 'axis':
-            return ['imperial_startup.ngc',\
+            return ['configurator.py',\
+                    'imperial_startup.ngc',\
                     'M190',\
                     'materialverter.py',\
                     'metric_startup.ngc',\
@@ -1859,7 +1861,8 @@ class configurator:
                     'wizards',\
                     ]
         elif display == 'gmoccapy':
-            return ['imperial_startup.ngc',\
+            return ['configurator.py',\
+                    'imperial_startup.ngc',\
                     'M190',\
                     'materialverter.py',\
                     'metric_startup.ngc',\
