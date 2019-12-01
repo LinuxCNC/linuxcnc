@@ -310,7 +310,7 @@ TIP: If the Configurator does not run make sure that the file permissions allow 
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home.png[width=300]
+image::images/plasmac_configurator_home_new.png[width=300]
 
 Select 'New' from the selection window, this shows an info dialog, select 'Continue' and the New Configuration window will display.
 
@@ -1850,29 +1850,17 @@ It is best practice to do a Plasmac upgrade after every LinuxCNC upgrade even th
 
 NOTE: You need to have upgraded your LinuxCNC installation before you upgrade the PlasmaC configuration.
 
-Upgrading a Plasmac configuration is done from the Configurator, the type of installation determines the location of the Configurator (configurator.py):
+Upgrading a Plasmac configuration is done from the Configurator which is located in your configuration directory.
 
-=== Start A PlasmaC BuildBot Upgrade
-
-From a terminal:
+To start the configurator open a terminal and enter:
 
 ====
-$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+$ python linuxcnc/<your_configuration_directory>/configurator.py
 ====
-
-=== Start A PlasmaC Run In Place Upgrade
-
-From a terminal:
-
-====
-$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
-====
-
-=== Upgrade
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=300]
 
 Select 'Upgrade' from the selection window, this shows an info dialog, select 'Continue' and the Upgrade window will display.
 
@@ -1890,29 +1878,17 @@ The Configurator is able to modify:
 * The mode used by PlasmaC.
 * The position of the Run Panel in the GUI.
 
-Reconfiguring a Plasmac configuration is done from the Configurator, the type of installation determines the location of the Configurator (configurator.py):
+Reconfiguring a Plasmac configuration is done from the Configurator which is located in your configuration directory.
 
-=== Start A Plasmac BuildBot Reconfigure
-
-From a terminal:
+To start the configurator open a terminal and enter:
 
 ====
-$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+$ python linuxcnc/<your_configuration_directory>/configurator.py
 ====
-
-=== Start A PlasmaC Run In Place Reconfigure
-
-From a terminal:
-
-====
-$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
-====
-
-=== Reconfigure
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=300]
 
 Select 'Reconfigure' from the selection window, this shows an info dialog, select 'Continue' and the Reconfigure window will display.
 
