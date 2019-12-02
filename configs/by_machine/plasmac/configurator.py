@@ -44,6 +44,11 @@ class configurator:
             self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
             self.S.set_default_size(240, 0)
             SB.pack_start(self.new, True, True, 0)
+# ******************************************************************************
+# remove this section when safe to do so
+            SB.pack_start(self.upg, True, True, 0)
+            SB.pack_start(self.rec, True, True, 0)
+# ******************************************************************************
             SB.pack_end(self.can, True, True, 0)
         elif 'linuxcnc/configs' in sys.argv[0]:
             self.copyPath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(sys.argv[0]), 'M190'))))
