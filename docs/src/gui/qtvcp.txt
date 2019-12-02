@@ -8,6 +8,8 @@ with python programming to create a GUI screen for running a CNC machine. +
 Qtvcp is completely customizable - you can add different buttons and status LEDs etc. +
 or add python code for even finer grain customization. +
 
+.qtdragon - 3 Axis Sample
+image::images/qtdragon.png["QTDagon Router",align="left"]
 .qtdefault - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
 .Qtaxis - Self Adjusting Axis Sample
@@ -211,13 +213,13 @@ now not be resizable. +
  +
 Drag and drop the screenoption widget onto the main window (anywhere). +
 This widget doesn't add anything visually but sets up some common options. +
+right click on the main window and set the layout as vertical. +
+The screenoption widget will now be fullsized. +
 
-Drag and drop a FileDialog widget on the window anywhere. +
-This will show the dialog and we want it hidden. +
 On the right hand side there is a panel with tabs for a Property editor and +
-an object inspector. On the Object inspector click on the FileDialog. then +
-switch switch to the property Editor. Under the heading 'FileDialog' toggle +
-'State' until the dialog disappears. +
+an object inspector. On the Object inspector click on the screenoption. then +
+switch to the property Editor. Under the heading 'ScreenOptions' toggle +
+'filedialog_option'. +
 
 Drag and drop a GCodeGraphics widget and a GcodeEditor widget. +
 Place and resize them as you see fit leaving some room for buttons. +

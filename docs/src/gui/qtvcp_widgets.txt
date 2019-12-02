@@ -154,7 +154,13 @@ You can select one of these actions: +
 'Launch Status' +
 'Launch Halshow' +
 'Home' (set the joint number to -1 for all-home) +
+'Unhome' (set the joint number to -1 for all-unhome) +
+'Home Selected' Homes the joint/axis selected by STATUS +
+'Unhome Selected' Unhomes the joint/axis selected by STATUS +
 'zero axis' +
+'zero G5X' zeros the current user coordinate system offsets +
+'zero G92' zeros the optional G92 offsets +
+'zero Z rotational' zeros the rotation offset +
 'jog joint positive' (set the joint number) +
 'jog joint negative' (set the joint number) +
 'jog selected positive' (selected with a different widget or STATUS) +
@@ -180,6 +186,12 @@ You can select one of these actions: +
 'dro absolute' +
 'dro relative' +
 'dro dtg' +
+'exit screen' Closes down linuxcnc +
+'Override limits' Temporarily override hard limits +
+'launch dialogs' pops up dialogs if they are included in ui file. +
+'set DRO to relative' +
+'set DRO to absolute' +
+'set DRO to distance-to-go' +
 
 These set attributes of the selected action. Availability depends on the widget. +
  +
@@ -260,6 +272,10 @@ It uses opencv vision library. +
 
 ===  DRO Widget
 This will display the current position of an axis. +
+
+It is based on pyQT's
+
+=== GcodeDisplay
 
 It is based on pyQT's
 
@@ -403,7 +419,18 @@ Type, in all capitols, any of these commands to load the respective program: +
 
 It is based on pyQT's QLineEdit +
 
+=== MDIHistory
+
+Displays a scrollable list of past MDI command. +
+A edit line is embedded for commands. +
+
+=== MDITouchy
+
+This widget display button and entry lines for use with entering MDI commands. +
+It is based on Linuxcnc's Touchy screen's process. +
+
 ===  OriginOffsetView Widget
+
 This widget allows one to modify User System origin offsets directly +
 It will update the table for changes made internally by linuxcnc. +
 It is based on pyQT's
@@ -412,10 +439,45 @@ It is based on pyQT's
 
 This is a container that other widgets can be placed in. +
 It will 'grey-out' (disable) the widgets inside it depending on linuxcnc's current state. +
-It can selectably react to machine on, interpreter idle, estop off, all-homed +
+It can selectably react to: +
+
+* machine on
+* interpreter idle
+* estop off
+* all-homed
+
 It is based on pyQT's QGridLayout +
 
+=== MachineLog
 
+It is based on pyQT's
+
+=== JointEnableWidget
+
+It is based on pyQT's
+
+===  StatusImageSwitcher
+This widget will display images based on linuxcnc status. +
+You can watch: +
+
+* the state of the spindle.
+* the state of all homed
+* the state of a certain axis homed
+* the state of hard limits
+
+It is based on pyQT's
+
+===  FileManager
+This widget is used to select files to load. +
+It has a the ability to scroll the names with hardware such as a MIG. +
+You can add user selectable filters. +
+
+It is based on pyQT's
+
+=== RadioAxisSelector
+
+It is based on pyQT's
+  
 
 
 == Dialog Widgets
@@ -544,6 +606,24 @@ The DICT contains at minimum, the name of the dialog requested and an id code. +
 When using STATUS's 'request-dialog' function, the default launch name is 'ENTRY' +
  +
 
+It is based on pyQT's QDialog
+
+===  Dialog Calculator
+
+This is a dialog to display a calculator for numeric entry, such as origin offset. +
+It returns the entry via STATUS messages using a python DICT. +
+The DICT contains at minimum, the name of the dialog requested and an id code. +
+When using STATUS's 'request-dialog' function, the default launch name is 'CALCULATOR' +
+It is based on pyQT's QDialog
+
+===  Dialog VersaProbe
+
+This is a dialog to display A probing screen based on Versa Probe. +
+It is based on pyQT's QDialog
+
+===  Dialog MachineLogDialog
+
+This is a dialog to display the user machine log and qtvcp's debugging log. +
 It is based on pyQT's QDialog
 
 
