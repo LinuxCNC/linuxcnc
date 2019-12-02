@@ -869,11 +869,15 @@ static void set_operating_mode(void)
 	    /* update coordinated emcmotDebug->coord_tp position */
 	    tpSetPos(&emcmotDebug->coord_tp, &emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
-	    for (joint_num = 0; joint_num < NO_OF_KINS_JOINTS; joint_num++) {
+	    for (joint_num = 0; joint_num < EMCMOT_MAX_JOINTS; joint_num++) {
+		if (joint_num < NO_OF_KINS_JOINTS) {
 		/* point to joint data */
-		joint = &joints[joint_num];
-		cubicDrain(&(joint->cubic));
-		positions[joint_num] = joint->coarse_pos;
+		    joint = &joints[joint_num];
+		    cubicDrain(&(joint->cubic));
+		    positions[joint_num] = joint->coarse_pos;
+		} else {
+		    positions[joint_num] = 0;
+		}
 	    }
 	    /* Initialize things to do when starting teleop mode. */
 	    SET_MOTION_TELEOP_FLAG(1);
