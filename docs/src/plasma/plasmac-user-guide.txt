@@ -1910,11 +1910,11 @@ This application is used to convert existing tool tables into PlasmaC material f
 
 At this stage the only conversions available are from SheetCam and Fusion360.
 
-Sheetcam tool tables are complete and the conversion is fully automatic.
+Sheetcam tool tables are complete and the conversion is fully automatic. The SheetCam tool file must be in the SheetCam .tools format.
 
-Fusion360 tool tables do not have all required fields so the user is prompted for missing parameters.
+Fusion360 tool tables do not have all required fields so the user is prompted for missing parameters.  The Fusion360 tool file must be in the Fusion360 .json format.
 
-If you have a format you would like converted place a request in https://forum.linuxcnc.org/plasma-laser/35449-another-plasma-component[this LinuxCNC forum thread]:
+If you have a format you would like converted, create a 'New Topic' in the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
 
 Materialverter may be run from a GUI file manager by double clicking on 'materialverter.py' in your configuration directory or may be run from a terminal with the following command:
 
@@ -2047,3 +2047,7 @@ setp    hm2_7i96.0.encoder.00.scale        -1
 ----
 
 NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD.
+
+== Support
+
+On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
