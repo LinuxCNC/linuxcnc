@@ -1070,16 +1070,18 @@ class configurator:
         if not os.path.exists('{}/postgui.hal'.format(self.configDir)):
             with open('{}/postgui.hal'.format(self.configDir), 'w') as outFile:
                 outFile.write(\
-                    '# Keep your post GUI customisations here to prevent them from\n'\
-                    '# being overwritten by updates or pncconf/stepconf changes\n\n'\
+                    '# Keep your post GUI customisations here to prevent them from being overwritten\n'\
+                    '# by updates or pncconf/stepconf changes.\n\n'\
                     '# As an example:\n'\
-                    '# You may want to connect the plasmac components thc-enable pin\n'\
-                    '# to a switch you have on your machine rather than let it be\n'\
-                    '# controlled from the GUI Run tab.\n\n'\
-                    '# First disconnect the GUI Run tab from the plasmac:thc-enable signal\n'\
-                    '# net unlinkp plasmac_thc.enable-out\n\n'\
-                    '# Then connect your switch input pint to the plasmac:thc-enable signal\n'\
-                    '# net plasmac:thc-enable your.input-pin\n')
+                    '# You currently have a plasmac:thc-enable signal which connects the\n'\
+                    '# plasmac_run.thc-enable-out output to the plasmac.thc-enable input.\n\n'\
+                    '# You want to connect the thc-enable pin of the plasmac component to a switch\n'\
+                    '# on your machine rather than let it be controlled from the GUI Run tab.\n\n'\
+                    '# First disconnect the GUI Run tab from the plasmac:thc-enable signal:\n'\
+                    '# unlinkp plasmac_run.thc.enable-out\n\n'\
+                    '# Then connect the plasmac:thc-enable signal to your switch:\n'\
+                    '# net plasmac:thc-enable your.switch-pin\n'\
+                    )
         return True
 
     def write_newini_file(self,display):
