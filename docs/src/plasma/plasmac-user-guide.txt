@@ -556,7 +556,6 @@ Parameters related to an optional air-scribe.
 |Start Delay|Delay to allow air-scribe to start before beginning motion.
 |===
 
-
 .Center Spot
 
 Parameters related to centre spotting (centre punch).
@@ -566,7 +565,9 @@ IMPORTANT: This is experimental and will not suit some plasma cutters
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Torch On Time|The length of time in milli-seconds the torch is on for each center spot.
+|Threshold|The arc voltage at which the delay timer will begin. +
+           0V starts the delay when the torch on signal is activated.
+|Delay|The length of time the torch is on after threshold reached (mS).
 |===
 
 .Save & Reload Buttons
@@ -1300,15 +1301,17 @@ WARNING: If you have an existing manual toolchange in your machine .hal file the
 
 IMPORTANT: This is experimental and will not suit some plasma cutters
 
-For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
+To achieve centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
 
-This is done by first adjusting the on time for the torch in the <<config-panel, Config Panel>>. Times are adjustable from 1 to 999 milli-seconds.
+This is done by first setting the arc voltage threshold in the <<config-panel, Config Panel>>. When this threshold is reached the delay timer will start. If the threshold voltage is set to zero then the delay timer will begin from when the torch on signal was sent.
+
+Then set the delay time in the <<config-panel, Config Panel>>. When the delay is complete, the torch will turn off. Times are adjustable from 0 to 9999 milli-seconds.
 
 The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
 
 To enable centre spotting, see <<multi-tool, multiple tools>>.
 
-LinuxCNC requires some motion bewtween an 'M3' command and a 'M5' command so a minimal movement at a high speed is needed.
+LinuxCNC requires some motion between an 'M3' command and a 'M5' command so a minimal movement at a high speed is programmed.
 
 An example GCode is:
 
@@ -1317,11 +1320,11 @@ G21 (metric)
 F99999 (high feed rate)
 
 g0 x10 y10
-m3 $2 s1 (centre Spot on)
+m3 $2 s1 (centre spot on)
 g91 (relative distance mode)
 g1 x0.000001
 g90 (absolute distance mode)
-m5 (centre punch off)
+m5 (centre spot off)
 
 g0 x0 y0
 g90
