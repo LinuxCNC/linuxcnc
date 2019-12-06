@@ -1019,8 +1019,8 @@ fail0:
 
 void hm2_stepgen_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     if (hm2->stepgen.num_instances <= 0) return;
+    HM2_PRINT("StepGen: %d\n", hm2->stepgen.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->stepgen.clock_frequency, hm2_hz_to_mhz(hm2->stepgen.clock_frequency));
     HM2_PRINT("    version: %d\n", hm2->stepgen.version);
     HM2_PRINT("    step_rate_addr: 0x%04X\n", hm2->stepgen.step_rate_addr);

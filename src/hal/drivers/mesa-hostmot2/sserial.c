@@ -2156,9 +2156,9 @@ void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period){
 
 void hm2_sserial_print_module(hostmot2_t *hm2) {
     int i,r,c,g,m;
+    if (hm2->sserial.num_instances <= 0) return;
     HM2_PRINT("SSerial: %d\n", hm2->sserial.num_instances);
     HM2_PRINT("  version %d\n", hm2->sserial.version);
-    if (hm2->sserial.num_instances <= 0) return;
     for (i = 0; i < hm2->sserial.num_instances; i ++) {
         HM2_PRINT("    instance %d:\n", i);
         HM2_PRINT("        Command Addr 0x%04x\n", hm2->sserial.instance[i].command_reg_addr);

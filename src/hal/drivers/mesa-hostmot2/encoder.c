@@ -1075,8 +1075,8 @@ void hm2_encoder_cleanup(hostmot2_t *hm2) {
 
 void hm2_encoder_print_module(hostmot2_t *hm2) {
     int i;
+     if (hm2->encoder.num_instances <= 0) return;
     HM2_PRINT("Encoders: %d\n", hm2->encoder.num_instances);
-    if (hm2->encoder.num_instances <= 0) return;
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->encoder.clock_frequency, hm2_hz_to_mhz(hm2->encoder.clock_frequency));
     HM2_PRINT("    version: %d\n", hm2->encoder.version);
     HM2_PRINT("    counter_addr: 0x%04X\n", hm2->encoder.counter_addr);

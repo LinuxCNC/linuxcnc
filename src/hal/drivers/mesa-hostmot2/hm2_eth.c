@@ -158,6 +158,168 @@ static char *hm2_7i96_pin_names[] = {
     "P1-25"
 };
 
+static char *hm2_7i94_pin_names[] = {
+    "P2-01",
+    "P2-02",
+    "P2-03",
+    "P2-04",
+    "P2-05",
+    "P2-06",
+    "P2-07",
+    "P2-08",
+    "P2-09",
+    "P2-11",
+    "P2-13",
+    "P2-15",
+    "P2-17",
+    "P2-19",
+    "P2-21",
+    "P2-23",
+    "P2-25",
+    "J6-RX0",
+    "J6-TX0",
+    "J6-TXEN0",
+    "J7-RX1",
+
+    "J7-TX1",
+    "J7-TXEN1",
+    "J8-RX2",
+    "J8-TX2",
+    "J8-TXEN2",
+    "J9-RX3",
+    "J9-TX3",
+    "J9-TXEN3",
+    "J4-RX4",
+    "J4-TX4",
+    "J4-TXEN4",
+    "J3-RX5",
+    "J3-TX5",
+    "J3-TXEN5",
+    "J2-RX6",
+    "J2-TX6",
+    "J2-TXEN6",
+    "J1-RX7",
+    "J1-TX7",
+    "J1-TXEN7",
+    "P2-/IOENA"
+};
+
+static char *hm2_7i95_pin_names[] = {
+    "TB3-02/TB3-03", /* Step/Dir/Misc 5V out */
+    "TB3-04/TB3-05",
+    "TB3-08/TB3-09",
+    "TB3-10/TB3-11",
+    "TB3-14/TB3-15",
+    "TB3-16/TB3-17",
+    "TB3-20/TB3-21",
+    "TB3-22/TB3-23",
+    "TB4-02/TB4-03",
+    "TB4-04/TB4-05",
+    "TB4-08/TB4-09",
+    "TB4-10/TB4-11",
+    "TB4-14/TB4-15", /* RS-422/RS-485 interface */
+    "TB4-16/TB4-17",
+    "TB3-16/TB3-17",
+    "TB4-20/TB4-21",
+    "TB4-22/TB4-23",
+    "TB4-22/TB4-23",
+    "TB1-01/TB1-09", /* Muxed encoders */
+    "TB1-04/TB1-12",
+    "TB1-07/TB1-15",
+    "TB1-17/TB2-01",
+    "TB1-20/TB2-04",
+    "TB1-23/TB2-07",
+    "TB2-09/TB2-17",
+    "TB2-12/TB2-20",
+    "TB2-15/TB2-23",
+    "Internal EncMux",
+    "Internal InMux0", /* InMux */
+    "Internal InMux1",
+    "Internal InMux2",
+    "Internal InMux3",
+    "Internal InMux4",
+    "Internal InMuxData",
+    "TB5-13/TB5-14", /* SSR */
+    "TB5-15/TB5-16",
+    "TB5-17/TB5-18",
+    "TB5-19/TB5-20",
+    "TB5-21/TB5-22",
+    "TB5-23/TB5-24",
+    "internal",
+
+    "P1-01", /* P1 parallel expansion */
+    "P1-02",
+    "P1-03",
+    "P1-04",
+    "P1-05",
+    "P1-06",
+    "P1-07",
+    "P1-08",
+    "P1-09",
+    "P1-11",
+    "P1-13",
+    "P1-15",
+    "P1-17",
+    "P1-19",
+    "P1-21",
+    "P1-23",
+    "P1-25"
+};
+
+static char *hm2_7i97_pin_names[] = {
+    "TB3-04", 		/* Analog out */
+    "TB3-08",
+    "TB3-12",
+    "TB3-16",
+    "TB3-20",    
+    "AN_ENA4",
+    "TB3-24",
+    "AN_ENA5",
+    "AN-ENA0..3",
+    "TB1-01/TB1-09", /* Muxed encoders */
+    "TB1-04/TB1-12",
+    "TB1-07/TB1-15",
+    "TB1-17/TB2-01",
+    "TB1-20/TB2-04",
+    "TB1-23/TB2-07",
+    "TB2-09/TB2-17",
+
+    "TB2-12/TB2-20",
+    "TB2-15/TB2-23",
+    "Internal EncMux",
+    "TB5-13/TB5-14", /* SSR */
+    "TB5-15/TB5-16",
+    "TB5-17/TB5-18",
+    "TB5-19/TB5-20",
+    "TB5-21/TB5-22",
+    "TB5-23/TB5-24",
+    "Internal InMux0", /* InMux */
+    "Internal InMux1",
+    "Internal InMux2",
+    "Internal InMux3",
+    "Internal InMuxData",
+    "TB4-15/TB4-16", /* RS-422/RS-485 interface */
+    "TB4-17/TB4-18",
+    "TB4-17/TB4-18",
+
+    "P1-01", /* P1 parallel expansion */
+    "P1-02",
+    "P1-03",
+    "P1-04",
+    "P1-05",
+    "P1-06",
+    "P1-07",
+    "P1-08",
+    "P1-09",
+    "P1-11",
+    "P1-13",
+    "P1-15",
+    "P1-17",
+    "P1-19",
+    "P1-21",
+    "P1-23",
+    "P1-25"
+};
 
 #define UDP_PORT 27181
 #define SEND_TIMEOUT_US 10
@@ -858,6 +1020,59 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
+    } else if (strncmp(board_name, "7I94", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 21;
+        board->llio.io_connector_pin_names = hm2_7i94_pin_names;
+
+        // DB25, 17 pins used, IO 0 to IO 16
+        board->llio.ioport_connector_name[0] = "P2";
+
+        // Serial 0..3 IO 17 to IO 28
+        board->llio.ioport_connector_name[1] = "J1,J4";
+
+        // Serial 4..7 IO 29 to IO 41
+        board->llio.ioport_connector_name[2] = "J6,J9";
+
+        // P2 /IOENA
+        board->llio.ioport_connector_name[3] = "P2-ENA";
+
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
+    } else if (strncmp(board_name, "7I95", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 29;
+        board->llio.io_connector_pin_names = hm2_7i95_pin_names;
+
+        // DB25, 17 pins used, IO 34 to IO 50
+        board->llio.ioport_connector_name[0] = "P1";
+
+        // terminal block, 10 pins used, enc 0-2
+        board->llio.ioport_connector_name[1] = "TB1";
+  
+        // terminal block, 10 pins used, enc 3-5
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[3] = "TB3";
+ 
+        // terminal block, 10 pins used, Step & Dir 4,5, serial Rx/Tx/Txen 0,1
+        board->llio.ioport_connector_name[2] = "TB4";
+
+        // terminal block, 8 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB5";
+
+        // terminal block, 16 inputs
+        board->llio.ioport_connector_name[2] = "TB6";
+
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
     } else if (strncmp(board_name, "7I96", 8) == 0) {
         strncpy(llio_name, board_name, 8);
         llio_name[1] = tolower(llio_name[1]);
@@ -877,6 +1092,46 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         // terminal block, 11 inputs, 6 SSR outputs
         board->llio.ioport_connector_name[3] = "TB3";
 
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
+    } else if (strncmp(board_name, "7I97", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 17;
+        board->llio.io_connector_pin_names = hm2_7i97_pin_names;
+
+        // DB25, 17 pins used, IO 34 to IO 50
+        board->llio.ioport_connector_name[0] = "P1";
+
+        // terminal block, 10 pins used, enc 0-2
+        board->llio.ioport_connector_name[1] = "TB1";
+  
+        // terminal block, 10 pins used, enc 3-5
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, Analog
+        board->llio.ioport_connector_name[3] = "TB3";
+ 
+        // terminal block, 8 inputs + Serial
+        board->llio.ioport_connector_name[4] = "TB4";
+
+        // terminal block, 8 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[5] = "TB5";
+
+        board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
+
+    } else if (strncmp(board_name, "7I98", 4) == 0) {
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+        board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 17;
+        board->llio.ioport_connector_name[0] = "P1";
+        board->llio.ioport_connector_name[1] = "P2";
+        board->llio.ioport_connector_name[2] = "P3";
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
