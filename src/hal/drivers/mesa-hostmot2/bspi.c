@@ -257,8 +257,8 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 
 void hm2_bspi_print_module(hostmot2_t *hm2){
     int i,j;
-    HM2_PRINT("Buffered SPI: %d\n", hm2->bspi.num_instances);
     if (hm2->bspi.num_instances <= 0) return;
+    HM2_PRINT("Buffered SPI: %d\n", hm2->bspi.num_instances);
     HM2_PRINT("    version: %d\n", hm2->bspi.version);
     HM2_PRINT("    channel configurations\n");
     for (i = 0; i < hm2->bspi.num_instances; i ++) {
