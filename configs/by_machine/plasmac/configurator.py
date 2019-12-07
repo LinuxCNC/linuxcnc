@@ -40,8 +40,27 @@ class configurator:
         self.upg = gtk.Button('Upgrade')
         self.rec = gtk.Button('Reconfigure')
         self.can = gtk.Button(stock=gtk.STOCK_CLOSE)
-        if 'configs/by_machine/plasmac' in sys.argv[0]:
+#         if 'configs/by_machine/plasmac' in sys.argv[0]:
+#             self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
+#             self.S.set_default_size(240, 0)
+#             SB.pack_start(self.new, True, True, 0)
+# # ******************************************************************************
+# # remove this section when safe to do so
+#             SB.pack_start(self.upg, True, True, 0)
+#             SB.pack_start(self.rec, True, True, 0)
+# # ******************************************************************************
+#             SB.pack_end(self.can, True, True, 0)
+#         elif 'linuxcnc/configs' in sys.argv[0]:
+#             self.copyPath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(sys.argv[0]), 'M190'))))
+#             SB.pack_start(self.upg, True, True, 0)
+#             SB.pack_start(self.rec, True, True, 0)
+#             SB.pack_start(self.can, True, True, 0)
+#         else:
+#             print('Configurator started from unknown directory')
+#             quit()
+        if 'configs/by_machine/plasmac' in os.path.realpath(os.path.dirname(sys.argv[0])):
             self.copyPath =  os.path.realpath(os.path.dirname(sys.argv[0]))
+            self.configPath = os.path.expanduser('~') + '/linuxcnc/configs'
             self.S.set_default_size(240, 0)
             SB.pack_start(self.new, True, True, 0)
 # ******************************************************************************
@@ -50,13 +69,16 @@ class configurator:
             SB.pack_start(self.rec, True, True, 0)
 # ******************************************************************************
             SB.pack_end(self.can, True, True, 0)
-        elif 'linuxcnc/configs' in sys.argv[0]:
+        elif 'linuxcnc/configs' in os.path.realpath(os.path.dirname(sys.argv[0])):
             self.copyPath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(sys.argv[0]), 'M190'))))
+            self.configPath = os.path.dirname(sys.argv[0])
             SB.pack_start(self.upg, True, True, 0)
             SB.pack_start(self.rec, True, True, 0)
             SB.pack_start(self.can, True, True, 0)
         else:
-            print('Configurator started from unknown directory')
+            print('Configurator started from unknown directory\n'\
+                  'It must be located in a LinuxCNC configuration directory\n'\
+                  'or a PlasmaC source directory')
             quit()
         SB.set_border_width(5)
         self.S.add(SB)
