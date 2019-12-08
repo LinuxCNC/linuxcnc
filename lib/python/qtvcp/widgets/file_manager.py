@@ -1,6 +1,7 @@
 import sys, os
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
-                 QWidget, QVBoxLayout, QListView, QComboBox)
+                 QWidget, QVBoxLayout, QHBoxLayout, QListView,
+                 QComboBox, QPushButton, QSizePolicy)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import (QModelIndex, QDir, Qt,
                     QItemSelectionModel, QEvent, QItemSelection)
@@ -31,6 +32,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.width = 640
         self.height = 480
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
+        self.user_path = (os.path.join('/media'))
         self.currentPath = None
         self.initUI()
 
@@ -56,9 +58,28 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb = QComboBox()
         self.cb.currentTextChanged.connect(self.filterChanged)
         self.cb.addItems(sorted({'*.ngc','*.py','*'}))
+        #self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+
+        self.button = QPushButton()
+        self.button.setText('Media')
+        self.button.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.button.setToolTip('Jump to Media directory')
+        self.button.clicked.connect(self.onMediaClicked)
+
+        self.button2 = QPushButton()
+        self.button2.setText('User')
+        self.button2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+        self.button2.setToolTip('Jump to linuxcnc directory')
+        self.button2.clicked.connect(self.onUserClicked)
+
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.button)
+        hbox.addWidget(self.button2)
+        hbox.addWidget(self.cb)
+
         windowLayout = QVBoxLayout()
         windowLayout.addWidget(self.list)
-        windowLayout.addWidget(self.cb)
+        windowLayout.addLayout(hbox)
         self.setLayout(windowLayout)
         self.show()
 
@@ -76,6 +97,12 @@ class FileManager(QWidget, _HalWidgetBase):
             return
         root_index = self.model.setRootPath(dir_path)
         self.list.setRootIndex(root_index)
+
+    def onMediaClicked(self):
+        self.updateDirectoryView(self.user_path)
+
+    def onUserClicked(self):
+        self.updateDirectoryView(self.default_path)
 
     def select_row(self, style):
         style = style.lower()
