@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_15">
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -48,6 +48,9 @@
        <bool>true</bool>
       </property>
       <property name="originOffsetDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="calculatorDialog_option" stdset="0">
        <bool>true</bool>
       </property>
       <property name="machineLogDialog_option" stdset="0">
@@ -563,55 +566,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
-                   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_2">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="is_on_status" stdset="0">
-                     <bool>true</bool>
-                    </property>
-                    <property name="is_idle_status" stdset="0">
-                     <bool>true</bool>
-                    </property>
-                    <property name="is_homed_status" stdset="0">
-                     <bool>true</bool>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_7">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <property name="leftMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin">
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="QPushButton" name="pushButton">
-                       <property name="maximumSize">
-                        <size>
-                         <width>100</width>
-                         <height>25</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>Set Tool Offets</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
                   <item row="0" column="0">
                    <layout class="QHBoxLayout" name="horizontalLayout_12">
                     <item>
@@ -768,6 +722,16 @@
                     </property>
                     <property name="limits_override_action" stdset="0">
                      <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="OffsetToolButton" name="offsettoolbutton">
+                    <property name="text">
+                     <string>Set Tool Offset</string>
+                    </property>
+                    <property name="popupMode">
+                     <enum>QToolButton::InstantPopup</enum>
                     </property>
                    </widget>
                   </item>
@@ -1050,59 +1014,7 @@
              </spacer>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_13">
-              <item>
-               <widget class="QLabel" name="label">
-                <property name="text">
-                 <string>Spindle Output</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="StatusLabel" name="statuslabel_9">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>35</height>
-                 </size>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-                <property name="textTemplate" stdset="0">
-                 <string>%d RPM</string>
-                </property>
-                <property name="actual_spindle_speed_status" stdset="0">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="StatusLabel" name="statuslabel_10">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>35</height>
-                 </size>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-                <property name="textTemplate" stdset="0">
-                 <string>%.2f SFPM</string>
-                </property>
-                <property name="alt_textTemplate" stdset="0">
-                 <string>%.2fSMPM</string>
-                </property>
-                <property name="actual_spindle_speed_status" stdset="0">
-                 <bool>false</bool>
-                </property>
-                <property name="actual_surface_speed_status" stdset="0">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QHBoxLayout" name="horizontalLayout_13"/>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1509,13 +1421,13 @@
                <item row="8" column="0">
                 <widget class="StatusLabel" name="statuslabel_17">
                  <property name="text">
-                  <string>TLO X:   200.000</string>
+                  <string>TLO X: 100.0000</string>
                  </property>
                  <property name="textFormat">
                   <enum>Qt::PlainText</enum>
                  </property>
                  <property name="textTemplate" stdset="0">
-                  <string>TLO X:%10.3f</string>
+                  <string>TLO X:%9.4f</string>
                  </property>
                  <property name="alt_textTemplate" stdset="0">
                   <string>TLO Y:%10.3f</string>
@@ -1653,13 +1565,13 @@
                <item row="9" column="0">
                 <widget class="StatusLabel" name="statuslabel_18">
                  <property name="text">
-                  <string>TLO Y:   200.000</string>
+                  <string>TLO Y: 100.0000</string>
                  </property>
                  <property name="textFormat">
                   <enum>Qt::PlainText</enum>
                  </property>
                  <property name="textTemplate" stdset="0">
-                  <string>TLO Y:%10.3f</string>
+                  <string>TLO Y:%9.4f</string>
                  </property>
                  <property name="alt_textTemplate" stdset="0">
                   <string>TLO Y:%10.3f</string>
@@ -1710,13 +1622,13 @@
                <item row="10" column="0">
                 <widget class="StatusLabel" name="statuslabel_19">
                  <property name="text">
-                  <string>TLO Z:   200.000</string>
+                  <string>TLO Z: 100.0000</string>
                  </property>
                  <property name="textFormat">
                   <enum>Qt::PlainText</enum>
                  </property>
                  <property name="textTemplate" stdset="0">
-                  <string>TLO Z:%10.3f</string>
+                  <string>TLO Z:%9.4f</string>
                  </property>
                  <property name="alt_textTemplate" stdset="0">
                   <string>TLO Z:%10.3f</string>
@@ -2243,12 +2155,6 @@
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>StateEnableGridLayout</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.container_widgets</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>RadioAxisSelector</class>
    <extends>QRadioButton</extends>
    <header>qtvcp.widgets.radio_axis_selector</header>
@@ -2274,6 +2180,11 @@
    <extends>QLabel</extends>
    <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>OffsetToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.offset_tool_button</header>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
