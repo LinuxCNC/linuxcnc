@@ -518,6 +518,7 @@ proc loadwatchlist {filename} {
   close $f
   set ::last_watchfile_tail [file tail    $filename]
   set ::last_watchfile_dir  [file dirname $filename]
+  wm title . $::last_watchfile_tail
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw
