@@ -107,6 +107,16 @@ class materialConverter:
         self.outLabel.set_text('')
         dlg = gtk.FileChooserDialog("Open..", None, gtk.FILE_CHOOSER_ACTION_OPEN,
           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        if self.inSheetcam.get_active():
+        	filter = gtk.FileFilter()
+        	filter.set_name("SheetCam Tool File (*.tools)")
+        	filter.add_pattern("*.[Tt][Oo][Oo][Ll][Ss]")
+        	dlg.add_filter(filter)
+        elif self.inFusion.get_active():
+        	filter = gtk.FileFilter()
+        	filter.set_name("Fusion360 Tool File (*.json)")
+        	filter.add_pattern("*.[Jj][Ss][Oo][Nn]")
+        	dlg.add_filter(filter)
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             self.inFile.set_text(dlg.get_filename())
@@ -285,44 +295,56 @@ class materialConverter:
 #                self.outLabel.set_text('READ ERROR!!!')
             self.outLabel.set_text('FINISHED')
         elif self.inFusion.get_active():
+            import json
 #            try:
             with open(self.inFileName, 'r') as f_in:
-                for line in f_in:
-                    line = line.lower().strip().split('\t')
-                    if line[0].lower() == 'type':
-                        lNum = line.index('number')
-                        lNam = line.index('description')
-                        lCS = line.index('cutting-feedrate')
-                        lKW = line.index('kerf-width')
-                    else:
-                        self.fNUM = line[lNum]
-                        self.fNAM = line[lNam]
-                        getParams = self.fusion_dialog()
-                        if getParams == gtk.RESPONSE_REJECT:
-                            return
-                        self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
-                        self.materialName = 'NAME               = {}'.format(self.fNAM)
-                        self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
-                                             i=self.precision, val=float(line[lKW]) / self.divisor)
-                        self.materialTHC = 'THC                = {}'.format(self.fTHC)
-                        self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
-                                                i=self.precision, val=float(self.fPH) / self.divisor)
-                        self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
-                        self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
-                                                i=self.precision, val=float(self.fPJH) / self.divisor)
-                        self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
-                        self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
-                                             i=self.precision, val=float(self.fCH) / self.divisor)
-                        self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
-                                             i=0, val=float(line[lCS]) / self.divisor)
-                        self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
-                        self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
-                        self.output()
+                jdata = json.load(f_in)
+                f_in.close()
+            for t in jdata['data']:
+                self.fNUM = str(t['post-process']['number'])
+                self.fNAM = t['description']
+                lCS = self.find_key(t, 'v_f')
+                lKW = t['geometry']['CW']
+                getParams = self.fusion_dialog()
+                if getParams == gtk.RESPONSE_REJECT:
+                    return
+                self.materialNum = '[MATERIAL_NUMBER_{}]'.format(self.fNUM)
+                self.materialName = 'NAME               = {}'.format(self.fNAM)
+                self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
+                                     i=self.precision, val=float(lKW) / self.divisor)
+                self.materialTHC = 'THC                = {}'.format(self.fTHC)
+                self.materialPierceH = "{id:}{val:.{i}f}".format(id='PIERCE_HEIGHT      = ',
+                                        i=self.precision, val=float(self.fPH) / self.divisor)
+                self.materialPierceD = 'PIERCE_DELAY       = {}'.format(self.fPD)
+                self.materialPuddleH = "{id:}{val:.{i}f}".format(id='PUDDLE_JUMP_HEIGHT = ',
+                                        i=self.precision, val=float(self.fPJH) / self.divisor)
+                self.materialPuddleD = 'PUDDLE_JUMP_DELAY  = {}'.format(self.fPJD)
+                self.materialCutH = "{id:}{val:.{i}f}".format(id='CUT_HEIGHT         = ',
+                                     i=self.precision, val=float(self.fCH) / self.divisor)
+                self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
+                                     i=0, val=float(lCS) / self.divisor)
+                self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
+                self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
+                self.output()
 #            except:
 #                self.outLabel.set_text('READ ERROR!!!')
             self.outLabel.set_text('FINISHED')
         else:
             self.outLabel.set_text('Invalid Conversion')
+
+    def find_key(self, obj, key):
+        if key in obj: return obj[key]
+        for k, v in obj.items():
+            if isinstance(v,dict):
+                item = self.find_key(v, key)
+                if item is not None:
+                    return item
+            elif isinstance(v,list):
+                for list_item in v:
+                    item = self.find_key(list_item, key)
+                    if item is not None:
+                        return item
+
     def on_cancel_clicked(self,button):
         gtk.main_quit()
 
@@ -456,6 +478,97 @@ class materialConverter:
         self.fCV = dCV.get_text()
         dialog.destroy()
         return response
+
+class Tool:
+    """
+    Endmill, drill, holder, or other CNC tool.  Keep track of properties.
+    """
+    TYPE_UNKNOWN = 0
+    TYPE_MILLING = 1
+    TYPE_HOLE_MAKING = 2
+    TYPE_TURNING = 4
+    TYPE_HOLDERS = 8
+    TYPE_ALL = (TYPE_MILLING | TYPE_HOLE_MAKING | TYPE_TURNING | TYPE_HOLDERS)
+
+    def __init__(self, d):
+        "Pass dictionary from Fusion 360 file."
+        self.raw_dict = d
+        self.calculated_type = Tool.__calc_type(d['type'])
+
+    def diameter(self):
+        "Return diameter of the tool.  Holders do not have a diameter, for example."
+        try:
+            d = self.raw_dict['geometry']['DC']
+        except:
+            d = 0
+        return d
+
+    def num(self):
+        "Return the tool number."
+        try:
+            n = self.raw_dict['post-process']['number']
+        except:
+            n = 0
+        return n
+
+    def vendor(self):
+        "Return the tool vendor."        
+        return self.raw_dict['vendor']
+
+    def description(self):
+        "Return the tool description."
+        return self.raw_dict['description']
+
+    def type_str(self):
+        "Return Fusion 360 tool type string."
+        return self.raw_dict['type']
+
+    def type(self):
+        "Return tool type ID."
+        return self.calculated_type
+
+    def units(self):
+        "Get units of properties for tool."
+        return self.raw_dict['unit']
+
+    def kerf_width(self):
+        "Get kerf width for tool."
+        return self.raw_dict['geometry']['CW']
+
+    def cut_speed(self):
+        "Get cut speed for tool."
+#        return self.raw_dict['start-values']['presets']['v_f']
+        print('\n\n{}\n\n'.format(self.raw_dict['start-values']['presets']))
+#        return self.raw_dict['start-values']['v_f']
+
+    @staticmethod
+    def __calc_type(type_str):
+        """
+        Convert string representation of tool type to an ID.  This is the Fusion360
+        Language.
+        """
+        if type_str == 'holder':
+            return Tool.TYPE_HOLDERS
+        elif type_str.find('mill') >= 0 or type_str.find('counter sink') >= 0:
+            return Tool.TYPE_MILLING
+        elif type_str.find('drill') >= 0:
+            return Tool.TYPE_HOLE_MAKING
+        elif type_str.find('turning') >= 0:
+            return Tool.TYPE_TURNING
+        else:
+            return Tool.TYPE_UNKNOWN
+
+    def __repr__(self):
+        r = "tool#=%d, dia=%d %s, vendor=%s, desc=%s, %s[%d], kerf=%s, feed rate=%s\n" % (self.num(),
+                                                                   self.diameter(),
+                                                                   self.units(),
+                                                                   self.vendor(),
+                                                                   self.description(),
+                                                                   self.type_str(),
+                                                                   self.type(),
+                                                                   self.kerf_width(),
+                                                                   self.cut_speed())
+        return r
 
 if __name__ == '__main__':
     try:

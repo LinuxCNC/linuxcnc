@@ -398,6 +398,54 @@ setp plasmac.lowpass-frequency 100
 
 Would give a cutoff frequency of 100Hz.
 
+== Plasmac Files
+
+After an installation, the following files are created in the configuration directory:
+[width="100%",cols="1,2"]
+|===
+|*Filename*|*Function*
+|<MACHINE>.ini|configuration file
+|<MACHINE>.hal|HAL connections for the PlasmaC component
+|<MACHINE>_connections.hal|HAL connections to the I/O HAL pins
+|postgui.hal|a HAL file run after the GUI has loaded for user customizing
+|===
+
+NOTE: Custom commands are allowed in <MACHINE>_connections.hal and the postgui.hal files as they are not overwritten during upgrades
+
+In addition to the above files, the following links are created to the files in the source directory:
+[width="100%",cols="1,2"]
+|===
+|*Filename*|*Function*
+|plasmac.hal|permanent HAL connections for the plasmac component
+|plasmac_xxx.glade|a gladevcp panel for the PlasmaC configuration
+|plasmac_xxx.hal|HAL connections for the panel
+|plasmac_xxx.py|python code for the panel
+|xxx_startup.ngc|startup G-Code commands
+|plasmac_gcode.py|a preprocessor for the loaded G-Code file
+|plasmac_axis.py|python code to customise the Axis GUI
+|M190|for G-Code changing of materials
+|materialverter.py|tool table converter and material file creator
+|configurator.py|configure a new or upgrade an existing PlasmaC configuration
+|wizards|files relating to the shape library
+|test|files for the test panel
+|===
+
+After running a new configuration the first time the following files will be created in the configuration directory:
+[width="100%",cols="1,2"]
+|===
+|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
+|<MACHINE>_config.cfg|configuration settings for the config tab
+|<MACHINE>_run.cfg|configuration settings for the Run Panel
+|<MACHINE>_material.cfg|material file for cut parameters
+|<MACHINE>_wizards.cfg|configuration settings for the shape library
+|plasmac_stats.var|saved statistics
+|===
+
+NOTE: The .ini files are notated for extra the requirements for these configurations.
+
+NOTE: The .cfg files are plain text and may be edited with any text editor.
+
+
 == PlasmaC GUI Panels
 
 PlasmaC adds several panels to the GUI, some are panels on permanent display and others are tabs behind the preview tab.
@@ -508,7 +556,6 @@ Parameters related to an optional air-scribe.
 |Start Delay|Delay to allow air-scribe to start before beginning motion.
 |===
 
-
 .Center Spot
 
 Parameters related to centre spotting (centre punch).
@@ -518,7 +565,9 @@ IMPORTANT: This is experimental and will not suit some plasma cutters
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Torch On Time|The length of time in milli-seconds the torch is on for each center spot.
+|Threshold|The arc voltage at which the delay timer will begin. +
+           0V starts the delay when the torch on signal is activated.
+|Delay|The length of time the torch is on after threshold reached (mS).
 |===
 
 .Save & Reload Buttons
@@ -1252,15 +1301,17 @@ WARNING: If you have an existing manual toolchange in your machine .hal file the
 
 IMPORTANT: This is experimental and will not suit some plasma cutters
 
-For ease of centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
+To achieve centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
 
-This is done by first adjusting the on time for the torch in the <<config-panel, Config Panel>>. Times are adjustable from 1 to 999 milli-seconds.
+This is done by first setting the arc voltage threshold in the <<config-panel, Config Panel>>. When this threshold is reached the delay timer will start. If the threshold voltage is set to zero then the delay timer will begin from when the torch on signal was sent.
+
+Then set the delay time in the <<config-panel, Config Panel>>. When the delay is complete, the torch will turn off. Times are adjustable from 0 to 9999 milli-seconds.
 
 The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
 
 To enable centre spotting, see <<multi-tool, multiple tools>>.
 
-LinuxCNC requires some motion bewtween an 'M3' command and a 'M5' command so a minimal movement at a high speed is needed.
+LinuxCNC requires some motion between an 'M3' command and a 'M5' command so a minimal movement at a high speed is programmed.
 
 An example GCode is:
 
@@ -1269,11 +1320,11 @@ G21 (metric)
 F99999 (high feed rate)
 
 g0 x10 y10
-m3 $2 s1 (centre Spot on)
+m3 $2 s1 (centre spot on)
 g91 (relative distance mode)
 g1 x0.000001
 g90 (absolute distance mode)
-m5 (centre punch off)
+m5 (centre spot off)
 
 g0 x0 y0
 g90
@@ -1755,51 +1806,6 @@ There are example configuration files for both the Axis and Gmoccapy GUIs which 
 * metric_plasmac.ini
 * imperial_plasmac.ini
 
-Files in the example configurations are:
-[width="100%",cols="1,2"]
-|===
-|*Filename*|*Function*
-|<MACHINE>.ini|configuration file
-|<MACHINE>.hal|HAL connections for the PlasmaC component
-|<MACHINE>_connections.hal|HAL connections to the i/o HAL pins
-|plasmac.tcl|permanent HAL connections for the plasmac component
-|plasmac_xxx.glade|a gladevcp panel connecting to the PlasmaC component
-|plasmac_xxx.hal|HAL connections for the panel
-|plasmac_xxx.py|python code for the panel
-|xxx_startup.ngc|startup G-Code commands
-|plasmac_gcode.py|removes z axis moves from the opened G-Code file
-|plasmac_axis.py|python code to customise the Axis GUI
-|M190|for G-Code changing of materials
-|materialverter.py|tool table converter and material file creator
-|configurator.py|configure a new or upgrade an existing PlasmaC configuration
-|===
-
-The Configurator creates the following files:
-[width="100%",cols="1,2"]
-|===
-|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>.ini|your new .ini file
-|<MACHINE>.hal|your new .hal file
-|<MACHINE>_connections.hal|HAL connections to your I/O HAL pins
-|plasmac.tcl|permanent HAL connections for the plasmac component
-|===
-
-After running a new working configuration the first time the following will be created:
-[width="100%",cols="1,2"]
-|===
-|*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>_config.cfg|configuration settings for the config tab
-|<MACHINE>_run.cfg|configuration settings for the Run Panel
-|<MACHINE>_material.cfg|material file for cut parameters
-|plasmac_stats.var|saved statistics
-|===
-
-NOTE: Custom commands are allowed in <MACHINE>_connections.hal as it is not overwritten during upgrades
-
-NOTE: The .ini files are notated for extra the requirements for these configurations.
-
-NOTE: The .cfg files are plain text and may be edited with any text editor.
-
 == NGC Samples
 
 There are some sample G-Code files in nc_files/plasmac.
@@ -1910,11 +1916,11 @@ This application is used to convert existing tool tables into PlasmaC material f
 
 At this stage the only conversions available are from SheetCam and Fusion360.
 
-Sheetcam tool tables are complete and the conversion is fully automatic.
+Sheetcam tool tables are complete and the conversion is fully automatic. The SheetCam tool file must be in the SheetCam .tools format.
 
-Fusion360 tool tables do not have all required fields so the user is prompted for missing parameters.
+Fusion360 tool tables do not have all required fields so the user is prompted for missing parameters.  The Fusion360 tool file must be in the Fusion360 .json format.
 
-If you have a format you would like converted place a request in https://forum.linuxcnc.org/plasma-laser/35449-another-plasma-component[this LinuxCNC forum thread]:
+If you have a format you would like converted, create a 'New Topic' in the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
 
 Materialverter may be run from a GUI file manager by double clicking on 'materialverter.py' in your configuration directory or may be run from a terminal with the following command:
 
@@ -2047,3 +2053,7 @@ setp    hm2_7i96.0.encoder.00.scale        -1
 ----
 
 NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD.
+
+== Support
+
+On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].

@@ -10,6 +10,7 @@
   <object class="GtkAdjustment" id="arc-restart-delay-adj"/>
   <object class="GtkAdjustment" id="arc-voltage-offset-adj"/>
   <object class="GtkAdjustment" id="arc-voltage-scale-adj"/>
+  <object class="GtkAdjustment" id="centre-spot-threshold-adj"/>
   <object class="GtkAdjustment" id="centre-spot-time-adj"/>
   <object class="GtkAdjustment" id="cornerlock-threshold-adj"/>
   <object class="GtkAdjustment" id="float-switch-travel-adj"/>
@@ -1460,7 +1461,7 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-arm-delay">
-                                <property name="width_request">54</property>
+                                <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1480,7 +1481,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-start-delay">
-                                <property name="width_request">54</property>
+                                <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1568,11 +1569,11 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="centre-spot-time">
-                                <property name="width_request">75</property>
+                                <property name="width_request">60</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">torch on time for centre spot tool (mS)</property>
+                                <property name="tooltip_text" translatable="yes">delay time after voltage threshold reached to turn torch off (mS)</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -1583,21 +1584,9 @@ this also sets the maximum probe feed rate</property>
                                 <property name="wrap">True</property>
                               </object>
                               <packing>
-                                <property name="x_options"/>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="labelC8">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">time to allow air-scribe to start before motion begins</property>
-                                <property name="xalign">1</property>
-                                <property name="xpad">2</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
+                                <property name="left_attach">3</property>
                                 <property name="right_attach">4</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -1605,14 +1594,51 @@ this also sets the maximum probe feed rate</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">torch on time for centre spot tool (mS)</property>
+                                <property name="tooltip_text" translatable="yes">delay time after voltage threshold reached to turn torch off (mS)</property>
+                                <property name="xalign">1</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Delay (mS)</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC8">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">arc voltage level to start torch off timer for spotting
+0 = start timer when torch started</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Torch On Time (mS)</property>
+                                <property name="label" translatable="yes">Threshold (V)</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="centre-spot-threshold">
+                                <property name="width_request">60</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">arc voltage level to start torch off timer for spotting
+0 = start timer when torch started</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">centre-spot-threshold-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                           </object>
