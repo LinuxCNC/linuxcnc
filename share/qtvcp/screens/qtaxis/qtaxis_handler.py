@@ -181,16 +181,14 @@ class HandlerClass:
         #print INFO.AVAILABLE_AXES
         #print INFO.GET_NAME_FROM_JOINT
         if mode == linuxcnc.TRAJ_MODE_COORD:
-            print 'Mode Coordinate'
+            pass
         # Joint mode
         elif mode == linuxcnc.TRAJ_MODE_FREE:
             if STATUS.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                 self.show_axes()
             else:
-                print 'Mode Free'
                 self.show_joints()
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
-            print 'Mode Teleop'
             self.show_axes()
 
     def update_spindle(self,w,data):
@@ -201,14 +199,6 @@ class HandlerClass:
     #######################
     # callbacks from form #
     #######################
-
-    def tool_offset_clicked(self):
-        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        axis = conversion[STATUS.get_selected_joint()]
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':axis,
-            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Axis {} Tool Offset'.format(axis)}
-        STATUS.emit('dialog-request', mess)
-        LOG.debug('message sent:{}'.format (mess))
 
     def leftTabChanged(self, num):
         if num == 0:

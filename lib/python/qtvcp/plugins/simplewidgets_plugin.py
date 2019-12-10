@@ -14,6 +14,7 @@ from qtvcp.widgets.general_hal_input import GeneralHALInput
 from qtvcp.widgets.xembed import XEmbed
 from qtvcp.widgets.radio_axis_selector import RadioAxisSelector
 from qtvcp.widgets.axis_tool_button import AxisToolButton
+from qtvcp.widgets.offset_tool_button import OffsetToolButton
 from qtvcp.widgets.file_manager import FileManager
 from qtvcp.widgets.image_switcher import ImageSwitcher
 from qtvcp.widgets.image_switcher import StatusImageSwitcher
@@ -413,6 +414,38 @@ class AxisToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="AxisToolButton" name="axistoolbutton" />\n'
     def includeFile(self):
         return "qtvcp.widgets.axis_tool_button"
+
+####################################
+# OffsetToolButton
+####################################
+class OffsetToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(OffsetToolButtonPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return OffsetToolButton(parent)
+    def name(self):
+        return "OffsetToolButton"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('offsettoolbutton')))
+    def toolTip(self):
+        return "Button for selecting an Axis and setting the Origin"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="OffsetToolButton" name="offsettoolbutton" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.offset_tool_button"
 
 ####################################
 # FileManager

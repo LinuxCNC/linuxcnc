@@ -187,9 +187,21 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self,axis,value,fixture = False):
         lnum = 10+int(fixture)
         m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
+    # Set actual tool offset in tool table to the given value
+    def SET_DIRECT_TOOL_OFFSET(self,axis,value):
+        m = "G10 L1 P%d %s%f"%( STATUS.get_current_tool(), axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()

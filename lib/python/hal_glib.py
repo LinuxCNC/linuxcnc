@@ -894,6 +894,10 @@ class _GStat(gobject.GObject):
     def is_hard_limits_tripped(self):
         return self.old['hard-limits-tripped']
 
+    def get_current_tool(self):
+        self.stat.poll()
+        return self.stat.tool_in_spindle
+
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
         m = "G10 L10 P%d %s%f"%(tool,axis,value)
