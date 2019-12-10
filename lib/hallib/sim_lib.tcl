@@ -401,6 +401,9 @@ proc sim_spindle {} {
   net spindle-at-speed <= near_speed.out
   net spindle-at-speed => spindle.0.at-speed
 
+  net spindle-orient <= spindle.0.orient
+  net spindle-orient <= spindle.0.is-oriented
+
   addf limit_speed  servo-thread
   addf spindle_mass servo-thread
   addf near_speed   servo-thread
