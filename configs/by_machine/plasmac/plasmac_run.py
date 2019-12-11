@@ -243,11 +243,11 @@ class HandlerClass:
         else:
             self.manualChange = False
 
-    def material_change_changed(self,halpin):
+    def material_change_changed(self, halpin):
         if halpin.get() == 0:
             hal.set_p('motion.digital-in-03','0')
 
-    def change_material(self,material,fr):
+    def change_material(self, material, fr):
         if material in self.materialList:
             self.materialName = self.materialFileDict[material][0]
             self.builder.get_object('kerf-width').set_value(self.materialFileDict[material][1])
@@ -271,6 +271,9 @@ class HandlerClass:
             if self.autoChange:
                 self.builder.get_object('material').set_active(self.materialFileDict[material][11])
         self.oldMaterial = material
+
+    def first_material_changed(self, halpin):
+        self.change_material(halpin.get(), 'pin')
 
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
@@ -485,9 +488,11 @@ class HandlerClass:
         self.cutTypePin = hal_glib.GPin(halcomp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN))
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
+        self.firstMaterialPin = hal_glib.GPin(halcomp.newpin('first-material', hal.HAL_S32, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
+        self.firstMaterialPin.connect('value-changed', self.first_material_changed)
         self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
         hal.connect('plasmac_run.program-is-idle', 'plasmac:program-is-idle') 
         self.idlePin.connect('value-changed', self.idle_changed)

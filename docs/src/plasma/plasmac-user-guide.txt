@@ -875,6 +875,8 @@ When a material is changed it only changes the cut parameters in the Run Panel, 
 
 Materials can be selected manually with the either the Cut Parameters combobox or via MDI with M190 Pn.
 
+If a GCode program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
+
 === THC
 
 NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Panel.
