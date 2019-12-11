@@ -618,6 +618,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                 pin->port_pin = DB25[i % 17];
                 break;
             case 32:      /* 5I21 punt on this for now */
+            case 19:      /* 7C81 */
                 pin->port_pin = i + 1;
                 break;
             default:
