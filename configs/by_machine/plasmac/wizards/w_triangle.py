@@ -26,6 +26,7 @@ import time
 import math
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class triangle:
@@ -235,6 +236,7 @@ class triangle:
             outNgc.close()
             self.load_file(self.fNgc)
             self.add.set_sensitive(True)
+            hal.set_p('plasmac_run.preview-tab', '1')
         else:
             if A <> 0 and B <> 0 and C <> 0 and A + B + C <> math.radians(180):
                 self.dialog_error('A + B + C must equal 180')

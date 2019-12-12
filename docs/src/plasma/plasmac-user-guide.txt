@@ -1206,7 +1206,8 @@ Any internal circle that has a diameter less than 'Small hole diameter' is class
 
 . Open the Extras Panel.
 . Select the shape you wish to create which will open a shape dialog.
-. Open the Preview Panel and move the shape dialog so you can see the Preview Panel.
+. If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel. +
+  If using Axis the Preview Panel will open automatically when 'Preview' is pressed.
 . Enter the appropriate values in the shape dialog and press 'Preview' to load the shape.
 . If the shape is not correct, edit the values and press 'Preview' and the new shape will be shown. Repeat until you are satisfied with the shape.
 
@@ -1233,7 +1234,8 @@ When you are satisfied with the job you have created, an array of the job can be
 The cut order of an array is from left to right, starting at the bottom row and ending at the top row.
 
 . Press 'Array' in the Extras Panel which will open the array dialog.
-. Open the Preview Panel and move the array dialog so you can see the Preview Panel.
+. If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel. +
+  If using Axis the Preview Panel will open automatically when 'Preview' is pressed.
 . Enter the appropriate values in the array dialog and press 'Preview' to load the array.
 . If the array is not correct, edit the values and press 'Preview' and the new array will be shown. Repeat until you are satisfied with the shape.
 . Press 'Accept' to complete the procedure.
