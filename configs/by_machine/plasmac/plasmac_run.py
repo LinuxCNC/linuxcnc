@@ -35,10 +35,57 @@ class HandlerClass:
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
+                               gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+                               gtk.BUTTONS_CLOSE, error)
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
         md.run()
         md.destroy()
+
+    def dialog_ok_cancel(self,title,text,button1Txt,button2Txt):
+        md = gtk.Dialog(title,
+                        self.W,
+                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        (button1Txt, 1, button2Txt, 0))
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
+        label = gtk.Label(text)
+        md.vbox.add(label)
+        label.show()
+        response = md.run()
+        md.destroy()
+        return response
+
+    def dialog_common(self,title,label1Txt,label2Txt,button1Txt,button2Txt):
+        md = gtk.Dialog(title,
+                        self.W,
+                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        (button1Txt, 1, button2Txt, 0))
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
+        label1 = gtk.Label(label1Txt)
+        md.vbox.add(label1)
+        entry1 = gtk.Entry()
+        md.vbox.add(entry1)
+        label2 = gtk.Label(label2Txt)
+        md.vbox.add(label2)
+        entry2 = gtk.Entry()
+        md.vbox.add(entry2)
+        if label1Txt:
+            label1.show()
+            entry1.show()
+        if label2Txt:
+            label2.show()
+            entry2.show()
+        reply1 = reply2 = ''
+        response = md.run()
+        if response:
+            if label1:
+                reply1 = entry1.get_text()
+            if label1:
+                reply2 = entry2.get_text()
+        md.destroy()
+        return response, reply1, reply2
 
     def check_material_file(self):
         version = '[VERSION 1.1]'
@@ -118,6 +165,7 @@ class HandlerClass:
                                 self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                    self.materialNumList.append(t_number)
                     t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  0.0
                     t_item += 1
                     received = []
@@ -195,8 +243,108 @@ class HandlerClass:
         self.materialUpdate = True
         self.load_settings()
         self.materialFileDict = {}
+        self.materialNumList = []
         self.get_material()
         self.materialUpdate = False
+
+    def on_new_clicked(self, widget):
+        response, num, nam = self.dialog_common('Add Material',\
+                                                'New Material Number',\
+                                                'Material Name',\
+                                                'OK',\
+                                                'Cancel')
+        if not num or not nam:
+            self.dialog_error('\nNumber and Name are required')
+            return
+        else:
+            try:
+                num = int(num)
+            except:
+                self.dialog_error('\nMaterial number must be an integer')
+                return
+            if num in self.materialNumList:
+                self.dialog_error('\nMaterial number {} is in use'.format(num))
+                return
+            shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
+            outFile = open('{}'.format(self.materialFile), 'a')
+            outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
+            outFile.write('NAME               = {}\n'.format(nam))
+            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[0][1]))
+            if self.materialFileDict[0][2] == True:
+                thc = 1
+            else:
+                thc = 0
+            outFile.write('THC                = {}\n'.format(thc))
+            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[0][3]))
+            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[0][4]))
+            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[0][5]))
+            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[0][6]))
+            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[0][7]))
+            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[0][8]))
+            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[0][9]))
+            outFile.write('CUT_VOLTS          = {}\n\n'.format(self.materialFileDict[0][10]))
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.materialNumList = []
+            self.get_material()
+            self.builder.get_object('material').set_active(len(self.materialNumList))
+            self.materialUpdate = False
+
+    def on_delete_clicked(self, widget):
+        response, num, nam = self.dialog_common('Delete Material',\
+                                                'Material Number To Delete',\
+                                                '',\
+                                                'OK',\
+                                                'Cancel')
+        if not num:
+            self.dialog_error('\nNumber is required')
+            return
+        else:
+            try:
+                num = int(num)
+            except:
+                self.dialog_error('\nMaterial number must be an integer')
+                return
+            if not num in self.materialNumList:
+                self.dialog_error('\nMaterial number {} is not in use'.format(num))
+                return
+            response = self.dialog_ok_cancel('Delete Material',\
+                                             'Are you sure?',\
+                                             'OK',\
+                                             'Cancel')
+            if response == 0:
+                return
+            shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
+            inFile = open('{}.bkp'.format(self.materialFile), 'r')
+            outFile = open('{}'.format(self.materialFile), 'w')
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_') and \
+                     int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
+                    break
+                else:
+                    outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_'):
+                    outFile.write(line)
+                    break
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                else:
+                    outFile.write(line)
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.materialNumList = []
+            self.get_material()
+            self.materialUpdate = False
 
     def on_thc_auto_toggled(self,button):
         if button.get_active():
@@ -486,8 +634,7 @@ class HandlerClass:
                 line = inFile.readline()
                 if not line: break
                 elif line.startswith('[MATERIAL_NUMBER_') and \
-                   material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
-                    print('Save {}'.format(material))
+                     material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
                     outFile.write(line)
                     break
                 else:
@@ -496,7 +643,6 @@ class HandlerClass:
                 line = inFile.readline()
                 if not line: break
                 elif line.startswith('[MATERIAL_NUMBER_'):
-                    print('{} saved'.format(material))
                     outFile.write(line)
                     break
                 elif line.startswith('NAME'):
@@ -580,6 +726,7 @@ class HandlerClass:
         self.materialFileDict = {}
         self.materialDict = {}
         self.configDict = {}
+        self.materialNumList = []
         hal.set_p('plasmac.mode','{}'.format(int(self.i.find('PLASMAC','MODE') or '0')))
         self.oldMode = 9
         self.oldMaterial = -1

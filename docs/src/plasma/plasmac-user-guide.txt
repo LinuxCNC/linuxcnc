@@ -650,14 +650,34 @@ Parameters for a single cut.
 |Start Cut|Press to commence a single cut.
 |===
 
-.Save & Reload Buttons
+[[run-buttons]]
+
+.Save Button
 
 The *'Save'* button has two modes of operation:
 
 . If the Default material is displayed then all the currently displayed parameters on the Run Panel will be saved as the default.
 . If any other material is showing then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
 
-The *'Reload'* button will reload the last saved parameters.
+.Reload Button
+
+The *'Reload'* button will reload the default material and the material file.
+
+.New Button
+
+The *'New'* button allows the addition of a new material in the material file.
+
+It will prompt for a material number and a material name when these are entered it will create the new material using the Cut Paramaters from the Default Material and then reload the material file with the new material displayed.
+
+Make any required changes and then save them using the save button.
+
+.Delete Button
+
+The *'Delete'* button allows the deletion of a material from the material file.
+
+It will prompt for a material number and when this is entered it will prompt again to make sure you want to delete it.
+
+If the deletion is confirmed it will delete the material from the material file and reload the materials with the default material loaded.
 
 === Monitor Panel
 
@@ -1802,9 +1822,9 @@ CUT_AMPS            = value (only used for operator information)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
 ----
 
-The material file is a plain text file and may be edited with any text editor.
+It is possible to add new material, delete material or edit existing material from the <<run-buttons, Run Panel.>>
 
-It is possible to edit the material file while LinuxCNC is running by clicking 'Reload' in the Run Panel after any changes have been saved.
+It is also possible to edit the material file with a text editor while LinuxCNC is running and then after any changes have been saved, press 'Reload' in the Run Panel to reload the material file.
 
 == Example Configurations
 
