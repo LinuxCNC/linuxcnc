@@ -26,6 +26,7 @@ import time
 import math
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class slot:
@@ -232,6 +233,7 @@ class slot:
             outNgc.close()
             self.load_file(self.fNgc)
             self.add.set_sensitive(True)
+            hal.set_p('plasmac_run.preview-tab', '1')
         else:
             msg = ''
             if length <= 0:

@@ -720,7 +720,12 @@ def user_live_update():
                 hal.set_p('plasmac.probe-test','0')
     if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
         hal.set_p('plasmac.consumable-change', '0')
-
+    try:
+        if hal.get_value('plasmac_run.preview-tab'):
+            root_window.tk.call('.pane.top.right','raise','preview')
+            hal.set_p('plasmac_run.preview-tab', '0')
+    except:
+        pass
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)

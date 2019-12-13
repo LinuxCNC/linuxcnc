@@ -26,6 +26,7 @@ import time
 import math
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class bolt_circle:
@@ -217,6 +218,7 @@ class bolt_circle:
             outNgc.close()
             self.load_file(self.fNgc)
             self.add.set_sensitive(True)
+            hal.set_p('plasmac_run.preview-tab', '1')
         else:
             msg = ''
             if cRadius == 0:
