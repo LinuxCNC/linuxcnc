@@ -29,6 +29,7 @@ from   gladevcp.persistence import widget_defaults,select_widgets
 import gladevcp
 from subprocess import Popen,PIPE
 import time
+import shutil
 
 class HandlerClass:
 
@@ -452,25 +453,98 @@ class HandlerClass:
             print('*** creating new run tab configuration file, {}'.format(self.configFile))
 
     def save_settings(self):
-        try:
-            with open(self.configFile, 'w') as f_out:
-                f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
-                for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number': # or key == 'kerf-width':
-                        pass
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
-                        self.builder.get_object(key).update()
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
-                        value = self.builder.get_object(key).get_active()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif key == 'torchPulseTime':
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-        except:
-            self.dialog_error('Error opening {}'.format(self.configFile))
-            print('*** error opening {}'.format(self.configFile))
+        material = hal.get_value('plasmac_run.material-change-number')
+        position = self.builder.get_object('material').get_active()
+        if material == 0:
+            try:
+                with open(self.configFile, 'w') as f_out:
+                    f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
+                    for key in sorted(self.configDict.iterkeys()):
+                        if key == 'material-number': # or key == 'kerf-width':
+                            pass
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                            self.builder.get_object(key).update()
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
+                            value = self.builder.get_object(key).get_active()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif key == 'torchPulseTime':
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+            except:
+                self.dialog_error('Error opening {}'.format(self.configFile))
+                print('*** error opening {}'.format(self.configFile))
+        else:
+            for key in sorted(self.configDict.iterkeys()):
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
+            shutil.copy(self.materialFile,'{}.tmp'.format(self.materialFile))
+            inFile = open('{}.tmp'.format(self.materialFile), 'r')
+            outFile = open('{}'.format(self.materialFile), 'w')
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_') and \
+                   material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
+                    print('Save {}'.format(material))
+                    outFile.write(line)
+                    break
+                else:
+                    outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_'):
+                    print('{} saved'.format(material))
+                    outFile.write(line)
+                    break
+                elif line.startswith('NAME'):
+                    outFile.write(line)
+                elif line.startswith('KERF_WIDTH'):
+                    outFile.write('KERF_WIDTH         = {}\n'.format(self.builder.get_object('kerf-width').get_value()))
+                elif line.startswith('THC'):
+                    if self.builder.get_object('thc-enable').get_active():
+                        thc = 1
+                    else:
+                        thc = 0
+                    outFile.write('THC                = {}\n'.format(thc))
+                elif line.startswith('PIERCE_HEIGHT'):
+                    outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.builder.get_object('pierce-height').get_value()))
+                elif line.startswith('PIERCE_DELAY'):
+                    outFile.write('PIERCE_DELAY       = {}\n'.format(self.builder.get_object('pierce-delay').get_value()))
+                elif line.startswith('PUDDLE_JUMP_HEIGHT'):
+                    outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.builder.get_object('puddle-jump-height').get_value()))
+                elif line.startswith('PUDDLE_JUMP_DELAY'):
+                    outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.builder.get_object('puddle-jump-delay').get_value()))
+                elif line.startswith('CUT_HEIGHT'):
+                    outFile.write('CUT_HEIGHT         = {}\n'.format(self.builder.get_object('cut-height').get_value()))
+                elif line.startswith('CUT_SPEED'):
+                    outFile.write('CUT_SPEED          = {}\n'.format(self.builder.get_object('cut-feed-rate').get_value()))
+                elif line.startswith('CUT_AMPS'):
+                    outFile.write('CUT_AMPS           = {}\n'.format(self.builder.get_object('cut-amps').get_value()))
+                elif line.startswith('CUT_VOLTS'):
+                    outFile.write('CUT_VOLTS          = {}\n'.format(self.builder.get_object('cut-volts').get_value()))
+                elif line.startswith('TORCH_OFF_DELAY'):
+                    outFile.write('TORCH_OFF_DELAY    = {}\n'.format(self.builder.get_object('torch-off-delay').get_value()))
+                elif line.startswith('GAS_PRESSURE'):
+                    outFile.write('GAS_PRESSURE       = {}\n'.format(self.builder.get_object('gas-pressure').get_value()))
+                elif line.startswith('CUT_MODE'):
+                    outFile.write('CUT_MODE           = {}\n'.format(self.builder.get_object('cut-mode').get_value()))
+                else:
+                     outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                outFile.write(line)
+            inFile.close()
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.get_material()
+            self.builder.get_object('material').set_active(position)
+            self.materialUpdate = False
 
     def idle_changed(self, halpin):
         if not halpin.get():
