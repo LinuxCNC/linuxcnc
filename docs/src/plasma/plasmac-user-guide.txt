@@ -398,6 +398,20 @@ setp plasmac.lowpass-frequency 100
 
 Would give a cutoff frequency of 100Hz.
 
+=== Contact Debounce
+
+Contact bounce or external interference may cause some inconsistent behaviour of the following switches:
+
+* Float Switch
+* Ohmic Probe
+* Breakaway Switch
+
+This may be alleviated by changing the debounce value in the <MACHINE>_connections.hal file. This value applies to all three switches simultaneously in a standard configuration.
+
+You could separate these by using an exclusive debounce component for each switch.
+
+Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
+
 == Plasmac Files
 
 After an installation, the following files are created in the configuration directory:
