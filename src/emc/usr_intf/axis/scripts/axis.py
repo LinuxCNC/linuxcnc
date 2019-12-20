@@ -2602,6 +2602,8 @@ class TclCommands(nf.TclCommands):
             jnum = trajcoordinates.index(jora)
         else:
             jnum = int(jora)
+        if lathe_historical_config():
+            jnum = "xyz".index(jora)
         doHoming=True
         if s.homed[jnum]:
             doHoming=prompt_areyousure(_("Warning"),_("This joint is already homed, are you sure you want to re-home?"))
