@@ -798,11 +798,11 @@ class configurator:
                                 print('Limit of 5 user buttons:\n"{}" is invalid\n'.format(line.strip()))
                             elif display == 'gmoccapy':
                                 print('Limit of 4 user buttons:\n"{}" is invalid\n'.format(line.strip()))
-                            elif 'removing z axis moves' in line:
-                                if display == 'axis':
-                                    outFile.write('# for the five user buttons in the main window\n')
-                                elif display == 'gmoccapy':
-                                    outFile.write('# for the four user buttons in the main window\n')
+                    elif 'removing z axis moves' in line:
+                        if display == 'axis':
+                            outFile.write('# for the five user buttons in the main window\n')
+                        elif display == 'gmoccapy':
+                            outFile.write('# for the four user buttons in the main window\n')
                         for n in range(5):
                             outFile.write(buttons[n][0])
                             outFile.write(buttons[n][1])
