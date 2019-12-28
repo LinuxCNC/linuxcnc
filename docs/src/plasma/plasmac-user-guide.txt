@@ -293,7 +293,7 @@ Installing a Plasmac configuration is done from the Configurator, the type of in
 From a terminal:
 
 ====
-$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+$ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ====
 
 === Start A PlasmaC Run In Place Installation

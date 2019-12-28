@@ -5,7 +5,7 @@ description
 
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.85 - 21 Dec 2019
+.I VERSION: 0.86 - 28 Dec 2019
 
 .I SUMMARY:
 .br
