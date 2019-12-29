@@ -479,7 +479,10 @@ void round_segment::intersect_end(round_segment *p)
     auto b=abs(p->start-p->center);
     auto c=abs(center-p->center);
     auto cosB=(c*c+a*a-b*b)/2.0/a/c;
-    std::complex<double> rot(cosB,sqrt(1-cosB*cosB));
+    double cosB2=cosB*cosB;
+    if(cosB2>1)
+	cosB2=1;
+    std::complex<double> rot(cosB,sqrt(1-cosB2));
     auto is=rot*(p->center-center)/c*a+center;
     /*
     std::cout
