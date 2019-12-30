@@ -156,7 +156,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers
+    return handlers, mod, object
 
 def main():
     """ creates a HAL component.
@@ -213,7 +213,10 @@ def main():
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
     # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+    handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+
+    # so widgets can call handler functions - give them refeence to the handler object
+    panel.set_handler(obj)
 
     builder.connect_signals(handlers)
 

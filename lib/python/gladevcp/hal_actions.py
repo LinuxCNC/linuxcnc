@@ -296,6 +296,49 @@ def ensure_mode(s, c, *modes):
     c.wait_complete()
     return True
 
+class EMC_Action_Python(_EMC_Action):
+    __gtype_name__ = 'EMC_Action_Python'
+    command = gobject.property(type=str, default='', nick='Python Command')
+    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+                                    blurb='Machine Must be homed for widgets to be sensitive to input')
+    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+                                    blurb='Machine Must be On for widgets to be sensitive to input')
+    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+                                    blurb='Machine Must be Idle for widgets to be sensitive to input')
+    requires_manual = gobject.property(type=bool, default=False, nick='Preset Manual Mode',
+                                    blurb='Preset Manual Mode before command')
+    requires_mdi = gobject.property(type=bool, default=False, nick='Preset MDI Mode',
+                                    blurb='Preset MDI Mode before command')
+    requires_auto = gobject.property(type=bool, default=False, nick='Preset Auto Mode',
+                                    blurb='Preset Auto Mode before command')
+
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        if self.is_on:
+            self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
+        else:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()) )
+        if self.is_idle:
+            self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
+
+    def on_activate(self, w):
+        self._globalParameter = { 'EXT':self._panel_instance.get_handler_obj(),
+                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat}
+        self._localsParameter = {'dir': dir, 'self': self,'linuxcnc':linuxcnc}
+        if self.requires_manual:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MAN)
+        elif self.requires_mdi:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        elif self.requires_auto:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
+        exec(self.command, self._globalParameter, self._localsParameter)
+
 class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
     program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
