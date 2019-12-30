@@ -249,13 +249,6 @@ public:
 	double entry=imag(start-center);
 	double exit=imag(end-center);
 	double dz=real(end-start);
-	/*
-	std::cout << "ccw=" << ccw
-	    << " entry=" << entry
-	    << " exit=" << exit
-	    << " dz=" << dz
-	    << std::endl;
-	*/
 	if(ccw)
 	    return entry>=-1e-3 && exit>=-1e-3 && dz<=-1e-3;
 	else
@@ -484,16 +477,6 @@ void round_segment::intersect_end(round_segment *p)
 	cosB2=1;
     std::complex<double> rot(cosB,sqrt(1-cosB2));
     auto is=rot*(p->center-center)/c*a+center;
-    /*
-    std::cout
-	<< "a=" << a
-	<< " b=" << b
-	<< " c=" << c
-	<< " cosB=" << cosB
-	<< " rot=" << rot
-	<< " is=" << is
-	<< std::endl;
-    */
     p->end=start=is;
 }
 
@@ -795,8 +778,6 @@ void g7x::add_distance(double distance) {
     pop_front();
     double current_distance=0;
     while(current_distance!=distance) {
-	std::cout << current_distance << " -------\n";
-
 	double max_distance=1e9;
 	for(auto p=begin(); p!=end(); p++)
 	    max_distance=std::min(max_distance,(*p)->radius()/2);
@@ -804,7 +785,6 @@ void g7x::add_distance(double distance) {
 	if(distance<0)
 	    max_distance=-max_distance;
 	//max_distance=std::min(max_distance,1e-2);
-	std::cout << "max_distance=" << max_distance << std::endl;
 
 	for(auto p=begin(); p!=end(); p++) {
 	    (*p)->offset(max_distance);
@@ -821,16 +801,6 @@ void g7x::add_distance(double distance) {
 		s->offset(-max_distance);
 		e->offset(-max_distance);
 		auto center=(s->ep()+e->sp())/2.0;
-		/*
-		std::cout
-		    << "correcting=" << real((*p)->ep()-(*n)->sp())
-		    << " max_distance=" << max_distance
-		    << " current_distance=" << current_distance
-		    << " start=" << s->ep()
-		    << " end=" << e->sp()
-		    << " center=" << center
-		    << std::endl;
-		*/
 		emplace(n, std::make_unique<round_segment>(
 		    distance>0,(*p)->ep(),center,(*n)->sp()));
 		p++;
@@ -988,10 +958,6 @@ public:
 	interp(i), settings(s), block(b) {}
 
     void straight_move(std::complex<double> end) {
-	std::cerr << "straight_move ("
-	    << settings->current_z << "," << settings->current_x  << ") "
-	    << end
-	    << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -1002,10 +968,6 @@ public:
     }
 
     void straight_rapid(std::complex<double> end)  {
-	std::cerr << "straight_rapid ("
-	    << settings->current_z << "," << settings->current_x  << ") "
-	    << end
-	    << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -1017,11 +979,6 @@ public:
     void circular_move(int ccw,std::complex<double> center,
 	std::complex<double> end
     ) {
-	std::cerr << "circular_move " << (ccw? "G3 (":"G2 (")
-	    << settings->current_z << "," << settings->current_x  << ") "
-	    << center << " "
-	    << end
-	    << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -1057,8 +1014,6 @@ public:
 	settings->sequence_number=op.sequence_number;
     }
     ~switch_settings(void) {
-	std::cerr << "back to " << filename << " line " << sequence_number
-	    << "@" << offset << std::endl;
 	if(settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer=fopen(filename.c_str(),"r");
@@ -1115,11 +1070,6 @@ int Interp::convert_g7x(int mode,
 
     do {
 	CHP(read()); // FIXME Overwrites current block
-	std::cout << "g_modes = ";
-	for(auto g: block->g_modes) {
-	    std::cout << " " << g;
-	}
-	std::cout << std::endl;
 
 	x=old_x;
 	z=old_z;
