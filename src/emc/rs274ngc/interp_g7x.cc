@@ -24,51 +24,6 @@ public:
 	std::complex<double> end)  override {}
 };
 
-class motion_gcode:public motion_base {
-    std::ofstream gcode;
-    std::complex<double> current;
-    int motion=-1;
-public:
-    motion_gcode(std::string fname):gcode(fname),current(NAN,NAN)  {}
-    void straight_move(std::complex<double> end)  override {
-	if(end==current)
-	    return;
-	if(motion!=1)
-	    gcode <<"G1 " << std::fixed;
-	gcode.precision(8);
-	if(end.imag()!=current.imag())
-	    gcode <<"X" << end.imag();
-	if(end.real()!=current.real())
-	    gcode <<"Z" << end.real();
-	gcode << std::endl;
-	current=end;
-	motion=1;
-    }
-    void straight_rapid(std::complex<double> end) override {
-	if(end==current)
-	    return;
-	if(motion!=0)
-	    gcode <<"G0 ";
-	if(end.imag()!=current.imag())
-	    gcode <<"X" << end.imag();
-	if(end.real()!=current.real())
-	    gcode <<"Z" << end.real();
-	gcode << std::endl;
-	current=end;
-	motion=0;
-    }
-    void circular_move(int ccw, std::complex<double> center,
-	std::complex<double> end
-    )  override {
-	auto d=center-current;
-	motion=ccw? 3:2;
-	gcode << "G" << motion << " X" << end.imag() << " Z" << end.real()
-	    << " K" << d.real() << " I" << d.imag() << std::endl;
-	current=end;
-    }
-    void add(std::string const &line) { gcode << line; }
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 class round_segment;
 class straight_segment;
@@ -645,31 +600,30 @@ public:
     ) {
 	std::complex<double> location(z,x);
 
-	g7x path(*this);
-	path.front()->sp()=location;
-	path.add_distance(d);
+	front()->sp()=location;
+	add_distance(d);
 	if(do_rotate)
-	    path.rotate();
-	path.swap();
+	    rotate();
+	swap();
 	std::complex<double> displacement(w,u);
-	for(auto p=path.begin(); p!=path.end(); p++)
+	for(auto p=begin(); p!=end(); p++)
 	    (*p)->move(displacement);
-	auto swapped_out=path.motion(out);
+	auto swapped_out=motion(out);
 
-	path.delta=i;
-	path.escape=r*std::complex<double>{1,1};
+	delta=i;
+	escape=r*std::complex<double>{1,1};
 
-	path.monotonic();
+	monotonic();
 
-	swapped_out->straight_rapid(path.front()->sp());
-	if(imag(path.back()->ep())<imag(path.front()->sp())) {
-	    auto ep=path.back()->ep();
-	    ep.imag(imag(path.front()->sp()));
-	    path.emplace_back(std::make_unique<straight_segment>(
-		path.back()->ep(),ep
+	swapped_out->straight_rapid(front()->sp());
+	if(imag(back()->ep())<imag(front()->sp())) {
+	    auto ep=back()->ep();
+	    ep.imag(imag(front()->sp()));
+	    emplace_back(std::make_unique<straight_segment>(
+		back()->ep(),ep
 	    ));
 	}
-	path.pocket(cycle,path.front()->sp(), path.begin(), swapped_out.get());
+	pocket(cycle,front()->sp(), begin(), swapped_out.get());
     }
 
     void do_g72(motion_base *out, int cycle, double x, double z,
@@ -767,7 +721,6 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 }
 
 void g7x::add_distance(double distance) {
-    auto backup(*this);
     swap();
     auto v1=front()->ep()-front()->sp();
     auto v2=back()->sp()-front()->sp();
@@ -832,101 +785,11 @@ void g7x::add_distance(double distance) {
 	(*p)->ep()=(*n)->sp()=mid;
     }
 
-
     of->ep()=front()->sp();
     push_front(std::move(of));
 }
 
-#if 0
-int main(int argc, char **argv)
-{
-    double old_x, old_z, x,z,i,k,g,o,d,p,q,r,u,w,e;
-
-    std::vector<std::tuple<char,double*>> codes{
-	{'X',&x},{'Z',&z},
-	{'I',&i},{'K',&k},
-	{'G',&g},{'O',&o},
-	{'D',&d},{'P',&p},
-	{'Q',&q},{'R',&r},
-	{'U',&u},{'W',&w},
-	{'E',&e}
-    };
-
-    std::map<int,g7x> path;
-    int current_path=0;
-
-    std::string line;
-    motion_gcode gcode("cutting.ngc");
-    while(getline(std::cin,line)) {
-	for(auto &c: line)
-	    c=toupper(c);
-	if(line=="M2")
-	    break;
-	for(auto x: codes) {
-	    auto pos=line.find(std::get<0>(x));
-	    if(pos==std::string::npos)
-		continue;
-	    *std::get<1>(x)=std::stod(line.substr(pos+1));
-	    if(!std::isnan(o))
-		break;
-	}
-
-	if(!std::isnan(o))
-	    current_path=o;
-	size_t pos=line.find("ENDSUB");
-	if(pos!=std::string::npos) {
-	    //path[current_path].pop_front();
-	    //path[current_path].pop_back();
-	    current_path=0;
-	}
-	bool used=0;
-	if(current_path)
-	    switch(int(round(g))) {
-	    case 0:
-		path[current_path].emplace_back(
-		    std::make_unique<straight_segment>(old_x,old_z,x,z));
-		break;
-	    case 1:
-		path[current_path].emplace_back(
-		    std::make_unique<straight_segment>(old_x,old_z,x,z));
-		break;
-	    case 2:
-	    case 3:
-		path[current_path].emplace_back(
-		    std::make_unique<round_segment>(
-		    round(g)-2,old_x,old_z,old_x+i,old_z+k,x,z));
-		break;
-	    }
-	else {
-	    int cycle=int(round(g));
-	    int subcycle=int(round(10*(g-cycle)));
-
-	    try {
-		switch(cycle) {
-		case 70: path[q].do_g70(&gcode,x,z,d,e,p); used=1; break;
-		case 71: path[q].do_g71(&gcode,subcycle,x,z,u,w,d,i,r); used=1;
-		    break;
-		case 72: path[q].do_g72(&gcode,subcycle,x,z,u,w,d,i,r); used=1;
-		    break;
-		}
-	    } catch(const char *error) {
-		std::cerr << line << " *** IGNORED *** " << error << std::endl;
-		used=1;
-	    }
-	    g=NAN;
-	}
-
-	if(!used)
-	    gcode.add(line + "\n");
-	old_x=x;
-	old_z=z;
-	o=NAN;
-    }
-    gcode.add("M2\n");
-    return 0;
-}
-
-#else
+#ifndef IGNORE_LINUXCNC
 ////////////////////////////////////////////////////////////////////////////////
 #include <unistd.h>
 #include <stdio.h>
