@@ -1993,6 +1993,43 @@ Tooltip hovers provide a description.
 VCP Action widgets are one-shot type widgets. They implement a single action and
 are for use in simple buttons, menu entries or radio/check groups.
 
+==== VCP Action python
+
+This widget is used to execute small arbitrary python code. +
+The command string may use special keywords to access important functions.
+
+ * 'GSTAT' for access to the Gstat library that is used for linuxcnc status
+ * 'STAT' for access to linuxcnc's status via the linuxcnc python module
+ * 'CMD' for access to linuxcnc's commands via the linuxcnc python module
+ * 'EXT' for access to the handler file functions if available
+ * 'linuxcnc' for access to the linuxcnc python module
+ * 'self' for access to the widget instance
+
+There are options to select when the widget will be active. +
+There are options to set the mode before the command is executed. +
+example command to just print a message to the terminal: +
+[source,python]
+----
+print('action activated')
+----
+
+example command to set the machine to off state: +
+[source,python]
+----
+CMD.state(linuxcnc.STATE_OFF)
+----
+
+example command to call a handler function that passes data: +
+[source,python]
+----
+EXT.on_button_press(self, 100)
+----
+You can use a colon to separate multiple commands.
+[source,python]
+----
+print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)
+----
+
 === VCP ToggleAction widgets
 
 These are bi-modal widgets. They implement two actions or use a second
