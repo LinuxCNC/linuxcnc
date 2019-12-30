@@ -112,7 +112,7 @@ class HAL:
             pump = True
         if self.a.findsignal("estop-ext"):
             estop = True
-        if self.a.findsignal("spindle-on"):
+        if self.a.findsignal("spindle-enable"):
             spindle_on = True
         if self.a.findsignal("spindle-cw"):
             spindle_cw = True

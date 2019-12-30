@@ -176,7 +176,7 @@ class Private_Data:
             S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT
         ) = self.hal_output_names = [
             "unused-output", 
-            "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
+            "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled",
             "x-enable", "y-enable", "z-enable", "a-enable",
             "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
@@ -491,7 +491,7 @@ class Private_Data:
 
         # These have two levels of columns
         self.human_notused_names = [ [_("Unused Unused"),[] ] ]
-        spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
+        spindle_output = [_("Spindle Enable"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
         coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
         control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),
             _("Y Amplifier Enable"),_("Z Amplifier Enable"), _("A Amplifier Enable"),
