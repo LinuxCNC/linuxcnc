@@ -22,8 +22,9 @@ hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.
 
 """ Set of base classes """
 class _HalWidgetBase:
-    def hal_init(self, comp, name):
+    def hal_init(self, comp, name, panel_instance):
         self.hal, self.hal_name = comp, name
+        self._panel_instance = panel_instance
         self._hal_init()
 
     def _hal_init(self):
