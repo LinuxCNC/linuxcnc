@@ -737,7 +737,6 @@ void g7x::add_distance(double distance) {
 	max_distance=std::min(max_distance,std::abs(distance-current_distance));
 	if(distance<0)
 	    max_distance=-max_distance;
-	//max_distance=std::min(max_distance,1e-2);
 
 	for(auto p=begin(); p!=end(); p++) {
 	    (*p)->offset(max_distance);
@@ -818,7 +817,7 @@ class motion_machine:public motion_base {
     block_pointer block;
 public:
     motion_machine(Interp *i, setup_pointer s, block_pointer b):
-	interp(i), settings(s), block(b) {}
+	interp(i), settings(s), block(b) { }
 
     void straight_move(std::complex<double> end) {
 	block->x_flag=1;
@@ -855,7 +854,6 @@ public:
 	    throw(r);
     }
 };
-
 
 class switch_settings {
     setup_pointer settings;
@@ -960,6 +958,23 @@ int Interp::convert_g7x(int mode,
 	    break;
 	case 20:
 	case 30:
+	    if(block->r_flag) {
+		double r=block->r_number;
+		std::complex<double> start(old_z,old_x);
+		std::complex<double> end(z,x);
+		std::complex<double> j(0,1);
+		auto center=(start+end)/2.0;
+		auto d=j*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+		    *(end-start);
+		if(motion==30)
+		    center+=d;
+		else
+		    center-=d;
+		i=imag(center)-old_x;
+		k=real(center)-old_z;
+	    } else if(!block->i_flag && !block->k_flag) {
+		ERS("G7X error: either I or K must be present for arc");
+	    }
 	    path.emplace_back(std::make_unique<round_segment>(
 		block->g_modes[1]==30,
 		old_x,old_z,
