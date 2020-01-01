@@ -571,11 +571,20 @@ public:
 	double p
     ) {
 	front()->sp()=std::complex<double>(z,x);
-	for(auto p=begin(); p!=end(); p++)
+
+	g7x path(*this);
+	path.pop_front();
+	path.swap();
+	for(auto p=path.begin(); p!=path.end(); p++) {
 	    if(!(*p)->monotonic()) {
-		rotate();
+		path.rotate();
+		path.swap();
 		break;
 	    }
+	}
+	path.monotonic();
+	if(path.flip_state&4)
+	    rotate();
 	swap();
 	auto swapped_out=motion(out);
 
