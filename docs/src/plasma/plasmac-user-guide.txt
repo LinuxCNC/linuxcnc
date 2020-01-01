@@ -448,7 +448,7 @@ After running a new configuration the first time the following files will be cre
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>_config.cfg|configuration settings for the config tab
+|<MACHINE>_config.cfg|configuration settings for the Config Panel
 |<MACHINE>_run.cfg|configuration settings for the Run Panel
 |<MACHINE>_material.cfg|material file for cut parameters
 |<MACHINE>_wizards.cfg|configuration settings for the shape library
@@ -944,7 +944,7 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
 
-This percentage is displayed as VAD Threshold % in the THC frame of the Config tab.
+This percentage is displayed as VAD Threshold % in the THC frame of the Config Panel.
 
 Velocity based THC prevents the torch height being changed when velocity is reduced for a sharp corner or a small hole.
 
@@ -993,7 +993,7 @@ Probing may be with either ohmic sensing or a float switch, it is also possible 
 
 If your torch doesn't support ohmic probing you could have a separate probe next to the torch. In this case you would extend the probe below the torch. The probe must NOT extend more than your minimum Cut Height below the torch and this offset distance is entered as the 'ohmic-probe-offset' in the Config Panel.
 
-Probing setup is done in the Motion frame of the Config tab.
+Probing setup is done in the Motion frame of the Config Panel.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
@@ -1418,7 +1418,7 @@ One of these values in Cut Parameters in the Run Panel is invalid.
 
 * 'invalid pierce height or invalid cut height or invalid cut volts'
 
-No arc has been detected after attempting to start the number of times indicated by Arc Start Attempts in the Config tab.
+No arc has been detected after attempting to start the number of times indicated by Arc Start Attempts in the Config Panel.
 
 * 'no arc detected after <n>d start attempts program is paused'
 
@@ -2001,16 +2001,17 @@ NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this 
 
 The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
-You will need to manually add a scale and counter mode to your base machine .hal file before running the Configurator.
+You will need to manually add a scale, filter and counter mode to your base machine .hal file before running the Configurator.
 
 If you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
 
 ----
 setp  hm2_7i76e.0.encoder.00.scale -1
+setp  hm2_7i96.0.encoder.00.filter        1
 setp  hm2_7i76e.0.encoder.00.counter-mode 1
 ----
 
-You then need to note that the 'Arc Voltage HAL pin' needed to enter into the PlasmaC Configurator will be:
+You then need to note that the 'Arc Voltage HAL Pin' entry in the PlasmaC Configurator will be:
 
 ----
 hm2_7i76e.0.encoder.00.velocity
@@ -2018,67 +2019,78 @@ hm2_7i76e.0.encoder.00.velocity
 
 === Obtaining The Divider Ratio
 
-.Using A CNC Port On The Plasma Power Supply
-
-Divider ratio equals the selected internal divider ratio.
-
 .THCAD-10
 
-A common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
+If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine.
+
+If connecting to the plasma machines full arc voltage then a common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
+
+To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 + 100000) / 100000 giving a ratio of 21.
 
 IMPORTANT: If you are using a HF start plasma power supply then each of these resistances should be made up of several high voltage resistors.
 
-To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 +100000) / 100000 giving a ratio of 21.
-
 .THCAD-300
 
-Divider ratio = 29
+This is connected to the plasma machines full arc voltage and the divider ratio = 1
 
 === Calibration Values
 
-This is to obtain the starting values for Voltage Offset and Voltage Scale in the Config tab.
+This is to obtain the starting values for Voltage Offset and Voltage Scale in the Config Panel.
 
 If you look at the rear of the THCAD you will see a calibration sticker with:
 
 ----
-0V    121.1 kHz
-10V   925.3 kHz
+    THCAD-10      |        THCAD-300
+                  |
+ 0V  121.1 kHz    |     0V   121.1 kHz
+10V  925.3 kHz    |   300V   925.3 kHz
 ----
 
-Or similar values, these are the frequencies generated by the THCAD for 0 volts and 10 volts respectively.
+Or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
 
-For our calculations, we will use 32 from the jumper setting 'F/32' and 10 which is the full scale reading of the THCAD card itself.
+You can now calculate the values as shown below or use https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator]
 
 .Voltage Scale
 
 Use the formula:
 
 ----
-Divider_Ratio/((10V_frequency-0V_frequency)/32/10)
+Divider_Ratio / ((Full_Scale_Frequency - 0V_Frequency) / Frequency_Divider / Full_Scale_Voltage)
 ----
 
-This result will be used for setting 'Voltage Scale' in the Config tab when setting up the configuration.
+This result will be used for setting 'Voltage Scale' in the Config Panel when setting up the configuration.
 
-The THCAD-10 example above would be:
+THCAD-10 example would be:
 
 ----
-21/((925300-121100)/32/10) = 0.00835613
+21 / ((925300 - 121100) / 32 / 10) = 0.00835613
 ----
+
+For our calculation above, we used 21 from our divider calculation, 32 from the jumper setting 'F/32' and 10 which is the full scale reading of the THCAD card itself.
+
+THCAD-300 example would be:
+
+----
+1 / ((925300 - 121100) / 32 / 300) = 0.01193732
+----
+
+For our calculation above, we used 1 as our divider ratio, 32 from the jumper setting 'F/32' and 300 which is the full scale reading of the THCAD card itself.
+
 
 .Voltage Offset
 
 Use the formula:
 
 ----
-0V_frequency/32
+0V_Frequency / 32
 ----
 
-This result will be used for setting 'Voltage Offset' in the Config tab when setting up the configuration.
+This result will be used for setting 'Voltage Offset' in the Config Panel when setting up the configuration.
 
-The THCAD-10 example above would be:
+The THCAD-10 and THCAD-300 examples above would be:
 
 ----
-121100/32 = 3784.375
+121100 / 32 = 3784.375
 ----
 
 === Mesa Board Settings
