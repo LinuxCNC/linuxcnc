@@ -951,10 +951,11 @@ int Interp::convert_g7x(int mode,
 	switch(motion) {
 	case 0:
 	case 10:
-	    path.emplace_back(std::make_unique<straight_segment>(
-		old_x,old_z,
-		x,z
-	    ));
+	    if(block->x_flag || block->z_flag)
+		path.emplace_back(std::make_unique<straight_segment>(
+		    old_x,old_z,
+		    x,z
+		));
 	    break;
 	case 20:
 	case 30:
