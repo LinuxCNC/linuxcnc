@@ -917,6 +917,7 @@ int Interp::convert_g7x(int mode,
 	    cycle, subcycle);
 
 
+    DISTANCE_MODE ijk_distance_mode=settings->ijk_distance_mode;
     switch_settings old(settings,call->second);
 
     auto original_block=*block;
@@ -992,10 +993,14 @@ int Interp::convert_g7x(int mode,
 	    } else if(!block->i_flag && !block->k_flag) {
 		ERS("G7X error: either I or K must be present for arc");
 	    }
+	    if(ijk_distance_mode==MODE_INCREMENTAL) {
+		i+=old_x;
+		k+=old_z;
+	    }
 	    path.emplace_back(std::make_unique<round_segment>(
 		block->g_modes[1]==30,
 		old_x,old_z,
-		old_x+i,old_z+k,
+		i,k,
 		x,z
 	    ));
 	    break;
