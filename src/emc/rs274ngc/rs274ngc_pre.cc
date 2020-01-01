@@ -2037,12 +2037,6 @@ int Interp::synch()
 
   write_settings(&_setup);
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
-    return INTERP_ERROR;
-  }
-#endif
-
   return INTERP_OK;
 }
 

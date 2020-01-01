@@ -193,19 +193,9 @@ int emcTaskAbort()
     stepping = 0;
     steppingWait = 0;
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-    if (GET_EXTERNAL_OFFSET_APPLIED()) {
-        emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-    } else {
-        // now queue up command to resynch interpreter
-        EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
-        emcTaskQueueCommand(&taskPlanSynchCmd);
-    }
-#else
     // now queue up command to resynch interpreter
     EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
     emcTaskQueueCommand(&taskPlanSynchCmd);
-#endif
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later

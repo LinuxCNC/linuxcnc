@@ -61,36 +61,6 @@ extern struct emcmot_status_t *emcmotStatus;
 //  etc.
 static double *pcmd_p[EMCMOT_MAX_AXIS];
 
-#define EDEBUG
-#undef  EDEBUG
-#ifdef  EDEBUG
-#define dprint(format, ...) rtapi_print_msg(RTAPI_MSG_INFO,format, ##__VA_ARGS__)
-static int dbg_ct;
-static int dbg_enable_ct;
-static int dbg_disable_ct;
-
-static void dbg_show(char*txt) {
-  int ano;
-  emcmot_axis_t *a;
-  char afmt[]= "%6d %4s A%d T%d C%d I%d E(cmd=%7.4f curr=%7.4f) T(cmd=%7.4f curr=%7.4f) V:%7.4f\n";
-  rtapi_set_msg_level(RTAPI_MSG_INFO);
-  dprint("\n");
-  for (ano=2; ano<3; ano++) {
-    double v;
-    if        (ano == 0) { v=emcmotStatus->carte_pos_cmd.tran.x;
-    } else if (ano == 1) { v=emcmotStatus->carte_pos_cmd.tran.y;
-    } else if (ano == 2) { v=emcmotStatus->carte_pos_cmd.tran.z;
-    } else { v=999; }
-    a = &axes[ano];
-    dprint(afmt,dbg_ct,txt,ano
-    ,GET_MOTION_TELEOP_FLAG(),GET_MOTION_COORD_FLAG(),GET_MOTION_INPOS_FLAG()
-    ,a->ext_offset_tp.pos_cmd, a->ext_offset_tp.curr_pos
-    ,v
-    );
-  }
-}
-#endif
-
 /***********************************************************************
 *                      LOCAL FUNCTION PROTOTYPES                       *
 ************************************************************************/
@@ -270,9 +240,6 @@ void emcmotController(void *arg, long period)
     emcmotStatus->head++;
     /* here begins the core of the controller */
 
-#ifdef EDEBUG
-    dbg_ct++;
-#endif
     read_homing_in_pins(ALL_JOINTS);
     process_inputs();
     do_forward_kins();
@@ -792,9 +759,6 @@ static void set_operating_mode(void)
 
     /* check for disabling */
     if (!emcmotDebug->enabling && GET_MOTION_ENABLE_FLAG()) {
-#ifdef EDEBUG
-        dbg_show("dsbl");dbg_disable_ct=dbg_ct;
-#endif
 	/* clear out the motion emcmotDebug->coord_tp and interpolators */
 	tpClear(&emcmotDebug->coord_tp);
 	for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
@@ -830,9 +794,6 @@ static void set_operating_mode(void)
 
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
-#ifdef EDEBUG
-        dbg_show("enbl");dbg_enable_ct=dbg_ct;
-#endif
         if (*(emcmot_hal_data->eoffset_limited)) {
             reportError("Starting beyond Soft Limits");
             *(emcmot_hal_data->eoffset_limited) = 0;
