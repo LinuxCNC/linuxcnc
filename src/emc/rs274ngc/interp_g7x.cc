@@ -846,9 +846,10 @@ public:
 	block->z_flag=1;
 	block->z_number=real(end);
 	block->i_flag=1;
-	block->i_number=imag(center)-settings->current_x;
+	block->i_number=imag(center);
 	block->k_flag=1;
-	block->k_number=real(center)-settings->current_z;
+	block->k_number=real(center);
+
 	int r=interp->convert_arc(ccw? G_3:G_2, block, settings);
 	if(r!=INTERP_OK)
 	    throw(r);
@@ -860,6 +861,7 @@ class switch_settings {
     std::string filename;
     long offset;
     long sequence_number;
+    DISTANCE_MODE ijk_distance_mode;
 public:
     switch_settings(setup_pointer s, offset_struct &op):
 	settings(s), filename(s->filename),
@@ -873,6 +875,8 @@ public:
 	    throw(std::string("cannot open") + op.filename);
 	fseek(settings->file_pointer, op.offset, SEEK_SET);
 	settings->sequence_number=op.sequence_number;
+	ijk_distance_mode=settings->ijk_distance_mode;
+	settings->ijk_distance_mode=MODE_ABSOLUTE;
     }
     ~switch_settings(void) {
 	if(settings->file_pointer)
@@ -882,6 +886,7 @@ public:
 	    return;
 	fseek(settings->file_pointer, offset, SEEK_SET);
 	settings->sequence_number=sequence_number;
+	settings->ijk_distance_mode=ijk_distance_mode;
     }
 };
 
@@ -900,6 +905,17 @@ int Interp::convert_g7x(int mode,
     auto call=settings->offset_map.find(name.c_str());
     if(call==settings->offset_map.end())
 	ERS("Q routine not found");
+
+    int cycle=block->g_modes[1];
+    int subcycle=cycle%10;
+    cycle/=10;
+    if(settings->distance_mode!=MODE_ABSOLUTE)
+	ERS("G%d.%d will only work in absolute distance mode",cycle,subcycle);
+
+    if(settings->cutter_comp_side && cycle!=70)
+	ERS("G%d.%d cannot be used with cutter compensation turned on",
+	    cycle, subcycle);
+
 
     switch_settings old(settings,call->second);
 
@@ -990,9 +1006,6 @@ int Interp::convert_g7x(int mode,
 
     leave_context(settings);
 
-    int cycle=original_block.g_modes[1];
-    int subcycle=cycle%10;
-    cycle/=10;
 
     double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
     if(original_block.d_flag) d=original_block.d_number_float;
