@@ -439,7 +439,8 @@ template <int swap>
 class swapped_motion:public motion_base {
     motion_base *orig;
 public:
-    swapped_motion(motion_base *motion):orig(motion) {}
+    swapped_motion(motion_base *motion):orig(motion) {
+    }
     virtual void straight_move(std::complex<double> end) override {
 	std::complex<double> i(0,1);
 	switch(swap) {
@@ -447,10 +448,10 @@ public:
 	case 1: orig->straight_move(-conj(end)); break;
 	case 2: orig->straight_move(conj(end)); break;
 	case 3: orig->straight_move(-end); break;
-	case 4: orig->straight_move(-i*end); break;
+	case 4: orig->straight_move(i*end); break;
 	case 5: orig->straight_move(conj(i*end)); break;
 	case 6: orig->straight_move(-conj(i*end)); break;
-	case 7: orig->straight_move(i*end); break;
+	case 7: orig->straight_move(-i*end); break;
 	}
     }
     virtual void straight_rapid(std::complex<double> end) override {
@@ -460,10 +461,10 @@ public:
 	case 1: orig->straight_rapid(-conj(end)); break;
 	case 2: orig->straight_rapid(conj(end)); break;
 	case 3: orig->straight_rapid(-end); break;
-	case 4: orig->straight_rapid(-i*end); break;
+	case 4: orig->straight_rapid(i*end); break;
 	case 5: orig->straight_rapid(conj(i*end)); break;
 	case 6: orig->straight_rapid(-conj(i*end)); break;
-	case 7: orig->straight_rapid(i*end); break;
+	case 7: orig->straight_rapid(-i*end); break;
 	}
     }
     virtual void circular_move(int ccw,std::complex<double> center,
@@ -475,10 +476,10 @@ public:
 	case 1: orig->circular_move(!ccw,-conj(center),-conj(end)); break;
 	case 2: orig->circular_move(!ccw,conj(center),conj(end)); break;
 	case 3: orig->circular_move(ccw,-center,-end); break;
-	case 4: orig->circular_move(ccw,-i*center,-i*end); break;
+	case 4: orig->circular_move(ccw,i*center,i*end); break;
 	case 5: orig->circular_move(!ccw,conj(i*center),conj(i*end)); break;
 	case 6: orig->circular_move(!ccw,-conj(i*center),-conj(i*end)); break;
-	case 7: orig->circular_move(ccw,i*center,i*end); break;
+	case 7: orig->circular_move(ccw,-i*center,-i*end); break;
 	}
     }
 };
@@ -488,7 +489,6 @@ class g7x:public  std::list<std::unique_ptr<segment>> {
     double delta=0.5;
     std::complex<double> escape{0.3,0.3};
     int flip_state=0;
-
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
 	motion_base *out);
@@ -541,7 +541,8 @@ private:
     void monotonic(void) {
 	if(real(front()->ep()-front()->sp())>0) {
 	    std::cerr << front()->ep() << " " << front()->sp() << std::endl;
-	    throw(std::string("Initial dive on wrong side of curve"));
+	    front()->sp().real(real(front()->ep()));
+	    //throw(std::string("Initial dive on wrong side of curve"));
 	}
 	for(auto p=begin(); p!=end(); p++) {
 	    if(!(*p)->monotonic())
@@ -569,14 +570,20 @@ public:
     void do_g70(motion_base *out, double x, double z, double d, double e,
 	double p
     ) {
-	std::complex<double> location(z,x);
+	front()->sp()=std::complex<double>(z,x);
+	for(auto p=begin(); p!=end(); p++)
+	    if(!(*p)->monotonic()) {
+		rotate();
+		break;
+	    }
+	swap();
+	auto swapped_out=motion(out);
+
 	for(int pass=p; pass>0; pass--) {
 	    double distance=(pass-1)*(d-e)/p+e;
 	    g7x path(*this);
-	    path.front()->sp()=location;
 	    path.add_distance(distance);
 
-	    auto swapped_out=path.motion(out);
 	    swapped_out->straight_rapid(path.front()->sp());
 	    swapped_out->straight_rapid(path.front()->ep());
 	    for(auto p=++path.begin(); p!=--path.end(); p++)
@@ -598,12 +605,10 @@ public:
 	double u, double w,
 	double d, double i, double r, bool do_rotate=false
     ) {
-	std::complex<double> location(z,x);
-
-	front()->sp()=location;
-	add_distance(d);
+	front()->sp()=std::complex<double>(z,x);
 	if(do_rotate)
 	    rotate();
+	add_distance(d);
 	swap();
 	std::complex<double> displacement(w,u);
 	for(auto p=begin(); p!=end(); p++)
@@ -925,12 +930,6 @@ int Interp::convert_g7x(int mode,
     CHP(enter_context(settings, block));
     if(settings->call_level<=0)
 	ERS("G7X error: call_level too small");
-
-    auto frame = &settings->sub_context[settings->call_level];
-    auto previous_frame=&settings->sub_context[settings->call_level-1];
-    frame->named_params=previous_frame->named_params;
-
-    parameter_map named_params;
 
     double x=settings->current_x;
     double z=settings->current_z;
