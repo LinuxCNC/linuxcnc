@@ -874,37 +874,17 @@ public:
 
 class switch_settings {
     setup_pointer settings;
-    std::string filename;
-    long offset;
-    long sequence_number;
     DISTANCE_MODE ijk_distance_mode;
     double x, z;
 public:
-    switch_settings(setup_pointer s, offset_struct &op):
-	settings(s), filename(s->filename),
-	sequence_number(s->sequence_number)
+    switch_settings(setup_pointer s):settings(s)
     {
-	offset=ftell(settings->file_pointer);
-	if(settings->file_pointer)
-	    fclose(settings->file_pointer);
-	settings->file_pointer=fopen(op.filename,"r");
-	if(!settings->file_pointer)
-	    throw(std::string("cannot open") + op.filename);
-	fseek(settings->file_pointer, op.offset, SEEK_SET);
-	settings->sequence_number=op.sequence_number;
 	ijk_distance_mode=settings->ijk_distance_mode;
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
 	x=settings->current_x;
 	z=settings->current_z;
     }
     ~switch_settings(void) {
-	if(settings->file_pointer)
-	    fclose(settings->file_pointer);
-	settings->file_pointer=fopen(filename.c_str(),"r");
-	if(!settings->file_pointer)
-	    return;
-	fseek(settings->file_pointer, offset, SEEK_SET);
-	settings->sequence_number=sequence_number;
 	settings->ijk_distance_mode=ijk_distance_mode;
 	settings->current_x=x;
 	settings->current_z=z;
@@ -921,11 +901,6 @@ int Interp::convert_g7x(int mode,
 {
     if(!block->q_flag)
     	ERS("G7x.x  requires a Q word");
-    auto name=std::to_string(lround(block->q_number));
-    ofp=&settings->offset_map;
-    auto call=settings->offset_map.find(name.c_str());
-    if(call==settings->offset_map.end())
-	ERS("Q routine not found");
 
     int cycle=block->g_modes[1];
     int subcycle=cycle%10;
@@ -937,15 +912,10 @@ int Interp::convert_g7x(int mode,
 	ERS("G%d.%d cannot be used with cutter compensation turned on",
 	    cycle, subcycle);
 
-
     DISTANCE_MODE ijk_distance_mode=settings->ijk_distance_mode;
-    switch_settings old(settings,call->second);
+    switch_settings old(settings);
 
     auto original_block=*block;
-
-    CHP(enter_context(settings, block));
-    if(settings->call_level<=0)
-	ERS("G7X error: call_level too small");
 
     double x=settings->current_x;
     double z=settings->current_z;
@@ -961,8 +931,16 @@ int Interp::convert_g7x(int mode,
     double old_z=z;
     g7x path;
 
-    do {
-	CHP(read()); // FIXME Overwrites current block
+    auto exit_call_level=settings->call_level;
+
+    char buffer[1000];
+    sprintf(buffer,"O%ld CALL",std::lround(block->q_number));
+    CHP(read(buffer));
+    for(;;) {
+	if(block->o_name!=0)
+	    CHP(convert_control_functions(block, settings));
+	if(settings->call_level==exit_call_level)
+	    break;
 
 	x=old_x;
 	z=old_z;
@@ -978,56 +956,54 @@ int Interp::convert_g7x(int mode,
 	    motion=block->g_modes[1];
 	    settings->motion_mode=block->g_modes[1];
 	}
-	if(x==old_x && z==old_z)
-	    continue;
-	switch(motion) {
-	case 0:
-	case 10:
-	    if(block->x_flag || block->z_flag)
-		path.emplace_back(std::make_unique<straight_segment>(
+	if(x!=old_x || z!=old_z) {
+	    switch(motion) {
+	    case 0:
+	    case 10:
+		if(block->x_flag || block->z_flag)
+		    path.emplace_back(std::make_unique<straight_segment>(
+			old_x,old_z,
+			x,z
+		    ));
+		break;
+	    case 20:
+	    case 30:
+		if(block->r_flag) {
+		    double r=block->r_number;
+		    std::complex<double> start(old_z,old_x);
+		    std::complex<double> end(z,x);
+		    std::complex<double> j(0,1);
+		    auto center=(start+end)/2.0;
+		    auto d=j*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+			*(end-start);
+		    if(motion==30)
+			center+=d;
+		    else
+			center-=d;
+		    i=imag(center)-old_x;
+		    k=real(center)-old_z;
+		} else if(!block->i_flag && !block->k_flag) {
+		    ERS("G7X error: either I or K must be present for arc");
+		}
+		if(ijk_distance_mode==MODE_INCREMENTAL) {
+		    i+=old_x;
+		    k+=old_z;
+		}
+		path.emplace_back(std::make_unique<round_segment>(
+		    block->g_modes[1]==30,
 		    old_x,old_z,
+		    i,k,
 		    x,z
 		));
-	    break;
-	case 20:
-	case 30:
-	    if(block->r_flag) {
-		double r=block->r_number;
-		std::complex<double> start(old_z,old_x);
-		std::complex<double> end(z,x);
-		std::complex<double> j(0,1);
-		auto center=(start+end)/2.0;
-		auto d=j*sqrt((r*r-norm(end-start)/4)/norm(end-start))
-		    *(end-start);
-		if(motion==30)
-		    center+=d;
-		else
-		    center-=d;
-		i=imag(center)-old_x;
-		k=real(center)-old_z;
-	    } else if(!block->i_flag && !block->k_flag) {
-		ERS("G7X error: either I or K must be present for arc");
+		break;
 	    }
-	    if(ijk_distance_mode==MODE_INCREMENTAL) {
-		i+=old_x;
-		k+=old_z;
-	    }
-	    path.emplace_back(std::make_unique<round_segment>(
-		block->g_modes[1]==30,
-		old_x,old_z,
-		i,k,
-		x,z
-	    ));
-	    break;
+	    settings->current_x=x;
+	    settings->current_z=z;
+	    old_x=x;
+	    old_z=z;
 	}
-	settings->current_x=x;
-	settings->current_z=z;
-	old_x=x;
-	old_z=z;
-    } while(block->o_type!=O_endsub);
-
-    leave_context(settings);
-
+	CHP(read());
+    }
 
     double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
     if(original_block.d_flag) d=original_block.d_number_float;
