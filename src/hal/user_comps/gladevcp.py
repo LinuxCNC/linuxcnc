@@ -97,7 +97,7 @@ class Trampoline(object):
 
 def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
-
+    mod = object = None
     def add_handler(method, f):
         if method in handlers:
             handlers[method].append(f)
