@@ -878,6 +878,7 @@ class switch_settings {
     long offset;
     long sequence_number;
     DISTANCE_MODE ijk_distance_mode;
+    double x, z;
 public:
     switch_settings(setup_pointer s, offset_struct &op):
 	settings(s), filename(s->filename),
@@ -893,6 +894,8 @@ public:
 	settings->sequence_number=op.sequence_number;
 	ijk_distance_mode=settings->ijk_distance_mode;
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
+	x=settings->current_x;
+	z=settings->current_z;
     }
     ~switch_settings(void) {
 	if(settings->file_pointer)
@@ -903,6 +906,8 @@ public:
 	fseek(settings->file_pointer, offset, SEEK_SET);
 	settings->sequence_number=sequence_number;
 	settings->ijk_distance_mode=ijk_distance_mode;
+	settings->current_x=x;
+	settings->current_z=z;
     }
 };
 
@@ -1015,6 +1020,8 @@ int Interp::convert_g7x(int mode,
 	    ));
 	    break;
 	}
+	settings->current_x=x;
+	settings->current_z=z;
 	old_x=x;
 	old_z=z;
     } while(block->o_type!=O_endsub);
