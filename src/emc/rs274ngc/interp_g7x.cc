@@ -28,6 +28,8 @@ public:
 class round_segment;
 class straight_segment;
 
+static constexpr double tolerance=1e-6;
+
 class segment {
 protected:
     std::complex<double> start, end;
@@ -89,11 +91,11 @@ public:
 
 void straight_segment::intersection_z(double x, intersections_t &is)
 {
-    if(std::min(start.imag(),end.imag())>x+1e-6
-	|| std::max(start.imag(),end.imag())<x-1e-6
+    if(std::min(start.imag(),end.imag())>x+tolerance
+	|| std::max(start.imag(),end.imag())<x-tolerance
     )
 	return;
-    if(std::abs(imag(start-end))<1e-6) {
+    if(std::abs(imag(start-end))<tolerance) {
 	is.push_back(start.real());
 	is.push_back(end.real());
     } else
@@ -106,7 +108,7 @@ bool straight_segment::climb(std::complex<double> &location,
 ) {
     if(end.imag()<start.imag())
 	return 1; // not climbing
-    if(abs(location-start)>1e-6)
+    if(abs(location-start)>tolerance)
 	throw(std::string("How did we get here?"));
     output->straight_move(end);
     location=end;
@@ -219,18 +221,18 @@ private:
 inline bool round_segment::on_segment(std::complex<double> p)
 {
     if(ccw)
-	return imag(conj(start-center)*(p-center))>=-1e-6
-	    && imag(conj(end-center)*(p-center))<=1e-6;
+	return imag(conj(start-center)*(p-center))>=-tolerance
+	    && imag(conj(end-center)*(p-center))<=tolerance;
     else
-	return imag(conj(start-center)*(p-center))<=1e-6
-	    && imag(conj(end-center)*(p-center))>=-1e-6;
+	return imag(conj(start-center)*(p-center))<=tolerance
+	    && imag(conj(end-center)*(p-center))>=-tolerance;
 }
 
 void round_segment::intersection_z(double x, intersections_t &is)
 {
     std::complex<double> r=start-center;
     double s=-(x-abs(r)-center.imag())*(x+abs(r)-center.imag());
-    if(s<-1e-6)
+    if(s<-tolerance)
 	return;
     if(s<0)
 	s=0;
@@ -370,7 +372,7 @@ void straight_segment::intersect_end(round_segment *p)
 {
     // correct end of p and start of this
     // (arc followed by a straight
-    if(abs(start-p->end)<1e-6)
+    if(abs(start-p->end)<tolerance)
 	return;
 
     auto rot=conj(start-end)/abs(start-end);
@@ -396,7 +398,7 @@ void round_segment::intersect_end(straight_segment *p)
 {
     // correct end of p and start of this
     // (straight followed by an arc)
-    if(abs(start-p->end)<1e-6)
+    if(abs(start-p->end)<tolerance)
 	return;
 
     auto rot=conj(p->start-p->end)/abs(p->start-p->end);
@@ -664,7 +666,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
     }
 
     while(p!=end()) {
-	while(x>imag(location))
+	while(x-tolerance>imag(location))
 	    x-=delta;
 	if((*p)->dive(location,x,out,p==begin())) {
 	    if(cycle==1) {
@@ -686,8 +688,8 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    }
 	    return;
 	}
-	if(imag(location)>x || std::abs(location.imag()-x)>1e-6) {
-	    /* Our x coordinate iis beyond the current segment, move onto
+	if(imag(location)>x || std::abs(location.imag()-x)>tolerance) {
+	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
 	    */
 	    p++;
@@ -703,7 +705,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    /* We can hit the diving curve, if its a circle */
 	    double destination_z=ip!=p? is.front():is.back();
 	    double distance=std::abs(destination_z-real(location));
-	    if(distance<1e-6) {
+	    if(distance<tolerance) {
 		if(p==ip)
 		    // Hitting the diving curve at the starting point.
 		    continue;
