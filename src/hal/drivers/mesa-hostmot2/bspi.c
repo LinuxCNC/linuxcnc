@@ -199,14 +199,14 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val)
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_setup_chan);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho,
                         int samplelate)
 {
     hostmot2_t *hm2;
     rtapi_u32 buff = 0;
     int i;
-    float board_mhz;
+    double board_mhz;
     i = hm2_get_bspi(&hm2, name);
     if (i < 0){
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);

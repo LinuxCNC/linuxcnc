@@ -89,8 +89,8 @@ typedef struct {
     unsigned char DataLength;
     unsigned char DataType;
     unsigned char DataDir;
-    float ParmMin;
-    float ParmMax;
+    double ParmMin;
+    double ParmMax;
     short ParmAddr;
     char UnitString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
     char NameString[HM2_SSERIAL_MAX_STRING_LENGTH+1];

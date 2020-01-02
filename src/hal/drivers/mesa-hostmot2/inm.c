@@ -334,7 +334,7 @@ void hm2_inm_force_write(hostmot2_t *hm2) {
     int divisor;
     int i;
     int size;
-    float scanrate;    
+    double scanrate;
     if (hm2->inm.num_instances <= 0) {
         return;
     }
@@ -381,7 +381,7 @@ void hm2_inm_write(hostmot2_t *hm2) {
     int i;
     int j;
     int size;
-    float scanrate;
+    double scanrate;
 
     size = hm2->inm.num_instances * sizeof(rtapi_u32);
 

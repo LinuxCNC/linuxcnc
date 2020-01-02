@@ -334,7 +334,7 @@ void hm2_inmux_force_write(hostmot2_t *hm2) {
     int divisor;
     int i;
     int size;
-    float muxrate;    
+    double muxrate;
     if (hm2->inmux.num_instances <= 0) {
         return;
     }
@@ -381,7 +381,7 @@ void hm2_inmux_write(hostmot2_t *hm2) {
     int i;
     int j;
     int size;
-    float muxrate;
+    double muxrate;
 
     size = hm2->inmux.num_instances * sizeof(rtapi_u32);
 

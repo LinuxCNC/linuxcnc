@@ -229,7 +229,7 @@ static void hm2_ssr_compute_rate_regs(hostmot2_t *hm2) {
             // the enable bit.
             reg = 0;
         } else {
-            float rate = *hm2->ssr.instance[i].hal.pin.rate;
+            double rate = *hm2->ssr.instance[i].hal.pin.rate;
 
             if (*hm2->ssr.instance[i].hal.pin.rate < 25000) {
                 rate = 25000;
