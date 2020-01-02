@@ -911,6 +911,9 @@ int Interp::convert_g7x(int mode,
     if(settings->cutter_comp_side && cycle!=70)
 	ERS("G%d.%d cannot be used with cutter compensation turned on",
 	    cycle, subcycle);
+    if(settings->plane!=CANON_PLANE_XZ)
+	ERS("G%d.%d can only be used in XZ plane (G18)",
+	    cycle, subcycle);
 
     DISTANCE_MODE ijk_distance_mode=settings->ijk_distance_mode;
     switch_settings old(settings);
