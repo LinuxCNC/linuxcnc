@@ -4638,7 +4638,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 self.widgets[i[0]].set_sensitive(True)
 
     def has_spindle_speed_control(self):
-        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
+        for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
                     "s-pot-output"):
             has_spindle = self.findsignal(test)
             print test,has_spindle

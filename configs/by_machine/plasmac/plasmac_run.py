@@ -29,15 +29,63 @@ from   gladevcp.persistence import widget_defaults,select_widgets
 import gladevcp
 from subprocess import Popen,PIPE
 import time
+import shutil
 
 class HandlerClass:
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-            gtk.BUTTONS_CLOSE, error)
+                               gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+                               gtk.BUTTONS_CLOSE, error)
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
         md.run()
         md.destroy()
+
+    def dialog_ok_cancel(self,title,text,button1Txt,button2Txt):
+        md = gtk.Dialog(title,
+                        self.W,
+                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        (button1Txt, 1, button2Txt, 0))
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
+        label = gtk.Label(text)
+        md.vbox.add(label)
+        label.show()
+        response = md.run()
+        md.destroy()
+        return response
+
+    def dialog_common(self,title,label1Txt,label2Txt,button1Txt,button2Txt):
+        md = gtk.Dialog(title,
+                        self.W,
+                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                        (button1Txt, 1, button2Txt, 0))
+        md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        md.set_keep_above(True)
+        label1 = gtk.Label(label1Txt)
+        md.vbox.add(label1)
+        entry1 = gtk.Entry()
+        md.vbox.add(entry1)
+        label2 = gtk.Label(label2Txt)
+        md.vbox.add(label2)
+        entry2 = gtk.Entry()
+        md.vbox.add(entry2)
+        if label1Txt:
+            label1.show()
+            entry1.show()
+        if label2Txt:
+            label2.show()
+            entry2.show()
+        reply1 = reply2 = ''
+        response = md.run()
+        if response:
+            if label1:
+                reply1 = entry1.get_text()
+            if label1:
+                reply2 = entry2.get_text()
+        md.destroy()
+        return response, reply1, reply2
 
     def check_material_file(self):
         version = '[VERSION 1.1]'
@@ -117,6 +165,7 @@ class HandlerClass:
                                 self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                    self.materialNumList.append(t_number)
                     t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  0.0
                     t_item += 1
                     received = []
@@ -194,8 +243,108 @@ class HandlerClass:
         self.materialUpdate = True
         self.load_settings()
         self.materialFileDict = {}
+        self.materialNumList = []
         self.get_material()
         self.materialUpdate = False
+
+    def on_new_clicked(self, widget):
+        response, num, nam = self.dialog_common('Add Material',\
+                                                'New Material Number',\
+                                                'Material Name',\
+                                                'OK',\
+                                                'Cancel')
+        if not num or not nam:
+            self.dialog_error('\nNumber and Name are required')
+            return
+        else:
+            try:
+                num = int(num)
+            except:
+                self.dialog_error('\nMaterial number must be an integer')
+                return
+            if num in self.materialNumList:
+                self.dialog_error('\nMaterial number {} is in use'.format(num))
+                return
+            shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
+            outFile = open('{}'.format(self.materialFile), 'a')
+            outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
+            outFile.write('NAME               = {}\n'.format(nam))
+            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[0][1]))
+            if self.materialFileDict[0][2] == True:
+                thc = 1
+            else:
+                thc = 0
+            outFile.write('THC                = {}\n'.format(thc))
+            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[0][3]))
+            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[0][4]))
+            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[0][5]))
+            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[0][6]))
+            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[0][7]))
+            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[0][8]))
+            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[0][9]))
+            outFile.write('CUT_VOLTS          = {}\n\n'.format(self.materialFileDict[0][10]))
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.materialNumList = []
+            self.get_material()
+            self.builder.get_object('material').set_active(len(self.materialNumList))
+            self.materialUpdate = False
+
+    def on_delete_clicked(self, widget):
+        response, num, nam = self.dialog_common('Delete Material',\
+                                                'Material Number To Delete',\
+                                                '',\
+                                                'OK',\
+                                                'Cancel')
+        if not num:
+            self.dialog_error('\nNumber is required')
+            return
+        else:
+            try:
+                num = int(num)
+            except:
+                self.dialog_error('\nMaterial number must be an integer')
+                return
+            if not num in self.materialNumList:
+                self.dialog_error('\nMaterial number {} is not in use'.format(num))
+                return
+            response = self.dialog_ok_cancel('Delete Material',\
+                                             'Are you sure?',\
+                                             'OK',\
+                                             'Cancel')
+            if response == 0:
+                return
+            shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
+            inFile = open('{}.bkp'.format(self.materialFile), 'r')
+            outFile = open('{}'.format(self.materialFile), 'w')
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_') and \
+                     int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
+                    break
+                else:
+                    outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_'):
+                    outFile.write(line)
+                    break
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                else:
+                    outFile.write(line)
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.materialNumList = []
+            self.get_material()
+            self.materialUpdate = False
 
     def on_thc_auto_toggled(self,button):
         if button.get_active():
@@ -243,11 +392,11 @@ class HandlerClass:
         else:
             self.manualChange = False
 
-    def material_change_changed(self,halpin):
+    def material_change_changed(self, halpin):
         if halpin.get() == 0:
             hal.set_p('motion.digital-in-03','0')
 
-    def change_material(self,material,fr):
+    def change_material(self, material, fr):
         if material in self.materialList:
             self.materialName = self.materialFileDict[material][0]
             self.builder.get_object('kerf-width').set_value(self.materialFileDict[material][1])
@@ -271,6 +420,9 @@ class HandlerClass:
             if self.autoChange:
                 self.builder.get_object('material').set_active(self.materialFileDict[material][11])
         self.oldMaterial = material
+
+    def first_material_changed(self, halpin):
+        self.change_material(halpin.get(), 'pin')
 
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
@@ -449,25 +601,96 @@ class HandlerClass:
             print('*** creating new run tab configuration file, {}'.format(self.configFile))
 
     def save_settings(self):
-        try:
-            with open(self.configFile, 'w') as f_out:
-                f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
-                for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number': # or key == 'kerf-width':
-                        pass
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
-                        self.builder.get_object(key).update()
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
-                        value = self.builder.get_object(key).get_active()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif key == 'torchPulseTime':
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-        except:
-            self.dialog_error('Error opening {}'.format(self.configFile))
-            print('*** error opening {}'.format(self.configFile))
+        material = hal.get_value('plasmac_run.material-change-number')
+        position = self.builder.get_object('material').get_active()
+        if material == 0:
+            try:
+                with open(self.configFile, 'w') as f_out:
+                    f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
+                    for key in sorted(self.configDict.iterkeys()):
+                        if key == 'material-number': # or key == 'kerf-width':
+                            pass
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                            self.builder.get_object(key).update()
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
+                            value = self.builder.get_object(key).get_active()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif key == 'torchPulseTime':
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+            except:
+                self.dialog_error('Error opening {}'.format(self.configFile))
+                print('*** error opening {}'.format(self.configFile))
+        else:
+            for key in sorted(self.configDict.iterkeys()):
+                if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                    self.builder.get_object(key).update()
+            shutil.copy(self.materialFile,'{}.tmp'.format(self.materialFile))
+            inFile = open('{}.tmp'.format(self.materialFile), 'r')
+            outFile = open('{}'.format(self.materialFile), 'w')
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_') and \
+                     material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
+                    outFile.write(line)
+                    break
+                else:
+                    outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                elif line.startswith('[MATERIAL_NUMBER_'):
+                    outFile.write(line)
+                    break
+                elif line.startswith('NAME'):
+                    outFile.write(line)
+                elif line.startswith('KERF_WIDTH'):
+                    outFile.write('KERF_WIDTH         = {}\n'.format(self.builder.get_object('kerf-width').get_value()))
+                elif line.startswith('THC'):
+                    if self.builder.get_object('thc-enable').get_active():
+                        thc = 1
+                    else:
+                        thc = 0
+                    outFile.write('THC                = {}\n'.format(thc))
+                elif line.startswith('PIERCE_HEIGHT'):
+                    outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.builder.get_object('pierce-height').get_value()))
+                elif line.startswith('PIERCE_DELAY'):
+                    outFile.write('PIERCE_DELAY       = {}\n'.format(self.builder.get_object('pierce-delay').get_value()))
+                elif line.startswith('PUDDLE_JUMP_HEIGHT'):
+                    outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.builder.get_object('puddle-jump-height').get_value()))
+                elif line.startswith('PUDDLE_JUMP_DELAY'):
+                    outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.builder.get_object('puddle-jump-delay').get_value()))
+                elif line.startswith('CUT_HEIGHT'):
+                    outFile.write('CUT_HEIGHT         = {}\n'.format(self.builder.get_object('cut-height').get_value()))
+                elif line.startswith('CUT_SPEED'):
+                    outFile.write('CUT_SPEED          = {}\n'.format(self.builder.get_object('cut-feed-rate').get_value()))
+                elif line.startswith('CUT_AMPS'):
+                    outFile.write('CUT_AMPS           = {}\n'.format(self.builder.get_object('cut-amps').get_value()))
+                elif line.startswith('CUT_VOLTS'):
+                    outFile.write('CUT_VOLTS          = {}\n'.format(self.builder.get_object('cut-volts').get_value()))
+                elif line.startswith('TORCH_OFF_DELAY'):
+                    outFile.write('TORCH_OFF_DELAY    = {}\n'.format(self.builder.get_object('torch-off-delay').get_value()))
+                elif line.startswith('GAS_PRESSURE'):
+                    outFile.write('GAS_PRESSURE       = {}\n'.format(self.builder.get_object('gas-pressure').get_value()))
+                elif line.startswith('CUT_MODE'):
+                    outFile.write('CUT_MODE           = {}\n'.format(self.builder.get_object('cut-mode').get_value()))
+                else:
+                     outFile.write(line)
+            while 1:
+                line = inFile.readline()
+                if not line: break
+                outFile.write(line)
+            inFile.close()
+            outFile.close()
+            self.materialUpdate = True
+            self.load_settings()
+            self.materialFileDict = {}
+            self.get_material()
+            self.builder.get_object('material').set_active(position)
+            self.materialUpdate = False
 
     def idle_changed(self, halpin):
         if not halpin.get():
@@ -485,12 +708,15 @@ class HandlerClass:
         self.cutTypePin = hal_glib.GPin(halcomp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN))
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
+        self.firstMaterialPin = hal_glib.GPin(halcomp.newpin('first-material', hal.HAL_S32, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
+        self.firstMaterialPin.connect('value-changed', self.first_material_changed)
         self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
         hal.connect('plasmac_run.program-is-idle', 'plasmac:program-is-idle') 
         self.idlePin.connect('value-changed', self.idle_changed)
+        self.previewPin = hal_glib.GPin(halcomp.newpin('preview-tab', hal.HAL_BIT, hal.HAL_IN))
         self.thcFeedRate = (float(self.i.find('AXIS_Z', 'MAX_VELOCITY')) * \
                               float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
         hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
@@ -500,6 +726,7 @@ class HandlerClass:
         self.materialFileDict = {}
         self.materialDict = {}
         self.configDict = {}
+        self.materialNumList = []
         hal.set_p('plasmac.mode','{}'.format(int(self.i.find('PLASMAC','MODE') or '0')))
         self.oldMode = 9
         self.oldMaterial = -1

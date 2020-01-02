@@ -293,7 +293,7 @@ Installing a Plasmac configuration is done from the Configurator, the type of in
 From a terminal:
 
 ====
-$ python /user/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+$ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ====
 
 === Start A PlasmaC Run In Place Installation
@@ -397,6 +397,20 @@ setp plasmac.lowpass-frequency 100
 ----
 
 Would give a cutoff frequency of 100Hz.
+
+=== Contact Debounce
+
+Contact bounce or external interference may cause some inconsistent behaviour of the following switches:
+
+* Float Switch
+* Ohmic Probe
+* Breakaway Switch
+
+This may be alleviated by changing the debounce value in the <MACHINE>_connections.hal file. This value applies to all three switches simultaneously in a standard configuration.
+
+You could separate these by using an exclusive debounce component for each switch.
+
+Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
 
 == Plasmac Files
 
@@ -650,11 +664,34 @@ Parameters for a single cut.
 |Start Cut|Press to commence a single cut.
 |===
 
-.Save & Reload Buttons
+[[run-buttons]]
 
-The *'Save'* button will save the currently displayed parameters as the default.
+.Save Button
 
-The *'Reload'* button will reload the last saved parameters.
+The *'Save'* button has two modes of operation:
+
+. If the Default material is displayed then all the currently displayed parameters on the Run Panel will be saved as the default.
+. If any other material is showing then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
+
+.Reload Button
+
+The *'Reload'* button will reload the default material and the material file.
+
+.New Button
+
+The *'New'* button allows the addition of a new material in the material file.
+
+It will prompt for a material number and a material name when these are entered it will create the new material using the Cut Paramaters from the Default Material and then reload the material file with the new material displayed.
+
+Make any required changes and then save them using the save button.
+
+.Delete Button
+
+The *'Delete'* button allows the deletion of a material from the material file.
+
+It will prompt for a material number and when this is entered it will prompt again to make sure you want to delete it.
+
+If the deletion is confirmed it will delete the material from the material file and reload the materials with the default material loaded.
 
 === Monitor Panel
 
@@ -874,6 +911,8 @@ Material numbers do not need to be consecutive nor do they need to be in numeric
 When a material is changed it only changes the cut parameters in the Run Panel, LinuxCNC knows nothing of the material nor does PlasmaC know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
 
 Materials can be selected manually with the either the Cut Parameters combobox or via MDI with M190 Pn.
+
+If a GCode program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
 
 === THC
 
@@ -1204,7 +1243,8 @@ Any internal circle that has a diameter less than 'Small hole diameter' is class
 
 . Open the Extras Panel.
 . Select the shape you wish to create which will open a shape dialog.
-. Open the Preview Panel and move the shape dialog so you can see the Preview Panel.
+. If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel. +
+  If using Axis the Preview Panel will open automatically when 'Preview' is pressed.
 . Enter the appropriate values in the shape dialog and press 'Preview' to load the shape.
 . If the shape is not correct, edit the values and press 'Preview' and the new shape will be shown. Repeat until you are satisfied with the shape.
 
@@ -1231,7 +1271,8 @@ When you are satisfied with the job you have created, an array of the job can be
 The cut order of an array is from left to right, starting at the bottom row and ending at the top row.
 
 . Press 'Array' in the Extras Panel which will open the array dialog.
-. Open the Preview Panel and move the array dialog so you can see the Preview Panel.
+. If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel. +
+  If using Axis the Preview Panel will open automatically when 'Preview' is pressed.
 . Enter the appropriate values in the array dialog and press 'Preview' to load the array.
 . If the array is not correct, edit the values and press 'Preview' and the new array will be shown. Repeat until you are satisfied with the shape.
 . Press 'Accept' to complete the procedure.
@@ -1795,9 +1836,9 @@ CUT_AMPS            = value (only used for operator information)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
 ----
 
-The material file is a plain text file and may be edited with any text editor.
+It is possible to add new material, delete material or edit existing material from the <<run-buttons, Run Panel.>>
 
-It is possible to edit the material file while LinuxCNC is running by clicking 'Reload' in the Run Panel after any changes have been saved.
+It is also possible to edit the material file with a text editor while LinuxCNC is running and then after any changes have been saved, press 'Reload' in the Run Panel to reload the material file.
 
 == Example Configurations
 

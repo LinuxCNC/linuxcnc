@@ -26,6 +26,7 @@ import time
 import math
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class line:
@@ -164,6 +165,7 @@ class line:
             outNgc.close()
             self.load_file(self.fNgc)
             self.add.set_sensitive(True)
+            hal.set_p('plasmac_run.preview-tab', '1')
         elif self.aEntry.get_text() and not self.lEntry.get_text():
             self.dialog_error('Length required if Angle entered')
         elif not self.aEntry.get_text() and self.lEntry.get_text():

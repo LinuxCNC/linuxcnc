@@ -249,6 +249,7 @@ class configurator:
             self.dlg.destroy()
             self.iniFile.set_text('')
             self.orgIniFile = ''
+            return
         if self.configureType == 'upgrade' or self.configureType == 'reconfigure':
             inFile = open(self.orgIniFile,'r')
             while 1:
@@ -787,27 +788,36 @@ class configurator:
                 elif buttons_do:
                     if line.startswith('BUTTON_'):
                         n = int(filter(str.isdigit, line.split('=')[0])) - 1
-                        if '_NAME' in line:
-                            buttons[n][0] = line
-                        elif '_CODE' in line:
-                            buttons[n][1] = line
+                        if (display == 'axis' and n < 5) or (display == 'gmoccapy' and n < 4):
+                            if '_NAME' in line:
+                                buttons[n][0] = line
+                            elif '_CODE' in line:
+                                buttons[n][1] = line
+                        else:
+                            if display == 'axis':
+                                print('Limit of 5 user buttons:\n"{}" is invalid\n'.format(line.strip()))
+                            elif display == 'gmoccapy':
+                                print('Limit of 4 user buttons:\n"{}" is invalid\n'.format(line.strip()))
                     elif 'removing z axis moves' in line:
-                        outFile.write('# for the four user buttons in the main window\n')
+                        if display == 'axis':
+                            outFile.write('# for the five user buttons in the main window\n')
+                        elif display == 'gmoccapy':
+                            outFile.write('# for the four user buttons in the main window\n')
                         for n in range(5):
                             outFile.write(buttons[n][0])
                             outFile.write(buttons[n][1])
                         outFile.write('\n'\
                             '# for the ten user buttons in the Extras panel\n'\
                             'BUTTON_10_NAME           = \nBUTTON_10_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_11_NAME           = \nBUTTON_11_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_12_NAME           = \nBUTTON_12_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_13_NAME           = \nBUTTON_13_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_14_NAME           = \nBUTTON_14_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_15_NAME           = \nBUTTON_15_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_16_NAME           = \nBUTTON_16_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_17_NAME           = \nBUTTON_17_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_18_NAME           = \nBUTTON_18_CODE           = \nBUTTON_10_IMAGE          = \n'\
-                            'BUTTON_19_NAME           = \nBUTTON_19_CODE           = \nBUTTON_10_IMAGE          = \n\n')
+                            'BUTTON_11_NAME           = \nBUTTON_11_CODE           = \nBUTTON_11_IMAGE          = \n'\
+                            'BUTTON_12_NAME           = \nBUTTON_12_CODE           = \nBUTTON_12_IMAGE          = \n'\
+                            'BUTTON_13_NAME           = \nBUTTON_13_CODE           = \nBUTTON_13_IMAGE          = \n'\
+                            'BUTTON_14_NAME           = \nBUTTON_14_CODE           = \nBUTTON_14_IMAGE          = \n'\
+                            'BUTTON_15_NAME           = \nBUTTON_15_CODE           = \nBUTTON_15_IMAGE          = \n'\
+                            'BUTTON_16_NAME           = \nBUTTON_16_CODE           = \nBUTTON_16_IMAGE          = \n'\
+                            'BUTTON_17_NAME           = \nBUTTON_17_CODE           = \nBUTTON_17_IMAGE          = \n'\
+                            'BUTTON_18_NAME           = \nBUTTON_18_CODE           = \nBUTTON_18_IMAGE          = \n'\
+                            'BUTTON_19_NAME           = \nBUTTON_19_CODE           = \nBUTTON_19_IMAGE          = \n\n')
                         outFile.write(line)
                         buttons_do = False
                 elif line.startswith('DISPLAY'):

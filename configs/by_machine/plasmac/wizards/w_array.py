@@ -25,6 +25,7 @@ import gtk
 import time
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class array:
@@ -235,6 +236,7 @@ class array:
                 self.load_file(self.fNgc)
                 if self.previewed:
                     md.destroy()
+            hal.set_p('plasmac_run.preview-tab', '1')
         else:
             msg = ''
             if columns <= 0:

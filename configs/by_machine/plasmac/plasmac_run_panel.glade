@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.18"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="cut-amps-adj"/>
   <object class="GtkAdjustment" id="cut-feed-rate-adj"/>
@@ -986,7 +986,7 @@ turn off to use cut volts from parameters</property>
                           <object class="GtkTable" id="table4">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_columns">2</property>
+                            <property name="n_columns">4</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <property name="homogeneous">True</property>
@@ -1016,6 +1016,36 @@ turn off to use cut volts from parameters</property>
 Note: this also saves current cut parameters as the default</property>
                                 <signal name="clicked" handler="on_save_clicked" swapped="no"/>
                               </object>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="new">
+                                <property name="label" translatable="yes">New</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">create a new material</property>
+                                <signal name="clicked" handler="on_new_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="delete">
+                                <property name="label" translatable="yes">Delete</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">delete an existing material</property>
+                                <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                              </packing>
                             </child>
                           </object>
                         </child>

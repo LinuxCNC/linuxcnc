@@ -191,6 +191,7 @@ fRead = open(infile, 'r')
  
 # first pass, check for valid material numbers and distance modes
 count = 0
+firstMaterial = 0
 for line in fRead:
     count += 1
     # convert to lower case and remove whitespace and spaces
@@ -218,6 +219,9 @@ for line in fRead:
                   '*** Material #{}\n'
                   'Error in line #{}: {}\n'
                   .format(materialFile, material, count, line))
+        if firstMaterial == 0:
+            firstMaterial = material
+            Popen('halcmd setp plasmac_run.first-material {}'.format(material), stdout = PIPE, shell = True)
     # set units
     if 'g21' in line:
         scale, precision = metric

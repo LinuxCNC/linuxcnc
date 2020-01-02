@@ -26,6 +26,7 @@ import time
 import math
 import linuxcnc
 import shutil
+import hal
 from subprocess import Popen,PIPE
 
 class circle:
@@ -219,6 +220,7 @@ class circle:
             outNgc.close()
             self.load_file(self.fNgc)
             self.add.set_sensitive(True)
+            hal.set_p('plasmac_run.preview-tab', '1')
         else:
             self.dialog_error('Diameter is required')
 
