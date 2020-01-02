@@ -872,9 +872,9 @@ typedef struct {
     // know if an update-write is needed
     // enable is a little more complicated and is based on the read-back
     // of the fault/enable register
-    float written_deadzone;
+    double written_deadzone;
     int written_faultpolarity;
-    float written_sampletime;
+    double written_sampletime;
 } hm2_tp_pwmgen_instance_t;
 
 typedef struct {
@@ -1605,7 +1605,7 @@ int hm2_allocate_bspi_tram(char* name);
 int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
+int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho,
                         int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);

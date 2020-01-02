@@ -1776,7 +1776,7 @@ void hm2_sserial_write_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
     int b, p, r;
     int bitcount;
     rtapi_u64 buff;
-    float val;
+    double val;
 
     // the side effect of reporting this error will suffice
     (void)hm2_sserial_check_remote_errors(hm2, inst);
