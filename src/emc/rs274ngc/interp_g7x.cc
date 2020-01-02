@@ -935,12 +935,22 @@ int Interp::convert_g7x(int mode,
 
     char buffer[1000];
     sprintf(buffer,"O%ld CALL",std::lround(block->q_number));
-    CHP(read(buffer));
+    CHP(_read(buffer));
     for(;;) {
 	if(block->o_name!=0)
 	    CHP(convert_control_functions(block, settings));
 	if(settings->call_level==exit_call_level)
 	    break;
+
+	for(int n=0; n<settings->parameter_occurrence; n++)
+	    settings->parameters[settings->parameter_numbers[n]]=
+		settings->parameter_values[n];
+
+	for(int n=0; n<settings->named_parameter_occurrence; n++)
+	    CHP(store_named_param(&_setup, settings->named_parameters[n],
+		settings->named_parameter_values[n]
+	    ));
+	settings->named_parameter_occurrence = 0;
 
 	x=old_x;
 	z=old_z;
