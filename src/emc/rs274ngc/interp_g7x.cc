@@ -836,7 +836,6 @@ public:
 	interp(i), settings(s), block(b) { }
 
     void straight_move(std::complex<double> end) {
-	std::cout << "G0 " << end << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -847,7 +846,6 @@ public:
     }
 
     void straight_rapid(std::complex<double> end)  {
-	std::cout << "G1 " << end << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -859,7 +857,6 @@ public:
     void circular_move(int ccw,std::complex<double> center,
 	std::complex<double> end
     ) {
-	std::cout << "G2 center=" << center << " end=" << end << std::endl;
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
