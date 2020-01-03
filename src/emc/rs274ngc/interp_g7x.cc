@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <deque>
-#include <regex>
+#include <memory>
 #include <complex>
 
 ////////////////////////////////////////////////////////////////////////////////
