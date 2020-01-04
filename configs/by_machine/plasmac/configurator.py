@@ -891,13 +891,13 @@ class configurator:
                         break
                     if not line:
                         inFile.close()
-                        self.dialog_ok('ERROR','Cannot find a MATERIAL section in material file')
-                        return False
+                        outFile.close()
+                        return
                 while 1:
                     line = inFile.readline()
                     if not line:
                         inFile.close()
-                        return True
+                        return
                     outFile.write(line)
                 inFile.close()
                 outFile.close()
@@ -909,10 +909,19 @@ class configurator:
                 outFile.write(self.material_header())
                 while 1:
                     line = inFile.readline()
+                    if line.startswith('[MATERIAL_NUMBER'):
+                        outFile.write(line)
+                        break
                     if not line:
                         inFile.close()
                         outFile.close()
-                        return True
+                        return
+                while 1:
+                    line = inFile.readline()
+                    if not line:
+                        inFile.close()
+                        outFile.close()
+                        return
                     elif line.startswith('CUT_VOLTS'):
                         outFile.write(line)
                         outFile.write('PAUSE_AT_END       = 0\n')
