@@ -7,6 +7,8 @@
 #include <memory>
 #include <complex>
 
+using namespace std::complex_literals;
+
 ////////////////////////////////////////////////////////////////////////////////
 class motion_base {
 public:
@@ -55,9 +57,8 @@ public:
     virtual void flip_imag(void) { start=conj(start); end=conj(end); }
     virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
     virtual void rotate(void) {
-	std::complex<double> i(0,1);
-	start=-start*i;
-	end=-end*i;
+	start=-start*1i;
+	end=-end*1i;
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
     friend class round_segment;
@@ -75,8 +76,7 @@ public:
     void climb_only(std::complex<double>&,motion_base*) override;
     void draw(motion_base *out) override { out->straight_move(end); }
     void offset(double distance) override {
-	std::complex<double> i(0,1);
-	std::complex<double> d=i*distance*(start-end)/abs(start-end);
+	std::complex<double> d=1i*distance*(start-end)/abs(start-end);
 	start+=d;
 	end+=d;
     }
@@ -197,10 +197,9 @@ public:
     void flip_real(void) override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
     virtual void rotate(void) {
-	std::complex<double> i(0,1);
-	start=-start*i;
-	end=-end*i;
-	center=-center*i;
+	start=-start*1i;
+	end=-end*1i;
+	center=-center*1i;
     }
     virtual bool monotonic(void) {
 	double entry=imag(start-center);
@@ -444,44 +443,41 @@ public:
     swapped_motion(motion_base *motion):orig(motion) {
     }
     virtual void straight_move(std::complex<double> end) override {
-	std::complex<double> i(0,1);
 	switch(swap) {
 	case 0: orig->straight_move(end); break;
 	case 1: orig->straight_move(-conj(end)); break;
 	case 2: orig->straight_move(conj(end)); break;
 	case 3: orig->straight_move(-end); break;
-	case 4: orig->straight_move(i*end); break;
-	case 5: orig->straight_move(conj(i*end)); break;
-	case 6: orig->straight_move(-conj(i*end)); break;
-	case 7: orig->straight_move(-i*end); break;
+	case 4: orig->straight_move(1i*end); break;
+	case 5: orig->straight_move(conj(1i*end)); break;
+	case 6: orig->straight_move(-conj(1i*end)); break;
+	case 7: orig->straight_move(-1i*end); break;
 	}
     }
     virtual void straight_rapid(std::complex<double> end) override {
-	std::complex<double> i(0,1);
 	switch(swap) {
 	case 0: orig->straight_rapid(end); break;
 	case 1: orig->straight_rapid(-conj(end)); break;
 	case 2: orig->straight_rapid(conj(end)); break;
 	case 3: orig->straight_rapid(-end); break;
-	case 4: orig->straight_rapid(i*end); break;
-	case 5: orig->straight_rapid(conj(i*end)); break;
-	case 6: orig->straight_rapid(-conj(i*end)); break;
-	case 7: orig->straight_rapid(-i*end); break;
+	case 4: orig->straight_rapid(1i*end); break;
+	case 5: orig->straight_rapid(conj(1i*end)); break;
+	case 6: orig->straight_rapid(-conj(1i*end)); break;
+	case 7: orig->straight_rapid(-1i*end); break;
 	}
     }
     virtual void circular_move(int ccw,std::complex<double> center,
 	std::complex<double> end) override
     {
-	std::complex<double> i(0,1);
 	switch(swap) {
 	case 0: orig->circular_move(ccw,center,end); break;
 	case 1: orig->circular_move(!ccw,-conj(center),-conj(end)); break;
 	case 2: orig->circular_move(!ccw,conj(center),conj(end)); break;
 	case 3: orig->circular_move(ccw,-center,-end); break;
-	case 4: orig->circular_move(ccw,i*center,i*end); break;
-	case 5: orig->circular_move(!ccw,conj(i*center),conj(i*end)); break;
-	case 6: orig->circular_move(!ccw,-conj(i*center),-conj(i*end)); break;
-	case 7: orig->circular_move(ccw,-i*center,-i*end); break;
+	case 4: orig->circular_move(ccw,1i*center,1i*end); break;
+	case 5: orig->circular_move(!ccw,conj(1i*center),conj(1i*end)); break;
+	case 6: orig->circular_move(!ccw,-conj(1i*center),-conj(1i*end)); break;
+	case 7: orig->circular_move(ccw,-1i*center,-1i*end); break;
 	}
     }
 };
@@ -960,9 +956,8 @@ int Interp::convert_g7x(int mode,
 		    if(block->i_flag || block->k_flag)
 			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
-		    std::complex<double> j(0,1);
 		    center=(start+end)/2.0;
-		    auto d=j*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+		    auto d=1i*sqrt((r*r-norm(end-start)/4)/norm(end-start))
 			*(end-start);
 		    if(settings->motion_mode==30)
 			center+=d;
