@@ -720,7 +720,6 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    out->straight_rapid(dest);
 	    dest=location-conj(escape_scale*escape);
 	    out->straight_rapid(dest);
-	    //if(real((*p)->sp())==real((*p)->ep()))
 	    if(p==begin())
 		out->straight_rapid(location);
 	    else
@@ -821,7 +820,6 @@ void g7x::add_distance(double distance) {
 #include "units.h"
 #include <iostream>
 
-
 class motion_machine:public motion_base {
     Interp *interp;
     setup_pointer settings;
@@ -917,9 +915,8 @@ int Interp::convert_g7x(int mode,
     original_block.x_number=x;
     original_block.z_number=z;
 
-    double old_x=x;
-    double old_z=z;
     g7x path;
+    std::complex<double> start(z,x);
 
     auto exit_call_level=settings->call_level;
     CHP(read(("O"s+std::to_string(block->q_number)+" CALL").c_str()));
@@ -939,29 +936,23 @@ int Interp::convert_g7x(int mode,
 	    ));
 	settings->named_parameter_occurrence = 0;
 
-	x=old_x;
-	z=old_z;
-	double i=0, k=0;
+	std::complex<double> end(start);
+	std::complex<double> center(0,0);
 
-	if(block->x_flag) x=block->x_number;
-	if(block->z_flag) z=block->z_number;
-	if(block->i_flag) i=block->i_number;
-	if(block->k_flag) k=block->k_number;
+	if(block->x_flag) end.imag(block->x_number);
+	if(block->z_flag) end.real(block->z_number);
+	if(block->i_flag) center.imag(block->i_number);
+	if(block->k_flag) center.real(block->k_number);
 
-	int motion=settings->motion_mode;
-	if(block->g_modes[1]!=-1) {
-	    motion=block->g_modes[1];
+	if(block->g_modes[1]!=-1)
 	    settings->motion_mode=block->g_modes[1];
-	}
-	if(x!=old_x || z!=old_z) {
-	    switch(motion) {
+	if(start!=end) {
+	    switch(settings->motion_mode) {
 	    case 0:
 	    case 10:
-		if(block->x_flag || block->z_flag)
-		    path.emplace_back(std::make_unique<straight_segment>(
-			old_x,old_z,
-			x,z
-		    ));
+		path.emplace_back(std::make_unique<straight_segment>(
+		    start, end
+		));
 		break;
 	    case 20:
 	    case 30:
@@ -969,38 +960,28 @@ int Interp::convert_g7x(int mode,
 		    if(block->i_flag || block->k_flag)
 			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
-		    std::complex<double> start(old_z,old_x);
-		    std::complex<double> end(z,x);
 		    std::complex<double> j(0,1);
-		    auto center=(start+end)/2.0;
+		    center=(start+end)/2.0;
 		    auto d=j*sqrt((r*r-norm(end-start)/4)/norm(end-start))
 			*(end-start);
-		    if(motion==30)
+		    if(settings->motion_mode==30)
 			center+=d;
 		    else
 			center-=d;
-		    i=imag(center);
-		    k=real(center);
 		} else {
 		    if(!block->i_flag && !block->k_flag)
 			ERS("G7X error: either I or K must be present for arc");
-		    if(old.ijk_distance_mode()==MODE_INCREMENTAL) {
-			i+=old_x;
-			k+=old_z;
-		    }
+		    if(old.ijk_distance_mode()==MODE_INCREMENTAL)
+			center+=start;
 		}
 		path.emplace_back(std::make_unique<round_segment>(
-		    motion==30,
-		    old_x,old_z,
-		    i,k,
-		    x,z
+		    settings->motion_mode==30, start, center, end
 		));
 		break;
 	    }
-	    settings->current_x=x;
-	    settings->current_z=z;
-	    old_x=x;
-	    old_z=z;
+	    settings->current_x=imag(end);
+	    settings->current_z=real(end);
+	    start=end;
 	}
 	CHP(read());
     }
@@ -1016,7 +997,6 @@ int Interp::convert_g7x(int mode,
     if(original_block.x_flag) x=original_block.x_number;
     if(original_block.z_flag) z=original_block.z_number;
 
-    // motion_gcode motion("cutting.ngc");
     motion_machine motion(this, settings, block);
     try {
 	switch(cycle) {
