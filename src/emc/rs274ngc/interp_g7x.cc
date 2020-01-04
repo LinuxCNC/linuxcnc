@@ -519,13 +519,6 @@ private:
 	}
     }
 
-    void invert(void) {
-	for(auto p=begin(); p!=end(); p++) {
-	    (*p)->flip_real();
-	}
-	flip_state^=1;
-    }
-
     std::unique_ptr<motion_base> motion(motion_base *out) {
 	switch(flip_state) {
 	case 0: return std::make_unique<swapped_motion<0>>(out);
@@ -542,7 +535,6 @@ private:
 
     void monotonic(void) {
 	if(real(front()->ep()-front()->sp())>0) {
-	    std::cerr << front()->ep() << " " << front()->sp() << std::endl;
 	    front()->sp().real(real(front()->ep()));
 	    //throw(std::string("Initial dive on wrong side of curve"));
 	}
@@ -874,19 +866,17 @@ public:
 
 class switch_settings {
     setup_pointer settings;
-    DISTANCE_MODE ijk_distance_mode;
-    double x, z;
+    DISTANCE_MODE saved_ijk_distance_mode;
 public:
     switch_settings(setup_pointer s):settings(s)
     {
-	ijk_distance_mode=settings->ijk_distance_mode;
+	saved_ijk_distance_mode=settings->ijk_distance_mode;
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
-	x=settings->current_x;
-	z=settings->current_z;
     }
     ~switch_settings(void) {
-	settings->ijk_distance_mode=ijk_distance_mode;
+	settings->ijk_distance_mode=saved_ijk_distance_mode;
     }
+    DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
 };
 
 
@@ -897,6 +887,8 @@ int Interp::convert_g7x(int mode,
       block_pointer block,     //!< pointer to a block of RS274 instructions
       setup_pointer settings)  //!< pointer to machine settings
 {
+    using namespace std::string_literals;
+
     if(!block->q_flag)
     	ERS("G7x.x  requires a Q word");
 
@@ -907,13 +899,12 @@ int Interp::convert_g7x(int mode,
 	ERS("G%d.%d will only work in absolute distance mode",cycle,subcycle);
 
     if(settings->cutter_comp_side && cycle!=70)
-	ERS("G%d.%d cannot be used with cutter compensation turned on",
+	ERS("G%d.%d cannot be used with cutter compensation enabled",
 	    cycle, subcycle);
     if(settings->plane!=CANON_PLANE_XZ)
 	ERS("G%d.%d can only be used in XZ plane (G18)",
 	    cycle, subcycle);
 
-    DISTANCE_MODE ijk_distance_mode=settings->ijk_distance_mode;
     switch_settings old(settings);
 
     auto original_block=*block;
@@ -924,7 +915,6 @@ int Interp::convert_g7x(int mode,
 	x=block->x_number;
     if(block->z_flag)
 	z=block->z_number;
-
     original_block.x_number=x;
     original_block.z_number=z;
 
@@ -933,10 +923,7 @@ int Interp::convert_g7x(int mode,
     g7x path;
 
     auto exit_call_level=settings->call_level;
-
-    char buffer[1000];
-    sprintf(buffer,"O%ld CALL",std::lround(block->q_number));
-    CHP(_read(buffer));
+    CHP(read(("O"s+std::to_string(block->q_number)+" CALL").c_str()));
     for(;;) {
 	if(block->o_name!=0)
 	    CHP(convert_control_functions(block, settings));
@@ -996,7 +983,7 @@ int Interp::convert_g7x(int mode,
 		} else if(!block->i_flag && !block->k_flag) {
 		    ERS("G7X error: either I or K must be present for arc");
 		}
-		if(ijk_distance_mode==MODE_INCREMENTAL) {
+		if(old.ijk_distance_mode()==MODE_INCREMENTAL) {
 		    i+=old_x;
 		    k+=old_z;
 		}
