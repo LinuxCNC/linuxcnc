@@ -162,22 +162,16 @@ class configurator:
         if button.get_active():
             self.mode = 0
             self.set_mode()
-            if self.configureType == 'reconfigure':
-                self.populate_reconfigure()
 
     def on_mode1_toggled(self,button):
         if button.get_active():
             self.mode = 1
             self.set_mode()
-            if self.configureType == 'reconfigure':
-                self.populate_reconfigure()
 
     def on_mode2_toggled(self,button):
         if button.get_active():
             self.mode = 2
             self.set_mode()
-            if self.configureType == 'reconfigure':
-                self.populate_reconfigure()
 
     def on_tabPanel0_toggled(self,button):
         if button.get_active():
@@ -1725,22 +1719,6 @@ class configurator:
         headerRBlank = gtk.Label('')
         headerBoxR.pack_start(headerRBlank)
         vBR.pack_start(headerBoxR, expand=False)
-        if self.configureType == 'new' or self.configureType == 'reconfigure':
-            self.modeVBox = gtk.VBox()
-            self.modeLabel = gtk.Label('Use arc voltage for both Arc-OK and THC')
-            self.modeLabel.set_alignment(0,0)
-            self.modeHBox = gtk.HBox(homogeneous=True)
-            self.mode0 = gtk.RadioButton(group=None, label='Mode: 0')
-            self.modeHBox.pack_start(self.mode0)
-            self.mode1 = gtk.RadioButton(group=self.mode0, label='Mode: 1')
-            self.modeHBox.pack_start(self.mode1)
-            self.mode2 = gtk.RadioButton(group=self.mode0, label='Mode: 2')
-            self.modeHBox.pack_start(self.mode2)
-            modeBlank = gtk.Label('')
-            self.modeVBox.pack_start(self.modeLabel)
-            self.modeVBox.pack_start(self.modeHBox)
-            self.modeVBox.pack_start(modeBlank)
-            vBL.pack_start(self.modeVBox,expand=False)
         if self.configureType == 'new':
             self.nameVBox = gtk.VBox()
             nameLabel = gtk.Label('Machine Name:')
@@ -1783,6 +1761,22 @@ class configurator:
             self.halVBox.pack_start(self.halFile)
             self.halVBox.pack_start(halBlank)
             vBL.pack_start(self.halVBox,expand=False)
+        if self.configureType == 'new' or self.configureType == 'reconfigure':
+            self.modeVBox = gtk.VBox()
+            self.modeLabel = gtk.Label('Use arc voltage for both Arc-OK and THC')
+            self.modeLabel.set_alignment(0,0)
+            self.modeHBox = gtk.HBox(homogeneous=True)
+            self.mode0 = gtk.RadioButton(group=None, label='Mode: 0')
+            self.modeHBox.pack_start(self.mode0)
+            self.mode1 = gtk.RadioButton(group=self.mode0, label='Mode: 1')
+            self.modeHBox.pack_start(self.mode1)
+            self.mode2 = gtk.RadioButton(group=self.mode0, label='Mode: 2')
+            self.modeHBox.pack_start(self.mode2)
+            modeBlank = gtk.Label('')
+            self.modeVBox.pack_start(self.modeLabel)
+            self.modeVBox.pack_start(self.modeHBox)
+            self.modeVBox.pack_start(modeBlank)
+            vBL.pack_start(self.modeVBox,expand=False)
         if self.configureType == 'new' or self.configureType == 'reconfigure':
             self.arcVoltVBox = gtk.VBox()
             self.arcVoltLabel = gtk.Label('Arc Voltage HAL pin: (float in)')
