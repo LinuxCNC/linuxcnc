@@ -611,8 +611,8 @@ public:
 	front()->sp()=std::complex<double>(z,x);
 	if(do_rotate)
 	    rotate();
-	add_distance(d);
 	swap();
+	add_distance(d);
 	std::complex<double> displacement(w,u);
 	for(auto p=begin(); p!=end(); p++)
 	    (*p)->move(displacement);
@@ -701,9 +701,13 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		if(p==ip)
 		    // Hitting the diving curve at the starting point.
 		    continue;
-		else {
+		else if(abs(location-(*ip)->sp())<tolerance) {
 		    // Another curve, at the entry point, move to that curve
-		    p++;
+		    p=ip;
+		    break;
+		} else {
+		    // Just a zero length segment, consider it done
+		    x-=delta;
 		    break;
 		}
 	    }
@@ -879,10 +883,6 @@ public:
     DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
 };
 
-
-
-offset_map_type *ofp;
-
 int Interp::convert_g7x(int mode,
       block_pointer block,     //!< pointer to a block of RS274 instructions
       setup_pointer settings)  //!< pointer to machine settings
@@ -967,6 +967,8 @@ int Interp::convert_g7x(int mode,
 	    case 20:
 	    case 30:
 		if(block->r_flag) {
+		    if(block->i_flag || block->k_flag)
+			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
 		    std::complex<double> start(old_z,old_x);
 		    std::complex<double> end(z,x);
@@ -978,17 +980,18 @@ int Interp::convert_g7x(int mode,
 			center+=d;
 		    else
 			center-=d;
-		    i=imag(center)-old_x;
-		    k=real(center)-old_z;
-		} else if(!block->i_flag && !block->k_flag) {
-		    ERS("G7X error: either I or K must be present for arc");
-		}
-		if(old.ijk_distance_mode()==MODE_INCREMENTAL) {
-		    i+=old_x;
-		    k+=old_z;
+		    i=imag(center);
+		    k=real(center);
+		} else {
+		    if(!block->i_flag && !block->k_flag)
+			ERS("G7X error: either I or K must be present for arc");
+		    if(old.ijk_distance_mode()==MODE_INCREMENTAL) {
+			i+=old_x;
+			k+=old_z;
+		    }
 		}
 		path.emplace_back(std::make_unique<round_segment>(
-		    block->g_modes[1]==30,
+		    motion==30,
 		    old_x,old_z,
 		    i,k,
 		    x,z
