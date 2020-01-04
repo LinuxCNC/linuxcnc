@@ -448,7 +448,7 @@ After running a new configuration the first time the following files will be cre
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function* (<MACHINE> = name of machine in .ini file)
-|<MACHINE>_config.cfg|configuration settings for the config tab
+|<MACHINE>_config.cfg|configuration settings for the Config Panel
 |<MACHINE>_run.cfg|configuration settings for the Run Panel
 |<MACHINE>_material.cfg|material file for cut parameters
 |<MACHINE>_wizards.cfg|configuration settings for the shape library
@@ -535,7 +535,6 @@ Parameters related to arc and arc voltage.
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
-|Torch Off Delay|0,1,2|The delay from an M5 command until torch turns off and the Z axis raises.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
@@ -619,6 +618,7 @@ Parameters related to cutting.
 |Cut Volts|The cut voltage for the currently selected material
 |P-Jump Height|The puddle jump height for the currently selected material
 |P-Jump Delay|The puddle jump delay for the currently selected material
+|Pause At End|Pause for n seconds at end of cut with torch on before turning torch off and raising torch
 |===
 
 .THC
@@ -681,7 +681,7 @@ The *'Reload'* button will reload the default material and the material file.
 
 The *'New'* button allows the addition of a new material in the material file.
 
-It will prompt for a material number and a material name when these are entered it will create the new material using the Cut Paramaters from the Default Material and then reload the material file with the new material displayed.
+It will prompt for a material number and a material name. When these are entered it will create the new material using the Cut Parameters from the Default Material and then reload the material file with the new material displayed.
 
 Make any required changes and then save them using the save button.
 
@@ -833,6 +833,14 @@ The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and impe
 
 [[multi-tool]]
 
+=== Pause At End Of Cut
+
+This causes all motion to pause at the end of the cut with the torch still on. After the specified dwell time has passed the torch will turn off and the Z axis will rise.
+
+The time value for this feature is 'Pause At End' in the Cut Parameters of the Run Panel. This value is also in the material file and may be set for each material.
+
+This feature is used to allow the arc to catch up to the torch position to fully finish the cut. It is usually required for thicker materials, especially stainless.
+
 === Multiple Tools
 
 Multiple tools allows the use of more than one tool, valid tools are:
@@ -944,7 +952,7 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
 
-This percentage is displayed as VAD Threshold % in the THC frame of the Config tab.
+This percentage is displayed as VAD Threshold % in the THC frame of the Config Panel.
 
 Velocity based THC prevents the torch height being changed when velocity is reduced for a sharp corner or a small hole.
 
@@ -993,7 +1001,7 @@ Probing may be with either ohmic sensing or a float switch, it is also possible 
 
 If your torch doesn't support ohmic probing you could have a separate probe next to the torch. In this case you would extend the probe below the torch. The probe must NOT extend more than your minimum Cut Height below the torch and this offset distance is entered as the 'ohmic-probe-offset' in the Config Panel.
 
-Probing setup is done in the Motion frame of the Config tab.
+Probing setup is done in the Motion frame of the Config Panel.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
@@ -1418,7 +1426,7 @@ One of these values in Cut Parameters in the Run Panel is invalid.
 
 * 'invalid pierce height or invalid cut height or invalid cut volts'
 
-No arc has been detected after attempting to start the number of times indicated by Arc Start Attempts in the Config tab.
+No arc has been detected after attempting to start the number of times indicated by Arc Start Attempts in the Config Panel.
 
 * 'no arc detected after <n>d start attempts program is paused'
 
@@ -1816,6 +1824,7 @@ The following variables are optional. If any are not detected or have no value a
 * PUDDLE_JUMP_DELAY
 * CUT_AMPS
 * CUT_VOLTS
+* PAUSE_AT_END
 
 WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the GCode to be run.
 
@@ -1834,6 +1843,7 @@ CUT_HEIGHT          = value
 CUT_SPEED           = value
 CUT_AMPS            = value (only used for operator information)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
+PAUSE_AT_END        = value
 ----
 
 It is possible to add new material, delete material or edit existing material from the <<run-buttons, Run Panel.>>
@@ -2001,16 +2011,17 @@ NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this 
 
 The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
-You will need to manually add a scale and counter mode to your base machine .hal file before running the Configurator.
+You will need to manually add a scale, filter and counter mode to your base machine .hal file before running the Configurator.
 
 If you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
 
 ----
 setp  hm2_7i76e.0.encoder.00.scale -1
+setp  hm2_7i96.0.encoder.00.filter        1
 setp  hm2_7i76e.0.encoder.00.counter-mode 1
 ----
 
-You then need to note that the 'Arc Voltage HAL pin' needed to enter into the PlasmaC Configurator will be:
+You then need to note that the 'Arc Voltage HAL Pin' entry in the PlasmaC Configurator will be:
 
 ----
 hm2_7i76e.0.encoder.00.velocity
@@ -2018,67 +2029,78 @@ hm2_7i76e.0.encoder.00.velocity
 
 === Obtaining The Divider Ratio
 
-.Using A CNC Port On The Plasma Power Supply
-
-Divider ratio equals the selected internal divider ratio.
-
 .THCAD-10
 
-A common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
+If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine.
+
+If connecting to the plasma machines full arc voltage then a common setup is a 1 megOhm resistance from arc negative to THCAD negative and a 1 megOhm resistance from arc positive to THCAD positive. This gives a full scale reading of 210V. The THCAD can handle over-voltages up to 500V so this is not a problem.
+
+To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 + 100000) / 100000 giving a ratio of 21.
 
 IMPORTANT: If you are using a HF start plasma power supply then each of these resistances should be made up of several high voltage resistors.
 
-To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 +100000) / 100000 giving a ratio of 21.
-
 .THCAD-300
 
-Divider ratio = 29
+This is connected to the plasma machines full arc voltage and the divider ratio = 1
 
 === Calibration Values
 
-This is to obtain the starting values for Voltage Offset and Voltage Scale in the Config tab.
+This is to obtain the starting values for Voltage Offset and Voltage Scale in the Config Panel.
 
 If you look at the rear of the THCAD you will see a calibration sticker with:
 
 ----
-0V    121.1 kHz
-10V   925.3 kHz
+    THCAD-10      |        THCAD-300
+                  |
+ 0V  121.1 kHz    |     0V   121.1 kHz
+10V  925.3 kHz    |   300V   925.3 kHz
 ----
 
-Or similar values, these are the frequencies generated by the THCAD for 0 volts and 10 volts respectively.
+Or similar values, these are the frequencies generated by the THCAD for 0 volts and full scale volts respectively.
 
-For our calculations, we will use 32 from the jumper setting 'F/32' and 10 which is the full scale reading of the THCAD card itself.
+You can now calculate the values as shown below or use https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator]
 
 .Voltage Scale
 
 Use the formula:
 
 ----
-Divider_Ratio/((10V_frequency-0V_frequency)/32/10)
+Divider_Ratio / ((Full_Scale_Frequency - 0V_Frequency) / Frequency_Divider / Full_Scale_Voltage)
 ----
 
-This result will be used for setting 'Voltage Scale' in the Config tab when setting up the configuration.
+This result will be used for setting 'Voltage Scale' in the Config Panel when setting up the configuration.
 
-The THCAD-10 example above would be:
+THCAD-10 example would be:
 
 ----
-21/((925300-121100)/32/10) = 0.00835613
+21 / ((925300 - 121100) / 32 / 10) = 0.00835613
 ----
+
+For our calculation above, we used 21 from our divider calculation, 32 from the jumper setting 'F/32' and 10 which is the full scale reading of the THCAD card itself.
+
+THCAD-300 example would be:
+
+----
+1 / ((925300 - 121100) / 32 / 300) = 0.01193732
+----
+
+For our calculation above, we used 1 as our divider ratio, 32 from the jumper setting 'F/32' and 300 which is the full scale reading of the THCAD card itself.
+
 
 .Voltage Offset
 
 Use the formula:
 
 ----
-0V_frequency/32
+0V_Frequency / 32
 ----
 
-This result will be used for setting 'Voltage Offset' in the Config tab when setting up the configuration.
+This result will be used for setting 'Voltage Offset' in the Config Panel when setting up the configuration.
 
-The THCAD-10 example above would be:
+The THCAD-10 and THCAD-300 examples above would be:
 
 ----
-121100/32 = 3784.375
+121100 / 32 = 3784.375
 ----
 
 === Mesa Board Settings

@@ -19,11 +19,11 @@ net plasmac:program-is-idle      halui.program.is-idle           =>  plasmac.pro
 net plasmac:program-is-paused    halui.program.is-paused         =>  plasmac.program-is-paused
 net plasmac:program-is-running   halui.program.is-running        =>  plasmac.program-is-running
 net plasmac:spindle-is-on        spindle.0.on                    =>  plasmac.spindle-on
-net plasmac:thc_disable          motion.digital-out-02           =>  plasmac.thc-disable
+net plasmac:thc-disable          motion.digital-out-02           =>  plasmac.thc-disable
 net plasmac:torch-off            motion.digital-out-03           =>  plasmac.torch-off
 net plasmac:units-per-mm         halui.machine.units-per-mm      =>  plasmac.units-per-mm
-net plasmac:x-offset-counts     plasmac.x-offset-counts          =>  axis.x.eoffset-counts
-net plasmac:y-offset-counts     plasmac.y-offset-counts          =>  axis.y.eoffset-counts
+net plasmac:x-offset-counts      plasmac.x-offset-counts         =>  axis.x.eoffset-counts
+net plasmac:y-offset-counts      plasmac.y-offset-counts         =>  axis.y.eoffset-counts
 
 # outputs
 net plasmac:adaptive-feed        plasmac.adaptive-feed           =>  motion.adaptive-feed
@@ -36,3 +36,10 @@ net plasmac:program-resume       plasmac.program-resume          =>  halui.progr
 net plasmac:program-run          plasmac.program-run             =>  halui.program.run
 net plasmac:program-stop         plasmac.program-stop            =>  halui.program.stop
 net plasmac:torch-on             plasmac.torch-on
+
+# multiple spindles
+if [info exists ::TRAJ(SPINDLES)] {
+    set num_spindles [lindex $::TRAJ(SPINDLES) 0]
+    if {$num_spindles > 1} {net plasmac:scribe-is-on spindle.1.on => plasmac.scribe-on}
+    if {$num_spindles > 2} {net plasmac:centre-spot-is-on spindle.2.on => plasmac.centre-spot-on}
+}

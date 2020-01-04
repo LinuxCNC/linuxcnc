@@ -46,6 +46,7 @@ pierceOnly = False
 scribing = False
 rapidLine = ''
 cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = True).communicate()[0])
+#pauseAtEnd = 2
 
 # check if arc is a hole
 def check_if_hole():
@@ -187,8 +188,10 @@ with open(materialFile, 'r') as f_in:
             if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                 t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                 materialList.append(t_number)
+
+# open the file
 fRead = open(infile, 'r')
- 
+
 # first pass, check for valid material numbers and distance modes
 count = 0
 firstMaterial = 0
@@ -352,13 +355,29 @@ if not codeError:
             # if torch off, flag it then print it
             elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
                 torchEnable = False
+#                if line.replace(' ','').startswith('m64p3'):
+#                    pauseAtEnd += 1
                 print(line)
             # if torch on, flag it then print it
             elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
                 torchEnable = True
                 print(line)
+#            # if spindle on
+#            elif line.startswith('m3') and not line.startswith('m30'):
+#                pauseAtEnd = 0
+#                print(line)
+#            # if dwell
+#            elif line.replace(' ','').startswith('g4p'):
+#                pauseAtEnd += 1
+#                print(line)
             # if spindle off
             elif line.startswith('m5'):
+#            elif line.startswith('m5') and not line.startswith('m52'):
+#                if pauseAtEnd < 2:
+#                    print('m64 p3 (disable torch)')
+#                    torchEnable = False
+#                    print('g4 p#<_hal[plasmac_run.pause-at-end-f]> (end of cut pause)')
+#                    pauseAtEnd = 2
                 print(line)
                 # restore velocity if required
                 if holeActive:

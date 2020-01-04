@@ -11,10 +11,12 @@ net plasmac:cut-height              plasmac_run.cut-height-f            =>  plas
 net plasmac:cut-volts               plasmac_run.cut-volts-f             =>  plasmac.cut-volts
 net plasmac:kerfcross-enable        plasmac_run.kerfcross-enable        =>  plasmac.kerfcross-enable
 net plasmac:ohmic-probe-enable      plasmac_run.ohmic-probe-enable      =>  plasmac.ohmic-probe-enable
+net plasmac:pause-at-end            plasmac_run.pause-at-end-f          =>  plasmac.pause-at-end
 net plasmac:pierce-delay            plasmac_run.pierce-delay-f          =>  plasmac.pierce-delay
 net plasmac:pierce-height           plasmac_run.pierce-height-f         =>  plasmac.pierce-height
 net plasmac:puddle-jump-delay       plasmac_run.puddle-jump-delay-f     =>  plasmac.puddle-jump-delay
 net plasmac:puddle-jump-height      plasmac_run.puddle-jump-height-f    =>  plasmac.puddle-jump-height
 net plasmac:thc-enable              plasmac_run.thc-enable-out          =>  plasmac.thc-enable
 net plasmac:use-auto-volts          plasmac_run.use-auto-volts          =>  plasmac.use-auto-volts
+
 
