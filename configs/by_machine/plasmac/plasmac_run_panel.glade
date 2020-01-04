@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="cut-amps-adj"/>
   <object class="GtkAdjustment" id="cut-feed-rate-adj"/>
@@ -19,12 +19,12 @@
       </row>
     </data>
   </object>
+  <object class="GtkAdjustment" id="pause-at-end-adj"/>
   <object class="GtkAdjustment" id="pierce-delay-adj"/>
   <object class="GtkAdjustment" id="pierce-height-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-delay-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-height-adj"/>
   <object class="GtkAdjustment" id="tool-name-adj"/>
-  <object class="GtkAdjustment" id="torch-off-delay-adj"/>
   <object class="GtkAdjustment" id="x-single-cut-adj"/>
   <object class="GtkAdjustment" id="y-single-cut-adj"/>
   <object class="GtkWindow" id="window1">
@@ -62,7 +62,7 @@
                           <object class="GtkTable" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">11</property>
+                            <property name="n_rows">12</property>
                             <property name="n_columns">2</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
@@ -535,6 +535,45 @@ set to 0 to disable</property>
                                 <property name="right_attach">2</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="pause-at-end">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">pause-at-end-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC100030">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Pause At End</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                              </packing>
+                            </child>
                           </object>
                         </child>
                       </object>
@@ -870,8 +909,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Y Axis Length
-</property>
+                                <property name="label" translatable="yes">Y Axis Length</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>

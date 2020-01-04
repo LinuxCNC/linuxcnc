@@ -535,7 +535,6 @@ Parameters related to arc and arc voltage.
 |Fail Timeout|0,1,2|The amount of time to wait from torch on until a failure if arc is not detected.
 |Max. Starts|0,1,2|The number of attempts at starting an arc.
 |Retry Delay|0,1,2|The time between an arc failure and another arc start attempt.
-|Torch Off Delay|0,1,2|The delay from an M5 command until torch turns off and the Z axis raises.
 |Voltage Scale|0,1|The value required to scale the arc voltage input to display the correct arc voltage.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
@@ -619,6 +618,7 @@ Parameters related to cutting.
 |Cut Volts|The cut voltage for the currently selected material
 |P-Jump Height|The puddle jump height for the currently selected material
 |P-Jump Delay|The puddle jump delay for the currently selected material
+|Pause At End|Pause for n seconds at end of cut with torch on before turning torch off and raising torch
 |===
 
 .THC
@@ -681,7 +681,7 @@ The *'Reload'* button will reload the default material and the material file.
 
 The *'New'* button allows the addition of a new material in the material file.
 
-It will prompt for a material number and a material name when these are entered it will create the new material using the Cut Paramaters from the Default Material and then reload the material file with the new material displayed.
+It will prompt for a material number and a material name. When these are entered it will create the new material using the Cut Parameters from the Default Material and then reload the material file with the new material displayed.
 
 Make any required changes and then save them using the save button.
 
@@ -832,6 +832,14 @@ If you intend to place the material randomly on the table then before each job y
 The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each GCode file.
 
 [[multi-tool]]
+
+=== Pause At End Of Cut
+
+This causes all motion to pause at the end of the cut with the torch still on. After the specified dwell time has passed the torch will turn off and the Z axis will rise.
+
+The time value for this feature is 'Pause At End' in the Cut Parameters of the Run Panel. This value is also in the material file and may be set for each material.
+
+This feature is used to allow the arc to catch up to the torch position to fully finish the cut. It is usually required for thicker materials, especially stainless.
 
 === Multiple Tools
 
@@ -1816,6 +1824,7 @@ The following variables are optional. If any are not detected or have no value a
 * PUDDLE_JUMP_DELAY
 * CUT_AMPS
 * CUT_VOLTS
+* PAUSE_AT_END
 
 WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the GCode to be run.
 
@@ -1834,6 +1843,7 @@ CUT_HEIGHT          = value
 CUT_SPEED           = value
 CUT_AMPS            = value (only used for operator information)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
+PAUSE_AT_END        = value
 ----
 
 It is possible to add new material, delete material or edit existing material from the <<run-buttons, Run Panel.>>

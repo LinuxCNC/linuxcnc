@@ -206,6 +206,7 @@ pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before
 pin in  bit     ohmic_probe                 "ohmic probe input";
 pin in  bit     ohmic_test                  "test for shorted torch";
 pin in  float   paused_motion_speed         "multiplier for speed of motion when paused, from -1 to 1";
+pin in  float   pause_at_end                "time to pause at end of cut";
 pin in  float   pid_d_gain                  "derivative gain input [mode 0 & mode 1]";
 pin in  float   pid_i_gain                  "integral gain input [mode 0 & mode 1]";
 pin in  float   pid_p_gain                  "proportional gain input [mode 0 & mode 1]";
@@ -235,7 +236,6 @@ pin in  float   thc_feed_rate               "maximum feed rate for thc (machine 
 pin in  float   thc_threshold               "thc threshold (volts), changes below this have no effect";
 pin in  bit     torch_enable                "enable torch";
 pin in  bit     torch_off                   "turn torch off";
-pin in  float   torch_off_delay             "time delay to turn torch off (seconds)";
 pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
@@ -309,6 +309,7 @@ variable int    offset_max;                 /* maximum allowed offset */
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    setup_velocity;             /* velocity for setup moves */
+variable float  pause_at_end_timer;         /* pause at end of cut timer */
 variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
 variable float  pid_error_now;              /* current error for pid calcs */
@@ -377,6 +378,7 @@ typedef enum{IDLE,
              PUDDLE_JUMP,
              CUT_HEIGHT,
              CUTTING,
+             PAUSE_AT_END,
              SAFE_HEIGHT,
              MAX_HEIGHT,
              FINISH,
@@ -485,24 +487,30 @@ FUNCTION(_) {
     if(auto_cut){
         if(!probe_test && (external_estop || program_is_idle) && cut_started && !program_run){
             auto_cut = FALSE;
-            torch_on = FALSE;
+            if(!pause_at_end){
+                torch_on = FALSE;
+            }
             stop_type = STOP;
             program_stop = TRUE;
             cut_started = FALSE;
             probe_required = TRUE;
             axis_x_finish = 0;
             axis_y_finish = 0;
-            state = MAX_HEIGHT;
-        }else if(!probe_test && state > IDLE && state < SAFE_HEIGHT && stop_type == NONE && cut_started){
+            if(!external_estop){
+                pause_at_end_timer = pause_at_end;
+                state = PAUSE_AT_END;
+            }else{
+                state = MAX_HEIGHT;
+            }
+        }else if(!probe_test && state > IDLE && state <= CUTTING && stop_type == NONE && cut_started){
             if(program_is_paused){
                 torch_on = FALSE;
                 stop_type = PAUSE;
                 probe_required = TRUE;
+                pause_at_end_timer = pause_at_end;
                 state = MAX_HEIGHT;
             }else if(!spindle_on && !centre_spot_on){
-                if(torch_off_delay > 0 && !torch_off){
-                    torch_off_timer = torch_off_delay;
-                }else{
+                if(!pause_at_end){
                     torch_on = FALSE;
                 }
                 stop_type = WAIT;
@@ -513,7 +521,8 @@ FUNCTION(_) {
                     axis_x_finish = 0;
                     axis_y_finish = 0;
                 }
-                state = SAFE_HEIGHT;
+                pause_at_end_timer = pause_at_end;
+                state = PAUSE_AT_END;
             }else if(breakaway){
                 torch_on = FALSE;
                 program_pause = TRUE;
@@ -1207,6 +1216,19 @@ FUNCTION(_) {
             cut_height_last = offset_counts;
             cut_length = cut_length + current_velocity * fperiod;
             cut_time = cut_time + fperiod;
+            break;
+        case PAUSE_AT_END:
+            feed_hold = TRUE;
+            pause_at_end_timer -= fperiod;
+            if(pause_at_end_timer <= 0){
+                pause_at_end_timer = 0;
+                torch_on = FALSE;
+                if(program_is_idle){
+                    state = MAX_HEIGHT;
+                }else{
+                    state = SAFE_HEIGHT;
+                }
+            }
             break;
         case SAFE_HEIGHT:
             /* move to safe height */

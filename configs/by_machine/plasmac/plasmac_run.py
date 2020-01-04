@@ -25,20 +25,23 @@ import gtk
 import linuxcnc
 import gobject
 import hal, hal_glib
-from   gladevcp.persistence import widget_defaults,select_widgets
 import gladevcp
-from subprocess import Popen,PIPE
 import time
 import shutil
+from gladevcp.persistence import widget_defaults,select_widgets
+from subprocess import Popen,PIPE
 
 class HandlerClass:
 
-    def dialog_error(self, error):
-        md = gtk.MessageDialog(self.W, 
-                               gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
-                               gtk.BUTTONS_CLOSE, error)
+    def dialog_error(self, title, error):
+        md = gtk.MessageDialog(self.W,
+                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.MESSAGE_ERROR,
+                               gtk.BUTTONS_CLOSE,
+                               error)
         md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
         md.set_keep_above(True)
+        md.set_title(title)
         md.run()
         md.destroy()
 
@@ -88,39 +91,28 @@ class HandlerClass:
         return response, reply1, reply2
 
     def check_material_file(self):
-        version = '[VERSION 1.1]'
         tempMaterialDict = {}
-        if os.path.exists(self.materialFile):
-            if not version in open(self.materialFile).read():
-                print('*** upgrading material file if we needed to ...')
-                # well, it should if we ever need it and we write the code :-)
-                #with open(self.materialFile, 'r') as f_in:
-                #    for line in f_in:
-                #        if not line.strip().startswith('#') and len(line.strip()):
-                #            read in old version
-                #            convert to new version
-                #            write new version
-        else: # create a new material file if it doesn't exist
+        # create a new material file if it doesn't exist
+        if not os.path.exists(self.materialFile):
             with open(self.materialFile, 'w') as f_out:
                 f_out.write(\
                     '# plasmac material file\n'\
-                    '# the next line is required for version checking\n'\
-                    + version + '\n\n'\
                     '# example only, may be deleted\n'\
-                    '# items marked * are optional and will be 0 if not specified\n'\
-                    '# all other items are mandatory\n'\
+                    '# items marked * are mandatory\n'\
+                    '# other items are optional and will default to 0\n'\
                     '#[MATERIAL_NUMBER_1]  \n'\
-                    '#NAME               = *\n'\
-                    '#KERF_WIDTH         = *\n'\
-                    '#THC                = * (0 = off, 1 = on)\n'\
-                    '#PIERCE_HEIGHT      = \n'\
-                    '#PIERCE_DELAY       = \n'\
-                    '#PUDDLE_JUMP_HEIGHT = *\n'\
-                    '#PUDDLE_JUMP_DELAY  = *\n'\
-                    '#CUT_HEIGHT         = \n'\
-                    '#CUT_SPEED          = \n'\
-                    '#CUT_AMPS           = * (only used for operator information)\n'\
-                    '#CUT_VOLTS          = * (modes 0 & 1 only, if not using auto voltage sampling)\n'\
+                    '#NAME               = \n'\
+                    '#KERF_WIDTH         = \n'\
+                    '#THC                = \n'\
+                    '#PIERCE_HEIGHT      = *\n'\
+                    '#PIERCE_DELAY       = *\n'\
+                    '#PUDDLE_JUMP_HEIGHT = \n'\
+                    '#PUDDLE_JUMP_DELAY  = \n'\
+                    '#CUT_HEIGHT         = *\n'\
+                    '#CUT_SPEED          = *\n'\
+                    '#CUT_AMPS           = \n'\
+                    '#CUT_VOLTS          = \n'\
+                    '#PAUSE_AT_END       = \n'\
                     '\n')
             print('*** creating new material configuration file, {}'.format(self.materialFile))
 
@@ -147,8 +139,9 @@ class HandlerClass:
         c_speed = self.builder.get_object('cut-feed-rate').get_value()
         c_amps = self.builder.get_object('cut-amps').get_value()
         c_volts = self.builder.get_object('cut-volts').get_value()
+        pause = self.builder.get_object('pause-at-end').get_value()
         t_item = 0
-        self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+        self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,t_item)
         with open(self.materialFile, 'r') as f_in:
             firstpass = True
             required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
@@ -159,14 +152,14 @@ class HandlerClass:
                 elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                     newMaterial = True
                     if not firstpass:
-                        self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+                        self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,t_item)
                         for item in required:
                             if item not in received:
-                                self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
+                                self.dialog_error('Materials Error', '\n{} is missing from Material #{}'.format(item, t_number))
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
-                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  0.0
+                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = 0.0
                     t_item += 1
                     received = []
                 elif line.startswith('NAME'):
@@ -183,13 +176,13 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         p_height = float(line.split('=')[1].strip())
                     elif t_number:
-                        self.dialog_error('\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
+                        self.dialog_error('Materials Error', '\nNo value for PIERCE_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('PIERCE_DELAY'):
                     received.append('PIERCE_DELAY')
                     if line.split('=')[1].strip():
                         p_delay = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
+                        self.dialog_error('Materials Error', '\nNo value for PIERCE_DELAY in Material #{}'.format(t_number))
                 elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                     if line.split('=')[1].strip():
                         pj_height = float(line.split('=')[1].strip())
@@ -201,24 +194,27 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         c_height = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
+                        self.dialog_error('Materials Error', '\nNo value for CUT_HEIGHT in Material #{}'.format(t_number))
                 elif line.startswith('CUT_SPEED'):
                     received.append('CUT_SPEED')
                     if line.split('=')[1].strip():
                         c_speed = float(line.split('=')[1].strip())
                     else:
-                        self.dialog_error('\nNo value for CUT_SPEED in Material #{}'.format(t_number))
+                        self.dialog_error('Materials Error', '\nNo value for CUT_SPEED in Material #{}'.format(t_number))
                 elif line.startswith('CUT_AMPS'):
                     if line.split('=')[1].strip():
                         c_amps = float(line.split('=')[1].strip().replace(' ',''))
                 elif line.startswith('CUT_VOLTS'):
                     if line.split('=')[1].strip():
                         c_volts = float(line.split('=')[1].strip())
+                elif line.startswith('PAUSE_AT_END'):
+                    if line.split('=')[1].strip():
+                        pause = float(line.split('=')[1].strip())
             if t_number:
-                self.write_material(t_number, t_name, k_width, thc_enable, p_height, p_delay, pj_height, pj_delay, c_height, c_speed, c_amps, c_volts, t_item)
+                self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,t_item)
                 for item in required:
                     if item not in received:
-                        self.dialog_error('\n{} is missing from Material #{}'.format(item, t_number))
+                        self.dialog_error('Materials Error', '\n{} is missing from Material #{}'.format(item, t_number))
         self.builder.get_object('material').set_active(0)
         self.materialList = []
         for material in (self.materialFileDict.keys()):
@@ -238,6 +234,7 @@ class HandlerClass:
         self.materialFileDict[0][8] = self.builder.get_object('cut-feed-rate').get_value()
         self.materialFileDict[0][9] = self.builder.get_object('cut-amps').get_value()
         self.materialFileDict[0][10] = self.builder.get_object('cut-volts').get_value()
+        self.materialFileDict[0][11] = self.builder.get_object('pause-at-end').get_value()
 
     def on_reload_clicked(self,widget,data=None):
         self.materialUpdate = True
@@ -282,7 +279,8 @@ class HandlerClass:
             outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[0][7]))
             outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[0][8]))
             outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[0][9]))
-            outFile.write('CUT_VOLTS          = {}\n\n'.format(self.materialFileDict[0][10]))
+            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[0][10]))
+            outFile.write('PAUSE_AT_END       = {}\n\n'.format(self.materialFileDict[0][11]))
             outFile.close()
             self.materialUpdate = True
             self.load_settings()
@@ -377,7 +375,7 @@ class HandlerClass:
         if self.getMaterial: return
         material = halpin.get()
         if material not in self.materialList:
-            self.dialog_error('\nMaterial #{} not in material list'.format(material))
+            self.dialog_error('Materials Error', '\nMaterial #{} not in material list'.format(material))
             return
         if self.manualChange == False:
             self.autoChange = True
@@ -409,6 +407,7 @@ class HandlerClass:
             self.builder.get_object('cut-feed-rate').set_value(self.materialFileDict[material][8])
             self.builder.get_object('cut-amps').set_value(self.materialFileDict[material][9])
             self.builder.get_object('cut-volts').set_value(self.materialFileDict[material][10])
+            self.builder.get_object('pause-at-end').set_value(self.materialFileDict[material][11])
             hal.set_p('plasmac_run.material-change-number',str(material))
         else:
             print('material not in material list')
@@ -418,7 +417,8 @@ class HandlerClass:
 #                self.change_material(self.materialList[self.materialList.index(self.oldMaterial) + 1])
         if material in self.materialList:
             if self.autoChange:
-                self.builder.get_object('material').set_active(self.materialFileDict[material][11])
+                self.builder.get_object('material').set_active(self.materialFileDict[material][len(self.materialFileDict[material]) - 1])
+#                self.builder.get_object('material').set_active(self.materialFileDict[material][12])
         self.oldMaterial = material
 
     def first_material_changed(self, halpin):
@@ -452,12 +452,14 @@ class HandlerClass:
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
         self.builder.get_object('cornerlock-enable').set_active(1)
-        self.builder.get_object('cut-amps').set_digits(0)
-        self.builder.get_object('cut-amps-adj').configure(45,0,999,1,0,0)
+        self.builder.get_object('cut-amps').set_digits(1)
+        self.builder.get_object('cut-amps-adj').configure(45,0,999,0.1,0,0)
         self.builder.get_object('cut-volts').set_digits(1)
         self.builder.get_object('cut-volts-adj').configure(122,50,300,0.1,0,0)
         self.builder.get_object('kerfcross-enable').set_active(0)
         self.builder.get_object('ohmic-probe-enable').set_active(1)
+        self.builder.get_object('pause-at-end').set_digits(1)
+        self.builder.get_object('pause-at-end-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('pierce-delay').set_digits(1)
         self.builder.get_object('pierce-delay-adj').configure(0.5,0,10,0.1,0,0)
         self.builder.get_object('puddle-jump-height').set_digits(0)
@@ -493,7 +495,7 @@ class HandlerClass:
             self.builder.get_object('y-single-cut').set_digits(1)
             self.builder.get_object('y-single-cut-adj').configure(0,-999,999,0.1,0,0)
         else:
-            self.dialog_error('incorrect [TRAJ]LINEAR_UNITS in ini file')
+            self.dialog_error('Configuration Error', 'incorrect [TRAJ]LINEAR_UNITS in ini file')
             print('*** incorrect [TRAJ]LINEAR_UNITS in ini file')
 
     def periodic(self):
@@ -538,11 +540,13 @@ class HandlerClass:
                         if 'gtk_theme' in line and not 'Follow System Theme' in line:
                             (item, theme) = line.strip().replace(" ", "").split('=')
             except:
-                self.dialog_error('Preferences file, {} is invalid ***'.format(self.prefFile))
+                self.dialog_error('Configuration Error', 'Preferences file, {} is invalid ***'.format(self.prefFile))
                 print('*** preferences file, {} is invalid ***'.format(self.prefFile))
         else:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
+            fSize = int(font.split()[1])
+            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
@@ -576,7 +580,7 @@ class HandlerClass:
                                     self.configDict[key] = value
                                     tmpDict[key] = value
             except:
-                self.dialog_error('The plasmac configuration file, {} is invalid ***'.format(self.configFile))
+                self.dialog_error('Configuration Error', 'The plasmac configuration file, {} is invalid ***'.format(self.configFile))
                 print('*** plasmac configuration file, {} is invalid ***'.format(self.configFile))
             for item in self.configDict:
                 if item == 'material':
@@ -692,6 +696,38 @@ class HandlerClass:
             self.builder.get_object('material').set_active(position)
             self.materialUpdate = False
 
+    def periodic(self):
+        if self.builder.get_object('thc-auto').get_active():
+            self.halcomp['thc-enable-out'] = self.builder.get_object('thc-enable').get_active()
+        mode = hal.get_value('plasmac.mode')
+        if mode != self.oldMode:
+            if mode == 0:
+                self.builder.get_object('kerfcross-enable').show()
+                self.builder.get_object('kerfcross-enable-label').show()
+                self.builder.get_object('volts-box').show()
+            elif mode == 1:
+                self.builder.get_object('kerfcross-enable').show()
+                self.builder.get_object('kerfcross-enable-label').show()
+                self.builder.get_object('volts-box').show()
+            elif mode == 2:
+                self.builder.get_object('kerfcross-enable').hide()
+                self.builder.get_object('kerfcross-enable-label').hide()
+                self.builder.get_object('volts-box').hide()
+            else:
+                pass
+            self.oldMode = mode
+        self.s.poll()
+        homed = True
+        for n in range(self.s.joints):
+            if not self.s.homed[n]:
+                homed = False
+        hal.set_p('plasmac.homed', str(homed))
+        if homed and self.s.interp_state == linuxcnc.INTERP_IDLE:
+            self.builder.get_object('single-cut').set_sensitive(True)
+        else:
+            self.builder.get_object('single-cut').set_sensitive(False)
+        return True
+
     def idle_changed(self, halpin):
         if not halpin.get():
             for key in sorted(self.configDict.iterkeys()):
@@ -718,7 +754,7 @@ class HandlerClass:
         self.idlePin.connect('value-changed', self.idle_changed)
         self.previewPin = hal_glib.GPin(halcomp.newpin('preview-tab', hal.HAL_BIT, hal.HAL_IN))
         self.thcFeedRate = (float(self.i.find('AXIS_Z', 'MAX_VELOCITY')) * \
-                              float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
+                            float(self.i.find('AXIS_Z', 'OFFSET_AV_RATIO'))) * 60
         hal.set_p('plasmac.thc-feed-rate','{}'.format(self.thcFeedRate))
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
         self.prefFile = self.i.find('EMC', 'MACHINE') + '.pref'

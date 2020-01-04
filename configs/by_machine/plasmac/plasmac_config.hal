@@ -27,4 +27,3 @@ net plasmac:setup-feed-rate         plasmac_config.setup-feed-rate-f        =>  
 net plasmac:skip-ihs-distance       plasmac_config.skip-ihs-distance-f      =>  plasmac.skip-ihs-distance
 net plasmac:thc-delay               plasmac_config.thc-delay-f              =>  plasmac.thc-delay
 net plasmac:thc-threshold           plasmac_config.thc-threshold-f          =>  plasmac.thc-threshold
-net plasmac:torch-off-delay         plasmac_config.torch-off-delay-f        =>  plasmac.torch-off-delay

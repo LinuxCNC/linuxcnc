@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
   <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="cut-amps-adj"/>
   <object class="GtkAdjustment" id="cut-feed-rate-adj"/>
@@ -19,12 +19,12 @@
       </row>
     </data>
   </object>
+  <object class="GtkAdjustment" id="pause-at-end-adj"/>
   <object class="GtkAdjustment" id="pierce-delay-adj"/>
   <object class="GtkAdjustment" id="pierce-height-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-delay-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-height-adj"/>
   <object class="GtkAdjustment" id="tool-name-adj"/>
-  <object class="GtkAdjustment" id="torch-off-delay-adj"/>
   <object class="GtkAdjustment" id="x-single-cut-adj"/>
   <object class="GtkAdjustment" id="y-single-cut-adj"/>
   <object class="GtkWindow" id="window1">
@@ -61,7 +61,7 @@
                           <object class="GtkTable" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">11</property>
+                            <property name="n_rows">12</property>
                             <property name="n_columns">2</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
@@ -534,6 +534,45 @@ set to 0 to disable</property>
                                 <property name="right_attach">2</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="pause-at-end">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">pause-at-end-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC100030">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Pause At End</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                              </packing>
+                            </child>
                           </object>
                         </child>
                       </object>
@@ -554,108 +593,18 @@ set to 0 to disable</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label1">
+                  <object class="GtkLabel" id="labelC4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="tooltip_text" translatable="yes">arc off delay in seconds</property>
+                    <property name="xalign">0</property>
+                    <property name="xpad">2</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="frameC4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">out</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignmentC1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkTable" id="table4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="n_columns">4</property>
-                            <property name="column_spacing">2</property>
-                            <property name="row_spacing">2</property>
-                            <property name="homogeneous">True</property>
-                            <child>
-                              <object class="HAL_Button" id="reload">
-                                <property name="label" translatable="yes">Reload</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">reload run settings from config file</property>
-                                <signal name="clicked" handler="on_reload_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_Button" id="save">
-                                <property name="label" translatable="yes">Save</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">save run settings to config file.
-Note: this also saves current cut parameters as the default</property>
-                                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="HAL_Button" id="new">
-                                <property name="label" translatable="yes">New</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">create a new material</property>
-                                <signal name="clicked" handler="on_new_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_Button" id="delete">
-                                <property name="label" translatable="yes">Delete</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">delete an existing material</property>
-                                <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">3</property>
-                                <property name="right_attach">4</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="labelC2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Run Settings&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -990,8 +939,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Y Axis Length
-</property>
+                                <property name="label" translatable="yes">Y Axis Length</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -1090,6 +1038,100 @@ turn off to use cut volts from parameters</property>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frameC4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignmentC1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkTable" id="table4">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="n_columns">4</property>
+                            <property name="column_spacing">2</property>
+                            <property name="row_spacing">2</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <object class="HAL_Button" id="reload">
+                                <property name="label" translatable="yes">Reload</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">reload run settings from config file</property>
+                                <signal name="clicked" handler="on_reload_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="save">
+                                <property name="label" translatable="yes">Save</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">save run settings to config file.
+Note: this also saves current cut parameters as the default</property>
+                                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="new">
+                                <property name="label" translatable="yes">New</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">create a new material</property>
+                                <signal name="clicked" handler="on_new_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="delete">
+                                <property name="label" translatable="yes">Delete</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">delete an existing material</property>
+                                <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="labelC2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Run Settings&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>

@@ -54,7 +54,7 @@ class materialConverter:
         self.fNUM = '1'
         self.fNAM = '0'
         self.fKW = '0'
-        self.fTHC = False
+        self.fTHC = True
         self.fPH = '0'
         self.fPD = '0'
         self.fPJH = '0'
@@ -63,6 +63,7 @@ class materialConverter:
         self.fCS = '0'
         self.fCA = '0'
         self.fCV = '0'
+        self.fPE = '0'
 
     def create_widgets(self):
         self.T = gtk.Table(9, 7)
@@ -72,7 +73,7 @@ class materialConverter:
         self.T.attach(self.inManual, 0, 2, 0, 1)
         self.inSheetcam = gtk.RadioButton(self.inManual, 'SheetCam')
         self.T.attach(self.inSheetcam, 0, 2, 1, 2)
-        self.inFusion = gtk.RadioButton(self.inManual, 'Fusion 360')
+        self.inFusion = gtk.RadioButton(self.inManual, 'Fusion360')
         self.T.attach(self.inFusion, 0, 2, 2, 3)
         self.outUnits = gtk.Label('Output Units')
         self.outUnits.set_alignment(0, 0.5)
@@ -108,15 +109,15 @@ class materialConverter:
         dlg = gtk.FileChooserDialog("Open..", None, gtk.FILE_CHOOSER_ACTION_OPEN,
           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         if self.inSheetcam.get_active():
-        	filter = gtk.FileFilter()
-        	filter.set_name("SheetCam Tool File (*.tools)")
-        	filter.add_pattern("*.[Tt][Oo][Oo][Ll][Ss]")
-        	dlg.add_filter(filter)
+            filter = gtk.FileFilter()
+            filter.set_name("SheetCam Tool File (*.tools)")
+            filter.add_pattern("*.[Tt][Oo][Oo][Ll][Ss]")
+            dlg.add_filter(filter)
         elif self.inFusion.get_active():
-        	filter = gtk.FileFilter()
-        	filter.set_name("Fusion360 Tool File (*.json)")
-        	filter.add_pattern("*.[Jj][Ss][Oo][Nn]")
-        	dlg.add_filter(filter)
+            filter = gtk.FileFilter()
+            filter.set_name("Fusion360 Tool File (*.json)")
+            filter.add_pattern("*.[Jj][Ss][Oo][Nn]")
+            dlg.add_filter(filter)
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             self.inFile.set_text(dlg.get_filename())
@@ -182,27 +183,26 @@ class materialConverter:
                 self.outLabel.set_text('missing output filename')
                 return
             self.outLabel.set_text('converting...')
-            version = '[VERSION 1.1]'
 #            try:
             with open(self.outFileName, 'w') as f_out:
-                f_out.write(\
-                    '#plasmac material file\n'\
-                    '#the next line is required for version checking\n'\
-                     + version + '\n\n'\
-                    '#example only, may be deleted\n'\
-                    '#[MATERIAL_NUMBER_1]\n'\
-                    '#NAME               = \n'\
-                    '#KERF_WIDTH         = \n'\
-                    '#THC                = (0 = off, 1 = on)\n'\
-                    '#PIERCE_HEIGHT      = \n'\
-                    '#PIERCE_DELAY       = \n'\
-                    '#PUDDLE_JUMP_HEIGHT = (optional, set to 0 or delete if not required)\n'\
-                    '#PUDDLE_JUMP_DELAY  = (optional, set to 0 or delete if not required)\n'\
-                    '#CUT_HEIGHT         = \n'\
-                    '#CUT_SPEED          = \n'\
-                    '#CUT_AMPS           = (optional, only used for operator information)\n'\
-                    '#CUT_VOLTS          = (modes 0 & 1 only, if not using auto voltage sampling)\n'\
-                    '\n')
+                f_out.write('#plasmac material file\n'\
+                            '# example only, may be deleted\n'\
+                            '# items marked * are mandatory\n'\
+                            '# other items are optional and will default to 0\n'\
+                            '#[MATERIAL_NUMBER_1]  \n'\
+                            '#NAME               = \n'\
+                            '#KERF_WIDTH         = \n'\
+                            '#THC                = \n'\
+                            '#PIERCE_HEIGHT      = *\n'\
+                            '#PIERCE_DELAY       = *\n'\
+                            '#PUDDLE_JUMP_HEIGHT = \n'\
+                            '#PUDDLE_JUMP_DELAY  = \n'\
+                            '#CUT_HEIGHT         = *\n'\
+                            '#CUT_SPEED          = *\n'\
+                            '#CUT_AMPS           = \n'\
+                            '#CUT_VOLTS          = \n'\
+                            '#PAUSE_AT_END       = \n'
+                            '\n')
 #            except:
 #                self.outLabel.set_text('WRITE ERROR!!!')
         else:
@@ -228,6 +228,7 @@ class materialConverter:
                                  i=0, val=float(self.fCS) / self.divisor)
             self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
             self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
+            self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
             self.output()
             self.convert.set_label('Add')
         elif self.inSheetcam.get_active():
@@ -252,6 +253,7 @@ class materialConverter:
                         self.materialCutS = 'CUT_SPEED          = '
                         self.materialCutA = 'CUT_AMPS           = 0'
                         self.materialCutV = 'CUT_VOLTS          = 0'
+                        self.materialPauseE = 'PAUSE_AT_END       = 0'
                     elif 'PlasmaTool' in line:
                         valid = True
                     elif line.startswith('Tool\ number'):
@@ -264,7 +266,7 @@ class materialConverter:
                         a,b = line.split('=',1)
                         self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
                                              i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('NO\ DTHC'):
+                    elif line.startswith('THC\ Enable') or line.startswith('NO\ DTHC'):
                         a,b = line.split('=',1)
                         self.materialTHC = 'THC                = {}'.format(b.strip())
                     elif line.startswith('Pierce\ height'):
@@ -282,12 +284,15 @@ class materialConverter:
                         a,b = line.split('=',1)
                         self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
                                              i=0, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Tip\ Size\ -Amps'):
+                    elif line.startswith('Cut\ Current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
                         self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
-                    elif line.startswith('Preset\ volts'):
+                    elif line.startswith('Cut\ Voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
                         self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
+                    elif line.startswith('Pause\ at\ end\ of\ cut'):
+                        a,b = line.split('=',1)
+                        self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
                     count += 1
                 if valid:
                     self.output()
@@ -325,6 +330,7 @@ class materialConverter:
                                      i=0, val=float(lCS) / self.divisor)
                 self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
                 self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
+                self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
                 self.output()
 #            except:
 #                self.outLabel.set_text('READ ERROR!!!')
@@ -362,7 +368,8 @@ class materialConverter:
                         self.materialCutH + '\n' + \
                         self.materialCutS + '\n' + \
                         self.materialCutA + '\n' + \
-                        self.materialCutV + '\n\n')
+                        self.materialCutV + '\n' + \
+                        self.materialPauseE + '\n\n')
 #        except:
 #            self.outLabel.set_text('WRITE ERROR!!!')
 
@@ -372,8 +379,9 @@ class materialConverter:
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                             (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                             gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+        topL = gtk.Label('Items with a *** are mandatory')
         infL = gtk.Label('For Material # {}\n{}'.format(self.fNUM,self.fNAM))
-        dNUl = gtk.Label('Material Number')
+        dNUl = gtk.Label('Material Number ***')
         dNUl.set_alignment(0, 1)
         dNU = gtk.Entry()
         dNU.set_text(self.fNUM)
@@ -390,12 +398,12 @@ class materialConverter:
         dKW.set_alignment(0.95)
         dTHC = gtk.CheckButton('THC Enabled')
         dTHC.set_active(self.fTHC)
-        dPHl = gtk.Label('Pierce Height')
+        dPHl = gtk.Label('Pierce Height ***')
         dPHl.set_alignment(0, 1)
         dPH = gtk.Entry()
         dPH.set_text(self.fPH)
         dPH.set_alignment(0.95)
-        dPDl = gtk.Label('Pierce Delay')
+        dPDl = gtk.Label('Pierce Delay ***')
         dPDl.set_alignment(0, 1)
         dPD = gtk.Entry()
         dPD.set_text(self.fPD)
@@ -410,12 +418,12 @@ class materialConverter:
         dPJD = gtk.Entry()
         dPJD.set_text(self.fPJD)
         dPJD.set_alignment(0.95)
-        dCHl = gtk.Label('Cut Height')
+        dCHl = gtk.Label('Cut Height ***')
         dCHl.set_alignment(0, 1)
         dCH = gtk.Entry()
         dCH.set_text(self.fCH)
         dCH.set_alignment(0.95)
-        dCSl = gtk.Label('Cut Speed')
+        dCSl = gtk.Label('Cut Speed ***')
         dCSl.set_alignment(0, 1)
         dCS = gtk.Entry()
         dCS.set_text(self.fCS)
@@ -430,6 +438,12 @@ class materialConverter:
         dCV = gtk.Entry()
         dCV.set_text(self.fCV)
         dCV.set_alignment(0.95)
+        dPEl = gtk.Label('Pause At End Of Cut')
+        dPEl.set_alignment(0, 1)
+        dPE = gtk.Entry()
+        dPE.set_text(self.fPE)
+        dPE.set_alignment(0.95)
+        dialog.vbox.add(topL)
         if self.inManual.get_active():
             dialog.vbox.add(dNUl)
             dialog.vbox.add(dNU)
@@ -457,6 +471,8 @@ class materialConverter:
         dialog.vbox.add(dCA)
         dialog.vbox.add(dCVl)
         dialog.vbox.add(dCV)
+        dialog.vbox.add(dPEl)
+        dialog.vbox.add(dPE)
         dialog.show_all()
         response = dialog.run()
         if self.inManual.get_active():
@@ -476,99 +492,9 @@ class materialConverter:
             self.fCS = dCS.get_text()
         self.fCA = dCA.get_text()
         self.fCV = dCV.get_text()
+        self.fPE = dPE.get_text()
         dialog.destroy()
         return response
-
-class Tool:
-    """
-    Endmill, drill, holder, or other CNC tool.  Keep track of properties.
-    """
-    TYPE_UNKNOWN = 0
-    TYPE_MILLING = 1
-    TYPE_HOLE_MAKING = 2
-    TYPE_TURNING = 4
-    TYPE_HOLDERS = 8
-    TYPE_ALL = (TYPE_MILLING | TYPE_HOLE_MAKING | TYPE_TURNING | TYPE_HOLDERS)
-
-    def __init__(self, d):
-        "Pass dictionary from Fusion 360 file."
-        self.raw_dict = d
-        self.calculated_type = Tool.__calc_type(d['type'])
-
-    def diameter(self):
-        "Return diameter of the tool.  Holders do not have a diameter, for example."
-        try:
-            d = self.raw_dict['geometry']['DC']
-        except:
-            d = 0
-        return d
-
-    def num(self):
-        "Return the tool number."
-        try:
-            n = self.raw_dict['post-process']['number']
-        except:
-            n = 0
-        return n
-
-    def vendor(self):
-        "Return the tool vendor."        
-        return self.raw_dict['vendor']
-
-    def description(self):
-        "Return the tool description."
-        return self.raw_dict['description']
-
-    def type_str(self):
-        "Return Fusion 360 tool type string."
-        return self.raw_dict['type']
-
-    def type(self):
-        "Return tool type ID."
-        return self.calculated_type
-
-    def units(self):
-        "Get units of properties for tool."
-        return self.raw_dict['unit']
-
-    def kerf_width(self):
-        "Get kerf width for tool."
-        return self.raw_dict['geometry']['CW']
-
-    def cut_speed(self):
-        "Get cut speed for tool."
-#        return self.raw_dict['start-values']['presets']['v_f']
-        print('\n\n{}\n\n'.format(self.raw_dict['start-values']['presets']))
-#        return self.raw_dict['start-values']['v_f']
-
-    @staticmethod
-    def __calc_type(type_str):
-        """
-        Convert string representation of tool type to an ID.  This is the Fusion360
-        Language.
-        """
-        if type_str == 'holder':
-            return Tool.TYPE_HOLDERS
-        elif type_str.find('mill') >= 0 or type_str.find('counter sink') >= 0:
-            return Tool.TYPE_MILLING
-        elif type_str.find('drill') >= 0:
-            return Tool.TYPE_HOLE_MAKING
-        elif type_str.find('turning') >= 0:
-            return Tool.TYPE_TURNING
-        else:
-            return Tool.TYPE_UNKNOWN
-
-    def __repr__(self):
-        r = "tool#=%d, dia=%d %s, vendor=%s, desc=%s, %s[%d], kerf=%s, feed rate=%s\n" % (self.num(),
-                                                                   self.diameter(),
-                                                                   self.units(),
-                                                                   self.vendor(),
-                                                                   self.description(),
-                                                                   self.type_str(),
-                                                                   self.type(),
-                                                                   self.kerf_width(),
-                                                                   self.cut_speed())
-        return r
 
 if __name__ == '__main__':
     try:

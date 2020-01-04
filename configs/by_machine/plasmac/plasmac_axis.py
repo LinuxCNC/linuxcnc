@@ -44,7 +44,7 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15','16']
-    heights = ['668','698','736','748','816','858','900','950']
+    heights = ['688','708','736','748','816','858','900','950']
     if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
         aspect = 1.5
     else:
@@ -67,7 +67,7 @@ else:
     wxpos = str(pad_width/2)
     wypos = str(pad_height/2)
 w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
-print '\nAxis window is {0} x {1}\n'.format(width,height)
+print('\nAxis window is {0} x {1}\n'.format(width,height))
 
 
 ################################################################################
@@ -842,7 +842,7 @@ for button in range(1,6):
         if ccParm:
             consumable_change_setup(ccParm)
         else:
-            print ('consumable change parameters required\n')
+            print('consumable change parameters required\n')
         break
 wLabels = [\
     fmonitor + '.aVlab',\
