@@ -612,6 +612,7 @@ public:
 	if(do_rotate)
 	    rotate();
 	swap();
+	monotonic();
 	add_distance(d);
 	std::complex<double> displacement(w,u);
 	for(auto p=begin(); p!=end(); p++)
@@ -620,8 +621,6 @@ public:
 
 	delta=i;
 	escape=r*std::complex<double>{1,1};
-
-	monotonic();
 
 	swapped_out->straight_rapid(front()->sp());
 	if(imag(back()->ep())<imag(front()->sp())) {
