@@ -142,7 +142,7 @@ void straight_segment::intersection_z(double x, intersections_t &is)
 bool straight_segment::climb(std::complex<double> &location,
     motion_base *output
 ) {
-    if(end.imag()<start.imag())
+    if(end.imag()+tolerance<start.imag())
 	return 1; // not climbing
     if(abs(location-start)>tolerance)
 	throw("How did we get here?"s);
@@ -172,7 +172,7 @@ bool straight_segment::dive(std::complex<double> &location,
     double x,
     motion_base *output, bool fast)
 {
-    if(start.imag()<=end.imag())	// Not a diving segment
+    if(start.imag()<=end.imag()+tolerance) 	// Not a diving segment
 	return 1;
     if(x<end.imag()) {
 	if(fast)
