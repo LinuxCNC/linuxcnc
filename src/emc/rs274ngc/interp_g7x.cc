@@ -8,6 +8,15 @@
 #include <complex>
 
 using namespace std::complex_literals;
+using namespace std::string_literals;
+
+template <class T>
+std::string to_string(T &d)
+{
+    std::ostringstream out;
+    out << d;
+    return out.str();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 class motion_base {
@@ -35,6 +44,7 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
+    double finish=0;
 public:
     segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
     segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
@@ -49,6 +59,7 @@ public:
     virtual std::unique_ptr<segment> dup(void)=0;
     virtual double radius(void)=0;
     virtual bool monotonic(void) { return real(end-start)<=1e-3; }
+    virtual void do_finish(segment *prev, segment *next) {}
     std::complex<double> &sp(void) { return start; }
     std::complex<double> &ep(void) { return end; }
 
@@ -62,6 +73,31 @@ public:
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
     friend class round_segment;
+
+protected:
+    std::complex<double> corner_finish(segment *prev, segment *next) {
+	auto p=prev->dup();
+	auto n=next->dup();
+
+	p->offset(finish);
+	n->offset(finish);
+	if(real(p->end-n->start)>1e-2) {
+	    finish=-finish;
+	    p=prev->dup();
+	    n=next->dup();
+	    p->offset(finish);
+	    n->offset(finish);
+	}
+	if(real(p->end-n->start)>1e-2)
+	    throw("Corner finish failed at "s + to_string(prev->end));
+	p->intersect(n.get());
+	std::complex<double> center=(p->end+n->start)/2.0;
+	p->offset(-finish);
+	n->offset(-finish);
+	start=prev->end=p->end;
+	end=next->start=n->start;
+	return center;
+    }
 };
 
 class straight_segment:public segment {
@@ -160,6 +196,7 @@ bool straight_segment::dive(std::complex<double> &location,
 }
 
 class round_segment:public segment {
+protected:
     int ccw;
     std::complex<double> center;
 public:
@@ -202,6 +239,8 @@ public:
 	center=-center*1i;
     }
     virtual bool monotonic(void) {
+	if(finish!=0)
+	    return true;
 	double entry=imag(start-center);
 	double exit=imag(end-center);
 	double dz=real(end-start);
@@ -436,6 +475,36 @@ void round_segment::intersect_end(round_segment *p)
     p->end=start=is;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Corner finishes
+
+class fillet_segment:public round_segment {
+public:
+    fillet_segment(double d,std::complex<double> l):round_segment(0,l,l,l) {
+	finish=d;
+    }
+
+    void do_finish(segment *prev, segment *next) override {
+	center=corner_finish(prev,next);
+	ccw=imag(start-center)>0 || imag(end-center)>0;
+	finish=0;
+    }
+};
+
+class chamfer_segment:public straight_segment {
+public:
+    chamfer_segment(double d,std::complex<double> l):straight_segment(l,l) {
+	finish=d;
+    }
+
+    void do_finish(segment *prev, segment *next) override {
+	corner_finish(prev,next);
+    }
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <int swap>
 class swapped_motion:public motion_base {
     motion_base *orig;
@@ -540,6 +609,16 @@ private:
 	}
     }
 
+    void do_finish(void) {
+	for(auto h=++begin(); h!=--end(); ) {
+	    auto p(h); --p;
+	    (*h)->do_finish((*p).get(),(*(++h)).get());
+	}
+	for(auto p=begin(); p!=end(); p++)
+	    if((*p)->radius()<1e-3)
+		erase(p--);
+    }
+
 public:
     g7x(void) {}
     g7x(g7x const &other) {
@@ -576,6 +655,8 @@ public:
 	if(path.flip_state&4)
 	    rotate();
 	swap();
+	do_finish();
+	monotonic();
 	auto swapped_out=motion(out);
 
 	for(int pass=p; pass>0; pass--) {
@@ -608,6 +689,7 @@ public:
 	if(do_rotate)
 	    rotate();
 	swap();
+	do_finish();
 	monotonic();
 	add_distance(d);
 	std::complex<double> displacement(w,u);
@@ -862,16 +944,24 @@ public:
 };
 
 class switch_settings {
+    Interp *interp;
     setup_pointer settings;
     DISTANCE_MODE saved_ijk_distance_mode;
+    read_function_pointer read_a, read_c;
 public:
-    switch_settings(setup_pointer s):settings(s)
+    switch_settings(Interp *i,setup_pointer s):interp(i), settings(s)
     {
 	saved_ijk_distance_mode=settings->ijk_distance_mode;
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
+	read_a=interp->_readers[(int)'a'];
+	read_c=interp->_readers[(int)'c'];
+	interp->_readers[(int)'a']=interp->default_readers[(int)'a'];
+	interp->_readers[(int)'c']=interp->default_readers[(int)'c'];
     }
     ~switch_settings(void) {
 	settings->ijk_distance_mode=saved_ijk_distance_mode;
+	interp->_readers[(int)'a']=read_a;
+	interp->_readers[(int)'c']=read_c;
     }
     DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
 };
@@ -880,7 +970,6 @@ int Interp::convert_g7x(int mode,
       block_pointer block,     //!< pointer to a block of RS274 instructions
       setup_pointer settings)  //!< pointer to machine settings
 {
-    using namespace std::string_literals;
 
     if(!block->q_flag)
     	ERS("G7x.x  requires a Q word");
@@ -898,7 +987,7 @@ int Interp::convert_g7x(int mode,
 	ERS("G%d.%d can only be used in XZ plane (G18)",
 	    cycle, subcycle);
 
-    switch_settings old(settings);
+    switch_settings old(this,settings);
 
     auto original_block=*block;
 
@@ -974,6 +1063,21 @@ int Interp::convert_g7x(int mode,
 		));
 		break;
 	    }
+	    if(settings->motion_mode==0 || settings->motion_mode==10
+		|| settings->motion_mode==20 || settings->motion_mode==30
+	    ) {
+		if(block->a_flag && block->c_flag)
+		    ERS("G7X error: Both A and C parameters on a corner");
+		if(block->a_flag)
+		    path.emplace_back(std::make_unique<fillet_segment>(
+			block->a_number, end
+		    ));
+		if(block->c_flag)
+		    path.emplace_back(std::make_unique<chamfer_segment>(
+			block->c_number, end
+		    ));
+	    }
+
 	    settings->current_x=imag(end);
 	    settings->current_z=real(end);
 	    start=end;
