@@ -323,13 +323,13 @@ image::images/plasmac_configurator_new.png[width=400]
 [width="100%",cols="4,16"]
 |===
 |*Field*|*Description*
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini
+|Ini File|this is the .ini file you created for your base machine config
+|HAL File|this is the .hal file you created for your base machine config
 |Mode|select the mode you require +
       0 if using an arc voltage signal for Arc Voltage and Arc OK +
       1 if using external arc ok for Arc OK +
       2 if using up/down from an external THC +
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini
-|Ini File|this is the .ini file you created for your base machine config
-|HAL File|this is the .hal file you created for your base machine config
 |Arc OK|Modes 1 and 2 only +
         the HAL pin you have connected your arc ok signal to
 |Arc Voltage|Modes 0 An 1 only +
