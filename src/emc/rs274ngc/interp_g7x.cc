@@ -145,7 +145,7 @@ bool straight_segment::climb(std::complex<double> &location,
     if(end.imag()<start.imag())
 	return 1; // not climbing
     if(abs(location-start)>tolerance)
-	throw(std::string("How did we get here?"));
+	throw("How did we get here?"s);
     output->straight_move(end);
     location=end;
     return 0;
@@ -185,7 +185,7 @@ bool straight_segment::dive(std::complex<double> &location,
     intersections_t is;
     intersection_z(x,is);
     if(!is.size())
-	throw(std::string("x too large in straight dive"));
+	throw("x too large in straight dive"s);
     std::complex<double> ep(is.front(),x);
     if(fast)
 	output->straight_rapid(ep);
@@ -399,7 +399,7 @@ void straight_segment::intersect_end(straight_segment *p)
     auto ps=(p->start-end)*rot;
     auto pe=(p->end-end)*rot;
     if(imag(ps-pe)==0) {
-	throw(std::string("Cannot intersect parallel lines"));
+	throw("Cannot intersect parallel lines"s);
     }
     auto f=imag(ps)/imag(ps-pe);
     auto is=(ps+f*(pe-ps))/rot+end;
@@ -593,17 +593,16 @@ private:
 	case 6: return std::make_unique<swapped_motion<6>>(out);
 	case 7: return std::make_unique<swapped_motion<7>>(out);
 	}
-	throw("This can't happen");
+	throw("This can't happen"s);
     }
 
     void monotonic(void) {
 	if(real(front()->ep()-front()->sp())>0) {
 	    front()->sp().real(real(front()->ep()));
-	    //throw(std::string("Initial dive on wrong side of curve"));
 	}
 	for(auto p=begin(); p!=end(); p++) {
 	    if(!(*p)->monotonic())
-		throw(std::string("Not monotonic"));
+		throw("Not monotonic"s);
 	}
     }
 
@@ -807,7 +806,6 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 }
 
 void g7x::add_distance(double distance) {
-    swap();
     auto v1=front()->ep()-front()->sp();
     auto v2=back()->sp()-front()->sp();
     auto angle=v1/v2;
