@@ -461,8 +461,6 @@ void round_segment::intersect_end(straight_segment *p)
 void round_segment::intersect_end(round_segment *p)
 {
     // correct end of p and start of this
-    if((ccw && !p->ccw) || (!ccw && p->ccw))
-	return; // doesn't need correction.
     auto a=abs(start-center);
     auto b=abs(p->start-p->center);
     auto c=abs(center-p->center);
