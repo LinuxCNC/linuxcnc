@@ -333,11 +333,18 @@ bool round_segment::dive(std::complex<double> &location,
     } else {
 	if(location.real()<=center.real())
 	    return 1; // we're already climbing
-	if(!is.size() || is.front()<real(center)) {
+	if(!is.size()) {
+	    // Curve not hit, move to the end
 	    output->circular_move(ccw,center,end);
 	    location=end;
 	    return 0;
+	} else if(is.front()<real(center)) {
+	    // also is.size()==1
+	    // also abs(location-start)<tolerance
+	    // curve hit at the back side only, let pocket decrement x
+	    return 0;
 	} else {
+	    // Arc cut twice, move to the front intersection
 	    std::complex<double> ep(is.front(),x);
 	    if(abs(location-ep)>1e-3)
 		output->circular_move(ccw,center,ep);
@@ -754,7 +761,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    }
 	    return;
 	}
-	if(imag(location)>x || std::abs(location.imag()-x)>tolerance) {
+	if(std::abs(imag(location)-x)>tolerance) {
 	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
 	    */
