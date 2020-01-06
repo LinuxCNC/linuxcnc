@@ -723,11 +723,11 @@ public:
     }
 };
 
+
 void g7x::pocket(int cycle, std::complex<double> location, iterator p,
     motion_base *out
 ) {
-    double initial_x=imag(front()->sp());
-    double x=initial_x;
+    double x=cycle==3? imag(location):imag(front()->sp());
 
     if(cycle==2) {
 	// This skips the initial roughing pass
@@ -735,7 +735,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    if((*p)->dive(location,-1e9,out,p==begin()))
 		break;
 	}
-	cycle=0;
+	cycle=3;
     }
 
     while(p!=end()) {
@@ -754,7 +754,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		*/
 		for(; p!=end(); p++) {
 		    if((*p)->climb(location,out)) {
-			pocket(0, location,p,out);
+			pocket(cycle, location,p,out);
 			return;
 		    }
 		}
