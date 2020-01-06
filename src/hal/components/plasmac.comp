@@ -5,7 +5,7 @@ description
 
 A plasma cutting table control component for use with the linuxcnc master branch.
 
-.I VERSION: 0.88 - 05 Jan 2020
+.I VERSION: 0.89 - 06 Jan 2020
 
 .I SUMMARY:
 .br
@@ -353,6 +353,7 @@ variable int    zero_target;                /* zero height target offset */
 /* DEBUGGING PINS */
 pin out s32     state_out                   "current state";
 pin out s32     stop_type_out               "current stop type";
+pin out s32 tool_out;
 
 function _;
 
@@ -403,10 +404,16 @@ typedef enum{ZERO,
 typedef enum{FLOAT,
              OHMIC} probe_type_t;
 
+typedef enum{EMPTY,
+             TORCH,
+             SCRIBE,
+             SPOT} tool_t;
+
 state_t state = IDLE;
 stop_type_t stop_type = NONE;
 move_direction_t move_direction = ZERO;
 probe_type_t probe_type = FLOAT;
+tool_t tool = EMPTY;
 
 FUNCTION(_) {
 
@@ -419,6 +426,19 @@ FUNCTION(_) {
         initialized = TRUE;
         probe_force_val = 0.125 * units_per_mm / offset_scale;
     }
+
+    /* set the active tool */
+    if((!multi_tool && spindle_on) || (multi_tool && spindle_on && !scribe_on && !centre_spot_on)){
+        tool = TORCH;
+    }else if(multi_tool && scribe_on && !spindle_on && !centre_spot_on){
+        tool = SCRIBE;
+    }else if(multi_tool && centre_spot_on && !spindle_on && !scribe_on){
+        tool = SPOT;
+    }else{
+        tool = EMPTY;
+    }
+
+    tool_out = tool;
 
     /* output the relative Z height */
     if(zero_target){
@@ -478,7 +498,7 @@ FUNCTION(_) {
     }
 
     /* check for a manual cut */
-    if(spindle_on && !auto_cut){
+    if(tool == TORCH && !auto_cut){
         manual_cut = TRUE;
     }
 
@@ -509,7 +529,7 @@ FUNCTION(_) {
                 probe_required = TRUE;
                 pause_at_end_timer = pause_at_end;
                 state = MAX_HEIGHT;
-            }else if(!spindle_on && !centre_spot_on){
+            }else if(tool == EMPTY){
                 if(!pause_at_end){
                     torch_on = FALSE;
                 }
@@ -561,7 +581,7 @@ FUNCTION(_) {
             }
         }
     }else if(manual_cut){
-        if(!spindle_on){
+        if(tool == EMPTY){
             manual_cut = FALSE;
             torch_on = FALSE;
             stop_type = STOP;
@@ -629,7 +649,7 @@ FUNCTION(_) {
                         state = CONSUMABLE_CHANGE_OFF;
 
                 /* if we get a torch start request and we are stopped or waiting for a restart */
-                }else if((spindle_on || centre_spot_on || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
+            }else if((tool == TORCH || tool == SPOT || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
                     feed_hold = TRUE;
                     stop_type = NONE;
                     //touchdown = FALSE;
@@ -716,7 +736,7 @@ FUNCTION(_) {
                     ohmic_enable = TRUE;
                     state = OHMIC_TEST;
                 /* if we get a air-scribe start request */
-                }else if(scribe_on && !spindle_on && !centre_spot_on && !probe_test && multi_tool && homed){
+            }else if(tool == SCRIBE && !probe_test && homed){
                     state = AIR_SCRIBE;
                     scribe_arm_timer = scribe_arm_delay;
                     scribe_pause = FALSE;
@@ -908,7 +928,7 @@ FUNCTION(_) {
                     }else if(!torch_enable){
                         pierce_timer = pierce_delay;
                         state = PIERCE_DELAY;
-                    }else if(spindle_on || centre_spot_on){
+                    }else if(tool == TORCH || tool == SPOT){
                         state = TORCH_ON;
                     }
                 }
@@ -951,7 +971,7 @@ FUNCTION(_) {
             /* wait for arc ok
              * if timeout occurs turn torch off then return to TORCH_ON for another attempt */
             feed_hold = TRUE;
-            if(centre_spot_on && !spindle_on && multi_tool){
+            if(tool == SPOT){
                 if(!centre_spotting){
                     if(arc_voltage >= centre_spot_threshold){
                         centre_spotting = TRUE;
@@ -974,7 +994,7 @@ FUNCTION(_) {
                 restart_timer = restart_delay;
                 arc_starts += 1;
                 state = TORCH_ON;
-            }else if(arc_ok_out && !centre_spot_on){
+            }else if(arc_ok_out && tool != SPOT){
                     pierce_timer = pierce_delay;
                     state = PIERCE_DELAY;
             }
@@ -1377,7 +1397,7 @@ FUNCTION(_) {
             }
             break;
         case AIR_SCRIBE:
-            if(scribe_on){
+            if(tool == SCRIBE){
                 if(!program_is_paused){
                     air_scribe_arm = TRUE;
 
