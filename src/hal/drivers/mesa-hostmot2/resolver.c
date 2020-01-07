@@ -498,8 +498,8 @@ void hm2_resolver_cleanup(hostmot2_t *hm2) {
 
 void hm2_resolver_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("resolvers: %d\n", hm2->resolver.num_instances);
     if (hm2->resolver.num_instances <= 0) return;
+    HM2_PRINT("resolvers: %d\n", hm2->resolver.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n",
               hm2->resolver.clock_frequency,
               hm2_hz_to_mhz(hm2->resolver.clock_frequency));
