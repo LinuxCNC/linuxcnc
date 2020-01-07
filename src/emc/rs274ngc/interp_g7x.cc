@@ -56,6 +56,8 @@ public:
     virtual void draw(motion_base*)=0;
     virtual void offset(double)=0;
     virtual void intersect(segment*)=0;
+    virtual void intersect_end(round_segment *p)=0;
+    virtual void intersect_end(straight_segment *p)=0;
     virtual std::unique_ptr<segment> dup(void)=0;
     virtual double radius(void)=0;
     virtual bool monotonic(void) { return real(end-start)<=1e-3; }
@@ -63,8 +65,6 @@ public:
     std::complex<double> &sp(void) { return start; }
     std::complex<double> &ep(void) { return end; }
 
-    virtual void intersect_end(round_segment *p)=0;
-    virtual void intersect_end(straight_segment *p)=0;
     virtual void flip_imag(void) { start=conj(start); end=conj(end); }
     virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
     virtual void rotate(void) {
@@ -949,11 +949,13 @@ public:
 class switch_settings {
     Interp *interp;
     setup_pointer settings;
-    DISTANCE_MODE saved_ijk_distance_mode;
+    DISTANCE_MODE saved_distance_mode, saved_ijk_distance_mode;
     read_function_pointer read_a, read_c;
 public:
     switch_settings(Interp *i,setup_pointer s):interp(i), settings(s)
     {
+	saved_distance_mode=settings->distance_mode;
+	settings->distance_mode=MODE_ABSOLUTE;
 	saved_ijk_distance_mode=settings->ijk_distance_mode;
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
 	read_a=interp->_readers[(int)'a'];
@@ -962,11 +964,13 @@ public:
 	interp->_readers[(int)'c']=interp->default_readers[(int)'c'];
     }
     ~switch_settings(void) {
+	settings->distance_mode=saved_distance_mode;
 	settings->ijk_distance_mode=saved_ijk_distance_mode;
 	interp->_readers[(int)'a']=read_a;
 	interp->_readers[(int)'c']=read_c;
     }
     DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
+    DISTANCE_MODE distance_mode(void) { return saved_distance_mode; }
 };
 
 int Interp::convert_g7x(int mode,
@@ -980,8 +984,6 @@ int Interp::convert_g7x(int mode,
     int cycle=block->g_modes[1];
     int subcycle=cycle%10;
     cycle/=10;
-    if(settings->distance_mode!=MODE_ABSOLUTE)
-	ERS("G%d.%d will only work in absolute distance mode",cycle,subcycle);
 
     if(settings->cutter_comp_side && cycle!=70)
 	ERS("G%d.%d cannot be used with cutter compensation enabled",
@@ -996,10 +998,17 @@ int Interp::convert_g7x(int mode,
 
     double x=settings->current_x;
     double z=settings->current_z;
-    if(block->x_flag)
-	x=block->x_number;
-    if(block->z_flag)
-	z=block->z_number;
+    if(old.distance_mode()==MODE_INCREMENTAL) {
+	if(block->x_flag)
+	    x+=block->x_number;
+	if(block->z_flag)
+	    z+=block->z_number;
+    } else {
+	if(block->x_flag)
+	    x=block->x_number;
+	if(block->z_flag)
+	    z=block->z_number;
+    }
     original_block.x_number=x;
     original_block.z_number=z;
 
@@ -1027,10 +1036,16 @@ int Interp::convert_g7x(int mode,
 	std::complex<double> end(start);
 	std::complex<double> center(0,0);
 
+	if(old.distance_mode()==MODE_INCREMENTAL)
+	    end=0;
+
 	if(block->x_flag) end.imag(block->x_number);
 	if(block->z_flag) end.real(block->z_number);
 	if(block->i_flag) center.imag(block->i_number);
 	if(block->k_flag) center.real(block->k_number);
+
+	if(old.distance_mode()==MODE_INCREMENTAL)
+	    end+=start;
 
 	if(block->g_modes[1]!=-1)
 	    settings->motion_mode=block->g_modes[1];
