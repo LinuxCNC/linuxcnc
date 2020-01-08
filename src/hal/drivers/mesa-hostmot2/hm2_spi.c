@@ -71,6 +71,127 @@ static hm2_spi_t boards[MAX_BOARDS];
 static int nboards;
 static int comp_id;
 
+static char *hm2_7c80_pin_names[] = {
+	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
+	"TB07-04/TB07-05",
+	"TB08-02/TB08-03",
+	"TB08-04/TB08-05",
+	"TB09-02/TB09-03",
+	"TB09-04/TB09-05",
+	"TB10-02/TB10-03",
+	"TB10-04/TB10-05",
+	"TB11-02/TB11-03",
+	"TB11-04/TB11-05",
+	"TB12-02/TB12-03",
+	"TB12-04/TB12-05",
+	"TB03-03/TB04-04",	/* RS-422/RS-485 interface */
+	"TB03-05/TB04-06",
+	"TB03-05/TB03-06",
+	"TB04-01/TB04-02",	/* Encoder */
+	"TB04-04/TB04-05",
+	"TB04-07/TB04-08",
+	"TB05-02",		/* Spindle */
+	"TB05-02",
+	"TB05-05/TB05-06",
+	"TB05-07/TB05-08",
+	"Internal InMux0",	/* InMux */
+	"Internal InMux1",
+	"Internal InMux2",
+	"Internal InMux3",
+	"Internal InMux4",
+
+	"Internal InMuxData",
+	"TB13-01/TB13-02",	/* SSR */
+	"TB13-03/TB13-04",
+	"TB13-05/TB13-06",
+	"TB13-07/TB13-08",
+	"TB14-01/TB14-02",
+	"TB14-03/TB14-04",
+	"TB14-05/TB14-06",
+	"TB14-07/TB14-08",
+	"Internal SSR",
+	"P1-01",		/* P1 parallel expansion */
+	"P1-02",
+	"P1-03",
+	"P1-04",
+	"P1-05",
+	"P1-06",
+	"P1-07",
+	"P1-08",
+	"P1-09",
+	"P1-11",
+	"P1-13",
+	"P1-15",
+	"P1-17",
+	"P1-19",
+	"P1-21",
+	"P1-23",
+	"P1-25"
+};
+
+static char *hm2_7c81_pin_names[] = {
+	"P1-01",
+	"P1-02",
+	"P1-03",
+	"P1-04",
+	"P1-05",
+	"P1-06",
+	"P1-07",
+	"P1-08",
+	"P1-09",
+	"P1-11",
+	"P1-13",
+	"P1-15",
+	"P1-17",
+	"P1-19",
+	"P1-21",
+	"P1-23",
+	"P1-25",
+	"J5-TX0",
+	"J6-TX1",
+
+	"P2-01",
+	"P2-02",
+	"P2-03",
+	"P2-04",
+	"P2-05",
+	"P2-06",
+	"P2-07",
+	"P2-08",
+	"P2-09",
+	"P2-11",
+	"P2-13",
+	"P2-15",
+	"P2-17",
+	"P2-19",
+	"P2-21",
+	"P2-23",
+	"P2-25",
+	"J5-TXEN0",
+	"J6-TXEN1",
+
+	"P7-01",
+	"P7-02",
+	"P7-03",
+	"P7-04",
+	"P7-05",
+	"P7-06",
+	"P7-07",
+	"P7-08",
+	"P7-09",
+	"P7-11",
+	"P7-13",
+	"P7-15",
+	"P7-17",
+	"P7-19",
+	"P7-21",
+	"P7-23",
+	"P7-25",
+	"P5-RX0",
+	"P6-RX1"
+};
+
+ 
 static uint32_t read_command(uint16_t addr, unsigned nelem) {
     bool increment = true;
     return (addr << 16) | 0xA000 | (increment ? 0x800 : 0) | (nelem << 4);
@@ -284,6 +405,25 @@ static int probe(char *dev, int rate) {
         board->llio.ioport_connector_name[2] = "P3";
         board->llio.num_leds = 2;
         board->llio.fpga_part_number = "xc6slx9tq144";
+    } else if(!memcmp(ident, "MESA7C80", 8)){
+            base = "hm2_7c80";
+            board->llio.num_ioport_connectors = 2;
+            board->llio.pins_per_connector = 27;
+            board->llio.ioport_connector_name[0] = "Embedded I/O";
+            board->llio.ioport_connector_name[1] = "Embedded I/O + P1 expansion";
+            board->llio.io_connector_pin_names = hm2_7c80_pin_names;
+            board->llio.num_leds = 4;
+            board->llio.fpga_part_number = "xc6slx9tq144";
+    } else if(!memcmp(ident, "MESA7C81", 8)){
+            base = "hm2_7c81";
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 19;
+            board->llio.ioport_connector_name[0] = "P1";
+            board->llio.ioport_connector_name[1] = "P2";
+            board->llio.ioport_connector_name[2] = "P7";
+            board->llio.io_connector_pin_names = hm2_7c81_pin_names;
+            board->llio.num_leds = 4;
+            board->llio.fpga_part_number = "xc6slx9tq144";
     } else {
         // peter's been busy
         int i=0;
