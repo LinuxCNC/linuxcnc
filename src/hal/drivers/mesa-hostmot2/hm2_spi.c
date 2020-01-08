@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <endian.h>
 
 #include <rtapi.h>
 #include <rtapi_app.h>
@@ -210,12 +211,21 @@ static int do_pending(hm2_spi_t *this) {
     t.tx_buf = t.rx_buf = (uint64_t)(uintptr_t)this->trxbuf;
     t.len = 4 * this->nbuf;
 
+    if(this->settings.bits_per_word == 8) {
+	for(int i=0; i<this->nbuf; i++)
+	   this->trxbuf[i] = htobe32(this->trxbuf[i]);
+    }
     int r = ioctl(this->fd, SPI_IOC_MESSAGE(1), &t);
     if(r < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "hm2_spi: SPI_IOC_MESSAGE: %s\n", strerror(errno));
         this->nbuf = 0;
         return -errno;
+    }
+
+    if(this->settings.bits_per_word == 8) {
+	for(int i=0; i<this->nbuf; i++)
+	   this->trxbuf[i] = be32toh(this->trxbuf[i]);
     }
 
     // because linux manages SPI chip select behind our backs, we can't know
@@ -324,6 +334,14 @@ static int spidev_set_bits_per_word(int fd, uint8_t bits) {
     return ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 }
 
+static int spidev_get_bits_per_word(int fd) {
+    uint8_t bits;
+    int r;
+    r = ioctl(fd, SPI_IOC_RD_BITS_PER_WORD, &bits);
+    if(r < 0) return -1;
+    return bits;
+}
+
 static int spidev_open_and_configure(char *dev, int rate) {
     int fd = open(dev, O_RDWR);
 
@@ -336,6 +354,7 @@ static int spidev_open_and_configure(char *dev, int rate) {
     if(r < 0) goto fail_errno;
 
     r = spidev_set_bits_per_word(fd, 32);
+    if(r < 0) r = spidev_set_bits_per_word(fd, 8);
     if(r < 0) goto fail_errno;
 
     r = spidev_set_max_speed_hz(fd, rate);
@@ -377,7 +396,7 @@ static int probe(char *dev, int rate) {
     if(board->fd < 0) return board->fd;
 
     board->settings.speed_hz = rate;
-    board->settings.bits_per_word = 32;
+    board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
 
     int r = check_cookie(board);
     if(r < 0) goto fail;
