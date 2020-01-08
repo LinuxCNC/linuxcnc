@@ -255,7 +255,7 @@ static int do_pending(hm2_spi_t *this) {
 
 static int send_queued_writes(hm2_lowlevel_io_t *llio) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer, int size) {
@@ -281,7 +281,7 @@ static int queue_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buff
 
 static int send_queued_reads(hm2_lowlevel_io_t *llio) {
     hm2_spi_t *this = (hm2_spi_t*) llio;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int queue_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
@@ -308,7 +308,7 @@ static int do_write(hm2_lowlevel_io_t *llio, rtapi_u32 addr, const void *buffer,
     hm2_spi_t *this = (hm2_spi_t*) llio;
     int r = queue_write(llio, addr, buffer, size);
     if(r < 0) return r;
-    return do_pending(this);
+    return do_pending(this) >= 0;
 }
 
 static int do_read(hm2_lowlevel_io_t *llio, rtapi_u32 addr, void *buffer, int size) {
