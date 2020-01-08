@@ -1917,7 +1917,7 @@ STATIC tc_blend_type_t tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const 
  * currently-active accel and vel settings from the tp struct.
  */
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
-        ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary) {
+        ini_maxvel, double acc, unsigned char enables, char atspeed, int indexer_jnum) {
 
     if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
@@ -1957,8 +1957,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     tc.nominal_length = tc.target;
     tcClampVelocityByLength(&tc);
 
-    // For linear move, set rotary axis settings 
-    tc.indexrotary = indexrotary;
+    // For linear move, set joint corresponding to a locking indexer axis
+    tc.indexer_jnum = indexer_jnum;
 
     //TODO refactor this into its own function
     TC_STRUCT *prev_tc;
@@ -2584,13 +2584,13 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
         tp->spindle.offset = 0.0;
     }
 
-    if(tc->indexrotary != -1) {
+    if(tc->indexer_jnum != -1) {
         // this was an indexing move, so before we remove it we must
-        // relock the axis
-        tpSetRotaryUnlock(tc->indexrotary, 0);
+        // relock the joint for the locking indexer axis
+        tpSetRotaryUnlock(tc->indexer_jnum, 0);
         // if it is now locked, fall through and remove the finished move.
         // otherwise, just come back later and check again
-        if(tpGetRotaryIsUnlocked(tc->indexrotary)) {
+        if(tpGetRotaryIsUnlocked(tc->indexer_jnum)) {
             return TP_ERR_FAIL;
         }
     }
@@ -2765,12 +2765,12 @@ STATIC tp_err_t tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         }
     }
 
-    if (tc->indexrotary != -1) {
-        // request that the axis unlock
-        tpSetRotaryUnlock(tc->indexrotary, 1);
+    if (tc->indexer_jnum != -1) {
+        // request that the joint for the locking indexer axis unlock
+        tpSetRotaryUnlock(tc->indexer_jnum, 1);
         // if it is unlocked, fall through and start the move.
         // otherwise, just come back later and check again
-        if (!tpGetRotaryIsUnlocked(tc->indexrotary))
+        if (!tpGetRotaryIsUnlocked(tc->indexer_jnum))
             return TP_ERR_WAITING;
     }
 

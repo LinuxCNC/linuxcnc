@@ -222,7 +222,7 @@ extern "C" {
 	EmcPose pos;		/* line/circle endpt, or teleop vector */
 	PmCartesian center;	/* center for circle */
 	PmCartesian normal;	/* normal vec for circle */
-	int turn;		/* turns for circle or which rotary to unlock for a line */
+	int turn;		/* turns for circle or joint number for a locking indexer*/
 	double vel;		/* max velocity */
         double ini_maxvel;      /* max velocity allowed by machine
                                    constraints (the ini file) */

@@ -637,7 +637,7 @@ int tcInit(TC_STRUCT * const tc,
     tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
 
     /** Segment settings (given values later during setup / optimization) */
-    tc->indexrotary = -1;
+    tc->indexer_jnum = -1;
 
     tc->active_depth = 1;
 
