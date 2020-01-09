@@ -89,6 +89,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g61,G61>>                  |Exact Path Mode
 |<<gcode:g61.1,G61.1>>              |Exact Stop Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
+|<<gcode:g70,G70>>                  |Lathe finishing cycle
+|<<gcode:g71,G71,g72,G72>>          |Lathe roughing cycle
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
@@ -1487,6 +1489,79 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 
 It is a good idea to include a path control specification in the preamble
 of each G code file.
+
+[[gcode:g70]]
+== G70 Lathe finishing cycle
+(((G70 Lathe finishing cycle)))
+
+----
+G70 Q- X- Z- D- E-
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position.
+* 'Z' - The starting Z position.
+* 'D' - The starting distance of the profile.
+* 'E' - The ending distance of the profile.
+* 'P' - The number of passes to use.
+
+The 'G70' cycle is intended to be used after the shape of the profile given
+in the subroutine with number Q has been cut with G71 or G72.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done. This position is also used between each finishing pass.
+ . The distance between the pass and the final profile is (pass-1)*(D-E)/P+E.
+   Where pass the pass number and D,E and P are the D/E/P numbers.
+ . The distance is computed from the starting position of the cycle, with
+   a positive distance towards this point.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* The XZ plane (18) is not active <<gcode:g17-19>>.
+
+[[gcode:g71]]
+== G71 G72 Lathe roughing cycle
+(((G71 G72 Lathe roughing cycle)))
+
+----
+G71 Q- X- Z- D- I- R-
+G71.1 Q- X- Z- D- I- R-
+G71.2 Q- X- Z- D- I- R-
+G72 Q- X- Z- D- I- R-
+G72.1 Q- X- Z- D- I- R-
+G72.2 Q- X- Z- D- I- R-
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position.
+* 'Z' - The starting Z position.
+* 'D' - The remaining distance to the profile.
+* 'I' - The cutting increment.
+* 'R' - The retracting distance.
+
+The 'G71/G72' cycle is intended to rough cut a profile on a lathe. The G71
+cycles remove layers of the material while traversing in the Z direction.
+The G72 cycles remove material while traversing the X axis, the so called
+facing cycle. The direction of travel is the same as in the path given
+in the subroutine. For the G71 cycle the Z coordinate must be monotonically
+increasing, for the G72 this is required for the X axis.
+
+The G7x.1 cycles do not cut pockets. The G7x.2 cycles only cut after the
+first pocket and continue where G7x.1 stopped. The normal G7x cycles cut
+the entire profile in one cycle.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done.
+ . The D number is used to allow a thickness of material to remain for
+   finishing.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* The XZ plane (18) is not active <<gcode:g17-19>>.
 
 [[gcode:g73]]
 == G73 Drilling Cycle with Chip Breaking
