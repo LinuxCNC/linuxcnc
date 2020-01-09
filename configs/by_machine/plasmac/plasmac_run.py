@@ -3,7 +3,7 @@
 '''
 plasmac_run.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019, 2020  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import os
+import sys
 import gtk
 import linuxcnc
 import gobject
@@ -734,11 +735,25 @@ class HandlerClass:
                 if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                     self.builder.get_object(key).update()
 
+    def upgrade_check(self):
+        # the latest version that configurator is required for *****************
+        # this may or may not be the current version ***************************
+        latestUpgrade = 0.090
+        lastUpgrade = float(self.i.find('PLASMAC', 'LAST_UPGRADE') or 0.0)
+        manualUpgrade = int(self.i.find('PLASMAC', 'MANUAL_UPGRADE') or 0)
+        if lastUpgrade < latestUpgrade and manualUpgrade != 1:
+            iniFile = os.environ['INI_FILE_NAME']
+            basePath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(iniFile), 'M190'))))
+            cmd = '{}/configurator.py'.format(basePath)
+            os.execv(cmd,[cmd, 'upgrade', iniFile])
+            sys.exit()
+
     def __init__(self, halcomp,builder,useropts):
         self.W = gtk.Window()
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])
+        self.upgrade_check()
         self.c = linuxcnc.command()
         self.s = linuxcnc.stat()
         self.cutTypePin = hal_glib.GPin(halcomp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN))

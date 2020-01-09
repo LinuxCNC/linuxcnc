@@ -3,7 +3,7 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019, 2020  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -270,7 +270,7 @@ for line in fRead:
         scribing = True
     if pierceOnly and scribing:
         codeError = True
-        print('*** air-scribe is invalid for pierce only mode\n'
+        print('*** scribe is invalid for pierce only mode\n'
               'Error in line #{}: {}\n'
               .format(count, line))
         scribing = False

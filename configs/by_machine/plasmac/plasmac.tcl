@@ -10,6 +10,7 @@ net plasmac:axis-x-position      axis.x.pos-cmd                  =>  plasmac.axi
 net plasmac:axis-y-position      axis.y.pos-cmd                  =>  plasmac.axis-y-position
 net plasmac:breakaway-switch-out debounce.0.1.out                =>  plasmac.breakaway
 net plasmac:current-velocity     motion.current-vel              =>  plasmac.current-velocity
+net plasmac:cutting-start        spindle.0.on                    =>  plasmac.cutting-start
 net plasmac:feed-override        halui.feed-override.value       =>  plasmac.feed-override
 net plasmac:feed-reduction       motion.analog-out-03            =>  plasmac.feed-reduction
 net plasmac:float-switch-out     debounce.0.0.out                =>  plasmac.float-switch
@@ -18,7 +19,6 @@ net plasmac:ohmic-probe-out      debounce.0.2.out                =>  plasmac.ohm
 net plasmac:program-is-idle      halui.program.is-idle           =>  plasmac.program-is-idle
 net plasmac:program-is-paused    halui.program.is-paused         =>  plasmac.program-is-paused
 net plasmac:program-is-running   halui.program.is-running        =>  plasmac.program-is-running
-net plasmac:spindle-is-on        spindle.0.on                    =>  plasmac.spindle-on
 net plasmac:thc-disable          motion.digital-out-02           =>  plasmac.thc-disable
 net plasmac:torch-off            motion.digital-out-03           =>  plasmac.torch-off
 net plasmac:units-per-mm         halui.machine.units-per-mm      =>  plasmac.units-per-mm
@@ -40,6 +40,6 @@ net plasmac:torch-on             plasmac.torch-on
 # multiple spindles
 if [info exists ::TRAJ(SPINDLES)] {
     set num_spindles [lindex $::TRAJ(SPINDLES) 0]
-    if {$num_spindles > 1} {net plasmac:scribe-is-on spindle.1.on => plasmac.scribe-on}
-    if {$num_spindles > 2} {net plasmac:centre-spot-is-on spindle.2.on => plasmac.centre-spot-on}
+    if {$num_spindles > 1} {net plasmac:scribe-start spindle.1.on => plasmac.scribe-start}
+    if {$num_spindles > 2} {net plasmac:spotting-start spindle.2.on => plasmac.spotting-start}
 }
