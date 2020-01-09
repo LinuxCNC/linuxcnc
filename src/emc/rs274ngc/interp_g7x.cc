@@ -561,6 +561,7 @@ class g7x:public  std::list<std::unique_ptr<segment>> {
     double delta=0.5;
     std::complex<double> escape{0.3,0.3};
     int flip_state=0;
+    std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
 	motion_base *out);
@@ -712,6 +713,7 @@ public:
 		back()->ep(),ep
 	    ));
 	}
+	pocket_starts.push_back(front()->sp());
 	pocket(cycle,front()->sp(), begin(), swapped_out.get());
     }
 
@@ -727,7 +729,7 @@ public:
 void g7x::pocket(int cycle, std::complex<double> location, iterator p,
     motion_base *out
 ) {
-    double x=cycle==3? imag(location):imag(front()->sp());
+    double x=imag(pocket_starts.back());
 
     if(cycle==2) {
 	// This skips the initial roughing pass
@@ -754,6 +756,20 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		*/
 		for(; p!=end(); p++) {
 		    if((*p)->climb(location,out)) {
+			if(cycle==3) {
+			    if(imag(location)>imag(pocket_starts.back())
+				&& pocket_starts.size()>1
+			    ) {
+				std::cout << "Left " << pocket_starts.back()
+				    << std::endl;
+				pocket_starts.pop_back();
+			    }
+			    if(pocket_starts.size()==1) {
+				pocket_starts.push_back(location);
+				std::cout << "Entered " << location
+				    << std::endl;
+			    }
+			}
 			pocket(cycle, location,p,out);
 			return;
 		    }
