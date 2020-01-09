@@ -1530,10 +1530,10 @@ It is an error if:
 (((G71 G72 Lathe roughing cycle)))
 
 ----
-G71 Q- X- Z- D- I- R-
+G71   Q- X- Z- D- I- R-
 G71.1 Q- X- Z- D- I- R-
 G71.2 Q- X- Z- D- I- R-
-G72 Q- X- Z- D- I- R-
+G72   Q- X- Z- D- I- R-
 G72.1 Q- X- Z- D- I- R-
 G72.2 Q- X- Z- D- I- R-
 ----
