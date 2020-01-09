@@ -63,9 +63,9 @@ This section only touches on the I/O required for PlasmaC itself, base machine r
 |Move Down|2|Digital input +
              Connected to the down output of the external THC control
 |Scribe Arming|0,1,2|Digital output +
-                     Connected to air-scribe arming circuit
-|Scribe Start|0,1,2|Digital output +
-                     Connected to air-scribe start circuit
+                     Connected to scribe arming circuit
+|Scribe On|0,1,2|Digital output +
+                     Connected to scribe on circuit
 |===
 
 Only one of either 'float switch' or 'ohmic probe' is required. If both are used then 'float switch' will be a fallback if 'ohmic probe' is not sensed.
@@ -349,10 +349,10 @@ image::images/plasmac_configurator_new.png[width=400]
            the HAL pin you have connected your move down signal to
 |Run Panel|Run Tab = the run frame is a tab behind the preview tab +
            Run Panel = the run frame is a panel at the side of the GUI
-|Scribe Arming|only required if using an air-scribe +
-               the HAL pin to arm the air-scriber
-|Scribe Start|only required if using an air-scribe +
-              the HAL pin to start the air-scriber
+|Scribe Arming|only required if using an scribe +
+               the HAL pin to arm the scriber
+|Scribe On|only required if using an scribe +
+              the HAL pin to turn the scriber on
 |===
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
@@ -439,7 +439,7 @@ In addition to the above files, the following links are created to the files in 
 |plasmac_axis.py|python code to customise the Axis GUI
 |M190|for G-Code changing of materials
 |materialverter.py|tool table converter and material file creator
-|configurator.py|configure a new or upgrade an existing PlasmaC configuration
+|configurator.py|configure a new or upgrade/re-configure an existing PlasmaC configuration
 |wizards|files relating to the shape library
 |test|files for the test panel
 |===
@@ -558,20 +558,20 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
 [[scribe-config]]
 
-.Air Scribe
+.Scribing
 
-Parameters related to an optional air-scribe.
+Parameters related to an optional scribe.
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Arm Delay|Delay to allow air-scribe to reach surface of material before start of scribing.
-|Start Delay|Delay to allow air-scribe to start before beginning motion.
+|Arm Delay|Delay to allow scribe to reach surface of material before start of scribing.
+|On Delay|Delay to allow scribe to start before beginning motion.
 |===
 
-.Center Spot
+.Spotting
 
-Parameters related to centre spotting (centre punch).
+Parameters related to spotting (centre spot).
 
 IMPORTANT: This is experimental and will not suit some plasma cutters
 
@@ -846,14 +846,14 @@ This feature is used to allow the arc to catch up to the torch position to fully
 Multiple tools allows the use of more than one tool, valid tools are:
 
 * Plasma Torch - for normal cutting
-* Air Scribe - for engraving
-* Plasma Torch - for centre spotting
+* Scribe - for engraving
+* Plasma Torch - for spotting
 
 If multiple tools are enabled then a LinuxCNC tool number is required in the 'M3 command to selected the required tool.
 
 * 'M3 $0 S1' will select the plasma cutting tool.
-* 'M3 $1 S1' will select the air scribe.
-* 'M3 $2 S1' will select the plasma centre spotting tool.
+* 'M3 $1 S1' will select the scribe.
+* 'M3 $2 S1' will select the plasma spotting tool.
 
 To enable the multiple tools feature you need to edit the following line in <MACHINE_NAME>_connections.hal.
 
@@ -877,7 +877,7 @@ PlasmaC will read the cut parameters from the Run Panel and use them where requi
 
 Material handling has nothing at all to do with the LinuxCNC tool table, instead it uses a material file that was created at the same time as the configuration.
 
-The LinuxCNC tool table and tool commands only come into play if your are using an <<air-scribe, air-scribe>> in addition to the plasma torch.
+The LinuxCNC tool table and tool commands only come into play if your are using an <<scribe, scribe>> in addition to the plasma torch.
 
 There is a <<material-file, material file>> with its name derived from '[EMC]MACHINE' in the in file, so a machine named 'METRIC_PLASMAC' would have a material file named 'metric_plasmac_material.cfg'.
 
@@ -1293,44 +1293,44 @@ The current job displayed in the Preview Panel may be saved at any time by using
 
 The current job displayed in the Preview Panel may be run at any time.
 
-[[air-scribe]]
+[[scribe]]
 
-== Air Scribe
+== Scribe
 
-An air-scribe may be operated by PlasmaC in addition to the plasma torch, this is disabled by default so as not to affect existing configurations.
+An scribe may be operated by PlasmaC in addition to the plasma torch, this is disabled by default so as not to affect existing configurations.
 
-Using an air-scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the air-scribe. The air-scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table, the plasma torch offsets will always be zero. The tools are selected by the 'Tn M6' command then a 'G43 H0' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for air-scribing.
+Using a scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the scribe. The scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table. The plasma torch offsets will always be zero. The tools are selected by the 'Tn M6' command then a 'G43 H0' is required to apply the offsets. PlasmaC is then started with a 'M3 $n S1' command. For 'n', use 0 for plasma cutting or 1 for scribing.
 
-There are two HAL output pins used to operate the air-scribe, one to arm the air-scribe which moves the air-scribe to the surface of the material then after a <<scribe-config, delay>> the other to start the air-scribe, then after a <<scribe-config, delay>> motion will beging
+There are two HAL output pins used to operate the scribe, one to arm the scribe which moves the scribe to the surface of the material then after a <<scribe-config, delay>> the other to start the scribe, then after a <<scribe-config, delay>> motion will begin.
 
-Using PlasmaC after enabling the air-scribe then requires selecting either the torch or the air-scribe in each GCode file as a LinuxCNC tool.
+Using PlasmaC after enabling the scribe then requires selecting either the torch or the scribe in each GCode file as a LinuxCNC tool.
 
 To enable scribing, see <<multi-tool, multiple tools>>.
 
-If you haven't yet assigned the HAL pins for the air-scribe in the Configurator then you will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
+If you haven't yet assigned the HAL pins for the scribe in the Configurator then you will need to do so by invoking the <<modify-config, reconfigure>> mode of the Configurator.
 
-The air-scribe is now active and the arming action may be tested by issuing a 'M3 $1 S1' command in the MDI input. This will cause the air-scribe to arm but will not start the air-scribe.
+The scribe is now active and the arming action may be tested by issuing a 'M3 $1 S1' command in the MDI input. This will cause the scribe to arm but will not start the scribe.
 
-The next step is to open the tool table editor in the GUI and enter the X and Y axes offsets. These are the distances in X and Y from the centre of the torch nozzle. In most cases, if standing at the front of the machine if the air-scribe is to the right of the torch it would be a positive value and if the air-scribe is to the rear of the torch it would also be a positive value. The offsets for the torch should always be zero.
+The next step is to open the tool table editor in the GUI and enter the X and Y axes offsets. These are the distances in X and Y from the centre of the torch nozzle. In most cases, if standing at the front of the machine if the scribe is to the right of the torch it would be a positive value and if the scribe is to the rear of the torch it would also be a positive value. The offsets for the torch should always be zero.
 
-The final step is to set the <<scribe-config, air-scribe delays>> required:
+The final step is to set the <<scribe-config, scribe delays>> required:
 
-. Arm Delay, allows time for the air scribe to descend to the surface of the material.
-. Start Delay, allows time for the air scribe to start before motion begins.
+. Arm Delay, allows time for the scribe to descend to the surface of the material.
+. On Delay, allows time for the scribe to start before motion begins.
 
 Save the Config parameters.
 
 The material can then be lined up with the torch as previously and the offsets can be applied so both tools operate at the correct coordinates.
 
-To use the air-scribe from GCode:
+To use the scribe from GCode:
 
 -----
 ...
 M52 P1 (paused motion on)
 F#<_hal[plasmac.cut-feed-rate]>
-T1 M6 (select air-scribe)
+T1 M6 (select scribe)
 G43 H0 (apply ofsets)
-M3 $1 S1 (start plasmac with air-scribe)
+M3 $1 S1 (start plasmac with scribe)
 ...
 T0 M6 (select torch)
 G43 H0(apply ofsets)
@@ -1340,25 +1340,25 @@ M5 (end)
 
 It is a good idea to switch back to the torch at the end of the program before your final rapid parking move so your machine is always in the same state at idle.
 
-You can switch between the torch and the air-scribe any number of times during a program by using the above code and issuing 'M3 $0 S1' to start PlasmaC with the torch.
+You can switch between the torch and the scribe any number of times during a program by using the above code and issuing 'M3 $0 S1' to start PlasmaC with the torch.
 
 Issuing M3 S1 (without $n) will cause the machine to behave as if an 'M3 $0 S1' had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous GCode files.
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
 
-== Center Spotting
+== Spotting
 
 IMPORTANT: This is experimental and will not suit some plasma cutters
 
-To achieve centre spotting prior to drilling, PlasmaC can pulse the torch for a short duration to mark the drill centre spot.
+To achieve spotting prior to drilling etc, PlasmaC can pulse the torch for a short duration to mark the drill spot.
 
-This is done by first setting the arc voltage threshold in the <<config-panel, Config Panel>>. When this threshold is reached the delay timer will start. If the threshold voltage is set to zero then the delay timer will begin from when the torch on signal was sent.
+This is done by first setting the arc voltage threshold in the <<config-panel, Config Panel>>. If the threshold voltage is set to zero then the delay timer will begin from when the torch on signal was sent. If the threshold voltage is set above zero then the delay timer will begin when the arc voltage reaches the threshold voltage.
 
 Then set the delay time in the <<config-panel, Config Panel>>. When the delay is complete, the torch will turn off. Times are adjustable from 0 to 9999 milli-seconds.
 
-The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a centre spot tool.
+The torch is then turned on in GCode with the 'M3 $2 S1' command which selects the plasma torch as a spotting tool.
 
-To enable centre spotting, see <<multi-tool, multiple tools>>.
+To enable spotting, see <<multi-tool, multiple tools>>.
 
 LinuxCNC requires some motion between an 'M3' command and a 'M5' command so a minimal movement at a high speed is programmed.
 
@@ -1369,11 +1369,11 @@ G21 (metric)
 F99999 (high feed rate)
 
 g0 x10 y10
-m3 $2 s1 (centre spot on)
+m3 $2 s1 (spotting on)
 g91 (relative distance mode)
 g1 x0.000001
 g90 (absolute distance mode)
-m5 (centre spot off)
+m5 (spotting off)
 
 g0 x0 y0
 g90
@@ -1522,7 +1522,7 @@ HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
 
-The <MACHINE_NAME>.hal file has 'num_spindles=[TRAJ]SPINDLES' appended to the end of the 'loadrt motmod' line to allow the addition of an <<air-scribe, air-scribe>> if required.
+The <MACHINE_NAME>.hal file has 'num_spindles=[TRAJ]SPINDLES' appended to the end of the 'loadrt motmod' line to allow the addition of an <<scribe, scribe>> if required.
 
 NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
 
@@ -1899,17 +1899,21 @@ It is possible to change the type of LinuxCNC installation:
 * If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install, buildbot installation>>.
 * If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install, run in place installation>>.
 
-IMPORTANT: If any of the these steps were performed it is recommended that you upgrade your PlasmaC configuration
-
 == Upgrade An Existing PlasmaC Configuration
 
-It is best practice to do a Plasmac upgrade after every LinuxCNC upgrade even though it is not always necessary. This will ensure that the PlasmaC configuration version matches the current LinuxCNC version.
+=== Automatic Upgrade
 
-NOTE: You need to have upgraded your LinuxCNC installation before you upgrade the PlasmaC configuration.
+PlasmaC will test if it needs an upgrade each time LinuxCNC is started. If it finds that it needs upgrading it will automatically proceed with the upgrade. After the upgrade is complete LinuxCNC will need to be restarted.
 
-Upgrading a Plasmac configuration is done from the Configurator which is located in your configuration directory.
+=== Manual Upgrade
 
-To start the configurator open a terminal and enter:
+If you do not wish to allow PlasmaC to do automatic upgrades then you can prevent this by adding 'MANUAL_UPGRADE = 1' to the [PLASMAC] section of the .ini file:
+
+----
+MANUAL_UPGRADE            = 1
+----
+
+You would then need to manually upgrade PlasmaC by opening a terminal and running the configurator:
 
 ====
 $ python linuxcnc/<your_configuration_directory>/configurator.py
