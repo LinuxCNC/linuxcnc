@@ -760,14 +760,10 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 			    if(imag(location)>imag(pocket_starts.back())
 				&& pocket_starts.size()>1
 			    ) {
-				std::cout << "Left " << pocket_starts.back()
-				    << std::endl;
 				pocket_starts.pop_back();
 			    }
 			    if(pocket_starts.size()==1) {
 				pocket_starts.push_back(location);
-				std::cout << "Entered " << location
-				    << std::endl;
 			    }
 			}
 			pocket(cycle, location,p,out);
