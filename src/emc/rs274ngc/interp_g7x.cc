@@ -790,7 +790,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    /* We can hit the diving curve, if its a circle */
 	    double destination_z=ip!=p? is.front():is.back();
 	    double distance=std::abs(destination_z-real(location));
-	    if(distance<tolerance) {
+	    if(distance<tolerance || destination_z-tolerance>real(location)) {
 		if(p==ip)
 		    // Hitting the diving curve at the starting point.
 		    continue;
