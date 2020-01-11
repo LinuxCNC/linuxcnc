@@ -311,14 +311,16 @@ bool round_segment::climb(std::complex<double> &location,
 bool round_segment::dive(std::complex<double> &location,
     double x, motion_base *output, bool
 ) {
-    if(abs(location-end)<1e-3)
+    if(abs(location-end)<tolerance)
 	return 0;
     intersections_t is;
     intersection_z(x,is);
 
     if(ccw) { // G3
-	if(location.real()>center.real())
+	if(location.real()-tolerance>center.real())
 	    return 1;
+	if(abs(location-start)<tolerance)
+	    return 0;
 	if(!is.size() || is.back()>real(center)) {
 	    output->circular_move(ccw,center,end);
 	    location=end;
@@ -333,6 +335,8 @@ bool round_segment::dive(std::complex<double> &location,
     } else {
 	if(location.real()<=center.real())
 	    return 1; // we're already climbing
+	if(!is.size())
+	    intersection_z(x-tolerance,is);
 	if(!is.size()) {
 	    // Curve not hit, move to the end
 	    output->circular_move(ccw,center,end);
@@ -702,7 +706,7 @@ public:
 	    (*p)->move(displacement);
 	auto swapped_out=motion(out);
 
-	delta=i;
+	delta=std::max(i,2*tolerance);
 	escape=r*std::complex<double>{1,1};
 
 	swapped_out->straight_rapid(front()->sp());
@@ -790,7 +794,9 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    /* We can hit the diving curve, if its a circle */
 	    double destination_z=ip!=p? is.front():is.back();
 	    double distance=std::abs(destination_z-real(location));
-	    if(distance<tolerance || destination_z-tolerance>real(location)) {
+	    if(destination_z-tolerance>real(location))
+		continue; // Hitting the diving curve at the starting point only
+	    if(distance<tolerance) {
 		if(p==ip)
 		    // Hitting the diving curve at the starting point.
 		    continue;
