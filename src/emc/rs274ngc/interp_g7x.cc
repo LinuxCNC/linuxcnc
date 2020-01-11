@@ -1132,6 +1132,9 @@ int Interp::convert_g7x(int mode,
     if(original_block.x_flag) x=original_block.x_number;
     if(original_block.z_flag) z=original_block.z_number;
 
+    if(i<=0)
+	ERS("G7X error: I must be greater than zero.");
+
     motion_machine motion(this, settings, block);
     try {
 	switch(cycle) {
