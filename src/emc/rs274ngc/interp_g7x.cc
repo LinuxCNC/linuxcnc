@@ -311,10 +311,14 @@ bool round_segment::climb(std::complex<double> &location,
 bool round_segment::dive(std::complex<double> &location,
     double x, motion_base *output, bool
 ) {
-    if(abs(location-end)<tolerance)
+    if(abs(location-end)<tolerance || real(location-end)<=tolerance) {
+	location=end;
 	return 0;
+    }
     intersections_t is;
     intersection_z(x,is);
+    if(!is.size())
+	intersection_z(x-tolerance,is);
 
     if(ccw) { // G3
 	if(location.real()-tolerance>center.real())
@@ -327,16 +331,13 @@ bool round_segment::dive(std::complex<double> &location,
 	    return 0;
 	} else {
 	    std::complex<double> ep(is.back(),x);
-	    if(abs(location-ep)>1e-3)
-		output->circular_move(ccw,center,ep);
+	    output->circular_move(ccw,center,ep);
 	    location=ep;
 	    return 0;
 	}
     } else {
 	if(location.real()<=center.real())
 	    return 1; // we're already climbing
-	if(!is.size())
-	    intersection_z(x-tolerance,is);
 	if(!is.size()) {
 	    // Curve not hit, move to the end
 	    output->circular_move(ccw,center,end);
@@ -350,8 +351,7 @@ bool round_segment::dive(std::complex<double> &location,
 	} else {
 	    // Arc cut twice, move to the front intersection
 	    std::complex<double> ep(is.front(),x);
-	    if(abs(location-ep)>1e-3)
-		output->circular_move(ccw,center,ep);
+	    output->circular_move(ccw,center,ep);
 	    location=ep;
 	    return 0;
 	}
@@ -958,9 +958,13 @@ public:
 	block->k_flag=1;
 	block->k_number=real(center);
 
-	int r=interp->convert_arc(ccw? G_3:G_2, block, settings);
-	if(r!=INTERP_OK)
-	    throw(r);
+	if(!equal(settings->current_z,block->z_number)
+	    || !equal(settings->current_x,block->x_number)
+	) {
+	    int r=interp->convert_arc(ccw? G_3:G_2, block, settings);
+	    if(r!=INTERP_OK)
+		throw(r);
+	}
     }
 };
 
