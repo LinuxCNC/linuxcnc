@@ -1,9 +1,9 @@
-The pentapod machine configuration is a set of files that makes up a very basic LinuxCNC pentapod.
+The pentapod machine configuration is a set of files that makes up a basic LinuxCNC pentapod.
 
 Start the machine, toggle E-Stop and Machine power, press Home all button, switch to world mode ($) and you can move the effector in world coordinates.
 
 
-hexapod.ini
+pentapod.ini
 ---------------
 Config file for a general pentapod.
 If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
@@ -20,6 +20,6 @@ panel.xml
 ---------
 Adds PyVCP panel.
 
-hexapod_postgui.hal
+pentapod_postgui.hal
 ------------------
 Adds joints values and iterations number to PyVCP panel.
