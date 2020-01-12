@@ -10,8 +10,6 @@
 * System: Linux
 *
 * Copyright (c) 2016 All rights reserved.
-*
-* Last change: 2016.07.03
 *********************************************************************
 
   These are the forward and inverse kinematic functions for a pentapod

@@ -10,8 +10,6 @@
 * System: Linux
 *
 * Copyright (c) 2016 All rights reserved.
-*
-* Last change: 2016.07.03
 ********************************************************************
 
   This is the header file containing joints coordinates.
