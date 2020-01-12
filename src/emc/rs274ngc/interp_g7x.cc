@@ -970,7 +970,7 @@ class switch_settings {
     Interp *interp;
     setup_pointer settings;
     DISTANCE_MODE saved_distance_mode, saved_ijk_distance_mode;
-    read_function_pointer read_a, read_c;
+    read_function_pointer read_a, read_c, read_u, read_w;
 public:
     switch_settings(Interp *i,setup_pointer s):interp(i), settings(s)
     {
@@ -980,14 +980,20 @@ public:
 	settings->ijk_distance_mode=MODE_ABSOLUTE;
 	read_a=interp->_readers[(int)'a'];
 	read_c=interp->_readers[(int)'c'];
+	read_u=interp->_readers[(int)'u'];
+	read_w=interp->_readers[(int)'w'];
 	interp->_readers[(int)'a']=interp->default_readers[(int)'a'];
 	interp->_readers[(int)'c']=interp->default_readers[(int)'c'];
+	interp->_readers[(int)'u']=interp->default_readers[(int)'u'];
+	interp->_readers[(int)'w']=interp->default_readers[(int)'w'];
     }
     ~switch_settings(void) {
 	settings->distance_mode=saved_distance_mode;
 	settings->ijk_distance_mode=saved_ijk_distance_mode;
 	interp->_readers[(int)'a']=read_a;
 	interp->_readers[(int)'c']=read_c;
+	interp->_readers[(int)'u']=read_u;
+	interp->_readers[(int)'w']=read_w;
     }
     DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
     DISTANCE_MODE distance_mode(void) { return saved_distance_mode; }
@@ -1059,8 +1065,27 @@ int Interp::convert_g7x(int mode,
 	if(old.distance_mode()==MODE_INCREMENTAL)
 	    end=0;
 
-	if(block->x_flag) end.imag(block->x_number);
-	if(block->z_flag) end.real(block->z_number);
+	if(block->u_flag) {
+	    if(old.distance_mode()==MODE_INCREMENTAL)
+		ERS("G7x error: Cannot use U in incremental mode (G91)");
+	    if(block->x_flag)
+		ERS("G7x error: Cannot use U and X in the same block");
+	    auto u=block->u_number;
+	    if(settings->lathe_diameter_mode)
+		u/=2;
+	    end.imag(end.imag()+u);
+	} else if(block->x_flag)
+	    end.imag(block->x_number);
+
+	if(block->w_flag) {
+	    if(old.distance_mode()==MODE_INCREMENTAL)
+		ERS("G7x error: Cannot use W in incremental mode (G91)");
+	    if(block->z_flag)
+		ERS("G7x error: Cannot use W and Z in the same block");
+	    end.real(end.real()+block->w_number);
+	} else if(block->z_flag)
+	    end.real(block->z_number);
+
 	if(block->i_flag) center.imag(block->i_number);
 	if(block->k_flag) center.real(block->k_number);
 
