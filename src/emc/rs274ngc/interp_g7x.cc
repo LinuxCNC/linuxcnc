@@ -323,8 +323,6 @@ bool round_segment::dive(std::complex<double> &location,
     if(ccw) { // G3
 	if(location.real()-tolerance>center.real())
 	    return 1;
-	if(abs(location-start)<tolerance)
-	    return 0;
 	if(!is.size() || is.back()>real(center)) {
 	    output->circular_move(ccw,center,end);
 	    location=end;
