@@ -212,7 +212,8 @@ static int do_pending(hm2_spi_t *this) {
     t.len = 4 * this->nbuf;
 
     if(this->settings.bits_per_word == 8) {
-	for(int i=0; i<this->nbuf; i++)
+	int i;
+	for(i=0; i<this->nbuf; i++)
 	   this->trxbuf[i] = htobe32(this->trxbuf[i]);
     }
     int r = ioctl(this->fd, SPI_IOC_MESSAGE(1), &t);
@@ -224,7 +225,8 @@ static int do_pending(hm2_spi_t *this) {
     }
 
     if(this->settings.bits_per_word == 8) {
-	for(int i=0; i<this->nbuf; i++)
+	int i;
+	for(i=0; i<this->nbuf; i++)
 	   this->trxbuf[i] = be32toh(this->trxbuf[i]);
     }
 
