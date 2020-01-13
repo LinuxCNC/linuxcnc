@@ -12,7 +12,7 @@ kinematics.hal
 --------------
 Defines base and effector joints coordinates.
 
-core_sim_5.hal
+basic_sim.tcl
 --------------
 Defines simulated joints, no real hardware attached in this config.
 
