@@ -84,13 +84,15 @@
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
 #define LBP_ENCODER_L           0x28 // part and full count fields. 
 
+// NOTE: This structure must match the layout of some device memory.  In
+// particular, you can't change the "float"s to "double"s.
 typedef struct {
     unsigned char RecordType;
     unsigned char DataLength;
     unsigned char DataType;
     unsigned char DataDir;
-    double ParmMin;
-    double ParmMax;
+    float ParmMin;
+    float ParmMax;
     short ParmAddr;
     char UnitString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
     char NameString[HM2_SSERIAL_MAX_STRING_LENGTH+1];
