@@ -368,7 +368,6 @@ static int detect_xenomai() {
 #endif
 static int detect_env_override() {
     char *p = getenv("LINUXCNC_FORCE_REALTIME");
-    printf("detect_env_override %p [%s]\n", p, p ? p : "");
     return p != NULL && atoi(p) != 0;
 }
 
