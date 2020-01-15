@@ -455,7 +455,7 @@ class configurator:
             return 0.079
         # if version before adding pause at end
         elif self.b4_pause_at_end():
-            return 0.087
+            return 0.086
         # if version before code tidy 20/01/07
         elif self.b4_auto_upgrade():
             return 0.089
