@@ -123,13 +123,19 @@ To use the buildbot packages on your computer, first add the buildbot archive si
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
 ----
 
+If you get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
+
+----
+sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-key E0EE663E
+----
+
 Close the terminal, then from the Main Menu, open Synaptic Package Manager.
 
-Select Search in the menu bar and do a search using linuxcnc as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be deleted.
+Select Search in the menu bar and do a search using 'linuxcnc' as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be deleted.
 
 Click Settings from the menu and select Repositories.
 
-You can then either edit or delete existing LinuxCNC entries but you need to end up with the following set of stanzas as the only references to LinuxCNC:
+You can then either edit or delete existing LinuxCNC entries from the repositories list. You need to end up with the following set of stanzas as the only references to LinuxCNC:
 
 ----
 deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
@@ -151,7 +157,7 @@ deb-src http://buildbot.linuxcnc.org/ stretch master-rtpreempt
 
 When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
 
-Now do a Search with linuxcnc as the search term and the result should be a list of newly available LinuxCNC packages
+Now do a Search with 'linuxcnc' as the search term and the result should be a list of newly available LinuxCNC packages
 
 Right click on the package you want to install and then select Mark for Installation.
 
