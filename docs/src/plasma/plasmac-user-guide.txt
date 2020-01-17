@@ -1863,6 +1863,8 @@ There are example configuration files for both the Axis and Gmoccapy GUIs which 
 * metric_plasmac.ini
 * imperial_plasmac.ini
 
+If you have copied any example configs to your ~/linuxcnc/configs directory then they are able to be updated by running the Configurator in Upgrade mode. This will replace any copied plasmac system file with a link to the latest version you have upgraded to.
+
 == NGC Samples
 
 There are some sample G-Code files in nc_files/plasmac.

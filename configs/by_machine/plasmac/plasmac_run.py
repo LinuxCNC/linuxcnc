@@ -743,7 +743,8 @@ class HandlerClass:
         manualUpgrade = int(self.i.find('PLASMAC', 'MANUAL_UPGRADE') or 0)
         if lastUpgrade < latestUpgrade and manualUpgrade != 1:
             iniFile = os.environ['INI_FILE_NAME']
-            basePath =  os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(os.path.dirname(iniFile), 'M190'))))
+            iniPath = os.path.dirname(iniFile)
+            basePath = os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(iniPath, 'M190'))))
             cmd = '{}/configurator.py'.format(basePath)
             os.execv(cmd,[cmd, 'upgrade', iniFile])
             sys.exit()
