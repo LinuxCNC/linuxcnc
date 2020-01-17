@@ -483,6 +483,10 @@ class configurator:
             if self.check_typos():
                 self.fix_typos()
             version = self.check_version()
+            print('\nRe-creating links')
+            if not self.make_links(display, version):
+                print('\nError while re-creating links')
+                return
             if version == self.latestUpgrade:
                 print('\nUpgrade not required from v{:0.3f} or later\n'.format(self.latestUpgrade))
                 if len(sys.argv) == 3 and self.configureType == 'upgrade':
@@ -498,7 +502,6 @@ class configurator:
             self.upgrade_material_file(version)
             self.upgrade_connections_file(version)
             self.upgrade_config_files(version)
-            if not self.make_links(display, version): return
             if len(sys.argv) == 3:
                 self.dialog_ok('SUCCESS','\nPlasmaC has been automatically upgraded.\n\nLinuxCNC will need to be restarted.\n\n')
                 sys.exit()
@@ -2074,7 +2077,8 @@ class configurator:
                    ]
         elif display == 'gmoccapy':
             return common +\
-                   ['plasmac_buttons.glade',\
+                   ['blank.ngc',\
+                    'plasmac_buttons.glade',\
                     'plasmac_buttons.hal',\
                     'plasmac_buttons.py',\
                     'plasmac_control.glade',\

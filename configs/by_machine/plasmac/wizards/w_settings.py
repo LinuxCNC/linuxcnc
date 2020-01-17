@@ -3,7 +3,7 @@
 '''
 w_settings.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019, 2020  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

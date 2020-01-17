@@ -3,7 +3,7 @@
 '''
 w_array.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019, 2020  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -61,6 +61,7 @@ class array:
                     os.remove(self.outFile)
                 self.outFile = '{}/array_{}.ngc'.format(self.tmpDir, time.time())
                 shutil.copyfile(fName, self.outFile)
+                self.c.program_open('blank.ngc')
                 self.c.program_open(self.outFile)
         else:
             print('Unknown GUI in .ini file')
@@ -93,8 +94,10 @@ class array:
             self.dialog_error('Cannot find required files')
         self.previewed = False
         self.W.destroy()
+        for fName in ['original.ngc', 'shape.ngc', 'shape.tmp', 'wizard.ngc']:
+            if os.path.exists('{}/{}'.format(self.tmpDir, fName)):
+                os.remove('{}/{}'.format(self.tmpDir, fName))
         return None
-
     def preview_array(self, event):
         if self.xCEntry.get_text():
             columns = int(self.xCEntry.get_text())
