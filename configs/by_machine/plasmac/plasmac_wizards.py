@@ -237,10 +237,10 @@ class wizards:
             pic = self.i.find('PLASMAC', 'BUTTON_' + str(button) + '_IMAGE') or ''
             if bname != '0':
                 bname = bname.split('\\')
+                blabel = bname[0]
                 if len(bname) > 1:
-                    blabel = bname[0] + '\n' + bname[1]
-                else:
-                    blabel = bname[0]
+                    for name in range(1, len(bname)):
+                        blabel += '\n{}'.format(bname[name])
                 self.builder.get_object('button' + str(button)).set_label(blabel)
                 self.builder.get_object('button' + str(button)).children()[0].set_justify(gtk.JUSTIFY_CENTER)
             if code == 'cut-type':
