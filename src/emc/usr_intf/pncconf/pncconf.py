@@ -4749,21 +4749,27 @@ Clicking 'existing custom program' will aviod this warning. "),False):
            test = self.findsignal(thisaxisstepgen)
            return test
 
+    # find the individual related oins to step gens
+    # so that we can check if they were inverted
     def stepgen_invert_pins(self,pinnumber):
         # sample pinname = mesa0c0pin11
-        signallist = []
+        signallist_a = []
+        signallist_b = []
         pin = int(pinnumber[10:])
         connector = int(pinnumber[6:7])
         boardnum = int(pinnumber[4:5])
         channel = None
         pinlist = self.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
         #print pinlist
-        for i in pinlist:
+        for num,i in enumerate(pinlist):
             if self.d[i[0]+"inv"]:
                 gpioname = self.make_pinname(self.findsignal( self.d[i[0]] ),True)
                 #print gpioname
-                signallist.append(gpioname)
-        return signallist
+                if num:
+                    signallist_b.append(gpioname)
+                else:
+                    signallist_a.append(gpioname)
+        return [signallist_a, signallist_b]
 
     def spindle_invert_pins(self,pinnumber):
         # sample pinname = mesa0sserial0_0pin11
