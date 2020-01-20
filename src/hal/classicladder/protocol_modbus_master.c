@@ -554,12 +554,18 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf(_("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  "), LgtAskFrame );
+			printf(_("INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n    Length=%d bytes -> "), LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-				if (DebugFrame==0) {   printf(_("Slave address-%X  "), Question[ DebugFrame]);   
-				}else{   if (DebugFrame==1) {   printf(_("Function code-%X  Data-"), Question[ DebugFrame]);   
-						}else{            printf("%X ", Question[ DebugFrame ] );     }}
+				if (DebugFrame==0)
+				{   printf(_("Slave: %X  "), Question[ DebugFrame]);   
+				}else if (DebugFrame==1)
+				{   printf(_("Function: %X  Data: "), Question[ DebugFrame]);   
+				}else if (DebugFrame == (LgtAskFrame-2))
+				{   printf(_(" CRC: %X "), Question[ DebugFrame]);
+				}else
+				{   printf("%X ", Question[ DebugFrame ] );
+				}
 			}
 			printf("\n");
 		}
@@ -573,12 +579,18 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 	char RepOk = FALSE;
 	if ( ModbusDebugLevel>=1 )
 	{
-		printf(_("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> "), LgtResponse );
+		printf(_("INFO CLASSICLADDER-   Modbus I/O received (Hex):\n    Length=%d bytes <- "), LgtResponse );
 		for( DebugFrame=0; DebugFrame<LgtResponse; DebugFrame++ )
 		{
-			if (DebugFrame==0) {   printf(_("(Slave address-%X - "), Response[ DebugFrame]);   
-			}else{   if (DebugFrame==1) {   printf(_("Function code-%X ) "), Response[ DebugFrame]);
-					}else{            printf("%X ", Response[ DebugFrame ] );     }}
+			if (DebugFrame ==0)
+			{   printf(_("Slave: %X  "), Response[ DebugFrame]);   
+			}else if (DebugFrame ==1)
+			{   printf(_("Function: %X Data: "), Response[ DebugFrame]);
+			}else if (DebugFrame == (LgtResponse-2))
+			{   printf(_(" CRC: %X "), Response[ DebugFrame]);
+			}else
+			{   printf("%X ", Response[ DebugFrame ] );
+			}
 		}
 		printf("\n");
 	}
