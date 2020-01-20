@@ -231,7 +231,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 self.pref_filename = INFO.PREFERENCE_PATH
                 LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
             return Access(self.pref_filename), self.pref_filename
-        return None
+        return None,None
 
     def on_periodic(self, w):
         e = self.error.poll()
@@ -259,7 +259,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def closeEvent(self, event):
         if self.close_event:
             sound = None
-            if self.play_sounds and self.play_shutdown_sounds:
+            if self.PREFS_ and self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
             answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
@@ -280,9 +280,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 event.accept()
             # close linuxcnc
             elif answer:
-                if self.play_sounds and self.play_shutdown_sounds:
+                if self.PREFS_ and self.play_sounds and self.play_shutdown_sounds:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                    event.accept()
+                event.accept()
             # cancel
             elif answer == False:
                 event.ignore()
