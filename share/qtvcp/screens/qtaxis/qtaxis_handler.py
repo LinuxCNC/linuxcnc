@@ -399,7 +399,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
