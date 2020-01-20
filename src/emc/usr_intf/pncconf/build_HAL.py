@@ -1360,7 +1360,7 @@ class HAL:
             # invert step pins if requested
             # step does not have alias pin names so we invert it's GPIO pin
             for i in stepinvertlist[0]:
-                   print >>file, "setp   "+i+".invert_output   true"
+                   print >>file, "setp   " + steppinname + ".step.invert_output   true"
             # step direction has an alias pin
             for i in stepinvertlist[1]:
                    print >>file, "setp   " + steppinname + ".direction.invert_output   true"

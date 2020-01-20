@@ -335,15 +335,16 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
             DETAILS = ' Tool Info: %s'% comment
 
             STATUS.emit('focus-overlay-changed', True, MESS, self._color)
-            if self.speak:
-                STATUS.emit('play-sound', 'speak %s' % MORE)
-            if self.play_sound:
-                STATUS.emit('play-sound', self.sound_type)
+            if self.PREFS_:
+                if self.speak:
+                    STATUS.emit('play-sound', 'speak %s' % MORE)
+                if self.play_sound:
+                    STATUS.emit('play-sound', self.sound_type)
 
-            # desktop notify dialog
-            if self.useDesktopDialog:
-                NOTICE.notify_ok(MESS, MORE, None, 0, self._pin_change)
-                return
+                # desktop notify dialog
+                if self.useDesktopDialog:
+                    NOTICE.notify_ok(MESS, MORE, None, 0, self._pin_change)
+                    return
             # Qt dialog
             answer = self.showtooldialog(MESS, MORE, DETAILS)
             STATUS.emit('focus-overlay-changed', False, None, None)
