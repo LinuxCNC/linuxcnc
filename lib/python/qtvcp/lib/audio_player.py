@@ -21,6 +21,9 @@
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
+import os
+import subprocess
+
 # try to add ability for audio feedback to user.
 PY_LIB_GOOD = GST_LIB_GOOD = True
 try:
@@ -30,7 +33,6 @@ try:
     import gst
 except:
     PY_LIB_GOOD = False
-    import subprocess
     p = subprocess.Popen('gst-launch-1.0', shell=True,
           stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE, close_fds=True)
@@ -40,12 +42,19 @@ except:
         log.warning('no audio alerts available - Is gstreamer-1.0-tools installed?')
         GST_LIB_GOOD = False
 
-import os
 from qtvcp.core import Status
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
+
+try:
+    subprocess.check_output('''espeak --help''', shell=True)
+    ESPEAK = True
+except:
+    ESPEAK = False
+    log.warning('audio alerts - Is python-espeak installed?')
+    log.warning('Text to speach output not available. ')
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -197,8 +206,9 @@ class Player:
         os.system("beep -f 555 ")
 
     def os_speak(self,f):
-        cmd = f.lower().lstrip('speak')
-        os.system('''espeak -s 160 -v m3 -p 1 "%s" &'''% cmd)
+        if ESPEAK:
+            cmd = f.lower().lstrip('speak')
+            os.system('''espeak -s 160 -v m3 -p 1 "%s" &'''% cmd)
 
     ##############################
     # required class boiler code #
