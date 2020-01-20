@@ -1,6 +1,19 @@
 These folders hold the required library (in binary form) for designer to use 
 python2 widgets.
 
+need for displayimg pyqt widgets:
+python-pyqt5
+python-pyqt5.qsci
+python.pyqt5.qtopengl
+python-pyqt5.qtsvg
+python-opengl
+python-opencv
+
+optional:
+espeak
+espeak-ng-espeak
+python-dbus.mainloop.pyqt
+
 you must have designer installed:
 sudo apt-get install qttools5-dev-tools
 sudo apt-get install qttools5.dev
