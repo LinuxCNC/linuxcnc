@@ -16,6 +16,7 @@
 from __future__ import division
 
 import os
+import hal
 
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
@@ -280,14 +281,20 @@ class ToolDialog(LcncDialog, _HalWidgetBase):
 
         self.topParent = self.QTVCP_INSTANCE_
         #_HalWidgetBase._hal_init(self)
-        oldname = self.HAL_GCOMP_.comp.getprefix()
-        self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
-        self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
-        self.hal_pin.value_changed.connect(self.tool_change)
-        self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
-        self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
-        #self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
-        self.HAL_GCOMP_.comp.setprefix(oldname)
+
+        if not hal.component_exists('hal_manualtoolchange'):
+            oldname = self.HAL_GCOMP_.comp.getprefix()
+            self.HAL_GCOMP_.comp.setprefix('hal_manualtoolchange')
+            self.hal_pin = self.HAL_GCOMP_.newpin('change', hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin.value_changed.connect(self.tool_change)
+            self.tool_number = self.HAL_GCOMP_.newpin('number', hal.HAL_S32, hal.HAL_IN)
+            self.changed = self.HAL_GCOMP_.newpin('changed', hal.HAL_BIT, hal.HAL_OUT)
+            #self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + 'change_button', hal.HAL_BIT, hal.HAL_IN)
+            self.HAL_GCOMP_.comp.setprefix(oldname)
+        else:
+            LOG.warning("""Detected hal_manualtoolchange component already loaded
+   Qtvcp recommends to allow use of it's own component by not loading the original. 
+   Qtvcp Intergrated toolchange dialog will not show untill then""")
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
             self.speak = self.PREFS_.getpref('toolDialog_speak', True, bool, 'DIALOG_OPTIONS')
