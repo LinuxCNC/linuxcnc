@@ -27,8 +27,7 @@ class _IStat(object):
         if self.__class__._instanceNum >=1:
             return
         self.__class__._instanceNum += 1
-
-        self.LINUXCNC_IS_RUNNING = bool(INIPATH is None)
+        self.LINUXCNC_IS_RUNNING = bool(INIPATH != '/dev/null')
         if not self.LINUXCNC_IS_RUNNING:
             # Reset the log level for this module
             # Linuxcnc isn't running so we expect INI errors

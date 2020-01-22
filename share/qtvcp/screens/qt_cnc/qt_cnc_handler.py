@@ -72,7 +72,11 @@ class HandlerClass:
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
         KEYBIND.add_call('Key_F8','on_keycall_F8')
+        KEYBIND.add_call('Key_F9','on_keycall_custom','f9 pressed tesst')
+        KEYBIND.add_call('Key_F10','on_keycall_custom','f10 pressed tesst')
+        KEYBIND.add_call('Key_F11','on_keycall_custom','f11 pressed test')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -244,6 +248,11 @@ class HandlerClass:
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         pass
         #self.kb_jog(state, 3, -1, shift, linear=False)
+
+    # f9, f10 and f11 call this function with different values
+    def on_keycall_custom(self,event,state,shift,cntrl,value):
+        if state:
+            print 'custom keycall function value: ',value
 
     ###########################
     # **** closing event **** #
