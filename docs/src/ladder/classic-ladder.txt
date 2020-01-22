@@ -986,7 +986,7 @@ meaning (Hex): +
 
 ==== Error response
 If there is an error response, it sends the function code plus 0x80, an error code, and a checksum. +
-Getting an error response means the slave is seeing the request command but can not give data. +
+Getting an error response means the slave is seeing the request command but can not give valid data. +
 Looking in the Modbus protocol reference: +
 
 .Error returned for function code 3 (read holding register)
@@ -995,7 +995,7 @@ Looking in the Modbus protocol reference: +
 |========================================
 |Name | number of bytes |  Value (hex)
 |Error code | 1 Byte | 131 (0x83)
-|Exception code  | 1 Byte  | 1-4 (ox01 to ox04)
+|Exception code  | 1 Byte  | 1-4 (0x01 to 0x04)
 |Checksum | (2 bytes) | Calculated automatically
 |========================================
 
@@ -1026,8 +1026,8 @@ Looking in the Modbus protocol reference for Response: +
 |========================================
 |Name | number of bytes |  Value (hex)
 |Function code | 1 Byte | 3 (0x03)
-|Byte count | 1 Byte  2 x N*
-|Register value } N* x 2 Bytes
+|Byte count | 1 Byte | 2 x N*
+|Register value | N* x 2 Bytes | returned value of requested address
 |Checksum | (2 bytes) | Calculated automatically
 | ( *N = Number of Registers ) | |
 |========================================
