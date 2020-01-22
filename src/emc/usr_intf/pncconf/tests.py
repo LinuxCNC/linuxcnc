@@ -674,9 +674,13 @@ But there is not one in the machine-named folder.."""),True)
                 self.scale = get_value(w[axis + "stepscale"]) * -1
             else:
                 self.scale = get_value(w[axis + "stepscale"]) * 1
+
+            # invert step pins if requested
             stepinvertlist = self.a.stepgen_invert_pins(step_sig)
-            for i in stepinvertlist:
-                halrun.write("setp    "+i+".invert_output true\n")
+            for i in stepinvertlist[0]:
+                   print >>file, "setp   " + self.step_signalname + ".step.invert_output   true"
+            for i in stepinvertlist[1]:
+                   print >>file, "setp   " + self.step_signalname + ".direction.invert_output   true"
             halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
             halrun.write("setp %s.control-type 1 \n"% (self.step_signalname))
             halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
