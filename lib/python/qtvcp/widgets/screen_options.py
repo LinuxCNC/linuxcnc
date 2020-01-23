@@ -316,24 +316,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # XEmbed program into tabs
     def add_xembed_tabs(self):
         if INFO.TAB_CMDS:
+            wid = int(self.QTVCP_INSTANCE_.winId())
+            os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
+
             from qtvcp.widgets.xembed import XEmbeddable
-            for name, tab, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,tab,cmd))
-                if tab == 'default':
-                    tab = 'rightTab'
-                if not isinstance(self.QTVCP_INSTANCE_[tab], QtWidgets.QTabWidget):
-                    LOG.warning('tab location {} is not a QTabWidget - skipping'.format(tab))
+            for name, loc, cmd in INFO.ZIPPED_TABS:
+                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                if loc == 'default':
+                    loc = 'rightTab'
+                if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                    tw = QtWidgets.QWidget()
+                    self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                    tw = QtWidgets.QWidget()
+                    self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                else:
+                    LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
                     continue
                 try:
                     temp = XEmbeddable()
                     temp.embed(cmd)
                 except Exception, e:
-                    LOG.error('Embedded tab loading failed: {}'.format(name))
+                    LOG.error('Embedded tab loading failed: {} {}'.format(name,e))
                 else:
                     try:
-                        self.QTVCP_INSTANCE_[tab].addTab(temp, name)
+                        layout = QtWidgets.QGridLayout(tw)
+                        layout.addWidget(temp, 0, 0)
                     except Exception, e:
-                        LOG.error('Embedded tab adding widget into {} failed.'.format(tab))
+                        LOG.error('Embedded tab adding widget into {} failed.'.format(loc))
 
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
