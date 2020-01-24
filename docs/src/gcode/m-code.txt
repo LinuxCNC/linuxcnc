@@ -60,11 +60,11 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 (((M2, M30 Program End)))
 
-* 'M2' - end the program. Pressing r will
-         start the program at the beginning of the file.
-         
+* 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
+         will restart the program at the beginning of the file.
+
 * 'M30' - exchange pallet shuttles and end the program.
-          Pressing cycle start will start the program
+          Pressing `Cycle Start` will start the program
           at the beginning of the file.
 
 Both of these commands have the following effects:
@@ -81,8 +81,8 @@ Both of these commands have the following effects:
 . Coolant is turned off (like 'M9').
 
 [NOTE]
-Lines of code after M2/M30 will not be executed. Pressing cycle start will
-start the program at the beginning of the file.
+Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
+will start the program at the beginning of the file.
 
 [WARNING]
 Using % to wrap the G code does not do the same thing as a 'Program End'. See
