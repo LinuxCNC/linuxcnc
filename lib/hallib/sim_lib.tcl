@@ -206,15 +206,10 @@ proc make_ddts {number_of_joints} {
   # make vel,accel ddts and signals for all joints
   # if xyz, make hypotenuse xy,xyz vels
 
-  set ddt_limit 16 ;# limited by ddt component
   set ddt_names ""
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
     incr ddt_ct 2
-    if {$ddt_ct > $ddt_limit} {
-      puts stderr "make_ddts: number of ddts limited to $ddt_limit"
-      continue
-    }
     set ddt_names "${ddt_names},J${jno}_vel,J${jno}_accel"
   }
   set ddt_names [string trimleft $ddt_names ,]
@@ -227,7 +222,6 @@ proc make_ddts {number_of_joints} {
   set ddt_ct 0
   for {set jno 0} {$jno < $number_of_joints} {incr jno} {
     incr ddt_ct 2
-    if {$ddt_ct > $ddt_limit} { continue }
     net J${jno}:pos-fb   => J${jno}_vel.in ;# net presumed to exist
     net J${jno}:vel      <= J${jno}_vel.out
     net J${jno}:vel      => J${jno}_accel.in
