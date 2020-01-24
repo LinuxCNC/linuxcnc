@@ -1,9 +1,9 @@
-import sys
+import sys, time
 import os
 import subprocess
 
 from PyQt5.QtCore import QSize, QEvent, pyqtProperty
-from PyQt5.QtGui import QWindow, QResizeEvent
+from PyQt5.QtGui import QWindow, QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -25,11 +25,36 @@ class XEmbeddable(QWidget, _HalWidgetBase):
         pass
 
     def embed(self, command):
+        if '-x {XID}' in command:
+            # convert gladevcp to other type of embedding
+            command = command.replace('-x {XID}', ' --xid ')
+            self.embed_program(command)
+        elif '{XID}' in command:
+            self.let_program_embed(command)
+        else:
+            self.embed_program(command)
+
+    # foreign program embeds it's self in our window
+    def let_program_embed(self,command):
+        self.w = QWindow()
+        self.container = QWidget.createWindowContainer(self.w, self)
+
+        xid = int(self.w.winId())
+        cmd = command.replace('{XID}', str(xid))
+        self.launch(cmd)
+        self.show()
+        # there seems to be a race - sometimes the foreign window doesn't embed
+        time.sleep(.2)
+
+    # we embed foreign program into our window 
+    def embed_program(self, command): 
         try:
             self.external_id = self.launch_xid(command)
             window = QWindow.fromWinId(self.external_id)
             self.container = QWidget.createWindowContainer(window, self)
             self.show()
+            # there seems to be a race - sometimes the foreign window doesn't embed
+            time.sleep(.2)
             return True
         except  Exception, e:
             LOG.warning('Exception:{}'.format(command))
@@ -44,8 +69,23 @@ class XEmbeddable(QWidget, _HalWidgetBase):
                 self.container.resize(w.width(), w.height())
             except:
                 pass
+        elif event.type() == QEvent.Move:
+                try:
+                    self.container.move(QMoveEvent.pos(event))
+                except:
+                    pass
         return True
 
+    # launches program that embeds it's self into our window
+    # The foreign program never resizes as the window changes
+    def launch(self, cmd):
+        c = cmd.split()
+        self.ob = subprocess.Popen(c,stdin = subprocess.PIPE,
+                                   stdout = subprocess.PIPE)
+
+    # returns program's XID number so we can embed it into our window
+    # This works the best - the window resizes properly
+    # still not great qt4 worked so much better
     def launch_xid(self,cmd):
         c = cmd.split()
         self.ob = subprocess.Popen(c,stdin = subprocess.PIPE,
@@ -70,8 +110,10 @@ class XEmbed(XEmbeddable, _HalWidgetBase):
         wid = int(self.QTVCP_INSTANCE_.winId())
         print 'parent wind id', wid
         os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
+        LOG.debug( 'Emed command: {}'.format(self.command))
         result = self.embed(self.command)
         if result:
+            return
             self.x11mess = xembed.X11ClientMessage(self.external_id)
 
 

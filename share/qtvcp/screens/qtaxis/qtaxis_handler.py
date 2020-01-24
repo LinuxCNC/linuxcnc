@@ -61,6 +61,31 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        KEYBIND.add_call('Key_QuoteLeft','on_keycall_feedoverride',0)
+        KEYBIND.add_call('Key_1','on_keycall_feedoverride',10)
+        KEYBIND.add_call('Key_2','on_keycall_feedoverride',20)
+        KEYBIND.add_call('Key_3','on_keycall_feedoverride',30)
+        KEYBIND.add_call('Key_4','on_keycall_feedoverride',40)
+        KEYBIND.add_call('Key_5','on_keycall_feedoverride',50)
+        KEYBIND.add_call('Key_6','on_keycall_feedoverride',60)
+        KEYBIND.add_call('Key_7','on_keycall_feedoverride',70)
+        KEYBIND.add_call('Key_8','on_keycall_feedoverride',80)
+        KEYBIND.add_call('Key_9','on_keycall_feedoverride',90)
+        KEYBIND.add_call('Key_0','on_keycall_feedoverride',100)
+
+        #KEYBIND.add_call('Key_AsciiTilde','on_keycall_spindleoverride',0)
+        #KEYBIND.add_call('Key_Exclam','on_keycall_spindleoverride',10)
+        #KEYBIND.add_call('Key_At','on_keycall_spindleoverride',20)
+        #KEYBIND.add_call('Key_NumberSign','on_keycall_spindleoverride',30)
+        #KEYBIND.add_call('Key_DollarSign','on_keycall_spindleoverride',40)
+        #KEYBIND.add_call('Key_Percent','on_keycall_spindleoverride',50)
+        KEYBIND.add_call('Key_AsciiCircum','on_keycall_spindleoverride',60)
+        KEYBIND.add_call('Key_Ampersand','on_keycall_spindleoverride',70)
+        KEYBIND.add_call('Key_Asterisk','on_keycall_spindleoverride',80)
+        KEYBIND.add_call('Key_Parenleft','on_keycall_spindleoverride',90)
+        KEYBIND.add_call('Key_ParenRight','on_keycall_spindleoverride',100)
+        KEYBIND.add_call('Key_Underscore','on_keycall_spindleoverride',110)
+
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
@@ -431,6 +456,14 @@ class HandlerClass:
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
+
+    def on_keycall_feedoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_FEED_RATE(value)
+
+    def on_keycall_spindleoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_SPINDLE_RATE(value)
 
     ###########################
     # **** closing event **** #

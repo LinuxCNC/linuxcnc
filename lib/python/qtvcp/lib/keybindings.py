@@ -103,6 +103,7 @@ def key_pressed( event):
                 Qt.Key_Exclam: "Key_Exclam",
                 Qt.Key_QuoteDbl: "Key_QuoteDdl",
                 Qt.Key_NumberSign: "Key_NumberSign",
+                Qt.Key_Dollar:"Key_DollarSign",
                 Qt.Key_Percent: "Key_Percent",
                 Qt.Key_Ampersand: "Key_Ampersand",
                 Qt.Key_Apostrophe: "Key_Apostrophe",
@@ -170,7 +171,7 @@ def key_pressed( event):
 
                 }
 
-        char = keys.get(keynum, '<unknown>')
+        char = keys.get(keynum, '<unknown - {}>'.format(keynum))
  
         mods = []
         if event.modifiers() & Qt.AltModifier:
