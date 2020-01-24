@@ -231,12 +231,6 @@ def main():
         # program without even the atexit handler given a chance
         gtk.gdk.error_trap_push()
 
-        window = xembed.add_plug(window)
-        window.realize()
-        gdkwin = window.get_window()
-        w_id = gdkwin.xid
-        print >> sys.stdout,w_id
-        sys.stdout.flush()
         forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
         if forward:
             xembed.keyboard_forward(window, forward)
@@ -322,6 +316,14 @@ def main():
     # User components are set up so report that we are ready
     halcomp.ready()
     GSTAT.forced_update()
+
+    # push the XWindow id number to standard out
+    if opts.push_XID or opts.parent:
+        gdkwin = window.get_window()
+        w_id = gdkwin.xid
+        print >> sys.stdout,w_id
+        sys.stdout.flush()
+
     if handlers.has_key(signal_func):
         dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
