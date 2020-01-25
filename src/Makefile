@@ -970,6 +970,7 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+trivkins-objs += emc/kinematics/kins_util.o
 
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
