@@ -1022,8 +1022,12 @@ rotarydeltakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-m += xyzac-trt-kins.o
 xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
+xyzac-trt-kins-objs += emc/kinematics/kins_util.o
+
 obj-m += xyzbc-trt-kins.o
 xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
+xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
+
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
 
