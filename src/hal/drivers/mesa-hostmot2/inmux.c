@@ -479,8 +479,8 @@ void hm2_inmux_process_tram_read(hostmot2_t *hm2) {
         for (j = 0; j < hm2->inmux.instance[i].scanwidth; j ++) {
            *hm2->inmux.instance[i].hal.pin.filt_data[j] = (hm2->inmux.filt_data_reg[i] >> j) &1;
            *hm2->inmux.instance[i].hal.pin.raw_data[j] = (hm2->inmux.raw_data_reg[i] >> j) &1;
-           *hm2->inmux.instance[i].hal.pin.filt_data_not[j] = !(hm2->inmux.filt_data_reg[i] >> j) &1;
-           *hm2->inmux.instance[i].hal.pin.raw_data_not[j] = !(hm2->inmux.raw_data_reg[i] >> j) &1;
+           *hm2->inmux.instance[i].hal.pin.filt_data_not[j] = !((hm2->inmux.filt_data_reg[i] >> j) &1);
+           *hm2->inmux.instance[i].hal.pin.raw_data_not[j] = !((hm2->inmux.raw_data_reg[i] >> j) &1);
         }
 
 	raw_count = hm2->inmux.mpg_read_reg[i] & 0x000000FF;	
