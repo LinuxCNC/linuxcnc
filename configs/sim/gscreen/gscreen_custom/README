@@ -13,7 +13,6 @@ gscreen_gaxis.ini
   -A similar-to-AXIS demo
 
 industrial.ini
-industrial_lathe.ini
   -Design influenced by
    Industrial CNC controls.
    (System page unlock code is '123')

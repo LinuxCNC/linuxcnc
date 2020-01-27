@@ -215,7 +215,7 @@ class EditorBase(QsciScintilla):
         # setting marker margin width to zero make the marker highlight line
         self.setMarginWidth(1, 0)
         #self.matginClicked.connect(self.on_margin_clicked)
-        self.markerDefine(QsciScintilla.RightArrow,
+        self.markerDefine(QsciScintilla.Background,
                           self.ARROW_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("#ffe4e4"),
                                       self.ARROW_MARKER_NUM)
@@ -320,7 +320,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.cursorPositionChanged.connect(self.line_changed)
         if self.auto_show_mdi:
             STATUS.connect('mode-mdi', self.load_mdi)
-            STATUS.connect('reload-mdi-history', self.load_mdi)
+            STATUS.connect('mdi-history-changed', self.load_mdi)
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
@@ -335,6 +335,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
+
+
 
     def load_program(self, w, filename=None):
         if filename is None:
@@ -429,6 +431,17 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
+    def jump_line(self, jump):
+        line, col = self.getCursorPosition()
+        line = line + jump
+        LOG.debug(line)
+        if line <0:
+            line = 0
+        elif line > self.lines():
+            line = self.lines()
+        self.setCursorPosition(line, 0)
+        self.highlight_line(None, line)
+
     # designer recognized getter/setters
     # auto_show_mdi status
     def set_auto_show_mdi(self, data):
@@ -439,6 +452,15 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 #############################################
 # For Editing Gcode
@@ -732,6 +754,21 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def emit_percent(self, percent):
         self.percentDone.emit(percent)
 
+    def select_lineup(self):
+        self.editor.select_lineup(None)
+
+    def select_linedown(self):
+        self.editor.select_linedown(None)
+
+    def select_line(self, line):
+        self.editor.highlight_line(None, line)
+
+    def jump_line(self, jump):
+        self.editor.jump_line(jump)
+
+    def get_line(self):
+        return self.editor.getCursorPosition()[0] +1
+
     # designer recognized getter/setters
     # auto_show_mdi status
     # These adjust the self.editor instance
@@ -742,6 +779,16 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def reset_auto_show_mdi(self):
         self.editor.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
+
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.editor.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.editor.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.editor.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 # for direct testing
 if __name__ == "__main__":

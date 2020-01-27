@@ -41,81 +41,83 @@
   ZX-plane of the machine.
 */
 
-#define OFF 0
-#define ON 1
+enum CanonBool {
+    OFF,
+    ON
+};
 
-typedef struct {          /* type for NURBS control points */
-      double X,                     
-             Y,
-             W;
-      } CONTROL_POINT;
+struct CONTROL_POINT {          /* type for NURBS control points */
+    double X,
+    Y,
+    W;
+};
 
-typedef struct {
-      double X,
-	     Y;
-      } PLANE_POINT;		
+struct PLANE_POINT
+{
+    double X,
+    Y;
+};
 
 
-typedef int CANON_PLANE;
-#define CANON_PLANE_XY 1
-#define CANON_PLANE_YZ 2
-#define CANON_PLANE_XZ 3
-#define CANON_PLANE_UV 4
-#define CANON_PLANE_VW 5
-#define CANON_PLANE_UW 6
+enum CANON_PLANE
+{
+    CANON_PLANE_XY = 1,
+    CANON_PLANE_YZ,
+    CANON_PLANE_XZ,
+    CANON_PLANE_UV,
+    CANON_PLANE_VW,
+    CANON_PLANE_UW,
+};
 
-typedef int CANON_UNITS;
-#define CANON_UNITS_INCHES 1
-#define CANON_UNITS_MM 2
-#define CANON_UNITS_CM 3
+enum CANON_UNITS
+{
+    CANON_UNITS_INCHES = 1,
+    CANON_UNITS_MM,
+    CANON_UNITS_CM,
+};
 
-typedef int CANON_MOTION_MODE;
-#define CANON_EXACT_STOP 1
-#define CANON_EXACT_PATH 2
-#define CANON_CONTINUOUS 3
+enum CANON_MOTION_MODE
+{
+    CANON_EXACT_STOP = 1,
+    CANON_EXACT_PATH,
+    CANON_CONTINUOUS,
+};
 
-typedef int CANON_SPEED_FEED_MODE;
-#define CANON_SYNCHED 1
-#define CANON_INDEPENDENT 2
+enum CANON_SPEED_FEED_MODE {
+    CANON_SYNCHED = 1,
+    CANON_INDEPENDENT,
+};
 
-typedef int CANON_DIRECTION;
-#define CANON_STOPPED 1
-#define CANON_CLOCKWISE 2
-#define CANON_COUNTERCLOCKWISE 3
+enum CANON_DIRECTION {
+    CANON_STOPPED = 1,
+    CANON_CLOCKWISE,
+    CANON_COUNTERCLOCKWISE,
+};
 
-typedef int CANON_FEED_REFERENCE;
-#define CANON_WORKPIECE 1
-#define CANON_XYZ 2
+enum CANON_FEED_REFERENCE {
+    CANON_WORKPIECE = 1,
+    CANON_XYZ,
+};
 
-typedef int CANON_SIDE;
-#define CANON_SIDE_RIGHT 1
-#define CANON_SIDE_LEFT 2
-#define CANON_SIDE_OFF 3
+enum CANON_SIDE
+{
+    CANON_SIDE_RIGHT = 1,
+    CANON_SIDE_LEFT,
+    CANON_SIDE_OFF,
+};
 
-typedef int CANON_AXIS;
-#define CANON_AXIS_X 1
-#define CANON_AXIS_Y 2
-#define CANON_AXIS_Z 3
-#define CANON_AXIS_A 4
-#define CANON_AXIS_B 5
-#define CANON_AXIS_C 6
-#define CANON_AXIS_U 7
-#define CANON_AXIS_V 8
-#define CANON_AXIS_W 9
-
-/* Currently using the typedefs above rather than the enums below
-typedef enum {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ} CANON_PLANE;
-typedef enum {CANON_UNITS_INCHES, CANON_UNITS_MM, CANON_UNITS_CM} CANON_UNITS;
-typedef enum {CANON_EXACT_STOP, CANON_EXACT_PATH, CANON_CONTINUOUS}
-             CANON_MOTION_MODE;
-typedef enum {CANON_SYNCHED, CANON_INDEPENDENT} CANON_SPEED_FEED_MODE;
-typedef enum {CANON_STOPPED, CANON_CLOCKWISE, CANON_COUNTERCLOCKWISE}
-             CANON_DIRECTION;
-typedef enum {CANON_WORKPIECE, CANON_XYZ} CANON_FEED_REFERENCE;
-typedef enum {CANON_SIDE_RIGHT, CANON_SIDE_LEFT, CANON_SIDE_OFF} CANON_SIDE;
-typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
-              CANON_AXIS_B, CANON_AXIS_C} CANON_AXIS;
-*/
+enum CANON_AXIS
+{
+    CANON_AXIS_X = 1,
+    CANON_AXIS_Y,
+    CANON_AXIS_Z,
+    CANON_AXIS_A,
+    CANON_AXIS_B,
+    CANON_AXIS_C,
+    CANON_AXIS_U,
+    CANON_AXIS_V,
+    CANON_AXIS_W,
+};
 
 struct CANON_VECTOR {
     CANON_VECTOR() {
@@ -241,7 +243,7 @@ made. */
 
 extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
-			      double a, double b, double c,
+                              double a, double b, double c,
                               double u, double v, double w);
 /*
 
@@ -818,6 +820,8 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // An empty string may be placed in filename.
 extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
 
+extern void SET_PARAMETER_FILE_NAME(const char *name);
+
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
 
@@ -933,10 +937,7 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 // Returns the mask of axes present in the system
 extern int GET_EXTERNAL_AXIS_MASK();
 
-extern FILE *_outfile;		/* where to print, set in main */
-extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
-extern int _pockets_max;		/* in canon.cc */
-extern char _parameter_file_name[];	/* in canon.cc */
+
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
@@ -951,6 +952,10 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
+// to be called when there is an abort, to dump the last segment instead of adding
+// it to the interp list in certain cases
+extern void ON_RESET(void);
+
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
@@ -963,8 +968,5 @@ extern void IO_PLUGIN_CALL(int len, const char *call);
 
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
-
-#define STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-#undef  STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
 
 #endif				/* ifndef CANON_HH */

@@ -35,13 +35,13 @@ ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+if not INFO.LINUXCNC_IS_RUNNING:
+    LOG.setLevel(logger.ERROR) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     from PyQt5 import QtSvg
 except:
     LOG.critical("Qtvcp error with macro_widget - is package python-pyqt5.qtsvg installed?")
-
 
 ###############################################################
 # helper widget for SVG display on Button
@@ -52,7 +52,7 @@ class CustomButton(QtWidgets.QPushButton):
     def __init__(self, parent=None, path=None, layer=0):
         super(CustomButton, self).__init__(parent)
         if path is None:
-            tpath = os.path.expanduser(INFO.SUB_PATH)
+            tpath = os.path.expanduser(INFO.MACRO_PATH)
             path = os.path.join(tpath, 'LatheMacro.svg')
         self.r = QtSvg.QSvgRenderer(path)
         self.basename = 'layer'
@@ -118,22 +118,37 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MacroTab, self).__init__(parent)
         try:
-            tpath = os.path.expanduser(INFO.SUB_PATH)
+            tpath = os.path.expanduser(INFO.MACRO_PATH)
             self.filepath = os.path.join(tpath, '')
         except:
             self.filepath = 'None'
+
+        # id names for what dialog we want launched
+        self.load_dialog_code = 'LOAD'
+        self.save_dialog_code = 'SAVE'
+
         self.stack = QtWidgets.QStackedWidget()
 
         # add some buttons to run,close and menu
         hbox = QtWidgets.QHBoxLayout()
         self.runButton = QtWidgets.QPushButton("Run")
         self.runButton.pressed.connect(self.runChecked)
+        self.saveButton = QtWidgets.QPushButton("save")
+        self.saveButton.pressed.connect(self.saveChecked)
+        self.saveButton.setVisible(False)
+
+        self.loadButton = QtWidgets.QPushButton("load")
+        self.loadButton.pressed.connect(self.loadChecked)
+        self.loadButton.setVisible(False)
         self.closeButton = QtWidgets.QPushButton("Close")
         self.closeButton.pressed.connect(self.closeChecked)
         self.closeButton.setVisible(False)
+
         menuButton = QtWidgets.QPushButton("Menu")
         menuButton.pressed.connect(self.menuChecked)
         hbox.addWidget(self.runButton)
+        hbox.addWidget(self.loadButton)
+        hbox.addWidget(self.saveButton)
         hbox.addWidget(self.closeButton)
         hbox.insertSpacing(1, 20)
         hbox.addWidget(menuButton)
@@ -151,6 +166,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.runButton.setEnabled(False)
         STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
+        STATUS.connect('general',self.returnFromDialog)
 
     # Build a stack per macro found
     # it finds the icon info from the macro file
@@ -180,6 +196,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             vbox = QtWidgets.QVBoxLayout()
             w.setObjectName(tName)
             # add labels and edits
+            # self[tName][0] is the list of name text and defaults pairs
             for n, name in enumerate(self[tName][0]):
                 l = QtWidgets.QLabel(name[0])
                 if name[1].lower() in('false', 'true'):
@@ -254,8 +271,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.stack.addWidget(w)
 
     # search for special macros that have the magic comments
-    # compiles them into a complicated list
-    # [ [MACRO NAME1, DEFAULT DATA1], [MACRO2,DATA2,[etc,etc]],[SVG FILE,LAYER,ICON LAYER]]
+    # compiles them into a complicated list for each macro
+    # self['macroname'] = [ [DEFAULT DATA],[SVG FILE,LAYER,ICON LAYER],{OPTION DICT NAME:OPTION DICT DATA,}]
+    # returns a list on the macro names that it finds valid
 
     def _findMacros(self):
         path = self.filepath
@@ -274,6 +292,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         first_line = temp.readline().strip()
                         second_line = temp.readline().strip()
                         third_line = temp.readline().strip()
+                        fourth_line = temp.readline().strip()
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                                 'MACRODEFAULT' in second_line and \
@@ -295,9 +314,25 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                                     temp.append((m_item, d_item))
                                     continue
                                 temp.append((m_item, d_item))
-                            # add the list then add svg info
+
+                            # look for options like save/load buttons
+                            # it should be the fourth line in sub program
+                            # it's put in a dict to future proof it
+                            # and make it easier to parse
+                            option_dict={}
+                            if 'MACROOPTIONS' in fourth_line:
+                                options = fourth_line.split('=')[1]
+                                o = options.split(',')
+                                for i in(o):
+                                    h,g = i.split(':')
+                                    option_dict['%s'%h.upper()]=g
+                                #print option_dict
+
+                            # add the list then add svg info, then options
                             self[name] = [temp]
                             self[name].append(s)
+                            self[name].append(option_dict)
+
                             #print'group:',name, self[name]
                             # make a list of pages, which is also the macro program name
                             tName.append(name)
@@ -341,12 +376,23 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.runMacro()
 
     # This could be 'class patched' to do something else
+    def saveChecked(self):
+        self.savePressed()
+
+    # This could be 'class patched' to do something else
+    def loadChecked(self):
+        self.loadPressed()
+
+    # This could be 'class patched' to do something else
     def closeChecked(self):
         self.stack.setCurrentIndex(0)
 
     # brings the menu selection page to the front
     def menuChecked(self):
         self.stack.setCurrentIndex(0)
+        self.setTitle('Qtvcp Macro Menu')
+        self.loadButton.setVisible(False)
+        self.saveButton.setVisible(False)
 
     # This weird code is just so we can get the index
     # number from a menu button press
@@ -355,7 +401,109 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def menuButtonPress(self, data):
         def calluser():
             self.stack.setCurrentIndex(data+1)
+            try:
+                name = self.stack.currentWidget().objectName()
+                self.setTitle(name)
+                # show these buttons if the macro specifies it
+                for name in (self[name][2]):
+                    if name == 'LOAD':
+                        self.loadButton.setVisible(True)
+                    if name == 'SAVE':
+                        self.saveButton.setVisible(True)
+            except: pass
+
         return calluser
+
+    def loadPressed(self):
+        self.getFileName()
+
+    def savePressed(self):
+        self.getSaveFileName()
+
+    def openReturn(self, path):
+        qssname = path # os.path.join(DIR, BNAME, sheetName)
+        file = QtCore.QFile(qssname)
+        file.open(QtCore.QFile.ReadOnly)
+        num = 0
+        name = str(self.stack.currentWidget().objectName())
+        while not file.atEnd():
+            dataSheet = file.readLine()
+            try:
+                # Python v2.
+                dataSheet = unicode(dataSheet, encoding='utf8')
+            except NameError:
+                # Python v3.
+                dataSheet = str(dataSheet, encoding='utf8')
+            h,g = dataSheet.split(',')
+
+            # set widgets to data:
+            # Look for a radio button instance so we can convert to integers
+            # other wise we assume text
+            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
+                #print self['%s%d' % (name, num)], h
+                self['%s%d' % (name, num)].setChecked(bool(h))
+            else:
+                #print self['%s%d' % (name, num)], h
+                self['%s%d' % (name, num)].setText(str(h))
+            num =+1
+
+    # save the current screen data to file picked by the user.
+    # it's a plain text file
+    def saveReturn(self, path):
+        name = str(self.stack.currentWidget().objectName())
+        if name == '': return
+        file = QtCore.QFile(path)
+        if file.open(QtCore.QFile.WriteOnly):
+            for num, i in enumerate(self[name][0]):
+                widgetname = '%s%d' % (name, num)
+                # Look for a radio button instance so we can convert to bool
+                # other wise we assume text
+                if isinstance(self[widgetname], QtWidgets.QRadioButton):
+                    data = str(1 * int(self[widgetname].isChecked()))
+                else:
+                    data = str(self[widgetname].text())
+                line =  '%s,    %s\n'%( str(data),i[0])
+                QtCore.QTextStream(file) << line
+        else:
+            QMessageBox.information(self, "Unable to open file",
+                    file.errorString())
+
+    # we do this instead of directly so the dialog version's title changes
+    # when it's overriden
+    def setTitle(self, string):
+        self.setWindowTitle(string)
+
+    # request the system to pop a load path picker dialog
+    # do this so the system is consistant and things like dialog
+    # placement are done.
+    def getFileName(self):
+        mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'Load Macro',
+            'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
+            'EXTENTIONS':'Text Files (*.txt);;ALL File (*.*)'
+            }
+        STATUS.emit('dialog-request', mess)
+
+    # request the system to pop a save path picker dialog
+    # do this so the system is consistant and things like dialog
+    # placement are done.
+    def getSaveFileName(self):
+        mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName())}
+        STATUS.emit('dialog-request', mess)
+
+    # process the STATUS return message from dialogs
+    def returnFromDialog(self, w, message):
+        if message.get('NAME') == self.load_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.objectName())
+            if path and code:
+                self.openReturn(path)
+        elif message.get('NAME') == self.save_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.objectName())
+            if path and code:
+                self.saveReturn(path)
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]

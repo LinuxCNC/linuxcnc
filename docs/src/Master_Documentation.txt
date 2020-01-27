@@ -53,6 +53,8 @@ include::common/linux-faq.txt[]
 
 include::lathe/lathe-user.txt[]
 
+include::plasma/plasma-cnc-primer.txt[]
+
 :leveloffset: 1
 
 = User Interfaces
@@ -70,6 +72,8 @@ include::gui/touchy.txt[]
 include::gui/gscreen.txt[]
 
 include::gui/tklinuxcnc.txt[]
+
+include::plasma/plasmac-user-guide.txt[]
 
 :leveloffset: 1
 

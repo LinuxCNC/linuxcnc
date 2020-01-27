@@ -19,7 +19,6 @@
 #define LINUXCNC_INIFILE_H
 
 #include <stdio.h>
-#include <fcntl.h>
 
 #ifdef __cplusplus
 extern "C"

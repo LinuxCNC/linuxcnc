@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Demo panel for synchronized joint jogging
+For real hardware, one typically uses a manual-pulse-generator
+(MPG) to generate the counts input
+-->
+<pyvcp>
+
+   <vbox>
+     <label>
+       <text>"J1,3 JOGGING"</text>
+       <font>"bold"</font>
+     </label>
+   </vbox>
+
+   <vbox>
+       <hbox>
+         <checkbutton>
+           <anchor>"w"</anchor>
+           <halpin>"jj_enable"</halpin>
+           <text>""</text>
+           <initval>0</initval>
+         </checkbutton>
+         <label>
+           <anchor>"w"</anchor>
+           <text>"ENABLE"</text>
+         </label>
+       </hbox>
+       <hbox>
+         <spinbox>
+           <halpin>"jj_scale"</halpin>
+           <min_> 0.01</min_>
+           <max_>10.0</max_>
+           <width>4</width>
+           <initval>0.01</initval>
+           <resolution>0.01</resolution>
+           <format>"5.2f"</format>
+         </spinbox>
+         <label>
+           <anchor>"w"</anchor>
+           <text>"scale"</text>
+         </label>
+       </hbox>
+
+       <hbox>
+         <scale>
+             <halpin>"jj_counts"</halpin>
+             <resolution>0.1</resolution>
+             <orient>VERTICAL</orient>
+             <initval>0</initval>
+             <resolution>"1"</resolution>
+             <min_>-100</min_>
+             <max_>100</max_>
+             <param_pin>1</param_pin>
+         </scale>
+         <label>
+           <anchor>"w"</anchor>
+           <text>"COUNTS"</text>
+         </label>
+       </hbox>
+
+
+   </vbox>
+</pyvcp>

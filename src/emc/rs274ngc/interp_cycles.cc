@@ -268,6 +268,21 @@ For the XZ and YZ planes, this makes analogous motions.
 
 */
 
+InterpReturn Interp::check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir)
+{
+    switch (dir) {
+    case CANON_STOPPED:
+        ERS(_("Spindle not turning in %s"), toString((GCodes)motion).c_str());
+    case CANON_CLOCKWISE:
+        CHKS((motion == G_74), _("Spindle turning clockwise in G74"));
+        return INTERP_OK;
+    case CANON_COUNTERCLOCKWISE:
+        CHKS((motion == G_84), _("Spindle turning counterclockwise in G84"));
+        return INTERP_OK;
+    }
+    ERS(_("Spindle state unknown for %s"), toString(motion).c_str());
+}
+
 int Interp::convert_cycle_g74_g84(block_pointer block,
                                  CANON_PLANE plane, //!< selected plane
                                  double x,  //!< x-value where cycle is executed
@@ -278,17 +293,8 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
                                  CANON_SPEED_FEED_MODE mode,       //!< the speed-feed mode at outset
                                  int motion, double dwell, int spindle)
 {
-    char op = motion ==  G_74 ? '7' : '8';
 
-   switch (direction) {
-   case CANON_STOPPED:
-      ERS(_("Spindle not turning in G%c4"), op);
-   case CANON_CLOCKWISE:
-      CHKS((motion == G_74), _("Spindle turning clockwise in G74"));
-      break;
-   case CANON_COUNTERCLOCKWISE:
-       CHKS((motion == G_84), _("Spindle turning counterclockwise in G84"));
-    }
+    CHP(check_g74_g84_spindle((GCodes)motion, direction));
 
     int save_feed_override_enable;
     int save_spindle_override_enable;
@@ -354,8 +360,8 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
        break;
 
     default:
-       ERS("G%c4 for plane %s not implemented",
-           op, plane_name(plane));
+       ERS("%s for plane %s not implemented",
+           toString((GCodes)motion).c_str(), plane_name(plane));
     }
    if(save_feed_override_enable)
     ENABLE_FEED_OVERRIDE();

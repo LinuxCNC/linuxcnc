@@ -15,6 +15,9 @@ A volatile type which may have a value from \-2147483648 to 2147483647.
 typedef ... \fBhal_u32_t\fR;
 A volatile type which may have a value from 0 to 4294967295.
 .TP
+typedef ... \fBhal_port_t\fR;
+A volatile handle to a port object. Used with hal_port* functions.
+.TP
 typedef ... \fBhal_float_t\fR;
 A volatile floating-point type, which typically has the same precision and range
 as the C type \fBdouble\fR.
@@ -67,7 +70,10 @@ __u32
 
 .IP hal_float_t 16
 hal_real_t
-.RE
+
+.IP hal_port_t 16
+int
+.RE 
 
 Take care not to use the types \fBs32\fR and \fBu32\fR.  These will compile in
 kernel modules but not in userspace, and not for "realtime components" when

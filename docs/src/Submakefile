@@ -96,6 +96,7 @@ DOC_SRCS_EN := \
 	gui/qtvcp_widgets.txt \
 	gui/qtvcp_libraries.txt \
 	gui/qtvcp_custom_widgets.txt \
+	gui/qtvcp_code_snippets.txt \
 	gui/qtvcp_development.txt \
 	gui/panelui.txt \
 	gui/halui.txt \
@@ -137,6 +138,8 @@ DOC_SRCS_EN := \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
+	plasma/plasmac-user-guide.txt \
+	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
@@ -581,6 +584,7 @@ docclean:
 	-rm -f $(DOC_DIR)/html/ladder/images/*.*
 	-rm -f $(DOC_DIR)/html/lathe/images/*.*
 	-rm -f $(DOC_DIR)/html/motion/images/*.*
+	-rm -f $(DOC_DIR)/html/plasma/images/*.*
 	-rm -f $(DOC_DIR)/html/remap/images/*.*
 	-rm -f $(DOC_DIR)/html/man/man1/*.*
 	-rm -f $(DOC_DIR)/html/man/man3/*.*

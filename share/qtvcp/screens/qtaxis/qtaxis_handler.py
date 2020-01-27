@@ -29,7 +29,6 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
-TOOLBAR = None
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -47,10 +46,11 @@ class HandlerClass:
         self.PATHS = paths
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
-        TOOLBAR = ToolBarActions(path=paths)
+        TOOLBAR = ToolBarActions(widgets)
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
+        STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -61,6 +61,31 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        KEYBIND.add_call('Key_QuoteLeft','on_keycall_feedoverride',0)
+        KEYBIND.add_call('Key_1','on_keycall_feedoverride',10)
+        KEYBIND.add_call('Key_2','on_keycall_feedoverride',20)
+        KEYBIND.add_call('Key_3','on_keycall_feedoverride',30)
+        KEYBIND.add_call('Key_4','on_keycall_feedoverride',40)
+        KEYBIND.add_call('Key_5','on_keycall_feedoverride',50)
+        KEYBIND.add_call('Key_6','on_keycall_feedoverride',60)
+        KEYBIND.add_call('Key_7','on_keycall_feedoverride',70)
+        KEYBIND.add_call('Key_8','on_keycall_feedoverride',80)
+        KEYBIND.add_call('Key_9','on_keycall_feedoverride',90)
+        KEYBIND.add_call('Key_0','on_keycall_feedoverride',100)
+
+        #KEYBIND.add_call('Key_AsciiTilde','on_keycall_spindleoverride',0)
+        #KEYBIND.add_call('Key_Exclam','on_keycall_spindleoverride',10)
+        #KEYBIND.add_call('Key_At','on_keycall_spindleoverride',20)
+        #KEYBIND.add_call('Key_NumberSign','on_keycall_spindleoverride',30)
+        #KEYBIND.add_call('Key_DollarSign','on_keycall_spindleoverride',40)
+        #KEYBIND.add_call('Key_Percent','on_keycall_spindleoverride',50)
+        KEYBIND.add_call('Key_AsciiCircum','on_keycall_spindleoverride',60)
+        KEYBIND.add_call('Key_Ampersand','on_keycall_spindleoverride',70)
+        KEYBIND.add_call('Key_Asterisk','on_keycall_spindleoverride',80)
+        KEYBIND.add_call('Key_Parenleft','on_keycall_spindleoverride',90)
+        KEYBIND.add_call('Key_ParenRight','on_keycall_spindleoverride',100)
+        KEYBIND.add_call('Key_Underscore','on_keycall_spindleoverride',110)
+
         TOOLBAR.configure_submenu(self.w.menuRecent, 'recent_submenu')
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
@@ -83,6 +108,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
+        TOOLBAR.configure_action(self.w.actionShutdown, 'system_shutdown')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')
         TOOLBAR.configure_action(self.w.actionCalibration, 'load_calibration')
         TOOLBAR.configure_action(self.w.actionStatus, 'load_status')
@@ -94,7 +120,16 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
         TOOLBAR.configure_action(self.w.actionTouchoffFixture, 'touchofffixture')
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
+        TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
+        TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
+        self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
+        if not INFO.HOME_ALL_FLAG:
+            self.w.actionButton_home.setText("Home Selected")
+            self.w.actionButton_home.set_home_select(True)
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -146,6 +181,9 @@ class HandlerClass:
             print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
             return False
 
+    def closing_cleanup__(self):
+        TOOLBAR.saveRecentPaths()
+
     ########################
     # callbacks from STATUS #
     ########################
@@ -168,29 +206,28 @@ class HandlerClass:
         #print INFO.AVAILABLE_AXES
         #print INFO.GET_NAME_FROM_JOINT
         if mode == linuxcnc.TRAJ_MODE_COORD:
-            print 'Mode Coordinate'
+            pass
         # Joint mode
         elif mode == linuxcnc.TRAJ_MODE_FREE:
             if STATUS.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
                 self.show_axes()
             else:
-                print 'Mode Free'
                 self.show_joints()
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
-            print 'Mode Teleop'
             self.show_axes()
+
+    def update_spindle(self,w,data):
+        self.w.rpm_bar.setInvertedAppearance(bool(data<0))
+        self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
+        self.w.rpm_bar.setValue(abs(data))
 
     #######################
     # callbacks from form #
     #######################
 
-    def tool_offset_clicked(self):
-        conversion = {0:"X", 1:"Y", 2:"Z", 3:"A", 4:"B", 5:"C", 6:"U", 7:"V", 8:"W"}
-        axis = STATUS.get_selected_axis()
-        mess = {'NAME':'ENTRY','ID':'FORM__', 'AXIS':conversion[axis],
-            'FIXTURE':self.w.actionTouchoffWorkplace.isChecked(), 'TITLE':'Set Tool Offset'}
-        STATUS.emit('dialog-request', mess)
-        LOG.debug('message sent:{}'.format (mess))
+    def leftTabChanged(self, num):
+        if num == 0:
+            ACTION.SET_MANUAL_MODE()
 
     #####################
     # general functions #
@@ -226,7 +263,6 @@ class HandlerClass:
             self.w['ras_%s'%i].hide()
 
     def _set_user_system_text(self, w, data):
-        print data
         convert = { 1:"G54 ", 2:"G55 ", 3:"G56 ", 4:"G57 ", 5:"G58 ", 6:"G59 ", 7:"G59.1 ", 8:"G59.2 ", 9:"G59.3 "}
         unit = convert[int(data)]
         for i in ('x','y','z'):
@@ -345,6 +381,8 @@ class HandlerClass:
         msg.show()
         retval = msg.exec_()
 
+    def launch_log_dialog(self):
+        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
@@ -386,7 +424,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):
@@ -418,6 +456,14 @@ class HandlerClass:
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
+
+    def on_keycall_feedoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_FEED_RATE(value)
+
+    def on_keycall_spindleoverride(self,event,state,shift,cntrl,value):
+        if state:
+            ACTION.SET_SPINDLE_RATE(value)
 
     ###########################
     # **** closing event **** #

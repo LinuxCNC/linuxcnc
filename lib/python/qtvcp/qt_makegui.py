@@ -6,7 +6,7 @@ import traceback
 import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
-#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -41,28 +41,35 @@ class MyEventFilter(QtCore.QObject):
         # (pyqt4 did not require this)
         if isinstance(receiver, QtGui.QWindow):
             return super(MyEventFilter,self).eventFilter(receiver, event)
-        if(event.type() == QtCore.QEvent.KeyPress):
-            handled = False
-            handled = self.w.keyPressTrap(event)
-            if (self.has_key_p_handler):
-                handled = self.w.handler_instance.keypress_event__(receiver,event)
-            elif self.has_process_key_handler:
-                if event.isAutoRepeat():return True
-                p,k,c,s,ctrl = self.process_event(event,True)
-                handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
-            if handled: return True
-        elif (event.type() == QtCore.QEvent.KeyRelease):
-            handled = False
-            handled = self.w.keyReleaseTrap(event)
-            if (self.has_key_r_handler):
-                handled = self.w.handler_instance.keyrelease_event__(event)
-            elif self.has_process_key_handler:
-                if event.isAutoRepeat():return True
-                p,k,c,s,ctrl = self.process_event(event,False)
-                handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
-            if handled: return True
-        #Call Base Class Method to Continue Normal Event Processing
-        return super(MyEventFilter,self).eventFilter(receiver, event)
+        # Run in try statement so if we want to event to run through normal event routines,
+        # we just raise an error and run the super class event handler.
+        # This is necessary because if the widget (such as dialogs) are owned by c++ rather then python,
+        # it causes an error and the keystrokes don't get to the widgets.
+        try:
+            if(event.type() == QtCore.QEvent.KeyPress):
+                handled = False
+                handled = self.w.keyPressTrap(event)
+                if (self.has_key_p_handler):
+                    handled = self.w.handler_instance.keypress_event__(receiver,event)
+                elif self.has_process_key_handler:
+                    if event.isAutoRepeat():return True
+                    p,k,c,s,ctrl = self.process_event(event,True)
+                    handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
+                if handled: return True
+            elif (event.type() == QtCore.QEvent.KeyRelease):
+                handled = False
+                handled = self.w.keyReleaseTrap(event)
+                if (self.has_key_r_handler):
+                    handled = self.w.handler_instance.keyrelease_event__(event)
+                elif self.has_process_key_handler:
+                    if event.isAutoRepeat():return True
+                    p,k,c,s,ctrl = self.process_event(event,False)
+                    handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
+                if handled: return True
+            #Call Base Class Method to Continue Normal Event Processing
+            return super(MyEventFilter,self).eventFilter(receiver, event)
+        except:
+            return super(MyEventFilter,self).eventFilter(receiver, event)
 
 class MyWindow(QtWidgets.QMainWindow):
     def __init__(self, halcomp, path):
@@ -74,6 +81,14 @@ class MyWindow(QtWidgets.QMainWindow):
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
+        self.originalCloseEvent_ = self.closeEvent
+        self._halWidgetList = []
+
+    def registerHalWidget(self, widget):
+        self._halWidgetList.append(widget)
+
+    def getRegisteredHalWidgetList(self):
+        return self._halWidgetList
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):

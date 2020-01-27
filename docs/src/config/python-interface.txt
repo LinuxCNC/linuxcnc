@@ -104,15 +104,12 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
 *aout*:: '(returns tuple of floats)' -
 current value of the analog output pins.
 
-*joints*:: '(returns integer)' -
-number of joints. Reflects [KINS]JOINTS ini value.
+*axes*:: '(returns integer)' -
+number of axes. Derived from [TRAJ]COORDINATES ini value.
 
 *axis*:: '(returns tuple of dicts)' -
 reflecting current axis values. See
 <<sec:the-axis-dictionary,The axis dictionary>>.
-
-*axes*:: '(returns integer)' -
-number of axes. Derived from [TRAJ]COORDINATES ini value.
 
 *axis_mask*:: '(returns integer)' -
 mask of axis available as defined by [TRAJ]COORDINATES in the ini
@@ -237,6 +234,9 @@ actual joint positions.
 
 *joint_position*:: '(returns tuple of floats)' -
 Desired joint positions.
+
+*joints*:: '(returns integer)' -
+number of joints. Reflects [KINS]JOINTS ini value.
 
 *kinematics_type*:: '(returns integer)' -
 The type of kinematics.  One of:
@@ -424,11 +424,6 @@ current velocity.
 
 For each joint, the following dictionary keys are available:
 
-*jointType*:: '(returns integer)' -
-type of axis configuration parameter, reflects
-[JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Joint
-ini configuration>> for details.
-
 *backlash*:: '(returns float)' -
 Backlash in machine units. configuration parameter, reflects [JOINT_n]BACKLASH.
 
@@ -455,6 +450,11 @@ non-zero means in position.
 
 *input*:: '(returns float)' -
 current input position.
+
+*jointType*:: '(returns integer)' -
+type of axis configuration parameter, reflects
+[JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sec:axis-section, Joint
+ini configuration>> for details.
 
 *max_ferror*:: '(returns float)' -
 maximum following error. configuration
@@ -508,8 +508,17 @@ rotational direction of the spindle. forward=1, reverse=-1.
 *enabled*:: '(returns integer)' -
 value of the spindle enabled flag.
 
+*homed*:: (not currently implemented)
+
 *increasing*:: '(returns integer)' -
 unclear.
+
+*orient_fault*:: '(returns integer)'
+
+*orient_state*:: '(returns integer)'
+
+*override*:: '(returns float)' -
+spindle speed override scale.
 
 *override_enabled*:: '(returns boolean)' -
 value of the spindle override enabled flag.
@@ -517,15 +526,6 @@ value of the spindle override enabled flag.
 *speed*:: '(returns float)' -
 spindle speed value, rpm, > 0: clockwise, < 0:
 counterclockwise.
-
-*override*:: '(returns float)' -
-spindle speed override scale.
-
-*homed*:: (not currently implemented)
-
-*orient_state*:: '(returns integer)'
-
-*orient_fault*:: '(returns integer)'
 
 ==  Preparing to send  commands
 
@@ -589,9 +589,9 @@ c.flood(linuxcnc.FLOOD_OFF)
 
 c.home(2)
 
-c.jog(linuxcnc.JOG_STOP, jogmode, axis)
-c.jog(linuxcnc.JOG_CONTINUOUS, jogmode, axis, velocity)
-c.jog(linuxcnc.JOG_INCREMENT, jogmode, axis, velocity, increment)
+c.jog(linuxcnc.JOG_STOP,        jjogmode, joint_num_or_axis_index)
+c.jog(linuxcnc.JOG_CONTINUOUS,  jjogmode, joint_num_or_axis_index, velocity)
+c.jog(linuxcnc.JOG_INCREMENT,   jjogmode, joint_num_or_axis_index, velocity, increment)
 
 c.load_tool_table()
 
@@ -650,17 +650,23 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 
 `jog(command-constant, bool, int[, float[, float]])`::
     Syntax: +
-    jog(command, joint-flag, axis-or-joint-number, velocity[, distance]]) +
-    jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number) +
-    jog(linuxcnc.JOG_CONTINUOUS, joint-flag, axis-or-joint-number, velocity) +
-    jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
+    jog(command,                 jjogmode, joint_num_or_axis_index, velocity[, distance]]) +
+    jog(linuxcnc.JOG_STOP,       jjogmode, joint_num_or_axis_index) +
+    jog(linuxcnc.JOG_CONTINUOUS, jjogmode, joint_num_or_axis_index, velocity) +
+    jog(linuxcnc.JOG_INCREMENT,  jjogmode, joint_num_or_axis_index, velocity, distance)
     Command Constants;;
-    JOG_STOP +
-    JOG_CONTINUOUS +
-    JOG_INCREMENT
-        Joint flag;;
-            True::: joint mode jog
-            False::: axis (cartesian) mode jog
+    linuxcnc.JOG_STOP +
+    linuxcnc.JOG_CONTINUOUS +
+    linuxcnc.JOG_INCREMENT
+    jjogmode;;
+       True:::  request individual joint jog  (requires teleop_enable(0))
+       False::: request axis Cartesian coordinate jog (requires teleop_enable(1))
+    joint_num_or_axis_index;;
+       For joint jog (jjogmode=1)::: joint_number
+       For axis Cartesian coordinate jog (jjogmode=0):::
+          zero-based index of the axis coordinate with respect to
+          the known coordinate letters XYZABCUVW
+          (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
 
 `load_tool_table()`::
     reload the tool table.
@@ -767,7 +773,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
         live values from the interpreter.
 
 `teleop_enable(int)`::
-    enable/disable teleop mode.
+    enable/disable teleop mode (disable for joint jogging).
 
 `tool_offset(int, float, float, float, float, float, int)`::
         set the tool offset. See usage example above.

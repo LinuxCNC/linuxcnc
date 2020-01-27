@@ -56,7 +56,10 @@ from gladevcp.gladebuilder import GladeBuilder
 import pango
 import traceback
 import atexit
-import vte
+try:
+    import vte
+except:
+    print _("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
 import time
 from time import strftime,localtime
 import hal_glib
@@ -598,6 +601,10 @@ class Gscreen:
             temp = []
         dbg("**** GSCREEN INFO: handler file path: %s"%temp)
         handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
+
+        # so widgets can call handler functions - give them refeence to the handler object
+        panel.set_handler(self.handler_instance)
+
         self.xml.connect_signals(handlers)
 
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
@@ -1289,13 +1296,16 @@ class Gscreen:
            widget usually is a scrolled window widget
         """
         # add terminal window
-        self.widgets._terminal = vte.Terminal ()
-        self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
-        self.widgets._terminal.fork_command()
-        self.widgets._terminal.show()
-        window = self.widgets.terminal_window.add(self.widgets._terminal)
-        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
-        self.widgets.terminal_window.show()
+        try:
+            self.widgets._terminal = vte.Terminal ()
+            self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
+            self.widgets._terminal.fork_command()
+            self.widgets._terminal.show()
+            window = self.widgets.terminal_window.add(self.widgets._terminal)
+            self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+            self.widgets.terminal_window.show()
+        except:
+            print _("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?")
 
     def init_themes(self):
         """adds theme names to comdo box

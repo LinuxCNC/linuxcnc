@@ -65,13 +65,18 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
+        STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
         KEYBIND.add_call('Key_F7','on_keycall_F7')
+        KEYBIND.add_call('Key_F8','on_keycall_F8')
+        KEYBIND.add_call('Key_F9','on_keycall_custom','f9 pressed tesst')
+        KEYBIND.add_call('Key_F10','on_keycall_custom','f10 pressed tesst')
+        KEYBIND.add_call('Key_F11','on_keycall_custom','f11 pressed test')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
@@ -79,7 +84,8 @@ class HandlerClass:
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F6,
+                    QtCore.Qt.Key_F7,QtCore.Qt.Key_F8,QtCore.Qt.Key_F12):
 
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
@@ -198,7 +204,7 @@ class HandlerClass:
             STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            STATUS.emit('dialog-request',{'NAME':'CAMVIEW'})
+            STATUS.emit('dialog-request',{'NAME':'CAMVIEW','NONBLOCKING':True})
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'MACROTAB'})
@@ -208,6 +214,9 @@ class HandlerClass:
     def on_keycall_F7(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
+    def on_keycall_F8(self,event,state,shift,cntrl):
+        if state:
+            STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             self.STYLEEDITOR.load_dialog()
@@ -239,6 +248,11 @@ class HandlerClass:
     def on_keycall_ANEG(self,event,state,shift,cntrl):
         pass
         #self.kb_jog(state, 3, -1, shift, linear=False)
+
+    # f9, f10 and f11 call this function with different values
+    def on_keycall_custom(self,event,state,shift,cntrl,value):
+        if state:
+            print 'custom keycall function value: ',value
 
     ###########################
     # **** closing event **** #

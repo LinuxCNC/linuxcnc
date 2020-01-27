@@ -18,6 +18,7 @@
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
+#include "interp_return.hh"
 
 class Interp : public InterpBase {
 
@@ -696,6 +697,8 @@ int read_inputs(setup_pointer settings);
      AXIS_MASK_A =   8, AXIS_MASK_B =  16, AXIS_MASK_C =  32,
      AXIS_MASK_U =  64, AXIS_MASK_V = 128, AXIS_MASK_W = 256,
  };
+
+ InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 };
 
 #endif

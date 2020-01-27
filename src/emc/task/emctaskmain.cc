@@ -83,10 +83,6 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-static int stop_if_eoffsets_at_synch = 0;
-#endif
-
 static emcmot_config_t emcmotConfig;
 
 /* time after which the user interface is declared dead
@@ -559,9 +555,6 @@ interpret_again:
 				emcTaskPlanSetWait();
 				// and resynch interp WM
 				emcTaskQueueCommand(&taskPlanSynchCmd);
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-				stop_if_eoffsets_at_synch = 1;
-#endif
 			    } else if (execRetval != 0) {
 				// end of file
 				emcStatus->task.interpState =
@@ -1412,12 +1405,6 @@ static int emcTaskPlan(void)
 		break;
 
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-                if (GET_EXTERNAL_OFFSET_APPLIED()) {
-                    emcOperatorError(0,"Disallow MDI start with External Offsets");
-                    break;
-                }
-#endif
                 // If there are no queued MDI commands, no commands in
                 // interp_list, and waitFlag isn't set, then this new
                 // incoming MDI command can just be issued directly.
@@ -1735,12 +1722,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,
+					set_homing_params_msg->encoder_does_not_reset,
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer,
-                                        set_homing_params_msg->absolute_encoder);
+					set_homing_params_msg->locking_indexer,
+					set_homing_params_msg->absolute_encoder);
 	break;
 
     case EMC_JOINT_SET_FERROR_TYPE:
@@ -1835,7 +1823,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
-                                   emcTrajLinearMoveMsg->indexrotary);
+                                   emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
@@ -2583,21 +2571,8 @@ static int emcTaskExecute(void)
 	stepping = 0;
 	steppingWait = 0;
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-        if (GET_EXTERNAL_OFFSET_APPLIED()) {
-            if (   stop_if_eoffsets_at_synch
-                || emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-                        emcOperatorError(0,"Stopping at synch() with External Offsets");
-            }
-        } else {
-	    // now queue up command to resynch interpreter
-            emcTaskQueueCommand(&taskPlanSynchCmd);
-        }
-        stop_if_eoffsets_at_synch = 0;
-#else
-        // now queue up command to resynch interpreter
-        emcTaskQueueCommand(&taskPlanSynchCmd);
-#endif
+	// now queue up command to resynch interpreter
+	emcTaskQueueCommand(&taskPlanSynchCmd);
 
 	retval = -1;
 	break;

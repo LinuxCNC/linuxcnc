@@ -76,6 +76,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.use_pref_file = True
         self.process_tabs = True
         self.add_message_dialog = True
+        self.add_close_dialog = True
         self.add_entry_dialog = False
         self.add_tool_dialog = False
         self.add_file_dialog = False
@@ -86,11 +87,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_originoffset_dialog = False
         self.add_tooloffset_dialog = False
         self.add_calculator_dialog = False
+        self.add_machinelog_dialog = False
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._default_tab_name = ''
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._entryDialogSoftkey = True
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
         self._fileDialogColor = QtGui.QColor(0, 0, 100, 150)
@@ -100,6 +104,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -108,6 +113,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.add_message_dialog:
             self.init_message_dialog()
+
+        if self.add_close_dialog:
+            self.init_close_dialog()
 
         if self.add_entry_dialog:
             self.init_entry_dialog()
@@ -138,6 +146,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_calculator_dialog:
             self.init_calculator_dialog()
+
+        if self.add_machinelog_dialog:
+            self.init_machinelog_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -220,7 +231,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 self.pref_filename = INFO.PREFERENCE_PATH
                 LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
             return Access(self.pref_filename), self.pref_filename
-        return None
+        return None,None
 
     def on_periodic(self, w):
         e = self.error.poll()
@@ -239,31 +250,43 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
             if self.play_sounds and self.mchnMsg_play_sound:
-                STATUS.emit('play-alert', '%s' % self.mchnMsg_sound_type)
+                STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
-                    STATUS.emit('play-alert', 'SPEAK %s ' % text)
+                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
             STATUS.emit('update-machine-log', text, 'TIME')
 
 
     def closeEvent(self, event):
         if self.close_event:
             sound = None
-            if self.play_sounds and self.play_shutdown_sounds:
+            if self.PREFS_ and self.play_sounds and self.play_shutdown_sounds:
                 sound = self.shutdown_alert_sound_type
-            answer = self.QTVCP_INSTANCE_.messageDialog_.showdialog(self.shutdown_msg_title,
+            answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
-                                                                 details=self.shutdown_msg_detail,
+                                                                 details=None,
                                                                  icon=MSG.CRITICAL,
-                                                                 display_type=MSG.YN_TYPE,
-                                                                 focus_text='Shutdown Requested!',
+                                                                 display_type='YESNO',
+                                                                 focus_text='Close Linuxcnc?',
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
-            if not answer:
+            # system shutdown
+            if answer == -1:
+                if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
+                    self.QTVCP_INSTANCE_.system_shutdown_request__()
+                else:
+                    from qtvcp.core import Action
+                    ACTION = Action()
+                    ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+                event.accept()
+            # close linuxcnc
+            elif answer:
+                if self.PREFS_ and self.play_sounds and self.play_shutdown_sounds:
+                    STATUS.emit('play-sound', self.shutdown_exit_sound_type)
+                event.accept()
+            # cancel
+            elif answer == False:
                 event.ignore()
                 return
-            if self.play_sounds and self.play_shutdown_sounds:
-                STATUS.emit('play-alert', self.shutdown_exit_sound_type)
-            event.accept()
 
         # [0] = tool number
         # [1] = pocket number
@@ -293,24 +316,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # XEmbed program into tabs
     def add_xembed_tabs(self):
         if INFO.TAB_CMDS:
+            wid = int(self.QTVCP_INSTANCE_.winId())
+            os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
+
             from qtvcp.widgets.xembed import XEmbeddable
-            for name, tab, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,tab,cmd))
-                if tab == 'default':
-                    tab = 'rightTab'
-                if not isinstance(self.QTVCP_INSTANCE_[tab], QtWidgets.QTabWidget):
-                    LOG.warning('tab location {} is not a QTabWidget - skipping'.format(tab))
+            for name, loc, cmd in INFO.ZIPPED_TABS:
+                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                if loc == 'default':
+                    loc = 'rightTab'
+                if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                    tw = QtWidgets.QWidget()
+                    self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                    tw = QtWidgets.QWidget()
+                    self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                else:
+                    LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
                     continue
                 try:
                     temp = XEmbeddable()
                     temp.embed(cmd)
                 except Exception, e:
-                    LOG.error('Embedded tab loading failed: {}'.format(name))
+                    LOG.error('Embedded tab loading failed: {} {}'.format(name,e))
                 else:
                     try:
-                        self.QTVCP_INSTANCE_[tab].addTab(temp, name)
+                        layout = QtWidgets.QGridLayout(tw)
+                        layout.addWidget(temp, 0, 0)
                     except Exception, e:
-                        LOG.error('Embedded tab adding widget into {} failed.'.format(tab))
+                        LOG.error('Embedded tab adding widget into {} failed.'.format(loc))
 
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
@@ -328,18 +361,28 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
              w.messageDialog_, w, w.PATHS, self.PREFS_)
         w.messageDialog_.overlay_color = self._messageDialogColor
 
+    def init_close_dialog(self):
+        from qtvcp.widgets.dialog_widget import CloseDialog
+        w = self.QTVCP_INSTANCE_
+        w.closeDialog_ = CloseDialog()
+        w.closeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.closeDialog_, w, w.PATHS, self.PREFS_)
+        w.closeDialog_.overlay_color = self._messageDialogColor
+
     def init_entry_dialog(self):
         from qtvcp.widgets.dialog_widget import EntryDialog
         w = self.QTVCP_INSTANCE_
         w.entryDialog_ = EntryDialog()
         w.entryDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.entryDialog_, w, w.PATHS, self.PREFS_)
+        w.entryDialog_.soft_keyboard_option = self._entryDialogSoftkey
         w.entryDialog_.overlay_color = self._entryDialogColor
 
     def init_file_dialog(self):
         from qtvcp.widgets.dialog_widget import FileDialog
         w = self.QTVCP_INSTANCE_
         w.fileDialog_ = FileDialog()
+        w.fileDialog_.setObjectName('fileDialog_')
         w.fileDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.fileDialog_, w, w.PATHS, self.PREFS_)
         w.fileDialog_.overlay_color = self._fileDialogColor
@@ -355,6 +398,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import VersaProbeDialog
         w = self.QTVCP_INSTANCE_
         w.versaProbeDialog_ = VersaProbeDialog()
+        w.versaProbeDialog_.setObjectName('versaProbeDialog_')
+        w.registerHalWidget(w.versaProbeDialog_)
         w.versaProbeDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.versaProbeDialog_, w, w.PATHS, self.PREFS_)
         w.versaProbeDialog_.overlay_color = self._versaProbeDialogColor
@@ -363,6 +408,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         from qtvcp.widgets.dialog_widget import MacroTabDialog
         w = self.QTVCP_INSTANCE_
         w.macroTabDialog_ = MacroTabDialog()
+        w.macroTabDialog_.setObjectName('macroTabDialog_')
         w.macroTabDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.macroTabDialog_, w, w.PATHS, self.PREFS_)
         w.macroTabDialog_.overlay_color = self._macroTabDialogColor
@@ -398,6 +444,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.calculatorDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
              w.calculatorDialog_, w, w.PATHS, self.PREFS_)
         w.calculatorDialog_.overlay_color = self._calculatorDialogColor
+
+    def init_machinelog_dialog(self):
+        from qtvcp.widgets.dialog_widget import MachineLogDialog
+        w = self.QTVCP_INSTANCE_
+        w.machineLogDialog_ = MachineLogDialog()
+        w.machineLogDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.machineLogDialog_, w, w.PATHS, self.PREFS_)
+        w.machineLogDialog_.overlay_color = self._machineLogDialogColor
 
     ########################################################################
     # This is how designer can interact with our widget properties.
@@ -506,6 +560,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._messageDialogColor = value
     message_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_messageDialogColor, set_messageDialogColor)
 
+    def set_closeDialog(self, data):
+        self.add_close_dialog = data
+    def get_closeDialog(self):
+        return self.add_close_dialog
+    def reset_closeDialog(self):
+        self.add_close_dialog = False
+    closeDialog_option = QtCore.pyqtProperty(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
+    def get_closeDialogColor(self):
+        return self._closeDialogColor
+    def set_closeDialogColor(self, value):
+        self._closeDialogColor = value
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_closeDialogColor, set_closeDialogColor)
+
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
     def get_entryDialog(self):
@@ -513,6 +580,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_entryDialog(self):
         self.add_entry_dialog = False
     entryDialog_option = QtCore.pyqtProperty(bool, get_entryDialog, set_entryDialog, reset_entryDialog)
+    def set_entryDialogSoftkey(self, data):
+        self._entryDialogSoftkey = data
+    def get_entryDialogSoftkey(self):
+        return self._entryDialogSoftkey
+    def reset_entryDialogSoftkey(self):
+        self._entryDialogSoftkey = False
+    entryDialogSoftkey_option = QtCore.pyqtProperty(bool, get_entryDialogSoftkey, set_entryDialogSoftkey, reset_entryDialogSoftkey)
     def get_entryDialogColor(self):
         return self._entryDialogColor
     def set_entryDialogColor(self, value):
@@ -622,6 +696,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_calculatorDialogColor(self, value):
         self._calculatorDialogColor = value
     calculator_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_calculatorDialogColor, set_calculatorDialogColor)
+
+    def set_machineLogDialog(self, data):
+        self.add_machinelog_dialog = data
+    def get_machineLogDialog(self):
+        return self.add_machinelog_dialog
+    def reset_machineLogDialog(self):
+        self.add_machinelog_dialog = False
+    machineLogDialog_option = QtCore.pyqtProperty(bool, get_machineLogDialog, set_machineLogDialog, reset_machineLogDialog)
+    def get_machineLogDialogColor(self):
+        return self._machineLogDialogColor
+    def set_machineLogDialogColor(self, value):
+        self._machineLogDialogColor = value
+    machineLog_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
 
     ##############################
     # required boiler code #

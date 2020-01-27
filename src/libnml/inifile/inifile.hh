@@ -25,6 +25,7 @@
 #endif
 
 #ifdef __cplusplus
+#include <fcntl.h>
 class IniFile {
 public:
     typedef enum {

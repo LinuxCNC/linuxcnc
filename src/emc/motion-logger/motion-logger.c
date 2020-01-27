@@ -149,8 +149,6 @@ static int init_comm_buffers(void) {
 	joint->acc_limit = 1.0;
 	joint->min_ferror = 0.01;
 	joint->max_ferror = 1.0;
-	joint->home_final_vel = -1;
-	joint->home_sequence = -1;
 
 	joint->comp.entry = &(joint->comp.array[0]);
 	/* the compensation code has -DBL_MAX at one end of the table
@@ -239,20 +237,17 @@ void update_joint_status(void) {
 	joint_status->min_pos_limit = joint->min_pos_limit;
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
-	joint_status->home_offset = joint->home_offset;
     }
 }
 
 
 static void mark_joint_homed(int joint_num) {
-    emcmot_joint_t *joint;
+    emcmot_joint_status_t *joint_status;
 
-    joint = &joints[joint_num];
-
-    SET_JOINT_HOMING_FLAG(joint, 0);
-    SET_JOINT_HOMED_FLAG(joint, 1);
-    SET_JOINT_AT_HOME_FLAG(joint, 1);
-    joint->home_state = HOME_IDLE;
+    joint_status = &emcmotStatus->joint_status[joint_num];
+    joint_status->homing = 0;
+    joint_status->homed  = 1;
+    return;
 }
 
 void maybe_reopen_logfile() {

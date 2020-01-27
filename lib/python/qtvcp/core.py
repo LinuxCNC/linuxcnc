@@ -6,7 +6,7 @@ import gobject
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
-from hal_glib import _GStat as GladeVcpStat
+from hal_glib import GStat
 from qtvcp.qt_istat import _IStat as IStatParent
 
 # Set up logging
@@ -96,13 +96,27 @@ INI = Info()
 ################################################################
 # use the same Gstat as gladeVCP uses
 # by subclassing it
-class _GStat(GladeVcpStat):
+class Status(GStat):
+    _instance = None
+    _instanceNum = 0
+    __gsignals__ = {
+        'toolfile-stale': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+    }
+
+    # only make one instance of the class - pass it to all other
+    # requested instances
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = GStat.__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
         # only initialize once for all instances
         if self.__class__._instanceNum >=1:
             return
+        gobject.GObject.__init__(self)
         self.__class__._instanceNum += 1
-        super(_GStat, self).__init__()
+        super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
 
@@ -113,17 +127,6 @@ class _GStat(GladeVcpStat):
         gobject.threads_init()
         gobject.timeout_add(100, self.update)
 
-# used so all qtvcp widgets use the same instance of _gstat
-# this keeps them all in synch
-# if you load more then one instance of QTvcp/Qtscreen each one has
-# it's own instance of _gstat
-class Status(_GStat):
-    _instance = None
-    _instanceNum = 0
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _GStat.__new__(cls, *args, **kwargs)
-        return cls._instance
 
 ################################################################
 # Lcnc_Action class

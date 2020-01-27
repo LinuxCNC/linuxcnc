@@ -1,0 +1,251 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkFrame" id="frm_signals">
+        <property name="visible">True</property>
+        <property name="label_xalign">0.5</property>
+        <child>
+          <object class="GtkAlignment" id="ali_signals">
+            <property name="visible">True</property>
+            <property name="top_padding">5</property>
+            <property name="bottom_padding">5</property>
+            <property name="left_padding">5</property>
+            <property name="right_padding">5</property>
+            <child>
+              <object class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <property name="spacing">10</property>
+                <child>
+                  <object class="GtkTable" id="tbl_signals">
+                    <property name="visible">True</property>
+                    <property name="n_rows">3</property>
+                    <property name="n_columns">2</property>
+                    <child>
+                      <object class="GtkLabel" id="lbl_flood_switch">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Float Sw</property>
+                        <property name="width_chars">8</property>
+                        <attributes>
+                          <attribute name="style" value="normal"/>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-torch-on">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#ffffffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="lbl_torch_on">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Torch On</property>
+                        <property name="width_chars">8</property>
+                        <attributes>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-float-switch">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#ffffffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="lbl_arc_ok">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Arc OK</property>
+                        <property name="width_chars">8</property>
+                        <attributes>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-arc-ok">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#0000ffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkVSeparator" id="vsep">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkTable" id="tbl_adjustment">
+                    <property name="visible">True</property>
+                    <property name="n_rows">3</property>
+                    <property name="n_columns">2</property>
+                    <child>
+                      <object class="GtkLabel" id="lbl_move_up">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Z up</property>
+                        <attributes>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                        <property name="x_padding">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="lbl_move_down">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Z down</property>
+                        <attributes>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                        <property name="x_padding">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-move-up">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#0000ffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-move-down">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#0000ffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="lbl_height_lock">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes">Cnr lock</property>
+                        <attributes>
+                          <attribute name="scale" value="0.750000"/>
+                        </attributes>
+                      </object>
+                      <packing>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
+                        <property name="x_padding">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led-height-lock">
+                        <property name="visible">True</property>
+                        <property name="led_size">5</property>
+                        <property name="pick_color_off">#7d7d7d7d7d7d</property>
+                        <property name="pick_color_on">#0000ffff0000</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">2</property>
+                        <property name="bottom_attach">3</property>
+                        <property name="x_options">GTK_SHRINK</property>
+                        <property name="y_options">GTK_SHRINK</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="lbl_frm_tool_info">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">&lt;b&gt;Signals&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

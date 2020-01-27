@@ -160,7 +160,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Calibration' - Starts the Calibration assistant (emccalib.tcl).
    Calibration reads the HAL file and for every 'setp' that uses a variable
-   from the ini file that is in an [AXIS_L],[JOINT_N], or [TUNE]
+   from the ini file that is in an [AXIS_L],[JOINT_N],[SPINDLE_S], or [TUNE]
    section it creates an entry that can be edited and tested.
 
 * 'Show HAL Configuration' - Opens the HAL Configuration window where you can

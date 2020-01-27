@@ -191,6 +191,6 @@ base = Color([0,1,0,0], [base] )
 model = Collection([zslide, base])
 
 myhud = Hud()
-myhud.show("XYZAC: 5/4/16")
+myhud.show("XYZAC")
 
-main(model, tooltip, work, 500, hud=myhud)
+main(model, tooltip, work, size=500, hud=myhud, lat=-60, lon=25)

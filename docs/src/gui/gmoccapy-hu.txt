@@ -1,6 +1,6 @@
 = gmoccapy
 
-[[cha:gmoccapy]]
+[[cha:gmoccapy-hu]]
 
 == Bevezetés
 
@@ -228,12 +228,7 @@ A fenti példa beemeli a manual-example.ui panelt, egy egyedi Python kezelõt (h
 További példák: +
 
 ''''
-*ntb_user_tabs - integrált camview program* +
-
-image::images/gmoccapy_ntb_user_tab.png[align="left"]
-
-''''
-*ntb_preview - teljes képernyõs megjelenés +
+*ntb_preview - teljes képernyõs megjelenés* +
 
 image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
 

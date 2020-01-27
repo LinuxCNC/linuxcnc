@@ -87,11 +87,12 @@ class _GStat(gobject.GObject):
         'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
         'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'unhomed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'override-limits-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
 
-        'hard-limits-tripped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'hard-limits-tripped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_PYOBJECT,)),
 
         'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -108,7 +109,8 @@ class _GStat(gobject.GObject):
         'jogincrement-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
         'jogincrement-angular-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT, gobject.TYPE_STRING)),
 
-        'axis-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT, gobject.TYPE_STRING)),
+        'joint-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'axis-selection-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'program-pause-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
         'optional-stop-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
@@ -119,11 +121,12 @@ class _GStat(gobject.GObject):
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'tool-prep-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'tool-info-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'current-tool-offset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
 
         'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
+        'spindle-control-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
         'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
         'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
@@ -160,8 +163,8 @@ class _GStat(gobject.GObject):
         'graphics-line-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'graphics-gcode-error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'graphics-gcode-properties': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
-        'view_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'reload-mdi-history': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'graphics-view-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'mdi-history-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'machine-log-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'update-machine-log': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING)),
         'move-text-lineup': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -170,7 +173,6 @@ class _GStat(gobject.GObject):
         'focus-overlay-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN, gobject.TYPE_STRING,
                             gobject.TYPE_PYOBJECT)),
         'play-sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'play-alert': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'virtual-keyboard': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'dro-reference-change-request': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'show-preference': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -201,7 +203,9 @@ class _GStat(gobject.GObject):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
+        self._status_active = False
         self.old = {}
+        self.old['tool-prep-number'] = 0
         try:
             self.stat.poll()
             self.merge()
@@ -214,7 +218,8 @@ class _GStat(gobject.GObject):
         self.current_jog_distance_text =''
         self.current_jog_distance_angular= 0
         self.current_jog_distance_angular_text =''
-        self.selected_axis = -1
+        self.selected_joint = -1
+        self.selected_axis = ''
         self._is_all_homed = False
         self.set_timer()
 
@@ -236,6 +241,11 @@ class _GStat(gobject.GObject):
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
+        try:
+            if hal.get_value('iocontrol.0.tool-prepare'):
+                self.old['tool-prep-number'] = hal.get_value('iocontrol.0.tool-prep-number')
+        except RuntimeError:
+             self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
@@ -247,9 +257,8 @@ class _GStat(gobject.GObject):
         self.old['spindle-direction']  = self.stat.spindle[0]['direction']
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
-        self.old['spindle-speed']= self.stat.spindle[0]['speed']
         try:
-            self.old['actual-spindle-speed']= hal.get_value('spindle.0.speed-in') * 60
+            self.old['actual-spindle-speed'] = hal.get_value('spindle.0.speed-in') * 60
         except RuntimeError:
              self.old['actual-spindle-speed'] = 0
         self.old['flood']= self.stat.flood
@@ -259,14 +268,20 @@ class _GStat(gobject.GObject):
 
         # override limits / hard limits
         or_limit_list=[]
+        hard_limit_list = []
         hard_limit = False
+        or_limit_set = False
         for j in range(0, self.stat.joints):
             or_limit_list.append( self.stat.joint[j]['override_limits'])
+            or_limit_set = or_limit_set or self.stat.joint[j]['override_limits']
             min_hard_limit = self.stat.joint[j]['min_hard_limit']
             max_hard_limit = self.stat.joint[j]['max_hard_limit']
             hard_limit = hard_limit or min_hard_limit or max_hard_limit
+            hard_limit_list.append([min_hard_limit,max_hard_limit])
         self.old['override-limits'] = or_limit_list
+        self.old['override-limits-set'] = bool(or_limit_set)
         self.old['hard-limits-tripped'] = bool(hard_limit)
+        self.old['hard-limits-list'] = hard_limit_list
 
         # active G codes
         active_gcodes = []
@@ -300,6 +315,10 @@ class _GStat(gobject.GObject):
         self.old['metric'] = metric
         self.old['radius'] = radius
         self.old['diameter'] = diameter
+        if css:
+            self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+        else:
+            self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
         # active M codes
         active_mcodes = []
@@ -317,10 +336,12 @@ class _GStat(gobject.GObject):
         try:
             self.stat.poll()
         except:
+            self._status_active = False
             # some things might not need linuxcnc status but do need periodic
             self.emit('periodic')
             # Reschedule
             return True
+        self._status_active = True
         old = dict(self.old)
         self.merge()
 
@@ -397,6 +418,10 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         if tool_new != tool_old:
             self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_old = old.get('tool-prep-number')
+        tool_num_new = self.old['tool-prep-number']
+        if tool_num_new != tool_num_old:
+            self.emit('tool-prep-changed', tool_num_new)
 
         motion_mode_old = old.get('motion-mode', None)
         motion_mode_new = self.old['motion-mode']
@@ -418,23 +443,27 @@ class _GStat(gobject.GObject):
                     homed_joints += 1
                     self.emit('homed', joint)
                 else:
+                    self.emit('unhomed', joint)
                     unhomed_joints += str(joint)
             if homed_joints == self.stat.joints:
-                self.emit('all-homed')
                 self._is_all_homed = True
+                self.emit('all-homed')
             else:
-                self.emit('not-all-homed', unhomed_joints)
                 self._is_all_homed = False
+                self.emit('not-all-homed', unhomed_joints)
+
         # override limts
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
+        or_limits_set_new = self.old['override-limits-set']
         if or_limits_new != or_limits_old:
-            self.emit('override-limits-changed',or_limits_new)
+            self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
         # hard limits tripped
-        hard_limits_tripped_old = old.get('hard-limits-tripped', None)
-        hard_limits_tripped_new = self.old['hard-limits-tripped']
-        if hard_limits_tripped_new != hard_limits_tripped_old:
-            self.emit('hard-limits-tripped',hard_limits_tripped_new)
+        t_list_old = old.get('hard-limits-list')
+        t_list_new = self.old['hard-limits-list']
+        if t_list_new != t_list_old:
+            hard_limits_tripped_new = self.old['hard-limits-tripped']
+            self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # current velocity
         self.emit('current-feed-rate',self.stat.current_vel * 60.0)
         # X relative position
@@ -594,9 +623,10 @@ class _GStat(gobject.GObject):
             self.emit('state-estop')
         self.emit('state-off')
         self.emit('interp-idle')
-        # override limts
+        # override limits
         or_limits_new = self.old['override-limits']
-        self.emit('override-limits-changed',or_limits_new)
+        or_limits_set_new = self.old['override-limits-set']
+        self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
         # overrides
         feed_or_new = self.old['feed-or']
         self.emit('feed-override-changed',feed_or_new * 100)
@@ -631,7 +661,7 @@ class _GStat(gobject.GObject):
         self.emit('optional-stop-changed',optional_stop_new)
         # user system G5x
         system_new = self.old['g5x-index']
-        self.emit('user_system_changed',system_new)
+        self.emit('user-system-changed',system_new)
         # radius mode g8
         radius_new = self.old['radius']
         self.emit('radius-mode',radius_new)
@@ -662,6 +692,8 @@ class _GStat(gobject.GObject):
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_new = self.old['tool-prep-number']
+        self.emit('tool-prep-changed', tool_num_new)
 
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']
@@ -768,13 +800,19 @@ class _GStat(gobject.GObject):
     def get_jog_increment(self):
         return self.current_jog_distance
 
+    def set_selected_joint(self, data):
+        self.selected_joint = int(data)
+        self.emit('joint-selection-changed', data)
+
+    def get_selected_joint(self):
+        return self.selected_joint
+
     def set_selected_axis(self, data):
-        self.selected_axis = int(data)
-        self.emit('axis-selection-changed', 0, int(data))
+        self.selected_axis = str(data)
+        self.emit('axis-selection-changed', data)
 
     def get_selected_axis(self):
         return self.selected_axis
-
     def is_all_homed(self):
         return self._is_all_homed
 
@@ -807,6 +845,26 @@ class _GStat(gobject.GObject):
     def is_auto_paused(self):
         return self.old['paused']
 
+    def is_interp_running(self):
+        self.stat.poll()
+        return self.stat.interp_state != linuxcnc.INTERP_IDLE
+
+    def is_interp_paused(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_PAUSED
+
+    def is_interp_reading(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_READING
+
+    def is_interp_waiting(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_WAITING
+
+    def is_interp_idle(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_IDLE
+
     def is_file_loaded(self):
         self.stat.poll()
         if self.stat.file:
@@ -819,6 +877,26 @@ class _GStat(gobject.GObject):
 
     def is_spindle_on(self):
         return self.old['spindle-enabled']
+
+    def is_joint_mode(self):
+        try:
+            self.stat.poll()
+        except:
+            return None
+        return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
+
+    def is_status_valid(self):
+        return self._status_active
+
+    def is_limits_override_set(self):
+        return self.old['override-limits-set']
+
+    def is_hard_limits_tripped(self):
+        return self.old['hard-limits-tripped']
+
+    def get_current_tool(self):
+        self.stat.poll()
+        return self.stat.tool_in_spindle
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None

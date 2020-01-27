@@ -317,7 +317,7 @@ static int comp_id;
     for type, name, default, doc in modparams:
         decl = mp_decl_map[type]
         if decl:
-            print("%s %s" % (type, name), file=f)
+            print("%s %s" % (type, name), end=' ', file=f)
             if default: print("= %s;" % default, file=f)
             else: print(";", file=f)
             print("%s(%s, %s);" % (decl, name, q(doc)), file=f)
@@ -643,7 +643,8 @@ static int comp_id;
         if options.get("userinit"):
             print("static void userinit(int argc, char **argv);", file=f)
 
-        print("""
+        if not options.get("singleton"):
+            print("""
 int __comp_parse_count(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -663,7 +664,7 @@ int __comp_parse_count(int *argc, char **argv) {
     return 0;
 }
 """, file=f)
-        print("""
+            print("""
 int __comp_parse_names(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -691,13 +692,14 @@ int __comp_parse_names(int *argc, char **argv) {
         print("int argc=0; char **argv=0;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
-        print("    int found_count, found_names;", file=f)
-        print("    found_count = __comp_parse_count(&argc, argv);", file=f)
-        print("    found_names = __comp_parse_names(&argc, argv);", file=f)
-        print("    if (found_count && found_names) {", file=f)
-        print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
-        print("        return 1;", file=f)
-        print("    }", file=f)
+        if not options.get("singleton"):
+            print("    int found_count, found_names;", file=f)
+            print("    found_count = __comp_parse_count(&argc, argv);", file=f)
+            print("    found_names = __comp_parse_names(&argc, argv);", file=f)
+            print("    if (found_count && found_names) {", file=f)
+            print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
+            print("        return 1;", file=f)
+            print("    }", file=f)
         if options.get("userinit", 0):
             print("    userinit(argc, argv);", file=f)
         print("", file=f)
@@ -750,7 +752,11 @@ int __comp_parse_names(int *argc, char **argv) {
 
         if options.get("userspace"):
             print("#undef FOR_ALL_INSTS", file=f)
-            print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
+            if options.get("singleton"):
+                print("#define __comp_inst __comp_first_inst", file=f)
+                print("#define FOR_ALL_INSTS()", file=f)
+            else:
+                print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
     print("", file=f)
     print("", file=f)
 
@@ -899,16 +905,16 @@ def document(filename, outfilename):
             print(".HP", file=f)
             if options.get("singleton") or options.get("count_function"):
                 if has_personality:
-                    print(".B loadrt %s personality=\\fIP\\fB" % comp_name, file=f)
+                    print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s" % comp_name, file=f)
+                    print(".B loadrt %s" % comp_name, end='', file=f)
             else:
                 if has_personality:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:
-                print("[%s=\\fIN\\fB]" % name, file=f)
+                print(" [%s=\\fIN\\fB]" % name, end='', file=f)
             print("", file=f)
 
             hasparamdoc = False
@@ -919,9 +925,9 @@ def document(filename, outfilename):
                 print(".RS 4", file=f)
                 for type, name, default, doc in modparams:
                     print(".TP", file=f)
-                    print("\\fB%s\\fR" % name, file=f)
+                    print("\\fB%s\\fR" % name, end='', file=f)
                     if default:
-                        print("[default: %s]" % default, file=f)
+                        print(" [default: %s]" % default, file=f)
                     else:
                         print("", file=f)
                     print(doc, file=f)
@@ -939,9 +945,9 @@ def document(filename, outfilename):
         print(".SH FUNCTIONS", file=f)
         for _, name, fp, doc in finddocs('funct'):
             print(".TP", file=f)
-            print("\\fB%s\\fR" % to_hal_man(name), file=f)
+            print("\\fB%s\\fR" % to_hal_man(name), end='', file=f)
             if fp:
-                print("(requires a floating-point thread)", file=f)
+                print(" (requires a floating-point thread)", file=f)
             else:
                 print("", file=f)
             print(doc, file=f)
@@ -950,16 +956,16 @@ def document(filename, outfilename):
     print(".SH PINS", file=f)
     for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
         print(lead, file=f)
-        print(".B %s\\fR" % to_hal_man(name), file=f)
-        print(type, dir, file=f)
+        print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+        print(type, dir, end=' ', file=f)
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
-                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), file=f)
+                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
             else:
-                print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), file=f)
+                print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
         if personality:
-            print(" [if %s]" % personality, file=f)
+            print(" [if %s]" % personality, end=' ', file=f)
         if value:
             print("\\fR(default: \\fI%s\\fR)" % value, file=f)
         else:
@@ -975,16 +981,16 @@ def document(filename, outfilename):
         print(".SH PARAMETERS", file=f)
         for _, name, type, array, dir, doc, value, personality in finddocs('param'):
             print(lead, file=f)
-            print(".B %s\\fR" % to_hal_man(name), file=f)
-            print(type, dir, file=f)
+            print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+            print(type, dir, end=' ', file=f)
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), file=f)
+                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
                 else:
-                    print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), file=f)
+                    print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
             if personality:
-                print(" [if %s]" % personality, file=f)
+                print(" [if %s]" % personality, end=' ', file=f)
             if value:
                 print("\\fR(default: \\fI%s\\fR)" % value, file=f)
             else:

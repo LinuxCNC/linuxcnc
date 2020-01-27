@@ -362,6 +362,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
     {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
     {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
+    {(char*)"num_extrajoints", T_INT, O(motion.numExtraJoints), READONLY},
 
 
 // EMC_SPINDLE_STAT motion.spindle

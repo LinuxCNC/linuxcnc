@@ -179,12 +179,15 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 else:
                     self.bg_color = QColor(0, 0, 0, 150)
                 if text:
+                    self.setShowText(True)
                     self.text = text
+                else:
+                    self.setShowText(False)
                 self.show()
                 self.update()
                 LOG.debug('Overlay - Show')
                 if self.play_sound:
-                    STATUS.emit('play-alert', '%s' % self.sound_type)
+                    STATUS.emit('play-sound', '%s' % self.sound_type)
                 #os.system("beep -f 555 ")
             else:
                 self.hide()

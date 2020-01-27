@@ -62,7 +62,7 @@ class HandlerClass:
     def initialized__(self):
         if self.w.PREFS_:
             print 'Using preference file:',self.w.PREFS_.fn
-        STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
+        STATUS.emit('play-sound','SPEAK This is a test screen for Qt V C P')
         # add some extra key bindings
         KEYBIND.add_call('Key_F3','on_keycall_F3')
         KEYBIND.add_call('Key_F4','on_keycall_F4')

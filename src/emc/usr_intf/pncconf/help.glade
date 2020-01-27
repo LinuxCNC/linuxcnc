@@ -50,6 +50,7 @@ directions are opposite of shown.
 Note this is an example, Many other combinations are 
 possible</property>
   </object>
+  <object class="GtkTextBuffer" id="textinputbuffer"/>
   <object class="GtkTextBuffer" id="textoutput_buffer"/>
   <object class="GtkWindow" id="help_window">
     <property name="can_focus">False</property>
@@ -241,13 +242,45 @@ possible.</property>
           </packing>
         </child>
         <child>
+          <object class="GtkScrolledWindow" id="input_tab">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTextView" id="textinput">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="wrap_mode">word</property>
+                <property name="cursor_visible">False</property>
+                <property name="buffer">textinputbuffer</property>
+                <property name="accepts_tab">False</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Input</property>
+          </object>
+          <packing>
+            <property name="position">3</property>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkTextView" id="textview2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="buffer">about_textbuffer</property>
           </object>
           <packing>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
         <child type="tab">
@@ -257,7 +290,7 @@ possible.</property>
             <property name="label" translatable="yes">About</property>
           </object>
           <packing>
-            <property name="position">3</property>
+            <property name="position">4</property>
             <property name="tab_fill">False</property>
           </packing>
         </child>
@@ -371,7 +404,7 @@ possible.</property>
             </child>
           </object>
           <packing>
-            <property name="position">4</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child type="tab">
@@ -381,7 +414,7 @@ possible.</property>
             <property name="label" translatable="yes">Map</property>
           </object>
           <packing>
-            <property name="position">4</property>
+            <property name="position">5</property>
             <property name="tab_fill">False</property>
           </packing>
         </child>

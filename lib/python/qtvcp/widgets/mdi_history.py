@@ -22,7 +22,6 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.core import Status, Action, Info
-from qtvcp.widgets.entry_widget import SoftInputWidget
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -59,7 +58,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.MDILine.line_up = self.line_up
         self.MDILine.line_down = self.line_down
 
-        STATUS.connect('reload-mdi-history', self.reload)
+        STATUS.connect('mdi-history-changed', self.reload)
 
         # add widgets
         lay.addWidget(self.list)
@@ -119,7 +118,12 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.MDILine.submit()
         self.select_row('down')
 
+    def run_command(self):
+        self.MDILine.submit()
+        self.select_row('last')
+
     def select_row(self, style):
+        style = style.lower()
         selectionModel = self.list.selectionModel()
         parent = QModelIndex()
         self.rows = self.model.rowCount(parent) - 1
@@ -129,12 +133,12 @@ class MDIHistory(QWidget, _HalWidgetBase):
             if self.row > 0:
                 self.row -= 1
             else:
-                self.row = self.rows
+                self.row = 0
         elif style == 'down':
             if self.row < self.rows:
                 self.row += 1
             else:
-                self.row = 0
+                self.row = self.rows
         else:
             return
         top = self.model.index(self.row, 0, parent)

@@ -77,7 +77,7 @@ class MDI(QLineEdit):
                 fp.close()
             except:
                 pass
-            STATUS.emit('reload-mdi-history')
+            STATUS.emit('mdi-history-changed')
 
     # Gcode widget can emit a signal to this
     def external_line_selected(self, w, text, filename):
@@ -113,10 +113,10 @@ class MDILine(MDI):
         if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
             if self.soft_keyboard:
                 self._input_panel_full.show_input_panel(widget)
-                try:
-                    ACTION.SET_MDI_MODE()
-                except:
-                    pass
+            try:
+                ACTION.SET_MDI_MODE()
+            except:
+                pass
         return False
 
     #########################################################################

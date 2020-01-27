@@ -601,7 +601,7 @@ elif test -e $KERNELDIR/include/generated/utsrelease.h; then
 else
     VERSION_FILE=$KERNELDIR/include/linux/version.h
 fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -s -d '"' -f 2`
 
 if test -z "$KERNEL_VERS"; then 
     AC_MSG_ERROR(Kernel version string not found)
@@ -995,6 +995,13 @@ AC_ARG_WITH(insmod,
     [
             INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
+
+AC_PATH_PROGS(YAPPS, [yapps yapps2])
+if test -z "$YAPPS"; then
+  AC_MSG_ERROR([yapps is required to build LinuxCNC
+install with "sudo apt-get install yapps2"])
+fi
+AC_SUBST(YAPPS)
 
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #

@@ -20,7 +20,13 @@
 /* number of joints supported
    Note: this is not a global variable but a compile-time parameter
    since it sets array sizes, etc. */
-#define EMCMOT_MAX_JOINTS 9
+
+// total number of joints available (kinematics_joints + extra_joints)
+#define EMCMOT_MAX_JOINTS 16
+
+// number of extra joints (NOT used in kinematics calculations):
+#define EMCMOT_MAX_EXTRAJOINTS EMCMOT_MAX_JOINTS
+
 /* number of axes defined by the interp */ //FIXME: shouldn't be here..
 #define EMCMOT_MAX_AXIS 9
 

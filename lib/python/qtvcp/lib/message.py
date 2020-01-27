@@ -62,7 +62,7 @@ class Message:
     def on_printmessage(self, pin, pinname, boldtext, text, details, type, icon):
         if not pin.get(): return
         if self.play_sounds:
-            STATUS.emit('play-alert',self.alert_sound)
+            STATUS.emit('play-sound',self.alert_sound)
         if boldtext == "NONE": boldtext = ''
         if "status" in type:
             if boldtext:

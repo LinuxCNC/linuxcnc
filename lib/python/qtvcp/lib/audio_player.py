@@ -21,15 +21,18 @@
 from qtvcp import logger
 log = logger.getLogger(__name__)
 
+import os
+import subprocess
+
 # try to add ability for audio feedback to user.
 PY_LIB_GOOD = GST_LIB_GOOD = True
 try:
+    # will update this when we go to python 3
     import pygst
     pygst.require("0.10")
     import gst
 except:
     PY_LIB_GOOD = False
-    import subprocess
     p = subprocess.Popen('gst-launch-1.0', shell=True,
           stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
             stderr=subprocess.PIPE, close_fds=True)
@@ -39,12 +42,19 @@ except:
         log.warning('no audio alerts available - Is gstreamer-1.0-tools installed?')
         GST_LIB_GOOD = False
 
-import os
 from qtvcp.core import Status
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
+
+try:
+    subprocess.check_output('''espeak --help''', shell=True)
+    ESPEAK = True
+except:
+    ESPEAK = False
+    log.warning('audio alerts - Is python-espeak installed?')
+    log.warning('Text to speach output not available. ')
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -89,11 +99,9 @@ class Player:
     # use the function name les 'play_'
     def _register_messages(self):
         if PY_LIB_GOOD:
-            STATUS.connect('play-sound', lambda w,f: self.run(f))
-            STATUS.connect('play-alert', self.jump)
+            STATUS.connect('play-sound', self.jump)
         elif GST_LIB_GOOD:
-            STATUS.connect('play-sound', lambda w,f: self.os_run(f))
-            STATUS.connect('play-alert', self.os_jump)
+            STATUS.connect('play-sound', self.os_jump)
 
     # jump to a builtin alert sound
     # This uses the system to play the sound because gst is not available
@@ -105,15 +113,15 @@ class Player:
         elif 'speak' in f.lower():
             self.os_speak(f)
             return
-        cmd = 'gst-launch-1.0 playbin uri=file://%s '% self[f.lower()]
-        p = subprocess.Popen(cmd, shell=True,
-          stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-            stderr=subprocess.PIPE, close_fds=True)
-
-    def os_run(self,f):
+        path = os.path.expanduser(f)
+        if not os.path.exists(path):
+            path = self[f.lower()]
+            if not os.path.exists(path):
+                log.error('Audio player using system - file not found {}'.format(path))
+                return
         try:
-            cmd = 'gst-launch-1.0 playbin uri=file://%s '% f
-            p = subprocess.Popen(cmd, shell=True,
+            cmd = '''gst-launch-1.0 playbin uri='file://%s' '''% path
+            self.p = subprocess.Popen(cmd, shell=True,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
                 stderr=subprocess.PIPE, close_fds=True)
         except:
@@ -130,21 +138,15 @@ class Player:
             return
         if self.player.get_state()[1] == gst.STATE_PLAYING:
             self.player.set_state(gst.STATE_NULL)
-        try:
-            self['play_%s'%f.lower()]()
-        except:
-            log.error('Audio player - Alert not found {}'.format(f))
-
-    # check if a file exists then play it
-    def run(self,sfile):
-        if self.player.get_state()[1] == gst.STATE_PLAYING:
-            self.player.set_state(gst.STATE_NULL)
-        sfile = os.path.expanduser(sfile)
+        sfile = os.path.expanduser(f)
         if os.path.exists(sfile):
             self.player.set_property("uri", "file://" + sfile)
             self.player.set_state(gst.STATE_PLAYING)
         else:
-            log.error('Audio player - File not found {}'.format(sfile))
+            try:
+                self['play_%s'%f.lower()]()
+            except:
+                log.error('Audio player - Alert not found {}'.format(f))
 
     # this gets messages back from GStreamer to control playback
     def on_message(self, bus, message):
@@ -204,8 +206,9 @@ class Player:
         os.system("beep -f 555 ")
 
     def os_speak(self,f):
-        cmd = f.lower().lstrip('speak')
-        os.system('''espeak -s 160 -v m3 -p 1 "%s" &'''% cmd)
+        if ESPEAK:
+            cmd = f.lower().lstrip('speak')
+            os.system('''espeak -s 160 -v m3 -p 1 "%s" &'''% cmd)
 
     ##############################
     # required class boiler code #

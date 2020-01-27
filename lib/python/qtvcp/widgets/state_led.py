@@ -68,7 +68,7 @@ class StateLED(LED):
             STATUS.connect('all-homed', lambda w: self._flip_state(True))
             STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False))
         elif self.is_idle:
-            STATUS.connect('interp-idle', lambda w: self._flip_state(False))
+            STATUS.connect('interp-idle', lambda w: self._flip_state(True))
             STATUS.connect('interp-run', lambda w: self._flip_state(False))
         elif self.is_paused:
             STATUS.connect('program-pause-changed', lambda w, data: self._flip_state(data))
@@ -100,7 +100,7 @@ class StateLED(LED):
         if str(self.joint_number) in jlist:
             self._flip_state(False)
 
-    def check_override_limits(self, w, data):
+    def check_override_limits(self, w, state, data):
         for i in data:
             if i == 1:
                 self._flip_state(True)

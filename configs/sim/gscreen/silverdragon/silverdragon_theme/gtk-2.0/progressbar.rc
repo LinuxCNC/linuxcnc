@@ -1,0 +1,78 @@
+########################################################################
+# Progressbar
+########################################################################
+
+style "progressbar"
+{
+	GtkProgressBar ::shadow-type = GTK_SHADOW_NONE
+	
+	bg[NORMAL] = "#ffffff" # Color of sorted columns
+	bg[SELECTED] = @selected_bg_color
+	
+	engine "pixmap"
+	{
+### Trough ###
+		image
+		{
+			function = BOX
+			detail = "trough"
+			file = "progressbar/trough-horiz.png"
+			border = {4, 4, 4, 4}
+			stretch	= TRUE
+			orientation	= HORIZONTAL
+		}
+
+		image
+		{
+			function = BOX
+			detail = "trough"
+			file = "progressbar/trough-vert.png"
+			border = {4, 4, 4, 4}
+			stretch = TRUE
+			orientation	= VERTICAL
+		}
+		
+		image
+		{
+			function = SHADOW
+			shadow = IN
+			file = "progressbar/trough-tree.png"
+			border = {2, 2, 2, 2}
+			stretch	= TRUE
+		}
+		
+### Progress ###
+		image
+		{
+			function = BOX
+			detail = "bar"
+			file = "progressbar/progressbar-horiz.png"
+			border = {2, 2, 2, 2}
+			stretch	= TRUE
+			orientation	= HORIZONTAL
+		}
+
+		image
+		{
+			function = BOX
+			detail = "bar"
+			file = "progressbar/progressbar-vert.png"
+			border = {2, 2, 2, 2}
+			stretch = TRUE
+			orientation	= VERTICAL
+		}
+		
+		image
+		{
+			function = BOX
+			state = SELECTED
+			border = {2, 2, 2, 2}
+			file = "progressbar/progressbar-horiz.png"
+			stretch	= TRUE
+		}
+	}
+}
+
+class "GtkProgressBar*" style "progressbar"
+#class "GtkTreeView*" style "progressbar"
+

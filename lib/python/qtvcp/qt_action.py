@@ -21,6 +21,7 @@ class _Lcnc_Action(object):
         self.__class__._instanceNum += 1
         self.cmd = linuxcnc.command()
         self.tmp = None
+        self.prefilter_path = None
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -38,7 +39,10 @@ class _Lcnc_Action(object):
         log.info('Homing Joint: {}'.format(joint))
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        self.cmd.home(joint)
+        if not INFO.HOME_ALL_FLAG and joint == -1:
+            STATUS.emit('error',linuxcnc.NML_ERROR,'Home-all not available according to INI Joint Home sequence')
+        else:
+            self.cmd.home(joint)
 
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
@@ -49,8 +53,17 @@ class _Lcnc_Action(object):
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
 
-    def SET_LIMITS_OVERRIDE(self):
-        self.cmd.override_limits()
+    # if called while on hard limit will set the flag and allow machine on
+    # if called with flag set and now off hard limits - resets the flag
+    def TOGGLE_LIMITS_OVERRIDE(self):
+        if STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'''Can Not Reset Limits Override - Still On Hard Limits''')
+        elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
+            STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
+            self.cmd.override_limits()
+        else:
+            STATUS.emit('error',linuxcnc.OPERATOR_TEXT,'Hard Limits Are Reset To Active!')
+            self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MDI)
@@ -62,18 +75,26 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s'%code)
 
-    def CALL_MDI_WAIT(self, code):
-        log.debug('MDI_WAIT_COMMAND= {}'.format(code))
+    def CALL_MDI_WAIT(self, code, time = 5):
+        log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
         self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
+            log.debug('MDI_COMMAND: {}'.format(l))
             self.cmd.mdi( l )
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR:
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
+                self.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
+                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format( time, result))
+                #STATUS.emit('MDI time out error',)
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error',result[0],result[1])
-                log.error('MDI_COMMAND_WAIT Error: {}'.format(result[1]))
+                log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
                 return -1
         return 0
 
@@ -88,15 +109,19 @@ class _Lcnc_Action(object):
         for code in(mdi_list):
             self.cmd.mdi('%s'% code)
 
-    def CALL_OWORD(self, code):
+    def CALL_OWORD(self, code, time=5 ):
         log.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(code)
         STATUS.stat.poll()
         while STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION_AND_IO or \
                         STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
-            result = self.cmd.wait_complete()
-            if result == -1 or result == linuxcnc.RCS_ERROR :
+            result = self.cmd.wait_complete(time)
+            if result == -1:
+                log.error('Oword timeout oast () Error = # {}'.format(time, result))
+                self.ABORT()
+                return -1
+            elif result == linuxcnc.RCS_ERROR:
                 log.error('Oword RCS Error = # {}'.format(result))
                 return -1
             result = linuxcnc.error_channel().poll()
@@ -105,7 +130,7 @@ class _Lcnc_Action(object):
                 log.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
-        result = self.cmd.wait_complete()
+        result = self.cmd.wait_complete(time)
         if result == -1 or result == linuxcnc.RCS_ERROR or linuxcnc.error_channel().poll():
             log.error('Oword RCS Error = # {}'.format(result))
             return -1
@@ -122,6 +147,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MDI)
 
     def OPEN_PROGRAM(self, fname):
+        self.prefilter_path = str(fname)
         self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
@@ -161,6 +187,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self,axis,value,fixture = False):
         lnum = 10+int(fixture)
         m = "G10 L%d P%d %s%f"%(lnum, STATUS.stat.tool_in_spindle, axis, value)
@@ -172,12 +199,33 @@ class _Lcnc_Action(object):
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
 
+    # Set actual tool offset in tool table to the given value
+    def SET_DIRECT_TOOL_OFFSET(self,axis,value):
+        m = "G10 L1 P%d %s%f"%( STATUS.get_current_tool(), axis, value)
+        fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
+        self.cmd.mdi(m)
+        self.cmd.wait_complete()
+        self.cmd.mdi("G43")
+        self.cmd.wait_complete()
+        self.ensure_mode(premode)
+        self.RELOAD_DISPLAY()
+
     def RUN(self, line=0):
-        self.ensure_mode(linuxcnc.MODE_AUTO)
-        if STATUS.is_auto_paused() and line ==0:
+        if not STATUS.is_auto_mode():
+            self.ensure_mode(linuxcnc.MODE_AUTO)
+        if STATUS.is_auto_paused() and line == 0:
             self.cmd.auto(linuxcnc.AUTO_STEP)
             return
-        self.cmd.auto(linuxcnc.AUTO_RUN,line)
+        elif not STATUS.is_auto_running():
+            self.cmd.auto(linuxcnc.AUTO_RUN,line)
+
+    def STEP(self):
+        if STATUS.is_auto_running() and not STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+            return
+        if STATUS.is_auto_paused():
+            self.cmd.auto(linuxcnc.AUTO_STEP)
+            return
 
     def ABORT(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -248,24 +296,46 @@ class _Lcnc_Action(object):
     def RESTORE_RECORDED_MODE(self):
         self.ensure_mode(self.last_mode)
 
+    def SET_SELECTED_JOINT(self, data):
+        if isinstance(data, (int, long)):
+            STATUS.set_selected_joint(data)
+        else:
+            log.error( 'Selected joint must be an integer: {}'.format(data))
+
     def SET_SELECTED_AXIS(self, data):
-        STATUS.set_selected_axis(data)
+        if isinstance(data, (str)):
+            STATUS.set_selected_axis(data)
+        else:
+            log.error( 'Selected axis must be a string: {}'.format(data))
 
     # jog based on STATUS's rate and distance
-    # use joint number for joint or axis joging
-    def DO_JOG(self, jointnum, direction):
-        if STATUS.stat.joint[jointnum]['jointType'] == linuxcnc.ANGULAR:
-            distance = STATUS.get_jog_increment_angular()
-            rate = STATUS.get_jograte_angular()/60
+    # use joint number for joint or letter for axis jogging
+    def DO_JOG(self, joint_axis, direction):
+        angular = False
+        if isinstance(joint_axis, (int, long)):
+            if STATUS.stat.joint[joint_axis]['jointType'] == linuxcnc.ANGULAR:
+                angular =  True
+            jointnum = joint_axis
         else:
-            distance = STATUS.get_jog_increment()
-            rate = STATUS.get_jograte()/60
+            if joint_axis.upper() in('A','B','C'):
+                angular = True
+            s ='XYZABCUVW'
+            jointnum = s.find(joint_axis)
+        # Get jog rate
+        if angular:
+                distance = STATUS.get_jog_increment_angular()
+                rate = STATUS.get_jograte_angular()/60
+        else:
+                distance = STATUS.get_jog_increment()
+                rate = STATUS.get_jograte()/60
         self.JOG(jointnum, direction, rate, distance)
 
     # jog based on given variables
     # checks for jog joint mode first
     def JOG(self, jointnum, direction, rate, distance=0):
         jjogmode,j_or_a = self.get_jog_info(jointnum)
+        if jjogmode is None or j_or_a is None:
+            return
         if direction == 0:
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
@@ -315,27 +385,49 @@ class _Lcnc_Action(object):
                 'rotate-down', 'rotate-cw','rotate-ccw'):
             STATUS.emit('view-changed',view)
 
+    def SHUT_SYSTEM_DOWN_PROMPT(self):
+        import subprocess
+        try:
+            try:
+                subprocess.call('gnome-session-quit --power-off',shell=True)
+            except:
+                try:
+                    subprocess.call('xfce4-session-logout', shell=True)
+                except:
+                    try:
+                        subprocess.call('systemctl poweroff', shell=True)
+                    except:
+                        raise
+        except Exception as e:
+            log.warning("Couldn't shut system down: {}".format(e))
+
+    def SHUT_SYSTEM_DOWN_NOW(self):
+        import subprocess
+        subprocess.call('shutdown now')
+
     ######################################
     # Action Helper functions
     ######################################
 
     # In free (joint) mode we use the plain joint number.
     # In axis mode we convert the joint number to the equivalent
-    # axis number - so in a dual-joint axis - jogging either will
-    # jog the axis
+    # axis number 
     def get_jog_info (self,num):
         if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             return True, self.jnum_check(num)
-        return False, INFO.GET_JOG_FROM_NAME[INFO.GET_NAME_FROM_JOINT[num]]
+        return False, num
 
     def jnum_check(self,num):
         if STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             log.warning("Joint jogging not supported for non-identity kinematics")
-            #return -1
+            #return None
         if num > INFO.JOINT_COUNT:
             log.error("Computed joint number={} exceeds jointcount={}".format(num,INFO.JOINT_COUNT))
             # decline to jog
-            return -1
+            return None
+        if num not in INFO.AVAILABLE_JOINTS:
+            log.warning("Joint {} is not in available joints {}".format(num, INFO.AVAILABLE_JOINTS))
+            return None
         return num
 
     def ensure_mode(self, *modes):
@@ -348,7 +440,7 @@ class _Lcnc_Action(object):
             return (truth, premode)
 
     def open_filter_program(self,fname, flt):
-        log.debug('Openning filtering program yellow<{}> for {}'.format(flt,fname))
+        log.debug('Opening filtering program yellow<{}> for {}'.format(flt,fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))

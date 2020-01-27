@@ -883,7 +883,8 @@ int main (int argc,char **argv)
 			libusb_cancel_transfer(transfer_in); // ignore result
 			assert (0 == libusb_handle_events_completed(ctx, nullptr));
 			libusb_free_transfer(transfer_in);
-			assert (0 == libusb_release_interface(dev_handle, 0));
+			r = libusb_release_interface(dev_handle, 0);
+			assert (r == 0 || r == LIBUSB_ERROR_NO_DEVICE);
 			libusb_close(dev_handle);
 		} else {
 			while (!do_exit) usleep(70000);
