@@ -2,10 +2,11 @@
 
 = Updating LinuxCNC
 
-Updating LinuxCNC for example from 2.7.0 to 2.7.1 and your PC is connected to
-the internet is an automatic process. You will see an update prompt after a
-minor release along with other software updates. If you don't have an internet
-connection to your PC see
+Updating LinuxCNC to a new minor release (ie to a new version in
+the same stable series, for example from 2.7.0 to 2.7.1) is an
+automatic process if your PC is connected to the internet. You will
+see an update prompt after a minor release along with other software
+updates. If you don't have an internet connection to your PC see
 <<getting-started:update-no-network,Updating without Network>>.
 
 == Upgrade to the new version

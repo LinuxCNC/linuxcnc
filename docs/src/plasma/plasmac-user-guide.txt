@@ -355,10 +355,14 @@ image::images/plasmac_configurator_new.png[width=400]
            the HAL pin you have connected your move down signal to
 |Run Panel|Run Tab = the run frame is a tab behind the preview tab +
            Run Panel = the run frame is a panel at the side of the GUI
-|Scribe Arming|only required if using an scribe +
-               the HAL pin to arm the scriber
-|Scribe On|only required if using an scribe +
-              the HAL pin to turn the scriber on
+|Scribe Arming|only required if using a scribe +
+               the HAL pin to arm the scribe
+|Scribe On|only required if using a scribe +
+              the HAL pin to turn the scribe on
+|Powermax Comms|only required if using Powermax communications +
+                the serial port used for communications
+|Gas Units|select the units display you require +
+           psi, Bar or None if not being used
 |===
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
@@ -436,16 +440,21 @@ In addition to the above files, the following links are created to the files in 
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|plasmac.hal|permanent HAL connections for the plasmac component
+|blank.ngc|for Gmoccapy shape library file loading
+|configurator.py|configure a new or upgrade/re-configure an existing PlasmaC configuration
+|xxx_startup.ngc|initial GCode startup for imperial or metric machines
+|M190|for G-Code changing of materials
+|materialverter.py|tool table converter and material file creator
+|plasmac_axis.py|python code to customise the Axis GUI
 |plasmac_xxx.glade|a gladevcp panel for the PlasmaC configuration
 |plasmac_xxx.hal|HAL connections for the panel
 |plasmac_xxx.py|python code for the panel
-|xxx_startup.ngc|startup G-Code commands
 |plasmac_gcode.py|a preprocessor for the loaded G-Code file
-|plasmac_axis.py|python code to customise the Axis GUI
-|M190|for G-Code changing of materials
-|materialverter.py|tool table converter and material file creator
-|configurator.py|configure a new or upgrade/re-configure an existing PlasmaC configuration
+|plasmac.tcl|permanent HAL connections for the plasmac component
+|pmx_test.py|test panel for powermax communications
+|pmx485.py|python code for powermax communications
+|tool.tbl|tool table for the PlasmaC configuration
+|versions.html|complete uddate list
 |wizards|files relating to the shape library
 |test|files for the test panel
 |===
@@ -579,8 +588,6 @@ Parameters related to an optional scribe.
 
 Parameters related to spotting (centre spot).
 
-IMPORTANT: This is experimental and will not suit some plasma cutters
-
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
@@ -620,11 +627,16 @@ Parameters related to cutting.
 |Cut Height|The cut height for the currently selected material
 |Cut Feed Rate|The cut feed rate for the currently selected material
 |Cut Amps|The cut amperage for the currently selected material +
-          Operator indicator only
+          Operator indicator only unless using Powermax communications
 |Cut Volts|The cut voltage for the currently selected material
 |P-Jump Height|The puddle jump height for the currently selected material
 |P-Jump Delay|The puddle jump delay for the currently selected material
 |Pause At End|Pause for n seconds at end of cut with torch on before turning torch off and raising torch
+|Gas Pressure|The gas pressure for the currently selected material. +
+              Only valid if PowerMax communications operational
+|Cut Mode|The cut mode for the currently selected material. +
+          Only valid if PowerMax communications operational +
+          1 = Normal, 2 = CPA, 3 = Gouge/Mark
 |===
 
 .THC
@@ -669,6 +681,21 @@ Parameters for a single cut.
 |Y Axis Length|The Y axis distance to travel for a single cut.
 |Start Cut|Press to commence a single cut.
 |===
+
+.Powermax Comms
+
+Parameters related to Powermax communications.
+
+[width="100%",cols="4,16"]
+|===
+|*Name*|*Description*
+|Enable|This is to enable or disable the communications to a Powermax.
+|Status|This will display one of 'Connecting', 'Connected', 'Comms Error' or 'Fault Code'.
+|===
+
+For more information, see the <<pm_comms, Powermax Communications>> section.
+
+NOTE: This frame is only visible if a PM_PORT is configured in the [PLASMAC] section of the .ini file.
 
 [[run-buttons]]
 
@@ -1354,8 +1381,6 @@ WARNING: If you have an existing manual toolchange in your machine .hal file the
 
 == Spotting
 
-IMPORTANT: This is experimental and will not suit some plasma cutters
-
 To achieve spotting prior to drilling etc, PlasmaC can pulse the torch for a short duration to mark the drill spot.
 
 This is done by first setting the arc voltage threshold in the <<config-panel, Config Panel>>. If the threshold voltage is set to zero then the delay timer will begin from when the torch on signal was sent. If the threshold voltage is set above zero then the delay timer will begin when the arc voltage reaches the threshold voltage.
@@ -1387,6 +1412,9 @@ m30
 -----
 
 NOTE: The 'high feed rate' is to ensure that the motion is at the machines highest feed rate.
+
+IMPORTANT: Some plasma cutters will not be suitable for this feature. +
+It is recommended that you carry out some test spotting to ensure that your plasma cutter is capable of utilising this feature.
 
 == Error Messages
 
@@ -1523,7 +1551,7 @@ IMPORTANT: see <<path-tolerance, path tolerance>>
 -----
 TWOPASS = on (needed for multiple .hal files)
 HALFILE = <MACHINE_NAME>.hal (your base machine .hal file)
-HALFILE = plasmac.hal (the standard PlasmaC .hal file )
+HALFILE = plasmac.tcl (the standard PlasmaC .hal file )
 HALFILE = <MACHINE_NAME>_connections.hal (PlasmaC connections to the machine)
 HALFILE = HALUI   = halui (required)
 -----
@@ -1831,6 +1859,8 @@ The following variables are optional. If any are not detected or have no value a
 * CUT_AMPS
 * CUT_VOLTS
 * PAUSE_AT_END
+* GAS_PRESSURE
+* CUT_MODE
 
 WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the GCode to be run.
 
@@ -1850,6 +1880,8 @@ CUT_SPEED           = value
 CUT_AMPS            = value (only used for operator information)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
 PAUSE_AT_END        = value
+GAS_PRESSURE        = value (only used for Powermax communications)
+CUT_MODE            = value (only used for Powermax communications)
 ----
 
 It is possible to add new material, delete material or edit existing material from the <<run-buttons, Run Panel.>>
@@ -2128,6 +2160,53 @@ setp    hm2_7i96.0.encoder.00.scale        -1
 ----
 
 NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD.
+
+[[pm_comms]]
+
+== Powermax Communications
+
+Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of 'Cut Mode', 'Cutting Amperage' and 'Gas Pressure' automatically from the 'Cut Parameters' of the material file.
+
+If Gas Pressure is set to Zero then the Powermax will calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
+
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are set with these values.
+
+This function is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file.
+
+----
+[PLASMAC]
+PM_PORT = /dev/ttyusb0
+PM_PRESSURE_DISPLAY = Bar
+----
+
+If you are unsure of the name of your port there is a python script in the configuration directory that will show all available ports and can also be used to test communications with the plasma unit prior to using this feature in PlasmaC. To use the test script enter the following in a terminal.
+
+----
+$ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
+----
+
+The gas pressure units display is configured by the PM_PRESSURE_DISPLAY variable. This should be set to the units configured in the Powermax unit being connected to, then the text entered for the PM_PRESSURE_DISPLAY variable is shown next to the Gas Pressure spinbutton on the Run Panel.
+
+If the PM_PORT variable is not set in the .ini file then the widgets associated with this function will not be visible.
+
+The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
+
+To switch the Powermax back to local mode you can either:
+
+.  Disable Powermax Comms from the Run panel
+.  Powerdown the Powermax for 30 seconds and then power it back on.
+.  Close LinuxCNC which will put the Powermax into local mode during shutdown.
+
+NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
+If pyserial is not installed an error message will be displayed.
+
+To install pyserial, type the following in a terminal:
+
+----
+sudo apt-get install python-serial
+----
+
+It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 
 == Support
 

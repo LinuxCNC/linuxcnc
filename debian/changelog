@@ -17,6 +17,102 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * New G52 local coordinate system offset
   * New support for multiple spindles up to 9
 
+linuxcnc (1:2.7.15) unstable; urgency=medium
+
+  * gaxis: use the theme that was made for it
+  * gmoccapy: fix unit change behavior (G20/G21)
+  * gmoccapy: fix offsetpage closing after editing one cell
+  * gscreen: show linked themes
+  * gscreen: fix error when selecting run-from-line startpoint
+  * gscreen: fix user message feature
+  * gladevcp: fix a bug with ProgressBar widget
+  * gladevcp: fix mode error in MDIHistory widget
+  * image-to-gcode: fix a startup crash on newer distros
+
+  * stepconf: fix simulated parport invert pin error
+  * pncconf: don't refer to kernel_version when not is_kernelspace (closes #159)
+  * pncconf: set PID maxerror reasonably on both imperial and metric machines
+  * pncconf: fix translations
+  * pncconf: fix maximise script for AXIS
+  * emccalib: fix parsing ini HALFILE=file items (fixes servo tuning in Axis GUI etc)
+
+  * hostmot2: fix a tram bug mostly affecting bspi (closes #451)
+  * pid: use command-deriv when supplied
+  * mux_generic: fix some long-standing bugs
+  * time component: add pause pin to pause timing while code is paused
+  * mb2hal: add support for libmodbus 3.1.2 and newer
+  * hy_gy_vfd: fix modbus byte timeout
+  * hm2 encoder: fix a quadrature error reporting bug
+  * hm2 sserial: fix "remote error" reporting (closes #439)
+  * hm2 muxed encoder: fix deskew bug (closes #394)
+  * mesa_uart component: fix an old bug with name handling
+
+  * tcl hallib: fix a bug in get_netlist
+  * vismach: fix import of ASCII STLs
+
+  * sample configs: add vismach 3 axis mill example
+  * sample configs: use user-friendly tool table editor
+  * sample configs: fix `ok_for_mdi()` example Python function homing check
+
+  * docs: fix misc typos and broken links
+  * docs: [TRAJ]LINEAR_UNITS must be either mm or inch
+  * docs: pwmgen has all pins now, no params
+  * docs: improve lowpass manpage
+  * docs: improve vismach example
+  * docs: improve pyvcp container info
+  * docs: add a pyvcp example
+  * docs: fix incorrect pin names in hostmot2 manpage
+  * docs: improve O-word examples & docs
+  * docs: fix & improve G28, G30, and G92
+  * docs: improve G38 & probe result params
+  * docs: improve restart description in M0/M1 docs
+  * docs: improve M7, M8, and M9
+  * docs: add a link to the web forum to About LinuxCNC
+  * docs: fix command for launching pyvcp example
+  * docs: add component usage information to halcomp docs
+  * docs: add arc tolerance ini settings
+  * docs: improve backlash & screw compensation docs
+  * docs: improve python UI library docs
+  * docs: fix #<_coord_system> values
+  * docs: fix indentation in remap docs example
+  * docs: fix broken link in comments of comp311.ngc example program
+  * docs: add missing info about motion.motion-type to Core Componens
+  * docs: clarify o-word subroutine effects
+  * docs: update links to point at new Wheezy ISO
+  * docs: fix a broken link in French docs
+  * docs: fix German translation (fixes #597)
+  * docs: fix homing docs about HOME_FINAL_VEL
+
+  * Interp: fix MDI calls after sub updated (fixes #455)
+  * Interp: fix motion after Abort (fixes #579)
+
+  * TP: fix fallback to parabolic blending when tangent blend fails (fixes #477)
+  * TP: fix accel violation with G96 and arc blending
+  * TP: fix exact-stop when falling back to alternative blend methods
+  * TP: fix accel violations with near-tangent segments (fixes #546)
+  * TP: apply minimum displacement checks consistently (fixes #550)
+
+  * RTAPI: allow rtapi to compile with kernel 4.14+
+
+  * make better use of autoconfigured `grep` executable in scripts
+  * scripts/linuxcnc: run better in Docker
+  * scripts/linuxcnc: fix cleanup log messages
+
+  * simulate_probe: rebrand EMC -> LinuxCNC in error messages
+
+  * clean up and modernize out use of yapps (for halcompile)
+  * better build & packaging support for Debian 10 "Buster"
+  * packaging: don't depend on python-gnome2
+  * remove unused program halgui
+  * fix compile error in C99 mode
+  * build system: require `intltool-extract` executable
+  * build system: support Ubuntu 16.04 and 18.04, and LinuxMint 18.* and 19.*
+  * tests: add an Interp test of G33.1
+  * tests: add an Interp test for issue #455
+  * travis: use ccache
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 02 Jan 2020 11:59:23 -0700
+
 linuxcnc (1:2.7.14) unstable; urgency=medium
 
   * docs: improve motion.requested-vel description

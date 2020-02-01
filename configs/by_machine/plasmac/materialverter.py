@@ -3,7 +3,7 @@
 '''
 materialverter.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019 2020 Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -64,6 +64,8 @@ class materialConverter:
         self.fCA = '0'
         self.fCV = '0'
         self.fPE = '0'
+        self.fGP = '0'
+        self.fCM = '1'
 
     def create_widgets(self):
         self.T = gtk.Table(9, 7)
@@ -202,6 +204,8 @@ class materialConverter:
                             '#CUT_AMPS           = \n'\
                             '#CUT_VOLTS          = \n'\
                             '#PAUSE_AT_END       = \n'
+                            '#GAS_PRESSURE       = \n'\
+                            '#CUT_MODE           = \n'\
                             '\n')
 #            except:
 #                self.outLabel.set_text('WRITE ERROR!!!')
@@ -229,6 +233,8 @@ class materialConverter:
             self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
             self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
             self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
+            self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
+            self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
             self.output()
             self.convert.set_label('Add')
         elif self.inSheetcam.get_active():
@@ -254,6 +260,8 @@ class materialConverter:
                         self.materialCutA = 'CUT_AMPS           = 0'
                         self.materialCutV = 'CUT_VOLTS          = 0'
                         self.materialPauseE = 'PAUSE_AT_END       = 0'
+                        self.materialGasP = 'GAS_PRESSURE       = 0'
+                        self.materialCutM = 'CUT_MODE           = 1'
                     elif 'PlasmaTool' in line:
                         valid = True
                     elif line.startswith('Tool\ number'):
@@ -293,6 +301,9 @@ class materialConverter:
                     elif line.startswith('Pause\ at\ end\ of\ cut'):
                         a,b = line.split('=',1)
                         self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
+                    elif line.startswith('Gas\ Pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                        a,b = line.split('=',1)
+                        self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
                     count += 1
                 if valid:
                     self.output()
@@ -301,7 +312,7 @@ class materialConverter:
             self.outLabel.set_text('FINISHED')
         elif self.inFusion.get_active():
             import json
-#            try:
+            #            try:
             with open(self.inFileName, 'r') as f_in:
                 jdata = json.load(f_in)
                 f_in.close()
@@ -331,6 +342,8 @@ class materialConverter:
                 self.materialCutA = 'CUT_AMPS           = {}'.format(self.fCA)
                 self.materialCutV = 'CUT_VOLTS          = {}'.format(self.fCV)
                 self.materialPauseE = 'PAUSE_AT_END       = {}'.format(self.fPE)
+                self.materialGasP = 'GAS_PRESSURE       = {}'.format(self.fGP)
+                self.materialCutM = 'CUT_MODE           = {}'.format(self.fCM)
                 self.output()
 #            except:
 #                self.outLabel.set_text('READ ERROR!!!')
@@ -369,7 +382,10 @@ class materialConverter:
                         self.materialCutS + '\n' + \
                         self.materialCutA + '\n' + \
                         self.materialCutV + '\n' + \
-                        self.materialPauseE + '\n\n')
+                        self.materialPauseE + '\n' +\
+                        self.materialGasP + '\n' + \
+                        self.materialCutM + '\n' + \
+                        '\n')
 #        except:
 #            self.outLabel.set_text('WRITE ERROR!!!')
 
@@ -443,6 +459,16 @@ class materialConverter:
         dPE = gtk.Entry()
         dPE.set_text(self.fPE)
         dPE.set_alignment(0.95)
+        dGPl = gtk.Label('Gas Pressure')
+        dGPl.set_alignment(0, 1)
+        dGP = gtk.Entry()
+        dGP.set_text(self.fGP)
+        dGP.set_alignment(0.95)
+        dCMl = gtk.Label('Cut Mode')
+        dCMl.set_alignment(0, 1)
+        dCM = gtk.Entry()
+        dCM.set_text(self.fCM)
+        dCM.set_alignment(0.95)
         dialog.vbox.add(topL)
         if self.inManual.get_active():
             dialog.vbox.add(dNUl)
@@ -473,6 +499,10 @@ class materialConverter:
         dialog.vbox.add(dCV)
         dialog.vbox.add(dPEl)
         dialog.vbox.add(dPE)
+        dialog.vbox.add(dGPl)
+        dialog.vbox.add(dGP)
+        dialog.vbox.add(dCMl)
+        dialog.vbox.add(dCM)
         dialog.show_all()
         response = dialog.run()
         if self.inManual.get_active():
@@ -493,6 +523,8 @@ class materialConverter:
         self.fCA = dCA.get_text()
         self.fCV = dCV.get_text()
         self.fPE = dPE.get_text()
+        self.fGP = dGP.get_text()
+        self.fCM = dCM.get_text()
         dialog.destroy()
         return response
 
