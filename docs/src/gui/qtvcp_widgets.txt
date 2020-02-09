@@ -356,6 +356,9 @@ options. This is the prefered way to use these options +
 * adding common dialog widgets (File, Entry, and manual toolchange)
 * adding the focus-overlay widget (colors/darkens the main screen when dialogs are up)
 
+Using the magic word 'CONFIGFOLDER' in the preference file path will be replaced with +
+the launched configuration path ie. CONFIGFOLDER/my_preferences
+
 === StatusSlider Widget
 
 This widget allow the user to adjust linuxcnc setting via a slide. +
