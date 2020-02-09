@@ -48,7 +48,7 @@ class QTPanel():
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
                     try:
-                        self.window['PREFS_'], pref_fn = widget._pref_init()
+                        self.window['PREFS_'], pref_fn = widget._pref_init(path.CONFIGPATH)
                     except Exception as e:
                         LOG.warning('Preference instance error: {}'.format(e))
                         self.window['PREFS_'], pref_fn = (None,None)

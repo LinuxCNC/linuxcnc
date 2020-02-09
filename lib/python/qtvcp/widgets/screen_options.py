@@ -233,11 +233,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to ther widgets
-    def _pref_init(self):
+    def _pref_init(self, conf_path):
         if self.use_pref_file:
             if INFO.PREFERENCE_PATH:
                 self.pref_filename = INFO.PREFERENCE_PATH
                 LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
+            self.pref_filename = self.pref_filename.replace('CONFIGFOLDER',conf_path)
             return Access(self.pref_filename), self.pref_filename
         return None,None
 
