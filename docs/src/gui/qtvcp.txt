@@ -8,8 +8,8 @@ with python programming to create a GUI screen for running a CNC machine. +
 Qtvcp is completely customizable - you can add different buttons and status LEDs etc. +
 or add python code for even finer grain customization. +
 
-.qtdragon - 3 Axis Sample
-image::images/qtdragon.png["QTDagon Router",align="left"]
+.qtdragon - 3 or 4 Axis Sample
+image::images/silverdragon.png["QTDragon Router",align="left"]
 .qtdefault - 3 Axis Sample
 image::images/qt_cnc.png["QTscreen Mill",align="left"]
 .Qtaxis - Self Adjusting Axis Sample
