@@ -170,5 +170,3 @@ PD-06 = 0 (Current resolution)
 *svd-ps_vfd.AI2* (float, out)::
 
         The VFD's AI2 register.
-
-== ISSUES
