@@ -70,6 +70,7 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         self._request_name = 'MESSAGE'
         self._nblock = False
         self._massage = None
+        self._title = 'Message Dialog'
         self.hide()
 
     def _hal_init(self):
@@ -96,9 +97,8 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
         if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
-                self.title = t
-            else:
-                self.title = 'Entry'
+                self._title = t
+
             mess = message.get('MESSAGE') or None
             more = message.get('MORE') or None
             details = message.get('DETAILS') or None
@@ -131,6 +131,8 @@ class LcncDialog(QMessageBox, _HalWidgetBase):
             self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.FramelessWindowHint | Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+
+        self.setWindowTitle(self._title)
 
         if focus_color is not None:
             color = focus_color
@@ -249,6 +251,7 @@ class CloseDialog(LcncDialog, _HalWidgetBase):
         super(CloseDialog, self).__init__(parent)
         self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
         self._request_name = 'CLOSEPROMPT'
+        self._title = 'QtVCP'
 
 ################################################################################
 # Tool Change Dialog
@@ -1127,7 +1130,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
         self._request_name = 'ENTRY'
-        self.title = 'Numerical Entry'
+        self._title = 'Numerical Entry'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1183,9 +1186,9 @@ class EntryDialog(QDialog, _HalWidgetBase):
         if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
-                self.title = t
+                self._title = t
             else:
-                self.title = 'Entry'
+                self._title = 'Numerical Entry'
             preload = message.get('PRELOAD')
             num = self.showdialog(preload)
             message['RETURN'] = num
@@ -1194,7 +1197,7 @@ class EntryDialog(QDialog, _HalWidgetBase):
     def showdialog(self, preload=None):
         conversion = {'x':0, 'y':1, "z":2, 'a':3, "b":4, "c":5, 'u':6, 'v':7, 'w':8}
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
-        self.setWindowTitle(self.title);
+        self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
@@ -1271,7 +1274,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
         self._request_name = 'CALCULATOR'
-        self.title = 'Calculator Entry'
+        self._title = 'Calculator Entry'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1303,9 +1306,9 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
         if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
-                self.title = t
+                self._title = t
             else:
-                self.title = 'Entry'
+                self._title = 'Calculator Entry'
             preload = message.get('PRELOAD')
             num = self.showdialog(preload)
             message['RETURN'] = num
@@ -1313,7 +1316,7 @@ class CalculatorDialog(Calculator, _HalWidgetBase):
 
     def showdialog(self, preload=None):
         STATUS.emit('focus-overlay-changed', True, 'Origin Setting', self._color)
-        self.setWindowTitle(self.title);
+        self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
@@ -1359,7 +1362,7 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
         self._color = QColor(0, 0, 0, 150)
         self.play_sound = False
         self._request_name = 'MACHINELOG'
-        self.title = 'Machine Log'
+        self._title = 'Machine Log'
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1420,9 +1423,9 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
         if message.get('NAME') == self._request_name:
             t = message.get('TITLE')
             if t:
-                self.title = t
+                self._title = t
             else:
-                self.title = 'Machine Log'
+                self._title = 'Machine Log'
             nonblock = message.get('NONBLOCKING')
             num = self.showdialog(nonblock)
             message['RETURN'] = num
@@ -1431,7 +1434,7 @@ class MachineLogDialog(QDialog, _HalWidgetBase):
     def showdialog(self, nonblock):
         if not nonblock:
             STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
-        self.setWindowTitle(self.title);
+        self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.calculate_placement()
