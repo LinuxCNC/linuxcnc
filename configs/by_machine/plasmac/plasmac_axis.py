@@ -219,8 +219,8 @@ w('bind',fjogf + '.jog.jogminus','<ButtonRelease-1>','if [is_continuous] {jog_st
 w('button',fjogf + '.jog.jogplus','-command','if ![is_continuous] {jog_plus 1}','-height','1','-text','+')
 w('bind',fjogf + '.jog.jogplus','<Button-1>','if [is_continuous] {jog_plus}')
 w('bind',fjogf + '.jog.jogplus','<ButtonRelease-1>','if [is_continuous] {jog_stop}')
-w('combobox',fjogf + '.jog.jogincr','-editable','0','-textvariable','jogincrement','-value','Continuous','-width','10')
-w(fjogf + '.jog.jogincr','list','insert','end','Continuous')
+w('combobox',fjogf + '.jog.jogincr','-editable','0','-textvariable','jogincrement','-value',_('Continuous'),'-width','10')
+w(fjogf + '.jog.jogincr','list','insert','end',_('Continuous'))
 if increments:
     w(fjogf + '.jog.jogincr','list','insert','end',*increments)
 w('labelframe',fjogf + '.zerohome','-text','Zero','-relief','flat')

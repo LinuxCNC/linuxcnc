@@ -2,6 +2,7 @@
 
 = PlasmaC User Guide
 :toc:
+:toclevels: 4
 :figure-caption!:
 
 == License
@@ -113,7 +114,7 @@ You can then choose between:
 
 [[buildbot-install]]
 
-.Buildbot Installation
+==== Buildbot Installation
 
 For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
 
@@ -171,7 +172,7 @@ Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
 
 [[rip-install]]
 
-.Run In Place Installation
+==== Run In Place Installation
 
 For more information on a Run In Place installation, see http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html[Building LinuxCNC]
 
@@ -422,6 +423,36 @@ You could separate these by using an exclusive debounce component for each switc
 
 Each increment changes the debounce timing by one servo thread cycle and for the Float and Ohmic switches it equates to a 0.001mm (0.00004") increase in the probed height result.
 
+== Desktop Launcher
+
+You could create a desktop launcher to your config by right clicking on the desktop and selecting Create Launcher or similar. This will bring up a dialog to create a launcher. Give it a nice short name, enter anything for the command and click OK.
+
+After the launcher appears on the desktop, right click on it and then open with your editor of choice. Edit the file so it looks similar to:
+
+----
+[Desktop Entry]
+Comment=
+Terminal=false
+Name=LinuxCNC
+Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine>/<machine>.ini"
+Type=Application
+Icon=/usr/share/pixmaps/linuxcncicon.png
+----
+
+The above Exec line would suit a Buildbot installation. For a Run In Place Installation it should be:
+
+----
+Exec=sh -c "$HOME/linuxcnc-dev/scripts/linuxcnc $HOME/linuxcnc/configs/<machine>/<machine>.ini"
+----
+
+If you would like a terminal window to open behind the GUI window then change the Terminal line to:
+
+----
+Terminal=true
+----
+
+Displaying a terminal is be handy for error messages and information messages.
+ 
 == Plasmac Files
 
 After an installation, the following files are created in the configuration directory:
@@ -496,9 +527,7 @@ A HAL pin named 'plasmac_config.config-disable' can then be set to Zero to enabl
 
 image::images/plasmac_config.png[width=400]
 
-.Probing
-
-Parameters related to probing.
+[underline]*Probing*
 
 [width="100%",cols="4,16"]
 |===
@@ -513,9 +542,7 @@ Parameters related to probing.
 
 WARNING: Probe Height is the height above the minimum Z axis limit.
 
-.THC
-
-Parameters related to torch height control.
+[underline]*THC*
 
 [width="100%",cols="4,2,14"]
 |===
@@ -529,9 +556,7 @@ Parameters related to torch height control.
 |PID P Gain|0,1|PID D gain for THC
 |===
 
-.Safe Height
-
-Parameters related to safe height.
+[underline]*Safe Height*
 
 [width="100%",cols="4,16"]
 |===
@@ -540,9 +565,7 @@ Parameters related to safe height.
                    If set to Zero then Z axis maximum height will be used for the safe height.
 |===
 
-.Arc
-
-Parameters related to arc and arc voltage.
+[underline]*Arc*
 
 [width="100%",cols="4,2,14"]
 |===
@@ -558,9 +581,7 @@ Parameters related to arc and arc voltage.
 |OK Low Volts|0|Low voltage threshold for Arc OK.
 |===
 
-.Motion
-
-Parameters related to motion.
+[underline]*Motion*
 
 [width="100%",cols="4,16"]
 |===
@@ -573,9 +594,7 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
 [[scribe-config]]
 
-.Scribing
-
-Parameters related to an optional scribe.
+[underline]*Scribing*
 
 [width="100%",cols="4,16"]
 |===
@@ -584,9 +603,7 @@ Parameters related to an optional scribe.
 |On Delay|Delay to allow scribe to start before beginning motion.
 |===
 
-.Spotting
-
-Parameters related to spotting (centre spot).
+[underline]*Spotting*
 
 [width="100%",cols="4,16"]
 |===
@@ -596,7 +613,7 @@ Parameters related to spotting (centre spot).
 |Delay|The length of time the torch is on after threshold reached (mS).
 |===
 
-.Save & Reload Buttons
+[underline]*Save & Reload Buttons*
 
 The *'Save'* button will save the currently displayed parameters as the default.
 
@@ -612,9 +629,7 @@ image::images/plasmac_run.png[width=600]
 
 See <<axis-display-section, Axis [DISPLAY] Section>> or <<gmoccapy-display-section, Gmoccapy [DISPLAY] section>>
 
-.Cut Parameters
-
-Parameters related to cutting.
+[underline]*Cut Parameters*
 
 [width="100%",cols="4,16"]
 |===
@@ -639,9 +654,7 @@ Parameters related to cutting.
           1 = Normal, 2 = CPA, 3 = Gouge/Mark
 |===
 
-.THC
-
-Parameters related to torch height control.
+[underline]*THC*
 
 [width="100%",cols="4,2,14"]
 |===
@@ -658,9 +671,7 @@ Parameters related to torch height control.
 
 |===
 
-.Ohmic Probe
-
-Parameters related to ohmic probing.
+[underline]*Ohmic Probe*
 
 [width="100%",cols="4,16"]
 |===
@@ -670,9 +681,7 @@ Parameters related to ohmic probing.
 
 NOTE: If Ohmic Probe is disabled, the Ohmic Probe LED will still show the status of the probe input.
 
-.Single Cut
-
-Parameters for a single cut.
+[underline]*Single Cut*
 
 [width="100%",cols="4,16"]
 |===
@@ -682,9 +691,7 @@ Parameters for a single cut.
 |Start Cut|Press to commence a single cut.
 |===
 
-.Powermax Comms
-
-Parameters related to Powermax communications.
+[underline]*Powermax Comms*
 
 [width="100%",cols="4,16"]
 |===
@@ -699,18 +706,18 @@ NOTE: This frame is only visible if a PM_PORT is configured in the [PLASMAC] sec
 
 [[run-buttons]]
 
-.Save Button
+[underline]*Save Button*
 
 The *'Save'* button has two modes of operation:
 
 . If the Default material is displayed then all the currently displayed parameters on the Run Panel will be saved as the default.
 . If any other material is showing then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
 
-.Reload Button
+[underline]*Reload Button*
 
 The *'Reload'* button will reload the default material and the material file.
 
-.New Button
+[underline]*New Button*
 
 The *'New'* button allows the addition of a new material in the material file.
 
@@ -718,7 +725,7 @@ It will prompt for a material number and a material name. When these are entered
 
 Make any required changes and then save them using the save button.
 
-.Delete Button
+[underline]*Delete Button*
 
 The *'Delete'* button allows the deletion of a material from the material file.
 
@@ -786,13 +793,13 @@ Gmoccapy Control Panel:
 
 image::images/plasmac_control_g.png[width=300]
 
-.Torch Pulse
+[underline]*Torch Pulse*
 
 This pulses the torch on for the amount of time set in the corresponding slider.
 
 [[paused-motion]]
 
-.Paused Motion
+[underline]*Paused Motion*
 
 When a program is paused, this allows x/y motion to follow the programmed path in the reverse or forward direction at the percentage of the current feed rate shown in the adjustment.
 
@@ -802,7 +809,7 @@ When forwarding, motion can continue until the end of the path.
 
 NOTE: Paused motion is only available in LinuxCNC version 2.9 or later.
 
-.Height Change
+[underline]*Height Change*
 
 Each press of Raise or Lower will change the height of the torch by the value set in Height Per Volt in the Arc frame of the Config Panel. Reset will cancel any height override.
 
@@ -970,7 +977,7 @@ PlasmaC uses a control voltage dependent on the state of the Use Auto Volts chec
 
 THC does not become active until the velocity reaches 99.9% of the 'CutFeedRate'.
 
-.G-Code THC
+[underline]*G-Code THC*
 
 THC may be disabled and enabled directly from G-Code provided THC is not disabled in the Run Panel, by setting or resetting the 'motion.digital-out-02' pin with the M-Codes M62-M65:
 
@@ -981,7 +988,7 @@ THC may be disabled and enabled directly from G-Code provided THC is not disable
 
 [[velocity_thc]]
 
-.Velocity Based THC
+[underline]*Velocity Based THC*
 
 If the cut velocity falls below a percentage of 'CutFeedRate' then THC will be locked until the cut velocity returns to at least 99% of 'CutFeedRate'.
 
@@ -1068,17 +1075,9 @@ PlasmaC can utilise GCode commands usually set by a CAM Post Processor (PP) to a
 
 There are three methods available for improving the quality of small holes.
 
-.Velocity Reduction
-
-Reduce the velocity to approximately 60% of the 'CutFeedRate'.
-
-.Arc Dwell:
-
-Keep the torch on for a short time while all motion is stopped to allow the arc to catch up.
-
-.Overcut:
-
-Turn the torch off at the end of the hole then continue along the path of the hole for about 4mm (0.015").
+. Velocity Reduction: Reduce the velocity to approximately 60% of the 'CutFeedRate'.
+. Arc Dwell: Keep the torch on for a short time while all motion is stopped to allow the arc to catch up.
+. Overcut: Turn the torch off at the end of the hole then continue along the path of the hole for about 4mm (0.015").
 
 NOTE: If both 'Arc Dwell' and 'Overcut' are active at the same time then 'Overcut' will take precedence.
 
@@ -1087,17 +1086,17 @@ NOTE: If both 'Arc Dwell' and 'Overcut' are active at the same time then 'Overcu
 
 Your GCode commands are set up either by a CAM Post Processor (PP) or by hand coding.
 
-.Velocity Reduction
+[underline]*Velocity Reduction*
 
 If a hole requires a reduced velocity then set the velocity with 'M67 E3 Q60' which would set the velocity to 60% of 'CutFeedRate'.
 
 See the <<velocity_thc,Velocity Based THC>> section.
 
-.Arc Dwell:
+[underline]*Arc Dwell*
 
 Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
 
-.Overcut:
+[underline]*Overcut*
 
 The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes 'M62' or 'M64'. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes 'M63' or 'M65', this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
 
@@ -1144,7 +1143,7 @@ PlasmaC hole sensing is enabled/disabled by setting the following GCode paramete
 * #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of 'CutFeedRate'.
 * #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path for a further 4mm (0.015").
 
-.Arc Dwell:
+[underline]*Arc Dwell*
 
 Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
 
@@ -1167,7 +1166,7 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-.Overcut:
+[underline]*Overcut*
 
 Use #<holes> = 2 to allow velocity reduction and overcut.
 
@@ -1202,7 +1201,7 @@ The machine needs to be homed before commencing a single cut.
 
 A single cut will commence from the machines current X/Y position.
 
-.Automatic Single Cut
+[underline]*Automatic Single Cut*
 
 This is the preferred method and the parameters for this method are entered in the Run Panel.
 
@@ -1212,7 +1211,7 @@ This is the preferred method and the parameters for this method are entered in t
 . Press the 'Start Cut' button and the cut will commence.
 
 
-.Pendant Single Cut
+[underline]*Pendant Single Cut*
 
 If you have a pendant that can start and stop the spindle plus jog the X and Y axes then you can manually perform a single cut.
 
@@ -1224,7 +1223,7 @@ If you have a pendant that can start and stop the spindle plus jog the X and Y a
 . When the cut is complete stop the spindle. +
 . The torch will turn off and the Z axis returns to the starting position.
 
-.Manual Single Cut In Axis
+[underline]*Manual Single Cut In Axis*
 
 . Jog to the required X/Y start position. +
 . Set the required feed rate with the Jog Speed slider. +
@@ -1234,7 +1233,7 @@ If you have a pendant that can start and stop the spindle plus jog the X and Y a
 . When the cut is complete press 'F9' or 'Esc'. +
 . The torch will turn off and the Z axis returns to the starting position.
 
-.Manual Single Cut In Gmoccapy
+[underline]*Manual Single Cut In Gmoccapy*
 
 If you wish to use the keyboard jogging keys then enable keyboard shortcuts in the Hardware tab of the Settings page, otherwise use the GUI jog buttons.
 
@@ -1506,7 +1505,7 @@ PlasmaC requires some specific .ini file variables as follows:
 
 === Common
 
-.[PLASMAC] Section
+[underline]*[PLASMAC] Section*
 
 -----
 MODE                = 0 (use external arc voltage in for Arc Voltage)
@@ -1526,7 +1525,7 @@ BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 
 NOTE: <<paused-motion, PAUSED-MOTION-SPEED>> is only valid for LinuxCNC version 2.9 or later
 
-.[FILTER] Section
+[underline]*[FILTER] Section*
 
 -----
 PROGRAM_EXTENSION = .ngc (filter *.ngc files)
@@ -1535,7 +1534,7 @@ ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments
 
 [[rs274]]
 
-.[RS274NGC] Section
+[underline]*[RS274NGC] Section*
 
 -----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
@@ -1546,7 +1545,7 @@ USER_M_PATH           = ./ (for M190 material change)
 
 IMPORTANT: see <<path-tolerance, path tolerance>>
 
-.[HAL] Section
+[underline]*[HAL] Section*
 
 -----
 TWOPASS = on (needed for multiple .hal files)
@@ -1560,13 +1559,13 @@ The <MACHINE_NAME>.hal file has 'num_spindles=[TRAJ]SPINDLES' appended to the en
 
 NOTE: You could place custom HAL commands in <MACHINE_NAME>_connections.hal as this file is not overwritten by an upgrade.
 
-.[TRAJ] Section
+[underline]*[TRAJ] Section*
 
 -----
 SPINDLES = 3
 -----
 
-.[AXIS_X] Section
+[underline]*[AXIS_X] Section*
 
 -----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1574,7 +1573,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 -----
 
-.[AXIS_Y] Section
+[underline]*[AXIS_Y] Section*
 
 -----
 MAX_VELOCITY     = double the value in the corresponding joint
@@ -1582,7 +1581,7 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 -----
 
-.[AXIS_Z] Section
+[underline]*[AXIS_Z] Section*
 
 -----
 MIN_LIMIT        = the top of your slats or just below
@@ -1595,7 +1594,7 @@ NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for m
 
 === Axis GUI Specific
 
-.[PLASMAC] Section
+[underline]*[PLASMAC] Section*
 
 -----
 FONT      = sans 11 (valid font sizes are from 10 to 15)
@@ -1605,7 +1604,7 @@ MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 
 [[axis-display-section]]
 
-.[DISPLAY] Section
+[underline]*[DISPLAY] Section*
 
 -----
 TOOL_EDITOR       = tooledit x y
@@ -1639,7 +1638,7 @@ The Run Window can be displayed as one of:
 
 [[gmoccapy-display-section]]
 
-.[DISPLAY] section
+[underline]*[DISPLAY] section*
 
 -----
 EMBED_TAB_NAME     = plasmac_buttons
@@ -1717,7 +1716,7 @@ Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or a
 
 [[button-cmds]]
 
-.External Commands
+[underline]*External Commands*
 
 To run an external command, the command is preceded by a % character.
 
@@ -1727,7 +1726,7 @@ BUTTON_n_CODE = %halshow
 
 [[button-code]]
 
-.G-Code
+[underline]*G-Code*
 
 To run G-Code, just enter the code to be run.
 
@@ -1762,7 +1761,7 @@ BUTTON_n_CODE = %halshow \ g0x.5y.5 \ %halmeter
 
 [[button-probe]]
 
-.Probe Test
+[underline]*Probe Test*
 
 ----
 BUTTON_n_CODE = probe-test 30
@@ -1772,7 +1771,7 @@ PlasmaC will begin a probe and when the probe is detected, the Z axis will rise 
 
 [[button-ohmic]]
 
-.Ohmic Test
+[underline]*Ohmic Test*
 
 ----
 BUTTON_n_CODE = ohmic-test
@@ -1782,7 +1781,7 @@ PlasmaC will enable the Ohmic Probe Enable and if the ohmic probe is sensed, the
 
 [[button-cut]]
 
-.Cut Type
+[underline]*Cut Type*
 
 ----
 BUTTON_n_CODE = cut-type
@@ -1792,7 +1791,7 @@ This button if selected will toggle between the two <<cut-types, cut types>>.
 
 [[button-consumables]]
 
-.Change Consumables
+[underline]*Change Consumables*
 
 ----
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
@@ -1812,9 +1811,9 @@ There are three methods to return to the previous coordinates:
 
 [[button-load]]
 
-.Load
+[underline]*Load*
 
-Buttons 10~19 in the Extras Panel are able to load a GCode program by usng the following format.
+Buttons 10~19 in the Extras Panel are able to load a GCode program by using the following format.
 
 ----
 BUTTON_n_CODE = load path/to/gcode.ngc
@@ -2073,7 +2072,7 @@ hm2_7i76e.0.encoder.00.velocity
 
 === Obtaining The Divider Ratio
 
-.THCAD-10
+[underline]*THCAD-10*
 
 If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine.
 
@@ -2083,7 +2082,7 @@ To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it wou
 
 IMPORTANT: If you are using a HF start plasma power supply then each of these resistances should be made up of several high voltage resistors.
 
-.THCAD-300
+[underline]*THCAD-300*
 
 This is connected to the plasma machines full arc voltage and the divider ratio = 1
 
@@ -2104,7 +2103,7 @@ Or similar values, these are the frequencies generated by the THCAD for 0 volts 
 
 You can now calculate the values as shown below or use https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator]
 
-.Voltage Scale
+[underline]*Voltage Scale*
 
 Use the formula:
 
@@ -2131,7 +2130,7 @@ THCAD-300 example would be:
 For our calculation above, we used 1 as our divider ratio, 32 from the jumper setting 'F/32' and 300 which is the full scale reading of the THCAD card itself.
 
 
-.Voltage Offset
+[underline]*Voltage Offset*
 
 Use the formula:
 
