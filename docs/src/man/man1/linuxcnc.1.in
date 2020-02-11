@@ -47,6 +47,10 @@ Print lots of debug information. All executed commands
 are echoed to the screen. This mode is useful when something is
 not working as it should.
 .TP
+\fB\-l\fR
+Use the last-used INI file without prompting. This is often a good choice
+for a shortcut command or startup item.
+.TP
 \fBINIFILE\fR
 The ini file is the main piece of an LinuxCNC configuration. It is not the
 entire configuration; there are various other files that go with it
