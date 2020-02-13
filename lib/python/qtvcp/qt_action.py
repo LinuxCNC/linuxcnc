@@ -22,6 +22,7 @@ class _Lcnc_Action(object):
         self.cmd = linuxcnc.command()
         self.tmp = None
         self.prefilter_path = None
+        self.home_all_warning_flag = False
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -36,12 +37,54 @@ class _Lcnc_Action(object):
             self.cmd.state(linuxcnc.STATE_OFF)
 
     def SET_MACHINE_HOMING(self, joint):
-        log.info('Homing Joint: {}'.format(joint))
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
         if not INFO.HOME_ALL_FLAG and joint == -1:
-            STATUS.emit('error',linuxcnc.NML_ERROR,'Home-all not available according to INI Joint Home sequence')
+            if not self.home_all_warning_flag == True:
+                self.home_all_warning_flag = True
+                STATUS.emit('error',linuxcnc.NML_ERROR,
+                    ''''Home-all not available according to INI Joint Home sequence
+         Set the joint sequence in the INI or
+         modify the screen for individual home buttons
+         to avoid this warning
+         Press again to home Z axis Joint''')
+            else:
+                if STATUS.is_all_homed():
+                    self.home_all_warning_flag = False
+                    return
+                # so linuxcnc is misonfigured or the Screen is built wrong (needs individual home buttons)
+                # now we will fake individual home buttons by homing joints one at a time
+                # but always start will Z - on a mill it's safer
+                zj = INFO.GET_JOG_FROM_NAME['Z']
+                if not STATUS.stat.homed[zj]:
+                    log.info('Homing Joint: {}'.format(zj))
+                    self.cmd.home(zj)
+                    STATUS.emit('error',linuxcnc.NML_ERROR,
+                        ''''Home-all not available according to INI Joint Home sequence
+             Press again to home next Joint''')
+                    return
+                length = len(INFO.JOINTSEQUENCELIST)
+                for num,j in enumerate(INFO.JOINTSEQUENCELIST):
+                    print j, num, len(INFO.JOINTSEQUENCELIST)
+                    # at the end so all homed
+                    if num == length -1:
+                        self.home_all_warning_flag = False
+                    # one from end but end is already homed
+                    if num == length -2 and STATUS.stat.homed[zj]:
+                        self.home_all_warning_flag = False
+                    # Z joint is homed first outside this for loop
+                    if j == zj : continue
+                    # ok home it then stop and wait for next button push
+                    if not STATUS.stat.homed[j]:
+                        log.info('Homing Joint: {}'.format(j))
+                        self.cmd.home(j)
+                        if self.home_all_warning_flag:
+                            STATUS.emit('error',linuxcnc.NML_ERROR,
+                                ''''Home-all not available according to INI Joint Home sequence
+                     Press again to home next Joint''')
+                        break
         else:
+            log.info('Homing Joint: {}'.format(joint))
             self.cmd.home(joint)
 
     def SET_MACHINE_UNHOMED(self, joint):
