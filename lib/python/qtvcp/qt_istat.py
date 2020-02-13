@@ -148,11 +148,14 @@ class _IStat(object):
         self.HOME_ALL_FLAG = 1
         # set Home All Flage only if ALL joints specify a HOME_SEQUENCE
         jointcount = len(self.AVAILABLE_JOINTS)
+        self.JOINTSEQUENCELIST = {}
         for j in range(jointcount):
-            if self.inifile.find("JOINT_"+str(j), "HOME_SEQUENCE") is None:
+            seq = self.inifile.find("JOINT_"+str(j), "HOME_SEQUENCE")
+            if seq is None:
+                seq = -1
                 self.HOME_ALL_FLAG = 0
-                break
-
+            self.JOINTSEQUENCELIST[j] = seq
+        print 'Joint Sequence =',self.JOINTSEQUENCELIST
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
