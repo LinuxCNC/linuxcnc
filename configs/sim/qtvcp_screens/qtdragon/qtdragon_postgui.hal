@@ -9,17 +9,39 @@ unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
 unlinkp iocontrol.0.tool-prep-number
 
-#net tool-change      qtvcp.tool-change   <=  iocontrol.0.tool-change 
-#net tool-changed     qtvcp.tool-changed  <=  iocontrol.0.tool-changed
-#net tool-prep-number qtvcp.tool-number   <=  iocontrol.0.tool-prep-number
-
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 
+net estop_on         qtdragon.action_estop-led <= halui.estop.is-activated
+net machine_on       qtdragon.action_machine_on-led <= halui.machine.is-on
+net mode_auto        qtdragon.auto_mode_button-led <= halui.mode.is-auto
+net mode_mdi         qtdragon.mdi_mode_button-led <= halui.mode.is-mdi
+net mode_manual      qtdragon.manual_mode_button-led <= halui.mode.is-manual
+net flood            qtdragon.action_flood-led <= halui.flood.is-on
+net mist             qtdragon.action_mist-led <= halui.mist.is-on
+net opt_block        qtdragon.action_opt_blk-led <= halui.program.block-delete.is-on
+net opt_stop         qtdragon.action_opt_stp-led <= halui.program.optional-stop.is-on
 net action_zero_x    joint.0.homed => qtdragon.action_home_x-led
 net action_zero_y    joint.1.homed => qtdragon.action_home_y-led
 net action_zero_z    joint.2.homed => qtdragon.action_home_z-led
-#net action_home_all  => qtdragon.action_home_all-led
+net running          qtdragon.btn_start-led <= halui.program.is-running
+net paused           qtdragon.action_pause-led <= halui.program.is-paused
+net forward          qtdragon.spindle_forward-led <= spindle.0.forward
+net reverse          qtdragon.spindle_reverse-led <= spindle.0.reverse
+net stop             qtdragon.spindle_stop-led <= spindle.0.on
 
+net xwidth           motion.analog-out-00 => qtdragon.x_width
+net ywidth           motion.analog-out-01 => qtdragon.y_width
+net avg_dia          motion.analog-out-02 => qtdragon.avg_diameter
+net edge_angle       motion.analog-out-03 => qtdragon.edge_angle
+net edge_delta       motion.analog-out-04 => qtdragon.edge_delta
+net xminus           motion.analog-out-05 => qtdragon.x_minus
+net yminus           motion.analog-out-06 => qtdragon.y_minus
+net zminus           motion.analog-out-07 => qtdragon.z_minus
+net xplus            motion.analog-out-08 => qtdragon.x_plus
+net yplus            motion.analog-out-09 => qtdragon.y_plus
+net xcenter          motion.analog-out-10 => qtdragon.x_center
+net ycenter          motion.analog-out-11 => qtdragon.y_center
+net cal_offset       motion.analog-out-12 => qtdragon.cal_offset
 

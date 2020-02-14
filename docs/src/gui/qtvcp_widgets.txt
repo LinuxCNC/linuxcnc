@@ -327,7 +327,7 @@ User System  +
 It is based on pyQT's QLabel
 
 ===  StatusStacked
-This widget displays on of three panels based on linuxcnc's mode. +
+This widget displays one of three panels based on linuxcnc's mode. +
 This allows you to automatically display different widgets on Manual, MDI and Auto modes. +
 
 todo +
@@ -336,28 +336,82 @@ It is based on pyQT's QStacked widget.
 ===  Jog Increments Widget
 
 This widget allows the user to select jog increment values for jogging. +
-The jogging values come from the INI file under: '[DISPLAY]', "INCREMENTS" +
+The jogging values come from the INI file under: '[DISPLAY]', 'INCREMENTS' +
+or '[DISPLAY]', 'ANGULAR_INCREMENTS' +
 This will be available to all widgets through STATUS. +
+You can select linear or angular increments by the property 'linear_option' +
+in Designer property editor. +
 
 It is based on pyQT's combobox
 
 === ScreenOption widget
 
 This widget doesn't add anything visually to a screen but sets up important +
-options. This is the prefered way to use these options +
+options. This is the preferred way to use these options +
 
 .These include: 
-* monitoring the linuxcnc error channel.
-* Hooking into the desktop notification bubbles for error and messages
-* catching the close event to pop up a 'are you sure' prompt
-* playing sounds
-* user defined pop up message dialogs
-* setting up a preference file
-* adding common dialog widgets (File, Entry, and manual toolchange)
-* adding the focus-overlay widget (colors/darkens the main screen when dialogs are up)
 
+* 'notify_option':
+Hooking into the desktop notification bubbles for error and messages
+
+* 'catch_close_option':
+catching the close event to pop up a 'are you sure' prompt
+
+* 'catch_error_option':
+monitoring the linuxcnc error channel. This also sends the message +
+through  STATUS to anything that registers
+
+* 'play_sounds_option':
+playing sounds using 'beep', 'espeak' and the system sound
+
+* 'use_pref_file_option':
+setting up a preference filepath +
 Using the magic word 'CONFIGFOLDER' in the preference file path will be replaced with +
 the launched configuration path ie. CONFIGFOLDER/my_preferences
+
+* 'embedded_program_option':
+Embed programs defined in the INI. There is a property for a default +
+location. +
+
+* 'focusOverlay_option':
+Focus_overlay will put an image or colored panel over the main +
+screen to emphasize focus to an external event - typically a dialog. +
+
+* 'messageDialog_option':
+sets up the message dialog - used for general messages
+
+* 'closeDialog_option':
+sets up the standard close screen prompt dialog
+ 
+* 'entryDiallog_option':
+sets up the numerical entry dialog
+
+* 'toolDialog_option':
+sets up the manual tool change dialog, incuding HAL pin.
+
+* 'fileDialog_option':
+sets up the file choosing dialog.
+
+* 'vesaProbe_option':
+sets up the vera style probe dialog
+
+* 'macroTabeDialog_option':
+sets up the macro selection dialog
+
+* 'camViewDialog_option':
+sets up the camera alignment dialog
+
+* 'toolOffset_option':
+sets up the tool offset display/editor dialog
+
+* 'originOffset_option':
+sets up the origin display/editor dialog
+
+* 'calculatorDialog_option':
+sets up the calcylatory entry dialog
+
+* 'machineLogDialog_option':
+sets up a dialog to display logs from the machine and qtvcp
 
 === StatusSlider Widget
 

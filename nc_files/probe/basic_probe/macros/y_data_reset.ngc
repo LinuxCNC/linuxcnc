@@ -1,0 +1,15 @@
+o<y_data_reset> sub
+
+  M68 E1 Q0
+;  M68 E2 Q0
+;  M68 E3 Q0
+;  M68 E4 Q0
+  M68 E6 Q0
+;  M68 E7 Q0
+  M68 E9 Q0
+  M68 E11 Q0
+
+o<y_data_reset> endsub
+
+M2 (end program)
+
