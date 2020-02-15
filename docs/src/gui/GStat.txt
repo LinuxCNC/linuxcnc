@@ -40,7 +40,7 @@ def FUNCTION_TO_CALL(return_codes):
 
 There are some basic patterns for using GStat, depending on what library +
 You are using them in. +
-If using GStat with Gladevcp or Qtvcp, the gobject library is not needed, +
+If using GStat with Gladevcp, Gscreen, or Qtvcp, the gobject library is not needed, +
 Those toolkits already set up Gobject. +
 
 === Sample HAL component code pattern
@@ -80,7 +80,12 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-=== Sample GladeVCP python extention code pattern
+This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
+or if you need to wait for the pins to be made before continuing: +
+'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
+The pins would be: 'metric_status.g20' and 'metric_status.g21' +
+
+=== Sample GladeVCP python extension code pattern
 This file assumes there are three GTK labels named: +
 state_label +
 e_state_label +
@@ -244,6 +249,9 @@ Sent when the X relative position changes.
 *current-position* :: '(returns pyobject, pyobject, pyobject)' -
 Sent as the current positions changes. +
 returns tuples of position,relative position and distance-to-go.
+
+*current-z-rotation* :: '(returns float)' -
+Sent as the current rotatated angle around the Z axis changes +
 
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
