@@ -245,6 +245,9 @@ Sent when the X relative position changes.
 Sent as the current positions changes. +
 returns tuples of position,relative position and distance-to-go.
 
+*current-z-rotation* :: '(returns float)' -
+Sent as the current rotatated angle around the Z axis changes +
+
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
 
