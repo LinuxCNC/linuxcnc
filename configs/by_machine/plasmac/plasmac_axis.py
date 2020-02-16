@@ -225,9 +225,9 @@ if increments:
     w(fjogf + '.jog.jogincr','list','insert','end',*increments)
 w('labelframe',fjogf + '.zerohome','-text','Zero','-relief','flat')
 w('button',fjogf + '.zerohome.home','-command','home_joint','-height','1')
-w('setup_widget_accel',fjogf + '.zerohome.home','Home Axis')
+w('setup_widget_accel',fjogf + '.zerohome.home',_('Home Axis'))
 w('button',fjogf + '.zerohome.zero','-command','touch_off_system','-height','1')
-w('setup_widget_accel',fjogf + '.zerohome.zero','Touch Off')
+w('setup_widget_accel',fjogf + '.zerohome.zero',_('Touch Off'))
 # unused, just for tcl hierarchy
 w('button',fjogf + '.zerohome.tooltouch')
 w('checkbutton',fjogf + '.override')
@@ -252,7 +252,7 @@ if homing_order_defined:
         hbName = 'axes'
     else:
         hbName ='joints'
-    widgets.homebutton.configure(text = 'Home All', command = 'home_all_joints')
+    widgets.homebutton.configure(text = _('Home All'), command = 'home_all_joints')
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home all %s [Ctrl-Home]' % hbName)
 else:
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home selected %s [Home]' % ja_name.lower())
