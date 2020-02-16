@@ -4792,7 +4792,7 @@ msgstr "Antasten"
 #: src/emc/usr_intf/axis/scripts/axis.py:2309
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
-msgstr "%s-Koordinate relativ zu %% eingeben:"
+msgstr "%s-Koordinate relativ zu %%s:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2463
 #: src/emc/usr_intf/axis/scripts/axis.py:2476
