@@ -155,7 +155,6 @@ class _IStat(object):
                 seq = -1
                 self.HOME_ALL_FLAG = 0
             self.JOINTSEQUENCELIST[j] = seq
-        print 'Joint Sequence =',self.JOINTSEQUENCELIST
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
