@@ -43,9 +43,18 @@ ActionButton#action_estop {
 ActionButton#action_estop:checked {
     color: #FF0000;
 }
+
 QLabel {
     font: 10pt "Lato Heavy";
     color: black;
+}
+
+QLabel#label_axis_x,  QLabel#label_axis_y,  QLabel#label_axis_z,  QLabel#label_axis_a {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:0.66, stop:0 rgba(240, 240, 240, 255), stop:0.6 rgba(20, 20, 20, 255));
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: #0080FF;
 }
 
 StatusLabel, StateLabel {
@@ -101,7 +110,7 @@ QProgressBar::chunk {
 }
 
 .QFrame {
-    background: url(images/brushed_metal.png)
+    background: url(:/newPrefix/images/qtdragon/images/brushed_metal.png)
 }
 
 QTabWidget::pane > QWidget {

@@ -148,6 +148,8 @@ class MyWindow(QtWidgets.QMainWindow):
             qssname = fname
         try:
             qss_file = open(qssname).read()
+            # qss files aren't friendly about changing image paths
+            qss_file = qss_file.replace('url(:/newPrefix/images', 'url({}'.format(self.PATHS.IMAGEDIR))
             self.setStyleSheet(qss_file)
             return
         except:
