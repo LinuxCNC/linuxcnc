@@ -374,12 +374,12 @@ This can be run as follows:
 
 * For a buildbot installation: +
 ----
-$ linuxcnc ~/linuxcnc/configs/<machine-name>.<machine-name>.ini
+$ linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
 ----
 
 * For a run in place installation: +
 ----
-$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine-name>.<machine-name>.ini
+$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
 ----
 
 After creating a new configuration some initial setup is required.
