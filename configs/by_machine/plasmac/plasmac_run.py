@@ -571,8 +571,9 @@ class HandlerClass:
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
     def load_settings(self):
-        for item in widget_defaults(select_widgets(self.builder.get_objects(), hal_only=False,output_only = True)):
+        for item in widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)):
             self.configDict[item] = '0'
+        self.configDict['thc-mode'] = '0'
         convertFile = False
         if os.path.exists(self.configFile):
             try:
@@ -605,8 +606,11 @@ class HandlerClass:
             for item in self.configDict:
                 if item == 'material':
                     self.builder.get_object(item).set_active(0)
-#                elif item == 'kerf-width':
-#                    self.builder.get_object(item).set_value(0)
+                elif item == 'thc-mode':
+                    if self.configDict.get(item) != '0':
+                        self.builder.get_object(self.configDict.get(item)).set_active(1)
+                    else:
+                        print('*** {} missing from {}'.format(item,self.configFile))
                 elif isinstance(self.builder.get_object(item), gladevcp.hal_widgets.HAL_SpinButton):
                     if item in tmpDict:
                         self.builder.get_object(item).set_value(float(self.configDict.get(item)))
@@ -633,27 +637,33 @@ class HandlerClass:
     def save_settings(self):
         material = hal.get_value('plasmac_run.material-change-number')
         position = self.builder.get_object('material').get_active()
-        if material == 0:
-            try:
-                with open(self.configFile, 'w') as f_out:
-                    f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
-                    for key in sorted(self.configDict.iterkeys()):
-                        if key == 'material-number': # or key == 'kerf-width':
-                            pass
-                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
-                            self.builder.get_object(key).update()
-                            value = self.builder.get_object(key).get_value()
-                            f_out.write(key + '=' + str(value) + '\n')
-                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
-                            value = self.builder.get_object(key).get_active()
-                            f_out.write(key + '=' + str(value) + '\n')
-                        elif key == 'torchPulseTime':
-                            value = self.builder.get_object(key).get_value()
-                            f_out.write(key + '=' + str(value) + '\n')
-            except:
-                self.dialog_error('Error opening {}'.format(self.configFile))
-                print('*** error opening {}'.format(self.configFile))
-        else:
+        try:
+            with open(self.configFile, 'w') as f_out:
+                f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
+                for key in sorted(self.configDict.iterkeys()):
+                    if key == 'material-number': # or key == 'kerf-width':
+                        pass
+                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                        self.builder.get_object(key).update()
+                        value = self.builder.get_object(key).get_value()
+                        f_out.write(key + '=' + str(value) + '\n')
+                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
+                        value = self.builder.get_object(key).get_active()
+                        f_out.write(key + '=' + str(value) + '\n')
+                    elif key == 'torchPulseTime':
+                        value = self.builder.get_object(key).get_value()
+                        f_out.write(key + '=' + str(value) + '\n')
+                    elif key == 'thc-mode':
+                        if self.builder.get_object('thc-auto').get_active():
+                            f_out.write(key + '=thc-auto\n')
+                        if self.builder.get_object('thc-on').get_active():
+                            f_out.write(key + '=thc-on\n')
+                        if self.builder.get_object('thc-off').get_active():
+                            f_out.write(key + '=thc-off\n')
+        except:
+            self.dialog_error('Config File Error', 'Error opening {}'.format(self.configFile))
+            print('*** error opening {}'.format(self.configFile))
+        if material != 0:
             for key in sorted(self.configDict.iterkeys()):
                 if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
                     self.builder.get_object(key).update()
