@@ -253,11 +253,12 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 
     /* fill in all joints with 0 */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
-	joint_pos[joint_num] = 0.0;
+        joint = &joints[joint_num];
+        joint_pos[joint_num] = joint->pos_cmd;
     }
 
     /* now fill in with real values, for joints that are used */
-    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) < 0)
+    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) != 0)
     {
 	reportError(_("%s move on line %d fails kinematicsInverse"),
 		    move_type, id);
