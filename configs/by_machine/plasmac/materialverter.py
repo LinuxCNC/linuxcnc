@@ -274,7 +274,7 @@ class materialConverter:
                         a,b = line.split('=',1)
                         self.materialKerf = "{id:}{val:.{i}f}".format(id='KERF_WIDTH         = ',
                                              i=self.precision, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('THC\ Enable') or line.startswith('NO\ DTHC'):
+                    elif line.startswith('THC\ enable') or line.startswith('NO\ DTHC'):
                         a,b = line.split('=',1)
                         self.materialTHC = 'THC                = {}'.format(b.strip())
                     elif line.startswith('Pierce\ height'):
@@ -292,16 +292,16 @@ class materialConverter:
                         a,b = line.split('=',1)
                         self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
                                              i=0, val=float(b.strip()) / self.divisor)
-                    elif line.startswith('Cut\ Current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
+                    elif line.startswith('Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
                         self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
-                    elif line.startswith('Cut\ Voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
+                    elif line.startswith('Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
                         self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
                     elif line.startswith('Pause\ at\ end\ of\ cut'):
                         a,b = line.split('=',1)
                         self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
-                    elif line.startswith('Gas\ Pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                    elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
                         self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
                     count += 1
