@@ -124,6 +124,16 @@ To use the buildbot packages on your computer, first add the buildbot archive si
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
 ----
 
+If you get an error like GPG: keyserver receive failed: No dirmngr
+
+Then enter the following in the terminal:
+
+----
+sudo apt-get install dirmngr
+----
+
+The missing dirmngr package will then be installed.
+
 If you get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
 
 ----
