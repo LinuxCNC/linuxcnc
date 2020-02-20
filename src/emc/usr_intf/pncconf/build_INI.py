@@ -289,10 +289,10 @@ class INI:
         if self.d.axes == 1: # xyza
             self.write_one_axis(file, 'a')
             tandemjoint = self.a.tandem_check('a')
-            self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, tandemjoint)
+            self.write_one_joint(file, jnum, "a", "ANGULAR", all_homes, tandemjoint)
             if tandemjoint:
                 jnum += 1
-                self.write_one_joint(file, jnum, "a", "LINEAR", all_homes, True)
+                self.write_one_joint(file, jnum, "a", "ANGULAR", all_homes, True)
             jnum += 1
             print >>file, "#******************************************"
 
