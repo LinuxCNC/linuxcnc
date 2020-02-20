@@ -230,6 +230,10 @@ class _IStat(object):
             self.ZIPPED_USRMESS = None
 
         # XEmbed tabs
+        # AXIS panel style:
+        self.GLADEVCP = (self.inifile.find("DISPLAY", "GLADEVCP")) or None
+        
+        # tab style for qtvcp tab style is used everty where
         self.TAB_NAMES = (self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")) or None
         self.TAB_LOCATIONS = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
         self.TAB_CMDS   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
