@@ -21,6 +21,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.xembed import XEmbeddable
 from qtvcp.lib.message import Message
 from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
@@ -324,11 +325,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # XEmbed program into tabs
     def add_xembed_tabs(self):
+
+        if INFO.GLADEVCP:
+            cmd = 'halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} %s' %(INFO.GLADEVCP)
+            LOG.debug('AXIS style side panel vcp: {} '.format(cmd))
+            loc = 'allLayout'
+            # TODO this needs work panel doesn't embed
+            #self._embed(cmd,loc,None)
+
         if INFO.TAB_CMDS:
             wid = int(self.QTVCP_INSTANCE_.winId())
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
-            from qtvcp.widgets.xembed import XEmbeddable
             for name, loc, cmd in INFO.ZIPPED_TABS:
                 LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
                 if loc == 'default':
@@ -342,17 +350,31 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 else:
                     LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
                     continue
-                try:
-                    temp = XEmbeddable()
-                    temp.embed(cmd)
-                except Exception, e:
-                    LOG.error('Embedded tab loading failed: {} {}'.format(name,e))
-                else:
+                self._embed(cmd,loc,tw)
+
+    def _embed(self, cmd,loc,twidget):
+            if twidget is None:
+               tw = QtWidgets.QWidget()
+               tw.setMinimumSize(400,200)
+               self.QTVCP_INSTANCE_[loc].addWidget(tw)
+            try:
+                temp = XEmbeddable()
+                temp.embed(cmd)
+            except Exception, e:
+                LOG.error('Embedded tab loading failed: {} {}'.format(cmd,e))
+            else:
+                if twidget is not None:
                     try:
-                        layout = QtWidgets.QGridLayout(tw)
+                        if loc == 'rightPanel':
+                            self.QTVCP_INSTANCE_[loc].setMaximumSize(400,30000)
+                            self.QTVCP_INSTANCE_[loc].setMinimumSize(400,0)
+                        layout = QtWidgets.QGridLayout(twidget)
                         layout.addWidget(temp, 0, 0)
                     except Exception, e:
                         LOG.error('Embedded tab adding widget into {} failed.'.format(loc))
+                else:
+                    layout = QtWidgets.QGridLayout(tw)
+                    layout.addWidget(temp, 0, 0)
 
     def init_tool_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolDialog
