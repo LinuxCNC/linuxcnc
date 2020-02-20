@@ -300,11 +300,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             if self.metric_units:
                 conv = 1
-                units = _("mm")
+                units = "mm"
                 fmt = "%.3f"
             else:
                 conv = 1/25.4
-                units = _("in")
+                units = "in"
                 fmt = "%.4f"
 
             mf = max_speed
@@ -333,6 +333,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+            props['Units'] = units
         self.gcode_properties = props
 
     # setup details when window shows

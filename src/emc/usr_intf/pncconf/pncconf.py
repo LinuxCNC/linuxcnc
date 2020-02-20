@@ -3827,7 +3827,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # always uses the value set here - if it is set to a default value
         # if should keep checking that the value is still right.
         # but thats a bigger change then we want now.
-        if not d[axis + "P"] == None:
+        # We check fo None and 'None' because when None is saved 
+        # it's saved as a string
+        if not d[axis + "P"] == None and not d[axis + "P"] == 'None':
             set_value("P")
         elif stepdriven == True:
             w[axis + "P"].set_value(1/(d.servoperiod/1000000000))
