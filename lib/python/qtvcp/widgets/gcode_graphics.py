@@ -219,6 +219,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._color = value
         #print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
+        self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
     def resetState(self):
         self._color = QColor(0, 0, .75, 150)

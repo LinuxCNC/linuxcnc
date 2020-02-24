@@ -3427,7 +3427,11 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="GCodeGraphics" name="Graphics"/>
+           <widget class="GCodeGraphics" name="Graphics">
+            <property name="_dtg" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
