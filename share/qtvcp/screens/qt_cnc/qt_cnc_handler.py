@@ -139,6 +139,11 @@ class HandlerClass:
     #######################
     def widget_switch(self,data):
         self.w.widgetswitcher.show_next()
+        state = False
+        if self.w.widgetswitcher.get_current_number() == 1:
+            state = True
+        self.w.Graphics.setdro(state)
+        self.w.Graphics.setoverlay(state)
 
     def set_edit_mode(self, num):
         if num == 2:
