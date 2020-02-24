@@ -831,10 +831,10 @@
                          <string>Stop</string>
                         </property>
                         <property name="checkable">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="checked">
-                         <bool>true</bool>
+                         <bool>false</bool>
                         </property>
                         <property name="spindle_stop_action" stdset="0">
                          <bool>true</bool>
