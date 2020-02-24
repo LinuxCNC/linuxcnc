@@ -71,6 +71,7 @@ class VersaSubprog(QObject):
 
         self.history_log = ""
         self.error_status = None
+        self.PID = None
         self.process()
 
     def process(self):
@@ -100,6 +101,9 @@ class VersaSubprog(QObject):
                 except Exception as e:
                     sys.stdout.write("[ERROR] Command Error: {}\n".format(e))
                     sys.stdout.flush()
+            if self.PID is not None:
+                if not self.check_pid(self.PID):
+                    sys.exit(0)
 
     # check for an error messsage was sent to us or
     # check that the command is actually a method in our class else
@@ -115,8 +119,19 @@ class VersaSubprog(QObject):
             if error != 1 and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
+        elif cmd[0] == 'PiD_':
+            self.PID = int(cmd[1])
+            return None
         else:
             return None
+
+    def check_pid(self, pid):        
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
 
     # This is not actually used anywhere right now
     def process_error(self, cmd):

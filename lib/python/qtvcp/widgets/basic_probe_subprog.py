@@ -16,6 +16,7 @@
 # a probe screen based on ProbeBasic screen
 
 import sys
+import os
 from PyQt5.QtCore import QObject
 from qtvcp.core import Action
 
@@ -28,6 +29,7 @@ class BasicSubprog(QObject):
     def __init__(self):
         QObject.__init__(self)
         self.process()
+        PID = None
 
     def process(self):
         while 1:
@@ -51,6 +53,9 @@ class BasicSubprog(QObject):
                 except Exception as e:
                     sys.stdout.write("[ERROR] Command Error: {}\n".format(e))
                     sys.stdout.flush()
+            if self.PID is not None:
+                if not self.check_pid(self.PID):
+                    sys.exit(0)
 
     def process_command(self, cmd):
         if cmd[0] == 'PROBE':
@@ -58,6 +63,17 @@ class BasicSubprog(QObject):
             if ACTION.CALL_OWORD(command, 60) == -1:
                 return -1
             return 1
+        elif cmd[0] == 'PID':
+            self.PID = int(cmd[1])
+            return None
+
+    def check_pid(self, pid):        
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
 
 ########################################
 # required boiler code
