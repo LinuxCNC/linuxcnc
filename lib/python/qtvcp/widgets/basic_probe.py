@@ -148,6 +148,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
         self.proc.start('python {}'.format(SUBPROGRAM))
+        # send our PID so subprogram can check to see if it is still running 
+        self.proc.writeData('PID {}\n'.format(os.getpid()))
 
     def start_probe(self, cmd):
         if self.process_busy is True:
