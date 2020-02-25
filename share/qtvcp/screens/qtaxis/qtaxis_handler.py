@@ -107,6 +107,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionTopView, 'view_z')
         TOOLBAR.configure_action(self.w.actionPerspectiveView, 'view_p')
         TOOLBAR.configure_action(self.w.actionClearPlot, 'view_clear')
+        TOOLBAR.configure_action(self.w.actionShowOffsets, 'show_offsets')
         TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
         TOOLBAR.configure_action(self.w.actionShutdown, 'system_shutdown')
         TOOLBAR.configure_action(self.w.actionProperties, 'gcode_properties')

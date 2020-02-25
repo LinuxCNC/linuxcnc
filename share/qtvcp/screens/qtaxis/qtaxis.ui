@@ -1368,299 +1368,178 @@
                  <property name="spacing">
                   <number>0</number>
                  </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
-                  <layout class="QGridLayout" name="gridLayout_3">
-                   <property name="sizeConstraint">
-                    <enum>QLayout::SetDefaultConstraint</enum>
+                  <widget class="QFrame" name="frame">
+                   <property name="frameShape">
+                    <enum>QFrame::Box</enum>
                    </property>
-                   <property name="spacing">
-                    <number>0</number>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
                    </property>
-                   <item row="3" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_10">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_5">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qjoint_number" stdset="0">
-                        <number>2</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>Machine Z: %10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>Machine Z: %9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="4" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_g5x_x">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qreference_type" stdset="0">
-                        <number>1</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>%9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="8" column="0">
-                    <widget class="StatusLabel" name="statuslabel_17">
-                     <property name="text">
-                      <string>TLO X: 200.0000</string>
-                     </property>
-                     <property name="textFormat">
-                      <enum>Qt::PlainText</enum>
-                     </property>
-                     <property name="textTemplate" stdset="0">
-                      <string>TLO X:%9.4f</string>
-                     </property>
-                     <property name="alt_textTemplate" stdset="0">
-                      <string>TLO Y:%10.3f</string>
-                     </property>
-                     <property name="user_system_status" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="tool_offset_status" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="2" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_16">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_4">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qjoint_number" stdset="0">
-                        <number>1</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>Machine Y: %10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>Machine Y: %9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="6" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_19">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_g5x_z">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qjoint_number" stdset="0">
-                        <number>2</number>
-                       </property>
-                       <property name="Qreference_type" stdset="0">
-                        <number>1</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>%9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="1" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_17">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>Machine X: %10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>Machine X: %9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="7" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_20">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_g5x_r">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qjoint_number" stdset="0">
-                        <number>10</number>
-                       </property>
-                       <property name="Qreference_type" stdset="0">
-                        <number>0</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>%9.4f</string>
-                       </property>
-                       <property name="angular_template" stdset="0">
-                        <string>%4.2f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="9" column="0">
-                    <widget class="StatusLabel" name="statuslabel_18">
-                     <property name="text">
-                      <string>TLO Y: 200.0000</string>
-                     </property>
-                     <property name="textFormat">
-                      <enum>Qt::PlainText</enum>
-                     </property>
-                     <property name="textTemplate" stdset="0">
-                      <string>TLO Y:%9.4f</string>
-                     </property>
-                     <property name="alt_textTemplate" stdset="0">
-                      <string>TLO Y:%10.3f</string>
-                     </property>
-                     <property name="index_number" stdset="0">
-                      <number>1</number>
-                     </property>
-                     <property name="user_system_status" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="tool_offset_status" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="5" column="0">
-                    <layout class="QHBoxLayout" name="horizontalLayout_18">
-                     <property name="spacing">
-                      <number>0</number>
-                     </property>
-                     <item>
-                      <widget class="DROLabel" name="dro_label_g5x_y">
-                       <property name="text">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="textFormat">
-                        <enum>Qt::PlainText</enum>
-                       </property>
-                       <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                       </property>
-                       <property name="Qjoint_number" stdset="0">
-                        <number>1</number>
-                       </property>
-                       <property name="Qreference_type" stdset="0">
-                        <number>1</number>
-                       </property>
-                       <property name="metric_template" stdset="0">
-                        <string>%10.3f</string>
-                       </property>
-                       <property name="imperial_template" stdset="0">
-                        <string>%9.4f</string>
-                       </property>
-                      </widget>
-                     </item>
-                    </layout>
-                   </item>
-                   <item row="10" column="0">
-                    <widget class="StatusLabel" name="statuslabel_19">
-                     <property name="text">
-                      <string>TLO Z: 200.0000</string>
-                     </property>
-                     <property name="textFormat">
-                      <enum>Qt::PlainText</enum>
-                     </property>
-                     <property name="textTemplate" stdset="0">
-                      <string>TLO Z:%9.4f</string>
-                     </property>
-                     <property name="alt_textTemplate" stdset="0">
-                      <string>TLO Z:%10.3f</string>
-                     </property>
-                     <property name="index_number" stdset="0">
-                      <number>2</number>
-                     </property>
-                     <property name="user_system_status" stdset="0">
-                      <bool>false</bool>
-                     </property>
-                     <property name="tool_offset_status" stdset="0">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                   <property name="lineWidth">
+                    <number>2</number>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_3">
+                    <property name="sizeConstraint">
+                     <enum>QLayout::SetDefaultConstraint</enum>
+                    </property>
+                    <property name="leftMargin">
+                     <number>2</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <item row="1" column="0">
+                     <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="DROLabel" name="dro_label_g5x_x">
+                        <property name="text">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="textFormat">
+                         <enum>Qt::PlainText</enum>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                        <property name="Qreference_type" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="metric_template" stdset="0">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="imperial_template" stdset="0">
+                         <string>%9.4f</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="3" column="0">
+                     <layout class="QHBoxLayout" name="horizontalLayout_19">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="DROLabel" name="dro_label_g5x_z">
+                        <property name="text">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="textFormat">
+                         <enum>Qt::PlainText</enum>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                        <property name="Qjoint_number" stdset="0">
+                         <number>2</number>
+                        </property>
+                        <property name="Qreference_type" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="metric_template" stdset="0">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="imperial_template" stdset="0">
+                         <string>%9.4f</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="4" column="0">
+                     <layout class="QHBoxLayout" name="horizontalLayout_20">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="DROLabel" name="dro_label_g5x_r">
+                        <property name="text">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="textFormat">
+                         <enum>Qt::PlainText</enum>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                        <property name="Qjoint_number" stdset="0">
+                         <number>10</number>
+                        </property>
+                        <property name="Qreference_type" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="metric_template" stdset="0">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="imperial_template" stdset="0">
+                         <string>%9.4f</string>
+                        </property>
+                        <property name="angular_template" stdset="0">
+                         <string>%4.2f</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item row="2" column="0">
+                     <layout class="QHBoxLayout" name="horizontalLayout_18">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="DROLabel" name="dro_label_g5x_y">
+                        <property name="text">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="textFormat">
+                         <enum>Qt::PlainText</enum>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        </property>
+                        <property name="Qjoint_number" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="Qreference_type" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="metric_template" stdset="0">
+                         <string>%10.3f</string>
+                        </property>
+                        <property name="imperial_template" stdset="0">
+                         <string>%9.4f</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -1795,6 +1674,7 @@
     <addaction name="actionTopView"/>
     <addaction name="actionRotatedView"/>
     <addaction name="actionClearPlot"/>
+    <addaction name="actionShowOffsets"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -2173,6 +2053,14 @@
   <action name="actionMachineLog">
    <property name="text">
     <string>Machine Log</string>
+   </property>
+  </action>
+  <action name="actionShowOffsets">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Offsets</string>
    </property>
   </action>
  </widget>
