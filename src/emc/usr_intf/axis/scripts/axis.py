@@ -3795,7 +3795,10 @@ if hal_present == 1 :
         import vcpparse
         comp.setprefix("pyvcp")
         f = Tkinter.Frame(root_window)
-        f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+        if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
+            f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
+        else:
+            f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
         vcp_frame = f
