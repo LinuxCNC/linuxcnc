@@ -118,8 +118,8 @@ public:
     virtual void flip_imag(void) { start=conj(start); end=conj(end); }
     virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
     virtual void rotate(void) {
-	start=-start*1i;
-	end=-end*1i;
+	start=-start*1.0i;
+	end=-end*1.0i;
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
     friend class round_segment;
@@ -162,7 +162,7 @@ public:
     void climb_only(std::complex<double>&,motion_base*) override;
     void draw(motion_base *out) override { out->straight_move(end); }
     void offset(double distance) override {
-	std::complex<double> d=1i*distance*(start-end)/abs(start-end);
+	std::complex<double> d=1.0i*distance*(start-end)/abs(start-end);
 	start+=d;
 	end+=d;
     }
@@ -284,9 +284,9 @@ public:
     void flip_real(void) override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
     virtual void rotate(void) {
-	start=-start*1i;
-	end=-end*1i;
-	center=-center*1i;
+	start=-start*1.0i;
+	end=-end*1.0i;
+	center=-center*1.0i;
     }
     virtual bool monotonic(void) {
 	if(finish!=0)
@@ -574,10 +574,10 @@ public:
 	case 1: orig->straight_move(-conj(end)); break;
 	case 2: orig->straight_move(conj(end)); break;
 	case 3: orig->straight_move(-end); break;
-	case 4: orig->straight_move(1i*end); break;
-	case 5: orig->straight_move(conj(1i*end)); break;
-	case 6: orig->straight_move(-conj(1i*end)); break;
-	case 7: orig->straight_move(-1i*end); break;
+	case 4: orig->straight_move(1.0i*end); break;
+	case 5: orig->straight_move(conj(1.0i*end)); break;
+	case 6: orig->straight_move(-conj(1.0i*end)); break;
+	case 7: orig->straight_move(-1.0i*end); break;
 	}
     }
     virtual void straight_rapid(std::complex<double> end) override {
@@ -586,10 +586,10 @@ public:
 	case 1: orig->straight_rapid(-conj(end)); break;
 	case 2: orig->straight_rapid(conj(end)); break;
 	case 3: orig->straight_rapid(-end); break;
-	case 4: orig->straight_rapid(1i*end); break;
-	case 5: orig->straight_rapid(conj(1i*end)); break;
-	case 6: orig->straight_rapid(-conj(1i*end)); break;
-	case 7: orig->straight_rapid(-1i*end); break;
+	case 4: orig->straight_rapid(1.0i*end); break;
+	case 5: orig->straight_rapid(conj(1.0i*end)); break;
+	case 6: orig->straight_rapid(-conj(1.0i*end)); break;
+	case 7: orig->straight_rapid(-1.0i*end); break;
 	}
     }
     virtual void circular_move(int ccw,std::complex<double> center,
@@ -600,10 +600,10 @@ public:
 	case 1: orig->circular_move(!ccw,-conj(center),-conj(end)); break;
 	case 2: orig->circular_move(!ccw,conj(center),conj(end)); break;
 	case 3: orig->circular_move(ccw,-center,-end); break;
-	case 4: orig->circular_move(ccw,1i*center,1i*end); break;
-	case 5: orig->circular_move(!ccw,conj(1i*center),conj(1i*end)); break;
-	case 6: orig->circular_move(!ccw,-conj(1i*center),-conj(1i*end)); break;
-	case 7: orig->circular_move(ccw,-1i*center,-1i*end); break;
+	case 4: orig->circular_move(ccw,1.0i*center,1.0i*end); break;
+	case 5: orig->circular_move(!ccw,conj(1.0i*center),conj(1.0i*end)); break;
+	case 6: orig->circular_move(!ccw,-conj(1.0i*center),-conj(1.0i*end)); break;
+	case 7: orig->circular_move(ccw,-1.0i*center,-1.0i*end); break;
 	}
     }
 };
@@ -1159,7 +1159,7 @@ int Interp::convert_g7x(int mode,
 			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
 		    center=(start+end)/2.0;
-		    auto d=1i*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+		    auto d=1.0i*sqrt((r*r-norm(end-start)/4)/norm(end-start))
 			*(end-start);
 		    if(settings->motion_mode==30)
 			center+=d;
