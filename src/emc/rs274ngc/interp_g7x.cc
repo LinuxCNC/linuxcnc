@@ -29,36 +29,7 @@
 #pragma GCC diagnostic pop
 #endif
 
-#if __cplusplus > 201103L
-    using namespace std::complex_literals;
-#else
-#pragma GCC diagnostic ignored "-Wliteral-suffix"
-    constexpr std::complex<float>
-    operator""if(long double __num)
-    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
-    constexpr std::complex<float>
-    operator""if(unsigned long long __num)
-    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
-    constexpr std::complex<double>
-    operator""i(long double __num)
-    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
-
-    constexpr std::complex<double>
-    operator""i(unsigned long long __num)
-    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
-
-    constexpr std::complex<long double>
-    operator""il(long double __num)
-    { return std::complex<long double>{0.0L, __num}; }
-
-    constexpr std::complex<long double>
-    operator""il(unsigned long long __num)
-    { return std::complex<long double>{0.0L, static_cast<long double>(__num)}; }
-#pragma GCC diagnostic pop
-#endif
-
+constexpr std::complex<double> I(0,1);
 
 template <class T>
 std::string to_string(T &d)
@@ -118,8 +89,8 @@ public:
     virtual void flip_imag(void) { start=conj(start); end=conj(end); }
     virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
     virtual void rotate(void) {
-	start=-start*1.0i;
-	end=-end*1.0i;
+	start=-start*I;
+	end=-end*I;
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
     friend class round_segment;
@@ -162,7 +133,7 @@ public:
     void climb_only(std::complex<double>&,motion_base*) override;
     void draw(motion_base *out) override { out->straight_move(end); }
     void offset(double distance) override {
-	std::complex<double> d=1.0i*distance*(start-end)/abs(start-end);
+	std::complex<double> d=I*distance*(start-end)/abs(start-end);
 	start+=d;
 	end+=d;
     }
@@ -284,9 +255,9 @@ public:
     void flip_real(void) override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
     virtual void rotate(void) {
-	start=-start*1.0i;
-	end=-end*1.0i;
-	center=-center*1.0i;
+	start=-start*I;
+	end=-end*I;
+	center=-center*I;
     }
     virtual bool monotonic(void) {
 	if(finish!=0)
@@ -574,10 +545,10 @@ public:
 	case 1: orig->straight_move(-conj(end)); break;
 	case 2: orig->straight_move(conj(end)); break;
 	case 3: orig->straight_move(-end); break;
-	case 4: orig->straight_move(1.0i*end); break;
-	case 5: orig->straight_move(conj(1.0i*end)); break;
-	case 6: orig->straight_move(-conj(1.0i*end)); break;
-	case 7: orig->straight_move(-1.0i*end); break;
+	case 4: orig->straight_move(I*end); break;
+	case 5: orig->straight_move(conj(I*end)); break;
+	case 6: orig->straight_move(-conj(I*end)); break;
+	case 7: orig->straight_move(-I*end); break;
 	}
     }
     virtual void straight_rapid(std::complex<double> end) override {
@@ -586,10 +557,10 @@ public:
 	case 1: orig->straight_rapid(-conj(end)); break;
 	case 2: orig->straight_rapid(conj(end)); break;
 	case 3: orig->straight_rapid(-end); break;
-	case 4: orig->straight_rapid(1.0i*end); break;
-	case 5: orig->straight_rapid(conj(1.0i*end)); break;
-	case 6: orig->straight_rapid(-conj(1.0i*end)); break;
-	case 7: orig->straight_rapid(-1.0i*end); break;
+	case 4: orig->straight_rapid(I*end); break;
+	case 5: orig->straight_rapid(conj(I*end)); break;
+	case 6: orig->straight_rapid(-conj(I*end)); break;
+	case 7: orig->straight_rapid(-I*end); break;
 	}
     }
     virtual void circular_move(int ccw,std::complex<double> center,
@@ -600,10 +571,10 @@ public:
 	case 1: orig->circular_move(!ccw,-conj(center),-conj(end)); break;
 	case 2: orig->circular_move(!ccw,conj(center),conj(end)); break;
 	case 3: orig->circular_move(ccw,-center,-end); break;
-	case 4: orig->circular_move(ccw,1.0i*center,1.0i*end); break;
-	case 5: orig->circular_move(!ccw,conj(1.0i*center),conj(1.0i*end)); break;
-	case 6: orig->circular_move(!ccw,-conj(1.0i*center),-conj(1.0i*end)); break;
-	case 7: orig->circular_move(ccw,-1.0i*center,-1.0i*end); break;
+	case 4: orig->circular_move(ccw,I*center,I*end); break;
+	case 5: orig->circular_move(!ccw,conj(I*center),conj(I*end)); break;
+	case 6: orig->circular_move(!ccw,-conj(I*center),-conj(I*end)); break;
+	case 7: orig->circular_move(ccw,-I*center,-I*end); break;
 	}
     }
 };
@@ -1159,7 +1130,7 @@ int Interp::convert_g7x(int mode,
 			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
 		    center=(start+end)/2.0;
-		    auto d=1.0i*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+		    auto d=I*sqrt((r*r-norm(end-start)/4)/norm(end-start))
 			*(end-start);
 		    if(settings->motion_mode==30)
 			center+=d;
