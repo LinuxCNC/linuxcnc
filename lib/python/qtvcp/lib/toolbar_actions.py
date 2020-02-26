@@ -204,6 +204,8 @@ class ToolBarActions():
             function = (self.actOnViewp)
         elif action == 'view_clear':
             function = (self.actOnViewClear)
+        elif action == 'show_offsets':
+            function = (self.actOnViewOffsets)
         elif action == 'quit':
             function = (self.actOnQuit)
         elif action == 'system_shutdown':
@@ -360,6 +362,12 @@ class ToolBarActions():
 
     def actOnViewClear(self,widget, state=None):
         STATUS.emit('graphics-view-changed', 'clear')
+
+    def actOnViewOffsets(self,widget, state=None):
+        if state:
+            STATUS.emit('graphics-view-changed', 'overlay-offsets-on')
+        else:
+            STATUS.emit('graphics-view-changed', 'overlay-offsets-off')
 
     def actOnQuit(self,widget, state=None):
         STATUS.emit('shutdown')
