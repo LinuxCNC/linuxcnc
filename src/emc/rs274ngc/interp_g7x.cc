@@ -12,9 +12,7 @@
 // Ancient compiler work-arounds
 ////////////////////////////////////////////////////////////////////////////////
 
-#if __cplusplus >= 201402L
-    using namespace std::string_literals;
-#else
+#if __cplusplus < 201402L
     namespace std {
 	template<typename T, typename... Args>
 	std::unique_ptr<T> make_unique(Args&&... args)
@@ -22,11 +20,6 @@
 	    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 	}
     }
-#pragma GCC diagnostic ignored "-Wliteral-suffix"
-    inline std::basic_string<char>
-    operator""s(const char* __str, size_t __len)
-    { return std::basic_string<char>{__str, __len}; }
-#pragma GCC diagnostic pop
 #endif
 
 constexpr std::complex<double> I(0,1);
@@ -110,7 +103,7 @@ protected:
 	    n->offset(finish);
 	}
 	if(real(p->end-n->start)>1e-2)
-	    throw("Corner finish failed at "s + to_string(prev->end));
+	    throw(std::string("Corner finish failed at ") + to_string(prev->end));
 	p->intersect(n.get());
 	std::complex<double> center=(p->end+n->start)/2.0;
 	p->offset(-finish);
@@ -166,7 +159,7 @@ bool straight_segment::climb(std::complex<double> &location,
     if(end.imag()+tolerance<start.imag())
 	return 1; // not climbing
     if(abs(location-start)>tolerance)
-	throw("How did we get here?"s);
+	throw(std::string("How did we get here?"));
     output->straight_move(end);
     location=end;
     return 0;
@@ -206,7 +199,7 @@ bool straight_segment::dive(std::complex<double> &location,
     intersections_t is;
     intersection_z(x,is);
     if(!is.size())
-	throw("x too large in straight dive"s);
+	throw(std::string("x too large in straight dive"));
     std::complex<double> ep(is.front(),x);
     if(fast)
 	output->straight_rapid(ep);
@@ -429,7 +422,7 @@ void straight_segment::intersect_end(straight_segment *p)
     auto ps=(p->start-end)*rot;
     auto pe=(p->end-end)*rot;
     if(imag(ps-pe)==0) {
-	throw("Cannot intersect parallel lines"s);
+	throw(std::string("Cannot intersect parallel lines"));
     }
     auto f=imag(ps)/imag(ps-pe);
     auto is=(ps+f*(pe-ps))/rot+end;
@@ -624,7 +617,7 @@ private:
 	case 6: return std::make_unique<swapped_motion<6>>(out);
 	case 7: return std::make_unique<swapped_motion<7>>(out);
 	}
-	throw("This can't happen"s);
+	throw(std::string("This can't happen"));
     }
 
     void monotonic(void) {
@@ -633,7 +626,7 @@ private:
 	}
 	for(auto p=begin(); p!=end(); p++) {
 	    if(!(*p)->monotonic())
-		throw("Not monotonic"s);
+		throw(std::string("Not monotonic"));
 	}
     }
 
@@ -1063,7 +1056,7 @@ int Interp::convert_g7x(int mode,
     std::complex<double> start(z,x);
 
     auto exit_call_level=settings->call_level;
-    CHP(read(("O"s+std::to_string(block->q_number)+" CALL").c_str()));
+    CHP(read((std::string("O")+std::to_string(block->q_number)+" CALL").c_str()));
     for(;;) {
 	if(block->o_name!=0)
 	    CHP(convert_control_functions(block, settings));
