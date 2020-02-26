@@ -7,8 +7,58 @@
 #include <memory>
 #include <complex>
 
-using namespace std::complex_literals;
-using namespace std::string_literals;
+
+////////////////////////////////////////////////////////////////////////////////
+// Ancient compiler work-arounds
+////////////////////////////////////////////////////////////////////////////////
+
+#if __cplusplus >= 201402L
+    using namespace std::string_literals;
+#else
+    namespace std {
+	template<typename T, typename... Args>
+	std::unique_ptr<T> make_unique(Args&&... args)
+	{
+	    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+	}
+    }
+#pragma GCC diagnostic ignored "-Wliteral-suffix"
+    inline std::basic_string<char>
+    operator""s(const char* __str, size_t __len)
+    { return std::basic_string<char>{__str, __len}; }
+#pragma GCC diagnostic pop
+#endif
+
+#if __cplusplus > 201103L
+    using namespace std::complex_literals;
+#else
+#pragma GCC diagnostic ignored "-Wliteral-suffix"
+    constexpr std::complex<float>
+    operator""if(long double __num)
+    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
+
+    constexpr std::complex<float>
+    operator""if(unsigned long long __num)
+    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
+
+    constexpr std::complex<double>
+    operator""i(long double __num)
+    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
+
+    constexpr std::complex<double>
+    operator""i(unsigned long long __num)
+    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
+
+    constexpr std::complex<long double>
+    operator""il(long double __num)
+    { return std::complex<long double>{0.0L, __num}; }
+
+    constexpr std::complex<long double>
+    operator""il(unsigned long long __num)
+    { return std::complex<long double>{0.0L, static_cast<long double>(__num)}; }
+#pragma GCC diagnostic pop
+#endif
+
 
 template <class T>
 std::string to_string(T &d)
