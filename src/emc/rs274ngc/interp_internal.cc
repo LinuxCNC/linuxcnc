@@ -189,6 +189,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((!axis_flag && !polar_flag) && 
             mode1 != G_0 && mode1 != G_1 && 
             mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
+            mode1 != G_70 &&
+            mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
+            mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
 	    ! IS_USER_GCODE(mode1)),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }

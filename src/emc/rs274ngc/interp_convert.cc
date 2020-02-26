@@ -3501,6 +3501,12 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
     CHP(convert_nurbs(motion, block, settings));
+  } else if (
+    motion == G_70 ||
+    motion == G_71 || motion == G_71_1 || motion == G_71_2 ||
+    motion == G_72 || motion == G_72_1 || motion == G_72_2
+  ) {
+    CHP(convert_g7x(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
   }
