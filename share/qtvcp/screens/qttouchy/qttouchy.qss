@@ -6,7 +6,7 @@ QPushButton {
     border-style: solid;
     border-radius: 4px;
     border-width: 2px;
-    min-width: 40px;
+    min-width: 85px;
     background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
         stop: 0 #b6b6b6, stop: 1.0 #626262);
 }

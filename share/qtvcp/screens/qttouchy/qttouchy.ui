@@ -542,6 +542,121 @@
                <layout class="QVBoxLayout" name="verticalLayout_4">
                 <item>
                  <layout class="QGridLayout" name="gridLayout_2">
+                  <item row="0" column="5">
+                   <spacer name="horizontalSpacer_10">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item row="0" column="6">
+                   <widget class="ActionButton" name="actionbutton_21">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>  Exit  </string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_HAL_pin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="python_command_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>255</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="off_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>0</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="true_python_cmd_string" stdset="0">
+                     <string>print&quot;true command&quot;</string>
+                    </property>
+                    <property name="false_python_cmd_string" stdset="0">
+                     <string>print&quot;false command&quot;</string>
+                    </property>
+                    <property name="limits_override_action" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="exit_action" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="template_label_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="joint_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="incr_imperial_number" stdset="0">
+                     <double>0.010000000000000</double>
+                    </property>
+                    <property name="incr_mm_number" stdset="0">
+                     <double>0.025000000000000</double>
+                    </property>
+                    <property name="incr_angular_number" stdset="0">
+                     <double>-1.000000000000000</double>
+                    </property>
+                    <property name="toggle_float_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="float_num" stdset="0">
+                     <double>0.150000000000000</double>
+                    </property>
+                    <property name="float_alt_num" stdset="0">
+                     <double>50.000000000000000</double>
+                    </property>
+                    <property name="view_type_string" stdset="0">
+                     <string>P</string>
+                    </property>
+                    <property name="command_text_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="ini_mdi_number" stdset="0">
+                     <number>0</number>
+                    </property>
+                    <property name="textTemplate" stdset="0">
+                     <string>%1.3f in</string>
+                    </property>
+                    <property name="alt_textTemplate" stdset="0">
+                     <string>%1.2f mm</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="1">
                    <spacer name="horizontalSpacer_5">
                     <property name="orientation">
@@ -562,6 +677,12 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
                     </property>
                     <property name="text">
                      <string>Estop</string>
@@ -641,6 +762,12 @@
                       <verstretch>0</verstretch>
                      </sizepolicy>
                     </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>Override
  Limits</string>
@@ -705,6 +832,12 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>85</width>
+                      <height>0</height>
+                     </size>
                     </property>
                     <property name="text">
                      <string>Machine On</string>

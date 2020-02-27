@@ -56,6 +56,9 @@ class HandlerClass:
     # Special Functions called from QTSCREEN
     ##########################################
 
+    def class_patch__(self):
+        GCODE.exitCall = self.editor_exit
+
     # at this point:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
@@ -151,15 +154,14 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, GCODE):
-                    flag = False
+                    flag = True
                     break
                 receiver2 = receiver2.parent()
-
             if flag:
                 if isinstance(receiver2, GCODE):
-                    # if in manual do our keybindings - otherwise
-                    # send events to gcode widget
-                    if STATUS.is_man_mode() == False:
+                    # send events to gcode widget if in edit mode
+                    # else do our keybindings
+                    if self.w.actionEdit.isChecked() == True:
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
@@ -174,7 +176,9 @@ class HandlerClass:
 
         # ok if we got here then try keybindings
         try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
+            b = KEYBIND.call(self,event,is_pressed,shift,cntrl)
+            event.accept()
+            return True
         except NameError as e:
             LOG.debug('Exception in KEYBINDING: {}'.format (e))
         except Exception as e:
@@ -274,11 +278,22 @@ class HandlerClass:
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
+    def editor_exit(self):
+        self.w.gcode_editor.exit()
+        self.w.actionEdit.setChecked(False)
+        self.edit(None,False)
+
     def edit(self, widget, state):
         if state:
             self.w.gcode_editor.editMode()
+            self.w.gcode_editor.setMaximumHeight(1000)
+            self.w.frame.hide()
+            self.w.rightTab.hide()
         else:
             self.w.gcode_editor.readOnlyMode()
+            self.w.gcode_editor.setMaximumHeight(500)
+            self.w.frame.show()
+            self.w.rightTab.show()
 
     def quick_reference(self):
         help1 = [
