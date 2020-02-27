@@ -8,58 +8,6 @@
 #include <complex>
 
 
-////////////////////////////////////////////////////////////////////////////////
-// Ancient compiler work-arounds
-////////////////////////////////////////////////////////////////////////////////
-
-#if __cplusplus >= 201402L
-    using namespace std::string_literals;
-#else
-    namespace std {
-	template<typename T, typename... Args>
-	std::unique_ptr<T> make_unique(Args&&... args)
-	{
-	    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-	}
-    }
-#pragma GCC diagnostic ignored "-Wliteral-suffix"
-    inline std::basic_string<char>
-    operator""s(const char* __str, size_t __len)
-    { return std::basic_string<char>{__str, __len}; }
-#pragma GCC diagnostic pop
-#endif
-
-#if __cplusplus > 201103L
-    using namespace std::complex_literals;
-#else
-#pragma GCC diagnostic ignored "-Wliteral-suffix"
-    constexpr std::complex<float>
-    operator""if(long double __num)
-    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
-    constexpr std::complex<float>
-    operator""if(unsigned long long __num)
-    { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
-
-    constexpr std::complex<double>
-    operator""i(long double __num)
-    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
-
-    constexpr std::complex<double>
-    operator""i(unsigned long long __num)
-    { return std::complex<double>{0.0, static_cast<double>(__num)}; }
-
-    constexpr std::complex<long double>
-    operator""il(long double __num)
-    { return std::complex<long double>{0.0L, __num}; }
-
-    constexpr std::complex<long double>
-    operator""il(unsigned long long __num)
-    { return std::complex<long double>{0.0L, static_cast<long double>(__num)}; }
-#pragma GCC diagnostic pop
-#endif
-
-
 template <class T>
 std::string to_string(T &d)
 {
@@ -79,10 +27,10 @@ public:
 
 class motion_null:public motion_base {
 public:
-    void straight_move(std::complex<double> end) override  {}
-    void straight_rapid(std::complex<double> end)  override {}
+    void straight_move(std::complex<double> end) {}
+    void straight_rapid(std::complex<double> end) {}
     void circular_move(int ccw,std::complex<double> center,
-	std::complex<double> end)  override {}
+	std::complex<double> end) {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,9 +42,9 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
-    double finish=0;
+    double finish;
 public:
-    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
+    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),finish(0) {}
     segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
     typedef std::deque<double> intersections_t;
     virtual void intersection_z(double x, intersections_t &is)=0;
@@ -118,8 +66,8 @@ public:
     virtual void flip_imag(void) { start=conj(start); end=conj(end); }
     virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
     virtual void rotate(void) {
-	start=-start*1i;
-	end=-end*1i;
+	start=-start*std::complex<double>(0,1);
+	end=-end*std::complex<double>(0,1);
     }
     virtual void move(std::complex<double> d) { start+=d; end+=d; }
     friend class round_segment;
@@ -139,7 +87,7 @@ protected:
 	    n->offset(finish);
 	}
 	if(real(p->end-n->start)>1e-2)
-	    throw("Corner finish failed at "s + to_string(prev->end));
+	    throw(std::string("Corner finish failed at ") + to_string(prev->end));
 	p->intersect(n.get());
 	std::complex<double> center=(p->end+n->start)/2.0;
 	p->offset(-finish);
@@ -156,21 +104,21 @@ public:
 	segment(sz,sx,ez,ex) {}
     straight_segment(std::complex<double> s,std::complex<double> e):
 	segment(s,e) {}
-    void intersection_z(double x, intersections_t &is) override;
-    bool climb(std::complex<double>&,motion_base*) override;
-    bool dive(std::complex<double>&,double, motion_base*,bool) override;
-    void climb_only(std::complex<double>&,motion_base*) override;
-    void draw(motion_base *out) override { out->straight_move(end); }
-    void offset(double distance) override {
-	std::complex<double> d=1i*distance*(start-end)/abs(start-end);
+    void intersection_z(double x, intersections_t &is);
+    bool climb(std::complex<double>&,motion_base*);
+    bool dive(std::complex<double>&,double, motion_base*,bool);
+    void climb_only(std::complex<double>&,motion_base*);
+    void draw(motion_base *out) { out->straight_move(end); }
+    void offset(double distance) {
+	std::complex<double> d=std::complex<double>(0,1)*distance*(start-end)/std::complex<double>(abs(start-end),0);
 	start+=d;
 	end+=d;
     }
-    void intersect(segment *p) override;
-    void intersect_end(round_segment *p) override;
-    void intersect_end(straight_segment *p) override;
+    void intersect(segment *p);
+    void intersect_end(round_segment *p);
+    void intersect_end(straight_segment *p);
     std::unique_ptr<segment> dup(void) {
-	return std::make_unique<straight_segment>(*this);
+	return std::unique_ptr<segment>(new straight_segment(*this));
     }
     double radius(void) { return abs(start-end); }
 };
@@ -195,7 +143,7 @@ bool straight_segment::climb(std::complex<double> &location,
     if(end.imag()+tolerance<start.imag())
 	return 1; // not climbing
     if(abs(location-start)>tolerance)
-	throw("How did we get here?"s);
+	throw("How did we get here?");
     output->straight_move(end);
     location=end;
     return 0;
@@ -235,7 +183,7 @@ bool straight_segment::dive(std::complex<double> &location,
     intersections_t is;
     intersection_z(x,is);
     if(!is.size())
-	throw("x too large in straight dive"s);
+	throw("x too large in straight dive");
     std::complex<double> ep(is.front(),x);
     if(fast)
 	output->straight_rapid(ep);
@@ -260,33 +208,33 @@ public:
 	segment(s,e), ccw(cc), center(c)
     {
     }
-    void intersection_z(double x,intersections_t &is) override;
-    bool climb(std::complex<double>&,motion_base*) override;
-    bool dive(std::complex<double>&,double,motion_base*,bool) override;
-    void climb_only(std::complex<double>&,motion_base*) override;
-    void draw(motion_base *out) override { out->circular_move(ccw,center,end);}
-    void offset(double distance) override {
+    void intersection_z(double x,intersections_t &is);
+    bool climb(std::complex<double>&,motion_base*);
+    bool dive(std::complex<double>&,double,motion_base*,bool);
+    void climb_only(std::complex<double>&,motion_base*);
+    void draw(motion_base *out) { out->circular_move(ccw,center,end);}
+    void offset(double distance) {
 	double factor=(abs(start-center)+(ccw? 1:-1)*distance)
 	    /abs(start-center);
 	start=factor*(start-center)+center;
 	end=factor*(end-center)+center;
     }
-    void intersect(segment *p) override;
-    void intersect_end(round_segment *p) override;
-    void intersect_end(straight_segment *p) override;
+    void intersect(segment *p);
+    void intersect_end(round_segment *p);
+    void intersect_end(straight_segment *p);
     std::complex<double> cp(void) { return center; }
     std::unique_ptr<segment> dup(void) {
-	return std::make_unique<round_segment>(*this);
+	return std::unique_ptr<segment>(new round_segment(*this));
     }
     double radius(void) { return std::min(abs(start-end),abs(start-center)); }
-    void flip_imag(void) override { ccw=!ccw; start=conj(start); end=conj(end);
+    void flip_imag(void) { ccw=!ccw; start=conj(start); end=conj(end);
 	center=conj(center); }
-    void flip_real(void) override { ccw=!ccw; start=-conj(start);
+    void flip_real(void) { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
     virtual void rotate(void) {
-	start=-start*1i;
-	end=-end*1i;
-	center=-center*1i;
+	start=-start*std::complex<double>(0,1);
+	end=-end*std::complex<double>(0,1);
+	center=-center*std::complex<double>(0,1);
     }
     virtual bool monotonic(void) {
 	if(finish!=0)
@@ -458,7 +406,7 @@ void straight_segment::intersect_end(straight_segment *p)
     auto ps=(p->start-end)*rot;
     auto pe=(p->end-end)*rot;
     if(imag(ps-pe)==0) {
-	throw("Cannot intersect parallel lines"s);
+	throw("Cannot intersect parallel lines");
     }
     auto f=imag(ps)/imag(ps-pe);
     auto is=(ps+f*(pe-ps))/rot+end;
@@ -541,7 +489,7 @@ public:
 	finish=d;
     }
 
-    void do_finish(segment *prev, segment *next) override {
+    void do_finish(segment *prev, segment *next) {
 	center=corner_finish(prev,next);
 	ccw=imag(start-center)>0 || imag(end-center)>0;
 	finish=0;
@@ -554,7 +502,7 @@ public:
 	finish=d;
     }
 
-    void do_finish(segment *prev, segment *next) override {
+    void do_finish(segment *prev, segment *next) {
 	corner_finish(prev,next);
     }
 };
@@ -568,51 +516,51 @@ class swapped_motion:public motion_base {
 public:
     swapped_motion(motion_base *motion):orig(motion) {
     }
-    virtual void straight_move(std::complex<double> end) override {
+    virtual void straight_move(std::complex<double> end) {
 	switch(swap) {
 	case 0: orig->straight_move(end); break;
 	case 1: orig->straight_move(-conj(end)); break;
 	case 2: orig->straight_move(conj(end)); break;
 	case 3: orig->straight_move(-end); break;
-	case 4: orig->straight_move(1i*end); break;
-	case 5: orig->straight_move(conj(1i*end)); break;
-	case 6: orig->straight_move(-conj(1i*end)); break;
-	case 7: orig->straight_move(-1i*end); break;
+	case 4: orig->straight_move(std::complex<double>(0,1)*end); break;
+	case 5: orig->straight_move(conj(std::complex<double>(0,1)*end)); break;
+	case 6: orig->straight_move(-conj(std::complex<double>(0,1)*end)); break;
+	case 7: orig->straight_move(-std::complex<double>(0,1)*end); break;
 	}
     }
-    virtual void straight_rapid(std::complex<double> end) override {
+    virtual void straight_rapid(std::complex<double> end) {
 	switch(swap) {
 	case 0: orig->straight_rapid(end); break;
 	case 1: orig->straight_rapid(-conj(end)); break;
 	case 2: orig->straight_rapid(conj(end)); break;
 	case 3: orig->straight_rapid(-end); break;
-	case 4: orig->straight_rapid(1i*end); break;
-	case 5: orig->straight_rapid(conj(1i*end)); break;
-	case 6: orig->straight_rapid(-conj(1i*end)); break;
-	case 7: orig->straight_rapid(-1i*end); break;
+	case 4: orig->straight_rapid(std::complex<double>(0,1)*end); break;
+	case 5: orig->straight_rapid(conj(std::complex<double>(0,1)*end)); break;
+	case 6: orig->straight_rapid(-conj(std::complex<double>(0,1)*end)); break;
+	case 7: orig->straight_rapid(-std::complex<double>(0,1)*end); break;
 	}
     }
     virtual void circular_move(int ccw,std::complex<double> center,
-	std::complex<double> end) override
+	std::complex<double> end)
     {
 	switch(swap) {
 	case 0: orig->circular_move(ccw,center,end); break;
 	case 1: orig->circular_move(!ccw,-conj(center),-conj(end)); break;
 	case 2: orig->circular_move(!ccw,conj(center),conj(end)); break;
 	case 3: orig->circular_move(ccw,-center,-end); break;
-	case 4: orig->circular_move(ccw,1i*center,1i*end); break;
-	case 5: orig->circular_move(!ccw,conj(1i*center),conj(1i*end)); break;
-	case 6: orig->circular_move(!ccw,-conj(1i*center),-conj(1i*end)); break;
-	case 7: orig->circular_move(ccw,-1i*center,-1i*end); break;
+	case 4: orig->circular_move(ccw,std::complex<double>(0,1)*center,std::complex<double>(0,1)*end); break;
+	case 5: orig->circular_move(!ccw,conj(std::complex<double>(0,1)*center),conj(std::complex<double>(0,1)*end)); break;
+	case 6: orig->circular_move(!ccw,-conj(std::complex<double>(0,1)*center),-conj(std::complex<double>(0,1)*end)); break;
+	case 7: orig->circular_move(ccw,-std::complex<double>(0,1)*center,-std::complex<double>(0,1)*end); break;
 	}
     }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 class g7x:public  std::list<std::unique_ptr<segment>> {
-    double delta=0.5;
-    std::complex<double> escape{0.3,0.3};
-    int flip_state=0;
+    double delta;
+    std::complex<double> escape;
+    int flip_state;
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -644,16 +592,16 @@ private:
 
     std::unique_ptr<motion_base> motion(motion_base *out) {
 	switch(flip_state) {
-	case 0: return std::make_unique<swapped_motion<0>>(out);
-	case 1: return std::make_unique<swapped_motion<1>>(out);
-	case 2: return std::make_unique<swapped_motion<2>>(out);
-	case 3: return std::make_unique<swapped_motion<3>>(out);
-	case 4: return std::make_unique<swapped_motion<4>>(out);
-	case 5: return std::make_unique<swapped_motion<5>>(out);
-	case 6: return std::make_unique<swapped_motion<6>>(out);
-	case 7: return std::make_unique<swapped_motion<7>>(out);
+	case 0: return std::unique_ptr<swapped_motion<0>>(new swapped_motion<0>(out));
+	case 1: return std::unique_ptr<swapped_motion<1>>(new swapped_motion<1>(out));
+	case 2: return std::unique_ptr<swapped_motion<2>>(new swapped_motion<2>(out));
+	case 3: return std::unique_ptr<swapped_motion<3>>(new swapped_motion<3>(out));
+	case 4: return std::unique_ptr<swapped_motion<4>>(new swapped_motion<4>(out));
+	case 5: return std::unique_ptr<swapped_motion<5>>(new swapped_motion<5>(out));
+	case 6: return std::unique_ptr<swapped_motion<6>>(new swapped_motion<6>(out));
+	case 7: return std::unique_ptr<swapped_motion<7>>(new swapped_motion<7>(out));
 	}
-	throw("This can't happen"s);
+	throw("This can't happen");
     }
 
     void monotonic(void) {
@@ -662,7 +610,7 @@ private:
 	}
 	for(auto p=begin(); p!=end(); p++) {
 	    if(!(*p)->monotonic())
-		throw("Not monotonic"s);
+		throw("Not monotonic");
 	}
     }
 
@@ -677,7 +625,7 @@ private:
     }
 
 public:
-    g7x(void) {}
+    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{} {}
     g7x(g7x const &other) {
 	delta=other.delta;
 	escape=other.escape;
@@ -761,9 +709,9 @@ public:
 	if(imag(back()->ep())<imag(front()->sp())) {
 	    auto ep=back()->ep();
 	    ep.imag(imag(front()->sp()));
-	    emplace_back(std::make_unique<straight_segment>(
+	    emplace_back(std::unique_ptr<straight_segment>(new straight_segment(
 		back()->ep(),ep
-	    ));
+	    )));
 	}
 	pocket_starts.push_back(front()->sp());
 	pocket(cycle,front()->sp(), begin(), swapped_out.get());
@@ -910,8 +858,8 @@ void g7x::add_distance(double distance) {
 		s->offset(-max_distance);
 		e->offset(-max_distance);
 		auto center=(s->ep()+e->sp())/2.0;
-		emplace(n, std::make_unique<round_segment>(
-		    distance>0,(*p)->ep(),center,(*n)->sp()));
+		    emplace_back(std::unique_ptr<round_segment>(new round_segment(
+		    distance>0,(*p)->ep(),center,(*n)->sp())));
 		p++;
 	    }
 	}
@@ -1092,7 +1040,7 @@ int Interp::convert_g7x(int mode,
     std::complex<double> start(z,x);
 
     auto exit_call_level=settings->call_level;
-    CHP(read(("O"s+std::to_string(block->q_number)+" CALL").c_str()));
+    CHP(read((std::string("O")+std::to_string(block->q_number)+" CALL").c_str()));
     for(;;) {
 	if(block->o_name!=0)
 	    CHP(convert_control_functions(block, settings));
@@ -1148,9 +1096,9 @@ int Interp::convert_g7x(int mode,
 	    switch(settings->motion_mode) {
 	    case 0:
 	    case 10:
-		path.emplace_back(std::make_unique<straight_segment>(
+		path.emplace_back(std::unique_ptr<straight_segment>(new straight_segment(
 		    start, end
-		));
+		)));
 		break;
 	    case 20:
 	    case 30:
@@ -1159,7 +1107,7 @@ int Interp::convert_g7x(int mode,
 			ERS("G7X error: both R and I or K flag used for arc");
 		    double r=block->r_number;
 		    center=(start+end)/2.0;
-		    auto d=1i*sqrt((r*r-norm(end-start)/4)/norm(end-start))
+		    auto d=std::complex<double>(0,1)*sqrt((r*r-norm(end-start)/4)/norm(end-start))
 			*(end-start);
 		    if(settings->motion_mode==30)
 			center+=d;
@@ -1171,9 +1119,9 @@ int Interp::convert_g7x(int mode,
 		    if(old.ijk_distance_mode()==MODE_INCREMENTAL)
 			center+=start;
 		}
-		path.emplace_back(std::make_unique<round_segment>(
+		path.emplace_back(std::unique_ptr<round_segment>(new round_segment(
 		    settings->motion_mode==30, start, center, end
-		));
+		)));
 		break;
 	    }
 	    if(settings->motion_mode==0 || settings->motion_mode==10
@@ -1182,13 +1130,13 @@ int Interp::convert_g7x(int mode,
 		if(block->a_flag && block->c_flag)
 		    ERS("G7X error: Both A and C parameters on a corner");
 		if(block->a_flag)
-		    path.emplace_back(std::make_unique<fillet_segment>(
+		    path.emplace_back(std::unique_ptr<fillet_segment>(new fillet_segment(
 			block->a_number, end
-		    ));
+		    )));
 		if(block->c_flag)
-		    path.emplace_back(std::make_unique<chamfer_segment>(
+		    path.emplace_back(std::unique_ptr<chamfer_segment>(new chamfer_segment(
 			block->c_number, end
-		    ));
+		    )));
 	    }
 
 	    settings->current_x=imag(end);
