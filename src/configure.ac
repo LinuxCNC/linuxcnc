@@ -40,7 +40,7 @@ AC_SUBST([RTAPI_APP_CFLAGS])
 
 m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
 # make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
+AX_CXX_COMPILE_STDCXX_11(noext,mandatory)
 
 ## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
 ##
