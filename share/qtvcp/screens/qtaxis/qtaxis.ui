@@ -1552,6 +1552,12 @@
            </item>
            <item>
             <widget class="GcodeEditor" name="gcode_editor">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize">
               <size>
                <width>300</width>
@@ -1561,7 +1567,7 @@
              <property name="maximumSize">
               <size>
                <width>16777215</width>
-               <height>200</height>
+               <height>500</height>
               </size>
              </property>
             </widget>
