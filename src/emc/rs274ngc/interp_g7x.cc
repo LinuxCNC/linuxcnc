@@ -43,10 +43,10 @@ public:
 
 class motion_null:public motion_base {
 public:
-    void straight_move(std::complex<double> end) override  {}
-    void straight_rapid(std::complex<double> end)  override {}
+    void straight_move(std::complex<double> end)  {}
+    void straight_rapid(std::complex<double> end)  {}
     void circular_move(int ccw,std::complex<double> center,
-	std::complex<double> end)  override {}
+	std::complex<double> end)  {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
-    double finish=0;
+    double finish;
 public:
     segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
     segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
@@ -89,6 +89,7 @@ public:
     friend class round_segment;
 
 protected:
+    segment(void):finish(0) {}
     std::complex<double> corner_finish(segment *prev, segment *next) {
 	auto p=prev->dup();
 	auto n=next->dup();
@@ -124,8 +125,8 @@ public:
     bool climb(std::complex<double>&,motion_base*) override;
     bool dive(std::complex<double>&,double, motion_base*,bool) override;
     void climb_only(std::complex<double>&,motion_base*) override;
-    void draw(motion_base *out) override { out->straight_move(end); }
-    void offset(double distance) override {
+    void draw(motion_base *out) { out->straight_move(end); }
+    void offset(double distance) {
 	std::complex<double> d=I*distance*(start-end)/abs(start-end);
 	start+=d;
 	end+=d;
@@ -228,8 +229,8 @@ public:
     bool climb(std::complex<double>&,motion_base*) override;
     bool dive(std::complex<double>&,double,motion_base*,bool) override;
     void climb_only(std::complex<double>&,motion_base*) override;
-    void draw(motion_base *out) override { out->circular_move(ccw,center,end);}
-    void offset(double distance) override {
+    void draw(motion_base *out) { out->circular_move(ccw,center,end);}
+    void offset(double distance) {
 	double factor=(abs(start-center)+(ccw? 1:-1)*distance)
 	    /abs(start-center);
 	start=factor*(start-center)+center;
@@ -243,9 +244,9 @@ public:
 	return std::make_unique<round_segment>(*this);
     }
     double radius(void) { return std::min(abs(start-end),abs(start-center)); }
-    void flip_imag(void) override { ccw=!ccw; start=conj(start); end=conj(end);
+    void flip_imag(void) { ccw=!ccw; start=conj(start); end=conj(end);
 	center=conj(center); }
-    void flip_real(void) override { ccw=!ccw; start=-conj(start);
+    void flip_real(void) { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
     virtual void rotate(void) {
 	start=-start*I;
@@ -505,7 +506,7 @@ public:
 	finish=d;
     }
 
-    void do_finish(segment *prev, segment *next) override {
+    void do_finish(segment *prev, segment *next) {
 	center=corner_finish(prev,next);
 	ccw=imag(start-center)>0 || imag(end-center)>0;
 	finish=0;
@@ -518,7 +519,7 @@ public:
 	finish=d;
     }
 
-    void do_finish(segment *prev, segment *next) override {
+    void do_finish(segment *prev, segment *next) {
 	corner_finish(prev,next);
     }
 };
@@ -532,7 +533,7 @@ class swapped_motion:public motion_base {
 public:
     swapped_motion(motion_base *motion):orig(motion) {
     }
-    virtual void straight_move(std::complex<double> end) override {
+    virtual void straight_move(std::complex<double> end) {
 	switch(swap) {
 	case 0: orig->straight_move(end); break;
 	case 1: orig->straight_move(-conj(end)); break;
@@ -544,7 +545,7 @@ public:
 	case 7: orig->straight_move(-I*end); break;
 	}
     }
-    virtual void straight_rapid(std::complex<double> end) override {
+    virtual void straight_rapid(std::complex<double> end) {
 	switch(swap) {
 	case 0: orig->straight_rapid(end); break;
 	case 1: orig->straight_rapid(-conj(end)); break;
@@ -574,9 +575,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 class g7x:public  std::list<std::unique_ptr<segment>> {
-    double delta=0.5;
-    std::complex<double> escape{0.3,0.3};
-    int flip_state=0;
+    double delta;
+    std::complex<double> escape;
+    int flip_state;
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -641,8 +642,8 @@ private:
     }
 
 public:
-    g7x(void) {}
-    g7x(g7x const &other) {
+    g7x(void):delta(0.5), escape(0.3,0.3), flip_state(0) {}
+    g7x(g7x const &other) :delta(0.5), escape(0.3,0.3), flip_state(0) {
 	delta=other.delta;
 	escape=other.escape;
 	flip_state=other.flip_state;
@@ -874,8 +875,8 @@ void g7x::add_distance(double distance) {
 		s->offset(-max_distance);
 		e->offset(-max_distance);
 		auto center=(s->ep()+e->sp())/2.0;
-		emplace(n, std::make_unique<round_segment>(
-		    distance>0,(*p)->ep(),center,(*n)->sp()));
+		insert(n,std::unique_ptr<round_segment>(new round_segment(
+		    distance>0,(*p)->ep(),center,(*n)->sp())));
 		p++;
 	    }
 	}
