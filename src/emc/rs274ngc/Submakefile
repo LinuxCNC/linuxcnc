@@ -35,7 +35,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_inspection.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC -std=c++11 $(BOOST_DEBUG_FLAGS)
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS)
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
