@@ -7,6 +7,9 @@
 #include <memory>
 #include <complex>
 
+#if __cplusplus <= 199711L
+#define override /* NOTHING */
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Ancient compiler work-arounds
@@ -58,10 +61,10 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
-    double finish=0;
+    double finish;
 public:
-    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
-    segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
+    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),finish{} {}
+    segment(std::complex<double> s, std::complex<double> e):start(s),end(e),finish{} {}
     typedef std::deque<double> intersections_t;
     virtual void intersection_z(double x, intersections_t &is)=0;
     virtual bool climb(std::complex<double>&, motion_base*)=0;
@@ -574,9 +577,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 class g7x:public  std::list<std::unique_ptr<segment>> {
-    double delta=0.5;
-    std::complex<double> escape{0.3,0.3};
-    int flip_state=0;
+    double delta;
+    std::complex<double> escape;
+    int flip_state;
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -641,7 +644,7 @@ private:
     }
 
 public:
-    g7x(void) {}
+    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{} {}
     g7x(g7x const &other) {
 	delta=other.delta;
 	escape=other.escape;
