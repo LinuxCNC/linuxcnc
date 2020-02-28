@@ -161,9 +161,10 @@ class HandlerClass:
 
     def updateJogState(self):
         state = self.w.pushbutton_jog.isChecked()
+        selected = None
         if state:
             ACTION.SET_MANUAL_MODE()
-        selected = STATUS.get_selected_axis()
+            selected = STATUS.get_selected_axis()
         for temp in INFO.AVAILABLE_AXES:
             if selected == temp:
                 self['wheel_{}'.format(temp.lower())].set(state)
