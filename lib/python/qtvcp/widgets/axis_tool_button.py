@@ -162,6 +162,16 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
                 STATUS.selected_joint = self._joint
                 if self._halpin_option:
                     self.hal_pin_axis.set(self.isChecked())
+        else:
+            if STATUS.is_joint_mode():
+                ACTION.SET_SELECTED_JOINT(-1)
+            else:
+                ACTION.SET_SELECTED_AXIS('None')
+                # set this whithout causing a STATUS message output
+                # in case we are selecting an axis to un/home
+                STATUS.selected_joint = -1
+            if self._halpin_option:
+                self.hal_pin_axis.set(False)
 
     def ChangeState(self, joint = None, axis = None):
         if STATUS.is_joint_mode():

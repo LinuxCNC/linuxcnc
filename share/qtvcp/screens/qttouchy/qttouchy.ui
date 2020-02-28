@@ -59,8 +59,8 @@
              </property>
              <property name="image_list" stdset="0">
               <stringlist>
-               <string>/home/chris/emc-dev/share/qtvcp/images/ref_all_not_22x22.png</string>
-               <string>/home/chris/emc-dev/share/qtvcp/images/clear_22x22.png</string>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
               </stringlist>
              </property>
              <property name="watch_all_homed" stdset="0">
@@ -90,8 +90,8 @@
              </property>
              <property name="image_list" stdset="0">
               <stringlist>
-               <string>/home/chris/emc-dev/share/qtvcp/images/ref_all_not_22x22.png</string>
-               <string>/home/chris/emc-dev/share/qtvcp/images/clear_22x22.png</string>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
               </stringlist>
              </property>
              <property name="watch_all_homed" stdset="0">
@@ -245,8 +245,8 @@
              </property>
              <property name="image_list" stdset="0">
               <stringlist>
-               <string>/home/chris/emc-dev/share/qtvcp/images/ref_all_not_22x22.png</string>
-               <string>/home/chris/emc-dev/share/qtvcp/images/clear_22x22.png</string>
+               <string>ref_all_not_22x22.png</string>
+               <string>clear_22x22.png</string>
               </stringlist>
              </property>
              <property name="watch_all_homed" stdset="0">
@@ -439,8 +439,8 @@
                 </property>
                 <property name="image_list" stdset="0">
                  <stringlist>
-                  <string>/home/chris/emc-dev/share/qtvcp/images/ref_all_not_22x22.png</string>
-                  <string>/home/chris/emc-dev/share/qtvcp/images/clear_22x22.png</string>
+                  <string>ref_all_not_22x22.png</string>
+                  <string>clear_22x22.png</string>
                  </stringlist>
                 </property>
                 <property name="watch_all_homed" stdset="0">
@@ -3680,7 +3680,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>917</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
   </widget>
@@ -3773,8 +3773,8 @@ p, li { white-space: pre-wrap; }
    <slot>fontDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>47</x>
-     <y>277</y>
+     <x>66</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -3789,8 +3789,8 @@ p, li { white-space: pre-wrap; }
    <slot>togglePointer(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>757</x>
-     <y>191</y>
+     <x>127</x>
+     <y>230</y>
     </hint>
     <hint type="destinationlabel">
      <x>760</x>
@@ -3805,8 +3805,8 @@ p, li { white-space: pre-wrap; }
    <slot>updateJogState()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>844</x>
-     <y>264</y>
+     <x>889</x>
+     <y>260</y>
     </hint>
     <hint type="destinationlabel">
      <x>911</x>
@@ -3837,8 +3837,8 @@ p, li { white-space: pre-wrap; }
    <slot>updateJogState()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>847</x>
-     <y>583</y>
+     <x>888</x>
+     <y>575</y>
     </hint>
     <hint type="destinationlabel">
      <x>912</x>
@@ -3853,8 +3853,8 @@ p, li { white-space: pre-wrap; }
    <slot>updateJogState()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>846</x>
-     <y>552</y>
+     <x>888</x>
+     <y>539</y>
     </hint>
     <hint type="destinationlabel">
      <x>909</x>
@@ -3875,6 +3875,86 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>63</x>
      <y>31</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_scroll</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>856</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_ro</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>875</x>
+     <y>200</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>200</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_so</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>878</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>913</x>
+     <y>159</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_fo</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>911</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axistoolbutton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateJogState()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>859</x>
+     <y>636</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>914</x>
+     <y>649</y>
     </hint>
    </hints>
   </connection>

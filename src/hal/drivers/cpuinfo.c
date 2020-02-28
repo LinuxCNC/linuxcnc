@@ -73,17 +73,18 @@ int get_rpi_revision(void)
       return 2;
    else if ((strcmp(revision, "a01041") == 0) ||
             (strcmp(revision, "a21041") == 0) ||
-	    (strcmp(revision, "a22042") == 0))
+            (strcmp(revision, "a22042") == 0))
       return 3;
    else if ((strcmp(revision, "a22082") == 0) ||
-	    (strcmp(revision, "a02082") == 0) ||
-	    (strcmp(revision, "a32082") == 0) ||
-	    (strcmp(revision, "a020d3") == 0))
+            (strcmp(revision, "a02082") == 0) ||
+            (strcmp(revision, "a32082") == 0) ||
+            (strcmp(revision, "a020d3") == 0))
       return 4;
-    else if ((strcmp(revision, "a03111") == 0) ||
-	    (strcmp(revision, "b03111") == 0) ||
-	    (strcmp(revision, "c03111") == 0))
+   else if ((strcmp(revision, "a03111") == 0) ||
+            (strcmp(revision, "b03111") == 0) ||
+            (strcmp(revision, "c03111") == 0) ||
+            (strcmp(revision, "c03112") == 0))
       return 5;
-   else // assume rev 5
+   else // assume rev 6
       return 6;
 }
