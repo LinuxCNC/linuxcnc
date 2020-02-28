@@ -576,7 +576,7 @@
                      <bool>true</bool>
                     </property>
                     <property name="indicator_option" stdset="0">
-                     <bool>true</bool>
+                     <bool>false</bool>
                     </property>
                     <property name="indicator_HAL_pin_option" stdset="0">
                      <bool>false</bool>
@@ -2293,101 +2293,84 @@ p, li { white-space: pre-wrap; }
                    </widget>
                   </item>
                   <item>
-                   <widget class="ActionButton" name="actionbutton_37">
-                    <property name="text">
-                     <string>Zoom In</string>
+                   <widget class="QGroupBox" name="groupBox_9">
+                    <property name="title">
+                     <string>Scoll Controls</string>
                     </property>
-                    <property name="view_change_action" stdset="0">
-                     <bool>true</bool>
-                    </property>
-                    <property name="template_label_option" stdset="0">
-                     <bool>false</bool>
-                    </property>
-                    <property name="joint_number" stdset="0">
-                     <number>0</number>
-                    </property>
-                    <property name="incr_imperial_number" stdset="0">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="incr_mm_number" stdset="0">
-                     <double>0.025000000000000</double>
-                    </property>
-                    <property name="incr_angular_number" stdset="0">
-                     <double>-1.000000000000000</double>
-                    </property>
-                    <property name="toggle_float_option" stdset="0">
-                     <bool>false</bool>
-                    </property>
-                    <property name="float_num" stdset="0">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="float_alt_num" stdset="0">
-                     <double>50.000000000000000</double>
-                    </property>
-                    <property name="view_type_string" stdset="0">
-                     <string>zoom-in</string>
-                    </property>
-                    <property name="command_text_string" stdset="0">
-                     <string/>
-                    </property>
-                    <property name="ini_mdi_number" stdset="0">
-                     <number>0</number>
-                    </property>
-                    <property name="textTemplate" stdset="0">
-                     <string>%1.3f in</string>
-                    </property>
-                    <property name="alt_textTemplate" stdset="0">
-                     <string>%1.2f mm</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="ActionButton" name="actionbutton_38">
-                    <property name="text">
-                     <string>Zoom Out</string>
-                    </property>
-                    <property name="view_change_action" stdset="0">
-                     <bool>true</bool>
-                    </property>
-                    <property name="template_label_option" stdset="0">
-                     <bool>false</bool>
-                    </property>
-                    <property name="joint_number" stdset="0">
-                     <number>0</number>
-                    </property>
-                    <property name="incr_imperial_number" stdset="0">
-                     <double>0.010000000000000</double>
-                    </property>
-                    <property name="incr_mm_number" stdset="0">
-                     <double>0.025000000000000</double>
-                    </property>
-                    <property name="incr_angular_number" stdset="0">
-                     <double>-1.000000000000000</double>
-                    </property>
-                    <property name="toggle_float_option" stdset="0">
-                     <bool>false</bool>
-                    </property>
-                    <property name="float_num" stdset="0">
-                     <double>100.000000000000000</double>
-                    </property>
-                    <property name="float_alt_num" stdset="0">
-                     <double>50.000000000000000</double>
-                    </property>
-                    <property name="view_type_string" stdset="0">
-                     <string>zoom-out</string>
-                    </property>
-                    <property name="command_text_string" stdset="0">
-                     <string/>
-                    </property>
-                    <property name="ini_mdi_number" stdset="0">
-                     <number>0</number>
-                    </property>
-                    <property name="textTemplate" stdset="0">
-                     <string>%1.3f in</string>
-                    </property>
-                    <property name="alt_textTemplate" stdset="0">
-                     <string>%1.2f mm</string>
-                    </property>
+                    <layout class="QVBoxLayout" name="verticalLayout_32">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>9</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QPushButton" name="zoom">
+                       <property name="text">
+                        <string>Zoom</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="rotate">
+                       <property name="text">
+                        <string>Rotate</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="panV">
+                       <property name="text">
+                        <string>Pan V</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="panH">
+                       <property name="text">
+                        <string>Pan H</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                    <zorder>rotate</zorder>
+                    <zorder>rotate</zorder>
+                    <zorder>panH</zorder>
+                    <zorder>panV</zorder>
+                    <zorder>zoom</zorder>
                    </widget>
                   </item>
                   <item>
@@ -3680,7 +3663,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>917</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
   </widget>
@@ -3773,8 +3756,8 @@ p, li { white-space: pre-wrap; }
    <slot>fontDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>230</y>
+     <x>87</x>
+     <y>463</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
@@ -3789,8 +3772,8 @@ p, li { white-space: pre-wrap; }
    <slot>togglePointer(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>127</x>
-     <y>230</y>
+     <x>778</x>
+     <y>464</y>
     </hint>
     <hint type="destinationlabel">
      <x>760</x>
@@ -3869,8 +3852,8 @@ p, li { white-space: pre-wrap; }
    <slot>colorDialog()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>79</x>
-     <y>201</y>
+     <x>100</x>
+     <y>396</y>
     </hint>
     <hint type="destinationlabel">
      <x>63</x>

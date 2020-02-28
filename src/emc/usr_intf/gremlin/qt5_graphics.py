@@ -709,6 +709,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         pass
         #GL.glCallList(self.object)
 
+    def panView(self,vertical=0,horizontal=0):
+        self.translateOrRotate(self.xmouse + vertical, self.ymouse + horizontal)
+
+    def rotateView(self,vertical=0,horizontal=0):
+        self.rotateOrTranslate(self.xmouse + vertical, self.ymouse + horizontal)
+
     ############################################################
     # display for when linuxcnc isn't runnimg - forQTDesigner
     ############################################################
