@@ -138,7 +138,7 @@ To instantiate the module so you can use it add this python code to your instant
 ----
 ACTION = Action()
 ----
-To access Lcnc_Action commands use general syntax such as these: +
+To access Action commands use general syntax such as these: +
 [source,python]
 ----
 ACTION.SET_ESTOP_STATE(state)
@@ -251,6 +251,9 @@ This will return a python tuple of two Python lists of Python lists of tool info
 This will by default, add a black tool entry with tool number -99. +
 You can preload the 'newtool' array with tool information. +
 
+=== DELETE_TOOLS( tool)
+Delete the numbered tool
+
 === SAVE_TOOLFILE(toolarray)
 This will parse the toolarray and save it to the file specified in the INI as the tool path. +
 This tool array must contain all the available tools information. +
@@ -261,20 +264,49 @@ it will return True if there was an error. +
 This function converts a linuxcnc raw tool array to a qtvcp tool wear array. +
 Qtvcp's array includes entries for X and Z axis tool wear. +
 inuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
-This also requires remap code to add the wear offsets at tool change time.+
+This also requires remap code to add the wear offsets at tool change time. +
 
 === CONVERT_TO_STANDARD_TYPE(toolarray)
 This function converts qtvcp's tool array into a linuxcnc raw tool array. +
 Qtvcp's array includes entries for X and Z axis tool wear. +
 linuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
-This also requires remap code to add the wear offsets t tool change time.+
+This also requires remap code to add the wear offsets t tool change time. +
 
-=== IS_HASH_CURRENT()
-Each time the tool information is saved the HASH number is calculated and recorded. +
-Calling this function will calculate the HASH number of the system tool file and +
-if it is different will return False, otherwise returns True. +
-Typically this function would be called regularly and if returns False, a display would be updated. +
+== Path
+This module give reference to important file paths. +
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp,core import Path
+----
+To instantiate the module so you can use it add this python code to your instantiated section: +
+[source,python]
+----
+PATH = Path()
+----
 
+=== Here is a list of the variables:
+[source,python]
+----
+PATH.PREFS_FILENAME # The preference file path
+PATH.WORKINGDIR     # The directory qtvcp was launched from
+PATH.IS_SCREEN      # Is this a screen or a VCP?
+PATH.CONFIGPATH     # launched configuration folder
+PATH.BASEDIR        # Base folder for linuxcnc
+PATH.BASENAME       # The Designer files name (no ending)
+PATH.LIBDIR         # The Qtvcp library folder
+PATH.IMAGEDIR       # The Qtvcp image folder
+PATH.SCREENDIR      # The Qtvcp builtin Screen folder
+PATH.PANELDIR       # The Qtvcp builtin VCP folder
+PATH.HANDLER        # Handler file Path
+PATH.XML            # Qtvcp ui file path
+PATH.QSS            # Qtvcp Qss file path
+
+# Not currently used:
+PATH.LOCALEDIR      # Locale translation folder
+PATH.DOMAIN         # Translation domain
+
+----
 == aux_program_loader
 
 This module allows an easy way to load auxiliary programs linuxcnc often uses. +
@@ -328,6 +360,60 @@ AUX_PRGM.keyboard_onboard(ARGS)
 
 This module is used to allow each keypress to control a behavior such as jogging. +
 It's used inside the handler file to facilitate keyboard jogging etc. +
+
+===  Importing and Initiating
+
+To import this modules add this python code to your import section: +
+[source,python]
+----
+from qtvcp.lib.keybindings import Keylookup
+----
+To instantiate the module so you can use it add this python code to your instantiate section: +
+[source,python]
+----
+KEYBIND = Keylookup()
+----
+
+=== adding key bndings
+Note keybindings require code under the _processed_key_event_ function +
+to call _KEYBIND.call()_ - most handler file already have this code. +
+In the handler file, under the _initialed_ function use this general syntaxt: +
+ +
+KEYBINDING.add_call("DEFINED_KEY","FUNCTION TO CALL", USER DATA) +
+ +
+Here we add a keybinding for F10, 11 and 12 +
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTVCP
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        KEYBIND.add_call('Key_F10','on_keycall_F10',None)
+        KEYBIND.add_call('Key_F11','on_keycall_override',10)
+        KEYBIND.add_call('Key_F12','on_keycall_override',20)
+----
+
+And then need to add functions that get called: +
+In the handler file, under the 'KEY BINDING CALLS' +
+section add this: +
+[source,python]
+----
+    #####################
+    # KEY BINDING CALLS #
+    #####################
+
+    def on_keycall_F12(self,event,state,shift,cntrl,value):
+        if state:
+            print 'F12 pressed'
+
+    def on_keycall_override(self,event,state,shift,cntrl,value):
+        if state:
+            print 'value = {}'.format(value)
+----
 
 == Messages
 
@@ -422,7 +508,7 @@ Or to import this modules manually add this python code to your import section: 
 from qtvcp.lib.audio_player import Player
 ----
 To instantiate the module so you can use it add this python code to your instantiated section: +
-_resister_messages() function connects the audio player to the STATUS library for sounds can be played +
+_register_messages() function connects the audio player to the STATUS library for sounds can be played +
 with the STATUS message system. +
 
 [source,python]
@@ -510,7 +596,7 @@ class HandlerClass:
 [source,python]
 ----
     ##########################################
-    # Special Functions called from QTSCREEN
+    # Special Functions called from QTVCP
     ##########################################
 
     # at this point:
