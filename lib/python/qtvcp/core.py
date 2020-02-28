@@ -152,3 +152,16 @@ class Tool(_TStatParent):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
+################################################################
+# PStat class
+################################################################
+from qtvcp.qt_pstat import _PStat as _PStatParent
+
+class Path(_PStatParent):
+    _instance = None
+    _instanceNum = 0
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
