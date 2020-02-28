@@ -6,25 +6,25 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>591</height>
+    <width>420</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>520</height>
+    <width>420</width>
+    <height>560</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>408</width>
+    <width>420</width>
     <height>699</height>
    </size>
   </property>
@@ -57,13 +57,13 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>400</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>16777215</width>
+       <width>400</width>
        <height>16777215</height>
       </size>
      </property>
@@ -80,9 +80,15 @@
       <number>0</number>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="help_Page1">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -151,6 +157,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="help_Page2">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -225,6 +237,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="help_Page3">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -300,6 +318,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="help_Page4">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -375,6 +399,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="help_Page5">
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -450,6 +480,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="help_Page6">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>400</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
         <width>400</width>
@@ -488,7 +530,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>392</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
