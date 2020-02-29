@@ -940,7 +940,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             hifreq = int(text)/1000000
             modules = root.findall(".//modules")[0]
             if driver == None:
-                meta = self.get_board_meta(currentboard)
+                meta = self.get_board_meta(boardname)
                 driver = meta.get('DRIVER')
             for i,j in enumerate(modules):
                 k = modules[i].find("tagname").text
