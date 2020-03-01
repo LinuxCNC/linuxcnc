@@ -10,7 +10,6 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
-from qtvcp.widgets.richfontselector import RichTextEditorDialog
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info
@@ -48,7 +47,6 @@ class HandlerClass:
         self.PATHS = paths
         self.current_mode = (None,None)
         self._last_count = 0
-        self.rted = RichTextEditorDialog()
         self.STYLEEDITOR = SSE(widgets,paths)
 
     ##########################################
