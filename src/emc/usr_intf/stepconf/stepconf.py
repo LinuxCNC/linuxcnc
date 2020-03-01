@@ -1048,9 +1048,9 @@ class StepconfApp:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(red);}' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(90deg,yellow,red);}' + os.linesep
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(@bg_color); }' + os.linesep
+                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(@bg_color,@bg_color); }' + os.linesep
 
         # Really I have not found a better way to change the background color
         # I hate the person who removed the get_background_color function in GTK3...
