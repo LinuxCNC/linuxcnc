@@ -151,7 +151,7 @@ Under the 'def \_\_init__.(self, halcomp, widgets, paths):' function add: +
 [source,python]
 ----
         global TOOLBAR
-        TOOLBAR = ToolBarActions(path=paths)
+        TOOLBAR = ToolBarActions(widgets)
 ----
 
 In the 'SPECIAL FUNCTIONS SECTION'
@@ -173,3 +173,45 @@ In the 'GENERAL FUNCTIONS SECTION' ADD: +
 ----
 The function to be called if the actionMyFunction button is pressed.
 
+== Add HAL Pins that call functions
+In this way you don't need to poll the state of input pins. +
+under the initialised__ function, make sure there is an entry similar to this: +
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTVCP
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        self.pin_cycle_start_in = self.hal.newpin('cycle-start-in',hal.HAL_BIT, hal.HAL_IN)
+        self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
+----
+
+Add a function that gets called when the pin state changes. +
+This function assumes there is a Tab widget named 'mainTab' +
+that has tabs with the names 'tab_auto', 'tab_graphics', +
+'tab_filemanager' and 'tab_mdi'. In this way the cycle start +
+button works differently depending on what tab is showing. +
+This is simplified - checking state and error trapping might +
+be helpful. +
+
+In the 'GENERAL FUNCTIONS SECTION' add:
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+
+    def cycleStart(self, state):
+        if state:
+            tab = self.w.mainTab.currentWidget()
+            if  tab in( self.w.tab_auto,  self.w.tab_graphics):
+                ACTION.RUN(line=0)
+            elif tab == self.w.tab_files:
+                    self.w.filemanager.load()
+            elif tab == self.w.tab_mdi:
+                self.w.mditouchy.run_command()
+----

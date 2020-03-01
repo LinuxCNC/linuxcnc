@@ -521,7 +521,7 @@ To play sounds using STATUS messages use these general syntax: +
 ----
 STATUS.emit('play-alert','LOGOUT')
 STATUS.emit('play-alert','BEEP')
-STATUS.emit('play-alert','SPEAK This is a test screen for Qtscreen')
+STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
 STATUS.emit('play-sound', 'PATH TO SOUND')
 ----
 There are default alerts to choose from: +
@@ -558,6 +558,51 @@ It uses Onboard or Matchbox library for the keyboard. +
 This library supplies prebuilt submenus and actions for toolbar menus and toolbar buttons. +
 Toolbuttons, menu and toolbar menus are built in designer and assigned actions/submenus in the handler file. +
 
+Actions:
+----
+estop
+power
+load
+reload
+gcode_properties
+run
+pause
+abort
+block_delete
+optional_stop
+touchoffworkplace
+touchofffixture
+runfromline
+load_calibration
+load_halmeter
+load_halshow
+load_status
+load_halscope
+about
+zoom_in
+zoom_out
+view_x
+view_y
+view_y2
+view_z
+view_z2
+view_p
+view_clear
+show_offsets
+quit
+system_shutdown
+tooloffsetdialog
+originoffsetdialog
+----
+
+Submenus:
+----
+recent_submenu
+home_submenu
+unhome_submenu
+zero_systems_submenu
+----
+
 === Importing and Initiating
 Here is the typical code to add to the relevant handler file sections. +
 
@@ -588,7 +633,7 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
 
         global TOOLBAR
-        TOOLBAR = ToolBarActions(path=paths)
+        TOOLBAR = ToolBarActions(widgets)
 ----
 
 === Assigning tool actions to toolbar buttons
@@ -604,10 +649,21 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
-
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
-
-        TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
-
+        TOOLBAR.configure_action(self.w.actionQuit, 'quit', lambda d:self.w.close())
         TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
+        # Add a custom function
+        TOOLBAR.configure_action(self.w.actionMyFunction, 'my_Function', self.my_function)
+----
+=== Add any custom function:
+
+In the 'GENERAL FUNCTIONS SECTION' ADD: +
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+
+   def my_function(self, widget, state):
+        print 'My function State = ()'.format(state)
 ----
