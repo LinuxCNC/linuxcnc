@@ -34,6 +34,7 @@ from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
 
+import signal
 import sys
 import os
 from optparse import Option, OptionParser
@@ -1554,6 +1555,8 @@ class StepconfApp:
 
 # starting with 'stepconf -d' gives debug messages
 if __name__ == "__main__":
+    def dummy():
+        pass
     usage = "usage: Stepconf -[options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
@@ -1562,5 +1565,6 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
+    signal.signal(signal.SIGINT, lambda *args: dummy())
     Gtk.main()
 
