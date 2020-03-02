@@ -122,21 +122,29 @@ class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
 class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Indicated_PushButton, self).__init__(parent)
-        self._indicator_state = False
-        self.draw_indicator = False
-        self._HAL_pin = False
-        self._state_text = False
-        self._python_command = False
-        self._on_color = QtGui.QColor("red")
-        self._off_color = QtGui.QColor("black")
-        self._size = .3
+        self._indicator_state = False # Current State
+
+        # changing text data
+        self._state_text = False # use text
         self._true_string = 'True'
         self._false_string = 'False'
+
+        # python commands data
+        self._python_command = False # use commands
         self.true_python_command = '''print"true command"'''
         self.false_python_command = '''print"false command"'''
 
+        # indicator LED data
+        self.draw_indicator = False # Show LED
+        self._HAL_pin = False # control by HAL
+        self._shape = 0 # 0 triangle, 1 circle
+        self._size = .3 # triangle
+        self._diameter = 10 # circle
+        self._on_color = QtGui.QColor("red")
+        self._off_color = QtGui.QColor("black")
+
         # indicator linuxcnc's status options
-        self._ind_status = False
+        self._ind_status = False # control by status
         self._is_estopped = False
         self._is_on = False
         self._is_homed = False
@@ -293,23 +301,44 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     # Paint specified size a triangle at the top right
     def paintIndicator(self):
             p = QtGui.QPainter(self)
-            rect = p.window()
-            top_right = rect.topRight()
-            if self.width() < self.height():
-                size = self.width() * self._size
-            else:
-                size = self.height() * self._size
+
             if self._indicator_state:
                 color = self._on_color
             else:
                 color = self._off_color
-            triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
+
+            # triangle
+            if self._shape == 0:
+                rect = p.window()
+                top_right = rect.topRight()
+                if self.width() < self.height():
+                    size = self.width() * self._size
+                else:
+                    size = self.height() * self._size
+                p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
+                p.setBrush(QtGui.QBrush(color))
+                p.setPen(color)
+
+                triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
                                        top_right + QtCore.QPoint(0, size)])
-            p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
-            p.drawLine(triangle.point(1), triangle.point(2))
-            p.setBrush(QtGui.QBrush(color))
-            p.setPen(color)
-            p.drawPolygon(triangle)
+                p.drawLine(triangle.point(1), triangle.point(2))
+                p.drawPolygon(triangle)
+
+            # circle
+            else:
+                x = self.width() - self._diameter
+                y = 0
+                gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
+                                   self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
+                gradient.setColorAt(0, QtCore.Qt.white)
+                if self._indicator_state:
+                    gradient.setColorAt(1, color)
+                else:
+                    gradient.setColorAt(1, QtCore.Qt.black)
+                p.setBrush(QtGui.QBrush(gradient))
+                p.setPen(color)
+                p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
 
     def set_indicator(self, data):
         self.draw_indicator = data
@@ -318,6 +347,14 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         return self.draw_indicator
     def reset_indicator(self):
         self.draw_indicator = False
+
+    def set_shape(self, data):
+        self._shape = data
+        self.update()
+    def get_shape(self):
+        return self._shape
+    def reset_shape(self):
+        self._shape = 0
 
     def set_HAL_pin(self, data):
         self._HAL_pin = data
@@ -373,6 +410,15 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._size = 0.3
         self.update()
 
+    def set_circle_diameter(self, data):
+        self._diameter = data
+        self.update()
+    def get_circle_diameter(self):
+        return self._diameter
+    def reset_circle_diameter(self):
+        self._diameter = 10
+        self.update()
+
     def set_true_string(self, data):
         data = data.replace('\\n' , '\n')
         self._true_string = data
@@ -413,8 +459,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     checked_state_text_option = QtCore.pyqtProperty(bool, get_state_text, set_state_text, reset_state_text)
     python_command_option = QtCore.pyqtProperty(bool, get_python_command, set_python_command, reset_python_command)
     on_color = QtCore.pyqtProperty(QtGui.QColor, get_on_color, set_on_color)
+    shape_option = QtCore.pyqtProperty(int, get_shape, set_shape, reset_shape)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
+    circle_diameter = QtCore.pyqtProperty(float, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
     true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
     false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
     true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)
