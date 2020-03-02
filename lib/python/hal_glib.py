@@ -704,6 +704,7 @@ class _GStat(gobject.GObject):
         self.emit('requested-spindle-speed-changed', spindle_spd_new)
         spindle_spd_new = self.old['actual-spindle-speed']
         self.emit('actual-spindle-speed-changed', spindle_spd_new)
+        self.emit('spindle-control-changed', False, 0)
         self.emit('jograte-changed', self.current_jog_rate)
         self.emit('jograte-angular-changed', self.current_angular_jog_rate)
         self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
