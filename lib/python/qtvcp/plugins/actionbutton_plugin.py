@@ -819,23 +819,17 @@ class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
         self.editStateAction = QtWidgets.QAction(
           self.tr("Set Actions"), self)
         self.editStateAction.triggered.connect(self.updateOptions)
-        self.editIndicatorAction = QtWidgets.QAction(
-          self.tr("Set Indicator Actions"), self)
-        self.editIndicatorAction.triggered.connect(self.indicatorOptions)
 
     def preferredEditAction(self):
         return self.editStateAction
 
     def taskActions(self):
-        return [self.editStateAction,self.editIndicatorAction]
+        return [self.editStateAction]
 
     def updateOptions(self):
         dialog = ActionButtonDialog(self.widget)
         dialog.exec_()
 
-    def indicatorOptions(self):
-        dialog = IndicatorButtonDialog(self.widget)
-        dialog.exec_()
 
 class ActionButtonTaskMenuFactory(QExtensionFactory):
     def __init__(self, parent = None):
