@@ -331,10 +331,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
                 gradient.setColorAt(0, QtCore.Qt.white)
-                if self._indicator_state:
-                    gradient.setColorAt(1, color)
-                else:
-                    gradient.setColorAt(1, QtCore.Qt.black)
+                gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
                 p.setPen(color)
                 p.setRenderHint(QtGui.QPainter.Antialiasing, True)
