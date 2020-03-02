@@ -315,8 +315,11 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                     size = self.width() * self._size
                 else:
                     size = self.height() * self._size
-                p.setPen(QtGui.QPen(QtGui.QBrush(QtGui.QColor(0, 0, 0, 120)), 6))
-                p.setBrush(QtGui.QBrush(color))
+
+                gradient = QtGui.QLinearGradient(top_right- QtCore.QPoint(size, 0), top_right)
+                gradient.setColorAt(0, QtCore.Qt.white)
+                gradient.setColorAt(1, color)
+                p.setBrush(QtGui.QBrush(gradient))
                 p.setPen(color)
 
                 triangle = QtGui.QPolygon([top_right, top_right - QtCore.QPoint(size, 0),
