@@ -49,6 +49,12 @@ class StateLED(LED):
         self.is_optional_stop = False
         self.is_joint_homed = False
         self.is_limits_overridden = False
+        self.is_manual = False
+        self.is_mdi = False
+        self.is_auto = False
+        self.is_spindle_stopped = False
+        self.is_spindle_fwd = False
+        self.is_spindle_rev = False
 
         self.joint_number = 0
 
@@ -86,6 +92,12 @@ class StateLED(LED):
         elif self.is_limits_overridden:
             STATUS.connect('override-limits-changed', self.check_override_limits)
             STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
+        elif self.is_manual or self.is_mdi or self.is_auto:
+            STATUS.connect('mode-manual', lambda w: self.mode_changed(0))
+            STATUS.connect('mode-mdi', lambda w: self.mode_changed(1))
+            STATUS.connect('mode-auto', lambda w: self.mode_changed(2))
+        elif self.is_spindle_stopped or self.is_spindle_fwd or self.is_spindle_rev:
+            STATUS.connect('spindle-control-changed',  lambda w, state, speed: self.spindle_changed(speed))
 
     def _flip_state(self, data):
             if self.invert_state:
@@ -107,6 +119,26 @@ class StateLED(LED):
                 return
         self._flip_state(False)
 
+    def mode_changed(self, mode):
+        if self.is_manual and mode == 0:
+            self._flip_state(True)
+        elif self.is_mdi and mode == 1:
+            self._flip_state(True)
+        elif self.is_auto and mode == 2:
+            self._flip_state(True)
+        else:
+            self._flip_state(False)
+
+    def spindle_changed(self, state):
+        if self.is_spindle_stopped and state == 0:
+            self._flip_state(True)
+        elif self.is_spindle_rev and state < 0:
+            self._flip_state(True)
+        elif self.is_spindle_fwd and state > 0:
+            self._flip_state(True)
+        else:
+            self._flip_state(False)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -118,7 +150,9 @@ class StateLED(LED):
     def _toggle_properties(self, picked):
         data = ('is_paused', 'is_estopped', 'is_on', 'is_idle', 'is_homed',
                 'is_flood', 'is_mist', 'is_block_delete', 'is_optional_stop',
-                'is_joint_homed', 'is_limits_overridden')
+                'is_joint_homed', 'is_limits_overridden','is_manual',
+                'is_mdi', 'is_auto', 'is_spindle_stopped', 'is_spindle_fwd',
+                'is_spindle_rev')
 
         for i in data:
             if not i == picked:
@@ -244,6 +278,66 @@ class StateLED(LED):
     def reset_is_limits_overridden(self):
         self.is_limits_overridden = False
 
+    # machine is manual status
+    def set_is_manual(self, data):
+        self.is_manual = data
+        if data:
+            self._toggle_properties('is_manual')
+    def get_is_manual(self):
+        return self.is_manual
+    def reset_is_manual(self):
+        self.is_manual = False
+
+    # machine is mdi status
+    def set_is_mdi(self, data):
+        self.is_mdi = data
+        if data:
+            self._toggle_properties('is_mdi')
+    def get_is_mdi(self):
+        return self.is_mdi
+    def reset_is_mdi(self):
+        self.is_mdi = False
+
+    # machine is auto status
+    def set_is_auto(self, data):
+        self.is_auto = data
+        if data:
+            self._toggle_properties('is_auto')
+    def get_is_auto(self):
+        return self.is_auto
+    def reset_is_auto(self):
+        self.is_auto = False
+
+    # machine is spindle_stopped status
+    def set_is_spindle_stopped(self, data):
+        self.is_spindle_stopped = data
+        if data:
+            self._toggle_properties('is_spindle_stopped')
+    def get_is_spindle_stopped(self):
+        return self.is_spindle_stopped
+    def reset_is_spindle_stopped(self):
+        self.is_spindle_stopped = False
+
+    # machine is spindle_fwd status
+    def set_is_spindle_fwd(self, data):
+        self.is_spindle_fwd = data
+        if data:
+            self._toggle_properties('is_spindle_fwd')
+    def get_is_spindle_fwd(self):
+        return self.is_spindle_fwd
+    def reset_is_spindle_fwd(self):
+        self.is_spindle_fwd = False
+
+    # machine is spindle_rev status
+    def set_is_spindle_rev(self, data):
+        self.is_spindle_rev = data
+        if data:
+            self._toggle_properties('is_spindle_rev')
+    def get_is_spindle_rev(self):
+        return self.is_spindle_rev
+    def reset_is_spindle_rev(self):
+        self.is_spindle_rev = False
+
     # Non bool
 
     # machine_joint_number status
@@ -269,6 +363,12 @@ class StateLED(LED):
     is_joint_homed_status = pyqtProperty(bool, get_is_joint_homed, set_is_joint_homed, reset_is_joint_homed)
     is_limits_overridden_status = pyqtProperty(bool, get_is_limits_overridden, set_is_limits_overridden,
                                                reset_is_limits_overridden)
+    is_manual_status = pyqtProperty(bool, get_is_manual, set_is_manual, reset_is_manual)
+    is_mdi_status = pyqtProperty(bool, get_is_mdi, set_is_mdi, reset_is_mdi)
+    is_auto_status = pyqtProperty(bool, get_is_auto, set_is_auto, reset_is_auto)
+    is_spindle_stopped_status = pyqtProperty(bool, get_is_spindle_stopped, set_is_spindle_stopped, reset_is_spindle_stopped)
+    is_spindle_fwd_status = pyqtProperty(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
+    is_spindle_rev_status = pyqtProperty(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
