@@ -277,6 +277,9 @@ User Manual.
   https://docs.python.org/2/library/string.html#format-specification-mini-language
   An error will be raised if the format can not accept a floating-point value.
 
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in 
+  the graphics display
+
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
 
