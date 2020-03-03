@@ -1,3 +1,5 @@
+[[cha:qtvcp-widgets]]
+
 = QTvcp Widgets
 
 Qtscreen uses QTvcp widgets for linuxcnc integration. +

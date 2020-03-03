@@ -1,3 +1,5 @@
+[[cha:qtvcp-custom-widgets]]
+
 = QTvcp Building Custom Widgets
 
 == Overview
