@@ -39,6 +39,7 @@ class _IStat(object):
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
+        self.SUB_PATH_LIST = []
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share","qtvcp")
 
@@ -73,9 +74,9 @@ class _IStat(object):
         self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
+                self.SUB_PATH_LIST.append(mpath)
                 if 'macro' in mpath:
                     path = mpath
-                    break
             self.MACRO_PATH = mpath or None
         else:
             self.MACRO_PATH = None
