@@ -140,7 +140,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         def _safecheck(state, data=None):
             self._block_signal = True
             self.setChecked(state)
-            if self._HAL_pin is False:
+            # update indicator if halpin or status doesn't
+            if self._HAL_pin is False and self._ind_status is False:
                 self.indicator_update(state)
             # if using state labels option update the labels
             if self._state_text:
