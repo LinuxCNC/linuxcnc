@@ -914,8 +914,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         # forgets whats selected. anyways...
         winProperty = self.combo.getLastPick()
         if winProperty is None:
-            self.tab.setCurrentIndex(0)
-            return
+            winProperty = 'unused'
         formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
         if formWindow:
             # set widget option
