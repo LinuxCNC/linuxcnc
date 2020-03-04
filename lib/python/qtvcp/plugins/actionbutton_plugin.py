@@ -90,6 +90,7 @@ class TreeComboBox(QtWidgets.QComboBox):
         super(TreeComboBox, self).__init__(parent)
 
         self.__skip_next_hide = False
+        self._last_pick = None
 
         tree_view = QtWidgets.QTreeView(self)
         tree_view.setFrameShape(QtWidgets.QFrame.NoFrame)
@@ -143,6 +144,12 @@ class TreeComboBox(QtWidgets.QComboBox):
         self.setRootModelIndex(newIndex)
         self.setCurrentIndex (row)
 
+    # hacky work around
+    def updateLastPick(self, pick):
+        self._last_pick = pick
+    def getLastPick(self):
+        return self._last_pick
+
 class ActionButtonDialog(QtWidgets.QDialog):
     def __init__(self, widget, parent = None):
         QtWidgets.QDialog.__init__(self, parent)
@@ -153,20 +160,20 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.widget = widget
         self.previewWidget = ActionButton()
 
-        tab = QtWidgets.QTabWidget()
+        self.tab = QtWidgets.QTabWidget()
         self.tab1 = QtWidgets.QWidget()
         self.tab2 = QtWidgets.QWidget()
         self.tab3 = QtWidgets.QWidget()
 
-        tab.addTab(self.tab1,'Actions')
-        tab.addTab(self.tab2,'LED')
-        tab.addTab(self.tab3,'Other')
+        self.tab.addTab(self.tab1,'Actions')
+        self.tab.addTab(self.tab2,'LED')
+        self.tab.addTab(self.tab3,'Other')
         self.buildtab1()
         self.buildtab2()
         self.buildtab3()
 
         vbox = QtWidgets.QVBoxLayout()
-        vbox.addWidget(tab)
+        vbox.addWidget(self.tab)
 
         wid = QtWidgets.QWidget()
         vbox2 = QtWidgets.QVBoxLayout(wid)
@@ -490,6 +497,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 break
         if flag:
             self.combo.select(pnum,cnum)
+            winPropertyName = self.combo.itemData(cnum,role = QtCore.Qt.UserRole + 1)
+            print 'selected property,related data code:',winPropertyName
+            self.combo.updateLastPick(winPropertyName)
         else:
             self.combo.select(0,0)
 
@@ -497,10 +507,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         winPropertyName = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
         userDataCode = self.combo.itemData(i,role = QtCore.Qt.UserRole + 2)
         #print 'selected property,related data code:',winPropertyName,userDataCode,i
+        self.combo.updateLastPick(winPropertyName)
         if winPropertyName is None:
             #collapsed = self.combo.view().isExpanded(self.combo.view().currentIndex())
             #if collapsed: return True
-            #self.combo.select(0,0)
             return True
         if not userDataCode is None:
             for i in (1,2,4,8,16,32,64,128,256,512,1024):
@@ -899,13 +909,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
             self.falseColorButton.setStyleSheet('QPushButton {background-color: %s ;}'% self._offColor)
 
     def updateWidget(self):
-        # chech action-combobox current data
-        # if it's invalad select 0,0 and then check again
-        i = self.combo.currentIndex()
-        winProperty = self.combo.itemData(i,role = QtCore.Qt.UserRole + 1)
+        # check action-combobox last pick because it sometimes
+        # forgets whats selected. anyways...
+        winProperty = self.combo.getLastPick()
         if winProperty is None:
-            self.combo.select(0,0)
-            self.updateWidget()
+            self.tab.setCurrentIndex(0)
             return
         formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
         if formWindow:
