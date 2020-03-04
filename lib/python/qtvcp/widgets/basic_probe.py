@@ -30,6 +30,7 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'basic_probe_subprog.py'))
+CONFIG_DIR = os.getcwd()
 
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -51,6 +52,18 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.dialog = uic.loadUi(self.filename)
         except AttributeError as e:
             LOG.critical(e)
+        # check if probe macros exist
+        self.probe_enable = False
+        for path in INFO.SUB_PATH_LIST:
+            path = os.path.expanduser(path)
+            for root, dirs, files in os.walk(path):
+                for file in files:
+                    # just need to check for one file - proof enough
+                    if 'probe_rect_pocket.ngc' in file:
+                        self.probe_enable = True
+                # don't go deeper then this folder
+                break
+
         self.probe_list = ["OUTSIDE CORNERS", "INSIDE CORNERS", "BOSS and POCKETS", "RIDGE and VALLEY",
                            "EDGE ANGLE", "ROTARY AXIS", "CALIBRATE"]
 
@@ -88,11 +101,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         def homed_on_status():
-            return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+            return (STATUS.machine_is_on() and self.probe_enable and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
         STATUS.connect('state_off', lambda w: self.setEnabled(False))
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
-        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('all-homed', lambda w: self.setEnabled(self.probe_enable))
         STATUS.connect('error', self.send_error)
         # create HAL pins
         self.HAL_GCOMP_.newpin("x_width", hal.HAL_FLOAT, hal.HAL_IN)
@@ -120,7 +133,11 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_xy_clearance.setText(str(self.PREFS_.getpref('Probe xy clearance', 10, float, 'PROBE OPTIONS')))
             self.lineEdit_z_clearance.setText(str(self.PREFS_.getpref('Probe z clearance', 10, float, 'PROBE OPTIONS')))
             self.lineEdit_edge_width.setText(str(self.PREFS_.getpref('Probe edge width', 10, float, 'PROBE OPTIONS')))
-        self.start_process()
+        if self.probe_enable == False:
+            LOG.error("No path to BasicProbe Macros Found in INI's [RS274] SUBROUTINE_PATH entry")
+            STATUS.emit('update-machine-log', 'WARNING -Basic_Probe macro files not found -Probing disabled', 'TIME')
+        else:
+            self.start_process()
     # when qtvcp closes, this gets called
     def closing_cleanup__(self):
         if self.PREFS_:
@@ -135,7 +152,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref('Probe xy clearance', float(self.lineEdit_xy_clearance.text()), float, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe z clearance', float(self.lineEdit_z_clearance.text()), float, 'PROBE OPTIONS')
             self.PREFS_.putpref('Probe edge width', float(self.lineEdit_edge_width.text()), float, 'PROBE OPTIONS')
-        self.proc.terminate()
+        if self.probe_enable:
+            self.proc.terminate()
 
 #############################################
 # process control
