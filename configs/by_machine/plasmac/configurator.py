@@ -1169,6 +1169,7 @@ class configurator:
             if not line:
                 inFile.close()
                 self.dialog_ok('ERROR','Cannot find [TRAJ] section in INI file')
+                self.W.destroy()
                 return False
         result = 0
         while 1:
@@ -1186,6 +1187,7 @@ class configurator:
                 else:
                     inFile.close()
                     self.dialog_ok('ERROR','Could not find LINEAR_UNITS in [TRAJ] section of INI file')
+                    self.W.destroy()
                     return False
         inFile.close()
         return True
@@ -1200,23 +1202,33 @@ class configurator:
             if not line:
                 inFile.close()
                 self.dialog_ok('ERROR','Cannot find [TRAJ] section in INI file')
+                self.W.destroy()
                 return False
-        result = 0
+        kinsLine = jntsLine = ''
         while 1:
             line = inFile.readline()
-            if 'KINEMATICS' in line:
-                result += 1
-                a,b = line.lower().strip().replace(' ','').split('coordinates=')
-                if 'kinstype' in b:
-                    b = b.split('kinstype')[0]
-                self.zJoint = b.index('z')
-                self.numJoints = len(b.strip())
-            if line.startswith('[') or not line:
-                if result == 1:
+            if line.startswith('KINEMATICS'):
+                kinsLine = line
+            elif line.startswith('JOINTS'):
+                jntsLine = line
+            elif line.startswith('[') or not line:
+                if kinsLine and jntsLine:
+                    numJoints = int(jntsLine.strip().replace(' ','').split('=')[1])
+                    if 'coordinates' in kinsLine:
+                        a,b = kinsLine.lower().strip().replace(' ','').split('coordinates=')
+                        if 'kinstype' in b:
+                            b = b.split('kinstype')[0]
+                    else:
+                        b = 'xyzabcuvw'[:numJoints]
+                    self.zJoint = b.index('z')
                     break
                 else:
                     inFile.close()
-                    self.dialog_ok('ERROR','Could not find KINEMATICS in [KINS] section of INI file')
+                    if not kinsLine:
+                        self.dialog_ok('ERROR','Could not find KINEMATICS in [KINS] section of INI file')
+                    if not jntsLine:
+                        self.dialog_ok('ERROR','Could not find JOINTS in [KINS] section of INI file')
+                    self.W.destroy()
                     return False
         inFile.close()
         return True
