@@ -498,7 +498,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         if flag:
             self.combo.select(pnum,cnum)
             winPropertyName = self.combo.itemData(cnum,role = QtCore.Qt.UserRole + 1)
-            print 'selected property,related data code:',winPropertyName
+            #print 'selected property,related data code:',winPropertyName
             self.combo.updateLastPick(winPropertyName)
         else:
             self.combo.select(0,0)
@@ -656,6 +656,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.shapeCombo.activated.connect(self.onSetOptions)
         self.shapeCombo.addItem('Triangle',0)
         self.shapeCombo.addItem('Circle',1)
+        self.shapeCombo.addItem('Bar',2)
         self.shapeCombo.setCurrentIndex(self.widget._shape)
         hbox.addWidget(label)
         hbox.addStretch(1)
