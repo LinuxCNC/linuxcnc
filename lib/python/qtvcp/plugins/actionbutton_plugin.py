@@ -514,7 +514,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
     # Indicator Tab
     def buildtab2(self):
         statusProperties = [['None',None], ['Is Estopped','is_estopped'],
-                    ['Is On','is_on'], ['Homed','is_homed'],
+                    ['Is On','is_on'], ['All Homed','is_homed'],
+                    ['is joint Homed','is_joint_homed'],
                     ['Idle','is_idle'], ['Paused','is_paused'],
                     ['Flood','is_flood'], ['Mist','is_mist'],
                     ['Block Delete','is_block_delete'],
@@ -612,6 +613,24 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.watch.setLayout(hbox)
         layout.addWidget(self.watch)
         self.watch.hide()
+
+        # joint number selection
+        self.jnum = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Shape Selection')
+        self.jnumCombo = QtWidgets.QComboBox()
+        self.jnumCombo.activated.connect(self.onSetOptions)
+        for i in range(0,10):
+            self.jnumCombo.addItem('Joint {}'.format(i),i)
+        self.jnumCombo.setCurrentIndex(self.widget._joint_number)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.jnumCombo)
+        self.jnum.setLayout(hbox)
+        layout.addWidget(self.jnum)
+        self.jnum.hide()
+
 
         line = QtWidgets.QFrame()
         line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -711,8 +730,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.tab2.setLayout(layout)
 
     def statusSelectionChanged(self,index):
-        pass
-        #print(self.statusCombo.itemData(index, QtCore.Qt.UserRole + 1))
+        if self.statusCombo.itemData(index, QtCore.Qt.UserRole + 1) == 'is_joint_homed':
+            self.jnum.show()
+        else:
+            self.jnum.hide()
 
     # Indicator Tab 3
     def buildtab3(self):
@@ -834,6 +855,10 @@ class ActionButtonDialog(QtWidgets.QDialog):
             else:
                 self.size.hide()
                 self.diam.show()
+            if self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1) == 'is_joint_homed':
+                self.jnum.show()
+            else:
+                self.jnum.hide()
         else:
             self.halP.hide()
             self.size.hide()
@@ -903,6 +928,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
             formWindow.cursor().setProperty('shape_option',
               QtCore.QVariant(self.shapeCombo.itemData(
                 self.shapeCombo.currentIndex())))
+            formWindow.cursor().setProperty('joint_number_status',
+              QtCore.QVariant(self.jnumCombo.itemData(
+                self.jnumCombo.currentIndex())))
 
             formWindow.cursor().setProperty('on_color',
               QtCore.QVariant(self._onColor))
