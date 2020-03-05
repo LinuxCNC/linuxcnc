@@ -191,7 +191,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # make a widget that is added to the stack
                     w = TouchInputWidget()
                     hbox = QtWidgets.QHBoxLayout(w)
-                    hbox.addStretch(1)
+                    #hbox.addStretch(1)
                     vbox = QtWidgets.QVBoxLayout()
                     w.setObjectName(tName)
                     # add labels and edits
@@ -209,10 +209,24 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         vbox.addWidget(l)
                         vbox.addWidget(self['%s%d' % (tName, n)])
                     #add the SVG pic layer
-                    svg_info = self[tName][1]
+                    img_info = self[tName][1]
                     #print path+svg_info[0], svg_info[1]
-                    svgpath = os.path.join(path, svg_info[0])
-                    self['sw%d' % i] = CustomSVG(svgpath,  int(svg_info[1]))
+                    if img_info[0].endswith('.svg'):
+                        svgpath = os.path.join(path, img_info[0])
+                        self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
+                    else:
+                        try:
+                            print self[tName][1][1]
+                            imgpath = os.path.join(path, self[tName][1][1])
+                        except:
+                            imgpath = os.path.join(path, img_info[0])
+                        #self['sw%d' % i] = QtWidgets.QPushButton()
+                        #self['sw%d' % i].setIcon(QtGui.QIcon(imgpath))
+                        self['sw%d' % i] = QtWidgets.QLabel()
+                        self['sw%d' % i].setPixmap(QtGui.QPixmap(imgpath))
+                        self['sw%d' % i]. setScaledContents(True)
+                        #self['sw%d' % i].setSizeHint(300, 300)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
                     hbox.addWidget(self['sw%d' % i])
                     vbox.addStretch(1)
                     hbox.addLayout(vbox)
@@ -237,14 +251,22 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # hopefully we don;t have too many macros...
         for i, tName in enumerate(tabNames):
             svg_name = self[tName][1][0]
-            try:
-                svg_num = self[tName][1][2]
-            except:
-                svg_num = self[tName][1][1]
-            svgpath = os.path.join(path, svg_name)
-            # label is the only way I have found to make the buttons
-            # larger - the label is under the pic - if no errors
-            btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
+            if svg_name.endswith('.svg'):
+                try:
+                    svg_num = self[tName][1][2]
+                except:
+                    svg_num = self[tName][1][1]
+                svgpath = os.path.join(path, svg_name)
+                # label is the only way I have found to make the buttons
+                # larger - the label is under the pic - if no errors
+                btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
+            else:
+                imgpath = os.path.join(path, svg_name)
+                btn = QtWidgets.QPushButton()
+                btn.setIcon(QtGui.QIcon(imgpath))
+                btn.setIconSize(QtCore.QSize(30, 30)) 
+            btn.setToolTip('Macro: {}'.format(tName))
+            btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
                               QtWidgets.QSizePolicy.Expanding)
@@ -298,7 +320,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                                 'MACRODEFAULT' in second_line and \
-                                'MACROSVG' in third_line:
+                                ('MACROSVG' in third_line or 
+                                    'MACROIMAGE' in third_line):
                             name = os.path.splitext(f)[0]
                             # yes, now keep everything after '='
                             macros = first_line.split('=')[1]
