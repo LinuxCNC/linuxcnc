@@ -40,6 +40,7 @@ class _IStat(object):
         self.PREFERENCE_PATH = '~/.Preferences'
         self.SUB_PATH = None
         self.SUB_PATH_LIST = []
+        self.MACRO_PATH_LIST = []
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share","qtvcp")
 
@@ -77,6 +78,7 @@ class _IStat(object):
                 self.SUB_PATH_LIST.append(mpath)
                 if 'macro' in mpath:
                     path = mpath
+                    self.MACRO_PATH_LIST.append(mpath)
             self.MACRO_PATH = mpath or None
         else:
             self.MACRO_PATH = None
