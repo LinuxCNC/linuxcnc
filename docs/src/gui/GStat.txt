@@ -40,7 +40,7 @@ def FUNCTION_TO_CALL(return_codes):
 
 There are some basic patterns for using GStat, depending on what library +
 You are using them in. +
-If using GStat with Gladevcp or Qtvcp, the gobject library is not needed, +
+If using GStat with Gladevcp, Gscreen, or Qtvcp, the gobject library is not needed, +
 Those toolkits already set up Gobject. +
 
 === Sample HAL component code pattern
@@ -80,7 +80,12 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-=== Sample GladeVCP python extention code pattern
+This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
+or if you need to wait for the pins to be made before continuing: +
+'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
+The pins would be: 'metric_status.g20' and 'metric_status.g21' +
+
+=== Sample GladeVCP python extension code pattern
 This file assumes there are three GTK labels named: +
 state_label +
 e_state_label +
@@ -149,8 +154,9 @@ Sends a list of joints not currently homed.
 *override_limits_changed* :: '(returns string)' -
 Sent if linuxcnc has been directed to override it's limits.
 
-*hard-limit-tripped* :: '(returns bool)' -
+*hard-limits-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
+bool indicates if any limit is tripped, the list shows all available joint's current limit values.
 
 *mode-manual* :: '(returns nothing)' -
 Sent when linuxcnc switches to manual mode.
@@ -244,6 +250,9 @@ Sent when the X relative position changes.
 Sent as the current positions changes. +
 returns tuples of position,relative position and distance-to-go.
 
+*current-z-rotation* :: '(returns float)' -
+Sent as the current rotatated angle around the Z axis changes +
+
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
 
@@ -312,8 +321,8 @@ Sent when active G code change
 *metric-mode-changed* :: '(returns bool)' -
 Sent when G21 status changes
 
-*user_system-changed* :: '(returns string)' -
-Sent when G20 status changes
+*user-system-changed* :: '(returns string)' -
+Sent when the reference coordinate system (G5x) changes
 
 *mdi-line-selected* :: '(returns string, string)' -
 intended to be sent when an MDI line is selected by user. +
@@ -485,6 +494,14 @@ requests the joint to be selected by emitting the +
 
 *get_selected_joint* :: '(None)' -
 returns integer representing the internal selected joint number. +
+
+*set_selected_axis* :: '(string)' -
+records the selected axis letter internally. +
+requests the axis to be selected by emitting the +
+'axis-selection-changed' message. +
+
+*get_selected_axis* :: '(None)' -
+returns string representing the internal selected axis letter. +
 
 *is_man_mode* :: '(None)' -
 

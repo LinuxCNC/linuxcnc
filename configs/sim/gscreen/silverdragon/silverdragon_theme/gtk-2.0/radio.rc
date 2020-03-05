@@ -1,0 +1,47 @@
+########################################################################
+# Radio buttons 
+########################################################################
+
+style "radio_button"
+{
+### Radio button ###	
+	engine "pixmap" 
+	{
+		image 
+		{
+			function = CHECK
+			shadow = OUT
+			overlay_file = "radio/radio.png"
+			overlay_stretch = FALSE
+		}
+
+		image 
+		{
+			function = CHECK
+			shadow = IN
+			overlay_file = "radio/radio-pressed.png"
+			overlay_stretch = FALSE
+		}
+		
+		image 
+		{
+			function = OPTION
+			shadow = OUT
+			overlay_file = "radio/radio.png"
+			overlay_stretch = FALSE
+		}
+
+		image 
+		{
+			function = OPTION
+			shadow = IN
+			overlay_file = "radio/radio-pressed.png"
+			overlay_stretch = FALSE
+		}
+	}
+}
+
+class "GtkRadio*" style "radio_button"
+class "GtkRadioMenuItem*" style "radio_button"
+class "GtkTreeView*" style "radio_button"
+

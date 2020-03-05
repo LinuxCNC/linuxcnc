@@ -1,0 +1,199 @@
+#
+# This file created by TWOPASS from LIB:basic_sim.tcl parameters
+#
+# user space components
+# loadusr -W hal_manualtoolchange
+
+# components
+loadrt trivkins coordinates=xyyz 
+loadrt motmod base_period_nsec=32000 servo_period_nsec=1000000 num_joints=4 num_spindles=[TRAJ]SPINDLES
+#loadrt __base-thread  (not loaded by loadrt, no args saved)
+#loadrt __servo-thread  (not loaded by loadrt, no args saved)
+loadrt pid names=J0_pid,J1_pid,J2_pid,J3_pid 
+loadrt mux2 names=J0_mux,J1_mux,J2_mux,J3_mux 
+loadrt ddt names=J0_vel,J0_accel,J1_vel,J1_accel,J2_vel,J2_accel,J3_vel,J3_accel 
+loadrt hypot names=hyp_xy,hyp_xyz 
+loadrt sim_home_switch names=J0_switch,J1_switch,J2_switch,J3_switch 
+loadrt sim_spindle names=sim_spindle 
+loadrt limit2 names=limit_speed 
+loadrt lowpass names=spindle_mass 
+loadrt near names=near_speed 
+loadrt plasmac 
+loadrt debounce cfg=3 
+# pin aliases
+# param aliases
+# signals
+# nets
+net J0:acc J0_accel.out
+net J0:enable joint.0.amp-enable-out => J0_pid.enable
+net J0:homesw J0_switch.home-sw => joint.0.home-sw-in
+net J0:on-pos J0_pid.output => J0_mux.in1
+net J0:pos-cmd joint.0.motor-pos-cmd => J0_pid.command
+net J0:pos-fb J0_mux.out => J0_mux.in0 J0_switch.cur-pos J0_vel.in joint.0.motor-pos-fb
+net J0:vel J0_vel.out => J0_accel.in hyp_xy.in0 hyp_xyz.in0
+net J1:acc J1_accel.out
+net J1:enable joint.1.amp-enable-out => J1_pid.enable
+net J1:homesw J1_switch.home-sw => joint.1.home-sw-in
+net J1:on-pos J1_pid.output => J1_mux.in1
+net J1:pos-cmd joint.1.motor-pos-cmd => J1_pid.command
+net J1:pos-fb J1_mux.out => J1_mux.in0 J1_switch.cur-pos J1_vel.in joint.1.motor-pos-fb
+net J1:vel J1_vel.out => J1_accel.in
+net J2:acc J2_accel.out
+net J2:enable joint.2.amp-enable-out => J2_pid.enable
+net J2:homesw J2_switch.home-sw => joint.2.home-sw-in
+net J2:on-pos J2_pid.output => J2_mux.in1
+net J2:pos-cmd joint.2.motor-pos-cmd => J2_pid.command
+net J2:pos-fb J2_mux.out => J2_mux.in0 J2_switch.cur-pos J2_vel.in joint.2.motor-pos-fb
+net J2:vel J2_vel.out => J2_accel.in hyp_xy.in1 hyp_xyz.in1
+net J3:acc J3_accel.out
+net J3:enable joint.3.amp-enable-out => J3_pid.enable
+net J3:homesw J3_switch.home-sw => joint.3.home-sw-in
+net J3:on-pos J3_pid.output => J3_mux.in1
+net J3:pos-cmd joint.3.motor-pos-cmd => J3_pid.command
+net J3:pos-fb J3_mux.out => J3_mux.in0 J3_switch.cur-pos J3_vel.in joint.3.motor-pos-fb
+net J3:vel J3_vel.out => J3_accel.in hyp_xyz.in2
+net estop:loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+net sample:enable motion.motion-enabled => J0_mux.sel J1_mux.sel J2_mux.sel J3_mux.sel
+net spindle-at-speed near_speed.out => spindle.0.at-speed
+net spindle-index-enable sim_spindle.index-enable <=> spindle.0.index-enable
+net spindle-pos sim_spindle.position-fb => spindle.0.revs
+net spindle-rpm-filtered spindle_mass.out => near_speed.in2 spindle.0.speed-in
+net spindle-speed-cmd spindle.0.speed-out => limit_speed.in near_speed.in1
+net spindle-speed-limited limit_speed.out => sim_spindle.velocity-cmd spindle_mass.in
+# net tool:change iocontrol.0.tool-change => hal_manualtoolchange.change
+# net tool:changed hal_manualtoolchange.changed => iocontrol.0.tool-changed
+# net tool:prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+# net tool:prep-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net xy:vel hyp_xy.out
+net xyz:vel hyp_xyz.out
+# parameter values
+setp J0_accel.tmax            0
+setp J0_mux.tmax            0
+setp J0_pid.do-pid-calcs.tmax            0
+setp J0_switch.tmax            0
+setp J0_vel.tmax            0
+setp J1_accel.tmax            0
+setp J1_mux.tmax            0
+setp J1_pid.do-pid-calcs.tmax            0
+setp J1_switch.tmax            0
+setp J1_vel.tmax            0
+setp J2_accel.tmax            0
+setp J2_mux.tmax            0
+setp J2_pid.do-pid-calcs.tmax            0
+setp J2_switch.tmax            0
+setp J2_vel.tmax            0
+setp J3_accel.tmax            0
+setp J3_mux.tmax            0
+setp J3_pid.do-pid-calcs.tmax            0
+setp J3_switch.tmax            0
+setp J3_vel.tmax            0
+setp base-thread.tmax            0
+setp debounce.0.delay            5
+setp debounce.0.tmax            0
+setp hyp_xy.tmax            0
+setp hyp_xyz.tmax            0
+setp limit_speed.tmax            0
+setp motion-command-handler.tmax            0
+setp motion-controller.tmax            0
+setp near_speed.difference           10
+setp near_speed.scale          1.1
+setp near_speed.tmax            0
+setp plasmac.tmax            0
+setp servo-thread.tmax            0
+setp sim_spindle.scale   0.01666667
+setp sim_spindle.tmax            0
+setp spindle_mass.gain         0.07
+setp spindle_mass.tmax            0
+# realtime thread/function links
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf J0_pid.do-pid-calcs servo-thread
+addf J1_pid.do-pid-calcs servo-thread
+addf J2_pid.do-pid-calcs servo-thread
+addf J3_pid.do-pid-calcs servo-thread
+addf J0_mux servo-thread
+addf J1_mux servo-thread
+addf J2_mux servo-thread
+addf J3_mux servo-thread
+addf J0_vel servo-thread
+addf J0_accel servo-thread
+addf J1_vel servo-thread
+addf J1_accel servo-thread
+addf J2_vel servo-thread
+addf J2_accel servo-thread
+addf J3_vel servo-thread
+addf J3_accel servo-thread
+addf hyp_xy servo-thread
+addf hyp_xyz servo-thread
+addf J0_switch servo-thread
+addf J1_switch servo-thread
+addf J2_switch servo-thread
+addf J3_switch servo-thread
+addf limit_speed servo-thread
+addf spindle_mass servo-thread
+addf near_speed servo-thread
+addf sim_spindle servo-thread
+
+# setp commands for unconnected input pins
+setp J0_pid.FF0 1.0
+setp J0_pid.Pgain 0
+setp J0_pid.Dgain 0
+setp J0_pid.Igain 0
+setp J0_pid.FF1 0
+setp J0_pid.FF2 0
+setp J1_pid.FF0 1.0
+setp J1_pid.Pgain 0
+setp J1_pid.Dgain 0
+setp J1_pid.Igain 0
+setp J1_pid.FF1 0
+setp J1_pid.FF2 0
+setp J2_pid.FF0 1.0
+setp J2_pid.Pgain 0
+setp J2_pid.Dgain 0
+setp J2_pid.Igain 0
+setp J2_pid.FF1 0
+setp J2_pid.FF2 0
+setp J3_pid.FF0 1.0
+setp J3_pid.Pgain 0
+setp J3_pid.Dgain 0
+setp J3_pid.Igain 0
+setp J3_pid.FF1 0
+setp J3_pid.FF2 0
+setp sim_spindle.scale 0.01666667
+setp limit_speed.maxv 5000.0
+setp spindle_mass.gain .07
+setp near_speed.scale 1.1
+setp near_speed.difference 10
+setp J0_pid.FF0 1.0
+setp J0_pid.Pgain 0
+setp J0_pid.Dgain 0
+setp J0_pid.Igain 0
+setp J0_pid.FF1 0
+setp J0_pid.FF2 0
+setp J1_pid.FF0 1.0
+setp J1_pid.Pgain 0
+setp J1_pid.Dgain 0
+setp J1_pid.Igain 0
+setp J1_pid.FF1 0
+setp J1_pid.FF2 0
+setp J2_pid.FF0 1.0
+setp J2_pid.Pgain 0
+setp J2_pid.Dgain 0
+setp J2_pid.Igain 0
+setp J2_pid.FF1 0
+setp J2_pid.FF2 0
+setp J3_pid.FF0 1.0
+setp J3_pid.Pgain 0
+setp J3_pid.Dgain 0
+setp J3_pid.Igain 0
+setp J3_pid.FF1 0
+setp J3_pid.FF2 0
+setp sim_spindle.scale 0.01666667
+setp limit_speed.maxv 5000.0
+setp spindle_mass.gain .07
+setp near_speed.scale 1.1
+setp near_speed.difference 10
+
+#Toolchange passthrough
+net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed
+net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared

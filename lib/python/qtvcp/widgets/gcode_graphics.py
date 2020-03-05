@@ -96,6 +96,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'rotate-down':
             self.recordMouse(0,0)
             self.rotateOrTranslate(0,-self._view_incr)
+        elif v == 'overlay-offsets-on':
+            self.setShowOffsets(True)
+        elif v == 'overlay-offsets-off':
+            self.setShowOffsets(False)
         else:
             self.set_view(v)
 
@@ -171,6 +175,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     # VIEW
     def setview(self, view):
+        self.current_view = view
         self.set_view(view)
     def getview(self):
         return self.current_view
@@ -212,12 +217,21 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.show_overlay(False)
     overlay = pyqtProperty(bool, getoverlay, setoverlay, resetoverlay)
 
+    # show Offsets
+    def setShowOffsets(self, state):
+        self.show_offsets = state
+        self.updateGL()
+    def getShowOffsets(self):
+        return self.show_offsets
+    _offsets = pyqtProperty(bool, getShowOffsets, setShowOffsets)
+
     def getColor(self):
         return self._color
     def setColor(self, value):
         self._color = value
         #print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
+        self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
     def resetState(self):
         self._color = QColor(0, 0, .75, 150)

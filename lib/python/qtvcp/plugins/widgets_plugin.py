@@ -5,6 +5,7 @@ from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.widgets.mdi_history import MDIHistory
+from qtvcp.widgets.mdi_touchy import MDITouchy
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
 from qtvcp.widgets.status_stacked import StatusStacked
 from qtvcp.widgets.widget_switcher import WidgetSwitcher
@@ -110,6 +111,38 @@ class MDIHistoryPlugin(QPyDesignerCustomWidgetPlugin):
         return '<widget class="MDIHistory" name="mdihistory" />\n'
     def includeFile(self):
         return "qtvcp.widgets.mdi_history"
+
+####################################
+# MDI Touchy widget
+####################################
+class MDITouchyPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(MDITouchyPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return MDITouchy(parent)
+    def name(self):
+        return "MDITouchy"
+    def group(self):
+        return "Linuxcnc - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('MDITouchy')))
+    def toolTip(self):
+        return "MDI Touchy Widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="MDITouchy" name="mditouchy" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.mdi_touchy"
 
 ####################################
 # Gcode editor

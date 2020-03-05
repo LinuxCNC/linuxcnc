@@ -1,5 +1,6 @@
-# do not change the contents of this file as it will be overwiten by updates
-# make custom changes in {machinename}_connections.hal
+# This file has been replaced by placmac.tcl
+# it is only required by old configs so LinuxCNC can load 
+# before it switches over to the new file.
 
 #***** PLASMAC COMPONENT *****
 loadrt  plasmac
@@ -10,6 +11,7 @@ net plasmac:axis-x-position      axis.x.pos-cmd                  =>  plasmac.axi
 net plasmac:axis-y-position      axis.y.pos-cmd                  =>  plasmac.axis-y-position
 net plasmac:breakaway-switch-out debounce.0.1.out                =>  plasmac.breakaway
 net plasmac:current-velocity     motion.current-vel              =>  plasmac.current-velocity
+net plasmac:cutting-start        spindle.0.on                    =>  plasmac.cutting-start
 net plasmac:feed-override        halui.feed-override.value       =>  plasmac.feed-override
 net plasmac:feed-reduction       motion.analog-out-03            =>  plasmac.feed-reduction
 net plasmac:float-switch-out     debounce.0.0.out                =>  plasmac.float-switch
@@ -18,9 +20,11 @@ net plasmac:ohmic-probe-out      debounce.0.2.out                =>  plasmac.ohm
 net plasmac:program-is-idle      halui.program.is-idle           =>  plasmac.program-is-idle
 net plasmac:program-is-paused    halui.program.is-paused         =>  plasmac.program-is-paused
 net plasmac:program-is-running   halui.program.is-running        =>  plasmac.program-is-running
-net plasmac:spindle-is-on        spindle.0.on                    =>  plasmac.spindle-on
-net plasmac:thc_disable          motion.digital-out-02           =>  plasmac.thc-disable
+net plasmac:thc-disable          motion.digital-out-02           =>  plasmac.thc-disable
+net plasmac:torch-off            motion.digital-out-03           =>  plasmac.torch-off
 net plasmac:units-per-mm         halui.machine.units-per-mm      =>  plasmac.units-per-mm
+net plasmac:x-offset-counts      plasmac.x-offset-counts         =>  axis.x.eoffset-counts
+net plasmac:y-offset-counts      plasmac.y-offset-counts         =>  axis.y.eoffset-counts
 
 # outputs
 net plasmac:adaptive-feed        plasmac.adaptive-feed           =>  motion.adaptive-feed

@@ -415,8 +415,8 @@ fail0:
 
 void hm2_tp_pwmgen_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("3-phase PWMGen: %d\n", hm2->tp_pwmgen.num_instances);
     if (hm2->tp_pwmgen.num_instances <= 0) return;
+    HM2_PRINT("3-phase PWMGen: %d\n", hm2->tp_pwmgen.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->tp_pwmgen.clock_frequency, hm2_hz_to_mhz(hm2->tp_pwmgen.clock_frequency));
     HM2_PRINT("    version: %d\n", hm2->tp_pwmgen.version);
     HM2_PRINT("    pwmgen_master_rate_dds: 0x%08X (%d)\n", hm2->tp_pwmgen.pwmgen_master_rate_dds_reg, hm2->tp_pwmgen.pwmgen_master_rate_dds_reg);

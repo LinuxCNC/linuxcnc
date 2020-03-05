@@ -3,13 +3,13 @@
   <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.18"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkAdjustment" id="cornerlock-threshold-adj"/>
   <object class="GtkAdjustment" id="cut-amps-adj"/>
   <object class="GtkAdjustment" id="cut-feed-rate-adj"/>
   <object class="GtkAdjustment" id="cut-height-adj"/>
+  <object class="GtkAdjustment" id="cut-mode-adj"/>
   <object class="GtkAdjustment" id="cut-volts-adj"/>
+  <object class="GtkAdjustment" id="gas-pressure-adj"/>
   <object class="GtkAdjustment" id="kerf-width-adj"/>
-  <object class="GtkAdjustment" id="kerfcross-override-adj"/>
   <object class="GtkListStore" id="materials">
     <columns>
       <!-- column-name numName -->
@@ -21,13 +21,14 @@
       </row>
     </data>
   </object>
-  <object class="GtkAdjustment" id="pid-p-gain-adj"/>
+  <object class="GtkAdjustment" id="pause-at-end-adj"/>
   <object class="GtkAdjustment" id="pierce-delay-adj"/>
   <object class="GtkAdjustment" id="pierce-height-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-delay-adj"/>
   <object class="GtkAdjustment" id="puddle-jump-height-adj"/>
-  <object class="GtkAdjustment" id="thc-delay-adj"/>
-  <object class="GtkAdjustment" id="thc-threshold-adj"/>
+  <object class="GtkAdjustment" id="tool-name-adj"/>
+  <object class="GtkAdjustment" id="x-single-cut-adj"/>
+  <object class="GtkAdjustment" id="y-single-cut-adj"/>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
@@ -50,74 +51,10 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkFrame" id="frameC4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label_xalign">0.5</property>
-                    <property name="shadow_type">out</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignmentC1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <child>
-                          <object class="GtkTable" id="table4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="n_columns">2</property>
-                            <property name="column_spacing">2</property>
-                            <property name="row_spacing">2</property>
-                            <property name="homogeneous">True</property>
-                            <child>
-                              <object class="HAL_Button" id="reload">
-                                <property name="label" translatable="yes">Reload</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">reload run settings from config file</property>
-                                <signal name="clicked" handler="on_reload_clicked" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="HAL_Button" id="save">
-                                <property name="label" translatable="yes">Save</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">save run settings to config file.
-Note: this also saves current cut parameters as the default</property>
-                                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="labelC2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Run Settings&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkFrame" id="frameR2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label_xalign">0.5</property>
+                    <property name="label_xalign">0</property>
                     <property name="shadow_type">out</property>
                     <child>
                       <object class="GtkAlignment" id="alignmentR20">
@@ -127,7 +64,7 @@ Note: this also saves current cut parameters as the default</property>
                           <object class="GtkTable" id="table3">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">11</property>
+                            <property name="n_rows">14</property>
                             <property name="n_columns">2</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
@@ -155,14 +92,13 @@ indicator only, not used.</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="labelR200120">
-                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -209,14 +145,13 @@ only used if not using auto volts</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="cut-volts-label">
-                                    <property name="width_request">130</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
@@ -259,11 +194,11 @@ only used if not using auto volts</property>
                               <packing>
                                 <property name="top_attach">3</property>
                                 <property name="bottom_attach">4</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200000">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -281,7 +216,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200010">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -299,7 +233,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200100">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -317,7 +250,6 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200130">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -336,7 +268,6 @@ setting this to 0 will use feed rate from program</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR1">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump height as a percentage of pierce height
@@ -355,7 +286,6 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR200020">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump delay in seconds
@@ -392,6 +322,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">4</property>
                                 <property name="bottom_attach">5</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -414,6 +345,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">5</property>
                                 <property name="bottom_attach">6</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -437,6 +369,7 @@ set this to 0 to use feed rate from gcode</property>
                               <packing>
                                 <property name="top_attach">6</property>
                                 <property name="bottom_attach">7</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -460,6 +393,7 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">9</property>
                                 <property name="bottom_attach">10</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
@@ -483,11 +417,11 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">10</property>
                                 <property name="bottom_attach">11</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelR5">
-                                <property name="width_request">130</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -523,11 +457,11 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="thc-enable-label">
-                                <property name="width_request">128</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -545,11 +479,11 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="GtkHBox" id="hbox2">
+                                <property name="width_request">75</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkLabel" id="labelR300000">
-                                    <property name="width_request">55</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                   </object>
@@ -572,7 +506,7 @@ set to 0 to disable</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
+                                    <property name="fill">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -580,11 +514,12 @@ set to 0 to disable</property>
                               <packing>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkComboBox" id="material">
-                                <property name="width_request">205</property>
+                                <property name="width_request">180</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="tooltip_text" translatable="yes">material number and material name
@@ -602,6 +537,129 @@ set to 0 to disable</property>
                                 <property name="right_attach">2</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="pause-at-end">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">pause-at-end-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="gas-pressure">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">Powermax gas pressure</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">gas-pressure-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">12</property>
+                                <property name="bottom_attach">13</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="cut-mode">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">Powermax cut mode
+1 = normal
+2 = CPA
+3 = gouge</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">cut-mode-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">13</property>
+                                <property name="bottom_attach">14</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelC100030">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">pause at end of cut delay in seconds</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Pause At End</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">11</property>
+                                <property name="bottom_attach">12</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="cut-mode-label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">Powermax cut mode
+1 = normal
+2 = CPA
+3 = gouge</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Cut Mode</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">13</property>
+                                <property name="bottom_attach">14</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="gas-pressure-label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">Powermax gas pressure</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Gas Pressure (psi)</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">12</property>
+                                <property name="bottom_attach">13</property>
+                              </packing>
+                            </child>
                           </object>
                         </child>
                       </object>
@@ -616,16 +674,16 @@ set to 0 to disable</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkFrame" id="frameR3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label_xalign">0.5</property>
+                    <property name="label_xalign">0</property>
                     <property name="shadow_type">out</property>
                     <child>
                       <object class="GtkAlignment" id="alignmentR30">
@@ -635,176 +693,10 @@ set to 0 to disable</property>
                           <object class="GtkTable" id="table2">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">5</property>
+                            <property name="n_rows">2</property>
                             <property name="n_columns">3</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
-                            <child>
-                              <object class="GtkHBox" id="auto-box">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkLabel" id="labelR300100">
-                                    <property name="width_request">55</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="HAL_CheckButton" id="use-auto-volts">
-                                    <property name="width_request">20</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">use automatic cut voltage calculation
-turn off to use cut volts from parameters</property>
-                                    <property name="xalign">0</property>
-                                    <property name="active">True</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="use-auto-volts-label">
-                                    <property name="width_request">128</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">use automatic cut voltage calculation
-turn off to use cut volts from parameters</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Use Auto Volts</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHBox" id="threshold-box">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="HAL_SpinButton" id="thc-threshold">
-                                    <property name="width_request">75</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">minimum voltage change required to allow THC to activate</property>
-                                    <property name="max_length">5</property>
-                                    <property name="invisible_char">●</property>
-                                    <property name="xalign">1</property>
-                                    <property name="invisible_char_set">True</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
-                                    <property name="adjustment">thc-threshold-adj</property>
-                                    <property name="wrap">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="thc-threshold-label">
-                                    <property name="width_request">128</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">minimum voltage change required to allow THC to activate</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Threshold (V)</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">3</property>
-                                <property name="bottom_attach">4</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHBox" id="pid-p-box">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="HAL_SpinButton" id="pid-p-gain">
-                                    <property name="width_request">75</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">THC reaction speed
-for modes 1&amp;2 this is the P gain for THC PID calculations
-for mode 3 this is the percentage of max velocity used for THC</property>
-                                    <property name="invisible_char">●</property>
-                                    <property name="xalign">1</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
-                                    <property name="adjustment">pid-p-gain-adj</property>
-                                    <property name="wrap">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="pid-p-label">
-                                    <property name="width_request">128</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">THC reaction speed
-for modes 1&amp;2 this is the P gain for THC PID calculations
-for mode 3 this is the percentage of max velocity used for THC</property>
-                                    <property name="xalign">0</property>
-                                    <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Speed</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
-                              </packing>
-                            </child>
                             <child>
                               <object class="GtkHBox" id="hbox3">
                                 <property name="visible">True</property>
@@ -819,7 +711,6 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                     <property name="tooltip_text" translatable="yes">THC is disabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
-                                    <signal name="toggled" handler="on_thc_off_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -836,7 +727,6 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled/disabled from the cut parameters</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_thc_auto_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -853,7 +743,6 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
-                                    <signal name="toggled" handler="on_thc_on_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -867,55 +756,117 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="delay-box">
+                              <object class="GtkTable" id="table1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="n_rows">3</property>
+                                <property name="n_columns">3</property>
                                 <child>
-                                  <object class="HAL_SpinButton" id="thc-delay">
-                                    <property name="width_request">75</property>
+                                  <object class="HAL_CheckButton" id="use-auto-volts">
+                                    <property name="width_request">20</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">delay from start of cut until THC is active in seconds</property>
-                                    <property name="max_length">5</property>
-                                    <property name="invisible_char">●</property>
-                                    <property name="xalign">1</property>
-                                    <property name="invisible_char_set">True</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
-                                    <property name="adjustment">thc-delay-adj</property>
-                                    <property name="wrap">True</property>
+                                    <property name="tooltip_text" translatable="yes">use automatic cut voltage calculation
+turn off to use cut volts from parameters</property>
+                                    <property name="xalign">0</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
+                                    <property name="x_options"/>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="thc-delay-label">
-                                    <property name="width_request">128</property>
+                                  <object class="GtkLabel" id="use-auto-volts-label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
-                                    <property name="tooltip_text" translatable="yes">delay from start of cut until THC is active in seconds</property>
+                                    <property name="tooltip_text" translatable="yes">use automatic cut voltage calculation
+turn off to use cut volts from parameters</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">Delay</property>
+                                    <property name="label" translatable="yes">Use Auto Volts</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_CheckButton" id="cornerlock-enable">
+                                    <property name="width_request">20</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">enable/disable corner lock mode</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options"/>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label4375">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">enable/disable corner lock mode</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xpad">2</property>
+                                    <property name="label" translatable="yes">Velocity Anti Dive Enable</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="HAL_CheckButton" id="kerfcross-enable">
+                                    <property name="width_request">20</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
+                                    <property name="active">True</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options"/>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="kerfcross-enable-label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xpad">2</property>
+                                    <property name="label" translatable="yes">Void Sense Enable</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="right_attach">3</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
                               </packing>
                             </child>
                           </object>
@@ -932,258 +883,56 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frameR5">
+                  <object class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label_xalign">0.5</property>
+                    <property name="label_xalign">0</property>
                     <property name="shadow_type">out</property>
                     <child>
-                      <object class="GtkAlignment" id="alignmentR50">
+                      <object class="GtkAlignment" id="alignment2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkTable" id="table1">
+                          <object class="GtkTable" id="box1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">2</property>
+                            <property name="n_columns">3</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <child>
-                              <object class="GtkFrame" id="frameR5000">
+                              <object class="GtkLabel" id="labelR3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label_xalign">0.05000000074505806</property>
-                                <property name="shadow_type">out</property>
-                                <child>
-                                  <object class="GtkAlignment" id="alignmentR50000">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
-                                    <child>
-                                      <object class="GtkTable" id="corner-box">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="n_rows">2</property>
-                                        <property name="n_columns">3</property>
-                                        <property name="column_spacing">2</property>
-                                        <property name="row_spacing">2</property>
-                                        <child>
-                                          <object class="HAL_CheckButton" id="cornerlock-enable">
-                                            <property name="width_request">20</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">enable/disable corner lock mode</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR50000001">
-                                            <property name="width_request">128</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">enable/disable corner lock mode</property>
-                                            <property name="xalign">0</property>
-                                            <property name="xpad">2</property>
-                                            <property name="label" translatable="yes">Enabled</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="right_attach">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR50000010">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">THC is locked if actual speed drops below this percentage of requested speed</property>
-                                            <property name="xalign">0</property>
-                                            <property name="xpad">2</property>
-                                            <property name="label" translatable="yes">Threshold (%) </property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="right_attach">3</property>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR50000000">
-                                            <property name="width_request">55</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="HAL_SpinButton" id="cornerlock-threshold">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">THC is locked if actual speed drops below this percentage of requested speed</property>
-                                            <property name="max_length">5</property>
-                                            <property name="invisible_char">●</property>
-                                            <property name="xalign">1</property>
-                                            <property name="invisible_char_set">True</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
-                                            <property name="adjustment">cornerlock-threshold-adj</property>
-                                            <property name="wrap">True</property>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="label7">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Corner Lock&lt;/b&gt;</property>
-                                    <property name="use_markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkFrame" id="kerf-frame">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="label_xalign">0.05000000074505806</property>
-                                <property name="shadow_type">out</property>
-                                <child>
-                                  <object class="GtkAlignment" id="alignmentR50010">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="xalign">1</property>
-                                    <child>
-                                      <object class="GtkTable" id="kerf-box">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="n_rows">2</property>
-                                        <property name="n_columns">3</property>
-                                        <property name="column_spacing">2</property>
-                                        <property name="row_spacing">2</property>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR5001000">
-                                            <property name="width_request">55</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR5001001">
-                                            <property name="width_request">128</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
-                                            <property name="xalign">0</property>
-                                            <property name="xpad">2</property>
-                                            <property name="label" translatable="yes">Enabled</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="right_attach">3</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkLabel" id="labelR5001010">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">percentage of calculated kerfcross threshold to apply</property>
-                                            <property name="xalign">0</property>
-                                            <property name="xpad">2</property>
-                                            <property name="label" translatable="yes">Override (%)</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">2</property>
-                                            <property name="right_attach">3</property>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="HAL_CheckButton" id="kerfcross-enable">
-                                            <property name="width_request">20</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">enable/disable kerf crossing mode</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="x_options">GTK_FILL</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="HAL_SpinButton" id="kerfcross-override">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="has_tooltip">True</property>
-                                            <property name="tooltip_text" translatable="yes">percentage of calculated kerfcross threshold to apply</property>
-                                            <property name="max_length">5</property>
-                                            <property name="invisible_char">●</property>
-                                            <property name="xalign">1</property>
-                                            <property name="invisible_char_set">True</property>
-                                            <property name="primary_icon_activatable">False</property>
-                                            <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
-                                            <property name="adjustment">kerfcross-override-adj</property>
-                                            <property name="wrap">True</property>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">1</property>
-                                            <property name="bottom_attach">2</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="kerf-label">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="has_tooltip">True</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Kerf Crossing&lt;/b&gt;</property>
-                                    <property name="use_markup">True</property>
-                                  </object>
-                                </child>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable ohmic probing</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Ohmic Probe Enable</property>
                               </object>
                               <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_CheckButton" id="ohmic-probe-enable">
+                                <property name="width_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable ohmic probing</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options"/>
                               </packing>
                             </child>
                           </object>
@@ -1191,29 +940,334 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                       </object>
                     </child>
                     <child type="label">
-                      <object class="GtkLabel" id="labelR51">
+                      <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Locks&lt;/b&gt;</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Ohmic Probe&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
                       </object>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frame2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkTable" id="box2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="n_rows">2</property>
+                            <property name="n_columns">3</property>
+                            <property name="column_spacing">2</property>
+                            <property name="row_spacing">2</property>
+                            <child>
+                              <object class="GtkLabel" id="labelR2">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">length of X axis travel for a single cut</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">X Axis Length</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelR4">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Y Axis Length</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="y-single-cut">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
+                                <property name="max_length">5</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">y-single-cut-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="single-cut">
+                                <property name="label" translatable="yes">Start
+ Cut</property>
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="tooltip_text" translatable="yes">press to commence a single cut</property>
+                                <signal name="pressed" handler="on_single_cut_pressed" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_SpinButton" id="x-single-cut">
+                                <property name="width_request">75</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">length of X axis travel for a single cut</property>
+                                <property name="max_length">5</property>
+                                <property name="invisible_char">●</property>
+                                <property name="xalign">1</property>
+                                <property name="primary_icon_activatable">False</property>
+                                <property name="secondary_icon_activatable">False</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                                <property name="adjustment">x-single-cut-adj</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Single Cut&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
                     <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label1">
+                  <object class="GtkFrame" id="powermax-frame">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignment4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkTable" id="box3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="n_columns">3</property>
+                            <property name="column_spacing">2</property>
+                            <property name="row_spacing">2</property>
+                            <child>
+                              <object class="GtkLabel" id="label">
+                                <property name="width_request">60</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable powermax communications</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">2</property>
+                                <property name="label" translatable="yes">Enable</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_CheckButton" id="powermax-enable">
+                                <property name="width_request">20</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">enable/disable powermax communications</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options"/>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="powermax-label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="tooltip_text" translatable="yes">status of powermax communications</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Powermax Comms&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkFrame" id="frameC4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">out</property>
+                    <child>
+                      <object class="GtkAlignment" id="alignmentC1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkTable" id="table4">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="n_columns">4</property>
+                            <property name="column_spacing">2</property>
+                            <property name="row_spacing">2</property>
+                            <property name="homogeneous">True</property>
+                            <child>
+                              <object class="HAL_Button" id="reload">
+                                <property name="label" translatable="yes">Reload</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">reload run settings from config file</property>
+                                <signal name="clicked" handler="on_reload_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="save">
+                                <property name="label" translatable="yes">Save</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">save run settings to config file.
+Note: this also saves current cut parameters as the default</property>
+                                <signal name="clicked" handler="on_save_clicked" swapped="no"/>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="new">
+                                <property name="label" translatable="yes">New</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">create a new material</property>
+                                <signal name="clicked" handler="on_new_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_Button" id="delete">
+                                <property name="label" translatable="yes">Delete</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">delete an existing material</property>
+                                <signal name="clicked" handler="on_delete_clicked" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="labelC2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Run Settings&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
               </object>
@@ -1228,6 +1282,4 @@ for mode 3 this is the percentage of max velocity used for THC</property>
       </object>
     </child>
   </object>
-  <object class="GtkAdjustment" id="tool-name-adj"/>
-  <object class="GtkAdjustment" id="torch-off-delay-adj"/>
 </interface>

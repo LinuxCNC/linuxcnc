@@ -38,11 +38,11 @@ menu .menu.file \
 menu .menu.file.recent \
 	-tearoff 0
 menu .menu.machine \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.home \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.unhome \
-	-tearoff 0
+	-tearoff 1
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -877,7 +877,7 @@ for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
 # grid for Joint select radiobuttons
 set jno 0
 set rows [expr $::MAX_JOINTS / 3]
-for {set row 0} {$row < 3} {incr row} {
+for {set row 0} {$row < [expr 1 + $rows]} {incr row} {
   for {set col 0} {$col < 3} {incr col} {
     grid $_tabs_manual.joints.joint$jno \
          -column $col -row $row -padx 4

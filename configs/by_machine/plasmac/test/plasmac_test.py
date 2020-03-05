@@ -24,8 +24,9 @@ import subprocess as sp
 import gtk
 from gtk import gdk
 import linuxcnc
-import hal
+import hal, hal_glib
 import gladevcp.makepins
+import time
 
 class linuxCNC(object):
     def __init__(self):
@@ -101,6 +102,13 @@ class plasmacTest:
     def ignore(*args):
         return gtk.TRUE
 
+    def torch_changed(self, halpin):
+        if not halpin.get():
+            self.B.get_object('arcVoltage').set_sensitive(0)
+            self.B.get_object('arcVoltage').set_value(99.9)
+            time.sleep(.1)
+            self.B.get_object('arcVoltage').set_sensitive(1)
+
     def __init__(self):
         self.lcnc = linuxCNC()
         gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.iniFile.find('PLASMAC', 'THEME'))
@@ -111,7 +119,10 @@ class plasmacTest:
         self.W=self.B.get_object("window1")
         self.halcomp = hal.component('plasmactest')
         self.panel = gladevcp.makepins.GladePanel(self.halcomp, self.gui, self.B, None)
+        self.torch = hal_glib.GPin(self.halcomp.newpin('torch-on', hal.HAL_BIT, hal.HAL_IN))
         self.halcomp.ready()
+        sp.Popen(['halcmd net plasmac:torch-on plasmactest.torch-on'], shell=True)
+        self.torch.connect('value-changed', self.torch_changed)
         if not hal.pin_has_writer('plasmac.arc-ok-in'):
             sp.Popen(['halcmd net p_test:arc-ok-in plasmactest.arcOk plasmac.arc-ok-in'], shell=True)
         if not hal.pin_has_writer('plasmac.arc-voltage-in'):

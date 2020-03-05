@@ -1,8 +1,8 @@
 # This is a handler file for using Gscreen's infrastructure
 # to load a completely custom glade screen.
-# The only things that really matters is that it's saved as a GTK builder project,
-# the toplevel window is caller window1 (The default name) and you connect a destroy
-# window signal else you can't close down linuxcnc 
+# The only thing that really matters is that it's saved as a GTK builder project,
+# the toplevel window is called window1 (The default name) and you connect a destroy
+# window signal otherwise you can't close down linuxcnc 
 
 import hal
 import hal_glib
@@ -62,28 +62,36 @@ class HandlerClass:
             self.start_system = "G54"
             self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
             self.units = ["", "IN", "MM", "CM"]
-            self.must_be_manual = "Must be in MANUAL mode"
-            self.must_be_mdi = "Must be in MDI mode"
             self.must_be_auto = "Must be in AUTO mode"
             self.program_length = 0
             self.program_progress = 0.0
-            self.start_line = 0
-            self.current_line = 0
+            self.current_line = 1
             self.distance = 0
             self.jog_increments = []
             self.tool_diameter = 0.0
             self.load_tool = False
             self.tool_change = False
+            self.use_auto_zref = False
+            self.tool_sensor = False
+            self.tool_sensor_x = 0.0
+            self.tool_sensor_y = 0.0
+            self.tool_sensor_z = 0.0
+            self.laser_x = 0.0
+            self.laser_y = 0.0
+            self.home_x = 0.0
+            self.home_y = 0.0
+            self.home_z = 0.0
             self.axis_to_ref = []
             self.xpos = 0
             self.ypos = 0
             self.width = 0
             self.height = 0
+            self.file_to_load = ""
+            gobject.timeout_add(1000, self.clock)
             self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
             self.label_home_x = self.widgets.btn_home_x.get_children()[0]
             self.label_home_y = self.widgets.btn_home_y.get_children()[0]
             self.label_home_z = self.widgets.btn_home_z.get_children()[0]
-            self.init_jog_increments()
             self.init_file_to_load()
 
     def __getitem__(self, item):
@@ -102,18 +110,28 @@ class HandlerClass:
                         ["btn_status", "clicked", "on_status"],
                         ["btn_calibration", "clicked", "on_calibration"],
                         ["desktop_notify", "toggled", "on_desktop_notify_toggled"],
-                        ["theme_choice", "changed", "on_theme_choice_changed"]]
+                        ["theme_choice", "changed", "on_theme_choice_changed"],
+                        ["btn_pop_statusbar", "clicked", "on_pop_statusbar_clicked"]]
         for i in signal_list:
             if len(i) == 3:
                 self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]])
             elif len(i) == 4:
                 self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
+        for i in('x','y','z'):
+            self.widgets[i+'neg'].connect("pressed", self['jog_'+i],0,True)
+            self.widgets[i+'neg'].connect("released", self['jog_'+i],0,False)
+            self.widgets[i+'pos'].connect("pressed", self['jog_'+i],1,True)
+            self.widgets[i+'pos'].connect("released", self['jog_'+i],1,False)
+        self.widgets.jog_speed.connect("value_changed",self.jog_speed_changed)
         self.widgets.full_window.connect("pressed", self.on_fullscreen_pressed)
         self.widgets.max_window.connect("pressed", self.on_max_window_pressed)
         self.widgets.default_window.connect("pressed", self.on_default_window_pressed)
 
     # We don't want Gscreen to initialize it's regular widgets because this custom
     # screen doesn't have most of them. So we add this function call.
+    # Since this custom screen uses gladeVCP magic for its interaction with linuxcnc
+    # We don't add much to this function, but we do want the window to display.
+    # init_show_window will do this
     def initialize_widgets(self):
         self.gscreen.init_show_windows()
         self.gscreen.init_gremlin()
@@ -122,6 +140,8 @@ class HandlerClass:
         self.gscreen.init_statusbar()
         self.gscreen.init_tooleditor()
         self.gscreen.init_themes()
+        self.init_home()
+        self.init_jog_increments()
         self.init_tool_measurement()
         self.init_button_colors()
         self.init_offsetpage()
@@ -189,9 +209,9 @@ class HandlerClass:
         self.data.rapid_override_max = self.gscreen.inifile.find("DISPLAY", "MAX_RAPID_OVERRIDE")
         self.data.dro_actual = self.gscreen.inifile.find("DISPLAY", "POSITION_FEEDBACK")
         # set the slider limits
-        self.widgets.spc_jog_vel.set_range(100, float(self.jog_rate_max) * 60)
-        self.widgets.spc_jog_vel.set_value(default_jog_vel * 60)
-        self.widgets.spc_jog_vel.set_digits(0)
+        self.widgets.jog_speed.set_range(100, float(self.jog_rate_max) * 60)
+        self.widgets.jog_speed.set_value(default_jog_vel * 60)
+        self.widgets.jog_speed.set_digits(0)
         self.widgets.spc_spindle.set_range(float(self.data.spindle_override_min) * 100, float(self.data.spindle_override_max) * 100)
         self.widgets.spc_spindle.set_value(100)
         self.widgets.spc_rapid.set_range(1, float(self.data.rapid_override_max) * 100)
@@ -204,7 +224,13 @@ class HandlerClass:
         self.widgets.window1.connect("key_press_event", self.gscreen.on_key_event, 1)
         self.widgets.window1.connect("key_release_event", self.gscreen.on_key_event, 0)
 
+    def init_home(self):
+        self.home_x = self.gscreen.inifile.find("JOINT_0", "HOME")
+        self.home_y = self.gscreen.inifile.find("JOINT_1", "HOME")
+        self.home_z = self.gscreen.inifile.find("JOINT_2", "HOME")
+
     def init_tool_measurement(self):
+        # set up auto zref
         xpos = self.gscreen.inifile.find("TOOLSENSOR", "X")
         ypos = self.gscreen.inifile.find("TOOLSENSOR", "Y")
         zpos = self.gscreen.inifile.find("TOOLSENSOR", "Z")
@@ -219,10 +245,14 @@ class HandlerClass:
         if not xpos or not ypos or not zpos or not maxprobe:
             self.widgets.chk_use_auto_zref.set_active(False)
             self.widgets.chk_use_auto_zref.set_sensitive(False)
-            print(_("Auto Z Reference - Disabled"))
+            self.widgets.btn_g30.set_sensitive(False)
+            self.widgets.btn_blockheight.set_sensitive(False)
+            self.widgets.lbl_blockheight.hide()
+            self.widgets.chk_use_auto_zref.set_sensitive(False)
+            print(_("No valid tool sensor location"))
+            print(_("Block Height - Disabled"))
         else:
             self.widgets.lbl_tool_measurement.hide()
-            self.widgets.chk_use_auto_zref.set_active(self.gscreen.prefs.getpref("use_autozref", False, bool))
             self.widgets.lbl_xpos.set_label(str(xpos))
             self.widgets.lbl_ypos.set_label(str(ypos))
             self.widgets.lbl_zpos.set_label(str(zpos))
@@ -230,9 +260,23 @@ class HandlerClass:
             self.widgets.lbl_sensor_height.set_label(str(sensor_height))
             self.widgets.lbl_search_vel.set_label(str(search_vel))
             self.widgets.lbl_probe_vel.set_label(str(probe_vel))
-            print(_("Auto Z Reference - Enabled"))
+            self.use_auto_zref = self.gscreen.prefs.getpref("use_autozref", False, bool)
+            self.tool_sensor = True
+            self.tool_sensor_x = xpos
+            self.tool_sensor_y = ypos
+            self.tool_sensor_z = zpos
+            print(_("Block Height - Enabled"))
         self.widgets.chk_use_auto_zref.emit("toggled")
-
+        # set up laser crosshair offsets
+        xpos = self.gscreen.inifile.find("LASER", "X")
+        ypos = self.gscreen.inifile.find("LASER", "Y")
+        if not xpos or not ypos:
+            self.widgets.btn_laser_zero.set_sensitive(False)
+            self.widgets.tbtn_laser.set_sensitive(False)
+        else:
+            self.laser_x = xpos
+            self.laser_y = ypos
+            
     def init_button_colors(self):
         # set the button background colors and digits of the DRO
         self.homed_textcolor = self.gscreen.prefs.getpref("homed_textcolor", "#00FF00", str)     # default green
@@ -249,7 +293,8 @@ class HandlerClass:
         self.label_home_y.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
         self.label_home_z.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
         # set the active colours of togglebuttons and radiobuttons
-        blue_list = ["tbtn_mist", "tbtn_flood", "tbtn_units", "tbtn_pause",
+        blue_list = ["tbtn_mist", "tbtn_flood", "tbtn_laser", "tbtn_spare",
+                     "tbtn_units", "tbtn_pause",
                      "tbtn_optional_stops", "tbtn_optional_blocks",
                      "rbt_abs", "rbt_rel", "rbt_dtg",
                      "rbt_reverse", "rbt_stop", "rbt_forward"]
@@ -275,20 +320,23 @@ class HandlerClass:
     def init_sensitive_all_homed(self):
         self.data.sensitive_all_homed = ["btn_zero_x", "btn_zero_y", "btn_zero_z",
                                          "btn_ref_x", "btn_ref_y", "btn_ref_z"]
-        
-    # If we need extra HAL pins here is where we do it.
+
     def initialize_pins(self):
-        # make the pins for tool measurement
+        # pins for block height
         self.halcomp.newpin("sensor_height", hal.HAL_FLOAT, hal.HAL_OUT)
         pin = self.halcomp.newpin("block_height", hal.HAL_FLOAT, hal.HAL_OUT)
-        hal_glib.GPin(pin).connect("value_changed", self.on_blockheight_value_changed)
-        preset = self.gscreen.prefs.getpref("blockheight", 0.0, float)
-        self.halcomp["block_height"] = preset
-        self.halcomp.newpin("use_autozref", hal.HAL_BIT, hal.HAL_OUT)
+        hal_glib.GPin(pin).connect("value_changed", self.on_blockheight_changed)
+        self.halcomp["block_height"] = self.gscreen.prefs.getpref("blockheight", 0.0, float)
+        # pins for probing
         self.halcomp.newpin("search_vel", hal.HAL_FLOAT, hal.HAL_OUT)
         self.halcomp.newpin("probe_vel", hal.HAL_FLOAT, hal.HAL_OUT)
         self.halcomp.newpin("maxprobe", hal.HAL_FLOAT, hal.HAL_OUT)
-
+        # pins for clear_mdi button
+        self.halcomp.newpin("clear_mdi", hal.HAL_BIT, hal.HAL_OUT)
+        pin = self.halcomp.newpin("clear_mdi-waiting", hal.HAL_BIT, hal.HAL_OUT)
+        pin = self.halcomp.newpin("clear_mdi-response", hal.HAL_BIT, hal.HAL_OUT)
+        hal_glib.GPin(pin).connect("value_changed", self.on_clear_mdi_changed)
+        
     # every 100 milli seconds this gets called
     # add pass so gscreen doesn't try to update it's regular widgets or
     # add the individual function names that you would like to call.
@@ -306,16 +354,20 @@ class HandlerClass:
             self.gscreen.update_active_gcodes()
         if self.data.active_mcodes != self.stat.mcodes:
             self.gscreen.update_active_mcodes()
+        if self.stat.task_mode == linuxcnc.MODE_MANUAL \
+            and self.stat.interp_state == linuxcnc.INTERP_IDLE \
+            and self.widgets.ntb_main.get_current_page() == _NB_PREVIEW:
+            self.widgets.hal_led_jog.set_active(True)
+        else:
+            self.widgets.hal_led_jog.set_active(False)
         self._update_vel()
         self._update_coolant()
         self._update_spindle()
         self._update_vc()
-        self.clock()
         return True
 
     def clock(self):
         self.update_progress()
-        self.update_status()
         self.update_dro()
         self.widgets.rbt_rel.set_label(self.system_list[self.stat.g5x_index])
         self.widgets.entry_clock.set_text(strftime("%H:%M:%S"))
@@ -333,11 +385,8 @@ class HandlerClass:
             self.widgets.tbtn_estop.set_active(False)
             self.widgets.tbtn_on.set_sensitive(True)
 
-        file = self.gscreen.prefs.getpref("open_file", "", str)
-        if file:
-            self.widgets.file_to_load_chooser.set_filename(file)
-            self.widgets.hal_action_open.load_file(file)
-
+        if self.file_to_load != "":
+            self.widgets.hal_action_open.load_file(self.file_to_load)
         start_as = self.gscreen.prefs.getpref("window_geometry", "default", str)
         if start_as == "fullscreen":
             self.widgets.window1.fullscreen()
@@ -370,43 +419,6 @@ class HandlerClass:
         self.widgets.window1.destroy()
         return
 
-    def on_tbtn_estop_toggled(self, widget, data=None):
-        if widget.get_active():  # estop is active, open circuit
-            self.command.state(linuxcnc.STATE_ESTOP)
-            self.command.wait_complete()
-            self.stat.poll()
-            if self.stat.task_state == linuxcnc.STATE_ESTOP_RESET:
-                widget.set_active(False)
-        else:  # estop circuit is fine
-            self.command.state(linuxcnc.STATE_ESTOP_RESET)
-            self.command.wait_complete()
-            self.stat.poll()
-            if self.stat.task_state == linuxcnc.STATE_ESTOP:
-                widget.set_active(True)
-                self.gscreen.notify(_("ERROR"), _("External ESTOP is set, could not change state!"), ALERT_ICON)
-
-    def on_tbtn_on_toggled(self, widget, data=None):
-        if widget.get_active():    # from Off to On
-            if self.stat.task_state == linuxcnc.STATE_ESTOP:
-                widget.set_active(False)
-                return
-            self.command.state(linuxcnc.STATE_ON)
-            self.command.wait_complete()
-            self.stat.poll()
-            if self.stat.task_state != linuxcnc.STATE_ON:
-                widget.set_active(False)
-                self.gscreen.notify(_("ERROR"), _("Could not switch the machine on, is limit switch activated?"), ALERT_ICON)
-                self.gscreen.sensitize_widgets(self.data.sensitive_on_off, False)
-                return
-            self.gscreen.sensitize_widgets(self.data.sensitive_on_off, True)
-            self.command.mode(linuxcnc.MODE_MANUAL)
-            self.command.wait_complete()
-            self.widgets.rbt_manual.set_active(True)
-            self.widgets.ntb_mode.set_current_page(_MODE_MANUAL)
-        else:    # from On to Off
-            self.command.state(linuxcnc.STATE_OFF)
-            self.gscreen.sensitize_widgets(self.data.sensitive_on_off, False)
-
     def on_rbt_manual_clicked(self, widget):
         if self.widgets.ntb_main.get_current_page() == _NB_SETUP:
             return
@@ -430,6 +442,8 @@ class HandlerClass:
             self.command.wait_complete()
 
     def on_ntb_main_switch_page(self, widget, tab, index):
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            return
         if index == _NB_OFFSET:
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
@@ -476,20 +490,6 @@ class HandlerClass:
     def on_rbt_dtg_toggled(self, widget, data=None):
         for axis in self.data.axis_list:
             self.widgets["hal_dro_{0}".format(axis)].set_property("reference_type", 2)
-
-    def on_btn_home_all_clicked(self, widget):
-        if self.stat.task_state != linuxcnc.STATE_ON:
-            self.gscreen.notify(_("INFO"), _("Machine is not in ON state"), INFO_ICON)
-            return
-        if self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            self.gscreen.notify(_("INFO"), self.must_be_manual, INFO_ICON)
-            return
-        if self.data.all_homed:
-            self.set_motion_mode(0)
-            self.command.unhome(-1)
-        else:
-            self.set_motion_mode(0)
-            self.command.home(-1)
 
     def on_zero_axis_clicked(self, widget):
         if not self.data.all_homed:
@@ -539,44 +539,18 @@ class HandlerClass:
         self.command.mode(linuxcnc.MODE_MDI)
         self.command.wait_complete()
 
-    def on_btn_home_axis_clicked(self, widget, data=None):
-        if self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            self.gscreen.notify(_("INFO"), self.must_be_manual, INFO_ICON)
-            return
-        if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            self.gscreen.notify(_("INFO"), _("Wrong kinematics type"), INFO_ICON)
-            return
-        if widget == self.widgets.btn_home_x:
-            data = 0
-        elif widget == self.widgets.btn_home_y:
-            data = 1
-        elif widget == self.widgets.btn_home_z:
-            data = 2
-        else:
-            self.gscreen.notify(_("INFO"), _("Unknown axis selected"), INFO_ICON)
-            return
-        if self.stat.joint[data]['homed']:
-            self.gscreen.notify(_("INFO"), _("This axis is already homed"), INFO_ICON)
-            return
-        self.set_motion_mode(0)
-        self.command.home(data)
-
     def on_tbtn_flood_toggled(self, widget, data=None):
-        if self.stat.flood and self.widgets.tbtn_flood.get_active():
+        if self.stat.flood == widget.get_active():
             return
-        elif not self.stat.flood and not self.widgets.tbtn_flood.get_active():
-            return
-        elif self.widgets.tbtn_flood.get_active():
+        if widget.get_active():
             self.command.flood(linuxcnc.FLOOD_ON)
         else:
             self.command.flood(linuxcnc.FLOOD_OFF)
 
     def on_tbtn_mist_toggled(self, widget, data=None):
-        if self.stat.mist and self.widgets.tbtn_mist.get_active():
+        if self.stat.mist == widget.get_active():
             return
-        elif not self.stat.mist and not self.widgets.tbtn_mist.get_active():
-            return
-        elif self.widgets.tbtn_mist.get_active():
+        if widget.get_active():
             self.command.mist(linuxcnc.MIST_ON)
         else:
             self.command.mist(linuxcnc.MIST_OFF)
@@ -598,8 +572,8 @@ class HandlerClass:
 
     def on_btn_stop_clicked(self, widget, data=None):
         self.command.abort()
-        self.start_line = 0
-        self.widgets.gcode_view.set_line_number(0)
+        self.set_restart_line(1)
+        self.widgets.gcode_view.set_line_number(1)
 
     def on_btn_run_clicked(self, widget, data=None):
         if self.stat.task_mode != linuxcnc.MODE_AUTO:
@@ -607,7 +581,8 @@ class HandlerClass:
             return
         self.widgets.ntb_main.set_current_page(_NB_PREVIEW)
         self.program_progress = 0.0
-        self.halcomp["router_on"] = True
+        self.gscreen.notify(_("INFO"), _("Cycle start pressed in AUTO mode"), INFO_ICON)
+        self.widgets.hal_toggleaction_run.emit('activate')
 
     def on_btn_from_line_clicked(self, widget, data=None):
         if self.stat.task_mode != linuxcnc.MODE_AUTO:
@@ -618,9 +593,8 @@ class HandlerClass:
     def on_spc_spindle_value_changed(self, widget, data=None):
         if not self.initialized:
             return
-        # this is in a try except, because on initializing the window the values are still zero
-        # so we would get an division / zero error
-        real_spindle_speed = 0
+        # this is in a try except, because on initializing the window,
+        # the values are still zero, so we would get a divide by zero error
         value = widget.get_value()
         try:
             if not abs(self.stat.settings[2]):
@@ -631,7 +605,6 @@ class HandlerClass:
             else:
                 speed = abs(self.stat.spindle[0]['speed'])
             spindle_override = value / 100
-            real_spindle_speed = speed * spindle_override
             self.command.spindleoverride(spindle_override)
         except:
             pass
@@ -650,49 +623,58 @@ class HandlerClass:
         self.data.rapid_override = value
         self.command.rapidrate(value)
 
-    def on_btn_abs_zero_clicked(self, widget, data=None):
-        if self.stat.task_mode != linuxcnc.MODE_MDI:
-            self.gscreen.notify(_("INFO"), self.must_be_mdi, INFO_ICON)
-            return
-        self.command.mode(linuxcnc.MODE_MDI)
+    def on_btn_home_clicked(self, widget, data=None):
+        command = "G90 G53 G0 Z{}".format(self.home_z)
+        self.command.mdi(command)
         self.command.wait_complete()
-        self.command.mdi("G90 G53 G0 Z0")
-        self.command.wait_complete()
-        self.command.mdi("G53 G0 X0 Y0")
+        command = "G53 G0 X{} Y{}".format(self.home_x, self.home_y)
+        self.command.mdi(command)
         self.command.wait_complete()
             
-    def on_btn_rel_zero_clicked(self, widget, data=None):
-        if self.stat.task_mode != linuxcnc.MODE_MDI:
-            self.gscreen.notify(_("INFO"), self.must_be_mdi, INFO_ICON)
-            return
-        self.command.mode(linuxcnc.MODE_MDI)
-        self.command.wait_complete()
-        self.command.mdi("G90 G53 G0 Z0")
-        self.command.wait_complete()
-        self.command.mdi("G0 X0 Y0")
-        self.command.wait_complete()
-        self.command.mdi("G0 Z0")
-        self.command.wait_complete()
-
     def on_btn_laser_zero_clicked(self, widget, data=None):
         if self.stat.task_mode != linuxcnc.MODE_MDI:
-            self.gscreen.notify(_("INFO"), self.must_be_mdi, INFO_ICON)
-        else:
-            command = "o< laserzero > call"
-            self.command.mdi(command)
+            self.gscreen.notify(_("INFO"), _("Must be in MDI mode"), INFO_ICON)
+            return
+        command = "G10 L20 P0 X{} Y{}".format(self.laser_x, self.laser_y)
+        self.command.mdi(command)
+        self.command.wait_complete()
+        self.gscreen.reload_plot()
 
+    def on_btn_M6_clicked(self, widget, data=None):
+        tool = str(self.widgets.enter_tool.get_text())
+        if not tool.isdigit():
+            self.gscreen.notify(_("ERROR"), _("Invalid tool specified"), ALERT_ICON)
+            self.widgets.enter_tool.set_text(str(self.stat.tool_in_spindle))
+        else:
+            command = "T{} M6".format(tool)
+            self.command.mdi(command)
+            self.command.wait_complete()
+
+    def on_btn_g30_clicked(self, widget, data=None):
+        if not self.data.all_homed:
+            self.gscreen.notify(_("ERROR"), _("Machine is not homed"), ALERT_ICON)
+            return
+        self.command.mdi("G53 G0 Z0")
+        self.command.wait_complete()
+        command = "G53 G0 X{} Y{}".format(self.tool_sensor_x, self.tool_sensor_y)
+        self.command.mdi(command)
+        self.command.wait_complete()
+        
     def on_btn_blockheight_clicked(self, widget, data=None):
         title = "Enter Block Height"
         callback = "on_blockheight_return"
         self.gscreen.launch_numerical_input(callback, 0, 0, title)
 
     def on_btn_touchoff_clicked(self, widget, data=None):
-        if self.stat.task_mode != linuxcnc.MODE_MDI:
-            self.gscreen.notify(_("INFO"), self.must_be_mdi, INFO_ICON)
+        if self.stat.tool_in_spindle == 0:
+            self.gscreen.notify(_("INFO"), _("Cannot probe with no tool loaded"), INFO_ICON)
+            return
+        self.widgets.gremlin.clear_live_plotter()
+        if self.use_auto_zref is True:
+            command = "o< tool_sensor > call"
         else:
             command = "o< touch_plate > call"
-            self.widgets.gremlin.clear_live_plotter()
-            self.command.mdi(command)
+        self.command.mdi(command)
 
     def on_btn_rapid_100_clicked(self, widget, data=None):
         self.widgets.spc_rapid.set_value(100)
@@ -703,79 +685,25 @@ class HandlerClass:
     def on_btn_spindle_100_clicked(self, widget, data=None):
         self.widgets.spc_spindle.set_value(100)
 
-    def on_btn_jog_pressed(self, widget, data=None):
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            return
-        joint_btn = False
-        joint_or_axis = widget.get_label()[0]
-        if not joint_or_axis.lower() in "xyz":
-            # OK, it may be a Joints button
-            if joint_or_axis in "012":
-                joint_btn = True
-            else:
-                print ("Unknown joint or axis {0}".format(joint_or_axis))
-                return
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvws".index(joint_or_axis.lower())
+    def jog_x(self,widget,direction,state):
+        self.gscreen.do_key_jog(0,direction,state)
+        
+    def jog_y(self,widget,direction,state):
+        self.gscreen.do_key_jog(1,direction,state)
+        
+    def jog_z(self,widget,direction,state):
+        self.gscreen.do_key_jog(2,direction,state)
+        
+    def jog_speed_changed(self,widget):
+        value = widget.get_value()
+        self.gscreen.set_jog_rate(absolute = value)
+        
+    def on_cmb_increments_changed(self, widget, data=None):
+        index = widget.get_active()
+        if index == 0:
+            self.data.current_jogincr_index = len(self.data.jog_increments) - 1
         else:
-            joint_axis_number = "01234567".index(joint_or_axis)
-        value = self.widgets.spc_jog_vel.get_value() / 60
-        velocity = value * (1 / self.factor)
-        dir = widget.get_label()[1]
-        if dir == "+":
-            direction = 1
-        else:
-            direction = -1
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("Wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
-        if self.distance <> 0:  # incremental jogging
-            self.command.jog(linuxcnc.JOG_INCREMENT, JOGMODE, joint_axis_number, direction * velocity, self.distance)
-        else:  # continuous jogging
-            self.command.jog(linuxcnc.JOG_CONTINUOUS, JOGMODE, joint_axis_number, direction * velocity)
-
-    def on_btn_jog_released(self, widget, data=None):
-        if not self.stat.enabled or self.stat.task_mode != linuxcnc.MODE_MANUAL:
-            return
-        joint_btn = False
-        joint_axis = widget.get_label()[0]
-        if not joint_axis.lower() in "xyz":
-            # OK, it may be a Joints button
-            if joint_axis in "012":
-                joint_btn = True
-            else:
-                print ("Unknown axis {0}".format(joint_axis))
-                return
-        if not joint_btn:
-            # get the axisnumber
-            joint_axis_number = "xyzabcuvw".index(joint_axis.lower())
-        else:
-            joint_axis_number = "01234567".index(joint_axis)
-
-        if self.stat.motion_mode == 1:
-            if self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
-                # this may happen, because the joints / axes has been unhomed
-                print("Wrong motion mode, change to the correct one")
-                self.set_motion_mode(1)
-                JOGMODE = 0
-            else:
-                JOGMODE = 1
-        else :
-            JOGMODE = 0
-
-        # Otherwise the movement would stop before the desired distance was moved
-        if self.distance <> 0:
-            pass
-        else:
-            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_axis_number)
+            self.data.current_jogincr_index = index - 1
 
     def on_rbt_view_p_toggled(self, widget, data=None):
         if self.widgets.rbt_view_p.get_active():
@@ -814,27 +742,18 @@ class HandlerClass:
         # due to imperial and metric options we have to get first the values of the widget
         max = self.widgets.adj_scale_jog_vel.get_upper()
         min = self.widgets.adj_scale_jog_vel.get_lower()
-        value = self.widgets.spc_jog_vel.get_value()
+        value = self.widgets.jog_speed.get_value()
         if widget.get_active():
             self.fast_jog = value
             widget.set_label("SLOW")
-            self.widgets.spc_jog_vel.set_range(min / self.slow_jog_factor, max / self.slow_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.fast_jog / self.slow_jog_factor)
+            self.widgets.jog_speed.set_range(min / self.slow_jog_factor, max / self.slow_jog_factor)
+            self.widgets.jog_speed.set_value(self.fast_jog / self.slow_jog_factor)
         else:
             self.slow_jog = value
             widget.set_label("FAST")
-            self.widgets.spc_jog_vel.set_range(min * self.slow_jog_factor, max * self.slow_jog_factor)
-            self.widgets.spc_jog_vel.set_value(self.fast_jog)
+            self.widgets.jog_speed.set_range(min * self.slow_jog_factor, max * self.slow_jog_factor)
+            self.widgets.jog_speed.set_value(self.fast_jog)
 
-    def on_btn_none_clicked(self, widget, data=None):
-        self.widgets.file_to_load_chooser.set_filename(" ")
-        self.gscreen.prefs.putpref("open_file", " ", str)
-
-    def on_btn_use_current_clicked(self, widget, data=None):
-        if self.stat.file:
-            self.widgets.file_to_load_chooser.set_filename(self.stat.file)
-            self.gscreen.prefs.putpref("open_file", self.stat.file, str)
-    
     def on_rbtn_show_preview_toggled(self, widget, data=None):
         self.gscreen.prefs.putpref("show_preview_on_offset", widget.get_active())
 
@@ -871,7 +790,7 @@ class HandlerClass:
         self.widgets.offsetpage.edit_button.set_active(state)
         widgetlist = ["btn_set_selected", "btn_zero_g92"]
         self.gscreen.sensitize_widgets(widgetlist, not state)
-        if not state:  # we must switch back to manual mode, otherwise jogging is not possible
+        if not state:  # must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
@@ -883,17 +802,15 @@ class HandlerClass:
             self.command.override_limits()
 
     def on_chk_use_auto_zref_toggled(self, widget, data=None):
-        self.gscreen.prefs.putpref("use_autozref", widget.get_active())
-        if widget.get_active():
+        state = widget.get_active()
+        self.gscreen.prefs.putpref("use_autozref", state, bool)
+        self.widgets.btn_blockheight.set_sensitive(state)
+        self.widgets.frm_probe_pos.set_sensitive(state)
+        self.use_auto_zref = state
+        if state is True:
             self.widgets.lbl_blockheight.show()
-            self.widgets.btn_blockheight.set_sensitive(True)
-            self.widgets.frm_probe_pos.set_sensitive(True)
-            self.halcomp["use_autozref"] = True
         else:
             self.widgets.lbl_blockheight.hide()
-            self.widgets.btn_blockheight.set_sensitive(False)
-            self.widgets.frm_probe_pos.set_sensitive(False)
-            self.halcomp["use_autozref"] = False
 
     def on_chk_reload_tool_toggled(self, widget, data=None):
         state = widget.get_active()
@@ -929,9 +846,8 @@ class HandlerClass:
         message = _("Do you really want to delete the MDI history?\n")
         message += _("This will not delete the MDI History file, but will\n")
         message += _("delete the listbox entries for this session")
-        result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
-        if result:
-            self.widgets.hal_mdihistory.model.clear()
+        self.halcomp["clear_mdi-waiting"] = True
+        self.gscreen.warning_dialog(message, False, None, "clear_mdi")
 
     def on_change_sound(self, widget, sound=None):
         file = widget.get_filename()
@@ -951,21 +867,11 @@ class HandlerClass:
         self.unhomed_color = self.gscreen.convert_to_rgb(widget.get_color())
         self.gscreen.prefs.putpref('unhomed_textcolor', widget.get_color(), str)
 
-    def on_cmb_increments_changed(self, widget, data=None):
-        inc = widget.get_active_text()
-        if inc == "Continuous":
-            self.distance = 0
-        else:
-            self.distance = self.gscreen.parse_increment(inc)
-
     def _from_internal_linear_unit(self, v, unit=None):
         if unit is None:
             unit = self.stat.linear_units
         lu = (unit or 1) * 25.4
         return v * lu
-
-    def on_file_to_load_chooser_file_set(self, widget):
-        self.gscreen.prefs.putpref("open_file", widget.get_filename(), str)
 
     def on_adj_x_pos_value_changed(self, widget, data=None):
         if not self.initialized:
@@ -1019,19 +925,11 @@ class HandlerClass:
         self.height = value
         self.widgets.window1.resize(self.width, value)
 
-    def on_btn_pop_statusbar_clicked(self, *args):
-        self.widgets.statusbar1.pop(self.gscreen.statusbar_id)
-
-# ======================
-# End of widget handlers
-# ======================
-
 # ==========
 # HAL status
 # ==========
     def on_hal_status_all_homed(self, widget):
         self.data.all_homed = True
-        self.widgets.btn_home_all.set_label("UNHOME")
         self.widgets.ntb_main.set_current_page(_NB_PREVIEW)
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
@@ -1046,7 +944,6 @@ class HandlerClass:
 
     def on_hal_status_not_all_homed(self, widget, joints):
         self.data.all_homed = False
-        self.widgets.btn_home_all.set_label("HOME ALL")
         if self.no_force_homing:
             return
         self.gscreen.sensitize_widgets(self.data.sensitive_all_homed, False)
@@ -1060,12 +957,11 @@ class HandlerClass:
             self.program_length = len(lines)
             if len(filename) > 70:
                 filename = filename[0:10] + "..." + filename[len(filename) - 50:len(filename)]
-            self.widgets.lbl_loaded_program.set_text(filename)
-            self.widgets.btn_use_current.set_sensitive(True)
+            self.widgets.gcode_tab.set_text(filename)
+            self.gscreen.notify(_("INFO"), _("Program loaded: %s"%filename), INFO_ICON)
         else:
             self.program_length = 0
-            self.widgets.btn_use_current.set_sensitive(False)
-            self.widgets.lbl_loaded_program.set_text("No program loaded")
+            self.widgets.gcode_tab.set_text("No program loaded")
 
     def on_hal_status_line_changed(self, widget, line):
         self.current_line = line
@@ -1073,8 +969,6 @@ class HandlerClass:
     def on_hal_status_interp_idle(self, widget):
         print("IDLE")
         if self.load_tool:
-            return
-        if not self.widgets.tbtn_on.get_active():
             return
         if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
             self.gscreen.sensitize_widgets(self.data.sensitive_run_idle, False)
@@ -1091,10 +985,6 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(self.data.sensitive_run_idle, False)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
-        if new_tool_no == 0:
-            self.widgets.btn_touchoff.set_sensitive(False)
-        else:
-            self.widgets.btn_touchoff.set_sensitive(True)
         self.gscreen.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
         self.update_toolinfo(new_tool_no)
@@ -1103,6 +993,7 @@ class HandlerClass:
         self.widgets.tbtn_estop.set_active(True)
         self.widgets.tbtn_on.set_sensitive(False)
         self.widgets.tbtn_on.set_active(False)
+        self.widgets.tbtn_estop.set_label("ESTOP")
         self.widgets.chk_ignore_limits.set_sensitive(False)
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
@@ -1110,6 +1001,7 @@ class HandlerClass:
     def on_hal_status_state_estop_reset(self, widget=None):
         self.widgets.tbtn_estop.set_active(False)
         self.widgets.tbtn_on.set_sensitive(True)
+        self.widgets.tbtn_estop.set_label("RESET")
         self.widgets.chk_ignore_limits.set_sensitive(True)
         self._check_limits()
 
@@ -1118,12 +1010,16 @@ class HandlerClass:
             self.widgets.tbtn_on.set_active(False)
         self.widgets.chk_ignore_limits.set_sensitive(True)
         self.widgets.tbtn_on.set_label("OFF")
+        self.gscreen.sensitize_widgets(self.data.sensitive_on_off, False)
         
     def on_hal_status_state_on(self, widget):
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
         self.widgets.chk_ignore_limits.set_sensitive(False)
         self.widgets.tbtn_on.set_label("ON")
+        self.gscreen.sensitize_widgets(self.data.sensitive_on_off, True)
+        self.widgets.rbt_manual.set_active(True)
+        self.widgets.ntb_mode.set_current_page(_MODE_MANUAL)
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
@@ -1169,7 +1065,7 @@ class HandlerClass:
     def on_hal_dro_system_changed(self, widget, system):
         self.widgets.btn_rel.set_label(system)
         self.widgets.gremlin.set_property("metric_units", metric_units)
-        widgetlist = ["spc_jog_vel"]
+        widgetlist = ["jog_speed"]
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
         # display units not equal machine units
         if metric_units != int(self.stat.linear_units):
@@ -1193,26 +1089,20 @@ class HandlerClass:
         if new_mode == 1 and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
             self.widgets.gremlin.set_property("enable_dro", True)
             self.widgets.gremlin.use_joints_mode = True
-            state = False
         else:
             self.widgets.gremlin.use_joints_mode = False
-            state = True
-        if self.stat.task_state != linuxcnc.STATE_ON:
-            state = False
 
 # ================
 # Helper functions
 # ================
     def init_unit_labels(self):
-        self.widgets.lbl_dia_unit.set_text("MM")
-        # set default values according to the machine units
         if self.stat.linear_units == 1:
             self.widgets.lbl_feed_units.set_text("MM/MIN")
             self.widgets.lbl_vc_units.set_text("M/MIN")
         else:
             self.widgets.lbl_feed_units.set_text("IN/MIN")
             self.widgets.lbl_vc_units.set_text("FT/MIN")
-        
+
     def _check_limits(self):
         for axis in self.data.axis_list:
             axisnumber = "xyzabcuvw".index(axis)
@@ -1222,8 +1112,13 @@ class HandlerClass:
             self.widgets.chk_ignore_limits.set_active(False)
         return False
 
-    def on_blockheight_value_changed(self, pin):
+    def on_blockheight_changed(self, pin):
         self.widgets.lbl_blockheight.set_text("{0:.3f}".format(pin.get()))
+
+    def on_clear_mdi_changed(self, pin):
+        if self.halcomp["clear_mdi-waiting"] is False:
+            if self.halcomp["clear_mdi-response"] is True:
+                self.widgets.hal_mdihistory.model.clear()
 
     def on_tool_change(self,widget):
         change = self.halcomp['change-tool']
@@ -1239,6 +1134,18 @@ class HandlerClass:
             self.gscreen.warning_dialog(message, True, secondary, pinname="TOOLCHANGE")
         else:
             self.halcomp['tool-changed'] = False
+
+    def notify(self, alert, message):
+        msg_text = alert + " " + message
+        self.widgets.lbl_notify.set_text(msg_text)
+
+    def check_mode(self):
+        string=[]
+        if self.stat.task_mode == linuxcnc.MODE_MANUAL and self.widgets.ntb_main.get_current_page() == _NB_PREVIEW:
+            string.append( self.data._MAN)
+            if self.stat.interp_state == linuxcnc.INTERP_IDLE:
+                string.append(self.data._JOG)
+        return string
 
 # ==========================
 # override gscreen key calls
@@ -1261,52 +1168,44 @@ class HandlerClass:
             return True
 
     def on_keycall_XPOS(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_x_plus
         if not self.check_kb_shortcuts(): return
-        if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+        self.gscreen.do_key_jog(0, 1, state)
 
     def on_keycall_XNEG(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_x_minus
         if not self.check_kb_shortcuts(): return
-        if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+        self.gscreen.do_key_jog(0, 0, state)
 
     def on_keycall_YPOS(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_y_plus
         if not self.check_kb_shortcuts(): return
-        if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+        self.gscreen.do_key_jog(1, 1, state)
 
     def on_keycall_YNEG(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_y_minus
         if not self.check_kb_shortcuts(): return
-        if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+        self.gscreen.do_key_jog(1, 0, state)
 
     def on_keycall_ZPOS(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_z_plus
         if not self.check_kb_shortcuts(): return
-        if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+        self.gscreen.do_key_jog(2, 1, state)
 
     def on_keycall_ZNEG(self,state,SHIFT,CNTRL,ALT):
-        widget = self.widgets.btn_z_minus
         if not self.check_kb_shortcuts(): return
+        self.gscreen.do_key_jog(2, 0, state)
+
+    def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
+        if not self.check_kb_shortcuts(): return
+        widget = self.widgets.cmb_increments
         if state:
-            self.on_btn_jog_pressed(widget)
-        else:
-            self.on_btn_jog_released(widget)
+            index = widget.get_active()
+            length = len(self.data.jog_increments)
+            if SHIFT: # increment index
+                if index < length - 1:
+                    index = index + 1
+            else: # decrement index
+                if index > 0:
+                    index = index - 1
+            widget.set_active(index)
+            self.on_cmb_increments_changed(widget)
+        return(True)
 
     def check_kb_shortcuts(self):
         use_shortcuts = self.widgets.chk_use_kb_shortcuts.get_active()
@@ -1351,18 +1250,10 @@ class HandlerClass:
         self.command.wait_complete()
 
     def _update_coolant(self):
-        if self.stat.flood:
-            if not self.widgets.tbtn_flood.get_active():
-                self.widgets.tbtn_flood.set_active(True)
-        else:
-            if self.widgets.tbtn_flood.get_active():
-                self.widgets.tbtn_flood.set_active(False)
-        if self.stat.mist:
-            if not self.widgets.tbtn_mist.get_active():
-                self.widgets.tbtn_mist.set_active(True)
-        else:
-            if self.widgets.tbtn_mist.get_active():
-                self.widgets.tbtn_mist.set_active(False)
+        if self.stat.flood != self.widgets.tbtn_flood.get_active():
+            self.widgets.tbtn_flood.set_active(self.stat.flood)
+        if self.stat.mist != self.widgets.tbtn_mist.get_active():
+            self.widgets.tbtn_mist.set_active(self.stat.mist)
 
     def _update_spindle(self):
         if self.stat.spindle[0]['direction'] > 0:
@@ -1417,10 +1308,6 @@ class HandlerClass:
             attr.insert(weight)
             self.widgets["hal_dro_%s"%i].set_attributes(attr)
 
-    def update_status(self):
-        self.widgets.hal_led_all_homed.set_active(self.data.all_homed)
-        self.widgets.hal_led_jog.set_active(self.stat.task_mode == linuxcnc.MODE_MANUAL)
-
     def _set_spindle(self, command):
         if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
@@ -1464,27 +1351,16 @@ class HandlerClass:
         self.widgets.pgm_progress.set_text("{0:2.1f} % Complete".format(progress * 100))
 
     def init_jog_increments(self):
-        increments = self.gscreen.inifile.find("DISPLAY", "INCREMENTS")
-        if increments:
-            if "," in increments:
-                for i in increments.split(","):
-                    self.jog_increments.append(i.strip())
-            else:
-                self.jog_increments = increments.split()
-            self.jog_increments.insert(0, 0)
-        else:
-            self.jog_increments = [0, "1.000", "0.100", "0.010", "0.001"]
-            print("No jog increments found in [DISPLAY] of INI file, Using default values")
-        if len(self.jog_increments) > 10:
-            print(_("Increment list shortened to 10"))
-            self.jog_increments = self.jog_increments[0:11]
-        self.jog_increments.pop(0)
+        list = self.data.jog_increments[:]
+        del list[-1]
+        # populate the increments combobox with rearranged increment values
         model = self.widgets.cmb_increments.get_model()
         model.clear()
-        model.append(["Continuous"])
-        for index, inc in enumerate(self.jog_increments):
+        model.append(["continuous"])
+        for index, inc in enumerate(list):
             model.append((inc,))
         self.widgets.cmb_increments.set_active(0)
+        self.data.current_jogincr_index = index + 1
 
     def check_spindle_range(self):
         rpm = (self.stat.settings[2])
@@ -1500,26 +1376,12 @@ class HandlerClass:
             print("Path %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
             print("Trying default path...")
             default_path = "~/linuxcnc/nc_files/"
-        self.widgets.file_to_load_chooser.set_current_folder(default_path)
-        title = _("Select the file you want to be loaded at program start")
-        self.widgets.file_to_load_chooser.set_title(title)
-        self.widgets.ff_file_to_load.set_name("linuxcnc files")
-        self.widgets.ff_file_to_load.add_pattern("*.ngc")
-        file_ext = self.gscreen.inifile.findall("FILTER", "PROGRAM_EXTENSION")
-        if file_ext:
-            ext_list = ["*.ngc"]
-            for data in file_ext:
-                raw_ext = data.split(",")
-                for extension in raw_ext:
-                    ext = extension.split()
-                    ext_list.append(ext[0].replace(".", "*."))
+        open_file = self.gscreen.inifile.find("DISPLAY", "OPEN_FILE")
+        if not open_file:
+            print("No file to open")
         else:
-            print("Error converting the file extensions from INI File 'FILTER','PROGRAMM_PREFIX")
-            print("Using default '*.ngc'")
-            ext_list = ["*.ngc"]
-        for ext in ext_list:
-            self.widgets.ff_file_to_load.add_pattern(ext)
-    
+            self.file_to_load = default_path + open_file
+
     def update_toolinfo(self, tool):
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
         if toolinfo:
@@ -1593,43 +1455,10 @@ class HandlerClass:
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
 
-    def restart_dialog_return(self, widget, result, calc):
-        if result == gtk.RESPONSE_REJECT:
-            line = 0
-        else:
-            line = int(calc.get_value())
-            if line == None:
-                line = 0
-        self.widgets.gcode_view.set_line_number(line)
-        self.gscreen.notify(_("INFO"), _("Ready to RESTART from line %d"%line), INFO_ICON)
-        self.start_line = line
-        self.data.restart_dialog.destroy()
-        self.data.restart_dialog = None
-        self.widgets.hal_toggleaction_run.set_restart_line(line)
-
-    def dialog_return(self, widget, result, caller, dialogtype, pinname):
-        if pinname == "TOOLCHANGE":
-            self.halcomp["tool-changed"] = True
-            widget.destroy()
-            try:
-                self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.data.tool_message)
-            except:
-                self.gscreen.show_try_errors()
-            return
-        if not dialogtype: # yes/no dialog
-            if pinname == "router_on":
-                self.halcomp["router_on"] = False
-                self.halcomp["router_on-response"] = result
-                if result == gtk.RESPONSE_YES:
-                    self.command.auto(linuxcnc.AUTO_RUN, self.start_line)
-        if pinname:
-            self.halcomp[pinname + "-waiting"] = False
-        widget.destroy()
-
     def on_offset_axis_return(self, widget, result, calc, userdata, userdata2):
         value = calc.get_value()
         if result == gtk.RESPONSE_ACCEPT:
-            if value != None:
+            if value is not None:
                 r = self.axis_to_ref
                 self.gscreen.prefs.putpref("offset_axis_{}".format(r), value, str)
                 self.command.mode(linuxcnc.MODE_MDI)
@@ -1642,15 +1471,12 @@ class HandlerClass:
         widget.destroy()
         self.data.entry_dialog = None
 
-    def set_restart_line(self):
-        pass
-
     def on_blockheight_return(self, widget, result, calc, userdata, userdata2):
         blockheight = calc.get_value()
         if result == gtk.RESPONSE_ACCEPT:
             if blockheight == "CANCEL" or blockheight == "ERROR":
                 return
-            if blockheight != None or blockheight != False or blockheight == 0:
+            if blockheight is not None or blockheight is not False or blockheight == 0:
                 self.halcomp["block_height"] = blockheight
                 self.gscreen.prefs.putpref("blockheight", blockheight, float)
             else:
@@ -1658,3 +1484,4 @@ class HandlerClass:
                 self.gscreen.prefs.putpref("blockheight", 0.0, float)
         widget.destroy()
         self.data.entry_dialog = None
+

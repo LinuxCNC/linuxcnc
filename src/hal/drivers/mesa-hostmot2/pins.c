@@ -40,6 +40,7 @@ RTAPI_MP_INT(debug_pin_descriptors, "Developer/debug use only!  Enable debug log
 static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     static char unknown[100];
     int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
+    int sec_dir = pin->sec_pin & 0x80;
 //FIXME: some pins use the same sec_tag but different meanings depending on
 //direction.
     switch (pin->sec_tag) {
@@ -138,39 +139,111 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             break;
 
         case HM2_GTAG_SMARTSERIAL:
-            if (pin->sec_pin & 0x80){ // Output pin codes
+            if (sec_dir == 0x80){ // Output pin codes
                 switch (sec_pin) {
-                    case 0x1: return "TxData0";
-                    case 0x2: return "TxData1";
-                    case 0x3: return "TxData2";
-                    case 0x4: return "TxData3";
-                    case 0x5: return "TxData4";
-                    case 0x6: return "TxData5";
-                    case 0x7: return "TxData6";
-                    case 0x8: return "TxData7";
-                    case 0x11: return "TxEn0  ";
-                    case 0x12: return "TxEn1  ";
-                    case 0x13: return "TxEn2  ";
-                    case 0x14: return "TxEn3  ";
-                    case 0x15: return "TxEn4  ";
-                    case 0x16: return "TxEn5  ";
-                    case 0x17: return "TxEn6  ";
-                    case 0x18: return "TxEn7  ";
+                    case 0x1: return "tx0";
+                    case 0x2: return "tx1";
+                    case 0x3: return "tx2";
+                    case 0x4: return "tx3";
+                    case 0x5: return "tx4";
+                    case 0x6: return "tx5";
+                    case 0x7: return "tx6";
+                    case 0x8: return "tx7";
+                    case 0x11: return "txen0";
+                    case 0x12: return "txen1";
+                    case 0x13: return "txen2";
+                    case 0x14: return "txen3";
+                    case 0x15: return "txen4";
+                    case 0x16: return "txen5";
+                    case 0x17: return "txen6";
+                    case 0x18: return "txen7";
                 }
                 break;
-            }else{ // INput Pin Codes
+            }else{ // Input Pin Codes
                 switch (sec_pin) {
-                    case 0x1: return "RxData0";
-                    case 0x2: return "RxData1";
-                    case 0x3: return "RxData2";
-                    case 0x4: return "RxData3";
-                    case 0x5: return "RxData4";
-                    case 0x6: return "RxData5";
-                    case 0x7: return "RxData6";
-                    case 0x8: return "RxData7";
+                    case 0x1: return "rx0";
+                    case 0x2: return "rx1";
+                    case 0x3: return "rx2";
+                    case 0x4: return "rx3";
+                    case 0x5: return "rx4";
+                    case 0x6: return "rx5";
+                    case 0x7: return "rx6";
+                    case 0x8: return "rx7";
                 }
                 break;
             }
+
+        case HM2_GTAG_INMUX:
+            if (sec_dir == 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "addr0";
+                    case 0x2: return "addr1";
+                    case 0x3: return "addr2";
+                    case 0x4: return "addr3";
+                    case 0x5: return "addr4";
+                }
+                break;
+            }else{ // Input Pin Codes
+                switch (sec_pin) {
+                    case 0x1: return "muxdata";
+                }
+                break;
+            }
+
+        case HM2_GTAG_INM:
+            switch (sec_pin) {
+                case 0x1: return "in0";
+                case 0x2: return "in1";
+                case 0x3: return "in2";
+                case 0x4: return "in3";
+                case 0x5: return "in4";
+                case 0x6: return "in5";
+                case 0x7: return "in6";
+                case 0x8: return "in7";
+                case 0x9: return "in8";
+                case 0xA: return "in9";
+                case 0xB: return "in10";
+                case 0xC: return "in11";
+                case 0xD: return "in12";
+                case 0xE: return "in13";
+                case 0xF: return "in14";
+                case 0x10: return "in15";
+                case 0x11: return "in16";
+                case 0x12: return "in17";
+                case 0x13: return "in18";
+                case 0x14: return "in19";
+                case 0x15: return "in20";
+                case 0x16: return "in21";
+                case 0x17: return "in22";
+                case 0x18: return "in23";
+                case 0x19: return "in24";
+                case 0x1A: return "in25";
+                case 0x1B: return "in26";
+                case 0x1C: return "in27";
+                case 0x1D: return "in28";
+                case 0x1E: return "in29";
+                case 0x1F: return "in30";
+                case 0x20: return "in31";
+
+        }
+        break;
+
+        case HM2_GTAG_XY2MOD:
+            if (sec_dir == 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "datax";
+                    case 0x2: return "datay";
+                    case 0x3: return "clk";
+                    case 0x4: return "sync";
+                }
+                break;
+            }else{ // Input Pin Codes
+                switch (sec_pin) {
+                    case 0x5: return "status";
+                }
+                break;
+            }
+
         case HM2_GTAG_BSPI:
             switch (sec_pin) {
                 case 0x1: return "/Frame";
@@ -263,10 +336,11 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
              return unknown;
              break;
 
-        case HM2_GTAG_BISS: // Not Supported Currently
+        case HM2_GTAG_BISS:
             switch (sec_pin) {
-                case 0x1: return "Clck";
-                case 0x2: return "Data";
+                case 1: return "clock";
+                case 2: return "clock-enable";
+                case 3: return "data";
             }
             break;
 
@@ -306,7 +380,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 sprintf(unknown, "Out-%02d",sec_pin - 1);
                 return unknown;
             } else if (sec_pin == 32) {
-                sprintf(unknown, "AC Ref (internal)");
+                sprintf(unknown, "AC Ref");
                 return unknown;
             }
             break;
@@ -316,8 +390,10 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     return unknown;
 }
 
+// This function is used to create the hal aliased names for GPIO parameters
 const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
     int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
+    int sec_dir = pin->sec_pin & 0x80;
 //FIXME: some pins use the same sec_tag but different meanings depending on
 //direction.
     switch (pin->sec_tag) {
@@ -348,6 +424,14 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
             }
             break;
         case HM2_GTAG_SSI:
+            switch (sec_pin) {
+                case 1: return "clock";
+                case 2: return "clock-enable";
+                case 3: return "data";
+            }
+            break;
+
+        case HM2_GTAG_BISS:
             switch (sec_pin) {
                 case 1: return "clock";
                 case 2: return "clock-enable";
@@ -416,7 +500,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
             break;
 
         case HM2_GTAG_SMARTSERIAL:
-            if (pin->sec_pin & 0x80){ // Output pin codes
+            if (sec_dir == 0x80){ // Output pin codes
                 switch (sec_pin) {
                     case 0x1: return "tx0";
                     case 0x2: return "tx1";
@@ -436,7 +520,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                     case 0x18: return "txen7";
                 }
                 break;
-            }else{ // INput Pin Codes
+            }else{ // Input Pin Codes
                 switch (sec_pin) {
                     case 0x1: return "rx0";
                     case 0x2: return "rx1";
@@ -449,6 +533,25 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 }
                 break;
             }
+
+
+
+        case HM2_GTAG_XY2MOD:
+            if (sec_dir == 0x80){ // Output pin codes
+                switch (sec_pin) {
+                    case 0x1: return "datax";
+                    case 0x2: return "datay";
+                    case 0x3: return "clk";
+                    case 0x4: return "sync";
+                }
+                break;
+            }else{ // Input Pin Codes
+                switch (sec_pin) {
+                    case 0x5: return "status";
+                }
+                break;
+            }
+
         case HM2_GTAG_BSPI:
             switch (sec_pin) {
                 case 0x1: return "nframe";
@@ -618,6 +721,18 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
                 pin->port_pin = DB25[i % 17];
                 break;
             case 32:      /* 5I21 punt on this for now */
+                pin->port_pin = i + 1;
+		break;
+            case 21:      /* 7I94/4I74 punt on this for now */
+                pin->port_pin = i + 1;
+ 		break;
+            case 19:      /* 7C81 punt on this for now */
+                pin->port_pin = i + 1;
+ 		break;
+            case 27:      /* 7C80 punt on this for now */
+                pin->port_pin = i + 1;
+                break;
+           case 29:      /* 7I95 punt on this for now */
                 pin->port_pin = i + 1;
                 break;
             default:
@@ -801,6 +916,9 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_BISS, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_FABS, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_RESOLVER, hm2->resolver.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_INMUX, hm2->inmux.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_INM, hm2->inm.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_XY2MOD, hm2->xy2mod.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
@@ -827,6 +945,9 @@ const char *hm2_get_general_function_hal_name(int gtag) {
         case HM2_GTAG_RESOLVER: return "resolver";
         case HM2_GTAG_STEPGEN:  return "stepgen";
         case HM2_GTAG_PWMGEN:   return "pwmgen";
+        case HM2_GTAG_INMUX:    return "inmux";
+        case HM2_GTAG_INM:      return "inm";
+        case HM2_GTAG_XY2MOD:   return "xy2mod";
         case HM2_GTAG_TPPWM:    return "3pwmgen";
         case HM2_GTAG_MUXED_ENCODER: return "encoder";
         case HM2_GTAG_MUXED_ENCODER_SEL: return "encoder";

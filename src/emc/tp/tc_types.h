@@ -40,6 +40,11 @@ typedef enum {
     TC_SYNC_POSITION
 } tc_spindle_sync_t;
 
+typedef enum {
+    TC_DIR_FORWARD = 0,
+    TC_DIR_REVERSE
+} tc_direction_t;
+
 #define TC_GET_PROGRESS 0
 #define TC_GET_STARTPOINT 1
 #define TC_GET_ENDPOINT 2
@@ -159,7 +164,7 @@ typedef struct {
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
-    int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
+    int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;
     int blend_prev;

@@ -30,6 +30,8 @@
 #include "rtapi_math.h"
 #include <cmath>
 
+using namespace interp_param_global;
+
 /****************************************************************************/
 
 /*! read_a
@@ -2044,7 +2046,7 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       if(check_exists)
       {
-	  *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
+      *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
 	  return INTERP_OK;
       }
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),

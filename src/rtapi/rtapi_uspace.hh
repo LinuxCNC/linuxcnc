@@ -60,6 +60,8 @@ struct rtapi_task {
   long period;
   struct timespec nextstart;
   unsigned ratio;
+  long pll_correction;
+  long pll_correction_limit;
   void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
@@ -85,6 +87,8 @@ struct RtapiApp
     virtual int task_pause(int task_id) = 0;
     virtual int task_resume(int task_id) = 0;
     virtual int task_self() = 0;
+    virtual long long task_pll_get_reference(void) = 0;
+    virtual int task_pll_set_correction(long value) = 0;
     virtual void wait() = 0;
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;

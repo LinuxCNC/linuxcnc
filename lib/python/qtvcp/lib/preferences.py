@@ -30,6 +30,12 @@ class Access(cp):
         if not path:
             path="~/.qtscreen_preferences"
         self.fn = os.path.expanduser(path)
+        try:
+            fp = open(self.fn)
+        except IOError:
+            print 'preference file does not exist -makeing file - ()'.format(self.fn)
+            # If not exists, create the file
+            fp = open(self.fn, 'w+')
         self.read(self.fn)
 
     def getpref(self, option, default=False, type=bool, section="DEFAULT"):

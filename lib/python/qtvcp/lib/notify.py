@@ -79,7 +79,6 @@ class Notify:
         n.setTimeout(int(timeout * 1000))
         n.addAction("action_click","Show All Messages", self.action_callback)
         n.onClose(self.handle_closed)
-        n.addAction('You Clicked The Button', 'Remove Fire', self.OnClicked)
         n.show()
         self.notify_list.append(n)
         return n

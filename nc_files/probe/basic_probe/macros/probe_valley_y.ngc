@@ -1,0 +1,99 @@
+(author: Chris P)
+(version: 0.1)
+(date: 04/25/19)
+
+(Probe valley in Y, find Z0, Y0 valley center position)
+(Start probe position is over back side edge of valley wall)
+(inside the step off width distance and within max z distance)
+(ensure all settings have been set properly according to help diagrams)
+
+o<probe_valley_y> sub
+
+  (uses NGCGUI style arg spec)
+  (number after "=" in comment is default value)
+  #<probe_tool_number> = #1    (=99)
+  #<max_z_distance> = #2       (=0.5000)
+  #<max_xy_distance> = #3      (=0.5000)
+  #<xy_clearance> = #4         (=0.1000)
+  #<z_clearance> = #5          (=0.1000)
+  #<step_off_width> = #6       (=0.5000)
+  #<extra_probe_depth> = #7    (=0.0000)
+  #<probe_slow_fr> = #8        (=0.0)
+  #<probe_fast_fr> = #9        (=10.0)
+  #<calibration_offset> = #10  (=0.0000)
+  #<x_hint> = #11              (=1.0000)
+  #<y_hint> = #12              (=1.0000)
+  #<diameter_hint> = #13       (=1.0000)
+  #<edge_width> = #14          (=0.5000)
+  #<probe_mode> = #15          (=0)
+
+  (Cancel G92 offsets)
+  G92.1
+
+  #<workspace_y> = #[5202 + [20 * #5220]]
+
+  (Probe Tool Safety Check)
+  o<110> if [#5400 NE #<probe_tool_number>]
+  (MSG, Specified probe tool #<probe_tool_number> not in spindle, aborting)
+   o<probe_valley_y> return
+  o<110> endif
+
+  (Probe Diameter)
+  #<probe_diameter> = #5410
+
+  (remove probe tip diam and cal offset from probed width calculations)
+  #<probe_diameter_offset> = [#<probe_diameter> - [#<calibration_offset> * 2]]
+
+  #<z_probe_stack> = [#<z_clearance> + #<probe_diameter> + #<extra_probe_depth>]
+
+  G91
+  F[#<probe_fast_fr>]
+  G1 Z-[#<z_probe_stack>]
+
+  (Probe Y Positioning Move, Step Off Width)
+  G0 Y[#<y_hint>/2 - #<step_off_width>]
+
+  (Call sub "probe_y_plus" to Probe Y+ side of Workpiece)
+  o<probe_y_plus> call [#1][#3][#4][#8][#9][#10]
+
+  #<y_plus_probed> = #5062
+
+  (Probe Y Positioning Move, Step Off Width)
+  G91
+  G0 Y-[#<y_hint> - #<step_off_width>*2]
+
+  (Call sub "probe_y_minus_sub" to Probe Y- side of Workpiece)
+  o<probe_y_minus> call [#1][#3][#4][#8][#9][#10]
+
+  #<y_minus_probed> = #5062
+
+  (probed center calculation)
+  #<y_center_probed> = [[#<y_plus_probed> + #<y_minus_probed>] / 2]
+
+  (calculate Y Width Probed)
+  #<raw_width> = [#<y_plus_probed> - #<y_minus_probed>]
+
+  (Completed probed width calculations)
+  #<y_probed_width> = [#<raw_width> + #<probe_diameter_offset>]
+
+  M68 E1 Q[#<y_probed_width>]
+
+  M68 E11 Q[#<y_center_probed>]
+
+  (Probe Completion Move to Z Clearance Plane, and X Zero)
+  G90
+  G0 Y[#<y_center_probed>]
+  G91
+  G0 Z[#<z_probe_stack>]
+
+  (probe mode rules for WCO or probe position measuring only)
+  o<120> if [#<probe_mode> EQ 0]
+    (Record X Zero in selected WCO)
+    G10 L2 P#5220 Y[#<y_center_probed> + #<workspace_y>]
+    o<probe_valley_y> return
+  o<120> endif
+
+o<probe_valley_y> endsub
+
+M2 (end program)
+

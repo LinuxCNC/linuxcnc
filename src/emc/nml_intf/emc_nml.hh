@@ -302,6 +302,7 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     double search_vel;
     double latch_vel;
     int use_index;
+    int encoder_does_not_reset;
     int ignore_limits;
     int is_shared;
     int home_sequence;
@@ -843,7 +844,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
     int feed_mode;
-    int indexrotary;
+    int indexer_jnum;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -1222,6 +1223,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int on_soft_limit;
     int external_offsets_applied;
     EmcPose eoffset_pose;
+    int numExtraJoints;
 };
 
 // declarations for EMC_TASK classes
@@ -1347,6 +1349,23 @@ class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
+
+class EMC_TASK_PLAN_REVERSE:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_REVERSE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_REVERSE_TYPE,
+					   sizeof(EMC_TASK_PLAN_REVERSE)) {
+    };
+
+};
+
+class EMC_TASK_PLAN_FORWARD:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_FORWARD():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_FORWARD_TYPE,
+					   sizeof(EMC_TASK_PLAN_FORWARD)) {
+    };
+
+};
+
 
 class EMC_TASK_PLAN_STEP:public EMC_TASK_CMD_MSG {
   public:
@@ -1486,7 +1505,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];
     double activeSettings[ACTIVE_SETTINGS];
-    CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
+    CANON_UNITS programUnits;	// CANON_UNITS_INCHES, MM, CM
 
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)

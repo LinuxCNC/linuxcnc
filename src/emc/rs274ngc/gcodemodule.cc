@@ -145,11 +145,10 @@ static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _p
 EmcPose tool_offset;
 
 static InterpBase *pinterp;
-#define interp_new (*pinterp)
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
-static void maybe_new_line(int sequence_number=interp_new.sequence_number());
+static void maybe_new_line(int sequence_number=pinterp->sequence_number());
 static void maybe_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
@@ -157,9 +156,9 @@ static void maybe_new_line(int sequence_number) {
         return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
-    interp_new.active_settings(new_line_code->settings);
-    interp_new.active_g_codes(new_line_code->gcodes);
-    interp_new.active_m_codes(new_line_code->mcodes);
+    pinterp->active_settings(new_line_code->settings);
+    pinterp->active_g_codes(new_line_code->gcodes);
+    pinterp->active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
     PyObject *result = 
@@ -411,6 +410,7 @@ void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
+void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_POCKET(int pocket, int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
@@ -517,6 +517,12 @@ double GET_EXTERNAL_POSITION_U() { return _pos_u; }
 double GET_EXTERNAL_POSITION_V() { return _pos_v; }
 double GET_EXTERNAL_POSITION_W() { return _pos_w; }
 void INIT_CANON() {}
+
+void SET_PARAMETER_FILE_NAME(const char *name)
+{
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+}
+
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
     if(!result) { name[0] = 0; return; }
@@ -525,7 +531,7 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     memset(name, 0, max_size);
     strncpy(name, s, max_size - 1);
 }
-int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
+CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE t = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
@@ -555,16 +561,16 @@ static void user_defined_function(int num, double arg1, double arg2) {
     Py_XDECREF(result);
 }
 
-void SET_FEED_REFERENCE(int ref) {}
+void SET_FEED_REFERENCE(CANON_FEED_REFERENCE ref) {}
 int GET_EXTERNAL_QUEUE_EMPTY() { return true; }
-CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) { return 0; }
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 1; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
-CANON_PLANE GET_EXTERNAL_PLANE() { return 1; }
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0; }
 int GET_EXTERNAL_POCKETS_MAX() { return CANON_POCKETS_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
@@ -735,8 +741,8 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_new.init();
-    interp_new.open(f);
+    pinterp->init();
+    pinterp->open(f);
 
     maybe_new_line();
 
@@ -748,24 +754,24 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             if(!item) return NULL;
             char *code = PyString_AsString(item);
             if(!code) return NULL;
-            result = interp_new.read(code);
+            result = pinterp->read(code);
             if(!RESULT_OK) goto out_error;
-            result = interp_new.execute();
+            result = pinterp->execute();
         }
     }
     if(unitcode && RESULT_OK) {
-        result = interp_new.read(unitcode);
+        result = pinterp->read(unitcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     if(initcode && RESULT_OK) {
-        result = interp_new.read(initcode);
+        result = pinterp->read(initcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
-        result = interp_new.read();
+        result = pinterp->read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
@@ -773,7 +779,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         }
         if(!RESULT_OK) break;
         error_line_offset = 0;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
 out_error:
     if(pinterp)
@@ -804,8 +810,8 @@ static int maxerror = -1;
 static char savedError[LINELEN+1];
 static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
-    if(!PyArg_ParseTuple(o, "i", &err)) return NULL;
-    interp_new.error_text(err, savedError, LINELEN);
+    if(!PyArg_ParseTuple(o, "i", &err)) return nullptr;
+    pinterp->error_text(err, savedError, LINELEN);
     return PyString_FromString(savedError);
 }
 

@@ -19,12 +19,14 @@
 #ifndef INTERP_RETURN_H
 #define INTERP_RETURN_H
 
-#define INTERP_OK 0
-#define INTERP_EXIT 1
-#define INTERP_EXECUTE_FINISH 2
-#define INTERP_ENDFILE 3
-#define INTERP_FILE_NOT_OPEN 4
-#define INTERP_ERROR 5
+enum InterpReturn {
+    INTERP_OK = 0,
+    INTERP_EXIT = 1,
+    INTERP_EXECUTE_FINISH = 2,
+    INTERP_ENDFILE = 3,
+    INTERP_FILE_NOT_OPEN = 4,
+    INTERP_ERROR = 5,
+};
 
 /*
 The return values OK, EXIT, EXECUTE_FINISH, and ENDFILE represent
@@ -33,6 +35,6 @@ value that represents an error result. INTERP_MIN_ERROR
 is therefore the index of the last non-error return value.
 */
 
-#define INTERP_MIN_ERROR 3
+static const InterpReturn INTERP_MIN_ERROR = INTERP_ENDFILE;
 
 #endif				/* INTERP_RETURN_H */

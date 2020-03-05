@@ -555,7 +555,7 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Mode | return value
-|G54| 554
+|G54| 540
 |G55| 550
 |G56| 560
 |G57| 570

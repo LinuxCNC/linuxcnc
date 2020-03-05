@@ -6,4 +6,7 @@ M98
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     4 N..... SET_XY_ROTATION(0.0000)
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
-    6 N..... COMMENT("Fanuc M98 requires P-word ")
+    6 N..... ON_RESET()
+    7 N..... COMMENT("Fanuc M98 requires P-word ")
+    8 N..... ON_RESET()
+    9 N..... ON_RESET()

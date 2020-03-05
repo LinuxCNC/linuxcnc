@@ -1,0 +1,50 @@
+gantry_jjog sim config
+
+o Default configs that synchronize the
+  final homing move for multiple joints disallow
+  individual jogging of such joints since
+  such jogs invite operator error and gantry
+  racking.  This more complex config demonstrates:
+
+Individual joint mode jogging for joint1 and joint3
+
+Synchronized joint mode jogging for joint1 and joint3
+
+
+Example Procedure:
+
+ 1) Estop-off  (F1)
+ 2) Machine-on (F2)
+ 3) Set halscope to "Roll" and resize
+ 4) Panel "J1,3 JOGGING": set ENABLE to ON
+    to allow jogging for joint1 and joint3
+ 5) use COUNTS to jog both joint1 and joint3
+    SYNCHRONOUSLY in realtim
+ 6) use axisgui jog number radiobuttons
+    and the plus(+) and minus(-) pushbuttons
+    to jog any joint INDIVIDUALLY.
+    NOTE: this would RACK a two-motor gantry
+ 7) Panel "J1,3 JOGGING": set ENABLE to OFF
+    to allow homing
+ 8) HOME All (Ctrl-HOME) to home all joints
+    (it may be necessary to first move all joints
+    close to zero to properly simulate home switches)
+ 9) Use axisgui X,Y,Z radiobuttons
+    and the plus(+) and minus(-) pushbuttons
+    to jog any coordinate
+10) Return to joint mode using the $ key
+
+Notes:
+a) Uses trivkins coordinates=XYZY kinstype=BOTH
+b) The "J1,3 JOGGING" panel makes hal connections to
+   alter ini.[13].home_sequence and motion.homing-inhibit
+   settings to allow jogging of joints that use synchronized
+   homing provisions.
+c) The "J1,3 JOGGING" COUNTS widget simulates
+   the counts which would normally be supplied
+   by an Manual-Pulse-Generator (MPG or wheel jog).
+d) The "J1,3 JOGGING" SCALE widget sets the distance
+   in machine units for each count
+e) In joint mode, the axis gui displays joint numbers
+   and joint positions correctly but the graphical
+   interpretation may be misleading.

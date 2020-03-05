@@ -20,6 +20,8 @@ kins \- kinematics definitions for LinuxCNC
 .PP
 .B loadrt maxkins
 .PP
+.B loadrt pentakins
+.PP
 .B loadrt pumakins
 .PP
 .B loadrt rosekins
@@ -247,6 +249,42 @@ head (B axis) and horizintal rotary mounted to the table (C axis).  Provides
 UVW motion in the rotated coordinate system.  The source file, maxkins.c,
 may be a useful starting point for other 5-axis systems.
 
+.SS pentakins \- Pentapod Kinematics
+Gives five degrees of freedom in position and orientation (XYZAB).  The
+location of base and effector joints is defined by hal parameters.  The
+forward kinematics iteration is controlled by hal pins.
+.TP
+.B pentakins.base.\fIN\fB.x
+.TQ
+.B pentakins.base.\fIN\fB.y
+.TQ
+.B pentakins.base.\fIN\fB.z
+.TQ
+.B pentakins.effector.\fIN\fB.r
+.TQ
+.B pentakins.effector.\fIN\fB.z
+Parameters describing the \fIN\fRth effector joint's radius and axial
+position.
+.TQ
+.B pentakins.convergence\-criterion
+Minimum error value that ends iterations with converged solution.
+.TQ
+.B pentakins.limit\-iterations
+Limit of iterations, if exceeded iterations stop with no convergence.
+.TQ
+.B pentakins.max\-error
+Maximum error value, if exceeded iterations stop with no convergence.
+.TQ
+.B pentakins.last\-iterations
+Number of iterations spent for the last forward kinematics solution.
+.TQ
+.B pentakins.max\-iterations
+Maximum number of iterations spent for a converged solution during current
+session.
+.TQ
+.B pentakins.tool\-offset
+TCP offset from effector origin along Z to implement RTCP function. To
+avoid joints jump change tool offset only when the platform is not tilted.
 
 .SS pumakins \- kinematics for puma typed robots
 Kinematics for a puma-style robot with 6 joints
@@ -310,11 +348,15 @@ The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
 .SS xyzac\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
 Tilting table (A) and horizontal rotary mounted tothe table (C)
-(5 Joints)
+(5 Joints).  The default joint mapping is X:0,Y:1,Z:2,A:3,C:4.
+The joint mapping can be altered with the coordinates parameter
+in the same way as supported by trivkins.
 
 .SS xyzbc\-trt\-kins \- 5 Axis mill (Table Rotary/Tilting)
 Tilting table (B) and horizontal rotary mounted to table (C axis)
-(5 Joints)
+(5 Joints).  The default joint mapping is X:0,Y:1,Z:2,A:3,C:4.
+The joint mapping can be altered with the coordinates parameter
+in the same way as supported by trivkins.
 
 .SS 5axiskins \- 5 Axis bridge mill
 XYZBC (5 Joints)

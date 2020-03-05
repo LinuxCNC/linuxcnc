@@ -46,6 +46,7 @@ if materialnum != get_material():
     while get_change() == 0:
         if time.time() > start + 3:
             print("T{}: timeout waiting for material-change".format(materialnum))
+            break
     if get_change() < 0:
         print("Material #{}: does not exist".format(materialnum))
 set_change(0)
