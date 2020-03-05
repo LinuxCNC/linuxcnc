@@ -117,11 +117,6 @@ class CustomSVG(QtSvg.QSvgWidget):
 class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MacroTab, self).__init__(parent)
-        try:
-            tpath = os.path.expanduser(INFO.MACRO_PATH)
-            self.filepath = os.path.join(tpath, '')
-        except:
-            self.filepath = 'None'
 
         # id names for what dialog we want launched
         self.load_dialog_code = 'LOAD'
@@ -176,54 +171,62 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # then build the stack
     # anything goes wrong display an eror page
     def buildStack(self):
-        tabName = self._findMacros()
-        LOG.debug("Macros Found: {}".format(tabName))
-        if tabName is None:
+        macroFlag = False
+        for path in INFO.SUB_PATH_LIST:
+            if 'macro' in path:
+                path = os.path.expanduser(path)
+                tabName = self._findMacros(path)
+                LOG.debug("Macros Found: {}".format(tabName))
+                if tabName is None:
+                    continue
+                macroFlag = True
+                self._buildMenuPage(tabName,path)
+                # Add pages
+                # tabname is a list of found macros
+                # these macro names are also used as the base name
+                # of a list of required inputs.
+                # we add a label and lineedit/radiobutton for each string in each
+                # of these arrays
+                for i, tName in enumerate(tabName):
+                    # make a widget that is added to the stack
+                    w = TouchInputWidget()
+                    hbox = QtWidgets.QHBoxLayout(w)
+                    hbox.addStretch(1)
+                    vbox = QtWidgets.QVBoxLayout()
+                    w.setObjectName(tName)
+                    # add labels and edits
+                    # self[tName][0] is the list of name text and defaults pairs
+                    for n, name in enumerate(self[tName][0]):
+                        l = QtWidgets.QLabel(name[0])
+                        if name[1].lower() in('false', 'true'):
+                            self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
+                            if name[1].lower() == 'true':
+                                self['%s%d' % (tName, n)].setChecked(True)
+                        else:
+                            self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
+                            self['%s%d' % (tName, n)].keyboard_type = 'numeric'
+                            self['%s%d' % (tName, n)].setText(name[1])
+                        vbox.addWidget(l)
+                        vbox.addWidget(self['%s%d' % (tName, n)])
+                    #add the SVG pic layer
+                    svg_info = self[tName][1]
+                    #print path+svg_info[0], svg_info[1]
+                    svgpath = os.path.join(path, svg_info[0])
+                    self['sw%d' % i] = CustomSVG(svgpath,  int(svg_info[1]))
+                    hbox.addWidget(self['sw%d' % i])
+                    vbox.addStretch(1)
+                    hbox.addLayout(vbox)
+                    # add the widget to the stack
+                    self.stack.addWidget(w)
+        # No macros found in any path
+        # show a message
+        if macroFlag == False:
             self._buildErrorTab()
-            return
-        self._buildMenuPage(tabName)
-        # Add pages
-        # tabname is a list of found macros
-        # these macro names are also used as the base name
-        # of a list of required inputs.
-        # we add a label and lineedit/radiobutton for each string in each
-        # of these arrays
-        for i, tName in enumerate(tabName):
-            # make a widget that is added to the stack
-            w = TouchInputWidget()
-            hbox = QtWidgets.QHBoxLayout(w)
-            hbox.addStretch(1)
-            vbox = QtWidgets.QVBoxLayout()
-            w.setObjectName(tName)
-            # add labels and edits
-            # self[tName][0] is the list of name text and defaults pairs
-            for n, name in enumerate(self[tName][0]):
-                l = QtWidgets.QLabel(name[0])
-                if name[1].lower() in('false', 'true'):
-                    self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
-                    if name[1].lower() == 'true':
-                        self['%s%d' % (tName, n)].setChecked(True)
-                else:
-                    self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
-                    self['%s%d' % (tName, n)].keyboard_type = 'numeric'
-                    self['%s%d' % (tName, n)].setText(name[1])
-                vbox.addWidget(l)
-                vbox.addWidget(self['%s%d' % (tName, n)])
-            #add the SVG pic layer
-            svg_info = self[tName][1]
-            #print self.filepath+svg_info[0], svg_info[1]
-            svgpath = os.path.join(self.filepath, svg_info[0])
-            self['sw%d' % i] = CustomSVG(svgpath,  int(svg_info[1]))
-            hbox.addWidget(self['sw%d' % i])
-            vbox.addStretch(1)
-            hbox.addLayout(vbox)
-            # add the widget to the stack
-            self.stack.addWidget(w)
 
     # Menu page has icon buttons to select the macro
     # it finds the icon info from the macro file
     # using the magic comments parsed before this
-    def _buildMenuPage(self, tabNames):
+    def _buildMenuPage(self, tabNames,path):
         col = row = 0
         w = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout(w)
@@ -238,7 +241,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 svg_num = self[tName][1][2]
             except:
                 svg_num = self[tName][1][1]
-            svgpath = os.path.join(self.filepath, svg_name)
+            svgpath = os.path.join(path, svg_name)
             # label is the only way I have found to make the buttons
             # larger - the label is under the pic - if no errors
             btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
@@ -263,9 +266,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         w = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout(w)
         vbox.addStretch(1)
-        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path specified in INI file under heading [RS274NGC],\nSUBROUTINE_PATH=')
+        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path(s) specified in INI file under heading [RS274NGC],\nSUBROUTINE_PATH=')
         vbox.addWidget(mess)
-        mess = QtWidgets.QLabel(self.filepath)
+        mess = QtWidgets.QLabel( '\n'.join(map(str, INFO.SUB_PATH_LIST)))
         vbox.addWidget(mess)
         # add the widget to the stack
         self.stack.addWidget(w)
@@ -275,8 +278,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # self['macroname'] = [ [DEFAULT DATA],[SVG FILE,LAYER,ICON LAYER],{OPTION DICT NAME:OPTION DICT DATA,}]
     # returns a list on the macro names that it finds valid
 
-    def _findMacros(self):
-        path = self.filepath
+    def _findMacros(self,path):
         tName = []
         macros = []
         defaults = []

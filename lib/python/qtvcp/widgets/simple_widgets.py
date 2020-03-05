@@ -328,7 +328,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 p.drawPolygon(triangle)
 
             # circle
-            else:
+            elif self._shape == 1:
                 x = self.width() - self._diameter
                 y = 0
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
@@ -339,6 +339,22 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 p.setPen(color)
                 p.setRenderHint(QtGui.QPainter.Antialiasing, True)
                 p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
+
+            elif self._shape == 2:
+                rect = p.window()
+                topLeft = rect.topLeft()
+                #p.setPen(color)
+                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.SolidPattern))
+                grad = QtGui.QLinearGradient()
+                grad.setCoordinateMode(QtGui.QGradient.ObjectBoundingMode)
+                grad.setStart(0,0)
+                grad.setFinalStop(0,.8)
+                grad.setColorAt(0, color)
+                grad.setColorAt(.5, QtCore.Qt.white)
+                grad.setColorAt(.8, color)
+                p.setBrush(QtGui.QBrush(grad))
+                p.drawRoundedRect(topLeft.x()+10, topLeft.y(), self.width()-20,self.height()*.25,10, 10)
+
 
     def set_indicator(self, data):
         self.draw_indicator = data

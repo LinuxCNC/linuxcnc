@@ -66,14 +66,27 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.skew_buttonGroup.buttonClicked.connect(self.btn_skew_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.btn_length_clicked)
 
+        # check if probe macros exist
+        self.probe_enable = True
+        for path in INFO.SUB_PATH_LIST:
+            path = os.path.expanduser(path)
+            for root, dirs, files in os.walk(path):
+                for file in files:
+                    # just need to check for one file - proof enough
+                    if 'xminus.ngc' in file:
+                        self.probe_enable = True
+                # don't go deeper then this folder
+                break
+
     def _hal_init(self):
         def homed_on_test():
-            return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+            return (self.probe_enable and STATUS.machine_is_on() 
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
-        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('all-homed', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('error', self.send_error)
         STATUS.connect('periodic', lambda w: self.check_probe())
 
@@ -94,8 +107,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
-        self.read_page_data()
-        self.start_process()
+        if self.probe_enable == False:
+            LOG.error("No path to VersaProbe Macros Found in INI's [RS274] SUBROUTINE_PATH entry")
+            STATUS.emit('update-machine-log', 'WARNING -VersaProbe macro files not found -Probing disabled', 'TIME')
+        else:
+            self.read_page_data()
+            self.start_process()
 
     # when qtvcp closes this gets called
     def closing_cleanup__(self):
@@ -116,7 +133,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.input_rapid_vel.text()), float, 'VERSA_PROBE_OPTIONS')
-        self.proc.terminate()
+        if self.probe_enable == True:
+            self.proc.terminate()
 
 #############################################
 # process control
