@@ -394,8 +394,8 @@ class FileDialog(QFileDialog, _HalWidgetBase):
         options |= QFileDialog.DontUseNativeDialog
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
-        exts = INFO.get_qt_filter_extensions()
-        self.setNameFilter(exts)
+        self.INI_exts = INFO.get_qt_filter_extensions()
+        self.setNameFilter(self.INI_exts)
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
 
     def _hal_init(self):
@@ -419,7 +419,7 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             self.play_sound = False
 
     def _external_request(self, w, message):
-        ext = message.get('EXTENTIONS')
+        ext = message.get('EXTENSIONS')
         pre = message.get('FILENAME')
         dir = message.get('DIRECTORY')
         if message.get('NAME') == self._load_request_name:
@@ -428,17 +428,19 @@ class FileDialog(QFileDialog, _HalWidgetBase):
                 message['RETURN'] = self.load_dialog(ext, pre, dir, True)
                 STATUS.emit('general', message)
             else:
-                self.load_dialog(extentions = ext)
+                self.load_dialog(extensions = ext)
         elif message.get('NAME') == self._save_request_name:
             if message.get('ID'):
                 message['RETURN'] = self.save_dialog(ext, pre, dir)
                 STATUS.emit('general', message)
 
-    def load_dialog(self, extentions = None, preselect = None, directory = None, return_path=False):
+    def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
-        if extentions:
-            self.setNameFilter(extentions)
+        if extensions:
+            self.setNameFilter(extensions)
+        else:
+            self.setNameFilter(self.INI_exts)
         if preselect:
             self.selectFile(preselect)
         else:
@@ -464,11 +466,13 @@ class FileDialog(QFileDialog, _HalWidgetBase):
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
 
-    def save_dialog(self, extentions = None, preselect = None, directory = None):
+    def save_dialog(self, extensions = None, preselect = None, directory = None):
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
-        if extentions:
+        if extensions:
             self.setNameFilter(extensions)
+        else:
+            self.setNameFilter(self.INI_exts)
         if preselect:
             self.selectFile(preselect)
         else:

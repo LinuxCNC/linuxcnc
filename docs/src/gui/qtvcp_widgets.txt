@@ -455,12 +455,58 @@ If you don't set the button text it will automatically update to the current sys
 
 It is based on pyQT's QToolButton
 
-===  Macro Widget
+===  MacroTab Widget
 
 This Widget allows a user to select and adjust special macro programs for 
 doing small jobs. +
-It uses svg images for visual representation of the macro and for an icon. +
+It uses images for visual representation of the macro and for an icon. +
 The macros are Oword subroutine with special comments to work with the launcher. +
+The first three lines must have the keywords: (The forth is optional) +
+Here is a sample fr the forst four lines in an Oword file: +
+----
+; MACROCOMMAND=Entry1,Entry2
+; MACRODEFAULTS=0,true
+; MACROIMAGE=my_image.svg,Icon layer number, Macro layer number 
+; MACROOPTIONS=load:yes,save:yes,default:default.txt,path:~/macros
+----
+
+==== MACROCOMMAND
+
+This is the forst line in the Oword file. +
+It is a comma separated list of text to display above an entry. +
+There will be one for every variable required in the Oword function. +
+
+==== MACRODEFAULT
+
+This must be the second line in the Oword file. +
+It is a comma separated list of the default values for each variable in the Oword function. +
+If you use the word 'true' or 'false' in the list, a checkbutton will be shown.
+
+==== MACROIMAGE
+
+This must be the third line in the Oword file. +
+if using a SVG image file, the must end b .svg +
+It can use layers to define different images for macro and icon. +
+The first entry will be the SVG image file name. +
+It is assumed to be in the same folder as the Oword file. +
+The second item will be the image layer. +
+the optional third entry will be the icon layer. +
+If the third entry is missing, the same image will be used for macro and icon. +
+
+If using a png/jpg image file . +
+The first entry is the image filename. +
+It is assumed the image file are in the same folder an the macro. +
+The optional second entry will be the icon filename. +
+If the second entry is missing the same image will be used for macro and image. +
+
+If the keyword is present but the entries are missing , no images will be used. +
+
+==== MACRODEFAULT
+This optional line must be the forth line in the Oword file. +
+It is a comma separated list of keyword and data. +
+
+ * 'LOAD:yes' - show a load button
+ * 'SAVE:yes' -show a save button
 
 === MDILine Widget
 
