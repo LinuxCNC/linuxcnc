@@ -446,35 +446,33 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.getSaveFileName()
 
     def openReturn(self, path):
-        qssname = path # os.path.join(DIR, BNAME, sheetName)
-        file = QtCore.QFile(qssname)
+        LOG.debug("Open return filename choosen: {}".format(path))
+        file = QtCore.QFile(path)
         file.open(QtCore.QFile.ReadOnly)
-        num = 0
         name = str(self.stack.currentWidget().objectName())
         while not file.atEnd():
-            dataSheet = file.readLine()
+            readLine = file.readLine()
             try:
                 # Python v2.
-                dataSheet = unicode(dataSheet, encoding='utf8')
+                readLine = unicode(readLine, encoding='utf8')
             except NameError:
                 # Python v3.
-                dataSheet = str(dataSheet, encoding='utf8')
-            h,g = dataSheet.split(',')
-
-            # set widgets to data:
-            # Look for a radio button instance so we can convert to integers
-            # other wise we assume text
-            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
-                #print self['%s%d' % (name, num)], h
-                self['%s%d' % (name, num)].setChecked(bool(h))
-            else:
-                #print self['%s%d' % (name, num)], h
-                self['%s%d' % (name, num)].setText(str(h))
-            num =+1
+                readLine = str(readLine, encoding='utf8')
+            widget,data,title = readLine.split(',')
+            #print widget,data,title,name
+            if name in widget:
+                # set widgets to data:
+                # Look for a radio button instance so we can convert to integers
+                # other wise we assume text
+                if isinstance(self[widget], QtWidgets.QRadioButton):
+                    self[widget].setChecked(bool(data))
+                else:
+                    self[widget].setText(str(data))
 
     # save the current screen data to file picked by the user.
     # it's a plain text file
     def saveReturn(self, path):
+        LOG.debug("Save return filename choosen: {}".format(path))
         name = str(self.stack.currentWidget().objectName())
         if name == '': return
         file = QtCore.QFile(path)
@@ -487,7 +485,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     data = str(1 * int(self[widgetname].isChecked()))
                 else:
                     data = str(self[widgetname].text())
-                line =  '%s,    %s\n'%( str(data),i[0])
+                line =  '%s,%s,    %s\n'%( widgetname, str(data), i[0])
                 QtCore.QTextStream(file) << line
         else:
             QMessageBox.information(self, "Unable to open file",
@@ -505,7 +503,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
             'TITLE':'Load Macro',
             'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
-            'EXTENTIONS':'Text Files (*.txt);;ALL File (*.*)'
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
             }
         STATUS.emit('dialog-request', mess)
 
@@ -514,7 +512,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # placement are done.
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName())}
+            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'}
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message from dialogs
