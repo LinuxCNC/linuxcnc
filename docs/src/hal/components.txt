@@ -176,25 +176,48 @@ conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 
 === Hardware Drivers
 
-hm2_7i43:: (((hm2_7i43)))HAL driver for the Mesa Electronics 7i43 EPP Anything IO board with
-HostMot2.
+(((hal_ppmc)))
 
-hm2_pci:: (((hm2_pci)))HAL driver for the Mesa Electronics 5i20, 5i22, 5i23, 4i65, and 4i68
-Anything I/O boards, with HostMot2 firmware.
+hal_ppmc:: Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM
+and Stepper controller.
 
-hostmot2:: (((hostmot2)))HAL driver for the Mesa Electronics HostMot2 firmware.
+(((hm2_7i43)))
 
-mesa_7i65:: (((7i65)))Support for the Mesa 7i65 eight-axis servo card.
+hm2_7i43:: Mesa Electronics driver for the 7i43 EPP Anything IO board with
+HostMot2. (See the man page for more information)
 
-pluto_servo:: (((pluto_servo)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with servos.
+(((hm2_pci)))
 
-pluto_step:: (((pluto_step)))Hardware driver and firmware for the Pluto-P parallel-port FPGA, for
-use with steppers.
+hm2_pci:: Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68
+Anything I/O boards, with HostMot2 firmware. (See the man page for more information)
 
-thc:: (((torch height control)))Torch Height Control using a Mesa THC card.
+(((hostmot2)))
 
-serport:: (((serport)))Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
+hostmot2:: Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the 
+HostMot2 firmware.
+
+(((7i65)))
+
+mesa_7i65:: Mesa Electronics driver for the 7i65 eight-axis servo card. (See the
+man page for more information)
+
+(((pluto_servo)))
+
+pluto_servo:: Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the
+parallel port FPGA, for servos.
+
+(((pluto_step)))
+
+pluto_step:: Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA,
+for steppers.
+
+(((torch height control)))
+
+thc:: Torch Height Control using a Mesa THC card or any analog to velocity input
+
+(((serport)))
+
+serport:: Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
 
 === Kinematics
 
