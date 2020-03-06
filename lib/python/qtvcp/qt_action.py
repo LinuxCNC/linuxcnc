@@ -425,8 +425,15 @@ class _Lcnc_Action(object):
         if view.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
                     'zoom-in','zoom-out','pan-up','pan-down',
                     'pan-left','pan-right','rotate-up',
-                'rotate-down', 'rotate-cw','rotate-ccw'):
-            STATUS.emit('view-changed',view)
+                'rotate-down', 'rotate-cw','rotate-ccw',
+                'overlay-offsets-on','overlay-offsets-off'):
+            STATUS.emit('graphics-view-changed',view,None)
+
+    def ADJUST_GRAPHICS_PAN(self, x, y):
+        STATUS.emit('graphics-view-changed','pan-view',{'X':x,'Y':y})
+
+    def ADJUST_GRAPHICS_ROTATE(self, x, y):
+        STATUS.emit('graphics-view-changed','rotate-view',{'X':x,'Y':y})
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess

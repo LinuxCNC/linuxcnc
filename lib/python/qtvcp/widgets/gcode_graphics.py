@@ -64,7 +64,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
         STATUS.connect('graphics-view-changed', self.set_view_signal)
 
-    def set_view_signal(self, w, view):
+    def set_view_signal(self, w, view, args):
         v = view.lower()
         if v == 'clear':
             self.clear_live_plotter()
@@ -100,6 +100,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.setShowOffsets(True)
         elif v == 'overlay-offsets-off':
             self.setShowOffsets(False)
+        elif v == 'overlay-dro-on':
+            self.setdro(True)
+        elif v == 'overlay-dro-off':
+            self.setdro(False)
+        elif v == 'pan-view':
+            self.panView(args.get('X'),args.get('Y'))
+        elif v == 'rotate-view':
+            self.rotateView(args.get('X'),args.get('Y'))
         else:
             self.set_view(v)
 

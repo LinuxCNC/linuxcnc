@@ -337,37 +337,37 @@ class ToolBarActions():
         AUX_PRGM.load_ladder()
 
     def actOnZoomIn(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'zoom-in')
+        ACTION.SET_GRAPHICS_VIEW('zoom-in')
 
     def actOnZoomOut(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'zoom-out')
+        ACTION.SET_GRAPHICS_VIEW('zoom-out')
 
     def actOnViewX(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'x')
+        ACTION.SET_GRAPHICS_VIEW('x')
 
     def actOnViewY(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'y')
+        ACTION.SET_GRAPHICS_VIEW('y')
 
     def actOnViewY2(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'y2')
+        ACTION.SET_GRAPHICS_VIEW('y2')
 
     def actOnViewZ(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'z')
+        ACTION.SET_GRAPHICS_VIEW('z')
 
     def actOnViewZ2(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'z2')
+        ACTION.SET_GRAPHICS_VIEW('z2')
 
     def actOnViewp(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'p')
+        ACTION.SET_GRAPHICS_VIEW('p')
 
     def actOnViewClear(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'clear')
+        ACTION.SET_GRAPHICS_VIEW('clear')
 
     def actOnViewOffsets(self,widget, state=None):
         if state:
-            STATUS.emit('graphics-view-changed', 'overlay-offsets-on')
+            ACTION.SET_GRAPHICS_VIEW('overlay-offsets-on')
         else:
-            STATUS.emit('graphics-view-changed', 'overlay-offsets-off')
+            ACTION.SET_GRAPHICS_VIEW('overlay-offsets-off')
 
     def actOnQuit(self,widget, state=None):
         STATUS.emit('shutdown')

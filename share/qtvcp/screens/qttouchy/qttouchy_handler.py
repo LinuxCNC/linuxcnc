@@ -231,16 +231,16 @@ class HandlerClass:
                     self.w.filemanager.up()
             elif self.w.mainTab.currentWidget() == self.w.tab_graphics:
                 if self.w.panV.isChecked():
-                    self.w.gcodegraphics.panView(0,diff)
+                    ACTION.ADJUST_GRAPHICS_PAN(0,diff)
                 elif self.w.panH.isChecked():
-                    self.w.gcodegraphics.panView(diff,0)
+                    ACTION.ADJUST_GRAPHICS_PAN(diff,0)
                 elif self.w.rotate.isChecked():
-                    self.w.gcodegraphics.rotateView(diff,diff)
+                    ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
                 elif self.w.zoom.isChecked():
                     if diff <0:
-                        self.w.gcodegraphics.zoomin()
+                        ACTION.SET_GRAPHICS_VIEW('zoom-in')
                     else:
-                        self.w.gcodegraphics.zoomout()
+                        ACTION.SET_GRAPHICS_VIEW('zoom-OUT')
 
         elif self.w.pushbutton_fo.isChecked():
             scaled = (STATUS.stat.feedrate * 100 + diff)
