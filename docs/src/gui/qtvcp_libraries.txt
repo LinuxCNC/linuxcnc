@@ -8,7 +8,8 @@ In this way you can select what features you want - yet don't have to build comm
 == STATUS
 
 STATUS is a library that sends GObject messages based on linuxcnc's current state. +
-It is an extension of gladevcp's GStat object. +
+It is an extension of gladevcp's GStat object. <<cha:GStat,GStats>>
+
 It also has some functions to give status on such things as internal jog rate. +
 You connect a function call to the STATUS message you are interested in. +
 QTvcp will call this function when the message is sent from STATUS. +
@@ -223,8 +224,29 @@ ACTION.SET_BLOCK_DELETE_OFF()
 
 ACTION.RELOAD_DISPLAY()
 ACTION.SET_GRAPHICS_VIEW(view)
+
+ACTION.UPDATE_MACHINE_LOG(text, option=None):
+
+ACTION.CALL_DIALOG(command):
+
+ACTION.HIDE_POINTER(state):
+
+ACTION.PLAY_SOUND(path):
+ACTION.PLAY_ERROR():
+ACTION.PLAY_DONE():
+ACTION.PLAY_READY():
+ACTION.PLAY_ATTENTION():
+ACTION.PLAY_LOGIN():
+ACTION.PLAY_LOGOUT():
+ACTION.SPEAK(speech):
+
+ACTION.BEEP():
+ACTION.BEEP_RING():
+ACTION.BEEP_START():
+
 ----
 There are some 'helper functions' - mostly used for this library's support +
+[source,python]
 ----
 get_jog_info (num)
 jnum_check(num)

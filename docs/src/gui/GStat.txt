@@ -85,11 +85,11 @@ or if you need to wait for the pins to be made before continuing: +
 'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
 The pins would be: 'metric_status.g20' and 'metric_status.g21' +
 
-=== Sample GladeVCP python extension code pattern
+=== GladeVCP python extension code pattern
 This file assumes there are three GTK labels named: +
-state_label +
-e_state_label +
-interp_state_label +
+'state_label' +
+'e_state_label' +
+'interp_state_label' +
 
 [source,python]
 ----
@@ -124,6 +124,47 @@ class HandlerClass:
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
+----
+
+=== QTVCP python extension code pattern
+Qtvcp extends GStat, so must be loaded differently but all the messages are available in Qtvcp. +
+This handler file assumes there are three QLabels named: +
+'state_label' +
+'e_state_label' +
+'interp_state_label' +
+[source,python]
+----
+#!/usr/bin/env python
+
+from qtvcp.core import Status
+GSTAT = Status()
+
+class HandlerClass:
+
+    def __init__(self, halcomp,widgets,paths):
+        self.w = widgets
+
+        GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
+        GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
+
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
+
+        GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
+        GSTAT.connect("interp-run",lambda w: self.update_interp_label('Run'))
+        GSTAT.connect("interp-idle",lambda w: self.update_interp_label('Idle'))
+
+    def update_state_label(self,text):
+        self.w.state_label.setText("State: %s" % (text))
+
+    def update_estate_label(self,text):
+        self.w.e_state_label.setText("E State: %s" % (text))
+
+    def update_interp_label(self,text):
+        self.winterp_state_label.setText("Interpeter State: %s" % (text))
+
+def get_handlers(halcomp,builder,useropts):
+    return [HandlerClass(halcomp,widgets,paths)]
 ----
 ==  Messages
 
@@ -344,7 +385,7 @@ This depends on the widget/libraries used. +
 intended to be sent when gcode is loaded. +
 This depends on the widget/libraries used. +
 
-*graphics-view-changed* :: '(returns string)' -
+*graphics-view-changed* :: '(returns string, python Dict or None)' -
 intended to be sent when graphics view is changed. +
 This depends on the widget/libraries used. +
 

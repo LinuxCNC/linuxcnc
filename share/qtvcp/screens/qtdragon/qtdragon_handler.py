@@ -322,7 +322,7 @@ class HandlerClass:
         # instantiate dialog box
         info = "Jog to within {} mm of touch plate and click OK".format(max_probe)
         mess = {'NAME':'MESSAGE', 'ID':'_touchoff_', 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
-        STAT.emit('dialog-request', mess)
+        ACTION.CALL_DIALOG(mess)
         
     # override frame
     def slow_button_clicked(self, state):
@@ -367,7 +367,7 @@ class HandlerClass:
 
     # alarm tab
     def btn_clear_alarms_clicked(self):
-        STAT.emit('update-machine-log', None, 'DELETE')
+        ACTION.UPDATE_MACHINE_LOG('update-machine-log', None, 'DELETE')
 
     def btn_save_alarms_clicked(self):
         text = self.w.machinelog.toPlainText()
@@ -427,7 +427,7 @@ class HandlerClass:
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_alarm(self, message):
-        STAT.emit('update-machine-log', message, 'TIME')
+        ACTION.UPDATE_MACHINE_LOG(message, 'TIME')
 
     def alarm_added(self):
         self.w.led_alarm.setState(True)

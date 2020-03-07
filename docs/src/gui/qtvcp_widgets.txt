@@ -11,6 +11,12 @@ One is for HAL only widgets. +
 The other is for cnc control widgets. +
 you are free to mix them in any way on your panel. +
 
+[NOTE]
+
+This description of widget properties can easily be out of date due to further development and +
+lack of people to write docs (A good way to give back to the project). +
+The definitive descriptions are found by looking in the source code. +
+
 == HAL Only Widgets
 
 These Widgets usually have HAL pins and don't react to the machine Controller
@@ -214,25 +220,37 @@ Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
 
 Action buttons are subclasssed from indicated_PushButton +
 
-Indicated PushButtons have three options: +
+==== LED indicator option
+Indicator_option puts a triangle ot round 'LED' on the top right corner of the button. +
+It will indicated the current state of the button, a HAL pin or linuxcnc status. +
+Use the properties to customized the indicator. +
+----
+on_state_color
+off_state_color
+indicator_size
+circle_diameter
+shape_option
+----
 
-* indicator_option
+Indicated PushButtons have options: +
+
 * indicator_HAL_pin_option
-* checked_state_text_option
-* python_command_option
-
-Indicator_option puts a triangle 'LED' on the top right corner of the button. +
-It will indicated the current state of the button. Use the properties +
-'on_state_color', 'off_state_color', and 'indicator_size' to customized the indicator. +
+* indicator_status_option
 
 Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
 button indicator state. +
 
-Checked_state_text_option allows a checkable button to change the text based +
+indicator_status_option will make the LED indicate the state of selectable linuxcnc status. +
+
+==== Text changes on state
+
+Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
 on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
 to specify the text for each state. +
 
-Python_command_option allow small snippets of python code to be run from the push of a button, +
+==== Call python commands on state
+
+The python_command_option allow small snippets of python code to be run from the push of a button, +
 with out having to edit the handler file. (though it can call functions in the handler file) +
 When using the command_string properties. +
 'true_python_cmd_string' - a python command that will be called when the button is toggled true +
@@ -274,8 +292,14 @@ It uses opencv vision library. +
 
 ===  DRO Widget
 This will display the current position of an axis. +
+Qjoint_number
+Qreference_type
+metric_template
+imperial_template
+angular_template 
 
-It is based on pyQT's
+
+It is based on pyQT's QLabel
 
 === GcodeDisplay
 
@@ -295,7 +319,45 @@ It is based on pyQT's QsciScintilla +
 === GCodeGraphics Widget
 This Displays the current Gcode in a graphical form. +
 
-todo +
+_view
+_dro
+_dtg
+_metric
+overlay
+_offsets
+background_color
+
+==== ACTION functions
+The ACTION library can control the gcode graphics widget. +
+'ACTION.RELOAD_DISPLAY()' -reload the current program which recalculates the origin/offsets. +
+'ACTION.SET_GRAPHICS_VIEW(view)' The following commands can be sent:
+----
+clear
+zoom-in
+zoom-out
+pan-up
+pan-down
+pan-right
+pan-left
+rotate-cw
+rotate-ccw
+rotate-up
+rotate-down
+overlay-dro-on
+overlay-dro-off
+overlay-offsets-on
+overlay-offsets-off
+P
+X
+Y
+Y2
+Z
+Z2
+----
+'ACTION.ADJUST_PAN(X,Y)' -directly set the relative pan of view in x and y direction
+
+'ACTION.ADJUST_ROTATE(X,Y)' -directly set the relative rotation of view in x and y direction
+
 It is based on pyQT's opengl widget. +
 
 ===  StateLabel Widget
@@ -472,7 +534,7 @@ Here is a sample fr the forst four lines in an Oword file: +
 
 ==== MACROCOMMAND
 
-This is the forst line in the Oword file. +
+This is the first line in the Oword file. +
 It is a comma separated list of text to display above an entry. +
 There will be one for every variable required in the Oword function. +
 
@@ -614,7 +676,7 @@ The dialog will ignore these and pass them back. +
         def show_dialog(self):
             mess = {'NAME':'ENTRY','ID':'__test1__',
                     'TITLE':'Test Entry'}
-            STATUS.emit('dialog-request', mess)
+            ACTION.CALL_DIALOG, mess)
 ----
 
 Add a callback function that processes the general message: +
@@ -672,6 +734,34 @@ This is used to load Gcode files +
 If there is a Focus Overlay widget present, it will signal it to display. +
 When using STATUS's 'request-dialog' function, the default launch names are 'LOAD' or 'SAVE' +
 
+There are options that can be set when requesting a dialog, these would be added to +
+the message dict. +
+
+* EXTENSIONS
+* FILENAME
+* DIRECTORY
+
+An example python call, for a load dialog: +
+[source,python]
+----
+mess = {'NAME':'LOAD','ID':'_MY_DIALOG_',
+            'TITLE':'Load Some text File',
+            'FILENAME':'~/linuxcnc/nc_files/someprogram.txt',
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
+            }
+ACTION.CALL_DIALOG(mess)
+----
+
+And for saving +
+[source,python]
+----
+mess = {'NAME':'SAVE','ID':'_MY_DIALOG_',
+            'TITLE':'Save Some text File',
+            'FILENAME':'~/linuxcnc/nc_files/someprogram.txt',
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
+            }
+ACTION.CALL_DIALOG(mess)
+----
 It is based on pyQT's QMessagebox
 
 ===  Dialog Origin Offset Widget
