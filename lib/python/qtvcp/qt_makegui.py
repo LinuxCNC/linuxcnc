@@ -71,9 +71,14 @@ class MyEventFilter(QtCore.QObject):
         except:
             return super(MyEventFilter,self).eventFilter(receiver, event)
 
-class MyWindow(QtWidgets.QMainWindow):
-    def __init__(self, halcomp, path):
-        super(MyWindow, self).__init__()
+
+class _MyWindow(QtWidgets.QMainWindow):
+    def __init__(self, halcomp=None, path=None):
+        super(_MyWindow,self).__init__()
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
 
         self.filename = path.XML
         self.halcomp = halcomp
@@ -237,6 +242,14 @@ class MyWindow(QtWidgets.QMainWindow):
                 handlers[n] = Trampoline(v)
 
         return handlers,mod,object
+
+class MyWindow(_MyWindow):
+    _instance = None
+    _instanceNum = 0
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _MyWindow.__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def __getitem__(self, item):
         return getattr(self, item)
