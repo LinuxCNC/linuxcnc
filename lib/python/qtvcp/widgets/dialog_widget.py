@@ -276,7 +276,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
     def showEvent(self, event):
         if self._nblock:
-            self.geometry_parsing(self,'LncMessage-geometry')
+            self.set_geometry()
         else:
             geom = self.frameGeometry()
             geom.moveCenter(QDesktopWidget().availableGeometry().center())
