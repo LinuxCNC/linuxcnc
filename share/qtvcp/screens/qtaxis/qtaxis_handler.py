@@ -29,6 +29,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+TOOLBAR = ToolBarActions()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -46,7 +47,6 @@ class HandlerClass:
         self.PATHS = paths
         self.STYLEEDITOR = SSE(widgets,paths)
         global TOOLBAR
-        TOOLBAR = ToolBarActions(widgets)
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
@@ -203,7 +203,7 @@ class HandlerClass:
             axis = message['AXIS']
             fixture = message['FIXTURE']
             ACTION.SET_TOOL_OFFSET(axis,num,fixture)
-            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+            ACTION.UPDATE_MACHINE_LOG('Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
 
     def motion_mode(self, w, mode):
         #print STATUS.stat.joints
@@ -398,7 +398,7 @@ class HandlerClass:
         retval = msg.exec_()
 
     def launch_log_dialog(self):
-        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
+        ACTION.CALL_DIALOG({'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
