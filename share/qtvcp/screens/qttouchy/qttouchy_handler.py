@@ -179,10 +179,7 @@ class HandlerClass:
             self.setDROFont(font)
 
     def togglePointer(self, data):
-        if data:
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-        else:
-            QtWidgets.QApplication.restoreOverrideCursor()
+        ACTION.HIDE_POINTER(data)
 
     #####################
     # general functions #
@@ -299,7 +296,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Function keys
     def on_keycall_F12(self,event,state,shift,cntrl):
