@@ -1,3 +1,6 @@
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtCore import Qt
+
 import linuxcnc
 import hal
 
@@ -426,6 +429,7 @@ class _Lcnc_Action(object):
                     'zoom-in','zoom-out','pan-up','pan-down',
                     'pan-left','pan-right','rotate-up',
                 'rotate-down', 'rotate-cw','rotate-ccw',
+                'overlay_dro_on','overlay_dro_off',
                 'overlay-offsets-on','overlay-offsets-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
@@ -454,6 +458,52 @@ class _Lcnc_Action(object):
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
         subprocess.call('shutdown now')
+
+    def UPDATE_MACHINE_LOG(self, text, option=None):
+        if option not in('TIME', 'DATE','DELETE',None):
+            log.warning("Machine_log option not recognized: {}".format(option))
+        STATUS.emit('update-machine-log', text, option)
+
+    def CALL_DIALOG(self, command):
+        try:
+            a = command['NAME']
+        except:
+            log.warning("Call Dialog command Dict not recogzied: {}".format(option))
+        STATUS.emit('dialog-request',command)
+
+    def HIDE_POINTER(self, state):
+        if state:
+            QApplication.setOverrideCursor(Qt.BlankCursor)
+        else:
+            QApplication.restoreOverrideCursor()
+
+    def PLAY_SOUND(self, path):
+        try:
+            STATUS.emit('play-sound', path)
+        except AttributeError:
+            log.warning("Sound request {} not recogzied".format(path))
+    def PLAY_ERROR(self):
+        self.PLAY_SOUND('ERROR')
+    def PLAY_DONE(self):
+        self.PLAY_SOUND('DONE')
+    def PLAY_READY(self):
+        self.PLAY_SOUND('READY')
+    def PLAY_ATTENTION(self):
+        self.PLAY_SOUND('ATTENTION')
+    def PLAY_LOGIN(self):
+        self.PLAY_SOUND('LOGIN')
+    def PLAY_LOGOUT(self):
+        self.PLAY_SOUND('LOGOUT')
+
+    def SPEAK(self, speech):
+        STATUS.emit('play-sound','SPEAK {}'.format(speech))
+
+    def BEEP(self):
+        self.PLAY_SOUND('BEEP')
+    def BEEP_RING(self):
+        self.PLAY_SOUND('BEEP_RING')
+    def BEEP_START(self):
+        self.PLAY_SOUND('BEEP_START')
 
     ######################################
     # Action Helper functions
