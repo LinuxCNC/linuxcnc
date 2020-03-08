@@ -126,6 +126,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
+        TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
@@ -195,9 +196,9 @@ class HandlerClass:
 
     # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
-        num = message['RETURN']
-        code = bool(message['ID'] == 'FORM__')
-        name = bool(message['NAME'] == 'ENTRY')
+        num = message.get('RETURN')
+        code = bool(message.get('ID') == 'FORM__')
+        name = bool(message.get('NAME') == 'ENTRY')
         if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']

@@ -213,6 +213,8 @@ class ToolBarActions():
             function = (self.actOnToolOffsetDialog)
         elif action == 'originoffsetdialog':
             function = (self.actOnOriginOffsetDialog)
+        elif action == 'calculatordialog':
+            function = (self.actOnCalculatorDialog)
 
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
@@ -410,6 +412,9 @@ class ToolBarActions():
 
     def actOnOriginOffsetDialog(self, wudget, state=None):
         STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
+
+    def actOnCalculatorDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'CALCULATOR'})
 
     #########################################################
     # Sub menus

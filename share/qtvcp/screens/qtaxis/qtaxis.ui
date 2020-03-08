@@ -1689,6 +1689,7 @@
     <addaction name="actionAbout"/>
     <addaction name="actionQuickRef"/>
     <addaction name="actionMachineLog"/>
+    <addaction name="actionCalculatorDialog"/>
    </widget>
    <widget class="QMenu" name="menuStstem">
     <property name="title">
@@ -2067,6 +2068,11 @@
    </property>
    <property name="text">
     <string>Show Offsets</string>
+   </property>
+  </action>
+  <action name="actionCalculatorDialog">
+   <property name="text">
+    <string>Calculator</string>
    </property>
   </action>
  </widget>
