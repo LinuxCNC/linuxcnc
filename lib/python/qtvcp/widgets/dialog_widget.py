@@ -1310,6 +1310,9 @@ class CalculatorDialog(Calculator, GeometryMixin):
             else:
                 self._title = 'Calculator Entry'
             preload = message.get('PRELOAD')
+            axis = message.get('AXIS')
+            if axis in ('X','Y','Z','A','B','C','U','V','W'):
+                self.axisTriggered(axis)
             num = self.showdialog(preload)
             message['RETURN'] = num
             STATUS.emit('general', message)

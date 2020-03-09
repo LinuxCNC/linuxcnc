@@ -99,7 +99,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
             'AXIS':axis,'CURRENT':now,
             'TITLE':'Set %s Origin'% axis,
-            'GEONAME':'axisToolButtonDialog_{}'.format(self.dialog_code)}
+            'GEONAME':'axisToolButtonDialog_{}'.format(self.dialog_code),
+            'AXIS':self._axis}
             STATUS.emit('dialog-request', mess)
             LOG.debug('message sent:{}'.format (mess))
 
