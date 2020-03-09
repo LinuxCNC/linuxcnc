@@ -1214,6 +1214,7 @@ class EntryDialog(QDialog, GeometryMixin):
             self.Num.setText(str(preload))
         flag = False
         while flag == False:
+            self.Num.setFocus()
             retval = self.exec_()
             if retval:
                 try:
