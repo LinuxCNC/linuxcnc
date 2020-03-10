@@ -30,6 +30,7 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 TOOLBAR = ToolBarActions()
+STYLEEDITOR  = SSE()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -45,8 +46,7 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
-        self.STYLEEDITOR = SSE(widgets,paths)
-        global TOOLBAR
+
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
@@ -472,7 +472,7 @@ class HandlerClass:
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR .load_dialog()
 
     def on_keycall_feedoverride(self,event,state,shift,cntrl,value):
         if state:
