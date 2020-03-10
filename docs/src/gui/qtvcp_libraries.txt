@@ -17,6 +17,10 @@ QTvcp will call this function when the message is sent from STATUS. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.core import Status
 ----
 To instantiate the module so you can use it add this python code to your instantiate section: +
@@ -25,12 +29,30 @@ To instantiate the module so you can use it add this python code to your instant
 STATUS = Status()
 ----
 To connect to messages use GObject syntax. For example to catch machine on and off messages, +
+
+[NOTE]
+This example shows the two common ways of connecting signals. +
+Notice one uses lambda. lambda is used to strip off or manipulate arguments from the status message +
+before calling the function. +
+You can see the difference in the called function signature. the one that uses lambda +
+does not accept the status object - lambda did not pass it to the function.
+
 place these commands into the INITIALIZE section: +
 [source,python]
 ----
         STATUS.connect('state-on', self.on_state_on)
-        STATUS.connect('state-off', self.on_state_off)
+        STATUS.connect('state-off', lambda: w, self.on_state_off())
 ----
+These would call functions that looks like these: +
+
+[source,python]
+----
+        def on_state_on(self, status_object):
+            print 'Linuxcnc machine is on'
+        def on_state_off(self):
+            print 'Linuxcnc machine is off'
+----
+
 In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
 When linuxcnc is in machine off state the function self.on_state_off will be called. +
 
@@ -111,11 +133,19 @@ get_qt_filter_extensions()
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.core import Info
 ----
 To instantiate the module so you can use it in a handler file add this python code to your instantiate section: +
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 INFO = Info()
 ----
 To access INFO data use this general syntax: +
@@ -134,11 +164,19 @@ It tries to hide incidental details and add convenience methods for developers. 
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.core import Action
 ----
 To instantiate the module so you can use it add this python code to your instantiate section: +
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 ACTION = Action()
 ----
 To access Action commands use general syntax such as these: +
@@ -301,11 +339,19 @@ This module give reference to important file paths. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp,core import Path
 ----
 To instantiate the module so you can use it add this python code to your instantiated section: +
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 PATH = Path()
 ----
 
@@ -331,17 +377,51 @@ PATH.LOCALEDIR      # Locale translation folder
 PATH.DOMAIN         # Translation domain
 
 ----
+
+== VCPWindow
+This module give reference to the Main window and widgets. +
+Typically this would be used for a library (eg, toolbar library uses it.) as +
+the widgets get a reference to the main window from the _hal_init() function. +
+
+To import this modules add this python code: +
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from qtvcp.qt_makegui import VCPWindow
+----
+
+To instantiate the module so you can use it add this python code: +
+[source,python]
+----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
+WIDGETS = VCPWindow()
+----
+
 == aux_program_loader
 
 This module allows an easy way to load auxiliary programs linuxcnc often uses. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 ----
 To instantiate the module so you can use it add this python code to your instantiated section: +
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 AUX_PRGM = Aux_program_loader()
 ----
 
@@ -390,11 +470,19 @@ It's used inside the handler file to facilitate keyboard jogging etc. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.lib.keybindings import Keylookup
 ----
 To instantiate the module so you can use it add this python code to your instantiate section: +
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 KEYBIND = Keylookup()
 ----
 
@@ -529,6 +617,10 @@ The screenoptions widget can automatically set up the audio system. +
 Or to import this modules manually add this python code to your import section: +
 [source,python]
 ----
+############################
+# **** IMPORT SECTION **** #
+############################
+
 from qtvcp.lib.audio_player import Player
 ----
 To instantiate the module so you can use it add this python code to your instantiated section: +
@@ -537,6 +629,10 @@ with the STATUS message system. +
 
 [source,python]
 ----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
 SOUND = Player()
 SOUND._register_messages()
 ----
@@ -617,6 +713,7 @@ quit
 system_shutdown
 tooloffsetdialog
 originoffsetdialog
+calculatordialog
 ----
 
 Submenus:
@@ -642,22 +739,8 @@ from qtvcp.lib.toolbar_actions import ToolBarActions
 # **** instantiate libraries section **** #
 ###########################################
 
-TOOLBAR = None
+TOOLBAR = ToolBarActions()
 
-###################################
-# **** HANDLER CLASS SECTION **** #
-###################################
-
-class HandlerClass:
-    ########################
-    # **** INITIALIZE **** #
-    ########################
-    # widgets allows access to  widgets from the qtvcp files
-    # at this point the widgets and hal pins are not instantiated
-    def __init__(self, halcomp,widgets,paths):
-
-        global TOOLBAR
-        TOOLBAR = ToolBarActions(widgets)
 ----
 
 === Assigning tool actions to toolbar buttons
