@@ -17,7 +17,7 @@ import os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
-from qtvcp.qt_makegui import MyWindow
+from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
@@ -30,7 +30,7 @@ ACTION = Action()
 INFO = Info()
 AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
-WIDGETS = MyWindow()
+WIDGETS = VCPWindow()
 
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
