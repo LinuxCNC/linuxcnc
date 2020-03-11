@@ -118,45 +118,47 @@ class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
         super(GridLayout, self).__init__(parent)
 
 
-class newButton(QtWidgets.QPushButton,QObject):
+class RichButton(QtWidgets.QPushButton):
     def __init__(self, parent=None):
-        super(newButton, self).__init__(parent)
-        self.ledColorOn = True
-        self._total = True
-        self.setCheckable(True)
+        super(RichButton, self).__init__(parent)
         self._text = self.text()
 
-        self.label = QtWidgets.QLabel(self._text, self)
-        #self.label.setText(self._text)
-        self.label.setAttribute( QtCore.Qt.WA_TransparentForMouseEvents )
-        self.label.setAlignment(QtCore.Qt.AlignCenter|QtCore.Qt.AlignVCenter)
-        self.label.show()
+        self._label = QtWidgets.QLabel(self._text, self)
+        self._label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents )
+        self._label.setAlignment(QtCore.Qt.AlignCenter|QtCore.Qt.AlignVCenter)
+        self._label.show()
 
     def setText(self, text):
-        self.label.setText(text)
-        self.label.update()
-        self.label.show()
+        self._label.setText(text)
 
     def text(self):
         try:
-            return self.label.text()
+            return self._label.text()
         except:
             pass
 
     def event(self, event):
         if event.type() ==  QtCore.QEvent.Resize:
-            w = QResizeEvent.size(event)
+            w = QtGui.QResizeEvent.size(event)
             try:
-                self.label.resize(w.width(), w.height())
+                self._label.resize(w.width(), w.height())
                 self.resize(w.width(), w.height())
             except:
                 pass
             return True
         else:
-            return super(newButton, self).event( event)
+            return super(RichButton, self).event( event)
+
+    def set_richText(self, data):
+        self.setText(data)
+    def get_richText(self):
+        return self.text()
+    def reset_richText(self):
+        self.setText('Button')
+    richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
 
 # LED indicator on the right corner
-class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
+class Indicated_PushButton(RichButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Indicated_PushButton, self).__init__(parent)
         self._indicator_state = False # Current State
