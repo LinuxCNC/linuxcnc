@@ -118,8 +118,47 @@ class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
         super(GridLayout, self).__init__(parent)
 
 
+class RichButton(QtWidgets.QPushButton):
+    def __init__(self, parent=None):
+        super(RichButton, self).__init__(parent)
+        self._text = self.text()
+
+        self._label = QtWidgets.QLabel(self._text, self)
+        self._label.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents )
+        self._label.setAlignment(QtCore.Qt.AlignCenter|QtCore.Qt.AlignVCenter)
+        self._label.show()
+
+    def setText(self, text):
+        self._label.setText(text)
+
+    def text(self):
+        try:
+            return self._label.text()
+        except:
+            pass
+
+    def event(self, event):
+        if event.type() ==  QtCore.QEvent.Resize:
+            w = QtGui.QResizeEvent.size(event)
+            try:
+                self._label.resize(w.width(), w.height())
+                self.resize(w.width(), w.height())
+            except:
+                pass
+            return True
+        else:
+            return super(RichButton, self).event( event)
+
+    def set_richText(self, data):
+        self.setText(data)
+    def get_richText(self):
+        return self.text()
+    def reset_richText(self):
+        self.setText('Button')
+    richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
+
 # LED indicator on the right corner
-class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
+class Indicated_PushButton(RichButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Indicated_PushButton, self).__init__(parent)
         self._indicator_state = False # Current State
@@ -140,6 +179,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._shape = 0 # 0 triangle, 1 circle
         self._size = .3 # triangle
         self._diameter = 10 # circle
+        self._corner_radius = 5
+        self._h_percent = .3
+        self._w_percent = .9
+        self._offset = 0
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
 
@@ -340,6 +383,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 p.setRenderHint(QtGui.QPainter.Antialiasing, True)
                 p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
 
+            # top bar
             elif self._shape == 2:
                 rect = p.window()
                 topLeft = rect.topLeft()
@@ -353,8 +397,32 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 grad.setColorAt(.5, QtCore.Qt.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
-                p.drawRoundedRect(topLeft.x()+10, topLeft.y(), self.width()-20,self.height()*.25,10, 10)
+                p.drawRoundedRect(topLeft.x()+(self.width()*((1-self._w_percent)/2)),
+                                    topLeft.y()+self._offset,
+                                    self.width()*self._w_percent+2,
+                                    self.height()*self._h_percent,
+                                    self._corner_radius, self._corner_radius)
 
+
+            # side bar
+            elif self._shape == 3:
+                rect = p.window()
+                topRight = rect.topRight()
+                #p.setPen(color)
+                #p.setBrush(QtGui.QBrush(color, QtCore.Qt.SolidPattern))
+                grad = QtGui.QLinearGradient()
+                grad.setCoordinateMode(QtGui.QGradient.ObjectBoundingMode)
+                grad.setStart(0,0)
+                grad.setFinalStop(0,.8)
+                grad.setColorAt(0, color)
+                grad.setColorAt(.5, QtCore.Qt.white)
+                grad.setColorAt(.8, color)
+                p.setBrush(QtGui.QBrush(grad))
+                p.drawRoundedRect(topRight.x()- self.width()*self._w_percent,
+                                    topRight.y()+(self.height()*((1-self._h_percent)/2)),
+                                    self.width()*self._w_percent,
+                                    self.height()*self._h_percent,
+                                    self._corner_radius, self._corner_radius)
 
     def set_indicator(self, data):
         self.draw_indicator = data
@@ -435,6 +503,42 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._diameter = 10
         self.update()
 
+    def set_corner_radius(self, data):
+        self._corner_radius = data
+        self.update()
+    def get_corner_radius(self):
+        return self._corner_radius
+    def reset_corner_radius(self):
+        self._corner_radius = 5
+        self.update()
+
+    def set_h_percent(self, data):
+        self._h_percent = data
+        self.update()
+    def get_h_percent(self):
+        return self._h_percent
+    def reset_h_percent(self):
+        self._h_percent = .5
+        self.update()
+
+    def set_w_percent(self, data):
+        self._w_percent = data
+        self.update()
+    def get_w_percent(self):
+        return self._w_percent
+    def reset_w_percent(self):
+        self._w_percent = .5
+        self.update()
+
+    def set_offset(self, data):
+        self._offset = data
+        self.update()
+    def get_offset(self):
+        return self._offset
+    def reset_offset(self):
+        self._offset = 0
+        self.update()
+
     def set_true_string(self, data):
         data = data.replace('\\n' , '\n')
         self._true_string = data
@@ -479,6 +583,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
     circle_diameter = QtCore.pyqtProperty(float, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
+    offset = QtCore.pyqtProperty(float, get_offset, set_offset, reset_offset)
+    corner_radius = QtCore.pyqtProperty(float, get_corner_radius, set_corner_radius, reset_corner_radius)
+    h_percent = QtCore.pyqtProperty(float, get_h_percent, set_h_percent, reset_h_percent)
+    w_percent = QtCore.pyqtProperty(float, get_w_percent, set_w_percent, reset_w_percent)
     true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
     false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
     true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)

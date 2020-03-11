@@ -9,6 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action
 
@@ -26,6 +27,7 @@ LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
+STYLEEDITOR = SSE()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -50,7 +52,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        pass
+        KEYBIND.add_call('Key_F12','on_keycall_F12')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -155,6 +157,9 @@ class HandlerClass:
                 self.w.close()
             else:
                 self.cmnd.abort()
+    def on_keycall_F12(self,event,state,shift,cntrl):
+        if state:
+            STYLEEDITOR.load_dialog()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):

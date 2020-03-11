@@ -45,13 +45,16 @@ from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
         QStyleFactory, QWidget, QColorDialog)
 from PyQt5 import QtGui, QtCore
 
-from qtvcp.core import Info
+from qtvcp.core import Info, Path
+from qtvcp.qt_makegui import VCPWindow
 INFO = Info()
+PATH = Path()
+WIDGETS = VCPWindow()
 
 DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 
 class StyleSheetEditor(QDialog):
-    def __init__(self, parent=None, path=None):
+    def __init__(self, parent=WIDGETS, path=None):
         super(StyleSheetEditor, self).__init__(parent)
         self.setMinimumSize(600, 400)
         # Load the widgets UI file:
@@ -62,10 +65,9 @@ class StyleSheetEditor(QDialog):
             LOG.critical(e)
 
         self.setWindowTitle('Style SHeet Editor Dialog');
-        self.path = path
         self.parent = parent
-        if path:
-            self.setPath(path)
+        if PATH:
+            self.setPath()
         self.styleSheetCombo.currentIndexChanged.connect(self.selectionChanged)
 
     def load_dialog(self):
@@ -74,17 +76,16 @@ class StyleSheetEditor(QDialog):
         self.show()
         self.activateWindow()
 
-    def setPath(self, path):
-        self.path = path
+    def setPath(self):
         self.styleSheetCombo.addItem('Default')
         model = self.styleSheetCombo.model()
         # check for default qss from qtvcp's default folders
-        if self.path.IS_SCREEN:
-            DIR = self.path.SCREENDIR
-            BNAME = self.path.BASENAME
+        if PATH.IS_SCREEN:
+            DIR = PATH.SCREENDIR
+            BNAME = PATH.BASENAME
         else:
-            DIR =self.path.PANELDIR
-            BNAME = self.path.BASENAME
+            DIR =PATH.PANELDIR
+            BNAME = PATH.BASENAME
         qssname = os.path.join(DIR, BNAME)
         try:
             fileNames= [f for f in os.listdir(qssname) if f.endswith('.qss')]
@@ -96,7 +97,7 @@ class StyleSheetEditor(QDialog):
             print e
 
         # check for qss in the users's config folder 
-        localqss = self.path.CONFIGPATH
+        localqss = PATH.CONFIGPATH
         try:
             fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
             for i in(fileNames):
@@ -129,10 +130,10 @@ class StyleSheetEditor(QDialog):
     @pyqtSlot()
     def on_openButton_clicked(self):
         dialog = QFileDialog(self)
-        if self.path.IS_SCREEN:
-            DIR = self.path.SCREENDIR
+        if PATH.IS_SCREEN:
+            DIR = PATH.SCREENDIR
         else:
-            DIR =self.path.PANELDIR
+            DIR =PATH.PANELDIR
         print DIR
         dialog.setDirectory(DIR)
         fileName, _ = dialog.getOpenFileName()
@@ -177,12 +178,12 @@ class StyleSheetEditor(QDialog):
 
     def loadStyleSheet(self, sheetName):
         if not sheetName == 'Default':
-            if self.path.IS_SCREEN:
-                DIR = self.path.SCREENDIR
-                BNAME = self.path.BASENAME
+            if PATH.IS_SCREEN:
+                DIR = PATH.SCREENDIR
+                BNAME = PATH.BASENAME
             else:
-                DIR =self.path.PANELDIR
-                BNAME = self.path.BASENAME
+                DIR =PATH.PANELDIR
+                BNAME = PATH.BASENAME
             qssname = os.path.join(DIR, BNAME, sheetName)
             file = QFile(qssname)
             file.open(QFile.ReadOnly)

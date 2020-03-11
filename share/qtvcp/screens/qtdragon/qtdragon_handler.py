@@ -18,7 +18,7 @@ KEYBIND = Keylookup()
 STAT = Status()
 INFO = Info()
 ACTION = Action()
-
+STYLEEDITOR = SSE()
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -26,7 +26,6 @@ class HandlerClass:
         self.PATHS = paths
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.inifile = linuxcnc.ini(INIPATH)
-        self.STYLEEDITOR = SSE(widgets,paths)
         self.GCODES = GCodes(widgets)
         self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
         
@@ -521,7 +520,7 @@ class HandlerClass:
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 
     ##############################
     # required class boiler code #

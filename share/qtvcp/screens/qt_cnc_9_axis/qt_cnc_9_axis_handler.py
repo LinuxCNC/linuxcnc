@@ -68,6 +68,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F4','on_keycall_F4')
         KEYBIND.add_call('Key_F5','on_keycall_F5')
         KEYBIND.add_call('Key_F6','on_keycall_F6')
+        KEYBIND.add_call('Key_F12','on_keycall_F12')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions

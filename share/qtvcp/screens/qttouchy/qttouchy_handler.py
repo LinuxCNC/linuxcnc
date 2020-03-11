@@ -29,6 +29,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+STYLEEDITOR = SSE()
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -47,7 +48,6 @@ class HandlerClass:
         self.PATHS = paths
         self.current_mode = (None,None)
         self._last_count = 0
-        self.STYLEEDITOR = SSE(widgets,paths)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -301,7 +301,7 @@ class HandlerClass:
     # Function keys
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):

@@ -8,6 +8,8 @@ from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
 from qtvcp.widgets.action_button import ActionButton
 from qtvcp.widgets.action_button_round import RoundButton
 from qtvcp.widgets.qtvcp_icons import Icon
+from qtvcp.widgets.richtext_selector import RichTextEditorDialog 
+
 ICON = Icon()
 
 Q_TYPEID = {
@@ -177,10 +179,17 @@ class ActionButtonDialog(QtWidgets.QDialog):
 
         wid = QtWidgets.QWidget()
         vbox2 = QtWidgets.QVBoxLayout(wid)
-        label = QtWidgets.QLabel('Default Text Template')
         self.defaultTextTemplateEditBox = QtWidgets.QLineEdit()
         self.defaultTextTemplateEditBox.setText(self.widget.text())
-        vbox2.addWidget(label)
+
+        hbox = QtWidgets.QHBoxLayout()
+        label = QtWidgets.QLabel('Default Text Template')
+        hbox.addWidget(label)
+        dialogButton = QtWidgets.QPushButton('RichText Editor')
+        dialogButton.clicked.connect(lambda :self.launchDialog(self.defaultTextTemplateEditBox))
+        hbox.addWidget(dialogButton)
+        vbox2.addLayout(hbox)
+
         vbox2.addWidget(self.defaultTextTemplateEditBox)
         vbox.addWidget(wid)
 
@@ -656,7 +665,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.shapeCombo.activated.connect(self.onSetOptions)
         self.shapeCombo.addItem('Triangle',0)
         self.shapeCombo.addItem('Circle',1)
-        self.shapeCombo.addItem('Bar',2)
+        self.shapeCombo.addItem('TopBar',2)
+        self.shapeCombo.addItem('SideBar',3)
         self.shapeCombo.setCurrentIndex(self.widget._shape)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -834,6 +844,13 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.cmdFalse.hide()
         self.tab3.setLayout(layout)
 
+    def launchDialog(self, widget):
+        d = RichTextEditorDialog()
+        style = d.showDialog(pretext = widget.text())
+        if style:
+            self.defaultTextTemplateEditBox.setText(style)
+            widget.setText(style)
+
     def onSetOptions(self):
         if self.textTemplateCheckBox.isChecked():
             self.vbox.show()
@@ -1005,7 +1022,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
           QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
         # block signal so button text doesn't change when selecting action
         self.widget._designer_block_signal = True
-        formWindow.cursor().setProperty('text',
+        formWindow.cursor().setProperty('richtext_string',
           QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
         formWindow.cursor().setProperty('textTemplate',
           QtCore.QVariant(self.textTemplateEditBox.text()))

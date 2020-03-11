@@ -185,7 +185,7 @@ Pressing cancel will close linuxcnc.""" % target)
             sys.exit(0)
 
         # initialize the window
-        window = qt_makegui.MyWindow(self.hal, PATH)
+        window = qt_makegui.VCPWindow(self.hal, PATH)
  
         # load optional user handler file
         if opts.usermod:

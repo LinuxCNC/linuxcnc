@@ -37,7 +37,26 @@ Allows one to adjust a HAL pins using a sliding pointer. +
 
 === LED Widget
 
-An indicator that follows a HAL pin's logic
+An indicator that optionally follows a HAL pin's logic. +
+
+* halpin_option -selects if the LED follows an input HAL pin or program state.
+* diameter -diameter of the LED
+* color - Color of the LED when on.
+* alignment - Qt Aliment hint.
+* state -current state of LED
+* flashing -turns flashing option on and off.
+* flashRate -sets the flash rate.
+
+The LED properties can be defined in a stylesheet with the following code added to the .qss file. +
+The name_of_led would be the name defined Designer's editor. +
+
+----
+LED #name_0f_led{
+qproperty-color: red;
+qproperty-diameter: 20;
+qproperty-flashRate: 150;
+}
+----
 
 === Checkbox Widget
 
@@ -138,6 +157,7 @@ These widgets interact to the Machine Controller state.
 === Action Button Widget
 
 These buttons are used to control action of the machine controller. +
+They are built on top of indicator_buttons so can have LEDs overlaid. +
 
 [NOTE]
 If you right click on this widget you can launch a dialog +
@@ -221,15 +241,33 @@ Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
 Action buttons are subclasssed from indicated_PushButton +
 
 ==== LED indicator option
-Indicator_option puts a triangle ot round 'LED' on the top right corner of the button. +
+Indicator_option puts a triangle or round 'LED' on the top right corner of the button. +
 It will indicated the current state of the button, a HAL pin or linuxcnc status. +
 Use the properties to customized the indicator. +
+
 ----
-on_state_color
-off_state_color
+on_color
+off_color
 indicator_size
 circle_diameter
 shape_option
+----
+
+The LED indicator color can be defined in a stylesheet with the following code added to the .qss file. +
+
+----
+Indicated_PushButton{
+qproperty-on_color: #000;
+qproperty-off_color: #444;
+}
+----
+
+or for a particular button: 
+----
+Indicated_PushButton #button_estop{
+qproperty-on_color: black;
+qproperty-off_color: yellow;
+}
 ----
 
 Indicated PushButtons have options: +
@@ -492,7 +530,25 @@ It is based on pyQT's QSlider
 
 ===  Led State Widget
 
-This widget gives status on linuxcnc's state. +
+This widget gives status on linuxcnc's selected state. +
+
+* diameter -diameter of the LED
+* color - Color of the LED when on.
+* alignment - Qt Aliment hint.
+* state -current state of LED
+* flashing -turns flashing option on and off.
+* flashRate -sets the flash rate.
+
+The LED properties can be defined in a stylesheet with the following code added to the .qss file. +
+The name_of_led would be the name defined Designer's editor. +
+
+----
+State_LED #name_0f_led{
+qproperty-color: red;
+qproperty-diameter: 20;
+qproperty-flashRate: 150;
+}
+----
 
 It is based on the LED widget 
 
