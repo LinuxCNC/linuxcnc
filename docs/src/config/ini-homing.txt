@@ -4,10 +4,26 @@
 
 == Overview
 
+Homing sets the zero origin of the G53 machine coordinates. +
+Linuxcnc can be  homed by eye, with switches, with switches and encoder index, or use absolute encoders. +
 Homing seems simple enough - just move each joint to a known location,
-and set LinuxCNC's internal variables accordingly. However, different
-machines have different requirements, and homing is actually quite
-complicated.
+and set LinuxCNC's internal variables accordingly. +
+However, different machines have different requirements, and homing is actually quite
+complicated. 
+
+== Prerequisite
+Homing relies on some fundamental machine assumptions. +
+
+* The negative and positive directions are based on <<sec:Machine-Configurations,Tool Movement>> which can be different +
+then the actual machine movement. ie on a mill typically the table moves rather then the tool.
+* Soft(ware) limits are inside the hard limit switch area. +
+* (If using switch based homing) the homing switch(es) utilize the hard limit switches or are inside the hard limit switch area. +
+* The G53 machine zero origin must be inside the soft limits area. +
+
+[NOTE]
+Homing sets the G53 coordinate system, while the origin (zero point) can be anywhere inside +
+the soft limits, Setting the zero point at the negative soft limit makes all G53 coordinates positive, +
+which is probably easiest to remember. Do this by setting MIN_LIMIT = 0 and make sure MAX_LIMIT is positive.
 
 == Homing Sequence
 
