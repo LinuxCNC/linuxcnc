@@ -185,9 +185,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox = QtWidgets.QHBoxLayout()
         label = QtWidgets.QLabel('Default Text Template')
         hbox.addWidget(label)
-        dialogButton = QtWidgets.QPushButton('RichText Editor')
-        dialogButton.clicked.connect(lambda :self.launchDialog(self.defaultTextTemplateEditBox))
-        hbox.addWidget(dialogButton)
+        #dialogButton = QtWidgets.QPushButton('RichText Editor')
+        #dialogButton.clicked.connect(lambda :self.launchDialog(self.defaultTextTemplateEditBox))
+        #hbox.addWidget(dialogButton)
         vbox2.addLayout(hbox)
 
         vbox2.addWidget(self.defaultTextTemplateEditBox)
@@ -1022,7 +1022,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
           QtCore.QVariant(self.textTemplateCheckBox.isChecked()))
         # block signal so button text doesn't change when selecting action
         self.widget._designer_block_signal = True
-        formWindow.cursor().setProperty('richtext_string',
+        formWindow.cursor().setProperty('text',
           QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
         formWindow.cursor().setProperty('textTemplate',
           QtCore.QVariant(self.textTemplateEditBox.text()))
