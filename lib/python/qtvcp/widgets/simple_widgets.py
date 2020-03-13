@@ -158,7 +158,7 @@ class RichButton(QtWidgets.QPushButton):
     richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
 
 # LED indicator on the right corner
-class Indicated_PushButton(RichButton, _HalWidgetBase):
+class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Indicated_PushButton, self).__init__(parent)
         self._indicator_state = False # Current State
