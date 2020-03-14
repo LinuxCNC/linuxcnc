@@ -180,9 +180,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._size = .3 # triangle
         self._diameter = 10 # circle
         self._corner_radius = 5
-        self._h_percent = .3
-        self._w_percent = .9
-        self._offset = 0
+        self._h_fraction = .3
+        self._w_fraction = .9
+        self._right_edge_offset = 0
+        self._top_edge_offset = 0
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
 
@@ -353,7 +354,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             # triangle
             if self._shape == 0:
                 rect = p.window()
-                top_right = rect.topRight()
+                top_right = rect.topRight() - QtCore.QPoint(self._right_edge_offset,-self._top_edge_offset)
                 if self.width() < self.height():
                     size = self.width() * self._size
                 else:
@@ -372,8 +373,8 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
             # circle
             elif self._shape == 1:
-                x = self.width() - self._diameter
-                y = 0
+                x = self.width() - self._diameter - self._right_edge_offset
+                y = 0 + self._top_edge_offset
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
                 gradient.setColorAt(0, QtCore.Qt.white)
@@ -397,10 +398,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 grad.setColorAt(.5, QtCore.Qt.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
-                p.drawRoundedRect(topLeft.x()+(self.width()*((1-self._w_percent)/2)),
-                                    topLeft.y()+self._offset,
-                                    self.width()*self._w_percent+2,
-                                    self.height()*self._h_percent,
+                p.drawRoundedRect(topLeft.x()+(self.width()*((1-self._w_fraction)/2)) + self._top_edge_offset,
+                                    topLeft.y()+self._right_edge_offset,
+                                    self.width()*self._w_fraction+2,
+                                    self.height()*self._h_fraction,
                                     self._corner_radius, self._corner_radius)
 
 
@@ -418,10 +419,10 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 grad.setColorAt(.5, QtCore.Qt.white)
                 grad.setColorAt(.8, color)
                 p.setBrush(QtGui.QBrush(grad))
-                p.drawRoundedRect(topRight.x()- self.width()*self._w_percent,
-                                    topRight.y()+(self.height()*((1-self._h_percent)/2)),
-                                    self.width()*self._w_percent,
-                                    self.height()*self._h_percent,
+                p.drawRoundedRect(topRight.x()- self.width()*self._w_fraction-self._right_edge_offset,
+                                    topRight.y()+(self.height()*((1-self._h_fraction)/2)) + self._top_edge_offset,
+                                    self.width()*self._w_fraction,
+                                    self.height()*self._h_fraction,
                                     self._corner_radius, self._corner_radius)
 
     def set_indicator(self, data):
@@ -512,31 +513,40 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._corner_radius = 5
         self.update()
 
-    def set_h_percent(self, data):
-        self._h_percent = data
+    def set_h_fraction(self, data):
+        self._h_fraction = data
         self.update()
-    def get_h_percent(self):
-        return self._h_percent
-    def reset_h_percent(self):
-        self._h_percent = .5
-        self.update()
-
-    def set_w_percent(self, data):
-        self._w_percent = data
-        self.update()
-    def get_w_percent(self):
-        return self._w_percent
-    def reset_w_percent(self):
-        self._w_percent = .5
+    def get_h_fraction(self):
+        return self._h_fraction
+    def reset_h_fraction(self):
+        self._h_fraction = .5
         self.update()
 
-    def set_offset(self, data):
-        self._offset = data
+    def set_w_fraction(self, data):
+        self._w_fraction = data
         self.update()
-    def get_offset(self):
-        return self._offset
-    def reset_offset(self):
-        self._offset = 0
+    def get_w_fraction(self):
+        return self._w_fraction
+    def reset_w_fraction(self):
+        self._w_fraction = .5
+        self.update()
+
+    def set_right_edge_offset(self, data):
+        self._right_edge_offset = data
+        self.update()
+    def get_right_edge_offset(self):
+        return self._right_edge_offset
+    def reset_right_edge_offset(self):
+        self._right_edge_offset = 0
+        self.update()
+
+    def set_top_edge_offset(self, data):
+        self._top_edge_offset = data
+        self.update()
+    def get_top_edge_offset(self):
+        return self._top_edge_offset
+    def reset_top_edge_offset(self):
+        self._top_edge_offset = 0
         self.update()
 
     def set_true_string(self, data):
@@ -583,10 +593,11 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
     circle_diameter = QtCore.pyqtProperty(float, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
-    offset = QtCore.pyqtProperty(float, get_offset, set_offset, reset_offset)
+    right_edge_offset = QtCore.pyqtProperty(float, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
+    top_edge_offset = QtCore.pyqtProperty(float, get_top_edge_offset, set_top_edge_offset, reset_top_edge_offset)
     corner_radius = QtCore.pyqtProperty(float, get_corner_radius, set_corner_radius, reset_corner_radius)
-    h_percent = QtCore.pyqtProperty(float, get_h_percent, set_h_percent, reset_h_percent)
-    w_percent = QtCore.pyqtProperty(float, get_w_percent, set_w_percent, reset_w_percent)
+    height_fraction = QtCore.pyqtProperty(float, get_h_fraction, set_h_fraction, reset_h_fraction)
+    width_fraction = QtCore.pyqtProperty(float, get_w_fraction, set_w_fraction, reset_w_fraction)
     true_state_string = QtCore.pyqtProperty(str, get_true_string, set_true_string, reset_true_string)
     false_state_string = QtCore.pyqtProperty(str, get_false_string, set_false_string, reset_false_string)
     true_python_cmd_string = QtCore.pyqtProperty(str, get_true_python_command, set_true_python_command, reset_true_python_command)

@@ -681,9 +681,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
         hbox.setContentsMargins(0,0,0,0)
         label = QtWidgets.QLabel('Round Diamter')
         self.diamSpinBox = QtWidgets.QDoubleSpinBox()
-        self.diamSpinBox.setRange(2,20)
+        self.diamSpinBox.setRange(2,100)
         self.diamSpinBox.setDecimals(1)
-        self.diamSpinBox.setSingleStep(0.5)
+        self.diamSpinBox.setSingleStep(1)
         self.diamSpinBox.setValue(self.widget._diameter)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -708,6 +708,92 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.size.setLayout(hbox)
         layout.addWidget(self.size)
         self.size.hide()
+
+        # Bar LED corner radius
+        self.radius = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Corner Radius')
+        self.radiusSpinBox = QtWidgets.QDoubleSpinBox()
+        self.radiusSpinBox.setRange(0,20)
+        self.radiusSpinBox.setDecimals(1)
+        self.radiusSpinBox.setSingleStep(1)
+        self.radiusSpinBox.setValue(self.widget._corner_radius)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.radiusSpinBox)
+        self.radius.setLayout(hbox)
+        layout.addWidget(self.radius)
+        self.radius.hide()
+
+        # Bar LED right edge offset
+        self.rightedgeoffset = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Right Edge Offset')
+        self.rightedgeoffsetSpinBox = QtWidgets.QDoubleSpinBox()
+        self.rightedgeoffsetSpinBox.setRange(0,50)
+        self.rightedgeoffsetSpinBox.setDecimals(1)
+        self.rightedgeoffsetSpinBox.setSingleStep(.1)
+        self.rightedgeoffsetSpinBox.setValue(self.widget._right_edge_offset)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.rightedgeoffsetSpinBox)
+        self.rightedgeoffset.setLayout(hbox)
+        layout.addWidget(self.rightedgeoffset)
+        self.rightedgeoffset.hide()
+
+        # Bar LED top edge offset
+        self.topedgeoffset = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Top Edge Offset')
+        self.topedgeoffsetSpinBox = QtWidgets.QDoubleSpinBox()
+        self.topedgeoffsetSpinBox.setRange(0,50)
+        self.topedgeoffsetSpinBox.setDecimals(1)
+        self.topedgeoffsetSpinBox.setSingleStep(.1)
+        self.topedgeoffsetSpinBox.setValue(self.widget._top_edge_offset)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.topedgeoffsetSpinBox)
+        self.topedgeoffset.setLayout(hbox)
+        layout.addWidget(self.topedgeoffset)
+        self.topedgeoffset.hide()
+
+        # Bar LED height fraction
+        self.hfraction = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Height Fraction')
+        self.hfractionSpinBox = QtWidgets.QDoubleSpinBox()
+        self.hfractionSpinBox.setRange(0,1)
+        self.hfractionSpinBox.setDecimals(1)
+        self.hfractionSpinBox.setSingleStep(.1)
+        self.hfractionSpinBox.setValue(self.widget._h_fraction)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.hfractionSpinBox)
+        self.hfraction.setLayout(hbox)
+        layout.addWidget(self.hfraction)
+        self.hfraction.hide()
+
+        # Bar LED width fraction
+        self.wfraction = QtWidgets.QWidget()
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
+        label = QtWidgets.QLabel('Width Fraction')
+        self.wfractionSpinBox = QtWidgets.QDoubleSpinBox()
+        self.wfractionSpinBox.setRange(0,1)
+        self.wfractionSpinBox.setDecimals(1)
+        self.wfractionSpinBox.setSingleStep(.1)
+        self.wfractionSpinBox.setValue(self.widget._w_fraction)
+        hbox.addWidget(label)
+        hbox.addStretch(1)
+        hbox.addWidget(self.wfractionSpinBox)
+        self.wfraction.setLayout(hbox)
+        layout.addWidget(self.wfraction)
+        self.wfraction.hide()
+
 
         # true state indicator color
         self.colorTrue = QtWidgets.QWidget()
@@ -877,12 +963,28 @@ class ActionButtonDialog(QtWidgets.QDialog):
             self.colorFalse.show()
             self.statusO.show()
             self.shape.show()
-            if self.shapeCombo.itemData(self.shapeCombo.currentIndex()) == 0:
-                self.diam.hide()
+            self.rightedgeoffset.show()
+            self.topedgeoffset.show()
+            shape = self.shapeCombo.itemData(self.shapeCombo.currentIndex())
+            if shape == 0:
                 self.size.show()
-            else:
-                self.size.hide()
+                self.diam.hide()
+                self.radius.hide()
+                self.hfraction.hide()
+                self.wfraction.hide()
+            elif shape == 1:
                 self.diam.show()
+                self.size.hide()
+                self.radius.hide()
+                self.hfraction.hide()
+                self.wfraction.hide()
+            elif shape in (1,2):
+                self.size.hide()
+                self.diam.hide()
+                self.radius.show()
+                self.hfraction.show()
+                self.wfraction.show()
+
             if self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1) == 'is_joint_homed':
                 self.jnum.show()
             else:
@@ -897,6 +999,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
             self.shape.hide()
             self.watch.hide()
             self.invertStatus.hide()
+            self.rightedgeoffset.hide()
+            self.topedgeoffset.hide()
 
         if self.pythonCheckBox.isChecked():
             self.cmdTrue.show()
@@ -948,6 +1052,19 @@ class ActionButtonDialog(QtWidgets.QDialog):
               QtCore.QVariant(self.statusCheckBox.isChecked()))
             formWindow.cursor().setProperty('indicator_size',
               QtCore.QVariant(self.floatSpinBox.value()))
+
+            formWindow.cursor().setProperty('right_edge_offset',
+              QtCore.QVariant(self.rightedgeoffsetSpinBox.value()))
+            formWindow.cursor().setProperty('top_edge_offset',
+              QtCore.QVariant(self.topedgeoffsetSpinBox.value()))
+            formWindow.cursor().setProperty('corner_radius',
+              QtCore.QVariant(self.radiusSpinBox.value()))
+            formWindow.cursor().setProperty('height_fraction',
+              QtCore.QVariant(self.hfractionSpinBox.value()))
+            formWindow.cursor().setProperty('width_fraction',
+              QtCore.QVariant(self.wfractionSpinBox.value()))
+
+
             formWindow.cursor().setProperty('circle_diameter',
               QtCore.QVariant(self.diamSpinBox.value()))
             formWindow.cursor().setProperty('shape_option',

@@ -574,17 +574,20 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
     </property>
-    <property name="offset" stdset="0">
-     <double>2.000000000000000</double>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000001</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000001</double>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
     </property>
-    <property name="h_percent" stdset="0">
-     <double>0.900000000000000</double>
+    <property name="height_fraction" stdset="0">
+     <double>0.300000000000000</double>
     </property>
-    <property name="w_percent" stdset="0">
-     <double>0.200000000000000</double>
+    <property name="width_fraction" stdset="0">
+     <double>0.900000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -697,6 +700,15 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
     </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
+    </property>
     <property name="richtext_string" stdset="0">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -764,17 +776,14 @@ p, li { white-space: pre-wrap; }
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
     </property>
-    <property name="offset" stdset="0">
-     <double>2.000000000000000</double>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
-    </property>
-    <property name="h_percent" stdset="0">
-     <double>0.900000000000000</double>
-    </property>
-    <property name="w_percent" stdset="0">
-     <double>0.200000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -890,6 +899,15 @@ p, li { white-space: pre-wrap; }
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
     </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
+    </property>
     <property name="richtext_string" stdset="0">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -960,17 +978,14 @@ p, li { white-space: pre-wrap; }
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
     </property>
-    <property name="offset" stdset="0">
-     <double>2.000000000000000</double>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
     </property>
     <property name="corner_radius" stdset="0">
      <double>4.000000000000000</double>
-    </property>
-    <property name="h_percent" stdset="0">
-     <double>0.900000000000000</double>
-    </property>
-    <property name="w_percent" stdset="0">
-     <double>0.200000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -1085,6 +1100,15 @@ p, li { white-space: pre-wrap; }
     </property>
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
+    </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
     </property>
     <property name="richtext_string" stdset="0">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -2593,10 +2617,16 @@ file</string>
      <property name="circle_diameter" stdset="0">
       <double>15.000000000000000</double>
      </property>
-     <property name="h_percent" stdset="0">
-      <double>1.000000000000000</double>
+     <property name="right_edge_offset" stdset="0">
+      <double>2.000000000000000</double>
      </property>
-     <property name="w_percent" stdset="0">
+     <property name="corner_radius" stdset="0">
+      <double>3.000000000000000</double>
+     </property>
+     <property name="height_fraction" stdset="0">
+      <double>0.700000000000000</double>
+     </property>
+     <property name="width_fraction" stdset="0">
       <double>0.100000000000000</double>
      </property>
      <property name="true_state_string" stdset="0">
@@ -2710,6 +2740,12 @@ file</string>
      <property name="alt_textTemplate" stdset="0">
       <string>%1.2f mm</string>
      </property>
+     <property name="h_percent" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="w_percent" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
      <property name="python_command_action" stdset="0">
       <bool>false</bool>
      </property>
@@ -2782,13 +2818,16 @@ file</string>
      <property name="circle_diameter" stdset="0">
       <double>15.000000000000000</double>
      </property>
+     <property name="right_edge_offset" stdset="0">
+      <double>2.000000000000000</double>
+     </property>
      <property name="corner_radius" stdset="0">
-      <double>5.000000000000000</double>
+      <double>3.000000000000000</double>
      </property>
-     <property name="h_percent" stdset="0">
-      <double>0.900000000000000</double>
+     <property name="height_fraction" stdset="0">
+      <double>0.700000000000000</double>
      </property>
-     <property name="w_percent" stdset="0">
+     <property name="width_fraction" stdset="0">
       <double>0.100000000000000</double>
      </property>
      <property name="true_state_string" stdset="0">
@@ -2904,6 +2943,12 @@ file</string>
      </property>
      <property name="alt_textTemplate" stdset="0">
       <string>%1.2f mm</string>
+     </property>
+     <property name="h_percent" stdset="0">
+      <double>0.900000000000000</double>
+     </property>
+     <property name="w_percent" stdset="0">
+      <double>0.100000000000000</double>
      </property>
      <property name="python_command_action" stdset="0">
       <bool>true</bool>
