@@ -1,0 +1,79 @@
+= 关于LinuxCNC
+
+== 软件
+
+* LinuxCNC（增强型机器控制器）是一个软件系统，用于机床（例如铣床和车床），机器人（例如puma和scara）以及其他最多9轴的计算机控制器。
+* LinuxCNC是开源代码的免费软件。当前版本的LinuxCNC完全根据GNU通用公共许可证和次要GNU通用公共许可证（GPL和LGPL）获得许可
+* LinuxCNC提供：
+** 图形用户界面（实际上是几个界面可供选择）
+** G代码的解释器（RS-274机床编程语言）
+** 具有超前的实时运动调度系统
+** 底层机器电子设备（例如传感器和电机驱动器）的操作
+** 易于使用的"面包板"层，可为您的机器快速创建独特的配置
+** 可通过梯形图编程的软件PLC
+** 使用Live-CD轻松安装
+* 不提供工程图（CAD-计算机辅助设计）或从工程图生成G代码（CAM-计算机自动化制造）的功能。
+* 最多可以同时移动9个轴，并支持多种接口。
+* 控制器可以通过计算机上的LinuxCNC软件关闭反馈回路来运行真正的伺服器（模拟或PWM），也可以使用步进伺服或步进电机来控制开环。
+* 运动控制功能包括：刀具半径和长度补偿，限制在指定公差范围内的路径偏差，车床螺纹，同步轴运动，自适应进给率，操作员进给倍率以及恒速控制。
+* 通过自定义运动学模块提供对非笛卡尔运动系统的支持。可用的架构包括六脚架（Stewart平台和类似概念）以及带有旋转关节以提供运动的系统，例如PUMA或SCARA机器人。
+* LinuxCNC运行在使用了实时内核扩展的Linux系统。
+
+== 操作系统
+
+在Ubuntu和Debian发行版，LinuxCNC作为现成软件包提供。
+
+== 获得帮助
+
+=== IRC
+
+IRC的含义是Internet中继聊天。它是与其他LinuxCNC用户的实时连接。LinuxCNC的IRC通道是freenode上的#linuxcnc。
+
+进入IRC的最简单方法是使用此
+https://webchat.freenode.net/?channels=%23linuxcnc[页面]
+的嵌入式Java客户端。
+
+.常用IRC礼节
+
+* 直接提出具体问题...避免使用“有人可以帮助我吗？”之类的问题。
+* 如果您真的对一切都不熟悉，请在输入问题之前，先仔细考虑一下您的问题。确保其能提供足够的信息，以便有人可以解决您的问题。
+* 等待答案时需要一些耐心，有时需要花上一些时间来准备答案，或者，每个人都有可能在忙于工作或其他事情。
+* 使用您的独一无二的名称设置您的IRC帐户，以便人们知道您的身份。如果您使用Java客户端，则每次登录时都会使用相同的名称。
+  这可以帮助人们记住您的身份，如果您曾经参加过，那么很多人会记住过去的讨论，从而节省了双方的时间。
+
+.共享文件
+
+在IRC上共享文件的最常见方法是将文件上传到以下服务或类似服务之一，然后粘贴链接：
+
+* '对于文字' - http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
+* '对于图片' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
+* '对于其他文件' - https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+
+=== 邮件列表
+
+Internet邮件列表是一种向该列表中的所有人提出问题，以便他们在方便时查看和回答的方式。
+与在IRC上相比，通过邮件列表, 你的问题会得到更好的关注，但获取答案花费的时间也会更长。
+简而言之，您可以通过电子邮件将邮件发送到列表中，并根据您的帐户设置方式获取每日摘要或个人回复。
+
+您可以在以下位置订阅emc-users邮件列表：
+https://lists.sourceforge.net/lists/listinfo/emc-users
+
+=== 网络论坛
+
+可以在 https://forum.linuxcnc.org 或通过 linuxcnc.org 主页顶部的链接找到一个网络论坛。
+
+这里是非常活跃的，但是与邮件列表相比，普通用户的占比更重。如果您希望确保开发人员可以看到您的消息，则首选邮件列表。
+
+=== LinuxCNC Wiki
+
+Wiki站点是用户维护的网站，任何人都可以添加或编辑。
+
+用户维护的LinuxCNC Wiki网站包含大量信息和提示，网址为：
+
+link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
+
+=== 错误报告
+
+向LinuxCNC报告错误
+link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+
