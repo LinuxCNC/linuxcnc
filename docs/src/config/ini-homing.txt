@@ -66,7 +66,7 @@ image::images/HomeAxisTravel_V3.png[align="center", alt="Example shared Home Lim
 * A<->B is the positive soft limits (MAX_LIMITS) = 10 units
 * B<->C is the home_offset (HOME_OFFSET) = -0.7 units
 * B<->D is the negative soft limits (MIN_LIMITS) 0 units
-* A<->D is the total travel = 11 units
+* A<->D is the total travel = 10 units
 * The distance between the hard limits and soft limits (H<->A and D<->H) is magnified in this example
 * Note that there is distance between the hard limit switches and actual physical hard contact
 
