@@ -2066,11 +2066,11 @@ The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
 
 You will need to manually add a scale, filter and counter mode to your base machine .hal file before running the Configurator.
 
-If you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
+For example, if you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
 
 ----
 setp  hm2_7i76e.0.encoder.00.scale -1
-setp  hm2_7i96.0.encoder.00.filter        1
+setp  hm2_7i76e.0.encoder.00.filter 1
 setp  hm2_7i76e.0.encoder.00.counter-mode 1
 ----
 
@@ -2176,6 +2176,8 @@ NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if us
 
 Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of 'Cut Mode', 'Cutting Amperage' and 'Gas Pressure' automatically from the 'Cut Parameters' of the material file.
 
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+
 If Gas Pressure is set to Zero then the Powermax will calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
 
 The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are set with these values.
@@ -2220,3 +2222,7 @@ It should be noted that during the initial testing phase of this feature it was 
 == Support
 
 On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
+
+== Appendix
+[[rs485_connections]]
+image::images/plasmac_rs485_connections.png[width=75%]
