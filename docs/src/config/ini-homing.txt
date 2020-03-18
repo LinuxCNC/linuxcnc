@@ -51,7 +51,7 @@ Homing sets the G53 coordinate system, while the machine origin (zero point) can
 setting the zero point at the negative soft limit makes all G53 coordinates positive, +
 which is probably easiest to remember. Do this by setting MIN_LIMIT = 0 and make sure MAX_LIMIT is positive.
 
-This example shows minimum and maximum hard limit switches with a separate home switch. +
+This example shows a maximum hard limit switch and a combined minimum hard limit/home switch. +
 
 .Demonstrative Shared Switch Layout
 
