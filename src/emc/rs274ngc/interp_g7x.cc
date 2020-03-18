@@ -63,8 +63,10 @@ protected:
     std::complex<double> start, end;
     double finish;
 public:
-    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),finish{} {}
-    segment(std::complex<double> s, std::complex<double> e):start(s),end(e),finish{} {}
+    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),
+	finish{0} {}
+    segment(std::complex<double> s, std::complex<double> e):start(s),end(e),
+	finish{0} {}
     typedef std::deque<double> intersections_t;
     virtual void intersection_z(double x, intersections_t &is)=0;
     virtual bool climb(std::complex<double>&, motion_base*)=0;
@@ -644,7 +646,7 @@ private:
     }
 
 public:
-    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{} {}
+    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{0} {}
     g7x(g7x const &other) {
 	delta=other.delta;
 	escape=other.escape;
@@ -1164,6 +1166,8 @@ int Interp::convert_g7x(int mode,
 	}
 	CHP(read());
     }
+    if(path.size()==1)
+	return INTERP_OK;
 
     double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
     if(original_block.d_flag) d=original_block.d_number_float;
