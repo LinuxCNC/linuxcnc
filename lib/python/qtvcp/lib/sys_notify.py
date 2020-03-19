@@ -47,7 +47,7 @@ def init(app_name):
     APP_NAME = app_name
 
     name = "org.freedesktop.Notifications"
-    path = "/org/freedesdktop/Notifications"
+    path = "/org/freedesktop/Notifications"
     interface = "org.freedesktop.Notifications"
 
     mainloop = None
