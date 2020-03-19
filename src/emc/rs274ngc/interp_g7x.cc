@@ -1166,7 +1166,7 @@ int Interp::convert_g7x(int mode,
 	}
 	CHP(read());
     }
-    if(path.size()==1)
+    if(path.size()<=1)
 	return INTERP_OK;
 
     double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
