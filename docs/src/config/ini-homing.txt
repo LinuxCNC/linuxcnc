@@ -5,17 +5,18 @@
 == Overview
 
 Homing sets the zero origin of the G53 machine coordinates. +
-The soft limits that automatically decelerate and stop axes before they hits hard limits are defined +
-by the machine origin. A properly setup and functioning machine will not move beyond soft(ware) limits and will +
-have the machine origin set as repeatable as the home switch/index mechanism. 
-Linuxcnc can be  homed by eye, with switches, with switches and encoder index, or use absolute encoders. +
+Soft limits are defined relative to the machine origin. +
+The soft limits automatically decelerate and stop the axes before they hits the limits switches +
+A properly setup and functioning machine will not move beyond soft(ware) limits and +
+will have the machine origin set as repeatable as the home switch/index mechanism is. +
+Linuxcnc can be  homed by eye (alignment marks), with switches, with switches and encoder index, or use absolute encoders. +
 Homing seems simple enough - just move each joint to a known location,
 and set LinuxCNC's internal variables accordingly. +
 However, different machines have different requirements, and homing is actually quite
 complicated. 
 
 [NOTE]
-While it is possible to use linuxcnc without homing switches/home procedures or hard limit switches, 
+While it is possible to use linuxcnc without homing switches/home procedures or limit switches, 
 It defeats the extra security of the soft limits. 
 
 == Prerequisite
@@ -23,52 +24,65 @@ Homing relies on some fundamental machine assumptions. +
 
 * The negative and positive directions are based on <<sec:Machine-Configurations,Tool Movement>> which can be different +
 then the actual machine movement. ie on a mill typically the table moves rather then the tool.
-* Soft(ware) limits are inside the hard limit switch area. +
-* (If using switch based homing) the homing switch(es) utilize the hard limit switches or are inside the hard limit switch area. +
+* Soft(ware) limits are inside the limit switch area. +
+* (If using switch based homing) the homing switch(es) utilize the limit switches (shared home / limit switch) +
+or are inside the limit switch area when using a separate home switch. 
 * The G53 machine zero origin is typically inside the soft limits area but not necessarily. +
+* If using a separate homing switch, it's possible to start homing on the wrong side of the home switch, +
+which combined with HOME_IGNORE_LIMITS option will lead to a hard crash. +
+You can avoid this by making the home switch toggle it's state when the trip dog is on a particular side until it returns passed the trip point again. +
+Said another way, the home switch state must represent the position of the dog relative to the switch (ie _before_ or _after_ the switch), +
+and must stay that way even if the dog coasts past the switch in the same direction.
 
-This example shows minimum and maximum hard limit switches with a separate home switch. +
+
+== Separate Home Switch Example Layout
+
+This example shows minimum and maximum limit switches with a separate home switch. +
 
 .Demonstrative Separate Switch Layout
 
 image::images/HomeAxisTravel_V2.png[align="center", alt="Example Homing Switch layout"]
 
 
-* A is the positive soft limit 
+* A is the negative soft limit 
 * B is the G53 machine coordinate Origin
 * C is the home switch trip point
-* D is the negative soft limit
-* The two H are the hard limit switches trip points
-* A<->B is the positive soft limits (MAX_LIMITS) = 7 units
+* D is the positive soft limit
+* H is the final home positon (HOME) = 0 units
+* The -L and +L are the limit switches trip points
+* A<->B is the negative soft limits (MIN_LIMITS) = -3 units
 * B<->C is the home_offset (HOME_OFFSET) = -2.3 units
-* B<->D is the negative soft limits (MIN_LIMITS) -3 units
+* B<->D is the positive soft limits (MAX_LIMITS) = 7 units
 * A<->D is the total travel = 10 units
-* The distance between the hard limits and soft limits (H<->A and D<->H) is magnified in this example
-* Note that there is distance between the hard limit switches and actual physical hard contact
+* The distance between the limit switches and soft limits (-L<->A and D<-+L) is magnified in this example
+* Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
 
 [NOTE]
 Homing sets the G53 coordinate system, while the machine origin (zero point) can be anywhere, +
 setting the zero point at the negative soft limit makes all G53 coordinates positive, +
 which is probably easiest to remember. Do this by setting MIN_LIMIT = 0 and make sure MAX_LIMIT is positive.
 
-This example shows a maximum hard limit switch and a combined minimum hard limit/home switch. +
+== Shared Limit/Home Switch Example Layout
+
+This example shows a maximum limit switch and a combined minimum limit/home switch. +
 
 .Demonstrative Shared Switch Layout
 
 image::images/HomeAxisTravel_V3.png[align="center", alt="Example shared Home Limit Switch layout"]
 
 
-* A is the positive soft limit 
+* A is the negative soft limit 
 * B is the G53 machine coordinate Origin
-* C is the home switch trip point shared with (H) minimum hard limit trip
-* D is the negative soft limit
-* The two H are the hard limit switches trip points
-* A<->B is the positive soft limits (MAX_LIMITS) = 10 units
+* C is the home switch trip point shared with (-L) minimum limit trip
+* D is the positive soft limit
+* H is the final home positon (HOME) = 3 units
+* The -L and +L are the limit switch trip points
+* A<->B is the negative soft limits (MIN_LIMITS) = 0 units
 * B<->C is the home_offset (HOME_OFFSET) = -0.7 units
-* B<->D is the negative soft limits (MIN_LIMITS) 0 units
+* B<->D is the positive soft limits (MAX_LIMITS) 10 units
 * A<->D is the total travel = 10 units
-* The distance between the hard limits and soft limits (H<->A and D<->H) is magnified in this example
-* Note that there is distance between the hard limit switches and actual physical hard contact
+* The distance between the limits switches and soft limits (-L<->A and D<->+L) is magnified in this example
+* Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
 
 == Homing Sequence
 
