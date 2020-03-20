@@ -989,7 +989,7 @@ class configurator:
             inFile = open('{}.old087'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
             for line in inFile:
-                if ''.join(line.split()) == 'HALFILE=plasmac.hal'
+                if ''.join(line.split()) == 'HALFILE=plasmac.hal':
                     outFile.write('HALFILE                 = plasmac.tcl\n')
                 else:
                     outFile.write(line)
