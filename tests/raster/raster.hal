@@ -58,5 +58,6 @@ net previous-pixel-value => test.previous-pixel-value
 net current-pixel-value <= raster.current-pixel-value
 net current-pixel-value => test.current-pixel-value
 
-
+net fraction <= raster.fraction
+net fraction => test.fraction
 start
