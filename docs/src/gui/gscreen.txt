@@ -536,3 +536,48 @@ MESSAGE_DETAILS = BOTH DETAILS
 MESSAGE_TYPE = okdialog status
 MESSAGE_PINNAME = bothtest
 ----
+
+=== Copy the Stock Handler/Glade File For Modification
+
+If you wish to use a stock screen but modify it's handler file, you need to 
+copy the stock file to your config file folder. +
+Gscreen will see this and use the 
+copied file. +
+But where is the original file? If using a RIP linuxcnc the 
+sample skins are in /share/gscreen/skins/'SCREENNAME' +
+Installed versions of linuxcnc have them in slightly different places depending 
+on the distribution used. +
+An easy way to find the location is to open a terminal 
+and start the sim screen you wish to use. +
+In the terminal the file locations will be printed. +
+It may help to add the -d switch t0 the gscreen load line in the INI. +
+
+Here is a sample:
+----
+chris@chris-ThinkPad-T500 ~/emc-dev/src $ linuxcnc
+LINUXCNC - 2.7.14
+Machine configuration directory is '/home/chris/emc-dev/configs/sim/gscreen/gscreen_custom'
+Machine configuration file is 'industrial_lathe.ini'
+Starting LinuxCNC...
+Found file(lib): /home/chris/emc-dev/lib/hallib/core_sim.hal
+Note: Using POSIX non-realtime
+Found file(lib): /home/chris/emc-dev/lib/hallib/sim_spindle_encoder.hal
+Found file(lib): /home/chris/emc-dev/lib/hallib/axis_manualtoolchange.hal
+Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
+**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 libray installed?
+**** GSCREEN INFO ini: /home/chris/emc-dev/configs/sim/gscreen/gscreen_custom/industrial_lathe.ini
+**** GSCREEN INFO: Skin name = industrial
+
+**** GSCREEN INFO:  Using SKIN glade file from /home/chris/emc-dev/share/gscreen/skins/industrial/industrial.glade ****
+
+**** GSCREEN INFO:  No Screen 2 glade file present
+**** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
+---- 
+
+The line: +
+----
+**** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
+----
+shows where the stock file lives. Copy this file to your config folder. +
+This works the same for the Glade file.
+

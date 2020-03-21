@@ -121,7 +121,7 @@ os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
 root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
-root_window.iconify()
+root_window.withdraw()
 nf.start(root_window)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
@@ -603,18 +603,6 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
-        i = 0
-        for ts in t:
-            if i < len(homed) and homed[i]:
-                t[i] += "*"
-            else:
-                t[i] += " "
-            if i < len(homed) and limit[i]:
-                t[i] += "!" # !!!1!
-            else:
-                t[i] += " "
-            i+=1
-
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
@@ -930,6 +918,15 @@ class LivePlotter:
         widgets.code_text.insert("end", codes)
         widgets.code_text.configure(state="disabled")
 
+        # disable jog radiobutton for extrajoints that are homed
+        # since control is transferred to joint.N.posthome-cmd
+        for jno in range(num_joints - self.stat.num_extrajoints, num_joints):
+            jname = tabs_manual+".joints.joint"+str(jno)
+            #print jno,num_joints,num_extrajoints,s.homed[jno],jname
+            if s.homed[jno]: state="disabled"
+            else:            state="normal"
+            root_window.call(jname,"configure","-state",state)
+
         user_live_update()
 
     def clear(self):
@@ -1204,7 +1201,16 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcodes.append("t%d m6" % s.tool_in_spindle)
             for i in range(9):
                 if s.axis_mask & (1<<i):
-                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    axis = "XYZABCUVW"[i]
+
+                    if (axis == "A" and a_axis_wrapped) or\
+                       (axis == "B" and b_axis_wrapped) or\
+                       (axis == "C" and c_axis_wrapped):
+                        pos = s.position[i] % 360.000
+                    else:
+                        pos = s.position[i]
+
+                    position = "g53 g0 %s%.8f" % (axis, pos)
                     initcodes.append(position)
             for i, g in enumerate(s.gcodes):
                 # index 0 is "sequence number" and index 2 is the last block's
@@ -1275,84 +1281,79 @@ tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
 tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
-widgets = nf.Widgets(root_window,
-    ("help_window", Toplevel, ".keys"),
-    ("about_window", Toplevel, ".about"),
-    ("text", Text, pane_bottom + ".t.text"),
-    ("preview_frame", Frame, tabs_preview),
-    ("numbers_text", Text, tabs_numbers + ".text"),
-    ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
-    ("right", bwidget.NoteBook, pane_top + ".right"),
-    ("mdi_history", Listbox, tabs_mdi + ".history"),
-    ("mdi_command", Entry, tabs_mdi + ".command"),
-    ("code_text", Text, tabs_mdi + ".gcodes"),
 
-    ("axes", Radiobutton, tabs_manual + ".axes"),
-    ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
-    ("axis_y", Radiobutton, tabs_manual + ".axes.axisy"),
-    ("axis_z", Radiobutton, tabs_manual + ".axes.axisz"),
-    ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
-    ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
-    ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
-    ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
-    ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
-    ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
+widget_list=[
+       ("help_window", Toplevel, ".keys"),
+       ("about_window", Toplevel, ".about"),
+       ("text", Text, pane_bottom + ".t.text"),
+       ("preview_frame", Frame, tabs_preview),
+       ("numbers_text", Text, tabs_numbers + ".text"),
+       ("tabs", bwidget.NoteBook, pane_top + ".tabs"),
+       ("right", bwidget.NoteBook, pane_top + ".right"),
+       ("mdi_history", Listbox, tabs_mdi + ".history"),
+       ("mdi_command", Entry, tabs_mdi + ".command"),
+       ("code_text", Text, tabs_mdi + ".gcodes"),
 
-    ("joints", Radiobutton, tabs_manual + ".joints"),
-    ("joint_0", Radiobutton, tabs_manual + ".joints.joint0"),
-    ("joint_1", Radiobutton, tabs_manual + ".joints.joint1"),
-    ("joint_2", Radiobutton, tabs_manual + ".joints.joint2"),
-    ("joint_3", Radiobutton, tabs_manual + ".joints.joint3"),
-    ("joint_4", Radiobutton, tabs_manual + ".joints.joint4"),
-    ("joint_5", Radiobutton, tabs_manual + ".joints.joint5"),
-    ("joint_6", Radiobutton, tabs_manual + ".joints.joint6"),
-    ("joint_7", Radiobutton, tabs_manual + ".joints.joint7"),
-    ("joint_8", Radiobutton, tabs_manual + ".joints.joint8"),
-    ("joint_9", Radiobutton, tabs_manual + ".joints.joint9"),
+       ("axes", Radiobutton, tabs_manual + ".axes"),
+       ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
+       ("axis_y", Radiobutton, tabs_manual + ".axes.axisy"),
+       ("axis_z", Radiobutton, tabs_manual + ".axes.axisz"),
+       ("axis_a", Radiobutton, tabs_manual + ".axes.axisa"),
+       ("axis_b", Radiobutton, tabs_manual + ".axes.axisb"),
+       ("axis_c", Radiobutton, tabs_manual + ".axes.axisc"),
+       ("axis_u", Radiobutton, tabs_manual + ".axes.axisu"),
+       ("axis_v", Radiobutton, tabs_manual + ".axes.axisv"),
+       ("axis_w", Radiobutton, tabs_manual + ".axes.axisw"),
+       ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
+       ("override", Checkbutton, tabs_manual + ".jogf.override"),
 
-    ("jogincr", Entry, tabs_manual + ".jogf.jog.jogincr"),
-    ("override", Checkbutton, tabs_manual + ".jogf.override"),
+       ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
-    ("ajogspeed", Entry, pane_top + ".ajogspeed"),
+       ("lubel", Label, tabs_manual + ".coolant"),
+       ("flood", Checkbutton, tabs_manual + ".flood"),
+       ("mist", Checkbutton, tabs_manual + ".mist"),
 
-    ("lubel", Label, tabs_manual + ".coolant"),
-    ("flood", Checkbutton, tabs_manual + ".flood"),
-    ("mist", Checkbutton, tabs_manual + ".mist"),
+       ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
 
-    ("brake", Checkbutton, tabs_manual + ".spindlef.brake"),
+       ("spindlel", Label, tabs_manual + ".spindlel"),
+       ("spindlef", Frame, tabs_manual + ".spindlef"),
+       ("spindle_ccw", Radiobutton, tabs_manual + ".spindlef.ccw"),
+       ("spindle_stop", Radiobutton, tabs_manual + ".spindlef.stop"),
+       ("spindle_cw", Radiobutton, tabs_manual + ".spindlef.cw"),
 
-    ("spindlel", Label, tabs_manual + ".spindlel"),
-    ("spindlef", Frame, tabs_manual + ".spindlef"),
-    ("spindle_ccw", Radiobutton, tabs_manual + ".spindlef.ccw"),
-    ("spindle_stop", Radiobutton, tabs_manual + ".spindlef.stop"),
-    ("spindle_cw", Radiobutton, tabs_manual + ".spindlef.cw"),
+       ("spindle_minus", Button, tabs_manual + ".spindlef.spindleminus"),
+       ("spindle_plus", Button, tabs_manual + ".spindlef.spindleplus"),
 
-    ("spindle_minus", Button, tabs_manual + ".spindlef.spindleminus"),
-    ("spindle_plus", Button, tabs_manual + ".spindlef.spindleplus"),
+       ("view_z", Button, ".toolbar.view_z"),
+       ("view_z2", Button, ".toolbar.view_z2"),
+       ("view_x", Button, ".toolbar.view_x"),
+       ("view_y", Button, ".toolbar.view_y"),
+       ("view_y2", Button, ".toolbar.view_y2"),
+       ("view_p", Button, ".toolbar.view_p"),
+       ("rotate", Button, ".toolbar.rotate"),
 
-    ("view_z", Button, ".toolbar.view_z"),
-    ("view_z2", Button, ".toolbar.view_z2"),
-    ("view_x", Button, ".toolbar.view_x"),
-    ("view_y", Button, ".toolbar.view_y"),
-    ("view_y2", Button, ".toolbar.view_y2"),
-    ("view_p", Button, ".toolbar.view_p"),
-    ("rotate", Button, ".toolbar.rotate"),
+       ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
+       ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
+       ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
+       ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
-    ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
-    ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
-    ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
-    ("spinoverridef", Scale, pane_top + ".spinoverride"),
+       ("menu_view", Menu, ".menu.view"),
+       ("menu_grid", Menu, ".menu.view.grid"),
+       ("menu_file", Menu, ".menu.file"),
+       ("menu_machine", Menu, ".menu.machine"),
+       ("menu_touchoff", Menu, ".menu.machine.touchoff"),
 
-    ("menu_view", Menu, ".menu.view"),
-    ("menu_grid", Menu, ".menu.view.grid"),
-    ("menu_file", Menu, ".menu.file"),
-    ("menu_machine", Menu, ".menu.machine"),
-    ("menu_touchoff", Menu, ".menu.machine.touchoff"),
+       ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
+       ("homemenu", Menu, ".menu.machine.home"),
+       ("unhomemenu", Menu, ".menu.machine.unhome"),
+      ]
+widget_list.append( ("joints", Radiobutton, tabs_manual + ".joints") )
+for j in range(linuxcnc.MAX_JOINTS):
+    widget_list.append( ("joint_"+str(j),
+                          Radiobutton,
+                          tabs_manual + ".joints.joint"+str(j)) )
+widgets = nf.Widgets(root_window,*widget_list)
 
-    ("homebutton", Button, tabs_manual + ".jogf.zerohome.home"),
-    ("homemenu", Menu, ".menu.machine.home"),
-    ("unhomemenu", Menu, ".menu.machine.unhome")
-)
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean
@@ -1852,9 +1853,13 @@ def ja_from_rbutton():
         axes = "xzabcuvw"
     else:       
         axes = "xyzabcuvw"
-    if ja in "012345678":
-        a = int(ja) # number specifies a joint
-    else:    
+
+    try: # ja may be a joint number or an axis coordinate letter
+        a = int(ja) # invalid for types: 'str' or 'unicode'
+        if a not in range(linuxcnc.MAX_JOINTS):
+            print "ja_from_rbutton:Unexpected joint number",a
+            return "" # can not continue
+    except ValueError:
         a = axes.index(ja) # letter specifies an axis coordinate
 
     # handle joint jogging for known identity kins
@@ -2612,7 +2617,6 @@ class TclCommands(nf.TclCommands):
             go_home(-1)
 
     def unhome_all_joints(event=None):
-        if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         set_motion_teleop(0)
         c.unhome(-1)
@@ -2630,26 +2634,14 @@ class TclCommands(nf.TclCommands):
             jnum = trajcoordinates.index(jora)
         else:
             jnum = int(jora)
+        if lathe_historical_config():
+            jnum = "xyz".index(jora)
         doHoming=True
         if s.homed[jnum]:
             doHoming=prompt_areyousure(_("Warning"),_("This joint is already homed, are you sure you want to re-home?"))
         if doHoming:
             ensure_mode(linuxcnc.MODE_MANUAL)
             go_home(jnum)
-
-    def unhome_joint(event=None):
-        if not manual_ok(): return
-        jora = vars.ja_rbutton.get()
-        if jora in trajcoordinates:
-            if s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-                print _("unhome_joint <%s> Use joint mode for unhoming")%jora
-                return
-            jnum = trajcoordinates.index(jora)
-        else:
-            jnum = int(jora)
-        ensure_mode(linuxcnc.MODE_MANUAL)
-        set_motion_teleop(0)
-        c.unhome(jnum)
 
     def home_joint_number(num):
         # invoked by machine menu/home widgets
@@ -3467,6 +3459,13 @@ while ((s.joints == 0) or (s.kinematics_type < linuxcnc.KINEMATICS_IDENTITY)):
             "More information may be available when running from a terminal.")
     s.poll()
 
+if s.num_extrajoints > 0:
+    # Preview display for extra joints is shared with offsets.
+    # Initially ignore preference for show_offsets in order
+    # to show extra joints in preview, (user can still set
+    # show_offsets)
+    vars.show_offsets.set(False)
+
 if s.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
     ja_name = _("Axes")
 else:
@@ -3823,7 +3822,10 @@ if hal_present == 1 :
         import vcpparse
         comp.setprefix("pyvcp")
         f = Tkinter.Frame(root_window)
-        f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+        if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
+            f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
+        else:
+            f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
         vcp_frame = f

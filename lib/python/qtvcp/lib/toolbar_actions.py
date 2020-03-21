@@ -17,7 +17,7 @@ import os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
-from qtvcp.widgets.dialog_widget import LcncDialog as Dialog
+from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
@@ -30,7 +30,7 @@ ACTION = Action()
 INFO = Info()
 AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
-_DIALOG = Dialog()
+WIDGETS = VCPWindow()
 
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
@@ -38,8 +38,8 @@ _DIALOG = Dialog()
 CONFIGDIR = os.environ['CONFIG_DIR']
 
 class ToolBarActions():
-    def __init__(self, path=None):
-        self.path = path
+    def __init__(self):
+        self._recentActionWidget = None
         self.recentNum = 0
         self.gcode_properties = None
         self.maxRecent = 5
@@ -203,10 +203,18 @@ class ToolBarActions():
             function = (self.actOnViewp)
         elif action == 'view_clear':
             function = (self.actOnViewClear)
+        elif action == 'show_offsets':
+            function = (self.actOnViewOffsets)
         elif action == 'quit':
             function = (self.actOnQuit)
         elif action == 'system_shutdown':
             function = (self.actOnSystemShutdown)
+        elif action == 'tooloffsetdialog':
+            function = (self.actOnToolOffsetDialog)
+        elif action == 'originoffsetdialog':
+            function = (self.actOnOriginOffsetDialog)
+        elif action == 'calculatordialog':
+            function = (self.actOnCalculatorDialog)
 
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
@@ -240,12 +248,14 @@ class ToolBarActions():
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             self.addUnHomeActions(widget)
         elif submenu == 'recent_submenu':
+            self._recentActionWidget = widget
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
-            STATUS.connect('file-loaded', lambda w, d: self.updateRecent(widget, d))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecentPaths(widget, d))
+            self.addRecentPaths()
         elif submenu == 'zero_systems_submenu':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -328,37 +338,52 @@ class ToolBarActions():
         AUX_PRGM.load_ladder()
 
     def actOnZoomIn(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'zoom-in')
+        ACTION.SET_GRAPHICS_VIEW('zoom-in')
 
     def actOnZoomOut(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'zoom-out')
+        ACTION.SET_GRAPHICS_VIEW('zoom-out')
 
     def actOnViewX(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'x')
+        ACTION.SET_GRAPHICS_VIEW('x')
 
     def actOnViewY(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'y')
+        ACTION.SET_GRAPHICS_VIEW('y')
 
     def actOnViewY2(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'y2')
+        ACTION.SET_GRAPHICS_VIEW('y2')
 
     def actOnViewZ(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'z')
+        ACTION.SET_GRAPHICS_VIEW('z')
 
     def actOnViewZ2(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'z2')
+        ACTION.SET_GRAPHICS_VIEW('z2')
 
     def actOnViewp(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'p')
+        ACTION.SET_GRAPHICS_VIEW('p')
 
     def actOnViewClear(self,widget, state=None):
-        STATUS.emit('graphics-view-changed', 'clear')
+        ACTION.SET_GRAPHICS_VIEW('clear')
+
+    def actOnViewOffsets(self,widget, state=None):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('overlay-offsets-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('overlay-offsets-off')
 
     def actOnQuit(self,widget, state=None):
         STATUS.emit('shutdown')
 
     def actOnSystemShutdown(self, widget, state=None):
-        ACTION.SHUT_SYSTEM_DOWN_PROMPT()
+        if 'system_shutdown_request__' in dir(WIDGETS):
+            # do whatever the handler file's function requires
+            WIDGETS.system_shutdown_request__()
+            # make sure to close qtvcp/linuxcnc properly
+            # screenoptions widget redirects the close function to add a prompt
+            # now we re-redirect to remove the prompt 
+            WIDGETS.closeEvent = WIDGETS.originalCloseEvent_
+            WIDGETS.close()
+        else:
+            ACTION.SHUT_SYSTEM_DOWN_PROMPT()
 
     def actOnAbout(self,widget, state=None):
         msg = QtWidgets.QMessageBox()
@@ -381,6 +406,15 @@ class ToolBarActions():
 
     def actOnRunFromLine(self, widget, state=False):
         ACTION.RUN(self.selected_line)
+
+    def actOnToolOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'TOOLOFFSET'})
+
+    def actOnOriginOffsetDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'ORIGINOFFSET'})
+
+    def actOnCalculatorDialog(self, wudget, state=None):
+        STATUS.emit('dialog-request',{'NAME':'CALCULATOR'})
 
     #########################################################
     # Sub menus
@@ -452,7 +486,7 @@ class ToolBarActions():
 
 
 
-    def updateRecent(self, widget, filename):
+    def updateRecentPaths(self, widget, filename):
         def loadRecent(w):
             ACTION.OPEN_PROGRAM(w.text())
 
@@ -482,3 +516,16 @@ class ToolBarActions():
             widget.removeAction(alist[self.maxRecent])
         else:
             self.recentNum +=1
+
+    def addRecentPaths(self):
+        if self._recentActionWidget is not None and WIDGETS.PREFS_ is not None:
+            for num in range(self.maxRecent,-1,-1):
+                path_string = WIDGETS.PREFS_.getpref('RecentPath_%d'% num, None, str, 'BOOK_KEEPING')
+                if not path_string in ('None', None):
+                    self.updateRecentPaths(self._recentActionWidget,path_string)
+
+    def saveRecentPaths(self):
+        if self._recentActionWidget is not None and WIDGETS.PREFS_ is not None:
+            for num, i in enumerate(self._recentActionWidget.actions()):
+                WIDGETS.PREFS_.putpref('RecentPath_%d'% num, i.text(), str, 'BOOK_KEEPING')
+

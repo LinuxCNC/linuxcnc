@@ -51,9 +51,6 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         self.filename = INFO.PARAMETER_FILE
         self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
-        self.linuxcnc = linuxcnc
-        self.status = linuxcnc.stat()
-        self.IS_RUNNING = False
         self.current_system = None
         self.current_tool = 0
         self.metric_display = False
@@ -65,6 +62,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     def _hal_init(self):
         self.delay = 0
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))
         STATUS.connect('tool-in-spindle-changed', lambda w, data: self.currentTool(data))
@@ -143,19 +143,18 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     def reload_offsets(self):
         g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = self.read_file()
         if g54 is None: return
+
+        # fake if linuxcnc is not running
+        if STATUS.is_status_valid() == False:
+            self.current_system = "G54"
+
         # Get the offsets arrays and convert the units if the display
         # is not in machine native units
-        try:
-            self.status.poll()
-            self.IS_RUNNING = True
-        except:
-            self.current_system = "G54"
-            self.IS_RUNNING = False
 
-        ap = self.status.actual_position
-        tool = self.status.tool_offset
-        g92 = self.status.g92_offset
-        rot = self.status.rotation_xy
+        ap = STATUS.stat.actual_position
+        tool = STATUS.stat.tool_offset
+        g92 = STATUS.stat.g92_offset
+        rot = STATUS.stat.rotation_xy
 
         if self.metric_display != INFO.MACHINE_IS_METRIC:
             ap = INFO.convert_units_9(ap)
@@ -260,7 +259,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
             LOG.exception(e)
         # now update linuxcnc to the change
         try:
-            if self.IS_RUNNING:
+            if STATUS.is_status_valid():
                 ACTION.RECORD_CURRENT_MODE()
                 if row == 0:  # current Origin
                     ACTION.CALL_MDI("G10 L2 P0 %s %10.4f" % (self.axisletters[col], qualified))
@@ -286,7 +285,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     # only update every 10th time periodic calls
     def periodic_check(self, w):
-        if self.delay < 99:
+        if self.delay < 9:
             self.delay += 1
             return
         else:

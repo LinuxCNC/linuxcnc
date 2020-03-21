@@ -277,6 +277,9 @@ User Manual.
   https://docs.python.org/2/library/string.html#format-specification-mini-language
   An error will be raised if the format can not accept a floating-point value.
 
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in 
+  the graphics display
+
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
 
@@ -346,7 +349,7 @@ Many of them are used also from gmoccapy, see the
 
 * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts. Use
    a blank string "" and no file will be loaded at start up. gmoccapy will not use this setting, as it
-   offers a coresponding entry on its settings page.
+   offers a corresponding entry on its settings page.
 
 * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
     from the AXIS menu. This must be configured for this menu item to
@@ -360,6 +363,10 @@ Many of them are used also from gmoccapy, see the
 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
     <<cha:pyvcp,PyVCP Chapter>> for more information.
+
+* 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
+    If this variable is omitted the panel will default to the right side. The only valid
+    alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 

@@ -34,6 +34,9 @@ class QPin(hal.Pin, QObject):
             self.value_changed.emit(tmp)
         self._prev = tmp
 
+    def text(self):
+        return self.get_name()
+
     @classmethod
     def update_all(self):
         if not self.UPDATE:
@@ -69,7 +72,9 @@ class QComponent:
             comp = comp.comp
         self.comp = comp
 
-    def newpin(self, *a, **kw): return QPin(_hal.component.newpin(self.comp, *a, **kw))
+    def newpin(self, *a, **kw):
+        return QPin(_hal.component.newpin(self.comp, *a, **kw))
+
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
@@ -99,6 +104,10 @@ INI = Info()
 class Status(GStat):
     _instance = None
     _instanceNum = 0
+    __gsignals__ = {
+        'toolfile-stale': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+    }
+
     # only make one instance of the class - pass it to all other
     # requested instances
     def __new__(cls, *args, **kwargs):
@@ -110,6 +119,7 @@ class Status(GStat):
         # only initialize once for all instances
         if self.__class__._instanceNum >=1:
             return
+        gobject.GObject.__init__(self)
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
@@ -146,4 +156,17 @@ class Tool(_TStatParent):
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = _TStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
+
+################################################################
+# PStat class
+################################################################
+from qtvcp.qt_pstat import _PStat as _PStatParent
+
+class Path(_PStatParent):
+    _instance = None
+    _instanceNum = 0
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
         return cls._instance

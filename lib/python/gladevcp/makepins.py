@@ -40,6 +40,7 @@ class GladePanel():
         self.builder = builder
         self.hal = GComponent(halcomp)
         self.widgets = {}
+        self.extension_obj = None
 
         for widget in builder.get_objects():
             idname = widget_name(widget)
@@ -48,11 +49,16 @@ class GladePanel():
                 continue
 
             if isinstance(widget, _HalWidgetBase):
-                widget.hal_init(self.hal, idname)
+                widget.hal_init(self.hal, idname, self)
                 self.widgets[idname] = widget
 
-        self.timer = gobject.timeout_add(100, self.update)                  
-        
+        self.timer = gobject.timeout_add(100, self.update)   
+               
+    def get_handler_obj(self):
+        return self.extension_obj
+
+    def set_handler(self, data):
+        self.extension_obj = data
 
     def update(self):
         for obj in self.widgets.values():

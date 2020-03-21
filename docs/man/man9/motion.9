@@ -8,17 +8,23 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-9]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 The limits for the following items are compile-time settings:
 .TQ
-Number of joints available (num_joints) is set by EMCMOT_MAX_JOINTS.
+\fBnum_joints\fR: Maximum number of joints is set by EMCMOT_MAX_JOINTS.
 .TQ
-Maximum number of digital inputs (num_dio) is set by EMCMOT_MAX_DIO.
+\fBnum_dio\fR: Maximum number of digital inputs is set by EMCMOT_MAX_DIO.
 .TQ
-Maximum number of analog inputs (num_aio) is set by EMCMOT_MAX_AIO.
+\fBnum_aio\fR: Maximum number of analog inputs is set by EMCMOT_MAX_AIO.
 .TQ
-Maximum number of spindles (num_spindles) is set by EMCMOT_MAX_SPINDLES
+\fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
+
+.P
+Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
+
+.P
+Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
 
 .SH DESCRIPTION
 By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
@@ -27,10 +33,29 @@ By default, the base thread does not support floating point.  Software stepping,
 These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for LinuxCNC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives.
 
 .P
-Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
+The optional \fBnum_extrajoints\fR parameter specifies a quantity of joints
+that participate in homing but are not used by kinematics transformations.
+After homing, control of an 'extra' joint is transferred to a posthome command
+hal pin (joint.N.posthome-cmd) and the motor feedback value is ignored.  'Extra'
+joints must be managed by independent motion planners/controllers (typically
+using limit3 hal components).  Extra joints maybe unhomed only when motion is
+disabled.
 
-.P
-Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
+The maximum \fBnum_extrajoints\fR value is equal to the \fBnum_joints\fR value.
+(Note that using the maximum value would allow no operation in world
+coordinates).  The \fBnum_joints\fR value must be equal to the sum of the
+number of joints used for kinematics calculations plus the number of 'extra'
+joints.
+
+The \fBnum_joints\fR parameter is conventionally set using the ini file
+setting \fB[KINS]JOINTS=\fRvalue.  The \fBnum_extrajoints\fR is set by
+the additional motmod parameter \fB[EMCMOT]motmod num_extrajoints=\fRvalue.
+Hal pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
+When specified, 'extra' joints are assigned the last \fBnum_extrajoints\fR
+in the numbering sequence.  For example, specifying [KINS]JOINTS=5 and
+[EMCMOT]motmod num_extrajoints=2 for a 3 joint trivkins configuration
+\fB[KINS] KINEMATICS=trivkins coordinates=xyz\fR uses joints 0,1,2 for
+the kinematic joints and joints 3,4 for the 'extra' joints.
 
 .SH  MOTION PINS
 
@@ -179,6 +204,10 @@ Motion mode is teleop (axis coordinate jogging available).
 \fBmotion.tooloffset.L\fR OUT FLOAT
 Current tool offset for each axis where
 (\fBL\fR is the axis letter, one of: \fBx y z a b c u v w\fR)
+
+.TP
+\fBmotion.tp\-reverse\fR OUT BIT
+Trajectory planning is reversed (reverse run)
 
 .SH  AXIS PINS
 (\fBL\fR is the axis letter, one of: \fBx y z a b c u v w\fR)
@@ -431,7 +460,13 @@ The joint's commanded velocity
 .TP
 \fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
 
-.SH JOINT UNLOCK PINS
+.SH JOINT posthome pins
+Each joint designated as an 'extra' joint is provided with a hal pin
+\fBjoint.N.posthome-cmd\fR.  The pin value is ignored prior to homing.
+After homing, the pin value is augmented by the motor offset value
+and routed to the \fBjoint.N.motor-pos-cmd\fR.
+
+.SH JOINT unlock pins
 The joint pins used for unlocking a joint
 (\fBjoint.N.unlock\fR, \fBjoint.N.is-unlocked\fR),
 are created according to the \fBunlock_joints_mask=\fRjointmask parameter for motmod.  These pins may be required for locking indexers (typically a rotary joint)

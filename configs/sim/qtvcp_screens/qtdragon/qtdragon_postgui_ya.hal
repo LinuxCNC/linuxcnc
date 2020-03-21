@@ -1,0 +1,29 @@
+loadrt abs names=abs_spindle_feedback
+addf abs_spindle_feedback servo-thread
+
+net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
+net joint_4_pos joint.4.motor-pos-cmd => joint.4.motor-pos-fb
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+net estop_on         qtdragon.action_estop-led <= halui.estop.is-activated
+net machine_on       qtdragon.action_machine_on-led <= halui.machine.is-on
+net mode_auto        qtdragon.auto_mode_button-led <= halui.mode.is-auto
+net mode_mdi         qtdragon.mdi_mode_button-led <= halui.mode.is-mdi
+net mode_manual      qtdragon.manual_mode_button-led <= halui.mode.is-manual
+net flood            qtdragon.action_flood-led <= halui.flood.is-on
+net mist             qtdragon.action_mist-led <= halui.mist.is-on
+net opt_block        qtdragon.action_opt_blk-led <= halui.program.block-delete.is-on
+net opt_stop         qtdragon.action_opt_stp-led <= halui.program.optional-stop.is-on
+net action_zero_x    joint.0.homed => qtdragon.action_home_x-led
+net action_zero_y    joint.1.homed => qtdragon.action_home_y-led
+net action_zero_z    joint.2.homed => qtdragon.action_home_z-led
+

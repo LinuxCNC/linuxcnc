@@ -179,7 +179,10 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
                 else:
                     self.bg_color = QColor(0, 0, 0, 150)
                 if text:
+                    self.setShowText(True)
                     self.text = text
+                else:
+                    self.setShowText(False)
                 self.show()
                 self.update()
                 LOG.debug('Overlay - Show')

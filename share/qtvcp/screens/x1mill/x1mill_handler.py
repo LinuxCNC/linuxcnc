@@ -152,7 +152,7 @@ class HandlerClass:
         mess = {'NAME':'CALCULATOR','ID':'_RunFromLine_',
              'PRELOAD':self.picked_line,
                'TITLE':'Run From Line Dialog'}
-        STATUS.emit('dialog-request', mess)
+        ACTION.CALL_DIALOG{('dialog-request', mess)
 
     #####################
     # general functions #
@@ -198,7 +198,7 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):

@@ -97,7 +97,7 @@ class Trampoline(object):
 
 def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
-
+    mod = object = None
     def add_handler(method, f):
         if method in handlers:
             handlers[method].append(f)
@@ -156,7 +156,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers
+    return handlers, mod, object
 
 def main():
     """ creates a HAL component.
@@ -213,7 +213,10 @@ def main():
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
     # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+    handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+
+    # so widgets can call handler functions - give them refeence to the handler object
+    panel.set_handler(obj)
 
     builder.connect_signals(handlers)
 
@@ -228,12 +231,6 @@ def main():
         # program without even the atexit handler given a chance
         gtk.gdk.error_trap_push()
 
-        window = xembed.add_plug(window)
-        window.realize()
-        gdkwin = window.get_window()
-        w_id = gdkwin.xid
-        print >> sys.stdout,w_id
-        sys.stdout.flush()
         forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
         if forward:
             xembed.keyboard_forward(window, forward)
@@ -319,6 +316,14 @@ def main():
     # User components are set up so report that we are ready
     halcomp.ready()
     GSTAT.forced_update()
+
+    # push the XWindow id number to standard out
+    if opts.push_XID or opts.parent:
+        gdkwin = window.get_window()
+        w_id = gdkwin.xid
+        print >> sys.stdout,w_id
+        sys.stdout.flush()
+
     if handlers.has_key(signal_func):
         dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])

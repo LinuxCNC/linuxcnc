@@ -36,34 +36,57 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+if INFO.IMAGE_PATH is not None:
+    DEFAULTIMAGE = (os.path.join(INFO.IMAGE_PATH,'applet-critical.png')) or ''
+else:
+    INFO.IMAGE_PATH = ''
+    DEFAULTIMAGE = ''
+
 class ImageSwitcher(QLabel, _HalWidgetBase):
     widgetChanged = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(ImageSwitcher, self).__init__(parent)
-        self.IMAGEDIR = os.path.join(os.environ['EMC2_HOME'], "share","qtvcp","images")
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png')]
+        self._defaultImage = DEFAULTIMAGE
+        self._imagePath = [DEFAULTIMAGE]
         self._current_number = 0
+        self.setScaledContents(True)
 
     def _hal_init(self):
         self.show_image_by_number(self._current_number)
 
+    def _designerInit(self):
+        self._hal_init()
+
     # Show the widgets based on a reference number
     def show_image_by_number(self, number):
-        print self.objectName(),len(self._imagePath),number
-        if self._imagePath[number].upper() == 'NONE':
-            return
-        if number <0 or number > len(self._imagePath)-1:
-            LOG.debug('Path reference number out of range: {}'.format(number))
-            return
+        #print self.objectName(),len(self._imagePath),number
+        try:
+            if self._imagePath[number].upper() == 'NONE':
+                return
+            if number <0 or number > len(self._imagePath)-1:
+                LOG.debug('Path reference number out of range: {}'.format(number))
+                return
+            path = os.path.expanduser(self._imagePath[number])
+        except Exception as e:
+            LOG.error('Path reference number: {}'.format(e))
+            path = os.path.expanduser(self._defaultImage)
         #print 'requested:',number,self._imagePath[number]
-        path = os.path.expanduser(self._imagePath[number])
+        # if path doesn't exisit try referencing
+        # from the built in image folder
         if not os.path.exists(path):
-            LOG.debug('No Path: {}'.format(path))
+            path = os.path.join(INFO.IMAGE_PATH, path)
+            if not os.path.exists(path):
+                LOG.debug('No Path: {}'.format(path))
         pixmap = QPixmap(path)
         self.setPixmap(pixmap)
 
+    def set_default_image(self, path):
+        self._defaultImage = path
+
     def set_image_number(self, data):
+        if data <0: data = 0
+        if data > len(self._imagePath)-1: data = len(self._imagePath)-1
         self._current_number = data
         self.show_image_by_number(data)
     def get_image_number(self):
@@ -77,7 +100,7 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
     def get_image_l(self):
         return self._imagePath
     def reset_image_l(self):
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png')]
+        self._imagePath = [self._defaultImage]
     image_list = pyqtProperty(QVariant.typeToName(QVariant.StringList), get_image_l, set_image_l, reset_image_l)
 
     ##############################
@@ -95,13 +118,15 @@ class StatusImageSwitcher(ImageSwitcher):
 
     def __init__(self, parent=None):
         super(StatusImageSwitcher, self).__init__(parent)
-        self._imagePath = [os.path.join(self.IMAGEDIR,'applet-critical.png'),
-                    os.path.join(self.IMAGEDIR,'spindle_ccw.gif'),
-                    os.path.join(self.IMAGEDIR,'spindle_cw.gif')]
+        self._imagePath = [os.path.join(INFO.IMAGE_PATH,'applet-critical.png'),
+                    os.path.join(INFO.IMAGE_PATH,'spindle_ccw.gif'),
+                    os.path.join(INFO.IMAGE_PATH,'spindle_cw.gif')]
         self.spindle = True
         self.all_homed = False
+        self.axis_homed = False
         self.hard_limits = False
         self._last_limit = []
+        self.axis = 'X'
         for i in range(0,len(INFO.AVAILABLE_JOINTS)):
             self._last_limit.append([0,0])
 
@@ -111,8 +136,14 @@ class StatusImageSwitcher(ImageSwitcher):
         elif self.all_homed:
             STATUS.connect('not-all-homed', lambda w, data: self.switch_on_homed(0))
             STATUS.connect('all-homed', lambda w: self.switch_on_homed(1))
+        elif self.axis_homed:
+            STATUS.connect('unhomed', lambda w, data: self.switch_on_axis_unhomed(data))
+            STATUS.connect('homed', lambda w, data: self.switch_on_axis_homed(data))
         elif self.hard_limits:
             STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
+
+    def _designerInit(self):
+        self.show_image_by_number(0)
 
     def switch_on_spindle(self, b, data):
         if data <0: data= 2
@@ -122,15 +153,25 @@ class StatusImageSwitcher(ImageSwitcher):
         if not data <0:
             self.set_image_number(data)
 
+    def switch_on_axis_homed(self, num):
+        data = INFO.GET_NAME_FROM_JOINT[int(num)] 
+        if data == self.axis:
+            self.set_image_number(1)
+
+    def switch_on_axis_unhomed(self, num):
+        data = INFO.GET_NAME_FROM_JOINT[int(num)]
+        if data == self.axis:
+            self.set_image_number(0)
+
     def switch_on_hard_limits(self, data, group):
         if not data:
             # tripped
             self.set_image_number(0)
         elif (len(self._imagePath)) == 2:
-            print 'bool images'
+            #print 'bool images'
             self.set_image_number(1)
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS)):
-            print 'per joint limts images', self._last_limit, group
+            #print 'per joint limts images', self._last_limit, group
             for i in range(0,len(INFO.AVAILABLE_JOINTS)):
                 if group[i] == self._last_limit[i]:
                     pass
@@ -140,7 +181,8 @@ class StatusImageSwitcher(ImageSwitcher):
                     self.set_image_number(i+1)
                     break
         elif (len(self._imagePath)-1) == (len(INFO.AVAILABLE_JOINTS) * 2):
-            print 'per joint and per end limts images'
+            pass
+            #print 'per joint and per end limts images'
         self._last_limit = group
 
     #########################################################################
@@ -152,7 +194,7 @@ class StatusImageSwitcher(ImageSwitcher):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('spindle','all_homed', 'hard_limits' )
+        data = ('spindle','all_homed', 'axis_homed','hard_limits' )
 
         for i in data:
             if not i == picked:
@@ -182,6 +224,18 @@ class StatusImageSwitcher(ImageSwitcher):
         self.all_homed = False
     watch_all_homed = pyqtProperty(bool, get_homed, set_homed, reset_homed)
 
+    # machine_axis_homed status
+    def set_axis_homed(self, data):
+        self.axis_homed = data
+        if data:
+            self._toggle_properties('axis_homed')
+    def get_axis_homed(self):
+        return self.axis_homed
+    def reset_axis_homed(self):
+        self.axis_homed = False
+    watch_axis_homed = pyqtProperty(bool, get_axis_homed, set_axis_homed, reset_axis_homed)
+
+
     # machine_limits status
     def set_limits(self, data):
         self.hard_limits = data
@@ -192,6 +246,15 @@ class StatusImageSwitcher(ImageSwitcher):
     def reset_limits(self):
         self.hard_limits = False
     watch_hard_limits = pyqtProperty(bool, get_limits, set_limits, reset_limits)
+
+    def set_axis(self, data):
+        if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
+            self.axis = data.upper()
+    def get_axis(self):
+        return self.axis
+    def reset_axis(self):
+        self.axis = 'X'
+    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
 
     ##############################
     # required class boiler code #

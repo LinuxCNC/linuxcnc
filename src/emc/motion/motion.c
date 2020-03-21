@@ -49,8 +49,11 @@ static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
 static int num_spindles = 1; /* default number of spindles is 1 */
 RTAPI_MP_INT (num_spindles, "number of spindles");
+int motion_num_spindles;
 static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present */
-RTAPI_MP_INT(num_joints, "number of joints");
+RTAPI_MP_INT(num_joints, "number of joints used in kinematics");
+static int num_extrajoints = 0;	/* default number of extra joints present */
+RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)");
 static int num_dio = DEFAULT_DIO;	/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 static int num_aio = DEFAULT_AIO;	/* default number of motion synched AIO */
@@ -117,7 +120,12 @@ static int mot_comp_id;	/* component ID for motion module */
 static int init_hal_io(void);
 
 /* functions called by init_hal_io() */
-static int export_joint(int num, joint_hal_t * addr);
+
+// halpins for ALL joints (kinematic joints and extra joints):
+static int export_joint(int num,           joint_hal_t * addr);
+// additional halpins for extrajoints:
+static int export_extrajoint(int num, extrajoint_hal_t * addr);
+
 static int export_axis(char c, axis_hal_t  * addr);
 static int export_spindle(int num, spindle_hal_t * addr);
 
@@ -156,7 +164,7 @@ void switch_to_teleop_mode(void) {
         }
     }
 
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
         joint = &joints[joint_num];
         if (joint != 0) { joint->free_tp.enable = 0; }
     }
@@ -217,12 +225,30 @@ int rtapi_app_main(void)
 	return -1;
     }
 
+    if (( num_extrajoints < 0 ) || ( num_extrajoints > num_joints )) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    _("\nMOTION: num_extrajoints is %d, must be between 0 and %d\n\n"), num_extrajoints, num_joints);
+	hal_exit(mot_comp_id);
+	return -1;
+    }
+    if ( (num_extrajoints > 0) && (kinematicsType() != KINEMATICS_BOTH) ) {
+	rtapi_print_msg(RTAPI_MSG_ERR, _("\nMOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n\n"));
+        return -1;
+    }
+    if (num_extrajoints > 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+            _("\nMOTION: kinematicjoints=%2d\n            extrajoints=%2d\n           Total joints=%2d\n\n"),
+            num_joints-num_extrajoints, num_extrajoints, num_joints
+            );
+    }
+
     if (( num_spindles < 0 ) || ( num_spindles > EMCMOT_MAX_SPINDLES )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    _("MOTION: num_spindles is %d, must be between 0 and %d\n"), num_spindles, EMCMOT_MAX_SPINDLES);
 	hal_exit(mot_comp_id);
 	return -1;
     }
+    motion_num_spindles = num_spindles;
 
     if (( num_dio < 1 ) || ( num_dio > EMCMOT_MAX_DIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -309,8 +335,9 @@ void rtapi_app_exit(void)
 static int init_hal_io(void)
 {
     int n, retval;
-    joint_hal_t *joint_data;
-    axis_hal_t  *axis_data;
+    joint_hal_t      *joint_data;
+    extrajoint_hal_t *ejoint_data;
+    axis_hal_t       *axis_data;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_hal_io() starting...\n");
 
@@ -327,7 +354,7 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_hold), mot_comp_id, "motion.feed-hold")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_inhibit), mot_comp_id, "motion.feed-inhibit")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->homing_inhibit), mot_comp_id, "motion.homing-inhibit")) != 0) goto error;
-    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->tp_reverse), mot_comp_id, "motion.tp-reverse")) < 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->tp_reverse), mot_comp_id, "motion.tp-reverse")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != 0) goto error;
 
     /* export motion-synched digital output pins */
@@ -453,7 +480,6 @@ static int init_hal_io(void)
 
     /* export joint pins and parameters */
     for (n = 0; n < num_joints; n++) {
-	/* point to axis data */
 	joint_data = &(emcmot_hal_data->joint[n]);
 	/* export all vars */
         retval = export_joint(n, joint_data);
@@ -473,6 +499,16 @@ static int init_hal_io(void)
         rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: export_joint_home_pins failed\n"));
         return -1;
     }
+    /* export joint pins and parameters */
+    for (n = 0; n < num_extrajoints; n++) {
+        ejoint_data = &(emcmot_hal_data->ejoint[n]);
+        retval = export_extrajoint(n + num_joints - num_extrajoints,ejoint_data);
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: ejoint %d pin/param export failed\n"), n);
+            return -1;
+        }
+    }
+
     /* export axis pins and parameters */
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         char c = "xyzabcuvw"[n];
@@ -624,6 +660,15 @@ static int export_joint(int num, joint_hal_t * addr)
     return 0;
 }
 
+static int export_extrajoint(int num, extrajoint_hal_t * addr)
+{
+    int retval;
+    /* export extrajoint pins */
+    if ((retval = hal_pin_float_newf(HAL_IN,  &(addr->posthome_cmd),  mot_comp_id,
+                                            "joint.%d.posthome-cmd",  num)) != 0) return retval;
+    return 0;
+}
+
 static int export_axis(char c, axis_hal_t * addr)
 {
     int retval, msg;
@@ -711,7 +756,11 @@ static int init_comm_buffers(void)
     SET_MOTION_TELEOP_FLAG(0);
     emcmotDebug->split = 0;
     emcmotStatus->heartbeat = 0;
-    emcmotConfig->numJoints = num_joints;
+
+    ALL_JOINTS                 = num_joints;      // emcmotConfig->numJoints from [KINS]JOINTS
+    emcmotConfig->numExtraJoints = num_extrajoints; // from motmod num_extrajoints=
+    emcmotStatus->numExtraJoints = num_extrajoints;
+
     emcmotConfig->numSpindles = num_spindles;
     emcmotConfig->numDIO = num_dio;
     emcmotConfig->numAIO = num_aio;
@@ -759,7 +808,7 @@ static int init_comm_buffers(void)
       axis->locking_joint = -1;
    }
     /* init per-joint stuff */
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to structure for this joint */
 	joint = &joints[joint_num];
 
@@ -963,7 +1012,7 @@ static int setTrajCycleTime(double secs)
     tpSetCycleTime(&emcmotDebug->coord_tp, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
-    for (t = 0; t < emcmotConfig->numJoints; t++) {
+    for (t = 0; t < ALL_JOINTS; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
     }
@@ -994,7 +1043,7 @@ static int setServoCycleTime(double secs)
 	(int) (emcmotConfig->trajCycleTime / secs + 0.5);
 
     /* set the cubic interpolation rate and PID cycle time */
-    for (t = 0; t < emcmotConfig->numJoints; t++) {
+    for (t = 0; t < ALL_JOINTS; t++) {
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&(joints[t].cubic), secs);

@@ -204,9 +204,8 @@ class EditorBase(QsciScintilla):
         self.setMarginsFont(self.font)
 
         # Margin 0 is used for line numbers
-        fontmetrics = QFontMetrics(self.font)
         self.setMarginsFont(self.font)
-        self.setMarginWidth(0, fontmetrics.width("00000") + 6)
+        self.set_margin_width(7)
         self.setMarginLineNumbers(0, True)
         self.setMarginsBackgroundColor(QColor("#cccccc"))
 
@@ -245,6 +244,11 @@ class EditorBase(QsciScintilla):
         # not too small
         self.setMinimumSize(200, 100)
         self.filepath = None
+
+    def set_margin_width(self, width):
+        fontmetrics = QFontMetrics(self.font)
+        self.setMarginsFont(self.font)
+        self.setMarginWidth(0, fontmetrics.width("0"*width) + 6)
 
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
@@ -452,6 +456,15 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
 
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 #############################################
 # For Editing Gcode
@@ -760,6 +773,9 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def get_line(self):
         return self.editor.getCursorPosition()[0] +1
 
+    def set_margin_width(self,width):
+        self.editor.set_margin_width(width)
+
     # designer recognized getter/setters
     # auto_show_mdi status
     # These adjust the self.editor instance
@@ -770,6 +786,16 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def reset_auto_show_mdi(self):
         self.editor.auto_show_mdi = True
     auto_show_mdi_status = pyqtProperty(bool, get_auto_show_mdi, set_auto_show_mdi, reset_auto_show_mdi)
+
+    # designer recognized getter/setters
+    # auto_show_manual status
+    def set_auto_show_manual(self, data):
+        self.editor.auto_show_manual = data
+    def get_auto_show_manual(self):
+        return self.editor.auto_show_manual
+    def reset_auto_show_manual(self):
+        self.editor.auto_show_manual = True
+    auto_show_manual_status = pyqtProperty(bool, get_auto_show_manual, set_auto_show_manual, reset_auto_show_manual)
 
 # for direct testing
 if __name__ == "__main__":

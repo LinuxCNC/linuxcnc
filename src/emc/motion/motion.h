@@ -222,7 +222,7 @@ extern "C" {
 	EmcPose pos;		/* line/circle endpt, or teleop vector */
 	PmCartesian center;	/* center for circle */
 	PmCartesian normal;	/* normal vec for circle */
-	int turn;		/* turns for circle or which rotary to unlock for a line */
+	int turn;		/* turns for circle or joint number for a locking indexer*/
 	double vel;		/* max velocity */
         double ini_maxvel;      /* max velocity allowed by machine
                                    constraints (the ini file) */
@@ -675,7 +675,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char tail;	/* flag count for mutex detect */
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
-        
+	int numExtraJoints;
     } emcmot_status_t;
 
 /*********************************
@@ -706,9 +706,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int config_num;		/* Incremented everytime configuration
 				   changed, should match status.config_num */
-	int numJoints;		/* The number of joints in the system (which
+	int numJoints;		/* The number of total joints in the system (which
 				   must be between 1 and EMCMOT_MAX_JOINTS,
-				   inclusive). Can be changed at insmod time */
+				   inclusive). includes extra joints*/
+	int numExtraJoints;		/* The number of extra joints in the system (which
+				   must be between 1 and EMCMOT_MAX_EXTRAJOINTS,
+				   inclusive). */
 	int numSpindles; /* The number of spindles, 1 to EMCMOT_MAX_SPINDLES */
 
 	KINEMATICS_TYPE kinType;

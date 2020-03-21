@@ -22,7 +22,6 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.core import Status, Action, Info
-from qtvcp.widgets.entry_widget import SoftInputWidget
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
@@ -130,7 +129,6 @@ class MDIHistory(QWidget, _HalWidgetBase):
         self.rows = self.model.rowCount(parent) - 1
         if style == 'last':
             self.row = self.rows
-            print 'last =',self.row
         elif style == 'up':
             if self.row > 0:
                 self.row -= 1

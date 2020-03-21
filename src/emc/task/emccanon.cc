@@ -914,7 +914,7 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    linearMoveMsg.indexrotary = -1;
+    linearMoveMsg.indexer_jnum = -1;
     if ((vel && acc) || canon.spindle[canon.spindle_num].synched) {
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
@@ -1034,7 +1034,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.indexrotary = canon.rotary_unlock_for_traverse;
+    linearMoveMsg.indexer_jnum = canon.rotary_unlock_for_traverse;
 
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
@@ -1779,7 +1779,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
-        linearMoveMsg.indexrotary = -1;
+        linearMoveMsg.indexer_jnum = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
@@ -2085,7 +2085,7 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	linearMoveMsg.feed_mode = 0;
-        linearMoveMsg.indexrotary = -1;
+        linearMoveMsg.indexer_jnum = -1;
 
 	int old_feed_mode = canon.feed_mode;
 	if(canon.feed_mode)
@@ -3276,7 +3276,7 @@ int UNLOCK_ROTARY(int line_number, int joint_num) {
                         canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
                         canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
     m.vel = m.acc = 1; // nonzero but otherwise doesn't matter
-    m.indexrotary = -1;
+    m.indexer_jnum = -1;
 
     // issue it
     int old_feed_mode = canon.feed_mode;

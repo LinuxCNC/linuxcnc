@@ -77,6 +77,7 @@ extern bool get_home_is_volatile(int jno);
 extern bool get_home_needs_unlock_first(int jno);
 extern bool get_home_is_idle(int jno);
 extern bool get_homing_at_index_search_wait(int jno);
+extern bool get_home_is_synchronized(int jno);
 //---------------------------------------------------------------------
 
 #endif /* HOMING_H */

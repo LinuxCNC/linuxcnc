@@ -65,34 +65,34 @@ int ErrorCnt;
 
 void InitModbusMasterBeforeReadConf( void )
 { 
-        ModbusSerialPortNameUsed[ 0 ] = '\0';
-        ModbusSerialSpeed = 9600;
-        ModbusSerialDataBits = 8;
-        ModbusSerialStopBits = 1;
-        ModbusSerialParity = 0; // no parity
-        ModbusEleOffset = 0;
-        ModbusSerialUseRtsToSend = 0;
-        ModbusTimeInterFrame = 100;
-        ModbusTimeOutReceipt = 500;
-        ModbusTimeAfterTransmit = 0;
-        ModbusDebugLevel= 0;
-        MapCoilRead = 0;
-        MapCoilWrite = 0;
-        MapInputs = 0;
-        MapHolding = 0;
-        MapRegisterRead = 0;
-        MapRegisterWrite = 0;
+	ModbusSerialPortNameUsed[ 0 ] = '\0';
+	ModbusSerialSpeed = 9600;
+	ModbusSerialDataBits = 8;
+	ModbusSerialStopBits = 1;
+	ModbusSerialParity = 0; // no parity
+	ModbusEleOffset = 0;
+	ModbusSerialUseRtsToSend = 0;
+	ModbusTimeInterFrame = 100;
+	ModbusTimeOutReceipt = 500;
+	ModbusTimeAfterTransmit = 0;
+	ModbusDebugLevel= 0;
+	MapCoilRead = 0;
+	MapCoilWrite = 0;
+	MapInputs = 0;
+	MapHolding = 0;
+	MapRegisterRead = 0;
+	MapRegisterWrite = 0;
 
-        InitModbusMasterParams ( );
+	InitModbusMasterParams ( );
 }
 
 void PrepareModbusMaster( void )
 {
        if(modmaster) 
-            { 
-                CloseSocketModbusMaster( );
+	    { 
+		CloseSocketModbusMaster( );
 		InitSocketModbusMaster( );
-            }
+	    }
 }
 
 void InitModbusMasterParams( void )
@@ -151,7 +151,7 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 		case MODBUS_REQ_INPUTS_READ:
 			FunctionCode = MODBUS_FC_READ_INPUTS;
 			break;
-                case MODBUS_REQ_COILS_READ:
+		case MODBUS_REQ_COILS_READ:
 			FunctionCode = MODBUS_FC_READ_COILS;
 			break;
 		case MODBUS_REQ_COILS_WRITE:
@@ -182,13 +182,13 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 		{
 			case MODBUS_FC_READ_INPUTS:    // 2				
 			case MODBUS_FC_READ_INPUT_REGS:// 4 
-                        case MODBUS_FC_READ_COILS:     // 1				
+			case MODBUS_FC_READ_COILS:     // 1				
 			case MODBUS_FC_READ_HOLD_REGS: // 3
-                            AskFrame[ FrameSize++ ] = FirstEle >> 8;
-                            AskFrame[ FrameSize++ ] = FirstEle & 0xff;
-                            AskFrame[ FrameSize++ ] = NbrEles >> 8;
-                            AskFrame[ FrameSize++ ] = NbrEles & 0xff;
-                            break;
+			    AskFrame[ FrameSize++ ] = FirstEle >> 8;
+			    AskFrame[ FrameSize++ ] = FirstEle & 0xff;
+			    AskFrame[ FrameSize++ ] = NbrEles >> 8;
+			    AskFrame[ FrameSize++ ] = NbrEles & 0xff;
+			    break;
 			case MODBUS_FC_FORCE_COIL:     // 5
 			{
 				int BitValue = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
@@ -292,7 +292,7 @@ int TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 			switch( RespFrame[ 0 ] )
 			{
 				case MODBUS_FC_READ_INPUTS://function code 2
-                                case MODBUS_FC_READ_COILS: //function code 1
+				case MODBUS_FC_READ_COILS: //function code 1
 				{
 					int NbrRealBytes = RespFrame[1];
 					// validity request verify 
@@ -385,38 +385,38 @@ int GetModbusResponseLenghtToReceive( void )
 		switch( CurrentFuncCode )
 		{
 				case MODBUS_FC_READ_INPUTS:
-                                case MODBUS_FC_READ_COILS:
-                                // 1 byte for function code
-                                // 1 byte for count of data bytes returned 
-                                // 1 byte for 8 coils if number of coils is not evenly divisable by 8 add another byte
-				        NbrRealBytes = (NbrEles+7)/8;
-                                        LgtResp = 2+NbrRealBytes;
-                                        break;
+				case MODBUS_FC_READ_COILS:
+				// 1 byte for function code
+				// 1 byte for count of data bytes returned 
+				// 1 byte for 8 coils if number of coils is not evenly divisable by 8 add another byte
+					NbrRealBytes = (NbrEles+7)/8;
+					LgtResp = 2+NbrRealBytes;
+					break;
 				case MODBUS_FC_READ_INPUT_REGS:
 				case MODBUS_FC_READ_HOLD_REGS:
-                                // 1 byte for function code
-                                // 1 byte for count of data bytes returned
-                                // 2 bytes per register for data returned and 1 byte for number of registers (max 125)
+				// 1 byte for function code
+				// 1 byte for count of data bytes returned
+				// 2 bytes per register for data returned and 1 byte for number of registers (max 125)
 					LgtResp = 2+2*NbrEles;
 					break;
 				case MODBUS_FC_FORCE_COIL:
 				case MODBUS_FC_FORCE_COILS:
 				case MODBUS_FC_WRITE_REG:
 				case MODBUS_FC_WRITE_REGS:
-                                // 1 byte for function code
-                                // 2 bytes for starting address
-                                // 2 bytes for number of addresses
+				// 1 byte for function code
+				// 2 bytes for starting address
+				// 2 bytes for number of addresses
 					LgtResp = 5;
 					break;
 				case MODBUS_FC_DIAGNOSTICS:
-                                // assume hardcoded sub code: echo (0x0)
-                                // 2 byte for function code
-                                // 2 bytes for sub code 2 for data
+				// assume hardcoded sub code: echo (0x0)
+				// 2 byte for function code
+				// 2 bytes for sub code 2 for data
 					LgtResp = 5;
 					break;
-                                default:
-                                        printf(_("INFO CLASSICLADDER-   MODBUS function code not reconized"));
-                                        break;
+				default:
+					printf(_("INFO CLASSICLADDER-   MODBUS function code not reconized"));
+					break;
 		}
 	}
 	if ( ModbusDebugLevel>=3 )
@@ -554,12 +554,18 @@ int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question )
 		if ( ModbusDebugLevel>=1 )
 		{
 			int DebugFrame;
-			printf(_("INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=%d <-  "), LgtAskFrame );
+			printf(_("INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n    Length=%d bytes -> "), LgtAskFrame );
 			for( DebugFrame=0; DebugFrame<LgtAskFrame; DebugFrame++ )
 			{
-                           if (DebugFrame==0) {   printf(_("Slave address-%X  "), Question[ DebugFrame]);   
-                           }else{   if (DebugFrame==1) {   printf(_("Function code-%X  Data-"), Question[ DebugFrame]);   
-				       }else{            printf("%X ", Question[ DebugFrame ] );     }}
+				if (DebugFrame==0)
+				{   printf(_("Slave: %X  "), Question[ DebugFrame]);   
+				}else if (DebugFrame==1)
+				{   printf(_("Function: %X  Data: "), Question[ DebugFrame]);   
+				}else if (DebugFrame == (LgtAskFrame-2))
+				{   printf(_(" CRC: %X "), Question[ DebugFrame]);
+				}else
+				{   printf("%X ", Question[ DebugFrame ] );
+				}
 			}
 			printf("\n");
 		}
@@ -573,12 +579,18 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 	char RepOk = FALSE;
 	if ( ModbusDebugLevel>=1 )
 	{
-		printf(_("INFO CLASSICLADDER-   Modbus I/O module received: Lgt=%d -> "), LgtResponse );
+		printf(_("INFO CLASSICLADDER-   Modbus I/O received (Hex):\n    Length=%d bytes <- "), LgtResponse );
 		for( DebugFrame=0; DebugFrame<LgtResponse; DebugFrame++ )
 		{
-			if (DebugFrame==0) {   printf(_("(Slave address-%X - "), Response[ DebugFrame]);   
-                        }else{   if (DebugFrame==1) {   printf(_("Function code-%X ) "), Response[ DebugFrame]);
-				    }else{            printf("%X ", Response[ DebugFrame ] );     }}
+			if (DebugFrame ==0)
+			{   printf(_("Slave: %X  "), Response[ DebugFrame]);   
+			}else if (DebugFrame ==1)
+			{   printf(_("Function: %X Data: "), Response[ DebugFrame]);
+			}else if (DebugFrame == (LgtResponse-2))
+			{   printf(_(" CRC: %X "), Response[ DebugFrame]);
+			}else
+			{   printf("%X ", Response[ DebugFrame ] );
+			}
 		}
 		printf("\n");
 	}
@@ -635,8 +647,8 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 		else
 		{
 			printf(_("ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"));
-                        //set error coil 0 on 'MODBUS ERROR'
-                        
+			//set error coil 0 on 'MODBUS ERROR'
+			
 			ErrorCnt++;
 		}
 		if ( ErrorCnt>=3 )
@@ -647,8 +659,8 @@ char TreatModbusMasterResponse( unsigned char * Response, int LgtResponse )
 
 		
 	}
-        //set error coil (%E0) as apprioprate  
-        if (RepOk==TRUE) {    WriteVar( VAR_ERROR_BIT, 0, FALSE);   }else{    WriteVar( VAR_ERROR_BIT, 0, TRUE);   }
+	//set error coil (%E0) as apprioprate  
+	if (RepOk==TRUE) {    WriteVar( VAR_ERROR_BIT, 0, FALSE);   }else{    WriteVar( VAR_ERROR_BIT, 0, TRUE);   }
 	return RepOk;
 }
 
@@ -659,44 +671,44 @@ void SetVarFromModbus( StrModbusMasterReq * ModbusReq, int ModbusNum, int Value 
 {
 	int FirstEle = ModbusReq->FirstModbusElement-ModbusEleOffset;
 	int VarNum;
-        
+	
 	if ( FirstEle<0 )
 		FirstEle = 0;
 	VarNum = ModbusNum-FirstEle+ModbusReq->OffsetVarMapped;
 	switch( ModbusReq->TypeReq )
 	{
 		case MODBUS_REQ_INPUTS_READ:
-                case MODBUS_REQ_COILS_READ:
-                       switch ( MapCoilRead )
-                          {
-                           case B_VAR:
-			        WriteVar( VAR_MEM_BIT, VarNum, Value );
-                                break;
-                           case Q_VAR:
-			        WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
-                               break;
-                           default:  
+		case MODBUS_REQ_COILS_READ:
+		       switch ( MapCoilRead )
+			  {
+			   case B_VAR:
+				WriteVar( VAR_MEM_BIT, VarNum, Value );
+				break;
+			   case Q_VAR:
+				WriteVar( VAR_PHYS_OUTPUT, VarNum, Value );
 			       break;
-                        }
-                     break;
+			   default:  
+			       break;
+			}
+		     break;
 		case MODBUS_REQ_REGISTERS_READ:
 		case MODBUS_REQ_HOLD_READ:
-                        switch ( MapRegisterRead )
-                           {
-                            case W_VAR:
-			         WriteVar( VAR_MEM_WORD, VarNum, Value );
-                                 break;
-                            case QW_VAR:
-			         WriteVar( VAR_PHYS_WORD_OUTPUT, VarNum, Value );
-                                 break;
-                            default:  
-			         break;
-                           }
-                      break;
-                default:
-                        printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "));
-                      break;
-                        
+			switch ( MapRegisterRead )
+			   {
+			    case W_VAR:
+				 WriteVar( VAR_MEM_WORD, VarNum, Value );
+				 break;
+			    case QW_VAR:
+				 WriteVar( VAR_PHYS_WORD_OUTPUT, VarNum, Value );
+				 break;
+			    default:  
+				 break;
+			   }
+		      break;
+		default:
+			printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "));
+		      break;
+			
 	}
 }
 int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
@@ -710,40 +722,40 @@ int GetVarForModbus( StrModbusMasterReq * ModbusReq, int ModbusNum )
 	switch( ModbusReq->TypeReq )
 	{
 		case MODBUS_REQ_COILS_WRITE:
-                        switch ( MapCoilWrite )
-                           {
-                            case B_VAR:
-			         return ReadVar( VAR_MEM_BIT, VarNum );
-                                 break;
-                            case Q_VAR:
-			         return ReadVar( VAR_PHYS_OUTPUT, VarNum );
-                                 break;
-                            case I_VAR:
-			         return ReadVar( VAR_PHYS_INPUT, VarNum );
-                                 break;
-                            default:  
-			         break;
-                           }
+			switch ( MapCoilWrite )
+			   {
+			    case B_VAR:
+				 return ReadVar( VAR_MEM_BIT, VarNum );
+				 break;
+			    case Q_VAR:
+				 return ReadVar( VAR_PHYS_OUTPUT, VarNum );
+				 break;
+			    case I_VAR:
+				 return ReadVar( VAR_PHYS_INPUT, VarNum );
+				 break;
+			    default:  
+				 break;
+			   }
 			
 		case MODBUS_REQ_REGISTERS_WRITE:
-                        switch ( MapRegisterWrite )
-                            {
-                             case W_VAR:            
-			          return ReadVar( VAR_MEM_WORD, VarNum );
-                                  break;
-                             case QW_VAR:
-			          return ReadVar( VAR_PHYS_WORD_OUTPUT, VarNum );
-                                  break;
-                             case IW_VAR:
-			          return ReadVar( VAR_PHYS_WORD_INPUT, VarNum );
-                                  break;
-                             default:  
-			          break;
-                            }
-                default:
-                        printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "));
-                        
-                      break;
+			switch ( MapRegisterWrite )
+			    {
+			     case W_VAR:            
+				  return ReadVar( VAR_MEM_WORD, VarNum );
+				  break;
+			     case QW_VAR:
+				  return ReadVar( VAR_PHYS_WORD_OUTPUT, VarNum );
+				  break;
+			     case IW_VAR:
+				  return ReadVar( VAR_PHYS_WORD_INPUT, VarNum );
+				  break;
+			     default:  
+				  break;
+			    }
+		default:
+			printf(_("ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "));
+			
+		      break;
 			
 	}
 	return 0;

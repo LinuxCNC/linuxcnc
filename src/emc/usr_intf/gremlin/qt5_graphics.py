@@ -300,11 +300,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             if self.metric_units:
                 conv = 1
-                units = _("mm")
+                units = "mm"
                 fmt = "%.3f"
             else:
                 conv = 1/25.4
-                units = _("in")
+                units = "in"
                 fmt = "%.4f"
 
             mf = max_speed
@@ -333,6 +333,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+            props['Units'] = units
         self.gcode_properties = props
 
     # setup details when window shows
@@ -350,6 +351,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.font_linespace = linespace
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
+        if s.file: self.load()
 
     # gettter / setters
     def get_font_info(self):
@@ -417,15 +419,90 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def _redraw(self):
         self.updateGL()
 
-    # This overrides glcannon.py method so we can not plot the DRO 
+    # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        if not self.enable_dro:
-            return limit, homed, [''], ['']
-        return parent_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+            if not self.enable_dro:
+                return limit, homed, [''], ['']
 
-    # provide access to glcannon's default function
-    def parent_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        return glcanon.GlCanonDraw.dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+            if self.metric_units:
+                format = "% 6s:% 9.3f"
+                if self.show_dtg:
+                    droformat = " " + format + "  DTG %1s:% 9.3f"
+                else:
+                    droformat = " " + format
+                offsetformat = "% 5s %1s:% 9.3f  G92 %1s:% 9.3f"
+                rotformat = "% 5s %1s:% 9.3f"
+            else:
+                format = "% 6s:% 9.4f"
+                if self.show_dtg:
+                    droformat = " " + format + "  DTG %1s:% 9.4f"
+                else:
+                    droformat = " " + format
+                offsetformat = "% 5s %1s:% 9.4f  G92 %1s:% 9.4f"
+                rotformat = "% 5s %1s:% 9.4f"
+            diaformat = " " + format
+
+            posstrs = []
+            droposstrs = []
+            for i in range(9):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    posstrs.append(format % (a, positions[i]))
+                    if self.show_dtg:
+                        droposstrs.append(droformat % (a, positions[i], a, axisdtg[i]))
+                    else:
+                        droposstrs.append(droformat % (a, positions[i]))
+            droposstrs.append("")
+
+            for i in range(9):
+                index = s.g5x_index
+                if index<7:
+                    label = "G5%d" % (index+3)
+                else:
+                    label = "G59.%d" % (index-6)
+
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    droposstrs.append(offsetformat % (label, a, g5x_offset[i], a, g92_offset[i]))
+            droposstrs.append(rotformat % (label, 'R', s.rotation_xy))
+
+            droposstrs.append("")
+            for i in range(9):
+                a = "XYZABCUVW"[i]
+                if s.axis_mask & (1<<i):
+                    droposstrs.append(rotformat % ("TLO", a, tlo_offset[i]))
+
+            # if its a lathe only show radius or diameter as per property
+            if self.is_lathe():
+                posstrs[0] = ""
+                if self.show_lathe_radius:
+                    posstrs.insert(1, format % ("Rad", positions[0]))
+                else:
+                    posstrs.insert(1, format % ("Dia", positions[0]*2.0))
+                droposstrs[0] = ""
+                if self.show_dtg:
+                    if self.show_lathe_radius:
+                        droposstrs.insert(1, droformat % ("Rad", positions[0], "R", axisdtg[0]))
+                    else:
+                        droposstrs.insert(1, droformat % ("Dia", positions[0]*2.0, "D", axisdtg[0]*2.0))
+                else:
+                    if self.show_lathe_radius:
+                        droposstrs.insert(1, droformat % ("Rad", positions[0]))
+                    else:
+                        droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
+
+            if self.show_velocity:
+                posstrs.append(format % ("Vel", spd))
+                pos=0
+                for i in range(9):
+                    if s.axis_mask & (1<<i): pos +=1
+                if self.is_lathe:
+                    pos +=1
+                droposstrs.insert(pos, " " + format % ("Vel", spd))
+
+            if self.show_dtg:
+                posstrs.append(format % ("DTG", dtg))
+            return limit, homed, posstrs, droposstrs
 
     def minimumSizeHint(self):
         return QSize(50, 50)
@@ -631,6 +708,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def user_plot(self):
         pass
         #GL.glCallList(self.object)
+
+    def panView(self,vertical=0,horizontal=0):
+        self.translateOrRotate(self.xmouse + vertical, self.ymouse + horizontal)
+
+    def rotateView(self,vertical=0,horizontal=0):
+        self.rotateOrTranslate(self.xmouse + vertical, self.ymouse + horizontal)
 
     ############################################################
     # display for when linuxcnc isn't runnimg - forQTDesigner

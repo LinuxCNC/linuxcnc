@@ -18,6 +18,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 
+# call to tk window
 w = root_window.tk.call
 
 ################################################################################
@@ -43,18 +44,15 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15','16']
+    heights = ['688','708','736','748','816','858','900','950']
     if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-        heights = ['658','680','742','764','790','842','900','932']
         aspect = 1.5
     else:
-        heights = ['704','728','800','826','850','900','960','990']
         aspect = 1.7
-    w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(
-            str(int(float(heights[fsizes.index(fsize)]) * aspect)),\
-            str(int(float(heights[fsizes.index(fsize)]))),
-            '40',\
-            '40'\
-            ))
+    width = str(int(float(heights[fsizes.index(fsize)]) * aspect))
+    height = str(int(float(heights[fsizes.index(fsize)])))
+    wxpos = '20'
+    wypos = '20'
 else:
     # change pad_width and pad_height for smaller than fullscreen
     pad_width = 0
@@ -68,9 +66,8 @@ else:
     height = str(int(fullsize[1])-pad_height)
     wxpos = str(pad_width/2)
     wypos = str(pad_height/2)
-    print '\nAxis window is {0} x {1}\n'.format(width,height)
-    w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
-
+w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
+print('\nAxis window is {0} x {1}\n'.format(width,height))
 
 
 ################################################################################
@@ -222,14 +219,15 @@ w('bind',fjogf + '.jog.jogminus','<ButtonRelease-1>','if [is_continuous] {jog_st
 w('button',fjogf + '.jog.jogplus','-command','if ![is_continuous] {jog_plus 1}','-height','1','-text','+')
 w('bind',fjogf + '.jog.jogplus','<Button-1>','if [is_continuous] {jog_plus}')
 w('bind',fjogf + '.jog.jogplus','<ButtonRelease-1>','if [is_continuous] {jog_stop}')
-w('combobox',fjogf + '.jog.jogincr','-editable','0','-textvariable','jogincrement','-value','Continuous','-width','10')
-w(fjogf + '.jog.jogincr','list','insert','end','Continuous')
-w(fjogf + '.jog.jogincr','list','insert','end',*increments)
+w('combobox',fjogf + '.jog.jogincr','-editable','0','-textvariable','jogincrement','-value',_('Continuous'),'-width','10')
+w(fjogf + '.jog.jogincr','list','insert','end',_('Continuous'))
+if increments:
+    w(fjogf + '.jog.jogincr','list','insert','end',*increments)
 w('labelframe',fjogf + '.zerohome','-text','Zero','-relief','flat')
 w('button',fjogf + '.zerohome.home','-command','home_joint','-height','1')
-w('setup_widget_accel',fjogf + '.zerohome.home','Home Axis')
+w('setup_widget_accel',fjogf + '.zerohome.home',_('Home Axis'))
 w('button',fjogf + '.zerohome.zero','-command','touch_off_system','-height','1')
-w('setup_widget_accel',fjogf + '.zerohome.zero','Touch Off')
+w('setup_widget_accel',fjogf + '.zerohome.zero',_('Touch Off'))
 # unused, just for tcl hierarchy
 w('button',fjogf + '.zerohome.tooltouch')
 w('checkbutton',fjogf + '.override')
@@ -254,7 +252,7 @@ if homing_order_defined:
         hbName = 'axes'
     else:
         hbName ='joints'
-    widgets.homebutton.configure(text = 'Home All', command = 'home_all_joints')
+    widgets.homebutton.configure(text = _('Home All'), command = 'home_all_joints')
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home all %s [Ctrl-Home]' % hbName)
 else:
     w('DynamicHelp::add',fjogf + '.zerohome.home','-text','Home selected %s [Home]' % ja_name.lower())
@@ -348,12 +346,17 @@ w('label',fmonitor + '.lFlab','-text','Float Switch')
 w('canvas',fmonitor + '.led-breakaway','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-breakaway','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
 w('label',fmonitor + '.lBlab','-text','Breakaway')
+w('canvas',fmonitor + '.led-thc-active','-width',cwidth,'-height',cheight)
+w(fmonitor + '.led-thc-active','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#37F608','-disabledfill','grey')
+w('label',fmonitor + '.lTAlab','-text','THC Active')
+w('labelframe',fmonitor + '.updown','-text','','-relief','flat','-width','20')
 w('canvas',fmonitor + '.led-up','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-up','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lUlab','-text','THC Up')
-w('canvas',fmonitor + '.led-down','-width',cwidth,'-height',cheight)
-w(fmonitor + '.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lDlab','-text','THC Down')
+w('canvas',fmonitor + '.updown.led-down','-width',cwidth,'-height',cheight)
+w(fmonitor + '.updown.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
+w('label',fmonitor + '.updown.lab','-text','Up> THC <Down')
+w('pack',fmonitor + '.updown.led-down','-side','right','-fill','none','-expand','0')
+w('pack',fmonitor + '.updown.lab','-side','right','-fill','x','-expand','1')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
 w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock')
@@ -362,29 +365,28 @@ w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-f
 w('label',fmonitor + '.lKLlab','-text','THC Void Lock')
 # populate the monitor frame
 w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
-w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2')
+w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2','-sticky','w')
 w('grid',fmonitor + '.led-arc-ok','-row','2','-column','0','-sticky','e')
-w('grid',fmonitor + '.lAOlab','-row','2','-column','1')
+w('grid',fmonitor + '.lAOlab','-row','2','-column','1','-sticky','w')
 w('grid',fmonitor + '.led-torch','-row','3','-column','0','-sticky','e')
-w('grid',fmonitor + '.lTlab','-row','3','-column','1')
+w('grid',fmonitor + '.lTlab','-row','3','-column','1','-sticky','w')
 w('grid',fmonitor + '.led-thc-enabled','-row','0','-column','2','-sticky','e')
-w('grid',fmonitor + '.lTElab','-row','0','-column','3')
+w('grid',fmonitor + '.lTElab','-row','0','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-ohmic','-row','1','-column','2','-sticky','e')
-w('grid',fmonitor + '.lOlab','-row','1','-column','3')
+w('grid',fmonitor + '.lOlab','-row','1','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-float','-row','2','-column','2','-sticky','e')
-w('grid',fmonitor + '.lFlab','-row','2','-column','3')
+w('grid',fmonitor + '.lFlab','-row','2','-column','3','-sticky','w')
 w('grid',fmonitor + '.led-breakaway','-row','3','-column','2','-sticky','e')
-w('grid',fmonitor + '.lBlab','-row','3','-column','3')
-w('grid',fmonitor + '.led-up','-row','0','-column','4','-sticky','e')
-w('grid',fmonitor + '.lUlab','-row','0','-column','5')
-w('grid',fmonitor + '.led-down','-row','1','-column','4','-sticky','e')
-w('grid',fmonitor + '.lDlab','-row','1','-column','5')
+w('grid',fmonitor + '.lBlab','-row','3','-column','3','-sticky','w')
+w('grid',fmonitor + '.led-thc-active','-row','0','-column','4','-sticky','e')
+w('grid',fmonitor + '.lTAlab','-row','0','-column','5','-sticky','w')
+w('grid',fmonitor + '.led-up','-row','1','-column','4','-sticky','e')
+w('grid',fmonitor + '.updown','-row','1','-column','5','-sticky','e')
 w('grid',fmonitor + '.led-corner-locked','-row','2','-column','4','-sticky','e')
-w('grid',fmonitor + '.lCLlab','-row','2','-column','5')
+w('grid',fmonitor + '.lCLlab','-row','2','-column','5','-sticky','w')
 w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
-w('grid',fmonitor + '.lKLlab','-row','3','-column','5')
+w('grid',fmonitor + '.lKLlab','-row','3','-column','5','-sticky','w')
 w('grid','rowconfigure',fmonitor,'0 1 2 3','-pad','4')
-
 w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','current arc voltage')
 w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','a valid arc is established')
 w('DynamicHelp::add',fmonitor + '.led-torch','-text','torch on signal is being sent to plasma supply')
@@ -392,8 +394,9 @@ w('DynamicHelp::add',fmonitor + '.led-thc-enabled','-text','THC is enabled')
 w('DynamicHelp::add',fmonitor + '.led-ohmic','-text','the ohmic probe is sensed')
 w('DynamicHelp::add',fmonitor + '.led-float','-text','the float switch is activated')
 w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','the breakaway switch is activated')
+w('DynamicHelp::add',fmonitor + '.led-thc-active','-text','THC is active')
 w('DynamicHelp::add',fmonitor + '.led-up','-text','THC is moving the Z axis up')
-w('DynamicHelp::add',fmonitor + '.led-down','-text','THC is moving the Z axis down')
+w('DynamicHelp::add',fmonitor + '.updown.led-down','-text','THC is moving the Z axis down')
 w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','THC is locked due to velocity constraints')
 w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','THC is locked due to void sensing constraints')
 
@@ -451,7 +454,8 @@ w('pack',fcommon,'-fill','both','-side','left')
 w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
 w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-padx','0','-pady','0')
 w(ft,'configure','-relief','flat')
-w(ft + '.text','configure','-borderwidth','1','-relief','sunken')
+w(ft + '.sb','configure','-width', '16')
+w(ft + '.text','configure','-width', '42', '-borderwidth','1','-relief','sunken')
 
 
 
@@ -540,9 +544,26 @@ commands = TclCommands(root_window)
 # some python functions
 
 def user_button_pressed(button,commands):
+    if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
+       not commands: return
     from subprocess import Popen,PIPE
-    if not commands: return
-    if 'ohmic-test' in commands.lower():
+    if 'change-consumables' in commands.lower():
+        if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
+            hal.set_p('plasmac.consumable-change', '0')
+        else:
+            global ccX
+            global ccY
+            global ccScale
+            if ccX or ccX == 0:
+                hal.set_p('plasmac.x-offset', '{:.0f}'.format((ccX - s.position[0]) / ccScale, 0))
+            else:
+                hal.set_p('plasmac.x-offset', '0')
+            if ccY or ccY == 0:
+                hal.set_p('plasmac.y-offset', '{:.0f}'.format((ccY - s.position[1]) / ccScale, 0))
+            else:
+                hal.set_p('plasmac.y-offset', '0')
+            hal.set_p('plasmac.consumable-change', '1')
+    elif 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','1')
     elif 'probe-test' in commands.lower():
         global probePressed
@@ -553,7 +574,18 @@ def user_button_pressed(button,commands):
         if commands.lower().replace('probe-test','').strip():
             probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
         hal.set_p('plasmac.probe-test','1')
-
+    elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
+        global cutType
+        cutType ^= 1
+        bgc = w('ttk::style', 'lookup', 'TButton', '-background')
+        abgc = w('ttk::style', 'lookup', 'TButton', '-background', 'active')
+        if cutType:
+            hal.set_p('plasmac_run.cut-type','1')
+            w(fbuttons + '.button' + button,'configure','-bg','orange','-activebackground','darkorange1','-text','Pierce\nOnly')
+        else:
+            hal.set_p('plasmac_run.cut-type','0')
+            w(fbuttons + '.button' + button,'configure','-bg',bgc,'-activebackground',abgc,'-text','Pierce\n & Cut')
+        Popen('axis-remote -r', stdout = PIPE, shell = True)
     else:
         for command in commands.split('\\'):
             if command.strip()[0] == '%':
@@ -589,10 +621,11 @@ def user_button_pressed(button,commands):
                     c.wait_complete()
 
 def user_button_released(button,commands):
+    if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
+       not commands: return
     global probeButton
     global probePressed
     probePressed = False
-    if not commands: return
     if commands.lower() == 'ohmic-test':
         hal.set_p('plasmac.ohmic-test','0')
     elif commands.lower() == 'probe-test':
@@ -646,12 +679,17 @@ def user_live_update():
         isIdleOn = False 
     # set buttons state
     for n in range(1,6):
-        if iniButtonCode[n] in ['ohmic-test']:
+        if 'change-consumables' in iniButtonCode[n]:
+            if hal.get_value('halui.program.is-paused'):
+                w(fbuttons + '.button' + str(n),'configure','-state','normal')
+            else:
+                w(fbuttons + '.button' + str(n),'configure','-state','disabled')
+        elif iniButtonCode[n] in ['ohmic-test']:
             if isIdleOn or hal.get_value('halui.program.is-paused'):
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
                 w(fbuttons + '.button' + str(n),'configure','-state','disabled')
-        elif not iniButtonCode[n] in ['ohmic-test'] and not iniButtonCode[n].startswith('%'):
+        elif not iniButtonCode[n] in ['ohmic-test'] and not iniButtonCode[n] in ['cut-type'] and not iniButtonCode[n].startswith('%'):
             if isIdleHomed:
                 w(fbuttons + '.button' + str(n),'configure','-state','normal')
             else:
@@ -674,18 +712,20 @@ def user_live_update():
         w(foverride + '.raise','configure','-state','disabled')
         w(foverride + '.lower','configure','-state','disabled')
         w(foverride + '.reset','configure','-state','disabled')
-    # set thc state indicator
-    if hal.get_value('plasmac.thc-enabled'):
-        hal.set_p('axisui.led-thc-enabled','1')
-    else:
-        hal.set_p('axisui.led-thc-enabled','0')
     # decrement probe timer if active
     if probeTimer:
         if time.time() >= probeTimer:
             probeTimer = 0
             if not probePressed:
                 hal.set_p('plasmac.probe-test','0')
-
+    if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
+        hal.set_p('plasmac.consumable-change', '0')
+    try:
+        if hal.get_value('plasmac_run.preview-tab'):
+            root_window.tk.call('.pane.top.right','raise','preview')
+            hal.set_p('plasmac_run.preview-tab', '0')
+    except:
+        pass
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)
@@ -695,6 +735,7 @@ def user_hal_pins():
     comp.newpin('led-ohmic', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-float', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-breakaway', hal.HAL_BIT, hal.HAL_IN)
+    comp.newpin('led-thc-active', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-up', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-down', hal.HAL_BIT, hal.HAL_IN)
     comp.newpin('led-corner-locked', hal.HAL_BIT, hal.HAL_IN)
@@ -705,10 +746,12 @@ def user_hal_pins():
                 [1,'plasmac:axis-min-limit','ini.z.min_limit','plasmac.axis-z-min-limit'],\
                 [2,'plasmac:axis-max-limit','ini.z.max_limit','plasmac.axis-z-max-limit'],\
                 [3,'plasmac:arc-ok-out','plasmac.arc-ok-out','axisui.led-arc-ok'],\
-                [4,'plasmac:led-up','plasmac.led-up','axisui.led-up'],\
-                [5,'plasmac:led-down','plasmac.led-down','axisui.led-down'],\
-                [6,'plasmac:cornerlock-is-locked','plasmac.cornerlock-is-locked','axisui.led-corner-locked'],\
-                [7,'plasmac:kerfcross-is-locked','plasmac.kerfcross-is-locked','axisui.led-kerf-locked'],\
+                [4,'plasmac:thc-enabled','plasmac.thc-enabled','axisui.led-thc-enabled'],\
+                [5,'plasmac:thc-active','plasmac.thc-active','axisui.led-thc-active'],\
+                [6,'plasmac:led-up','plasmac.led-up','axisui.led-up'],\
+                [7,'plasmac:led-down','plasmac.led-down','axisui.led-down'],\
+                [8,'plasmac:cornerlock-is-locked','plasmac.cornerlock-is-locked','axisui.led-corner-locked'],\
+                [9,'plasmac:kerfcross-is-locked','plasmac.kerfcross-is-locked','axisui.led-kerf-locked'],\
                 ]
     for line in hal_data:
         if line[0] < 3:
@@ -727,6 +770,57 @@ def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
     w(fpausedmotion + '.paused-motion-speed','configure','-from','0','-to','100','-resolution','1')
 
+def consumable_change_setup(ccParm):
+    global ccX
+    global ccY
+    global ccScale
+    ccX = ccY = ccF = ''
+    X = Y = F = ''
+    ccAxis = [X, Y, F]
+    ccName = ['x', 'y', 'f']
+    for loop in range(3):
+        count = 0
+        if ccName[loop] in ccParm:
+            while 1:
+                if not ccParm[count]: break
+                if ccParm[count] == ccName[loop]:
+                    count += 1
+                    break
+                count += 1
+            while 1:
+                if count == len(ccParm): break
+                if ccParm[count].isdigit() or ccParm[count] in '.-':
+                    ccAxis[loop] += ccParm[count]
+                else:
+                    break
+                count += 1
+            if ccName[loop] == 'x' and ccAxis[loop]:
+                ccX = float(ccAxis[loop])
+            elif ccName[loop] == 'y' and ccAxis[loop]:
+                ccY = float(ccAxis[loop])
+            elif ccName[loop] == 'f' and ccAxis[loop]:
+                ccF = float(ccAxis[loop])
+    if ccX and \
+       (ccX < round(float(inifile.find('AXIS_X', 'MIN_LIMIT')), 6) or \
+       ccX > round(float(inifile.find('AXIS_X', 'MAX_LIMIT')), 6)):
+        print('x out of bounds for consumable change\n')
+        raise SystemExit()
+    if ccY and \
+       (ccY < round(float(inifile.find('AXIS_Y', 'MIN_LIMIT')), 6) or \
+       ccY > round(float(inifile.find('AXIS_Y', 'MAX_LIMIT')), 6)):
+        print('y out of bounds for consumable change\n')
+        raise SystemExit()
+    if not ccF:
+        print('invalid consumable change feed rate\n')
+        raise SystemExit()
+    ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
+    ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
+    hal.set_p('axis.x.eoffset-scale', str(ccScale))
+    hal.set_p('axis.y.eoffset-scale', str(ccScale))   
+    hal.set_p('plasmac.x-y-velocity', str(ccVel))
+    hal.set_p('axis.x.eoffset-enable', '1')
+    hal.set_p('axis.y.eoffset-enable', '1')
+
 
 
 ################################################################################
@@ -737,10 +831,19 @@ probeTimer = 0
 probeButton = ''
 torchPulse = 0
 torch_height = 0
-w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
-hal.set_p('plasmac.height-override','%f' % (torch_height))
+cutType = 0
 hal.set_p('plasmac.torch-enable','0')
+hal.set_p('plasmac.height-override','%f' % (torch_height))
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
+w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
+for button in range(1,6):
+    if 'change-consumables' in inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'):
+        ccParm = inifile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
+        if ccParm:
+            consumable_change_setup(ccParm)
+        else:
+            print('consumable change parameters required\n')
+        break
 wLabels = [\
     fmonitor + '.aVlab',\
     fmonitor + '.lTlab',\
@@ -749,8 +852,7 @@ wLabels = [\
     fmonitor + '.lFlab',\
     fmonitor + '.lBlab',\
     fmonitor + '.lOlab',\
-    fmonitor + '.lUlab',\
-    fmonitor + '.lDlab',\
+    fmonitor + '.updown.lab',\
     fmonitor + '.lCLlab',\
     fmonitor + '.lKLlab',\
     ]
@@ -768,8 +870,9 @@ wLeds = [\
     fmonitor + '.led-ohmic',\
     fmonitor + '.led-float',\
     fmonitor + '.led-breakaway',\
+    fmonitor + '.led-thc-active',\
     fmonitor + '.led-up',\
-    fmonitor + '.led-down',\
+    fmonitor + '.updown.led-down',\
     fmonitor + '.led-corner-locked',\
     fmonitor + '.led-kerf-locked',\
     ]

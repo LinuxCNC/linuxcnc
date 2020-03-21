@@ -280,7 +280,6 @@ min-width: 30px;
     def get_vline(self):
         return self._get_line()
 
-
 class TouchInterface(QtCore.QObject):
     def __init__(self, PARENT_WIDGET):
         super(TouchInterface, self).__init__()
@@ -298,6 +297,8 @@ class TouchInterface(QtCore.QObject):
       try:
         if self._PARENT_WIDGET.focusWidget() == widget and event.type() == QtCore.QEvent.MouseButtonPress:
             if hasattr(widget, 'keyboard_type'):
+                if hasattr(widget, 'keyboard_enable') and widget.keyboard_enable is False:
+                    return False
                 if widget.keyboard_type.lower() == 'alpha':
                     self._input_panel_alpha.show_input_panel(widget)
                 elif widget.keyboard_type.lower() == 'numeric':

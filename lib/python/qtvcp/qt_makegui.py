@@ -6,7 +6,7 @@ import traceback
 import logger
 log = logger.getLogger(__name__)
 # Set the log level for this module
-#log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -71,9 +71,14 @@ class MyEventFilter(QtCore.QObject):
         except:
             return super(MyEventFilter,self).eventFilter(receiver, event)
 
-class MyWindow(QtWidgets.QMainWindow):
-    def __init__(self, halcomp, path):
-        super(MyWindow, self).__init__()
+
+class _VCPWindow(QtWidgets.QMainWindow):
+    def __init__(self, halcomp=None, path=None):
+        super(_VCPWindow,self).__init__()
+        # only initialize once for all instances
+        if self.__class__._instanceNum >=1:
+            return
+        self.__class__._instanceNum += 1
 
         self.filename = path.XML
         self.halcomp = halcomp
@@ -81,6 +86,14 @@ class MyWindow(QtWidgets.QMainWindow):
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
+        self.originalCloseEvent_ = self.closeEvent
+        self._halWidgetList = []
+
+    def registerHalWidget(self, widget):
+        self._halWidgetList.append(widget)
+
+    def getRegisteredHalWidgetList(self):
+        return self._halWidgetList
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):
@@ -140,6 +153,8 @@ class MyWindow(QtWidgets.QMainWindow):
             qssname = fname
         try:
             qss_file = open(qssname).read()
+            # qss files aren't friendly about changing image paths
+            qss_file = qss_file.replace('url(:/newPrefix/images', 'url({}'.format(self.PATHS.IMAGEDIR))
             self.setStyleSheet(qss_file)
             return
         except:
@@ -227,6 +242,14 @@ class MyWindow(QtWidgets.QMainWindow):
                 handlers[n] = Trampoline(v)
 
         return handlers,mod,object
+
+class VCPWindow(_VCPWindow):
+    _instance = None
+    _instanceNum = 0
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _VCPWindow.__new__(cls, *args, **kwargs)
+        return cls._instance
 
     def __getitem__(self, item):
         return getattr(self, item)

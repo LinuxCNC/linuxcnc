@@ -3,7 +3,7 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019  Phillip A Carter
+Copyright (C) 2019, 2020  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -24,7 +24,8 @@ import os
 import sys
 import linuxcnc
 import math
- 
+from subprocess import Popen, PIPE
+
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 
 codeError = False
@@ -44,6 +45,8 @@ velocity = 60
 pierceOnly = False
 scribing = False
 rapidLine = ''
+cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = True).communicate()[0])
+#pauseAtEnd = 2
 
 # check if arc is a hole
 def check_if_hole():
@@ -185,11 +188,14 @@ with open(materialFile, 'r') as f_in:
             if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                 t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                 materialList.append(t_number)
-f = open(infile, 'r')
- 
+
+# open the file
+fRead = open(infile, 'r')
+
 # first pass, check for valid material numbers and distance modes
 count = 0
-for line in f:
+firstMaterial = 0
+for line in fRead:
     count += 1
     # convert to lower case and remove whitespace and spaces
     line = line.lower().strip().replace(' ','')
@@ -216,6 +222,9 @@ for line in f:
                   '*** Material #{}\n'
                   'Error in line #{}: {}\n'
                   .format(materialFile, material, count, line))
+        if firstMaterial == 0:
+            firstMaterial = material
+            Popen('halcmd setp plasmac_run.first-material {}'.format(material), stdout = PIPE, shell = True)
     # set units
     if 'g21' in line:
         scale, precision = metric
@@ -255,14 +264,13 @@ for line in f:
                 print('*** invalid diameter word\n'
                       'Error in line #{}: {}\n'
                       .format(count, line))
-    if line.startswith('#<pierce-only>') and \
-       line.split('=')[1][0] == '1':
+    if (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or cutType == 1:
         pierceOnly = True
     if line.startswith('m3$1s'):
         scribing = True
     if pierceOnly and scribing:
         codeError = True
-        print('*** air-scribe is invalid for pierce only mode\n'
+        print('*** scribe is invalid for pierce only mode\n'
               'Error in line #{}: {}\n'
               .format(count, line))
         scribing = False
@@ -271,8 +279,8 @@ for line in f:
 if not codeError:
     # if full cut
     if not pierceOnly:
-        f = open(infile, 'r')
-        for line in f:
+        fRead = open(infile, 'r')
+        for line in fRead:
             # remove whitespace
             line = line.strip()
             # remove line numbers
@@ -330,10 +338,11 @@ if not codeError:
                     minDiameter = float(line.split('=')[1]) * multiplier
                 print(line)
             # if z axis in line but no other axes comment it
-            elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw']:
+            elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and\
+                 line.split('z')[1][0].isdigit():
                 print('({})'.format(line))
             # if z axis and other axes in line, comment out the Z axis
-            elif 'z' in line:
+            elif 'z' in line and line.split('z')[1][0].isdigit():
                 if holeEnable:
                     lastX, lastY = get_last_position(lastX, lastY)
                 comment_out_z_commands()
@@ -346,13 +355,29 @@ if not codeError:
             # if torch off, flag it then print it
             elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
                 torchEnable = False
+#                if line.replace(' ','').startswith('m64p3'):
+#                    pauseAtEnd += 1
                 print(line)
             # if torch on, flag it then print it
             elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
                 torchEnable = True
                 print(line)
+#            # if spindle on
+#            elif line.startswith('m3') and not line.startswith('m30'):
+#                pauseAtEnd = 0
+#                print(line)
+#            # if dwell
+#            elif line.replace(' ','').startswith('g4p'):
+#                pauseAtEnd += 1
+#                print(line)
             # if spindle off
             elif line.startswith('m5'):
+#            elif line.startswith('m5') and not line.startswith('m52'):
+#                if pauseAtEnd < 2:
+#                    print('m64 p3 (disable torch)')
+#                    torchEnable = False
+#                    print('g4 p#<_hal[plasmac_run.pause-at-end-f]> (end of cut pause)')
+#                    pauseAtEnd = 2
                 print(line)
                 # restore velocity if required
                 if holeActive:
@@ -391,9 +416,9 @@ if not codeError:
         print('(Piercing Only)')
         spindleOn = False
         pierces = 0
-        f = open(infile, 'r')
+        fRead = open(infile, 'r')
         # print all lines up to the first spindle on
-        for line in f:
+        for line in fRead:
             # remove whitespace
             line = line.strip()
             # remove line numbers
@@ -412,7 +437,7 @@ if not codeError:
             elif not '#<pierce-only>' in line:
                 print(line)
         #find all other spindle ons
-        for line in f:
+        for line in fRead:
             if spindleOn:
                 pierces += 1
                 print('\n(Pierce #{})'.format(pierces))

@@ -844,7 +844,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
     int feed_mode;
-    int indexrotary;
+    int indexer_jnum;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -1223,6 +1223,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int on_soft_limit;
     int external_offsets_applied;
     EmcPose eoffset_pose;
+    int numExtraJoints;
 };
 
 // declarations for EMC_TASK classes
