@@ -52,10 +52,10 @@ class RasterProgrammer(object):
                 fault-code - UNSIGNED IN - link to the raster's fault-code pin. Raster programmer uses this to detect errors
                 enabled - BIT IN - link to the raster's enabled pin. Raster programmer uses this to wait on rasters activation
         """
-        self.__timeout = 0.25
+        self.__timeout = 5.0
         self.component = component(name)
         self.port = self.component.pinNew("program", halType.PORT, pinDir.OUT)
-        self.faultCode = self.component.pinNew("fault-code", halType.UNSIGNED, pinDir.IN)
+        self.faultCode = self.component.pinNew("fault-code", halType.SIGNED, pinDir.IN)
         self.enabled = self.component.pinNew("enabled", halType.BIT, pinDir.IN)
         self.run    = self.component.pinNew("run", halType.BIT, pinDir.OUT)
         self.component.ready()
@@ -87,7 +87,7 @@ class RasterProgrammer(object):
             ppu - pixels per unit. The number of pixels per machine unit. count * dpu gives the total span of the raster line
             count - the number of pixels that will be programmed on the line     
         """
-
+        self.run.value = False
         self.__waitEnabled(False)
 
         allowedbpp = set([4, 8, 12, 16, 20, 24, 28, 32])
@@ -145,6 +145,5 @@ class RasterProgrammer(object):
            Commands the raster to stop running the program
            Waits until the raster is disabled
         """
-        assert self.enabled.value == True, "Raster is not in an enabled state which is not expected."
         self.run.value = False
         self.__waitEnabled(False)
