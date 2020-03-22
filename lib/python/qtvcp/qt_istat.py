@@ -151,20 +151,35 @@ class _IStat(object):
         self.HOME_ALL_FLAG = 1
         # set Home All Flage only if ALL joints specify a HOME_SEQUENCE
         jointcount = len(self.AVAILABLE_JOINTS)
-        self.JOINTSEQUENCELIST = {}
+        self.JOINT_SEQUENCE_LIST = {}
         for j in range(jointcount):
             seq = self.inifile.find("JOINT_"+str(j), "HOME_SEQUENCE")
             if seq is None:
                 seq = -1
                 self.HOME_ALL_FLAG = 0
-            self.JOINTSEQUENCELIST[j] = seq
+            self.JOINT_SEQUENCE_LIST[j] = int(seq)
         # joint sequence/type
         self.JOINT_TYPE = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
         for j in range(jointcount):
             section = "JOINT_%d" % j
             self.JOINT_TYPE[j] = self.inifile.find(section, "TYPE") or "LINEAR"
-            self.JOINT_SEQUENCE[j]  = self.inifile.find(section, "HOME_SEQUENCE") or ""
+            self.JOINT_SEQUENCE[j]  = int(self.inifile.find(section, "HOME_SEQUENCE") or 0)
+
+        # jog syncronized sequence
+        templist = []
+        for j in self.AVAILABLE_JOINTS:
+            temp = []
+            flag = False
+            for hj, hs in  self.JOINT_SEQUENCE_LIST.items():
+                if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
+                    temp.append(hj)
+                    if int(hs) < 0:
+                        flag = True
+            if flag:
+                templist.append(temp)
+        # remove duplicates
+        self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist)) 
 
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
