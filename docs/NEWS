@@ -1,0 +1,121 @@
+check debian/changelog for recent news
+
+# some of EMC2 History & News
+#############################
+
+2009.06.13 - mshaver added emc2/configs/smithy directory and related files
+             for Smithy Company's line of cnc machines.
+
+2006.11.17 - removed HAL types s8, u8, s16, and u16.  HAL now uses float
+	     for analog values, bit for booleans, and s32 or u32 for
+	     integer values.  The only users who will be affected are
+	     those with Universal Stepper Controller cards.  See item 9 at
+	     http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingConfigurationsForDevelopmentVersions
+
+2006.11.15 - merged classicladder 0.7.100
+
+2006.11.04 - added a feed-hold HAL pin.  Added M codes to enable/disable
+	     feed override, spindle override, feed hold, and adaptive feed
+	     individually.  Feed override is M50, spindle override is M51,
+	     adaptive feed is M52, and feed hold is M53.  G50/51 are no
+	     longer used to enable/disable adaptive feed, use M52 instead.
+
+2006.10.24 - added support for block delete as defined by Section 2.2.2
+             in the RS274NGC_3 specs.
+
+2006.10.24 - added support for optional program stop as defined by Section 
+             2.2.3 in the RS274NGC_3 specs.
+
+2006.10.14 - manpages have been created for most rtapi and hal calls
+
+2006.10.01 - added a userspace simulator which includes rtapi threads.
+	     Use "--enable-simulator" to enable this mode, which cannot
+	     be used to control real hardware
+
+2006.09.27 - added support to optionally save joint positions between
+             runs ([TRAJ] POSITION_FILE = position.txt)
+
+2006.09.26 - added support to specify UNITS in literal in the ini. 
+             (e.g. [TRAJ] LINEAR_UNITS = mm )
+
+2006.09.09 - fixed bug #1384883, optional stop was not optional.
+
+2006.08.09 - AXIS is now a part of EMC2, not a separate source download.
+
+2006.08.07 - Added a spindle-speed override. This allows to override the spindle
+	     speed during a program run. The MIN_SPINDLE_OVERRIDE and 
+	     MAX_SPINDLE_OVERRIDE in the ini assure that speed doesn't get 
+	     reduced or increased too much. Both values are in %.
+
+2006.08.06 - Documentation can be built from source with the 'make docs' target
+
+2006.06.11 - added realtime support for jogwheels.  Three HAL pins per axis:
+	     one accepts raw counts from the wheel, one sets the distance moved
+	     per count, and one enables that axis to move.
+
+2006.05.17 - added 'adaptive feed', a HAL pin that can be used to scale the
+	     feedrate in real time.  Simular to feedrate override, but can
+	     only vary from 0.0 to 1.0, and reacts much faster.  Intended 
+	     for use with EDM and other applications that require closed 
+	     loop control of feedrate.
+
+2006.03.18 - A new pin "count" exists for freqgen.  It is the same as the
+             internal symbol "count" shown in the hal introduction.pdf,
+             or the result of up OR down if there was an "OR" component.
+
+2006.03.16 - Modified the motion control module to behave more like other
+             HAL modules - it no longer adds its functions to threads
+             automatically.  All the sample configs have been changed to
+             explicitly add the functions, users who have custom configs
+             will need to do the same.
+
+2006.03.12 - If a copy of axis 1.3a0 or newer is detected inside src/
+             it will be automatically built and installed for
+             --enable-run-in-place use
+
+2006.03.10 - minor bugfix in tkemc for jogging
+
+2006.03.10 - added genhexkins, with a minitetra sample config.
+             This proves EMC2 works just as good with hexapods as EMC1 did.
+
+2006.03.10 - added VTI support & sample configs
+
+2006.03.07 - lots of fixes to the TP (most were wrong in the old one as well)
+
+2006.03.05 - new Trajectory Planner
+
+2006.02.20 - added a manpage for the runscript.
+
+2006.02.12 - Fixed a bug that was causing the RT code to run very slowly,
+             forcing users to set BASE_PERIOD very long.
+
+2006.02.10 - The build process has been replaced, no more recursive $(MAKE)
+
+2006.01.28 - fixed bug #1205237, mode switching sometimes hung
+
+2006.01.08 - M62/M63 digital outputs synchronous to motion
+             M64/M65 digital outputs that get set right away
+
+2006.01.06 - work on halconfig.tcl, it is used to display/configure HAL data
+             requires the BWidget package, realtime, and HAL to run.
+
+2006.01.04 - fix bug #1387740, a motion that goes nowhere clears feedrate
+
+2006.01.01 - the config picker has i18n support, a German translation exists
+
+2005.12.20 - a new config picker has been written, if you start just the
+             runscript this one helps you choose a config to run
+
+2005.12.13 - new runscript, and config organization
+             work towards the first release of EMC2
+
+2005.xx.xx - EMC2 now supports tool-changing in complex scenarios
+
+2005.xx.xx - classicladder now a HAL component, a software PLC
+
+2004.xx.xx - HAL (the Hardware Abstraction Layer) is used for
+	     addressing hardware drivers, and allows for simple configuration
+
+
+#developers: this file should hold a history of improvements, bugfixes, etc
+             it is useful for keeping track of development
