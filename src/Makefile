@@ -545,7 +545,7 @@ install-menus install-menu: $(MENUS)
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=NEWS README AUTHORS
+DOCS=README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
@@ -604,7 +604,6 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
-	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 	$(FILE) ../lib/hallib/*   $(DESTDIR)$(datadir)/linuxcnc/hallib
 
