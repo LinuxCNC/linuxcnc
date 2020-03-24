@@ -66,9 +66,9 @@ class _Lcnc_Action(object):
                         ''''Home-all not available according to INI Joint Home sequence
              Press again to home next Joint''')
                     return
-                length = len(INFO.JOINTSEQUENCELIST)
-                for num,j in enumerate(INFO.JOINTSEQUENCELIST):
-                    print j, num, len(INFO.JOINTSEQUENCELIST)
+                length = len(INFO.JOINT_SEQUENCE_LIST)
+                for num,j in enumerate(INFO.JOINT_SEQUENCE_LIST):
+                    print j, num, len(INFO.JOINT_SEQUENCE_LIST)
                     # at the end so all homed
                     if num == length -1:
                         self.home_all_warning_flag = False
@@ -304,6 +304,7 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
+        if abs(STATUS.old['spindle-speed']) >= INFO.MAX_SPINDLE_SPEED: return
         self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
     def SET_SPINDLE_SLOWER(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)

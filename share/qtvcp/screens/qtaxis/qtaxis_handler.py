@@ -9,6 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -132,9 +133,7 @@ class HandlerClass:
         if not INFO.HOME_ALL_FLAG:
             self.w.actionButton_home.setText("Home Selected")
             self.w.actionButton_home.set_home_select(True)
-        self.w.rpm_bar = QtWidgets.QProgressBar()
-        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
-        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
+        self.make_corner_widgets()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -418,6 +417,20 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             ACTION.JOG(joint, 0, 0, 0)
+
+    def make_corner_widgets(self):
+        # add spindle speed bar to tab corner
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
+        # add tool number status to tab corner
+        self.w.tool_stat = TOOLSTAT()
+        self.w.tool_stat.setProperty('tool_number_status', True)
+        self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
+        self.w.tool_stat._hal_init()
+        self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.w.tool_stat.setFixedWidth(60)
+        self.w.leftTab.setCornerWidget(self.w.tool_stat)
 
     #####################
     # KEY BINDING CALLS #
