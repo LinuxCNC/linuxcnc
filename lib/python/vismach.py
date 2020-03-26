@@ -678,6 +678,7 @@ class Hud(object):
 		self.strs = []
 		self.messages = []
 		self.showme = 0
+		self.fontbase = []
 		
 	def show(self, string="xyzzy"):
 		self.showme = 1
@@ -702,8 +703,8 @@ class Hud(object):
 		glPushMatrix()
 		glLoadIdentity()
 		
-		#pointer to font?
-		fontbase = int(self.app.loadbitmapfont("9x15"))
+		if not self.fontbase:
+			self.fontbase = int(self.app.loadbitmapfont("9x15"))
 		char_width, char_height = 9, 15
 		xmargin,ymargin = 5,5
 		ypos = float(self.app.winfo_height())
@@ -746,7 +747,7 @@ class Hud(object):
 		#		glBitmap(13, 16, 0, 3, 17, 0, homeicon)
 			glRasterPos2i(xmargin, int(ypos))
 			for char in string:
-				glCallList(fontbase + ord(char))
+				glCallList(self.fontbase + ord(char))
 		#	if i < len(homed) and limit[i]:
 		#		glBitmap(13, 16, -5, 3, 17, 0, limiticon)
 			ypos -= char_height
