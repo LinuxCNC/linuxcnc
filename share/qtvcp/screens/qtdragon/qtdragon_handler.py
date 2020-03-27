@@ -18,7 +18,7 @@ KEYBIND = Keylookup()
 STAT = Status()
 INFO = Info()
 ACTION = Action()
-
+STYLEEDITOR = SSE()
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -26,7 +26,6 @@ class HandlerClass:
         self.PATHS = paths
         INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.inifile = linuxcnc.ini(INIPATH)
-        self.STYLEEDITOR = SSE(widgets,paths)
         self.GCODES = GCodes(widgets)
         self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
         
@@ -322,7 +321,7 @@ class HandlerClass:
         # instantiate dialog box
         info = "Jog to within {} mm of touch plate and click OK".format(max_probe)
         mess = {'NAME':'MESSAGE', 'ID':'_touchoff_', 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
-        STAT.emit('dialog-request', mess)
+        ACTION.CALL_DIALOG(mess)
         
     # override frame
     def slow_button_clicked(self, state):
@@ -367,7 +366,7 @@ class HandlerClass:
 
     # alarm tab
     def btn_clear_alarms_clicked(self):
-        STAT.emit('update-machine-log', None, 'DELETE')
+        ACTION.UPDATE_MACHINE_LOG('update-machine-log', None, 'DELETE')
 
     def btn_save_alarms_clicked(self):
         text = self.w.machinelog.toPlainText()
@@ -427,7 +426,7 @@ class HandlerClass:
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_alarm(self, message):
-        STAT.emit('update-machine-log', message, 'TIME')
+        ACTION.UPDATE_MACHINE_LOG(message, 'TIME')
 
     def alarm_added(self):
         self.w.led_alarm.setState(True)
@@ -521,7 +520,7 @@ class HandlerClass:
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 
     ##############################
     # required class boiler code #

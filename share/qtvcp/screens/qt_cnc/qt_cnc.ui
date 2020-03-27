@@ -528,7 +528,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </rect>
     </property>
     <property name="text">
-     <string>MAN</string>
+     <string>Manual</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -559,7 +559,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </color>
     </property>
     <property name="shape_option" stdset="0">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="off_color" stdset="0">
      <color>
@@ -573,6 +573,21 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     </property>
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
+    </property>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000001</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000001</double>
+    </property>
+    <property name="corner_radius" stdset="0">
+     <double>4.000000000000000</double>
+    </property>
+    <property name="height_fraction" stdset="0">
+     <double>0.300000000000000</double>
+    </property>
+    <property name="width_fraction" stdset="0">
+     <double>0.900000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -680,10 +695,26 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>%1.3f in</string>
+     <string>MAN  </string>
     </property>
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
+    </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
+    </property>
+    <property name="richtext_string" stdset="0">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Man&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
@@ -730,7 +761,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </color>
     </property>
     <property name="shape_option" stdset="0">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="off_color" stdset="0">
      <color>
@@ -744,6 +775,15 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     </property>
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
+    </property>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="corner_radius" stdset="0">
+     <double>4.000000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -854,10 +894,26 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>%1.3f in</string>
+     <string>MDI </string>
     </property>
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
+    </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
+    </property>
+    <property name="richtext_string" stdset="0">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;MDI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
@@ -872,8 +928,11 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
       <height>31</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
-     <string>AUTO</string>
+     <string>Auto</string>
     </property>
     <property name="checkable">
      <bool>true</bool>
@@ -904,7 +963,7 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      </color>
     </property>
     <property name="shape_option" stdset="0">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="off_color" stdset="0">
      <color>
@@ -918,6 +977,15 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
     </property>
     <property name="circle_diameter" stdset="0">
      <double>10.000000000000000</double>
+    </property>
+    <property name="right_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="top_edge_offset" stdset="0">
+     <double>3.000000000000000</double>
+    </property>
+    <property name="corner_radius" stdset="0">
+     <double>4.000000000000000</double>
     </property>
     <property name="true_state_string" stdset="0">
      <string>True</string>
@@ -1028,10 +1096,26 @@ font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
      <number>0</number>
     </property>
     <property name="textTemplate" stdset="0">
-     <string>%1.3f in</string>
+     <string>Auto  </string>
     </property>
     <property name="alt_textTemplate" stdset="0">
      <string>%1.2f mm</string>
+    </property>
+    <property name="offset" stdset="0">
+     <double>2.000000000000000</double>
+    </property>
+    <property name="h_percent" stdset="0">
+     <double>0.900000000000000</double>
+    </property>
+    <property name="w_percent" stdset="0">
+     <double>0.200000000000000</double>
+    </property>
+    <property name="richtext_string" stdset="0">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Auto&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="HAL_pin_option" stdset="0">
      <bool>false</bool>
@@ -2518,7 +2602,7 @@ file</string>
       </color>
      </property>
      <property name="shape_option" stdset="0">
-      <number>1</number>
+      <number>3</number>
      </property>
      <property name="off_color" stdset="0">
       <color>
@@ -2532,6 +2616,18 @@ file</string>
      </property>
      <property name="circle_diameter" stdset="0">
       <double>15.000000000000000</double>
+     </property>
+     <property name="right_edge_offset" stdset="0">
+      <double>2.000000000000000</double>
+     </property>
+     <property name="corner_radius" stdset="0">
+      <double>3.000000000000000</double>
+     </property>
+     <property name="height_fraction" stdset="0">
+      <double>0.700000000000000</double>
+     </property>
+     <property name="width_fraction" stdset="0">
+      <double>0.100000000000000</double>
      </property>
      <property name="true_state_string" stdset="0">
       <string>Estop!</string>
@@ -2644,6 +2740,12 @@ file</string>
      <property name="alt_textTemplate" stdset="0">
       <string>%1.2f mm</string>
      </property>
+     <property name="h_percent" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="w_percent" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
      <property name="python_command_action" stdset="0">
       <bool>false</bool>
      </property>
@@ -2701,7 +2803,7 @@ file</string>
       </color>
      </property>
      <property name="shape_option" stdset="0">
-      <number>1</number>
+      <number>3</number>
      </property>
      <property name="off_color" stdset="0">
       <color>
@@ -2715,6 +2817,18 @@ file</string>
      </property>
      <property name="circle_diameter" stdset="0">
       <double>15.000000000000000</double>
+     </property>
+     <property name="right_edge_offset" stdset="0">
+      <double>2.000000000000000</double>
+     </property>
+     <property name="corner_radius" stdset="0">
+      <double>3.000000000000000</double>
+     </property>
+     <property name="height_fraction" stdset="0">
+      <double>0.700000000000000</double>
+     </property>
+     <property name="width_fraction" stdset="0">
+      <double>0.100000000000000</double>
      </property>
      <property name="true_state_string" stdset="0">
       <string>On</string>
@@ -2829,6 +2943,12 @@ file</string>
      </property>
      <property name="alt_textTemplate" stdset="0">
       <string>%1.2f mm</string>
+     </property>
+     <property name="h_percent" stdset="0">
+      <double>0.900000000000000</double>
+     </property>
+     <property name="w_percent" stdset="0">
+      <double>0.100000000000000</double>
      </property>
      <property name="python_command_action" stdset="0">
       <bool>true</bool>

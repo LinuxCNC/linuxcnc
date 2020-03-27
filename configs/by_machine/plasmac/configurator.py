@@ -385,7 +385,7 @@ class configurator:
             if line.strip() == '[AXIS_X]': break
         while 1:
             line = inFile.readline()
-            if 'OFFSET_AV_RATIO' in line:
+            if line.startswith('OFFSET_AV_RATIO'):
                 inFile.close()
                 return False
             elif line.startswith('[') or not line:
@@ -776,11 +776,11 @@ class configurator:
             inFile = open('{}.old000'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
             for line in inFile:
-                if ' '.join(line.strip().split()) == 'HALFILE = plasmac.hal':
+                if ''.join(line.split()) == 'HALFILE=plasmac.hal':
                     outFile.write(\
-                        'HALFILE = plasmac.hal\n'\
+                        'HALFILE                 = plasmac.hal\n'\
                         '# the plasmac machine connections\n'\
-                        'HALFILE = {}_connections.hal\n'\
+                        'HALFILE                 = {}_connections.hal\n'\
                         .format(self.machineName.lower()))
                 else:
                     outFile.write(line)
@@ -989,7 +989,7 @@ class configurator:
             inFile = open('{}.old087'.format(self.orgIniFile), 'r')
             outFile = open('{}'.format(self.orgIniFile), 'w')
             for line in inFile:
-                if line.startswith('HALFILE') and 'plasmac.hal' in line:
+                if ''.join(line.split()) == 'HALFILE=plasmac.hal':
                     outFile.write('HALFILE                 = plasmac.tcl\n')
                 else:
                     outFile.write(line)

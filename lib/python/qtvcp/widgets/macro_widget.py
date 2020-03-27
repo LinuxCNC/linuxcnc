@@ -191,7 +191,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # make a widget that is added to the stack
                     w = TouchInputWidget()
                     hbox = QtWidgets.QHBoxLayout(w)
-                    hbox.addStretch(1)
+                    #hbox.addStretch(1)
                     vbox = QtWidgets.QVBoxLayout()
                     w.setObjectName(tName)
                     # add labels and edits
@@ -209,10 +209,24 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         vbox.addWidget(l)
                         vbox.addWidget(self['%s%d' % (tName, n)])
                     #add the SVG pic layer
-                    svg_info = self[tName][1]
+                    img_info = self[tName][1]
                     #print path+svg_info[0], svg_info[1]
-                    svgpath = os.path.join(path, svg_info[0])
-                    self['sw%d' % i] = CustomSVG(svgpath,  int(svg_info[1]))
+                    if img_info[0].endswith('.svg'):
+                        svgpath = os.path.join(path, img_info[0])
+                        self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
+                    else:
+                        try:
+                            print self[tName][1][1]
+                            imgpath = os.path.join(path, self[tName][1][1])
+                        except:
+                            imgpath = os.path.join(path, img_info[0])
+                        #self['sw%d' % i] = QtWidgets.QPushButton()
+                        #self['sw%d' % i].setIcon(QtGui.QIcon(imgpath))
+                        self['sw%d' % i] = QtWidgets.QLabel()
+                        self['sw%d' % i].setPixmap(QtGui.QPixmap(imgpath))
+                        self['sw%d' % i]. setScaledContents(True)
+                        #self['sw%d' % i].setSizeHint(300, 300)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
                     hbox.addWidget(self['sw%d' % i])
                     vbox.addStretch(1)
                     hbox.addLayout(vbox)
@@ -237,14 +251,22 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # hopefully we don;t have too many macros...
         for i, tName in enumerate(tabNames):
             svg_name = self[tName][1][0]
-            try:
-                svg_num = self[tName][1][2]
-            except:
-                svg_num = self[tName][1][1]
-            svgpath = os.path.join(path, svg_name)
-            # label is the only way I have found to make the buttons
-            # larger - the label is under the pic - if no errors
-            btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
+            if svg_name.endswith('.svg'):
+                try:
+                    svg_num = self[tName][1][2]
+                except:
+                    svg_num = self[tName][1][1]
+                svgpath = os.path.join(path, svg_name)
+                # label is the only way I have found to make the buttons
+                # larger - the label is under the pic - if no errors
+                btn = CustomButton('Oops\n', path=svgpath, layer=svg_num)
+            else:
+                imgpath = os.path.join(path, svg_name)
+                btn = QtWidgets.QPushButton()
+                btn.setIcon(QtGui.QIcon(imgpath))
+                btn.setIconSize(QtCore.QSize(30, 30)) 
+            btn.setToolTip('Macro: {}'.format(tName))
+            btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
                               QtWidgets.QSizePolicy.Expanding)
@@ -298,7 +320,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                                 'MACRODEFAULT' in second_line and \
-                                'MACROSVG' in third_line:
+                                ('MACROSVG' in third_line or 
+                                    'MACROIMAGE' in third_line):
                             name = os.path.splitext(f)[0]
                             # yes, now keep everything after '='
                             macros = first_line.split('=')[1]
@@ -423,35 +446,33 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.getSaveFileName()
 
     def openReturn(self, path):
-        qssname = path # os.path.join(DIR, BNAME, sheetName)
-        file = QtCore.QFile(qssname)
+        LOG.debug("Open return filename choosen: {}".format(path))
+        file = QtCore.QFile(path)
         file.open(QtCore.QFile.ReadOnly)
-        num = 0
         name = str(self.stack.currentWidget().objectName())
         while not file.atEnd():
-            dataSheet = file.readLine()
+            readLine = file.readLine()
             try:
                 # Python v2.
-                dataSheet = unicode(dataSheet, encoding='utf8')
+                readLine = unicode(readLine, encoding='utf8')
             except NameError:
                 # Python v3.
-                dataSheet = str(dataSheet, encoding='utf8')
-            h,g = dataSheet.split(',')
-
-            # set widgets to data:
-            # Look for a radio button instance so we can convert to integers
-            # other wise we assume text
-            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
-                #print self['%s%d' % (name, num)], h
-                self['%s%d' % (name, num)].setChecked(bool(h))
-            else:
-                #print self['%s%d' % (name, num)], h
-                self['%s%d' % (name, num)].setText(str(h))
-            num =+1
+                readLine = str(readLine, encoding='utf8')
+            widget,data,title = readLine.split(',')
+            #print widget,data,title,name
+            if name in widget:
+                # set widgets to data:
+                # Look for a radio button instance so we can convert to integers
+                # other wise we assume text
+                if isinstance(self[widget], QtWidgets.QRadioButton):
+                    self[widget].setChecked(bool(data))
+                else:
+                    self[widget].setText(str(data))
 
     # save the current screen data to file picked by the user.
     # it's a plain text file
     def saveReturn(self, path):
+        LOG.debug("Save return filename choosen: {}".format(path))
         name = str(self.stack.currentWidget().objectName())
         if name == '': return
         file = QtCore.QFile(path)
@@ -464,7 +485,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     data = str(1 * int(self[widgetname].isChecked()))
                 else:
                     data = str(self[widgetname].text())
-                line =  '%s,    %s\n'%( str(data),i[0])
+                line =  '%s,%s,    %s\n'%( widgetname, str(data), i[0])
                 QtCore.QTextStream(file) << line
         else:
             QMessageBox.information(self, "Unable to open file",
@@ -482,7 +503,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
             'TITLE':'Load Macro',
             'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
-            'EXTENTIONS':'Text Files (*.txt);;ALL File (*.*)'
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
             }
         STATUS.emit('dialog-request', mess)
 
@@ -491,7 +512,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # placement are done.
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName())}
+            'TITLE':'Save Macro', 'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
+            'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'}
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message from dialogs

@@ -34,6 +34,9 @@ class QPin(hal.Pin, QObject):
             self.value_changed.emit(tmp)
         self._prev = tmp
 
+    def text(self):
+        return self.get_name()
+
     @classmethod
     def update_all(self):
         if not self.UPDATE:
@@ -69,7 +72,9 @@ class QComponent:
             comp = comp.comp
         self.comp = comp
 
-    def newpin(self, *a, **kw): return QPin(_hal.component.newpin(self.comp, *a, **kw))
+    def newpin(self, *a, **kw):
+        return QPin(_hal.component.newpin(self.comp, *a, **kw))
+
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)

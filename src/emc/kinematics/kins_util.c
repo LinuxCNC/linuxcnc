@@ -28,9 +28,12 @@ int map_coordinates_to_jnumbers(char *coordinates,
     char* errtag="map_coordinates_to_jnumbers: ERROR:\n  ";
     int  jno=0;
     int  found=0;
-    int  dups[EMCMOT_MAX_AXIS] = {0};
+    int  dups[EMCMOT_MAX_AXIS];
     char *coords = coordinates;
     char coord_letter[] = {'X','Y','Z','A','B','C','U','V','W'};
+    int  i;
+
+    for (i=0; i<EMCMOT_MAX_AXIS; i++) {dups[i] = 0;}
 
     if ( (max_joints <= 0) || (max_joints > EMCMOT_MAX_JOINTS) ) {
         rtapi_print_msg(RTAPI_MSG_ERR,"%s bogus max_joints=%d\n",

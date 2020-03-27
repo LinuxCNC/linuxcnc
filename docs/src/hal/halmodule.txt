@@ -200,6 +200,35 @@ hal.new_sig("signalname",hal.HAL_BIT)
 
 Does the specified pin have a driving pin connected. +
 Returns True or False. +
+h.in.pin_has_writer()
+
+=== get_name
+Get the HAL object name +
+h.in.get_name() +
+return a string
+
+=== get_type
+Get the HAL object's type +
+h.in.get_type() +
+returns an integer
+
+=== get_dir
+Get the HAL object direction type +
+h.in.get_dir() +
+returns an integer
+
+=== get
+get the HAL object value +
+h.in.get()
+
+=== set
+set the HAL object value +
+h.out.set(10)
+
+=== is_pin
+Is the object a pin or parameter? +
+h.in.is_pin() +
+returns bool
 
 === sampler_base
 
@@ -215,7 +244,7 @@ TODO +
 
 === set_p
 
-Set a pin value. +
+Set a pin value of any pin in the HAL system. +
 example: +
 hal.set_p("pinname","10") +
 
@@ -262,6 +291,82 @@ Read these to aquire information about the realtime system.
 * is_sim
 
 * is_userspace
+
+== Use with hal_glib in GladeVCP Handler
+GladeVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
+This signal can be used to register a function to call when the HAL pin changes state. +
+
+One must import the module and the hal module:
+
+[source,python]
+----
+import hal_glib
+import hal
+----
+
+Then make a pin and connect a 'value-changed' (the watcher) signal to a function call:
+[source,python]
+----
+class HandlerClass:
+    def __init__(self, halcomp,builder,useropts):
+        self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
+        self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+----
+
+And have a function to be called:
+[source,python]
+----
+    def _on_example_trigger_change(self,pin,userdata=None):
+        print "pin value changed to:" % (pin.get())
+        print "pin name= %s" % (pin.get_name())
+        print "pin type= %d" % (pin.get_type())
+
+        # this can be called outside the function
+        self.example_trigger.get()
+----
+
+== Use with hal_glib in QtVCP Handler
+QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
+This signal can be used to register a function to call when the HAL pin changes state. +
+
+One must import the hal module:
+
+[source,python]
+----
+import hal
+----
+
+Then make a pin and connect a 'value_changed' (the watcher) signal to a function call:
+[source,python]
+----
+    ########################
+    # **** INITIALIZE **** #
+    ########################
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
+        self.hal = halcomp
+        self.testPin = self.hal.newpin('test-pin', hal.HAL_BIT, hal.HAL_IN)
+        self.testPin.value_changed.connect(lambda s: self.setTestPin(s))
+----
+
+And have a function to be called. +
+This shows ways to get the pin value and information. +
+[source,python]
+----
+    #####################
+    # general functions #
+    #####################
+    def setTestPin(self, data):
+        print "Test pin value changed to:" % (data)
+        print 'halpin object =', self.w.sender()
+        print 'Halpin name: ',self.sender().text()
+        print 'Halpin type: ',self.sender().get_type()
+
+        # this can be called outside the function
+        print self.testPin.get()
+----
+
 
 == Project ideas
 

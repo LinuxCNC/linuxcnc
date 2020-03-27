@@ -477,8 +477,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                  STATUS.emit('reload-display')
             else:
                 try:
-                    STATUS.emit('graphics-view-changed', '%s' % self.view_type)
-                except:
+                    ACTION.SET_GRAPHICS_VIEW(self.view_type)
+                except Exception as e:
+                    print e
                     pass
         elif self.spindle_fwd:
             ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)

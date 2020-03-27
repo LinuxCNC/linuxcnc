@@ -1603,7 +1603,7 @@
      <x>0</x>
      <y>0</y>
      <width>744</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1689,6 +1689,7 @@
     <addaction name="actionAbout"/>
     <addaction name="actionQuickRef"/>
     <addaction name="actionMachineLog"/>
+    <addaction name="actionCalculatorDialog"/>
    </widget>
    <widget class="QMenu" name="menuStstem">
     <property name="title">
@@ -2069,6 +2070,11 @@
     <string>Show Offsets</string>
    </property>
   </action>
+  <action name="actionCalculatorDialog">
+   <property name="text">
+    <string>Calculator</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -2137,7 +2143,24 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>leftTab</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>leftTabChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>63</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>tool_offset_clicked()</slot>
   <slot>leftTabChanged()</slot>

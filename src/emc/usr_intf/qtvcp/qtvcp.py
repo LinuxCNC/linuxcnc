@@ -185,7 +185,7 @@ Pressing cancel will close linuxcnc.""" % target)
             sys.exit(0)
 
         # initialize the window
-        window = qt_makegui.MyWindow(self.hal, PATH)
+        window = qt_makegui.VCPWindow(self.hal, PATH)
  
         # load optional user handler file
         if opts.usermod:
@@ -319,8 +319,11 @@ Pressing cancel will close linuxcnc.""" % target)
     # shut down STATUS so no error is called
     # close out HAL pins
     def shutdown(self,signum=None,stack_frame=None):
-        self.panel.window.shutdown()
-        self.panel.shutdown()
+        try:
+            self.panel.window.shutdown()
+            self.panel.shutdown()
+        except AttributeError:
+            pass
         STATUS.shutdown()
         self.halcomp.exit()
         sys.exit(0)

@@ -29,6 +29,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+STYLEEDITOR = SSE()
 
 ###################################
 # **** HANDLER CLASS SECTION **** #
@@ -47,7 +48,6 @@ class HandlerClass:
         self.PATHS = paths
         self.current_mode = (None,None)
         self._last_count = 0
-        self.STYLEEDITOR = SSE(widgets,paths)
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -179,10 +179,7 @@ class HandlerClass:
             self.setDROFont(font)
 
     def togglePointer(self, data):
-        if data:
-            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BlankCursor)
-        else:
-            QtWidgets.QApplication.restoreOverrideCursor()
+        ACTION.HIDE_POINTER(data)
 
     #####################
     # general functions #
@@ -231,16 +228,16 @@ class HandlerClass:
                     self.w.filemanager.up()
             elif self.w.mainTab.currentWidget() == self.w.tab_graphics:
                 if self.w.panV.isChecked():
-                    self.w.gcodegraphics.panView(0,diff)
+                    ACTION.ADJUST_GRAPHICS_PAN(0,diff)
                 elif self.w.panH.isChecked():
-                    self.w.gcodegraphics.panView(diff,0)
+                    ACTION.ADJUST_GRAPHICS_PAN(diff,0)
                 elif self.w.rotate.isChecked():
-                    self.w.gcodegraphics.rotateView(diff,diff)
+                    ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
                 elif self.w.zoom.isChecked():
                     if diff <0:
-                        self.w.gcodegraphics.zoomin()
+                        ACTION.SET_GRAPHICS_VIEW('zoom-in')
                     else:
-                        self.w.gcodegraphics.zoomout()
+                        ACTION.SET_GRAPHICS_VIEW('zoom-OUT')
 
         elif self.w.pushbutton_fo.isChecked():
             scaled = (STATUS.stat.feedrate * 100 + diff)
@@ -299,12 +296,12 @@ class HandlerClass:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.w.close()
             else:
-                self.cmnd.abort()
+                ACTION.ABORT()
 
     # Function keys
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR.load_dialog()
 
     # Linear Jogging
     def on_keycall_XPOS(self,event,state,shift,cntrl):

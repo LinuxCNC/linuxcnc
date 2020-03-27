@@ -9,6 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
@@ -29,6 +30,8 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+TOOLBAR = ToolBarActions()
+STYLEEDITOR  = SSE()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -44,9 +47,7 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
-        self.STYLEEDITOR = SSE(widgets,paths)
-        global TOOLBAR
-        TOOLBAR = ToolBarActions(widgets)
+
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
@@ -126,14 +127,13 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionRunFromLine, 'runfromline')
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
+        TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
             self.w.actionButton_home.setText("Home Selected")
             self.w.actionButton_home.set_home_select(True)
-        self.w.rpm_bar = QtWidgets.QProgressBar()
-        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
-        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
+        self.make_corner_widgets()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -195,15 +195,15 @@ class HandlerClass:
 
     # process the STATUS return message from set-tool-offset
     def return_value(self, w, message):
-        num = message['RETURN']
-        code = bool(message['ID'] == 'FORM__')
-        name = bool(message['NAME'] == 'ENTRY')
+        num = message.get('RETURN')
+        code = bool(message.get('ID') == 'FORM__')
+        name = bool(message.get('NAME') == 'ENTRY')
         if num is not None and code and name:
             LOG.debug('message return:{}'.format (message))
             axis = message['AXIS']
             fixture = message['FIXTURE']
             ACTION.SET_TOOL_OFFSET(axis,num,fixture)
-            STATUS.emit('update-machine-log', 'Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
+            ACTION.UPDATE_MACHINE_LOG('Set tool offset of Axis %s to %f' %(axis, num), 'TIME')
 
     def motion_mode(self, w, mode):
         #print STATUS.stat.joints
@@ -398,7 +398,7 @@ class HandlerClass:
         retval = msg.exec_()
 
     def launch_log_dialog(self):
-        STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
+        ACTION.CALL_DIALOG({'NAME':'MACHINELOG', 'ID':'_qtaxis_handler_'})
 
     # keyboard jogging from key binding calls
     # double the rate if fast is true 
@@ -417,6 +417,20 @@ class HandlerClass:
             ACTION.JOG(joint, direction, rate, distance)
         else:
             ACTION.JOG(joint, 0, 0, 0)
+
+    def make_corner_widgets(self):
+        # add spindle speed bar to tab corner
+        self.w.rpm_bar = QtWidgets.QProgressBar()
+        self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+        self.w.rightTab.setCornerWidget(self.w.rpm_bar)
+        # add tool number status to tab corner
+        self.w.tool_stat = TOOLSTAT()
+        self.w.tool_stat.setProperty('tool_number_status', True)
+        self.w.tool_stat.setProperty('textTemplate', 'Tool %d')
+        self.w.tool_stat._hal_init()
+        self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.w.tool_stat.setFixedWidth(60)
+        self.w.leftTab.setCornerWidget(self.w.tool_stat)
 
     #####################
     # KEY BINDING CALLS #
@@ -471,7 +485,7 @@ class HandlerClass:
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
-            self.STYLEEDITOR.load_dialog()
+            STYLEEDITOR .load_dialog()
 
     def on_keycall_feedoverride(self,event,state,shift,cntrl,value):
         if state:
