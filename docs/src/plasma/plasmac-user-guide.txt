@@ -2224,5 +2224,20 @@ It should be noted that during the initial testing phase of this feature it was 
 On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
 
 == Appendix
+
 [[rs485_connections]]
+
+=== RS485 Connections
+
 image::images/plasmac_rs485_connections.png[width=75%]
+
+[[reed-arc-ok]]
+
+=== Arc OK With A Reed Relay
+
+An effective and very reliable method of obtaining an Arc OK signal from a plasma power supply without a CNC port is to mount a reed relay inside a non-conductive tube and wrap and secure three turns of the work lead around the tube.
+
+This assembly will now act as a relay that will switch on when current is flowing through the work lead which only occurs when a cutting arc has been established.
+
+image::images/plasmac_reed_arc_ok.png[width=75%]
+
