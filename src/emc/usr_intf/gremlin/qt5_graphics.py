@@ -186,7 +186,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.use_default_controls = True
         self.mouse_btn_mode = 0
         self.use_gradient_background = False
-
+        self.gradient_color1 = (0.0, 0.0, 1)
+        self.gradient_color2 = (0.0, 0.0, 0.0)
         self.a_axis_wrapped = self.inifile.find("AXIS_A", "WRAPPED_ROTARY")
         self.b_axis_wrapped = self.inifile.find("AXIS_B", "WRAPPED_ROTARY")
         self.c_axis_wrapped = self.inifile.find("AXIS_C", "WRAPPED_ROTARY")
@@ -562,7 +563,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         try:
             if self.perspective:
                 self.redraw_perspective()
-            else: self.redraw_ortho()
+            else:
+                self.redraw_ortho()
 
         except Exception as e:
             #print'error',e
@@ -573,41 +575,42 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             # display something - probably in QtDesigner
             GL.glCallList(self.object)
 
-    #@with_context_swap
+    # replaces glcanoon function
     def redraw_perspective(self):
 
         w = self.winfo_width()
         h = self.winfo_height()
-        GL.glViewport(0, 0, w, h)
+        GL.glViewport(0, 0, w, h) # left corner in pixels
         if self.use_gradient_background:
                 GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+                ###
                 GL.glMatrixMode(GL.GL_PROJECTION)
-                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glLoadIdentity() # switch to identity (origin) matrix
 
+                GL.glMatrixMode(GL.GL_MODELVIEW)
+                GL.glPushMatrix()
                 GL.glPushMatrix()
                 GL.glLoadIdentity()
-    
-                GL.glMatrixMode(GL.GL_MODELVIEW)
-                GL.glLoadIdentity()
+
                 GL.glDisable(GL.GL_DEPTH_TEST)
                 GL.glBegin(GL.GL_QUADS)
-                #//blue color
-                GL.glColor3f(0.0, 0.0, 1)
-                GL.glVertex3f(-1.0, -1.0, -1.0)
-                GL.glVertex3f(1.0, -1.0, -1.0)
-                #//black color
-                GL.glColor3f(0.0, 0.0, 0.0)
-                GL.glVertex3f(1.0, 1.0, -1.0)
-                GL.glVertex3f(-1.0, 1.0, -1.0)
-               
+                #//bottom color
+                color = self.gradient_color1
+                GL.glColor3f(color[0],color[1],color[2])
+                GL.glVertex2f(-1.0, -1.0)
+                GL.glVertex2f(1.0, -1.0)
+                #//top color
+                color = self.gradient_color2
+                GL.glColor3f(color[0],color[1],color[2])
+                GL.glVertex2f(1.0, 1.0)
+                GL.glVertex2f(-1.0, 1.0)
                 GL.glEnd()
                 GL.glEnable(GL.GL_DEPTH_TEST)
-                GL.glMatrixMode(GL.GL_PROJECTION)
+
                 GL.glPopMatrix()
-                GL.glMatrixMode(GL.GL_MODELVIEW)
-                GL.glLoadIdentity()
+                GL.glPopMatrix()
+
         else:
-            pass
             # Clear the background and depth buffer.
             GL.glClearColor(*(self.colors['back'] + (0,)))
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -619,10 +622,65 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                         float(w)/float(h),          # Aspect Ratio. Notice that 4/3 == 800/600 screen resolution
                         self.near,                  # near clipping plane. Keep as big as possible, or you'll get precision issues.
                         self.far + self.distance)   # Far clipping plane. Keep as little as possible.
-
         GLU.gluLookAt(0, 0, self.distance,  # the position of your camera, in world space
             0, 0, 0,                        # where you want to look at, in world space
             0., 1., 0.)                     # probably glm::vec3(0,1,0), but (0,-1,0) would make you looking upside-down
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glPushMatrix()
+        try:
+            self.redraw()
+        finally:
+            GL.glFlush()                               # Tidy up
+            GL.glPopMatrix()                   # Restore the matrix
+
+    # replaces glcanoon function
+    def redraw_ortho(self):
+        if not self.initialised: return
+        w = self.winfo_width()
+        h = self.winfo_height()
+        GL.glViewport(0, 0, w, h)
+        if self.use_gradient_background:
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+            GL.glMatrixMode(GL.GL_PROJECTION)
+            GL.glLoadIdentity()
+
+            GL.glMatrixMode(GL.GL_MODELVIEW)
+            GL.glPushMatrix()
+            GL.glPushMatrix()
+            GL.glLoadIdentity()
+
+            GL.glDisable(GL.GL_DEPTH_TEST)
+            GL.glBegin(GL.GL_QUADS)
+            #//bottom color
+            color = self.gradient_color1
+            GL.glColor3f(color[0],color[1],color[2])
+            GL.glVertex2f(-1.0, -1.0)
+            GL.glVertex2f(1.0, -1.0)
+            #//top color
+            color = self.gradient_color2
+            GL.glColor3f(color[0],color[1],color[2])
+            GL.glVertex2f(1.0, 1.0)
+            GL.glVertex2f(-1.0, 1.0)
+            GL.glEnd()
+            GL.glEnable(GL.GL_DEPTH_TEST)
+
+            GL.glPopMatrix()
+            GL.glPopMatrix()
+
+        else:
+            # Clear the background and depth buffer.
+            GL.glClearColor(*(self.colors['back'] + (0,)))
+            GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        ztran = self.distance
+        k = (abs(ztran or 1)) ** .55555
+        l = k * h / w
+        GL.glOrtho(-k, k, -l, l, -1000, 1000.)
+        GLU.gluLookAt(0, 0, 1,
+            0, 0, 0,
+            0., 1., 0.)
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glPushMatrix()
         try:
@@ -723,16 +781,16 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glNewList(genList, GL.GL_COMPILE)
   
         GL.glBegin(GL.GL_QUADS)
-
+        factor = 4
         # Make a tee section
-        x1 = +0.06
-        y1 = -0.14
-        x2 = +0.14
-        y2 = -0.06
-        x3 = +0.08
-        y3 = +0.00
-        x4 = +0.30
-        y4 = +0.22
+        x1 = +0.06 * factor
+        y1 = -0.14 * factor
+        x2 = +0.14 * factor
+        y2 = -0.06 * factor
+        x3 = +0.08 * factor
+        y3 = +0.00 * factor
+        x4 = +0.30 * factor
+        y4 = +0.22 * factor
 
         # cross
         self.quad(x1, y1, x2, y2, y2, x2, y1, x1)
@@ -755,16 +813,16 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # Make a circle
         for i in range(NumSectors):
             angle1 = (i * 2 * math.pi) / NumSectors
-            x5 = 0.30 * math.sin(angle1)
-            y5 = 0.30 * math.cos(angle1)
-            x6 = 0.20 * math.sin(angle1)
-            y6 = 0.20 * math.cos(angle1)
+            x5 = 0.30 * math.sin(angle1) * factor
+            y5 = 0.30 * math.cos(angle1) * factor
+            x6 = 0.20 * math.sin(angle1) * factor
+            y6 = 0.20 * math.cos(angle1) * factor
   
             angle2 = ((i + 1) * 2 * math.pi) / NumSectors
-            x7 = 0.20 * math.sin(angle2)
-            y7 = 0.20 * math.cos(angle2)
-            x8 = 0.30 * math.sin(angle2)
-            y8 = 0.30 * math.cos(angle2)
+            x7 = 0.20 * math.sin(angle2) * factor
+            y7 = 0.20 * math.cos(angle2) * factor
+            x8 = 0.30 * math.sin(angle2) * factor
+            y8 = 0.30 * math.cos(angle2) * factor
   
             self.quad(x5, y5, x6, y6, x7, y7, x8, y8)
   
