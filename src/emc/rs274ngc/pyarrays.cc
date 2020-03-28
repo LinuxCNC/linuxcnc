@@ -49,7 +49,7 @@ void export_Arrays()
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
     pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
-    pp::register_array_1< int, 16> ("GmodesArray");
+    pp::register_array_1< int, 17> ("GmodesArray");
     pp::register_array_1< int, 11> ("MmodesArray");
     pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
 }

@@ -19,6 +19,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_write.cc \
 	interp_o_word.cc \
 	interp_g7x.cc \
+	modal_state.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \

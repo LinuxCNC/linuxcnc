@@ -80,6 +80,7 @@ to another.
 #include "rtapi_limits.h"
 #include <stdarg.h>
 #include "rtapi_bool.h"
+#include "state_tag.h"
 
 // define a special value to denote an invalid motion ID 
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -274,6 +275,7 @@ extern "C" {
         double maxFeedScale;
 	double ext_offset_vel;	/* velocity for an external axis offset */
 	double ext_offset_acc;	/* acceleration for an external axis offset */
+	struct state_tag_t tag;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -642,6 +644,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by g-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by g-code */
 	double analog_output[EMCMOT_MAX_AIO]; /* outputs to the motion controller, queried by g-code */
+
+	struct state_tag_t tag; /* Current interp state corresponding
+				   to motion line */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
 

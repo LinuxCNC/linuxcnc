@@ -242,7 +242,7 @@ assert(math.fabs(s.g92_offset[1] - 2.000) < 0.0000001)
 assert(math.fabs(s.g92_offset[2] - 4.000) < 0.0000001)
 assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 
-assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80))
+assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80, 923))
 
 assert(not (1 in s.homed))
 assert(s.id == 0)
@@ -310,6 +310,7 @@ assert(s.spindle[0]['enabled'] == 0)
 assert(s.spindle[0]['override_enabled'] == True)
 assert(s.spindle[0]['speed'] == 0.0)
 assert(s.spindle[0]['override'] == 1.0)
+
 assert(s.state == linuxcnc.STATE_ESTOP)
 
 assert(s.task_mode == linuxcnc.MODE_MANUAL)

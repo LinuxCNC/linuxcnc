@@ -468,6 +468,8 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
   settings->motion_mode = move;
 
+  // Should be done with changes to settings here, so we can pack the state
+  write_canon_state_tag(block, settings);
 
   if (settings->plane == CANON_PLANE_XY) {
     if ((!settings->cutter_comp_side) ||
@@ -1558,11 +1560,13 @@ already in force.
 
 */
 
-int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
-				double tolerance,    //tolerance for the path following in G64
-				double naivecam_tolerance,    //tolerance for the naivecam
-                                setup_pointer settings) //!< pointer to machine settings                 
+int Interp::convert_control_mode(
+    int g_code,                   // g_code being executed (G_61, G61_1, G_64)
+    double tolerance_in,          // tolerance for the path following in G64
+    double naivecam_tolerance_in, // tolerance for the naivecam
+    setup_pointer settings)       // pointer to machine settings                 
 {
+    double tolerance, naivecam_tolerance;
   CHKS((settings->cutter_comp_side),
        (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
@@ -1572,19 +1576,24 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
     SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP, 0);
     settings->control_mode = CANON_EXACT_STOP;
   } else if (g_code == G_64) {
-	if (tolerance >= 0) {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
-	} else {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
-	}
-	if (naivecam_tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
-	} else if (tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(tolerance);   // if no naivecam_tolerance specified use same for both
-	} else {
-	    SET_NAIVECAM_TOLERANCE(0);
-	}
-    settings->control_mode = CANON_CONTINUOUS;
+      if (tolerance_in >= 0)
+	  tolerance = tolerance_in;
+      else
+	  tolerance = 0;
+      settings->control_mode = CANON_CONTINUOUS;
+      settings->tolerance = tolerance;
+      SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
+
+      if (naivecam_tolerance_in >= 0)
+	  naivecam_tolerance = naivecam_tolerance_in;
+      else if (tolerance_in >= 0)
+	  // if no naivecam_tolerance specified use same for both
+	  naivecam_tolerance = tolerance_in;
+      else
+	  naivecam_tolerance = 0;
+      settings->naivecam_tolerance = naivecam_tolerance;
+      SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
+
   } else 
     ERS(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
   return INTERP_OK;
@@ -2330,7 +2339,10 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     if ((block->g_modes[GM_MODAL_0] != -1) && ONCE(STEP_MODAL_0)) {
       status = convert_modal_0(block->g_modes[GM_MODAL_0], block, settings);
       CHP(status);
-  }
+    }
+    if ((block->g_modes[GM_G92_IS_APPLIED] != -1) && ONCE(STEP_G92_IS_APPLIED)) {
+      status = convert_g92_is_applied(block->g_modes[GM_G92_IS_APPLIED], block, settings);
+    }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
       CHP(status);
@@ -2474,6 +2486,9 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
       issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
   if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
       issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
+
+  // Create a state tag and dump it to canon
+  write_canon_state_tag(block, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -2651,6 +2666,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else if (g_code == G_21) {
     USE_LENGTH_UNITS(CANON_UNITS_MM);
@@ -2691,6 +2709,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G20_OR_G21);
@@ -2699,43 +2720,48 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 
 /*
- * given two double arrays representing interpreter settings as stored in
- * _setup.active_settings, construct a G-code sequence to synchronize their state.
+ * given two int arrays and two double arrays representing interpreter
+ * settings as stored in _setup.active_g_codes and
+ * _setup.active_settings, construct a G-code sequence to synchronize
+ * their state.
  */
-int Interp::gen_settings(double *current, double *saved, std::string &cmd)
+int Interp::gen_settings(
+    int *int_current, int *int_saved,            // G codes
+    double *float_current, double *float_saved,  // S, F, other
+    std::string &cmd)                            // command buffer
 {
-    int i;
+    int i, val;
+    int g64_changed = 0;
     char buf[LINELEN];
+
+    // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	if (saved[i] != current[i]) {
+	if (float_saved[i] != float_current[i]) {
 	    switch (i) {
-	    case 0: break; // sequence_number - no point in restoring
-	    case 1:
-		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
+	    case GM_FIELD_FLOAT_LINE_NUMBER:
+		// sequence_number - no point in restoring
+		break;
+	    case GM_FIELD_FLOAT_FEED:
+		snprintf(buf,sizeof(buf)," F%.1f", float_saved[i]);
                 cmd += buf;
 		break;
-	    case 2:
-		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
+	    case GM_FIELD_FLOAT_SPEED:
+		snprintf(buf,sizeof(buf)," S%.0f", float_saved[i]);
                 cmd += buf;
+		break;
+	    case GM_FIELD_FLOAT_PATH_TOLERANCE:
+	    case GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE:
+		// G64 special case; see below
+		g64_changed = 1;
 		break;
 	    }
 	}
     }
-    return INTERP_OK;
-}
 
-
-/*
- * given two int arrays representing interpreter settings as stored in
- * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
- */
-int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
-{
-    int i, val;
-    char buf[LINELEN];
+    // G codes
     for (i = 0; i < ACTIVE_G_CODES; i++) {
-	val = saved[i];
-	if (val != current[i]) {
+	val = int_saved[i];
+	if (val != int_current[i]) {
 
 	    switch (i) {
 	    case 0:
@@ -2759,10 +2785,10 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 	    case 8: // - coordinate system
 	    case 9: // - tool offset (G43/G49)
 	    case 10: // - retract mode
-	    case 11: // - control mode
 	    case 13: // - spindle mode
 	    case 14: // - ijk distance mode
 	    case 15: // - lathe diameter mode
+            case 16: // - whether g92 is applied
 
 		if (val != -1) { // FIXME not sure if this is correct!
 		    // if this was set in sub, and unset in caller, it will
@@ -2775,12 +2801,50 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
                     cmd += buf;
 		} else {
 		    // so complain rather loudly
-		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		}
+		break;
+	    case 11: // - control mode
+		// Special case, since G64 requires P and Q flags
+		// FIXME what about when P or Q changes, even though still G64?
+		if (val == G_64)
+		    // G64 special case; see below
+		    g64_changed = 1;
+		else if (val == G_61) {
+		    snprintf(buf,sizeof(buf)," G61");
+		    cmd += buf;
+		} else if (val == G_61_1) {
+		    snprintf(buf,sizeof(buf)," G61.1");
+		    cmd += buf;
+		} else
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		break;
 	    }
 	}
     }
+
+
+    // Special case for restoring G64:  `cmd` may contain a `G64` if
+    // current int settings is `G61` or if current float settings
+    // contain different `G64 P* Q*` args; in these cases, only add a
+    // single `G64` command
+    if ((int_saved[11] == G_64) && g64_changed) {
+	if (float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE] < 0)
+	    // No P, Q args
+	    snprintf(buf,sizeof(buf)," G64");
+	else if (
+	    float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE] < 0)
+	    // Only P arg
+	    snprintf(buf,sizeof(buf)," G64 P%f",
+		     float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE]);
+	else  // Both P, Q args
+	    snprintf(
+		buf,sizeof(buf)," G64 P%f Q%f",
+		float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE],
+		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
+	cmd += buf;
+    }
+
     return INTERP_OK;
 }
 
@@ -2829,6 +2893,61 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
     return INTERP_OK;
 }
 
+
+/**
+ * Create a G code string to restore a modal state on program abort.
+ * Note: This is only designed to be called on program abort. It restores the
+ * modal state in the interpreter to the equivalent state at the most recent
+ * motion line, but does not restore M codes.
+ */
+int Interp::gen_restore_cmd(int *current_g,
+			    int *current_m,
+			    double *current_settings,
+			    StateTag const &saved,
+			    std::string &cmd)
+{
+    int res;
+    // A local copy of the saved settings, unpacked from a state tag
+    int saved_g[ACTIVE_G_CODES];
+    int saved_m[ACTIVE_M_CODES];
+    double saved_settings[ACTIVE_SETTINGS];
+
+    //Extract saved state to local vectors
+    // FIXME Use saved_settings to store state tag floats, incl. in 
+    int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
+    if (res_unpack != INTERP_OK) {
+	logStateTags("gen_restore_cmd() error %d:  failed to unpack state tag",
+		     res_unpack);
+        return INTERP_ERROR;
+    }
+
+    /* Now we clean up any G / M modes that should be reset when ending a
+     * program. Note that most of these mode states are based on logic in
+     * write_XXX functions.
+     */
+    // Force cancellation of tool compensation
+    saved_g[4] = G_40;
+
+    //Mimic the order of restoration commands used elsewhere
+    if (current_g[5] != saved_g[5]) {
+        char buf[LINELEN];
+        snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"),
+	     cmd.c_str());
+    }
+
+    if ((res = gen_settings(
+	     current_g, saved_g, current_settings, saved_settings, cmd))) {
+	logStateTags("gen_restore_cmd():  error restoring settings (%d)",
+		     res);
+        return INTERP_ERROR;
+    }
+    // M codes should not be restored during an abort with gen_m_codes()
+
+    return INTERP_OK;
+}
+
+
 int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
@@ -2836,6 +2955,7 @@ int Interp::save_settings(setup_pointer settings)
       write_g_codes((block_pointer) NULL, settings);
       write_m_codes((block_pointer) NULL, settings);
       write_settings(settings);
+      write_state_tag((block_pointer) NULL, settings, settings->state_tag);
 
       // save in the current call frame
       active_g_codes((int *)settings->sub_context[settings->call_level].saved_g_codes);
@@ -2885,9 +3005,16 @@ int Interp::restore_settings(setup_pointer settings,
 	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
 	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
-    gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
-    gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
-    gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
+    gen_settings(
+	(int *)settings->active_g_codes,
+	(int *)settings->sub_context[from_level].saved_g_codes,
+	(double *)settings->active_settings,
+	(double *)settings->sub_context[from_level].saved_settings,
+	cmd);
+    gen_m_codes(
+	(int *) settings->active_m_codes,
+	(int *)settings->sub_context[from_level].saved_m_codes,
+	cmd);
 
     if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
@@ -2912,6 +3039,77 @@ int Interp::restore_settings(setup_pointer settings,
     // TBD: any state deemed important to restore should be restored here
     // NB: some state changes might generate canon commands so do that here
     // if needed
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Variation of restore_settings to pull state from a StateTag.
+ */
+int Interp::restore_from_tag(StateTag const &tag)
+{
+
+    if (!tag.is_valid() || !tag.flags[GM_FLAG_RESTORABLE]) {
+        //Invalid line implies a bad tag, don't restore
+	logStateTags("restore_from_tag() error:  Invalid tag");
+	print_state_tag(tag);
+        return INTERP_ERROR;
+    }
+
+    // clear queue buster sflags, otherwise the command won't be
+    // executed - Tormach *dpr 8/17/15
+    _setup.input_flag = false;
+    _setup.toolchange_flag = false;
+    _setup.probe_flag = false;
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, &_setup);
+    write_m_codes((block_pointer) NULL, &_setup);
+    write_settings(&_setup);
+
+    std::string cmd;
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
+				     (int *) _setup.active_m_codes,
+				     (double *) _setup.active_settings,
+				     tag,
+				     cmd);
+    if (res_unpack != INTERP_OK) {
+	logStateTags("restore_from_tag() failed to generate restore command");
+	print_state_tag(tag);
+        return res_unpack;
+    }
+
+    if (!cmd.empty()) {
+        // the sequence can be multiline, separated by nl
+        // so split and execute each line
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+        char *last = buf;
+        char *s;
+        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+            int status = execute(s);
+            if (status != INTERP_OK) {
+                char currentError[LINELEN+1];
+                strcpy(currentError,getSavedError());
+                CHKS(status, _("Failed to restore interp state on abort "
+			       "'%s': %s"), s, currentError);
+            }
+        }
+        write_g_codes((block_pointer) NULL, &_setup);
+        write_m_codes((block_pointer) NULL, &_setup);
+        write_settings(&_setup);
+	logStateTags("Restored program pre-abort state from tag:  |%s|",
+		     cmd.c_str());
+    } else {
+	logStateTags("Program pre-abort state unchanged; not restoring:");
+	print_state_tag(tag);
+    }
 
     return INTERP_OK;
 }
@@ -3014,6 +3212,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	 ((!block->p_flag) && (!block->e_flag)) ,
 	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
+    write_canon_state_tag(block, settings);
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
 	    ERS(_("invalid P-word with M66"));
@@ -3384,8 +3583,7 @@ Returned Value: int
       convert_setup
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92, G_92_1, G_92_2,
-          or G_92_3:
+   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92:
       NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES
 
 Side effects: See below
@@ -3412,9 +3610,7 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
-  } else if ((code == G_52) ||
-	     (code == G_92) || (code == G_92_1) ||
-             (code == G_92_2) || (code == G_92_3)) {
+  } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if (code == G_5_3) {
     CHP(convert_nurbs(code, block, settings));
@@ -3423,6 +3619,14 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
 }
+
+int Interp::convert_g92_is_applied(int code, block_pointer block,
+                                   setup_pointer settings)
+{
+    CHP(convert_axis_offsets(code, block, settings));
+    return INTERP_OK;
+}
+
 
 /****************************************************************************/
 
@@ -3498,14 +3702,17 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   } else if (is_a_cycle(motion)) {
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
-    CHP(convert_spline(motion, block, settings));
+      write_canon_state_tag(block, settings);
+      CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
+    write_canon_state_tag(block, settings);
     CHP(convert_nurbs(motion, block, settings));
   } else if (
     motion == G_70 ||
     motion == G_71 || motion == G_71_1 || motion == G_71_2 ||
     motion == G_72 || motion == G_72_1 || motion == G_72_2
   ) {
+	write_canon_state_tag(block, settings);
     CHP(convert_g7x(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
@@ -4496,6 +4703,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  block, settings);
   }
 
+  // Create a state tag and dump it to canon
+  write_canon_state_tag(block, settings);
+
   if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
 
@@ -4633,10 +4843,11 @@ int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, se
 
 int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, setup_pointer settings) {
     CANON_MOTION_MODE save_mode;
-    double save_tolerance;
+    double save_tolerance, save_cam_tolerance;
     // temporarily switch to exact stop mode for indexing move
     save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
     save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+    save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -4652,8 +4863,10 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
     LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
-    if(save_mode != CANON_EXACT_PATH)
+    if(save_mode != CANON_EXACT_PATH) {
         SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+	SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    }
 
     settings->AA_current = AA_end;
     settings->BB_current = BB_end;
@@ -5458,3 +5671,8 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 }
 
 
+int Interp::update_tag(StateTag &tag)
+{
+    UPDATE_TAG(tag);
+    return INTERP_OK;
+}

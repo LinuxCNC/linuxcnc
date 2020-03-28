@@ -1281,7 +1281,6 @@ tabs_preview = str(root_window.tk.call("set", "_tabs_preview"))
 tabs_numbers = str(root_window.tk.call("set", "_tabs_numbers"))
 pane_top = str(root_window.tk.call("set", "pane_top"))
 pane_bottom = str(root_window.tk.call("set", "pane_bottom"))
-
 widget_list=[
        ("help_window", Toplevel, ".keys"),
        ("about_window", Toplevel, ".about"),
