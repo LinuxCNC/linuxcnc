@@ -1,18 +1,18 @@
 component xhc_hb04_util "xhc-hb04 convenience utility";
 description """Provides logic for a start/pause button and an interface
-to halui.program.is_paused, is_idle, is_running to generate outputs for
-halui.program.pause, resume, run.
+to \\fBhalui.program.is_paused\\fR, \\fBis_idle\\fR, \\fBis_running\\fR to generate outputs for \\fBhalui.program.pause\\fR, \\fBresume\\fR, \\fBrun\\fR.
 
-Includes 4 simple lowpass filters with coef and scale pins.  The coef value should
-be 0 <= coef <=1, smaller coef values slow response.
+Includes 4 simple lowpass filters with \\fBcoef\\fR and \\fBscale\\fR pins.  The coef value should
+be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
+calculating the filter time constant ($ man lowpass).
 
-Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The amux.N.in0
-inputs are used by default, the amux.N.in1 inputs are selected when the is-manual
-pin is True.
+Includes 4 multiplexers to manage ini hal pins ini.N.max_acceleration.  The \\fBamux.N.in0\\fR
+inputs are used by default, the \\fBamux.N.in1\\fR inputs are selected when the pins \\fBis-manual\\fR
+and \\fBamux_enable\\fR are both True to.
 
-The pin named is-manual is typically connected to halui.mode.is-manual.
+The pin named \\fBis-manual\\fR is typically connected to \\fBhalui.mode.is-manual\\fR.
+The pin named \\fBamux_enable\\fR is typically connected to \\fBhalui.mode.is-teleop\\fR.
 
-The pin named jogenable-off is not used.
 """;
 
 pin in bit start_or_pause;
@@ -46,7 +46,7 @@ pin out float divide_by_k_out;
 pin in  float k = 1.0;
 
 pin in  bit   is_manual;
-pin in  bit   jogenable_off;
+pin in  bit   amux_enable;
 
 pin in  float amux0_in0;
 pin in  float amux1_in0;
@@ -97,7 +97,7 @@ FUNCTION(_) {
     out3 =  ceil(value3 * scale3 - .5);
 
     // accel muxes:
-    if (is_manual) {
+    if (is_manual && amux_enable) {
         amux0_out = amux0_in1;
         amux1_out = amux1_in1;
         amux2_out = amux2_in1;

@@ -53,6 +53,7 @@ extern "C" {
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
 
+
 /*just used to keep track of unneccessary debug printing. */
     extern int taskplanopen;
 

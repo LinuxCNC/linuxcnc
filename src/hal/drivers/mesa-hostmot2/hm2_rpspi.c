@@ -505,15 +505,16 @@ static void restore_gpio() {
 static platform_t check_platform(void)
 {
 	FILE *fp;
-	char buf[2048];
+	char buf[8192];
 	size_t fsize;
 
 	fp = fopen("/proc/cpuinfo", "r");
 	fsize = fread(buf, 1, sizeof(buf), fp);
 	fclose(fp);
 	
+	// we have truncated cpuinfo return unsupported
 	if (fsize == 0 || fsize == sizeof(buf))
-		return 0;
+		return UNSUPPORTED;
 
 	/* NUL terminate the buffer */
 	buf[fsize] = '\0';
@@ -522,6 +523,24 @@ static platform_t check_platform(void)
 		return RPI;
 	else if (NULL != strstr(buf, "BCM2709"))
 		return RPI_2;	//for RPI 3 too
+	// starting with 4.8 kernels revision tag has board details
+	else if (NULL != strstr(buf, "BCM2835")) {
+		char *rev_val = strstr(buf, "Revision");
+		if (rev_val == NULL) return UNSUPPORTED;
+		char *rev_start = strstr(rev_val, ": ");
+		unsigned long rev = strtol(rev_start+2,NULL, 16);
+
+		if (rev <= 0xffff) return RPI; // pre pi2 revision scheme
+		switch((rev&0xf000) >> 12) {
+			case 0: //bcm2835
+				return RPI;
+			case 1: //bcm2836
+			case 2: //bcm2837
+				return RPI_2; // peripheral base is same on pi2/3
+			default:
+				return UNSUPPORTED;
+		}
+	}
 	else
 		return UNSUPPORTED;
 }

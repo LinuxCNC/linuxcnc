@@ -62,7 +62,7 @@ typedef enum {
 
 
 /**
- * Enum for various fields of state info that aren't binary.
+ * Enum for various fields of state info that are int type.
  *
  * WARNING:
  *
@@ -87,6 +87,20 @@ typedef enum {
     GM_FIELD_MAX_FIELDS
 } StateField;
 
+
+/**
+ * Enum for indexing state tag `fields_float`, machine state float
+ * array:  feed, speed, etc.
+ */
+typedef enum {
+    GM_FIELD_FLOAT_LINE_NUMBER, // eww
+    GM_FIELD_FLOAT_FEED,
+    GM_FIELD_FLOAT_SPEED,
+    GM_FIELD_FLOAT_PATH_TOLERANCE,
+    GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE,
+    GM_FIELD_FLOAT_MAX_FIELDS
+} StateFieldFloat;
+
 /**
  * Tag structure that is added to a motion segment so that motion has a copy of
  * the relevant interp state.
@@ -99,9 +113,9 @@ typedef enum {
  */
 struct state_tag_t {
 
-    // Machine settings 
-    float feed;
-    float speed;
+    // Float-type machine settings:  feed, speed, etc., indexed by the
+    // StateFieldFloat enum above
+    float fields_float[GM_FIELD_FLOAT_MAX_FIELDS];
 
     // Any G / M code states that doesn't pack nicely into a single bit
     // These are an array mostly because it's easier to pass an

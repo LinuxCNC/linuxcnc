@@ -635,6 +635,7 @@ static void mdi_execute_abort(void)
         rcs_print("mdi_execute_abort: dropping %d queued MDI commands\n", queued_mdi_commands);
     }
     mdi_execute_queue.clear();
+    emcStatus->task.queuedMDIcommands = 0;
 
     emcStatus->task.interpState = EMC_TASK_INTERP_IDLE;
 }
@@ -662,6 +663,7 @@ static void mdi_execute_hook(void)
         && (emcTaskCommand == NULL)
     ) {
 	interp_list.append(mdi_execute_queue.get());
+        emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
 	return;
     }
 
@@ -1393,6 +1395,7 @@ static int emcTaskPlan(void)
                     retval = emcTaskIssueCommand(emcCommand);
                 } else {
                     mdi_execute_queue.append(emcCommand);
+                    emcStatus->task.queuedMDIcommands = mdi_execute_queue.len();
                     retval = 0;
                 }
                 break;
@@ -1956,7 +1959,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
    case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
-	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset);
+	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset,
+                             spindle_on_msg->wait_for_spindle_at_speed);
 	break;
 
     case EMC_SPINDLE_OFF_TYPE:
@@ -2053,12 +2057,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
+	emcTaskAbort();
 	// KLUDGE call motion abort before state restore to make absolutely sure no
 	// stray restore commands make it down to motion
 	emcMotionAbort();
 	// Then call state restore to update the interpreter
 	emcTaskStateRestore();
-	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_ABORT);
         emcSpindleAbort();
 	mdi_execute_abort();

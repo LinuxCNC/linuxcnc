@@ -24,6 +24,8 @@
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
 
+static const char* plane_name(CANON_PLANE p);
+
 /****************************************************************************/
 
 /*! convert_cycle_g81
@@ -233,12 +235,13 @@ int Interp::convert_cycle_g73(block_pointer block,
 
 /****************************************************************************/
 
-/*! convert_cycle_g84
+/*! convert_cycle_g74_g84
 
 Returned Value: int
-   If the spindle is not turning clockwise, this returns
-     NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84.
-   Otherwise, it returns INTERP_OK.
+   If the spindle is not turning clockwise and motion is not g84, this returns
+      NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84.
+   If the spindle is not turning counterclockwise and motion is not g74, this returns
+      NCE_SPINDLE_NOT_TURNING_COUNTER_CLOCKWISE_IN_G74.
 
 Side effects: See below
 
@@ -248,15 +251,15 @@ Called by:
    convert_cycle_zx
 
 For the XY plane, this implements the following RS274/NGC cycle,
-which is right-hand tapping:
-1. Start speed-feed synchronization.
++which is right-hand floating-chuck tapping:
+1. start the feed move towards bottom_z.
 2. Move the z-axis only at the current feed rate to the specified bottom_z.
 3. Stop the spindle.
-4. Start the spindle counterclockwise.
+4. Start the spindle counterclockwise (or cw if g74), suppressing the
+   wait-for-spindle-at-speed for the following feed move out.
 5. Retract the z-axis at current feed rate to clear_z.
-6. If speed-feed synch was not on before the cycle started, stop it.
-7. Stop the spindle.
-8. Start the spindle clockwise.
+6. Stop the spindle.
+7. Start the spindle clockwise (or ccw if g74), with normal wait-for-at-speed for next feed move.
 
 CYCLE_MACRO has positioned the tool at (x, y, r, a, b, c) when this starts.
 The direction argument must be clockwise.
@@ -265,30 +268,113 @@ For the XZ and YZ planes, this makes analogous motions.
 
 */
 
-int Interp::convert_cycle_g84(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                     
-                              double x,  //!< x-value where cycle is executed    
-                              double y,  //!< y-value where cycle is executed    
-                              double clear_z,    //!< z-value of clearance plane         
-                              double bottom_z,   //!< value of z at bottom of cycle      
-                              CANON_DIRECTION direction, //!< direction spindle turning at outset
-                              CANON_SPEED_FEED_MODE mode)        //!< the speed-feed mode at outset      
+int Interp::convert_cycle_g74_g84(block_pointer block,
+                                 CANON_PLANE plane, //!< selected plane
+                                 double x,  //!< x-value where cycle is executed
+                                 double y,  //!< y-value where cycle is executed
+                                 double clear_z,    //!< z-value of clearance plane
+                                 double bottom_z,   //!< value of z at bottom of cycle
+                                 CANON_DIRECTION direction, //!< direction spindle turning at outset
+                                 CANON_SPEED_FEED_MODE mode,       //!< the speed-feed mode at outset
+                                 int motion, double dwell)
 {
-  CHKS((direction != CANON_CLOCKWISE),
-      NCE_SPINDLE_NOT_TURNING_CLOCKWISE_IN_G84);
+    char op = motion ==  G_74 ? '7' : '8';
+
+   switch (direction) {
+   case CANON_STOPPED:
+      ERS(_("Spindle not turning in G%c4"), op);
+   case CANON_CLOCKWISE:
+      CHKS((motion == G_74), _("Spindle turning clockwise in G74"));
+      break;
+   case CANON_COUNTERCLOCKWISE:
+       CHKS((motion == G_84), _("Spindle turning counterclockwise in G84"));
+    }
+
+    int save_feed_override_enable;
+    int save_spindle_override_enable;
+
+    save_feed_override_enable = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
+    save_spindle_override_enable = GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
+
+   switch (plane) {
+
+    case CANON_PLANE_XY:
+       DISABLE_FEED_OVERRIDE();
+       DISABLE_SPEED_OVERRIDE();
+       cycle_feed(block, plane, x, y, bottom_z);
+       STOP_SPINDLE_TURNING();
+       // the zero parameter suppresses the wait for at-speed on next feed
+       if (motion == G_84)
+           START_SPINDLE_COUNTERCLOCKWISE(0);
+       else
+           START_SPINDLE_CLOCKWISE(0);
+       DWELL(dwell);
+       cycle_feed(block, plane, x, y, clear_z);
+       STOP_SPINDLE_TURNING();
+       if (motion == G_84)
+           START_SPINDLE_CLOCKWISE();
+       else
+           START_SPINDLE_COUNTERCLOCKWISE();
+       break;
+
+    case CANON_PLANE_YZ:
+       DISABLE_FEED_OVERRIDE();
+       DISABLE_SPEED_OVERRIDE();
+       cycle_feed(block, plane, bottom_z, x, y);
+       STOP_SPINDLE_TURNING();
+       if (motion == G_84)
+           START_SPINDLE_COUNTERCLOCKWISE(0);
+       else
+           START_SPINDLE_CLOCKWISE(0);
+       DWELL(dwell);
+       cycle_feed(block, plane, clear_z, x, y);
+       STOP_SPINDLE_TURNING();
+       if (motion == G_84)
+           START_SPINDLE_CLOCKWISE();
+       else
+           START_SPINDLE_COUNTERCLOCKWISE();
+       break;
+
+    case CANON_PLANE_XZ:
+       DISABLE_FEED_OVERRIDE();
+       DISABLE_SPEED_OVERRIDE();
+       cycle_feed(block, plane, y, bottom_z, x);
+       STOP_SPINDLE_TURNING();
+       if (motion == G_84)
+           START_SPINDLE_COUNTERCLOCKWISE(0);
+       else
+           START_SPINDLE_CLOCKWISE(0);
+       DWELL(dwell);
+       cycle_feed(block, plane, y, clear_z, x);
+       STOP_SPINDLE_TURNING();
+       if (motion == G_84)
+           START_SPINDLE_CLOCKWISE();
+       else
+           START_SPINDLE_COUNTERCLOCKWISE();
+       break;
+
+    default:
+       ERS("G%c4 for plane %s not implemented",
+           op, plane_name(plane));
+    }
+   if(save_feed_override_enable)
+    ENABLE_FEED_OVERRIDE();
+   if(save_spindle_override_enable)
+    ENABLE_SPEED_OVERRIDE();
+
+   return INTERP_OK;
+
 #if 0
   START_SPEED_FEED_SYNCH();
   cycle_feed(block, plane, x, y, bottom_z);
-  STOP_SPINDLE_TURNING();
-  START_SPINDLE_COUNTERCLOCKWISE();
+
   cycle_feed(block, plane, x, y, clear_z);
   if (mode != CANON_SYNCHED)
     STOP_SPEED_FEED_SYNCH();
   STOP_SPINDLE_TURNING();
   START_SPINDLE_CLOCKWISE();
-#endif
-
   return INTERP_OK;
+#endif
 }
 
 /****************************************************************************/
@@ -819,7 +905,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance;
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_z;
 
   plane = CANON_PLANE_XY;
@@ -883,6 +969,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -917,10 +1004,16 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-      CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+      block->p_number =
+      block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+      CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
+                                       settings->spindle_turning,
+                                       settings->speed_feed_mode,
+                                       motion, block->p_number))
+      settings->cycle_p = block->p_number;
+      break;
   case G_85:
       CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_XY, aa, bb, r, clear_cc, cc))
       break;
@@ -980,8 +1073,10 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_z = clear_cc;
   settings->cycle_cc = block->z_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1008,7 +1103,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance;
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->w_current;
 
   plane = CANON_PLANE_UV;
@@ -1054,6 +1149,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1088,10 +1184,16 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-    CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+    block->p_number =
+    block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
+                                       settings->spindle_turning,
+                                       settings->speed_feed_mode,
+                                       motion, block->p_number))
+         settings->cycle_p = block->p_number;
+    break;
   case G_85:
     CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_UV, aa, bb, r, clear_cc, cc))
       break;
@@ -1150,8 +1252,10 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
   settings->w_current = clear_cc;
   settings->cycle_cc = block->w_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1225,7 +1329,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save the current tolerance, to restore it lateron
+  // save the current tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_x;
 
   plane = CANON_PLANE_YZ;
@@ -1271,6 +1376,7 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1305,10 +1411,16 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-    CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+     block->p_number =
+     block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
+                                    settings->spindle_turning,
+                                    settings->speed_feed_mode,
+                                    motion, block->p_number))
+     settings->cycle_p = block->p_number;
+     break;
   case G_85:
     CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_YZ, aa, bb, r, clear_cc, cc))
       break;
@@ -1367,8 +1479,10 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_x = clear_cc;
   settings->cycle_cc = block->x_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1394,7 +1508,8 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save the current tolerance, to restore it lateron
+  // save the current tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->u_current;
 
   plane = CANON_PLANE_VW;
@@ -1440,6 +1555,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1474,10 +1590,16 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-    CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+    block->p_number =
+    block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
+                                     settings->spindle_turning,
+                                     settings->speed_feed_mode,
+                                     motion, block->p_number))
+    settings->cycle_p = block->p_number;
+    break;
   case G_85:
     CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_VW, aa, bb, r, clear_cc, cc))
       break;
@@ -1536,8 +1658,10 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
   settings->u_current = clear_cc;
   settings->cycle_cc = block->u_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1620,7 +1744,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save current path-following tolerance, to restore it lateron
+  // save current path-following tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_y;
 
   plane = CANON_PLANE_XZ;
@@ -1666,6 +1791,7 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1700,10 +1826,16 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-    CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+     block->p_number =
+         block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
+                                     settings->spindle_turning,
+                                     settings->speed_feed_mode,
+                                     motion, block->p_number))
+       settings->cycle_p = block->p_number;
+    break;
   case G_85:
     CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_XZ, aa, bb, r, clear_cc, cc))
       break;
@@ -1762,8 +1894,10 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
   settings->current_y = clear_cc;
   settings->cycle_cc = block->y_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1788,7 +1922,8 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   double r;
   int repeat;
   CANON_MOTION_MODE save_mode;
-  double save_tolerance; //save current path-following tolerance, to restore it lateron
+  // save current path-following tolerance, to restore it later on
+  double save_tolerance, save_cam_tolerance;
   double current_cc = settings->v_current;
 
   plane = CANON_PLANE_UW;
@@ -1834,6 +1969,7 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   if (save_mode != CANON_EXACT_PATH)
     SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -1868,10 +2004,16 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
+  case G_74:
   case G_84:
-    CYCLE_MACRO(convert_cycle_g84(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
-                                  settings->spindle_turning,
-                                  settings->speed_feed_mode)) break;
+     block->p_number =
+     block->p_number == -1.0 ? settings->cycle_p : block->p_number;
+     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
+                                     settings->spindle_turning,
+                                     settings->speed_feed_mode,
+                                     motion, block->p_number))
+      settings->cycle_p = block->p_number;
+      break;
   case G_85:
     CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_UW, aa, bb, r, clear_cc, cc))
       break;
@@ -1930,8 +2072,10 @@ int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a 
   settings->v_current = clear_cc;
   settings->cycle_cc = block->v_number;
 
-  if (save_mode != CANON_EXACT_PATH)
+  if (save_mode != CANON_EXACT_PATH) {
     SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+    SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+  }
 
   return INTERP_OK;
 }
@@ -1948,7 +2092,7 @@ Called by:
   convert_cycle_g81
   convert_cycle_g82
   convert_cycle_g83
-  convert_cycle_g84
+  convert_cycle_g74_g84
   convert_cycle_g85
   convert_cycle_g86
   convert_cycle_g87

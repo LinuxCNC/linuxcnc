@@ -106,6 +106,7 @@ typedef struct {
     hal_float_t *frequency;	/* pin: frequency */
     hal_float_t *amplitude;	/* pin: amplitude */
     hal_float_t *offset;	/* pin: offset */
+    hal_bit_t *reset;		/* pin: reset */
     double index;		/* position within output cycle */
 } hal_siggen_t;
 
@@ -221,7 +222,11 @@ static void calc_siggen(void *arg, long period)
 	tmp2 = 0.5;
     }
     /* index ramps from 0.0 to 0.99999 for each output cycle */
-    siggen->index += tmp2;
+    if ( *(siggen->reset) ) {
+	siggen->index  = 0.5;
+    } else {
+	siggen->index += tmp2;
+    }
     /* wrap index if it is >= 1.0 */
     if ( siggen->index >= 1.0 ) {
 	siggen->index -= 1.0;
@@ -317,6 +322,11 @@ static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
     }
     retval = hal_pin_float_newf(HAL_IN, &(addr->offset), comp_id,
 				"%s.offset", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id,
+				"%s.reset", prefix);
     if (retval != 0) {
 	return retval;
     }

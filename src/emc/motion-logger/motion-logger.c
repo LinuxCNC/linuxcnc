@@ -184,7 +184,7 @@ static int init_comm_buffers(void) {
 	/* point to structure for this axis */
 	axis = &axes[axis_num];
 	axis->pos_cmd = 0.0;
-	axis->vel_cmd = 0.0;
+	axis->teleop_vel_cmd = 0.0;
 	axis->max_pos_limit = 1.0;
 	axis->min_pos_limit = -1.0;
 	axis->vel_limit = 1.0;

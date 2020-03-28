@@ -3,10 +3,15 @@ LinuxCNC V{lversion}, {localdate}
 =================================
 :lang: en
 
-Contents
-========
+= Contents
 
 :masterdir: {indir}
+
+:leveloffset: 0
+
+= About LinuxCNC
+
+:leveloffset: 1
 
 = Introduction
 
@@ -17,6 +22,8 @@ include::common/overleaf.txt[]
 = LinuxCNC History
 
 include::common/emc-history.txt[]
+
+:leveloffset: 0
 
 = Using LinuxCNC
 

@@ -44,6 +44,8 @@ static int immediate_state;
 static int sync_final_move[MAX_HOME_SEQUENCES];
 static int home_sequence = -1;
 
+static int joint_in_sequence[EMCMOT_MAX_JOINTS];
+
 /***********************************************************************
 *                      LOCAL FUNCTIONS                                 *
 ************************************************************************/
@@ -66,7 +68,12 @@ static void home_start_move(emcmot_joint_t * joint, double vel)
     } else {
 	joint->free_tp.pos_cmd = joint->pos_cmd - 2.0 * joint_range;
     }
-    joint->free_tp.max_vel = fabs(vel);
+    if (fabs(vel) < joint->vel_limit) {
+	joint->free_tp.max_vel = fabs(vel);
+    } else {
+        /* clamp on max vel for this joint */
+	joint->free_tp.max_vel = joint->vel_limit;
+    }
     /* start the move */
     joint->free_tp.enable = 1;
 }
@@ -110,7 +117,7 @@ void do_homing_sequence(void)
     int special_case_sync_all;
     int seen = 0;
     emcmot_joint_t *joint;
-
+    int sequence_is_set = 0;
     /* first pass init */
     if(home_sequence == -1) {
         emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
@@ -122,13 +129,79 @@ void do_homing_sequence(void)
 	/* nothing to do */
 	break;
 
+    case HOME_SEQUENCE_DO_ONE_JOINT:
+        // Expect one joint with home_state==HOME_START
+        for (i=0; i < emcmotConfig->numJoints; i++) {
+            joint = &joints[i];
+            if (joint->home_state == HOME_START) {
+               joint_in_sequence[i] = 1;
+               home_sequence = ABS(joint->home_sequence);
+            } else {
+               if (joint_in_sequence[i]) {
+                   // it may already be running, leave alone
+               } else {
+                   joint_in_sequence[i] = 0;
+               }
+            }
+        }
+        sequence_is_set = 1;
+        //drop through----drop through----drop through----drop through
+
+    case HOME_SEQUENCE_DO_ONE_SEQUENCE:
+        // Expect multiple joints with home_state==HOME_START
+        // specified by a negative sequence
+        // Determine home_sequence and set joint_in_sequence[]
+        // based on joint->home_state == HOME_START
+        if (!sequence_is_set) {
+            for (i=0; i < emcmotConfig->numJoints; i++) {
+                joint = &joints[i];
+                if (joint->home_state == HOME_START) {
+                    if (   sequence_is_set
+                        && (ABS(joint->home_sequence) != home_sequence)) {
+    	                reportError(
+                        "homing.c Unexpected joint=%d jsequence=%d seq=%d\n"
+                        ,i,joint->home_sequence,home_sequence);
+                    }
+                    home_sequence = ABS(joint->home_sequence);
+                    sequence_is_set = 1;
+                }
+                joint_in_sequence[i] = 1; //disprove
+                if  (   (joint->home_state != HOME_START)
+                     || (home_sequence     != ABS(joint->home_sequence))
+                    ) {
+                    joint_in_sequence[i] = 0;
+                } 
+            }
+        }
+        emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
+        //drop through----drop through----drop through----drop through
+
     case HOME_SEQUENCE_START:
-        /* Request to home all joints
+        if (!sequence_is_set) {
+            // sequence_is_set not otherwise established: home-all 
+            for (i=0; i < EMCMOT_MAX_JOINTS; i++) {
+                joint = &joints[i];
+                joint_in_sequence[i] = 1;
+                // unspecified joints have an unrealizable home_sequence:
+                if (joint->home_sequence >100) {
+#if 1
+                   // docs: 'If HOME_SEQUENCE is not specified then this joint
+                   //        will not be homed by the HOME ALL sequence'
+                   joint_in_sequence[i] = 0;  // per docs
+#else
+                   // legacy behavior
+                   joint->home_sequence = 0;  // per rtest
+#endif
+                }
+            }
+            sequence_is_set = 1;
+            home_sequence = 0;
+        }
+        /* Request to home all joints  or a single sequence
         *  A negative joint->home_sequence means sync final move
         *
         * Initializations
         */
-        home_sequence = 0;
         for(i=0; i < MAX_HOME_SEQUENCES; i++) {
             sync_final_move[i] = 0; //reset to allow a rehome
         }
@@ -136,8 +209,8 @@ void do_homing_sequence(void)
         *  Force all joints having identical ABS(joint->home_sequence)
         *  to agree, e.g., if any one is negative make them all negative
         */
-
         for(i=0; i < emcmotConfig->numJoints; i++) {
+            if (!joint_in_sequence[i]) continue;
             joint = &joints[i];
             if (   (joint->home_flags & HOME_NO_REHOME)
                 && GET_JOINT_HOMED_FLAG(joint)
@@ -159,45 +232,42 @@ void do_homing_sequence(void)
             }
         }
         /*  special_case_sync_all: if home_sequence == -1 for all joints
-        *                         synchronize all joints final move
+        *                          synchronize all joints final move
         */
         special_case_sync_all = 1; // disprove
         for(i=0; i < emcmotConfig->numJoints; i++) {
             joint = &joints[i];
             if (joint->home_sequence != -1) {special_case_sync_all = 0;}
         }
+        if (special_case_sync_all) {
+            home_sequence = 1;
+        }
 	for(i=0; i < emcmotConfig->numJoints; i++) {
+            if (!joint_in_sequence[i]) continue;
 	    joint = &joints[i];
-	    if(joint->home_state != HOME_IDLE) {
+	    if  ( joint->home_state != HOME_IDLE && joint->home_state != HOME_START) {
 		/* a home is already in progress, abort the home-all */
 		emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
 		return;
 	    }
 	}
-        if (special_case_sync_all) {
-            home_sequence = 1;
-        } else {
-            /* ok to start the sequence, start at zero */
-            home_sequence = 0;
-        }
 	/* tell the world we're on the job */
 	emcmotStatus->homing_active = 1;
-	/* and drop into next state */
+        //drop through----drop through----drop through----drop through
 
     case HOME_SEQUENCE_START_JOINTS:
 	/* start all joints whose sequence number matches home_sequence */
 	for(i=0; i < emcmotConfig->numJoints; i++) {
 	    joint = &joints[i];
-            // negative joint->home_sequence means sync final move
 	    if(ABS(joint->home_sequence) == home_sequence) {
+                if (!joint_in_sequence[i]) continue;
 		/* start this joint */
 	        joint->free_tp.enable = 0;
 		joint->home_state = HOME_START;
 		seen++;
 	    }
 	}
-	if(seen) {
-	    /* at least one joint is homing, wait for it */
+	if (seen || home_sequence == 0) {
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
 	} else {
 	    /* no joints have this sequence number, we're done */
@@ -209,6 +279,7 @@ void do_homing_sequence(void)
 
     case HOME_SEQUENCE_WAIT_JOINTS:
 	for(i=0; i < emcmotConfig->numJoints; i++) {
+            if (!joint_in_sequence[i]) continue;
 	    joint = &joints[i];
             // negative joint->home_sequence means sync final move
 	    if(ABS(joint->home_sequence) != home_sequence) {
@@ -228,12 +299,13 @@ void do_homing_sequence(void)
 		return;
 	    }
 	}
-	if(!seen) {
-	    /* all joints at this step have finished homing, move on to next step */
-	    home_sequence ++;
-	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_START_JOINTS;
-	}
+        if(!seen) {
+            /* all joints at this step have finished, move on to next step */
+            home_sequence ++;
+            emcmotStatus->homingSequenceState = HOME_SEQUENCE_START_JOINTS;
+        }
 	break;
+
     default:
 	/* should never get here */
 	reportError(_("unknown state '%d' during homing sequence"),
@@ -258,6 +330,7 @@ void do_homing(void)
     }
     /* loop thru joints, treat each one individually */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+        if (!joint_in_sequence[joint_num]) continue;
 	/* point to joint struct */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -297,7 +370,8 @@ void do_homing(void)
 		   determines what state is next */
 		if (joint->home_flags & HOME_IS_SHARED && home_sw_active) {
 		    reportError(
-			_("Cannot home while shared home switch is closed %d"),joint_num);
+			_("Cannot home while shared home switch is closed j=%d"),
+                         joint_num);
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -321,6 +395,7 @@ void do_homing(void)
                     joint->home_flags &= ~HOME_IS_SHARED; // shared not applicable
                     joint->home_state = HOME_SET_SWITCH_POSITION;
                     immediate_state = 1;
+                    SET_JOINT_HOMED_FLAG(joint, 1);
 		    break;
                 }
 		if (joint->home_flags & HOME_UNLOCK_FIRST) {
@@ -511,7 +586,8 @@ void do_homing(void)
 		/* we should still be on the switch */
 		if (! home_sw_active) {
 		    reportError(
-			_("Home switch inactive before start of backoff move"));
+			_("Home switch inactive before start of backoff move j=%d"),
+                         joint_num);
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -559,7 +635,8 @@ void do_homing(void)
 		/* we should still be off of the switch */
 		if (home_sw_active) {
 		    reportError(
-			_("Home switch active before start of latch move"));
+			_("Home switch active before start of latch move j=%d"),
+                         joint_num);
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -615,7 +692,8 @@ void do_homing(void)
 		/* we should still be on the switch */
 		if (!home_sw_active) {
 		    reportError(
-			_("Home switch inactive before start of latch move"));
+			_("Home switch inactive before start of latch move j=%d"),
+                         joint_num);
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
@@ -672,6 +750,7 @@ void do_homing(void)
                     if (joint->home_flags & HOME_NO_FINAL_MOVE) {
                         joint->home_state = HOME_FINISHED;
                         immediate_state = 1;
+                        SET_JOINT_HOMED_FLAG(joint, 1);
                         break;
                     }
                 }
@@ -803,6 +882,7 @@ void do_homing(void)
                         sync_final_move[home_sequence] = 1; //disprove
                         for (jno = 0; jno < emcmotConfig->numJoints; jno++) {
                             jtmp = &joints[jno];
+                            if (!joint_in_sequence[jno]) continue;
                             if (ABS(jtmp->home_sequence) != home_sequence) {continue;}
                             if (jtmp->home_flags & HOME_ABSOLUTE_ENCODER)  {continue;}
                             if (   (jtmp->home_state != HOME_FINAL_MOVE_START)
@@ -851,7 +931,7 @@ void do_homing(void)
 		    /* on limit, check to see if we should trip */
 		    if (!(joint->home_flags & HOME_IGNORE_LIMITS)) {
 			/* not ignoring limits, time to quit */
-			reportError(_("hit limit in home state"));
+			reportError(_("hit limit in home state j=%d"),joint_num);
 			joint->home_state = HOME_ABORT;
 			immediate_state = 1;
 			break;
@@ -885,6 +965,7 @@ void do_homing(void)
 		SET_JOINT_AT_HOME_FLAG(joint, 1);
 		joint->home_state = HOME_IDLE;
 		immediate_state = 1;
+                joint_in_sequence[joint_num]=0;
                 // This joint just finished homing.  See if this is the
                 // final one and all joints are now homed, and switch to
                 // Teleop mode if so.
@@ -906,8 +987,8 @@ void do_homing(void)
 
 	    default:
 		/* should never get here */
-		reportError(_("unknown state '%d' during homing"),
-		    joint->home_state);
+		reportError(_("unknown state '%d' during homing j=%d"),
+		    joint->home_state,joint_num);
 		joint->home_state = HOME_ABORT;
 		immediate_state = 1;
 		break;
@@ -926,4 +1007,3 @@ void do_homing(void)
 	}
     }
 }
-

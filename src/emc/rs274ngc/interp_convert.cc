@@ -1551,11 +1551,13 @@ already in force.
 
 */
 
-int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
-				double tolerance,    //tolerance for the path following in G64
-				double naivecam_tolerance,    //tolerance for the naivecam
-                                setup_pointer settings) //!< pointer to machine settings                 
+int Interp::convert_control_mode(
+    int g_code,                   // g_code being executed (G_61, G61_1, G_64)
+    double tolerance_in,          // tolerance for the path following in G64
+    double naivecam_tolerance_in, // tolerance for the naivecam
+    setup_pointer settings)       // pointer to machine settings                 
 {
+    double tolerance, naivecam_tolerance;
   CHKS((settings->cutter_comp_side),
        (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
@@ -1565,19 +1567,24 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
     SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP, 0);
     settings->control_mode = CANON_EXACT_STOP;
   } else if (g_code == G_64) {
-	if (tolerance >= 0) {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
-	} else {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
-	}
-	if (naivecam_tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
-	} else if (tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(tolerance);   // if no naivecam_tolerance specified use same for both
-	} else {
-	    SET_NAIVECAM_TOLERANCE(0);
-	}
-    settings->control_mode = CANON_CONTINUOUS;
+      if (tolerance_in >= 0)
+	  tolerance = tolerance_in;
+      else
+	  tolerance = 0;
+      settings->control_mode = CANON_CONTINUOUS;
+      settings->tolerance = tolerance;
+      SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
+
+      if (naivecam_tolerance_in >= 0)
+	  naivecam_tolerance = naivecam_tolerance_in;
+      else if (tolerance_in >= 0)
+	  // if no naivecam_tolerance specified use same for both
+	  naivecam_tolerance = tolerance_in;
+      else
+	  naivecam_tolerance = 0;
+      settings->naivecam_tolerance = naivecam_tolerance;
+      SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
+
   } else 
     ERS(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
   return INTERP_OK;
@@ -1799,7 +1806,7 @@ int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41
   } else if (g_code == G_42_1) {
     CHP(convert_cutter_compensation_on(RIGHT, block, settings));
   } else
-    ERS("BUG: Code not G40, G41, G41.1, G42, G42.2");
+    ERS("BUG: Code not G40, G41, G41.1, G42, G42.1");
 
   return INTERP_OK;
 }
@@ -2650,6 +2657,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else if (g_code == G_21) {
     USE_LENGTH_UNITS(CANON_UNITS_MM);
@@ -2690,6 +2700,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G20_OR_G21);
@@ -2698,43 +2711,48 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 
 /*
- * given two double arrays representing interpreter settings as stored in
- * _setup.active_settings, construct a G-code sequence to synchronize their state.
+ * given two int arrays and two double arrays representing interpreter
+ * settings as stored in _setup.active_g_codes and
+ * _setup.active_settings, construct a G-code sequence to synchronize
+ * their state.
  */
-int Interp::gen_settings(double *current, double *saved, std::string &cmd)
+int Interp::gen_settings(
+    int *int_current, int *int_saved,            // G codes
+    double *float_current, double *float_saved,  // S, F, other
+    std::string &cmd)                            // command buffer
 {
-    int i;
+    int i, val;
+    int g64_changed = 0;
     char buf[LINELEN];
+
+    // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	if (saved[i] != current[i]) {
+	if (float_saved[i] != float_current[i]) {
 	    switch (i) {
-	    case 0: break; // sequence_number - no point in restoring
-	    case 1:
-		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
+	    case GM_FIELD_FLOAT_LINE_NUMBER:
+		// sequence_number - no point in restoring
+		break;
+	    case GM_FIELD_FLOAT_FEED:
+		snprintf(buf,sizeof(buf)," F%.1f", float_saved[i]);
                 cmd += buf;
 		break;
-	    case 2:
-		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
+	    case GM_FIELD_FLOAT_SPEED:
+		snprintf(buf,sizeof(buf)," S%.0f", float_saved[i]);
                 cmd += buf;
+		break;
+	    case GM_FIELD_FLOAT_PATH_TOLERANCE:
+	    case GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE:
+		// G64 special case; see below
+		g64_changed = 1;
 		break;
 	    }
 	}
     }
-    return INTERP_OK;
-}
 
-
-/*
- * given two int arrays representing interpreter settings as stored in
- * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
- */
-int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
-{
-    int i, val;
-    char buf[LINELEN];
+    // G codes
     for (i = 0; i < ACTIVE_G_CODES; i++) {
-	val = saved[i];
-	if (val != current[i]) {
+	val = int_saved[i];
+	if (val != int_current[i]) {
 
 	    switch (i) {
 	    case 0:
@@ -2758,7 +2776,6 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 	    case 8: // - coordinate system
 	    case 9: // - tool offset (G43/G49)
 	    case 10: // - retract mode
-	    case 11: // - control mode
 	    case 13: // - spindle mode
 	    case 14: // - ijk distance mode
 	    case 15: // - lathe diameter mode
@@ -2775,12 +2792,50 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
                     cmd += buf;
 		} else {
 		    // so complain rather loudly
-		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		}
+		break;
+	    case 11: // - control mode
+		// Special case, since G64 requires P and Q flags
+		// FIXME what about when P or Q changes, even though still G64?
+		if (val == G_64)
+		    // G64 special case; see below
+		    g64_changed = 1;
+		else if (val == G_61) {
+		    snprintf(buf,sizeof(buf)," G61");
+		    cmd += buf;
+		} else if (val == G_61_1) {
+		    snprintf(buf,sizeof(buf)," G61.1");
+		    cmd += buf;
+		} else
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		break;
 	    }
 	}
     }
+
+
+    // Special case for restoring G64:  `cmd` may contain a `G64` if
+    // current int settings is `G61` or if current float settings
+    // contain different `G64 P* Q*` args; in these cases, only add a
+    // single `G64` command
+    if ((int_saved[11] == G_64) && g64_changed) {
+	if (float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE] < 0)
+	    // No P, Q args
+	    snprintf(buf,sizeof(buf)," G64");
+	else if (
+	    float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE] < 0)
+	    // Only P arg
+	    snprintf(buf,sizeof(buf)," G64 P%f",
+		     float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE]);
+	else  // Both P, Q args
+	    snprintf(
+		buf,sizeof(buf)," G64 P%f Q%f",
+		float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE],
+		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
+	cmd += buf;
+    }
+
     return INTERP_OK;
 }
 
@@ -2842,12 +2897,14 @@ int Interp::gen_restore_cmd(int *current_g,
 			    StateTag const &saved,
 			    std::string &cmd)
 {
+    int res;
     // A local copy of the saved settings, unpacked from a state tag
     int saved_g[ACTIVE_G_CODES];
     int saved_m[ACTIVE_M_CODES];
     double saved_settings[ACTIVE_SETTINGS];
 
     //Extract saved state to local vectors
+    // FIXME Use saved_settings to store state tag floats, incl. in 
     int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
     if (res_unpack != INTERP_OK) {
 	logStateTags("gen_restore_cmd() error %d:  failed to unpack state tag",
@@ -2870,17 +2927,14 @@ int Interp::gen_restore_cmd(int *current_g,
 	     cmd.c_str());
     }
 
-    int res_settings = gen_settings(current_settings, saved_settings, cmd);
-    //M codes should not be restored during an abort
-    int res_m = 0;
-    int res_g = gen_g_codes(current_g, saved_g, cmd);
-
-    if (res_settings || res_m || res_g) {
-	logStateTags("gen_restore_cmd():  error restoring "
-		     "settings (%d) or G codes (%d)",
-		     res_settings, res_g);
+    if ((res = gen_settings(
+	     current_g, saved_g, current_settings, saved_settings, cmd))) {
+	logStateTags("gen_restore_cmd():  error restoring settings (%d)",
+		     res);
         return INTERP_ERROR;
     }
+    // M codes should not be restored during an abort with gen_m_codes()
+
     return INTERP_OK;
 }
 
@@ -2942,9 +2996,16 @@ int Interp::restore_settings(setup_pointer settings,
 	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
 	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
-    gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
-    gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
-    gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
+    gen_settings(
+	(int *)settings->active_g_codes,
+	(int *)settings->sub_context[from_level].saved_g_codes,
+	(double *)settings->active_settings,
+	(double *)settings->sub_context[from_level].saved_settings,
+	cmd);
+    gen_m_codes(
+	(int *) settings->active_m_codes,
+	(int *)settings->sub_context[from_level].saved_m_codes,
+	cmd);
 
     if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
@@ -3091,7 +3152,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (IS_USER_MCODE(block,settings,5) && ONCE_M(5))  {
+  if (IS_USER_MCODE(block,settings,5) &&
+      STEP_REMAPPED_IN_BLOCK(block, STEP_M_5) &&
+      ONCE_M(5))  {
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
 				   block->m_modes[5]);
   } else if ((block->m_modes[5] == 62) && ONCE_M(5)) {
@@ -4320,7 +4383,103 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   } else if (block->m_modes[4] == 1) {
     OPTIONAL_PROGRAM_STOP();
   } else if ((block->m_modes[4] == 2) || (block->m_modes[4] == 30)) {   /* reset stuff here */
-    program_end_cleanup(settings);
+/*1*/
+    settings->current_x += settings->origin_offset_x;
+    settings->current_y += settings->origin_offset_y;
+    settings->current_z += settings->origin_offset_z;
+    settings->AA_current += settings->AA_origin_offset;
+    settings->BB_current += settings->BB_origin_offset;
+    settings->CC_current += settings->CC_origin_offset;
+    settings->u_current += settings->u_origin_offset;
+    settings->v_current += settings->v_origin_offset;
+    settings->w_current += settings->w_origin_offset;
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
+
+    settings->origin_index = 1;
+    settings->parameters[5220] = 1.0;
+    settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
+    settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
+    settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
+    settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
+    settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
+    settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
+    settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
+    settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
+    settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
+    settings->rotation_xy = settings->parameters[5230];
+
+    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
+    settings->current_x -= settings->origin_offset_x;
+    settings->current_y -= settings->origin_offset_y;
+    settings->current_z -= settings->origin_offset_z;
+    settings->AA_current -= settings->AA_origin_offset;
+    settings->BB_current -= settings->BB_origin_offset;
+    settings->CC_current -= settings->CC_origin_offset;
+    settings->u_current -= settings->u_origin_offset;
+    settings->v_current -= settings->v_origin_offset;
+    settings->w_current -= settings->w_origin_offset;
+
+    SET_G5X_OFFSET(settings->origin_index,
+                   settings->origin_offset_x,
+                   settings->origin_offset_y,
+                   settings->origin_offset_z,
+                   settings->AA_origin_offset,
+                   settings->BB_origin_offset,
+                   settings->CC_origin_offset,
+                   settings->u_origin_offset,
+                   settings->v_origin_offset,
+                   settings->w_origin_offset);
+    SET_XY_ROTATION(settings->rotation_xy);
+
+/*2*/ if (settings->plane != CANON_PLANE_XY) {
+      SELECT_PLANE(CANON_PLANE_XY);
+      settings->plane = CANON_PLANE_XY;
+    }
+
+/*3*/
+    settings->distance_mode = MODE_ABSOLUTE;
+
+/*4*/ settings->feed_mode = UNITS_PER_MINUTE;
+    SET_FEED_MODE(0);
+    settings->feed_rate = 0;
+    SET_FEED_RATE(0);
+
+/*5*/ if (!settings->feed_override) {
+      ENABLE_FEED_OVERRIDE();
+      settings->feed_override = true;
+    }
+    if (!settings->speed_override) {
+      ENABLE_SPEED_OVERRIDE();
+      settings->speed_override = true;
+    }
+
+/*6*/
+    settings->cutter_comp_side = false;
+    settings->cutter_comp_firstmove = true;
+
+/*7*/ STOP_SPINDLE_TURNING();
+    settings->spindle_turning = CANON_STOPPED;
+
+    /* turn off FPR */
+    SET_SPINDLE_MODE(0);
+
+/*8*/ settings->motion_mode = G_1;
+
+/*9*/ if (settings->mist) {
+      MIST_OFF();
+      settings->mist = false;
+    }
+    if (settings->flood) {
+      FLOOD_OFF();
+      settings->flood = false;
+    }
+
+/*10*/
+    if (settings->disable_g92_persistence)
+      // Clear G92/G52 offset
+      for (index=5210; index<=5219; index++)
+          settings->parameters[index] = 0;
+
     if (block->m_modes[4] == 30)
       PALLET_SHUTTLE();
     PROGRAM_END();
@@ -4559,10 +4718,11 @@ int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, se
 
 int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, setup_pointer settings) {
     CANON_MOTION_MODE save_mode;
-    double save_tolerance;
+    double save_tolerance, save_cam_tolerance;
     // temporarily switch to exact stop mode for indexing move
     save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
     save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+    save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -4578,8 +4738,10 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
     LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
-    if(save_mode != CANON_EXACT_PATH)
+    if(save_mode != CANON_EXACT_PATH) {
         SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+	SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    }
 
     settings->AA_current = AA_end;
     settings->BB_current = BB_end;

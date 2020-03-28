@@ -263,13 +263,20 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 conf->DataDir = LBP_IN;
                 conf->DataLength = q;
                 strcpy(conf->NameString, name);
+                strcpy(conf->UnitString, "none");
                 conf->RecordType = 0xA0;
                 conf->ParmAddr = 0;
-                if (*format=='g' || *format=='G'){
-                    strcpy(conf->UnitString, "gray");
-                    format++;
-                } else {
-                    strcpy(conf->UnitString, "none");
+                conf->Flags = 0;
+                // Modifier flags
+                while (strchr("gGmM", *format)){
+                    if (*format=='g' || *format=='G'){
+                        conf->Flags |= 0x01;
+                        format++;
+                    }
+                    if (*format=='m' || *format=='M'){
+                        conf->Flags |= 0x02;
+                        format++;
+                    }
                 }
                 switch(*format){
                 case 'b':
@@ -321,8 +328,8 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                     conf->ParmMin = 0;
                     break;
                 default:
-                    HM2_ERR_NO_LL("The \"g\" format modifier must be paired "
-                            "with one of the other data types\n");
+                    HM2_ERR_NO_LL("The \"g\" and \"m\"format modifiers must be"
+                                  "paired with one of the other data types\n");
                     return -EINVAL;
                 }
                 

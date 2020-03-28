@@ -133,11 +133,6 @@ public:
  int set_tool_parameters();
  int on_abort(int reason, const char *message);
 
- // program_end_cleanup() resets Interp settings, and enqueues (on the
- // interp_list) Canon calls to reset Canon state after a program ends
- // (either by executing M2 or M30, or by Abort.
- void program_end_cleanup(setup_pointer settings);
-
     void set_loglevel(int level);
 
     // for now, public - for boost.python access
@@ -281,10 +276,10 @@ public:
  int convert_cycle_g83(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z,
                              double delta);
- int convert_cycle_g84(block_pointer block, CANON_PLANE plane, double x, double y,
+ int convert_cycle_g74_g84(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z,
                              CANON_DIRECTION direction,
-                             CANON_SPEED_FEED_MODE mode);
+                             CANON_SPEED_FEED_MODE mode,int motion, double dwell);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
                              double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
@@ -470,8 +465,10 @@ public:
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
  int restore_from_tag(StateTag const &tag);
- int gen_settings(double *current, double *saved, std::string &cmd);
- int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int gen_settings(
+     int *int_current, int *int_saved,
+     double *float_current, double *float_saved,
+     std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
     int gen_restore_cmd(int *current_g,
 			int *current_m,
@@ -612,7 +609,14 @@ int read_inputs(setup_pointer settings);
      (m == 61) ||					\
      (m == 0) ||					\
      (m == 1) ||					\
-     (m == 60))
+     (m == 60) ||					\
+     (m == 62) ||					\
+     (m == 63) ||					\
+     (m == 64) ||					\
+     (m == 65) ||					\
+     (m == 66) ||					\
+     (m == 67) ||					\
+     (m == 68))
 
 
 

@@ -149,8 +149,9 @@ Owner   Type   Dir        Value  Name
 
 This command displays all of the pins in the current HAL. A complex system
 could have dozens or hundreds of pins. But right now there are only
-nine pins. All eight of these pins are floating point, and carry data
-out of the 'siggen' component. Since we have not yet executed the code
+nine pins. Of these pins eight are floating point and one is bit (boolean).
+Six carry data out of the 'siggen' component and three are used to transfer
+settings into the component. Since we have not yet executed the code
 contained within the component, some the pins have a value of zero.
 
 The next step is to look at parameters:
@@ -447,7 +448,7 @@ The first window you will see is the 'Select Item to Probe' window.
 
 .Halmeter Select Window
 
-image::images/halmeter-select.png[align="center"]
+image::images/halmeter-select.png[align="center", alt="Halmeter Select Window"]
 
 This dialog has three tabs. The first tab displays all of the HAL pins
 in the system. The second one displays all the signals, and the third
@@ -459,7 +460,7 @@ following figure.
 
 .Halmeter
 
-image::images/halmeter-1.png[align="center"]
+image::images/halmeter-1.png[align="center", alt="Halmeter"]
 
 To change what the meter displays press the 'Select' button which
 brings back the 'Select Item to Probe' window.
@@ -821,7 +822,7 @@ figure.
 
 .Realtime function not linked dialog
 
-image::images/halscope-01.png[align="center"]
+image::images/halscope-01.png[align="center", alt="Realtime function not linked dialog"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
 For now we want to sample once per millisecond, so click on the 989 us
@@ -833,7 +834,7 @@ figure.
 
 .Initial scope window
 
-image::images/halscope-02.png[align="center"]
+image::images/halscope-02.png[align="center", alt="Initial scope window"]
 
 === Hooking up the scope probes
 
@@ -854,7 +855,7 @@ of the signals in the HAL (only two for this example).
 
 .Select Channel Source
 
-image::images/halscope-03.png[align="center"]
+image::images/halscope-03.png[align="center", alt="Select Channel Source"]
 
 To choose a signal, just click on it. In this case, we want channel 1
 to display the signal 'X-vel'. Click on the Signals tab then click on
@@ -862,7 +863,7 @@ to display the signal 'X-vel'. Click on the Signals tab then click on
 
 .Select Signal
 
-image::images/halscope-04.png[align="center"]
+image::images/halscope-04.png[align="center", alt="Select Signal"]
 
 The channel 1 button is pressed in, and channel number 1 and the name
 'X-vel' appear below the row of buttons. That display always indicates
@@ -872,7 +873,7 @@ position and scale always work on the selected one.
 
 .Halscope
 
-image::images/halscope-05.png[align="center"]
+image::images/halscope-05.png[align="center", alt="Halscope"]
 
 To add a signal to channel 2, click the '2' button. When the dialog
 pops up, click the 'Signals' tab, then click on 'Y-vel'. We also want
@@ -898,7 +899,7 @@ something like the following figure.
 
 .Captured Waveforms
 
-image::images/halscope-06.png[align="center"]
+image::images/halscope-06.png[align="center", alt="Captured Waveforms"]
 
 The 'Selected Channel' box at the bottom tells you that the purple
 trace is the currently selected one, channel 4, which is displaying the
@@ -918,7 +919,7 @@ only. For larger adjustments the offset button should be used.
 
 .Vertical Adjustment
 
-image::images/halscope-07.png[align="center"]
+image::images/halscope-07.png[align="center", alt="Vertical Adjustment"]
 
 === Triggering
 
@@ -931,7 +932,7 @@ use channel 3, the triangle wave as shown in the following figure.
 
 .Trigger Source Dialog
 
-image::images/halscope-08.png[align="center"]
+image::images/halscope-08.png[align="center", alt="Trigger Source Dialog"]
 
 After setting the trigger source, you can adjust the trigger level and
 trigger position using the sliders in the 'Trigger' box along the right
@@ -951,7 +952,7 @@ scope display looks something like the following figure.
 
 .Waveforms with Triggering
 
-image::images/halscope-09.png[align="center"]
+image::images/halscope-09.png[align="center", alt="Waveforms with Triggering"]
 
 === Horizontal Adjustments
 
@@ -971,7 +972,7 @@ samples at 20KHz, or about 0.20 seconds.
 
 .Sample Rate Dialog
 
-image::images/halscope-10.png[align="center"]
+image::images/halscope-10.png[align="center", alt="Sample Rate Dialog"]
 
 === More Channels
 
@@ -994,7 +995,7 @@ following figure.
 
 .Step Pulses
 
-image::images/halscope-11.png[align="center"]
+image::images/halscope-11.png[align="center", alt="Step Pulses"]
 
 === More samples
 

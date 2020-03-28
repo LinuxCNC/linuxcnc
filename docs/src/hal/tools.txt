@@ -80,9 +80,9 @@ See the man page for more options. See section <<sec:halmeter,Halmeter>>.
   
 .Halmeter
 
-image::images/hal-meter01.png[]
+image::images/hal-meter01.png[alt="Halmeter"]
 
-image::images/hal-meter02.png[]
+image::images/hal-meter02.png[alt="Halmeter"]
 
 == Halshow
 
@@ -93,18 +93,20 @@ The WATCH tab provides a continuous display of selected pin, parameters, and
 signal items.  The File menu provides buttons to 1) save the watch items to
 a watch list and to load and existing watch list.  The watch list items can
 also be loaded automatically on startup.  For command line usage:
+
 ----
 halshow --help
 Usage:
   halshow [Options] [watchfile]
   Options:
-           --help  (this help)
-----
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
 
 Notes:
-
-Create watchfile in halshow using: 'File/Save Watch List' or
-'File/Save Watch List (multiline)'.
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
 
 LinuxCNC must be running for standalone usage
 
@@ -158,7 +160,11 @@ sim_pin is a command line utility to display and update any number of
 writable pins, parameters or signals.  Usage:
 ----
   Usage:
-         sim_pin name1 [name2 ...] &
+         sim_pin [Options] name1 [name2 ...] &
+
+  Options:
+         --help                (this text)
+         --title title_string  (window title, default: sim_pin)
 
   Note:  LinuxCNC (or a standalone Hal application) must be running
          A named item can specify a pin, param, or signal
@@ -178,7 +184,8 @@ writable pins, parameters or signals.  Usage:
          The bit pushbutton mode can be specifed on the command
          line by formatting the item name:
              namei/mode=[toggle | pulse | hold]
-
+         If the mode begins with an uppercase letter, the radio
+         buttons for selecting other modes are not shown
 ----
 For complete information, see the man page:
 ----
@@ -189,7 +196,7 @@ Example (with LinuxCNC running):
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
-image::images/sim_pin.png[]
+image::images/sim_pin.png[alt="sim_pin is a command line utility to display and update any number of writable pins, parameters or signals"]
 
 == Simulate Probe
 
@@ -199,7 +206,7 @@ motion.probe-input.  Usage:
 simulate_probe &
 ----
 
-image::images/simulate_probe.png[]
+image::images/simulate_probe.png[alt="simulate_probe is a simple gui to simulate activation of the pin motion.probe-input"]
 
 == Hal Histogram
 
@@ -229,5 +236,5 @@ Notes:
      For a base thread, this may require using:
      loadrt motmod ... base_thread_fp=1
 ----
-image::images/hal-histogram.png[]
+image::images/hal-histogram.png[alt="hal-histogram is a command line utility to display histograms for hal pins"]
 

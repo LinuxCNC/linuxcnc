@@ -17,7 +17,7 @@ matériel raccordé, ce sont des simulations de machines.
 
 .Sélecteur de configuration pour LinuxCNC[[cap:Selecteur-de-configuration]]
 
-image::images/configuration-selector1_fr.png[]
+image::images/configuration-selector1_fr.png[alt="Sélecteur de configuration pour LinuxCNC"]
 
 Cliquez dans la liste, sur les différentes configurations pour afficher les 
 informations les concernant. Double-cliquez sur une configuration ou cliquez _OK_ 
@@ -38,7 +38,7 @@ peuvent être enregistrés.
 
 .Dialogue de copie de la configuration
 
-image::images/copy-configuration_fr.png[]
+image::images/copy-configuration_fr.png[alt="Dialogue de copie de la configuration"]
 
 == L'interface utilisateur graphique Axis
 
@@ -50,7 +50,7 @@ C'est aussi la plus populaire.
 
 .Interface Axis[[cap:Interface-Axis]]
 
-image::../user/images/axis_25_fr.png[]
+image::../user/images/axis_25_fr.png[alt="Interface Axis"]
 
 == Les étapes suivantes de la configuration
 

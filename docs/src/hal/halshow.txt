@@ -18,6 +18,31 @@ Halshow is in the AXIS menu under Machine/Show HAL Configuration.
 
 Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
+Halshow can be started from a terminal command line and specify
+formats for integer and float items (pins or signals) and identify a
+saved watchlist file to use:
+
+----
+$ halshow --help
+Usage:
+  halshow [Options] [watchfile]
+  Options:
+           --help    (this help)
+           --fformat format_string_for_float
+           --iformat format_string_for_int
+
+Notes:
+       Create watchfile in halshow using: 'File/Save Watch List'
+       linuxcnc must be running for standalone usage
+----
+
+Example to limit number of decimal points for floats
+and used a file named my.halshow in the current directory:
+
+----
+$ halshow  --fformat ".5f" ./my.halshow
+----
+
 == HAL Tree Area
 
 At the left of its display as shown in figure is a tree view, somewhat like
@@ -28,7 +53,7 @@ tabs for show and watch.
 
 .Halshow Layout
 
-image::images/halshow-1.png[align="center"]
+image::images/halshow-1.png[align="center", alt="Halshow Layout"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
 small plus (+) or minus (-) sign in a box. Clicking the plus will
@@ -43,7 +68,7 @@ previously set watches, you cannot erase just one watch.)
 
 .Show Menu
 
-image::images/halshow-3.png[align="center"]
+image::images/halshow-3.png[align="center", alt="Show Menu"]
 
 == HAL Show Area
 
@@ -165,7 +190,7 @@ after this command has been issued.
 
 .Addf Command
 
-image::images/halshow-2.png[align="center"]
+image::images/halshow-2.png[align="center", alt="Addf Command"]
 
 Next we need to connect ddt to something. But how do we know
 what pins are available? The answer is to look under pins. There we
@@ -235,7 +260,7 @@ turn true until the machine has been turned on.
 
 .Watch Tab
 
-image::images/halshow-4.png[align="center"]
+image::images/halshow-4.png[align="center", alt="Watch Tab"]
 
 Watch displays bit type (binary) values using colored circles
 representing LEDs. They show as dark brown when a bit signal or pin is

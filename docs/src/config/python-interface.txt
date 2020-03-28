@@ -238,7 +238,6 @@ axis limit masks. minHardLimit=1,
 maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8.
 
 *linear_units*:: '(returns float)' -
-******
 reflects [TRAJ]LINEAR_UNITS ini value.
 
 *lube*:: '(returns integer)' -
@@ -264,11 +263,18 @@ source line number motion is currently executing. Relation
 to `id` unclear.
 
 *motion_mode*:: '(returns integer)' -
-motion mode.
+This is the mode of the Motion controller.  One of TRAJ_MODE_COORD,
+TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
 
 *motion_type*:: '(returns integer)' -
-trajectory planner mode. One of TRAJ_MODE_COORD,
-TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
+The type of the currently executing motion.  One of:
+    * MOTION_TYPE_TRAVERSE
+    * MOTION_TYPE_FEED
+    * MOTION_TYPE_ARC
+    * MOTION_TYPE_TOOLCHANGE
+    * MOTION_TYPE_PROBING
+    * MOTION_TYPE_INDEXROTARY
+    * Or 0 if no motion is currently taking place.
 
 *optional_stop*:: '(returns integer)' -
 option stop flag.
@@ -318,7 +324,9 @@ current XY rotation angle around Z axis.
 
 *settings*:: '(returns tuple of floats)' -
 current interpreter settings. settings[0] =
-sequence number, settings[1] = feed rate, settings[2] = speed.
+sequence number, settings[1] = feed rate, settings[2] = speed,
+settings[3] = `G64 P` blend tolerance,
+settings[4] = `G64 Q` naive CAM tolerance.
 
 *spindle_brake*:: '(returns integer)' -
 value of the spindle brake flag.
@@ -384,8 +392,7 @@ else:
 ----
 
 *velocity*:: '(returns float)' -
-********
-default  velocity. reflects [TRAJ] DEFAULT_VELOCITY.
+This property is defined, but it does not have a useful interpretation.
 
 === The `axis` dictionary [[sec:the-axis-dictionary]]
 
@@ -608,12 +615,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `home(int)`::
 	home a given joint.
 
-`jog(command-constant, int, bool[, float[, float]])`::
+`jog(command-constant, bool, int[, float[, float]])`::
 	Syntax: +
-	jog(command, axis-or-joint-number, joint-flag[, velocity[, distance]]) +
-	jog(linuxcnc.JOG_STOP, axis-or-joint-number, joint-flag) +
-	jog(linuxcnc.JOG_CONTINUOUS, axis-or-joint-number, joint-flag, velocity) +
-	jog(linuxcnc.JOG_INCREMENT, axis-or-joint-number, joint-flag, velocity, distance)
+	jog(command, joint-flag, axis-or-joint-number, velocity[, distance]]) +
+	jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number) +
+	jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity) +
+	jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 	Command Constants;;
 	JOG_STOP +
 	JOG_CONTINUOUS +

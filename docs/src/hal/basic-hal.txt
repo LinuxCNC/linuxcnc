@@ -17,7 +17,7 @@ and it will be added to the watch window.
 
 .HAL Configuration Window
 
-image::images/HAL_Configuration.png[align="center"]
+image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Window"]
 
 === loadrt
 
@@ -36,26 +36,56 @@ loadrt mux4 count=1
 
 === addf
 
-The command 'addf' adds a real time component function to a thread.
+Adds function 'functname' to thread 'threadname'. Default is to add the function
+in the order they are in the file. If 'position' is specified, adds the function
+to that spot in the thread. Negative 'position' means position with respect to
+the end of the thread. For example '1' is start of thread, '-1' is the end of
+the thread, '-3' is third from the end.
+
+Some functions it is important to load them in a certain order like the parport
+read and write functions. The function name is usually the the component name
+plus a number. In the following example the component 'or2' is loaded and 'show
+function' shows the name of the or2 function
+
+----
+$ halrun
+halcmd: loadrt or2
+halcmd: show function
+Exported Functions:
+Owner   CodeAddr  Arg       FP   Users  Name
+ 00004  f8bc5000  f8f950c8  NO       0   or2.0
+----
+
 You have to add a function from a HAL real time component to a thread
 to get the function to update at the rate of the thread.
 
-If you used the Stepper Config Wizard to generate your config you will
-have two threads.
+Usually there are two threads as shown in this example. Some components use
+floating point math and must be added to a thread that supports floating point
+math. The 'FP' indicates if floating point math is supported in that thread.
+
+----
+$ halrun
+halcmd: loadrt motmod base_period_nsec=55555 servo_period_nsec=1000000 num_joints=3
+halcmd: show thread
+Realtime Threads:
+     Period  FP     Name               (     Time, Max-Time )
+     995976  YES          servo-thread (        0,        0 )
+      55332  NO            base-thread (        0,        0 )
+----
 
  - base-thread (the high-speed thread): this thread handles items that
    need a fast response, like making step pulses, and reading and writing
-   the parallel port.
+   the parallel port. Does not support floating point math.
  - servo-thread (the slow-speed thread): this thread handles items that
-   can tolerate a slower response, like the motion controller,
-   ClassicLadder, and the motion command handler.
+   can tolerate a slower response, like the motion controller,    ClassicLadder,
+   and the motion command handler and supports floating point math.
 
 The syntax and an example:
 
 ----
-addf <component> <thread>
+addf <function> <thread>
 
-addf mux4 servo-thread
+addf mux4.0 servo-thread
 ----
 
 === loadusr
@@ -129,7 +159,7 @@ additional pins, as long as the rules above are obeyed.
 
 .Signal Direction
 
-image::images/signal-direction.png[align="center"]
+image::images/signal-direction.png[align="center", alt="Signal Direction"]
 
 This example shows the signal xStep with the source being
 stepgen.0.out and with two readers, parport.0.pin-02-out and

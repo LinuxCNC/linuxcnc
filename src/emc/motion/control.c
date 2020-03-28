@@ -185,9 +185,9 @@ void emcmotController(void *arg, long period)
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
-    emcmot_hal_data->last_period = this_run;
+    *(emcmot_hal_data->last_period) = this_run;
 #ifdef HAVE_CPU_KHZ
-    emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
+    *(emcmot_hal_data->last_period_ns) = this_run * 1e6 / cpu_khz;
 #endif
     // we need this for next time
     last = now;
@@ -1240,7 +1240,7 @@ static void get_pos_cmds(long period)
             if(axis->teleop_tp.max_vel > axis->vel_limit)
                 axis->teleop_tp.max_vel = axis->vel_limit;
             simple_tp_update(&(axis->teleop_tp), servo_period);
-            axis->vel_cmd = axis->teleop_tp.curr_vel;
+            axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
             axis->pos_cmd = axis->teleop_tp.curr_pos;
 
             if(!axis->teleop_tp.active) {
@@ -1727,7 +1727,7 @@ static void output_to_hal(void)
         double v2 = 0.0;
         for(i=0; i < EMCMOT_MAX_AXIS; i++)
             if(axes[i].teleop_tp.active)
-                v2 += axes[i].vel_cmd * axes[i].vel_cmd;
+                v2 += axes[i].teleop_vel_cmd * axes[i].teleop_vel_cmd;
         if(v2 > 0.0)
             emcmotStatus->current_vel = (*emcmot_hal_data->current_vel) = sqrt(v2);
         else
@@ -1831,14 +1831,23 @@ static void output_to_hal(void)
         /* point to HAL data */
         axis_data = &(emcmot_hal_data->axis[axis_num]);
         /* write to HAL pins */
-        *(axis_data->pos_cmd) = axis->pos_cmd;
-        *(axis_data->vel_cmd) = axis->vel_cmd;
+
+        *(axis_data->teleop_vel_cmd) = axis->teleop_vel_cmd;
 	*(axis_data->teleop_pos_cmd) = axis->teleop_tp.pos_cmd;
 	*(axis_data->teleop_vel_lim) = axis->teleop_tp.max_vel;
 	*(axis_data->teleop_tp_enable) = axis->teleop_tp.enable;
 	*(axis_data->kb_ajog_active) = axis->kb_ajog_active;
 	*(axis_data->wheel_ajog_active) = axis->wheel_ajog_active;
      }
+     *(emcmot_hal_data->axis[0].pos_cmd) = emcmotStatus->carte_pos_cmd.tran.x;
+     *(emcmot_hal_data->axis[1].pos_cmd) = emcmotStatus->carte_pos_cmd.tran.y;
+     *(emcmot_hal_data->axis[2].pos_cmd) = emcmotStatus->carte_pos_cmd.tran.z;
+     *(emcmot_hal_data->axis[3].pos_cmd) = emcmotStatus->carte_pos_cmd.a;
+     *(emcmot_hal_data->axis[4].pos_cmd) = emcmotStatus->carte_pos_cmd.b;
+     *(emcmot_hal_data->axis[5].pos_cmd) = emcmotStatus->carte_pos_cmd.c;
+     *(emcmot_hal_data->axis[6].pos_cmd) = emcmotStatus->carte_pos_cmd.u;
+     *(emcmot_hal_data->axis[7].pos_cmd) = emcmotStatus->carte_pos_cmd.v;
+     *(emcmot_hal_data->axis[8].pos_cmd) = emcmotStatus->carte_pos_cmd.w;
 
 }
 
@@ -1889,7 +1898,7 @@ static void update_status(void)
 	/* point to axis status */
 	axis_status = &(emcmotStatus->axis_status[axis_num]);
 
-	axis_status->vel_cmd = axis->vel_cmd;
+	axis_status->teleop_vel_cmd = axis->teleop_vel_cmd;
 	axis_status->max_pos_limit = axis->max_pos_limit;
 	axis_status->min_pos_limit = axis->min_pos_limit;
     }

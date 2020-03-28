@@ -1,4 +1,4 @@
-USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3
+USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd
 
 USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
@@ -15,19 +15,37 @@ $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 
 PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
 
+
 ifdef HAVE_LIBMODBUS3
-MODBUSSRCS := hal/user_comps/gs2_vfd.c
-MODBUSLDFLAGS := $(GLIB_LIBS) $(LIBMODBUS_LIBS)
-MODBUSCCFLAGS := $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
-USERSRCS += $(MODBUSSRCS)
 
- $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
+GS2_SRCS := hal/user_comps/gs2_vfd.c
+GS2_LDFLAGS := $(GLIB_LIBS) $(LIBMODBUS_LIBS)
+GS2_CCFLAGS := $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
 
-../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/liblinuxcnchal.so.0
+$(call TOOBJSDEPS, $(GS2_SRCS)) : EXTRAFLAGS += $(GS2_CCFLAGS)
+
+../bin/gs2_vfd: $(call TOOBJS, $(GS2_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(GS2_LDFLAGS)
+
+USERSRCS += $(GS2_SRCS)
 TARGETS += ../bin/gs2_vfd
+
+HY_GT_SRCS := hal/user_comps/hy_gt_vfd.c
+HY_GT_LDFLAGS := $(LIBMODBUS_LIBS)
+HY_GT_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(HY_GT_SRCS)) : EXTRAFLAGS += $(HY_GT_CCFLAGS)
+
+../bin/hy_gt_vfd: $(call TOOBJS, $(HY_GT_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HY_GT_LDFLAGS)
+
+USERSRCS += $(HY_GT_SRCS)
+TARGETS += ../bin/hy_gt_vfd
+
 endif # HAVE_LIBMODBUS
+
 
 ifeq ($(HIDRAW_H_USABLE),yes)
 SHUTTLE_SRC = hal/user_comps/shuttle.c

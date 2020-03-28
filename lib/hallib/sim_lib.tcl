@@ -160,8 +160,8 @@ proc core_sim {axes
   foreach cname [split $pid_names ,] {
     addf ${cname}.do-pid-calcs servo-thread
     # FF0 == 1 for pass-thru, all others 0
-    setp ${cname}.FF0 1.0
-    foreach pin {Pgain Dgain Igain FF1 FF2} { setp ${cname}.$pin 0 }
+    do_setp ${cname}.FF0 1.0
+    foreach pin {Pgain Dgain Igain FF1 FF2} { do_setp ${cname}.$pin 0 }
   }
 
   # mux components
@@ -311,8 +311,8 @@ proc simulated_home {number_of_joints} {
         } else {
           switch $::TRAJ(LINEAR_UNITS) {
             in - inch - imperial {
-              setp J${jno}_switch.hysteresis 0.05
-              setp J${jno}_switch.home-pos   0.10
+              do_setp J${jno}_switch.hysteresis 0.05
+              do_setp J${jno}_switch.home-pos   0.10
             }
             default { # use component default }
           }
@@ -326,14 +326,14 @@ proc sim_spindle {} {
   # adapted as haltcl proc from sim_spindle_encoder.hal
   # simulated spindle encoder (for spindle-synced moves)
   loadrt sim_spindle names=sim_spindle
-  setp   sim_spindle.scale 0.01666667
+  do_setp sim_spindle.scale 0.01666667
 
   loadrt limit2  names=limit_speed
   loadrt lowpass names=spindle_mass
   loadrt near    names=near_speed
 
   # this limit doesnt make any sense to me:
-  setp limit_speed.maxv 5000.0 ;# rpm/second
+  do_setp limit_speed.maxv 5000.0 ;# rpm/second
 
   # encoder reset control
   # hook up motion controller's sync output
@@ -345,7 +345,7 @@ proc sim_spindle {} {
   net spindle-pos => motion.spindle-revs
 
   # simulate spindle mass
-  setp spindle_mass.gain .07
+  do_setp spindle_mass.gain .07
 
   # spindle speed control
   net spindle-speed-cmd <= motion.spindle-speed-out
@@ -362,8 +362,8 @@ proc sim_spindle {} {
   net spindle-rpm-filtered => near_speed.in2
 
   # at-speed detection
-  setp near_speed.scale 1.1
-  setp near_speed.difference 10
+  do_setp near_speed.scale 1.1
+  do_setp near_speed.difference 10
 
   net spindle-at-speed <= near_speed.out
   net spindle-at-speed => motion.spindle-at-speed
@@ -385,7 +385,7 @@ proc save_hal_cmds {savefilename {options ""} } {
 # Created by:   $script
 # With options: $::argv
 # From inifile: $::env(INI_FILE_NAME)
-# 
+#
 # This file contains the hal commands produced by [file tail $script]
 # (and any hal commands executed prior to its execution).
 #
@@ -400,7 +400,7 @@ proc save_hal_cmds {savefilename {options ""} } {
 # Note: Inifile Variables substitutions specified in the inifile
 #       and interpreted by halcmd are automatically substituted
 #       in the created halfile ($savefilename).
-#       
+#
 "
   if {[lsearch $options use_hal_manualtoolchange] >= 0} {
     puts $fd "# user space components"
@@ -408,7 +408,7 @@ proc save_hal_cmds {savefilename {options ""} } {
     puts $fd ""
   }
   close $fd
-    
+
   hal save all $tmpfile
 
   set fd [open $savefilename a]
@@ -419,5 +419,16 @@ proc save_hal_cmds {savefilename {options ""} } {
   } ;# while
   close $ftmp
   file delete $tmpfile
+  if [info exists ::SIM_LIB(setp_list)] {
+    puts $fd "# setp commands for unconnected input pins"
+    foreach {pname value} $::SIM_LIB(setp_list) {
+       puts $fd "setp $pname $value"
+    }
+  }
   close $fd
 } ;# save_hal_cmds
+
+proc do_setp {pname value} {
+  setp $pname $value
+  lappend ::SIM_LIB(setp_list) $pname $value
+} ;# do_setp

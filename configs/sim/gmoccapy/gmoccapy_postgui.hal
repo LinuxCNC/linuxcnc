@@ -13,6 +13,7 @@ net spindle-at-speed      gmoccapy.spindle_at_speed_led
 # in core_sim.hal and we use this file to simulate
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
 
 net tool-change      gmoccapy.toolchange-change   <=  iocontrol.0.tool-change 
 net tool-changed     gmoccapy.toolchange-changed  <=  iocontrol.0.tool-changed

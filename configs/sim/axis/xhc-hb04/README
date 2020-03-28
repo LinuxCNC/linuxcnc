@@ -79,9 +79,10 @@ threadname = servo-thread (optional, default: servo-thread)
 layout     = 2            (optional, 1: 16 buttons | 2: 18 buttons, default: 2)
 coords     = x y z a      (optional, 4 max, default: x y z a)
 coefs      = 1 1 1 1      (optional, filter coefs 0 < coef < 1, default: 1 1 1 1)
-mpg_accels = 1 2 2 200    (optional: reduced accelerations for all manual mode jogging)
+mpg_accels = 1 2 2 200    (optional: reduced accelerations for world jogging)
                           (in machine_units/sec/sec like [JOINT_n]MAX_ACCELERATION)
                           (this option requires: [APPLICATIONS]APP = xhc-hb04-accels)
+                          (see note: joint jogging and homing use normal accels)
 scales     = 1 1 1 1      (optional, plus/minus factors, default: 1 1 1 1)
 require_pendant = yes     (optional, yes | no, default: yes)
 inch_or_mm = in           (optional, in | mm for display icon, default: mm)
@@ -245,3 +246,22 @@ required for proper scaling.  Make the joint jog pin connections using an axis
 coord letter for a position of the pendant rotary axis selector switch.  The
 joint jogging will occur for that switch position when LinuxCNC is in joint
 motion mode.
+
+----------------------------------
+Note: mpg_accels
+The LIB:xhc-hb04.tcl script makes connections:
+   net pendant:is-manual   <= halui.mode.is-manual => pendant_util.is-manual
+   net pendant:amux-enable <= halui.mode.is-teleop => pendant_util.amux-enable
+These two bit pins are ANDed to select reduced accel settings only during
+world mode jogging.
+
+Alternate behavior can be achieved by HALFILEs that are executed after this
+script and alter or add hal connections.  For example, the following hal commands
+will use reduced accels whenever mode is-manual including homing:
+   delsig  pendant:amux-enable
+   setp    pendant_util.amux-enable 1
+
+Beware, that the distance required to stop after activating the home switch
+is inversely proportional to the acceleration setting in effect:
+  stopping_distance = 0.5 * velocity^2 / acceleration
+

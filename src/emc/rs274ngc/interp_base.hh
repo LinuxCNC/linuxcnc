@@ -23,7 +23,7 @@
 /* Size of certain arrays */
 #define ACTIVE_G_CODES 17
 #define ACTIVE_M_CODES 10
-#define ACTIVE_SETTINGS 3
+#define ACTIVE_SETTINGS 5
 
 class InterpBase : boost::noncopyable {
 public:

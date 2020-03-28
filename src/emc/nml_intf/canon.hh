@@ -508,12 +508,12 @@ extern void SPINDLE_RETRACT_TRAVERSE();
 
 /* Retract the spindle at traverse rate to the fully retracted position. */
 
-extern void START_SPINDLE_CLOCKWISE();
+extern void START_SPINDLE_CLOCKWISE(int wait_for_atspeed = 1);
 
 /* Turn the spindle clockwise at the currently set speed rate. If the
 spindle is already turning that way, this command has no effect. */
 
-extern void START_SPINDLE_COUNTERCLOCKWISE();
+extern void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed = 1);
 
 /* Turn the spindle counterclockwise at the currently set speed rate. If
 the spindle is already turning that way, this command has no effect. */
@@ -785,6 +785,9 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+
+// Returns the current motion naive CAM tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
 
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 

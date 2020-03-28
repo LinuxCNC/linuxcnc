@@ -1,0 +1,82 @@
+This page is for step and direction timing of stepper drives.
+
+Please add to this list using the stepconf wizard format and in nanoseconds so
+it will be uniform. 
+
+Some boards have know issues see the troubleshooting hardware page  [[Hardware_Problems]]
+
+If your unsure about your drive timing start high like 10000 for each and test.
+remember that signal conditioning and opto-isolation can increase timing
+requirements. That's why you need to know the timings for a driver board, not
+just the step translator chip that is contains.
+
+Also notice that some controllers step on the falling edge some on the rising
+edge. This matters as it will change the timing and will be hard to trace.
+make sure LinuxCNC follows what the controller expects.
+
+Note 1 if an asterisk precedes the name then the values are not confirmed. If
+you can confirm the values please do...
+
+Times listed are in nanoseconds (ns). Multiply microseconds (us) by 1000 to get
+nanoseconds (ns)
+
+
+[width="100%",options="header"]
+|=========================================================
+|Manufacturer|Model|Step Time|Step Space|Direction Hold|Direction Setup|Steps on|Spec Sheet|
+|Chinese Blue Boards|TB6560 CNC Stepper Motor Driver Controller Board|150000|150000|150000|150000|Falling Edge|http://hyu68.com/cp8.htm|
+|Gecko|201|500|4000|20000|1000|Falling Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g201-rev-16.html|
+|Gecko|202|500|4500|20000|1000|Falling Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g202-rev-15.html|
+|Gecko|203v|1000|2000|200|200|Rising Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g203v-rev-7.html|
+|Gecko|201x|500|3000|20000|1000|Falling Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g201-rev-16.html|
+|Gecko|212|500|4000|20000|1000|Falling Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g212-rev-15.html|
+|Gecko|213v|2000|1000|200|200|Rising Edge|http://www.geckodrive.com/support/motor-control-manuals/stepper-drives/g213v-rev-7.html|
+|Gecko|320|3500|500|200|200|Rising Edge|http://www.geckodrive.com/support/motor-control-manuals/dc-servo-drives/g320-rev-7.html|
+|Gecko|320x|1000|2500|200|200|Rising Edge|http://www.geckodrive.com/support/motor-control-manuals/dc-servo-drives/g320x-rev-10.html|
+|Granite Devices|VSD-E/XE Evolution|125|125|125|125|Rising Edge|http://granitedevices.fi/assets/files/vsd-e_160_manual.pdf|
+|Granite Devices|VSD-E/XE DualDC|150|1850|150|800|Rising Edge|http://granitedevices.fi/assets/files/vsd-e_160_dualdc_manual.pdf|
+|JVL|SMD41|500|500|2500|2500|Rising Edge|http://www.jvl.dk/files/pdf/lb043gb.pdf|
+|JVL|SMD42|500|500|2500|2500|Rising Edge|http://www.jvl.dk/files/pdf/lb043gb.pdf|
+|Linistepper Open Source|RULMS1|30000|100000|4000|4000|Rising Edge|http://www.piclist.com/techref/io/stepper/linistep/index.htm|
+|Linistepper Open Source|THB6064|2300|2300|4600|1000|Rising Edge|http://www.piclist.com/techref/io/stepper/THB6064/index.htm|
+|*Motion Control|MSD542|>1500|2000|2000|2000|Rising Edge|http://www.motioncontrolproducts.com/c2/uploads/msd542%20datasheet.pdf|
+|Parker|OEM750|200|300|0|200000|Rising Edge|http://www.compumotor.com/manuals/OEM750/OEM750_Entire_Rev_B.pdf|
+|ST|L297|?|500|4000|1000|Rising Edge|http://www.st.com/stonline/books/pdf/docs/1334.pdf|
+|Xylotex|XS-3525/8S-3|2000|1000|200|200|Rising Edge|http://www.xylotex.com/XS3525V202.pdf|
+|Xylotex|XS-3525/8S-4|1000|1000|200|200|Rising Edge|http://www.xylotex.com/XS3525V400.pdf|
+|Lin Engineering|Silverpak 17D/DE|20000|20000|200|200|Rising Edge|http://www.linengineering.com/site/products/pdf/SilverPak17D_DE-manual.pdf|
+|Hobbycnc|Pro Chopper Board|2000|2000|2000|2000|?|http://www.hobbycnc.com/products/hobbycnc-pro-chopper-driver-board-kits/|
+|*Routout|2.5amp Stepper Driver|200|1000|1000|?|?|http://www.routoutcnc.com/2-5ampdriver.pdf|
+|*Intelligent Motion System|IM483|1000|1000|1000|1000|Rising Edge|http://www.imshome.com/im483.html|
+|Keling|4030|5000|5000|20000|20000|?|http://www.|
+|Keling|6852|1750|1750|10000|10000|Rising Edge|http://www.kelinginc.net/kL-6852.pdf|
+|Sherline |8760|1000|6000|24000|24000|?|http://www.sherline.com/|
+|Burkhard Lewetz |Step3S|6000|15000|?|5000|?|http://www.lewetz.de/download/ibstep3se.pdf|
+|Parker Compumotor|Zeta 4|200|200|?(200)|?(200)|Rising Edge|http://www.compumotor.com/manuals/ZETA/ZETA_Rev_A_Entire.pdf|
+|www.cncdrive.com|Dugong|1000|2500|1000|1000|?|http://www.cncdrive.com/content/dugong.htm|
+|www.cncdrive.com|DG2S-08020|1000|2500|1000|1000|?|http://cncdrive.com/DG2S_08020.html|
+|Wantai Motors|DQ542MA|5050|5050|500|500|?|http://www.wantmotor.com/ProductsView.asp?id=257&pid=82|
+|Leadshine USA|Digital DM422 40V 2.2A|7500|7500|20000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DM422m.pdf|
+|Leadshine USA|Digital DM556 50V 5.6A|2500|2500|10000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DM556m.pdf|
+|Leadshine USA|Digital DM856 80V 7.0A|2500|2500|10000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DM856m.pdf|
+|Leadshine USA|Digital DM870 80V 7.0A|2500|2500|10000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DM870m.pdf|
+|Leadshine USA|Digital DM1182 150VAC 8.2A|2500|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/DM1182m.pdf|
+|Leadshine USA|Digital EM402 40V 2.2A|10000|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/EM402d_P.pdf|
+|Leadshine USA|Digital EM503 50V 4.2A|2500|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/EM503d_P.pdf|
+|Leadshine USA|Digital EM705 70V 7.0A|2500|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/EM705d_P.pdf|
+|Leadshine USA|Digital EM806 80V 8.2A|2500|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/EM806d_P.pdf|
+|Leadshine USA|Analog M415B 40V 1.5A|1500|1500|8000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/M415Bm.pdf|
+|Leadshine USA|Analog M542 50V 4.2A|1500|1500|8000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/M542V2m.pdf|
+|Leadshine USA|Analog M752 75V 5.2A|1500|1500|8000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/M752m.pdf|
+|Leadshine USA|Analog M880A 80V 7.8A|1500|1500|8000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/M880Am.pdf|
+|Leadshine USA|Analog M860H 80VAC 7.2A|1500|1500|8000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/MA860Hm.pdf|
+|Leadshine USA|Brushed servo DCS303 30V 15A|2500|2500|10000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DCS303m.pdf|
+|Leadshine USA|Brushed servo DCS810 80V 20A|2500|2500|10000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DCS810V1m.pdf|
+|Leadshine USA|Brushed servo DCS810S 80V 20A|1000|1000|7000|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/DCS810Sm.pdf|
+|Leadshine USA|Brushless servo ACS306 30V 15A|2500|2500|10000|5000|Rising Edge|http://leadshine.com/UploadFile/Down/ACS306hm.pdf|
+|Leadshine USA|Brushless servo ACS606 60V 15A|850|850|6700|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/ACS606m.pdf|
+|Leadshine USA|Brushless servo ACS806 80V 20A|850|850|6700|5000|Rising Edge|http://leadshineusa.com/UploadFile/Down/ACS806m.pdf|
+|Pololu|A4988 Stepper Motor Driver Carrier|1000|1000|200|200|Rising Edge|http://www.pololu.com/catalog/product/1182/|
+|Pololu|DRV8825 Stepper Motor Driver Carrier|1900|1900|650|650|Rising Edge|http://www.pololu.com/catalog/product/2132/|
+|cnc4you|[[CW5045]]|2000|8000|5000|5000|Rising Edge|http://cnc4you.co.uk/resources/CW5045.pdf|
+|=========================================================

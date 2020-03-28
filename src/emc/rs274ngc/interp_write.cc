@@ -114,6 +114,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
             settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
             settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
   gez[10] = (settings->retract_mode == OLD_Z) ? G_98 : G_99;
+  // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
@@ -197,9 +198,11 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   double *vals;
 
   vals = settings->active_settings;
-  vals[0] = settings->sequence_number;  /* 0 sequence number */
-  vals[1] = settings->feed_rate;        /* 1 feed rate       */
-  vals[2] = settings->speed;    /* 2 spindle speed   */
+  vals[0] = settings->sequence_number;    /* 0 sequence number */
+  vals[1] = settings->feed_rate;          /* 1 feed rate       */
+  vals[2] = settings->speed;              /* 2 spindle speed   */
+  vals[3] = settings->tolerance;          /* 3 blend tolerance */
+  vals[4] = settings->naivecam_tolerance; /* 4 naive CAM tolerance */
 
   return INTERP_OK;
 }
@@ -279,10 +282,16 @@ int Interp::write_state_tag(block_pointer block,
 	 settings->tool_offset.w);
     state.flags[GM_FLAG_RETRACT_OLDZ] =
 	(settings->retract_mode == OLD_Z);
+
     state.flags[GM_FLAG_BLEND] =
 	(settings->control_mode == CANON_CONTINUOUS);
     state.flags[GM_FLAG_EXACT_STOP] =
 	(settings->control_mode == CANON_EXACT_STOP);
+    state.fields_float[GM_FIELD_FLOAT_PATH_TOLERANCE] =
+	settings->tolerance;
+    state.fields_float[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE] =
+	settings->naivecam_tolerance;
+
     state.flags[GM_FLAG_CSS_MODE] =
 	(settings->spindle_mode == CONSTANT_RPM);
     state.flags[GM_FLAG_IJK_ABS] =
@@ -312,8 +321,8 @@ int Interp::write_state_tag(block_pointer block,
 
     state.flags[GM_FLAG_FEED_HOLD] =  (settings->feed_hold);
 
-    state.feed = settings->feed_rate;        /* 1 feed rate       */
-    state.speed = settings->speed;    /* 2 spindle speed   */
+    state.fields_float[GM_FIELD_FLOAT_FEED] = settings->feed_rate;
+    state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed;
 
     return 0;
 }

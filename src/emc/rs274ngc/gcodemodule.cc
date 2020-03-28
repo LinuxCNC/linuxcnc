@@ -401,8 +401,8 @@ void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
 void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
 void STOP_SPEED_FEED_SYNCH() {}
-void START_SPINDLE_COUNTERCLOCKWISE() {}
-void START_SPINDLE_CLOCKWISE() {}
+void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_at_speed) {}
+void START_SPINDLE_CLOCKWISE(int wait_for_at_speed) {}
 void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
@@ -497,6 +497,7 @@ void RIGID_TAP(int line_number,
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
@@ -685,11 +686,20 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
     char *unitcode=0, *initcode=0, *interpname=0;
+    PyObject *initcodes=0;
     int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
-    if(!PyArg_ParseTuple(args, "sO|sss", &f, &callback, &unitcode, &initcode, &interpname))
-        return NULL;
+
+    if(!PyArg_ParseTuple(args, "sOO!|s:new-parse",
+            &f, &callback, &PyList_Type, &initcodes, &interpname))
+    {
+        initcodes = nullptr;
+        PyErr_Clear();
+        if(!PyArg_ParseTuple(args, "sO|sss:parse",
+                &f, &callback, &unitcode, &initcode, &interpname))
+            return NULL;
+    }
 
     if(pinterp) {
         delete pinterp;
@@ -718,7 +728,19 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     maybe_new_line();
 
     int result = INTERP_OK;
-    if(unitcode) {
+    if(initcodes) {
+        for(int i=0; i<PyList_Size(initcodes) && RESULT_OK; i++)
+        {
+            PyObject *item = PyList_GetItem(initcodes, i);
+            if(!item) return NULL;
+            char *code = PyString_AsString(item);
+            if(!code) return NULL;
+            result = interp_new.read(code);
+            if(!RESULT_OK) goto out_error;
+            result = interp_new.execute();
+        }
+    }
+    if(unitcode && RESULT_OK) {
         result = interp_new.read(unitcode);
         if(!RESULT_OK) goto out_error;
         result = interp_new.execute();

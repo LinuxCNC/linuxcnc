@@ -106,8 +106,8 @@ typedef struct {
 	hal_float_t *speed_command;			// spindle speed command from EMC
 	hal_float_t	*freq_cmd;				// calculated frequency command
 
-	hal_float_t *max_freq;				// PD005 Max Operating Freqency
-	hal_float_t *freq_lower_limit;		// PD011 Freqency Lower Limit
+	hal_float_t *max_freq;				// PD005 Max Operating Frequency
+	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
 	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
@@ -213,10 +213,10 @@ void usage(int argc, char **argv) {
 			"    Set serial stop bits to 1 or 2\n"
 			"-t or --target <n> (default 1)\n"
 			"    Set HYCOMM target (slave) number.  This must match the device number you set on the Huanyang VFD.\n"
-                        "-F or --max-freqency <f>\n"
+                        "-F or --max-frequency <f>\n"
                         "    Set VFD max frequency to <f> Hz.  This will be read from the VFD\n"
                         "    register 5 if not supplied on the command line.\n"
-                        "-f or --min-freqency <f>\n"
+                        "-f or --min-frequency <f>\n"
                         "    Set VFD min frequency to <f> Hz.  This will be read from the VFD\n"
                         "    register 11 if not supplied on the command line.\n"
                         "-V or --motor-voltage <v>\n"
@@ -241,7 +241,7 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	int freq_comp;
 	int freq, old_freq;
 	
-	// calculate and set frequency register, limit the freqency (upper and lower to VFD set parameters
+	// calculate and set frequency register, limit the frequency (upper and lower to VFD set parameters
 	hc_data->function = WRITE_FREQ_DATA;
 	hc_data->parameter = 0x00;
 	
@@ -385,7 +385,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hc_data->function = FUNCTION_READ;
 	hc_data->data = 0x0000;
 
-	hc_data->parameter = 5; // PD005 Max Operating Freqency
+	hc_data->parameter = 5; // PD005 Max Operating Frequency
         if (*haldata->max_freq != 0) {
             // user passed in motor max freq, send to VFD
             hc_data->function = FUNCTION_WRITE;

@@ -1,0 +1,171 @@
+
+= Mitsub VFD Driver
+
+:hal: {basebackend@docbook:'':hal}
+
+[[cha:mitsub-vfd-driver]]
+
+This is a userspace HAL program, written in python, to control VFD's from
+Mitsubishi. +
+Specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
+mitsub_vfd supports serial control using the RS485 protocol. +
+Conversion from USB or serial port to RS485 requires special hardware. +
+[NOTE]
+Since this is a userspace program it can be affected by computer loading and
+latency. It is possible to lose control of the VFDs. It is optional to set the
+VFD to stop if it loses communication if that is desirable. One should always
+have an Estop circuit that kills the power to the unit in case of emergency.
+
+This component is loaded using the halcmd "loadusr" command:
+----
+loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
+----
+
+The above command says: +
+loadusr, wait for coolant pins to be ready, component mitsub_vfd, with 2 slaves 
+named spindle (slave #2) and coolant (slave #1)
+
+== Command Line Options
+
+The command line options are:
+
+* '-b or --baud <rate>' : set the baud rate - all networked VFDs must be the same
+* '-p or --port <device path>' : sets the port to use such as /dev/ttyUSB0
+* '<name>=<slave#>' : sets the HAL component/pin name and slave number.
+
+Debugging can be toggled by setting the debug pin true.
+
+[NOTE]
+Turning on debugging will result in a flood of text in the terminal.
+
+== Pins
+
+Where <n> is +mitsub_vfd+ or the name given during loading.
+
+* '<n>.fwd' (bit, in)
+                True sets motion forward, False sets reverse.
+
+* '<n>.run' (bit, in)
+                True sets the VFD in motion based on the .fwd pin. 
+
+* '<n>.debug' (bit, in)
+                Prints debug info to the terminal.
+
+* '<n>.alarm' (bit, out)
+                signals an alarm state of VFD.
+
+* '<n>.up-to-speed' (bit, out)
+                when drive is at commanded speed (speed-tolerance is set on vfd)
+
+* '<n>.monitor' (bit, in)
+                some models (eg E500) cannot monitor status -set the monitor pin to false
+in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
+
+* '<n>.motor-cmd' (float, in)
+              commanded speed to the VFD (scaled to hertz by default).
+
+* '<n>.motor-fb' (float, out)
+              feedback speed from the VFD (scaled to hertz by default).
+
+* '<n>.motor-amps' (float, out)
+                Current amperage output of motor. 
+
+* '<n>.motor-power' (float, out)
+                Current power output of motor.
+
+* '<n>.scale-cmd' (float, in)
+                Scales the motor-cmd pin to arbitrary units. default 1 = Hertz.
+
+* '<n>.scale-fb' (float, in)
+                Scales the motor-fb pin to arbitrary units. default 1 = Hertz.
+
+* '<n>.scale-amps' (float, in)
+                Scales the motor-amps pin to arbitrary units. default 1 = amps.
+
+* '<n>.scale-power' (float, in)
+                Scales the motor-power pin to arbitrary units. default 1 = .
+
+* '<n>.estop' (bit, in)
+              puts the VFD into emergency-stopped status. 
+
+* '<n>.status-bit-N' (bit, out)
+            N = 0 to 7, Status bits are user configurable on the VFD. bit 3 should be set to
+at speed and bit 7 should be set to alarm. others are free to be set as required.
+
+== HAL example
+
+[source,{hal}]
+---------------------------------------------------------------------
+#
+# example usage of the Mitsubishi VFD driver
+#
+loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
+
+# **************** Spindle VFD setup slave 2 *********************
+net spindle-vel-cmd               spindle.motor-cmd
+net spindle-cw                    spindle.fwd              
+net spindle-on                    spindle.run              
+net spindle-at-speed              spindle.up-to-speed
+net estop-out                     spindle.estop
+#       cmd scaled to RPM
+setp spindle.scale-cmd .135
+#       feedback is in rpm
+setp spindle.scale-fb 7.411
+#       allows us to see status
+setp spindle.monitor 1
+
+net spindle-speed-indicator spindle.motor-fb        gladevcp.spindle-speed
+
+# *************** Coolant vfd setup slave 3 ***********************
+net coolant-flood               coolant.run
+net coolant-is-on               coolant.up-to-speed   gladevcp.coolant-on-led
+net estop-out                   coolant.estop
+#       cmd and feedback scaled to hertz
+setp coolant.scale-cmd 1
+setp coolant.scale-fb 1
+#       command full speed
+setp coolant.motor-cmd 60
+#       allows us to see status
+setp coolant.monitor 1
+
+---------------------------------------------------------------------
+
+== Configuring the Mitsubishi VFD for serial usage
+
+=== Connecting the Serial Port
+
+The Mitsubishi VFDs have an RJ-45 jack for serial communication. +
+Since they use RS485 protocol,  they can be networked together point to point. +
+This driver was tested using the Opto22 AC7A to convert from RS232 to RS485.
+
+=== Modbus setup
+
+Referenced manuals:
+
+'communication option reference manual' and 'A500 technical manual' for 500 series. +
+'Fr-A700 F700 E700 D700 technical manual' for the 700 series
+
+The VFD must have PR settings adjusted manually for serial communication. +
+One must power cycle the VFD for some of these to register eg PR 79
+
+* 'PR 77' set to 1              '-to unlock other PR modification.'
+
+* 'PR 79' set to 1 or 0         '-for communication thru serial.'
+
+* 'PR 117' set to 0-31          '-slave number, driver must reference same number.'
+
+* 'PR 118' tested with 96       '-baud rate (can be set to 48,96,192) if driver is also set.'
+
+* 'PR 119' set to 0             '-stop bit/data length (8 bits, two stop)'
+
+* 'PR 120' set to 0             '-no parity'
+
+* 'PR 121' set to 1-10          '-if 10 (maximuim) COM errors then VFD faults.'
+
+* 'PR 122' tested with 9999     '-if communication is lost VFD will not error.'
+
+* 'PR 123' set to 9999          '-no wait time is added to the serial data frame.'
+
+* 'PR 124' set to 0             '-no carriage return at end of line.'
+
+//Chris Morley;

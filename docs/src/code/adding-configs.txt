@@ -1,0 +1,26 @@
+= Adding Configuration Selection Items
+
+Example Configurations can be added to the Configuration Selector
+by two methods:
+
+* Auxiliary applications -- Applications installed independently
+  with a deb package can place configuration subdirectories in
+  a specified system directory.  The directory name is specified
+  using the shell linuxcnc_var script:
+
+====
+  $ linuxcnc_var LINUXCNC_AUX_EXAMPLES
+  /usr/share/linuxcnc/aux_examples
+====
+
+* Runtime settings -- the configuration selector can also offer
+  configuration subdirectories specified at runtime using an
+  exported environamental variable (LINUXCNC_AUX_CONFIGS).  This
+  variable should be a path list of one or more configuration
+  directories separated by a (:).  Typically, this variable
+  would be set in a shell starting linuxcnc or in a user's
+  ~/.profile startup script.  Example:
+
+====
+  export LINUXCNC_AUX_CONFIGS=~/myconfigs:/opt/otherconfigs
+====

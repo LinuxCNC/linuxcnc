@@ -9,6 +9,7 @@
 *		[extradout=<slotcode1>,[<slotcode2>]]
 *               [timestamp=<slotcode1>,[<slotcode2>]]
 *               [enc_clock=<slotcode1>,[<slotcode2>]]
+*               [epp_dir=<1 | 0>  [, 1 | 0]  [,1 | 0]]
 *               where 'addr1', 'addr2', and 'addr3' are the addresses
 *               of up to three parallel ports.
 *
@@ -26,6 +27,10 @@
 *               code of 1,2, 5 or 10 to indicate an encoder clock rate of 1, 2.5, 5 or 10 MHz.
 *               The following 2 digits work as above, bus and board address.
 *               Only rev 4 and above PPMC encoder boards have this clock select feature.
+*               epp_dir defaults to 0, in which case the EPP parallel port automatically selects the
+*               par port data bus direction.  If epp_dir=1 is given, then this driver explicitly forces the
+*               port direction every time it needs to be changed.  This is known to cause at least one PCIe
+*               port card to malfunction.
 
 * Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
@@ -105,6 +110,8 @@ int enc_clock[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
 RTAPI_MP_ARRAY_INT(enc_clock, MAX_BUS*8, "bus/slot locations of encoder clock settings");
+int  epp_dir[MAX_BUS] = {0 , [1 ... MAX_BUS-1] = 0 };
+RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *
@@ -367,6 +374,8 @@ typedef struct {
 static bus_data_t *bus_array[MAX_BUS];
 static int comp_id;		/* component ID */
 static long read_period;        /* makes real time period available to called functions */
+static int slotnum;             /* made global so SelRead can see which parport is being handled */
+                                /* to deal with epp_dir option  */
 
 /***********************************************************************
 *                    REALTIME FUNCTION DECLARATIONS                    *
@@ -815,7 +824,8 @@ static void read_all(void *arg, long period)
 {
     bus_data_t *bus;
     slot_data_t *slot;
-    int slotnum, functnum, addr_ok;
+    //    int slotnum, functnum, addr_ok;
+    int functnum, addr_ok;
     unsigned char n, eppaddr;
     rtapi_u32 bitmap;
 
@@ -2389,8 +2399,10 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
     rtapi_outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
     rtapi_outb(epp_addr,ADDRPORT(port_addr));
-    /* set port direction to input */
-    rtapi_outb(0x24,CONTROLPORT(port_addr));
+    if (epp_dir[slotnum] == 1) {
+      /* set port direction to input */
+      rtapi_outb(0x24,CONTROLPORT(port_addr));
+    }
     /* read data value */
     b = rtapi_inb(DATAPORT(port_addr));
     return b;

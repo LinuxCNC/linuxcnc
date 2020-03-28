@@ -562,7 +562,7 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int axis_mask)
         if(!(axis_mask & (1 << axis_num))) continue;
         axis = &(emcmotStatus.axis_status[axis_num]);
 
-        stat[axis_num].velocity = axis->vel_cmd;
+        stat[axis_num].velocity = axis->teleop_vel_cmd;
         stat[axis_num].minPositionLimit = axis->min_pos_limit;
         stat[axis_num].maxPositionLimit = axis->max_pos_limit;
     }
@@ -1774,8 +1774,7 @@ int emcSpindleSpeed(double speed, double css_factor, double offset)
 
     if (emcmotStatus.spindle.speed == 0)
 	return 0; //spindle stopped, not updating speed
-
-    return emcSpindleOn(speed, css_factor, offset);
+    return emcSpindleOn(speed, css_factor, offset, emcmotCommand.wait_for_spindle_at_speed);
 }
 
 int emcSpindleOrient(double orientation, int mode) 
@@ -1787,13 +1786,14 @@ int emcSpindleOrient(double orientation, int mode)
 }
 
 
-int emcSpindleOn(double speed, double css_factor, double offset)
+int emcSpindleOn(double speed, double css_factor, double offset, int wait_for_at_speed)
 {
 
     emcmotCommand.command = EMCMOT_SPINDLE_ON;
     emcmotCommand.vel = speed;
     emcmotCommand.ini_maxvel = css_factor;
     emcmotCommand.acc = offset;
+    emcmotCommand.wait_for_spindle_at_speed = wait_for_at_speed;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

@@ -654,7 +654,15 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5))
+    if (IS_USER_MCODE(block,settings,5) &&
+	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
+	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
+	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
+	  ((block->m_modes[5] == 65) && remap_in_progress("M65")) ||
+	  ((block->m_modes[5] == 66) && remap_in_progress("M66")) ||
+	  ((block->m_modes[5] == 67) && remap_in_progress("M67")) ||
+	  ((block->m_modes[5] == 68) && remap_in_progress("M68"))))
+	// non-recursive behavior
 	block->remappings.insert(STEP_M_5);
 
     // User defined M-Codes in group 6 (including M6, M61)
@@ -1953,6 +1961,8 @@ int Interp::synch()
   char file_name[LINELEN];
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
@@ -1986,7 +1996,7 @@ int Interp::synch()
 
   load_tool_table();   /*  must set  _setup.tool_max first */
 
-  // read_inputs(&_setup); // input/probe/toolchange 
+  // read_inputs(&_setup); // input/probe/toolchange
 
   write_settings(&_setup);
 
@@ -2086,6 +2096,8 @@ int Interp::active_modes(int *g_codes,
 			 double *settings,
 			 StateTag const &tag)
 {
+    int i;
+
     // Pre-checks on fields
     if (!tag.is_valid()) {
         return INTERP_ERROR;
@@ -2109,7 +2121,7 @@ int Interp::active_modes(int *g_codes,
     g_codes[10] = tag.flags[GM_FLAG_RETRACT_OLDZ] ? G_98 : G_99;
     g_codes[11] =
         tag.flags[GM_FLAG_BLEND] ? G_64 :
-        tag.flags[GM_FLAG_EXACT_STOP] ? G_61 : G_61_1;
+        tag.flags[GM_FLAG_EXACT_STOP] ? G_61_1 : G_61;
     // Empty status code, leave as default
     g_codes[12] = -1;
     g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
@@ -2143,9 +2155,13 @@ int Interp::active_modes(int *g_codes,
         tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
 
 
+    // Copy float-type state
+    for (i=0; i<GM_FIELD_FLOAT_MAX_FIELDS; i++)
+	settings[i] = tag.fields_float[i];
+    // Line number stored in double; this demonstrates why the current
+    // system of unpacking state tags into arrays of fixed type and
+    // purpose should be refactored into something more elegant
     settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
-    settings[1] = tag.feed;
-    settings[2] = tag.speed;
 
     return INTERP_OK;
 }
@@ -2545,106 +2561,6 @@ int Interp::leave_remap(void)
     }
     return INTERP_OK;
 }
-
-
-void Interp::program_end_cleanup(setup_pointer settings) {
-    int index;
-
-    settings->current_x += settings->origin_offset_x;
-    settings->current_y += settings->origin_offset_y;
-    settings->current_z += settings->origin_offset_z;
-    settings->AA_current += settings->AA_origin_offset;
-    settings->BB_current += settings->BB_origin_offset;
-    settings->CC_current += settings->CC_origin_offset;
-    settings->u_current += settings->u_origin_offset;
-    settings->v_current += settings->v_origin_offset;
-    settings->w_current += settings->w_origin_offset;
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-
-    settings->origin_index = 1;
-    settings->parameters[5220] = 1.0;
-    settings->origin_offset_x = USER_TO_PROGRAM_LEN(settings->parameters[5221]);
-    settings->origin_offset_y = USER_TO_PROGRAM_LEN(settings->parameters[5222]);
-    settings->origin_offset_z = USER_TO_PROGRAM_LEN(settings->parameters[5223]);
-    settings->AA_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5224]);
-    settings->BB_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5225]);
-    settings->CC_origin_offset = USER_TO_PROGRAM_ANG(settings->parameters[5226]);
-    settings->u_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5227]);
-    settings->v_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5228]);
-    settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
-    settings->rotation_xy = settings->parameters[5230];
-
-    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
-    settings->current_x -= settings->origin_offset_x;
-    settings->current_y -= settings->origin_offset_y;
-    settings->current_z -= settings->origin_offset_z;
-    settings->AA_current -= settings->AA_origin_offset;
-    settings->BB_current -= settings->BB_origin_offset;
-    settings->CC_current -= settings->CC_origin_offset;
-    settings->u_current -= settings->u_origin_offset;
-    settings->v_current -= settings->v_origin_offset;
-    settings->w_current -= settings->w_origin_offset;
-
-    SET_G5X_OFFSET(settings->origin_index,
-                   settings->origin_offset_x,
-                   settings->origin_offset_y,
-                   settings->origin_offset_z,
-                   settings->AA_origin_offset,
-                   settings->BB_origin_offset,
-                   settings->CC_origin_offset,
-                   settings->u_origin_offset,
-                   settings->v_origin_offset,
-                   settings->w_origin_offset);
-    SET_XY_ROTATION(settings->rotation_xy);
-
-    if (settings->plane != CANON_PLANE_XY) {
-        SELECT_PLANE(CANON_PLANE_XY);
-        settings->plane = CANON_PLANE_XY;
-    }
-
-    settings->distance_mode = MODE_ABSOLUTE;
-
-    settings->feed_mode = UNITS_PER_MINUTE;
-    SET_FEED_MODE(0);
-    settings->feed_rate = 0;
-    SET_FEED_RATE(0);
-
-    if (!settings->feed_override) {
-        ENABLE_FEED_OVERRIDE();
-        settings->feed_override = true;
-    }
-    if (!settings->speed_override) {
-        ENABLE_SPEED_OVERRIDE();
-        settings->speed_override = true;
-    }
-
-    settings->cutter_comp_side = false;
-    settings->cutter_comp_firstmove = true;
-
-    STOP_SPINDLE_TURNING();
-    settings->spindle_turning = CANON_STOPPED;
-
-    /* turn off FPR */
-    SET_SPINDLE_MODE(0);
-
-    settings->motion_mode = G_1;
-
-    if (settings->mist) {
-        MIST_OFF();
-        settings->mist = false;
-    }
-    if (settings->flood) {
-        FLOOD_OFF();
-        settings->flood = false;
-    }
-
-/*10*/
-    if (settings->disable_g92_persistence)
-	// Clear G92/G52 offset
-	for (index=5210; index<=5219; index++)
-	    settings->parameters[index] = 0;
-}
-
 
 int Interp::on_abort(int reason, const char *message)
 {

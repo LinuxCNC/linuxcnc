@@ -27,7 +27,7 @@ system:
    connection of two end switch and one homing sensor for each joint. And
    additionally, two optically isolated E-stop inputs.
 
-image::images/GMsystem.png[align="center", scaledwidth="70%",alt="GM servo control system"]
+image::images/GMsystem.png[align="center", scaledwidth="70%", alt="GM servo control system"]
 
 Installing:
 ----
@@ -43,14 +43,14 @@ The following connectors can be found on the GM6-PCI card:
 
 .GM6-PCI card connectors and LEDs(((pci-card connectors)))
 
-image::images/GM_PCIpinout.png[align="center",scaledwidth="70%"]
+image::images/GM_PCIpinout.png[align="center",scaledwidth="70%", alt="GM6-PCI card connectors and LEDs"]
 
 
 == I/O connectors
 
 .Pin numbering of GPIO connectors(((pin-numbering-gpio)))
 
-image::images/GM_IOpinout.png[align="center"]
+image::images/GM_IOpinout.png[align="center", alt="Pin numbering of GPIO connectors"]
 
 .Pinout of GPIO connectors
 
@@ -115,7 +115,7 @@ gm.<nr of card>.read
 
 .Pin numbering of axis connectors(((pin-numbering-axis)))
 
-image::images/GM_AXISpinout.png[align="center"]
+image::images/GM_AXISpinout.png[align="center", alt="Pin numbering of axis connectors"]
 
 .Pinout of axis connectors
 
@@ -147,7 +147,7 @@ have to be connected as the following block diagram shows:
 
 .Servo axis interfaces(((axis-iterface)))
 
-image::images/GM_AxisInterface.png[align="center", scaledwidth="100%"]
+image::images/GM_AxisInterface.png[align="center", scaledwidth="100%", alt="Servo axis interfaces"]
 
 
 === Encoder
@@ -341,7 +341,7 @@ For evaluating the appropriate values see the timing diagrams below:
 
 .Reference signal timing diagrams(((refsig-timing-diagram)))
 
-image::images/GM_RefSignals.png[align="center", scaledwidth="70%"]
+image::images/GM_RefSignals.png[align="center", scaledwidth="70%", alt="Reference signal timing diagrams"]
 
 .HAL example
 
@@ -565,7 +565,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 
 .Pin numbering of homing & end switch connector(((pin-numbering-endsw)))
 
-image::images/GM_ENDSWpinout.png[align="center"]
+image::images/GM_ENDSWpinout.png[align="center", alt="Pin numbering of homing and end switch connector"]
 
 .End- and homing switch connector pinout
 
@@ -700,7 +700,7 @@ card, and the end is the last module.
 
 .Connecting the RS485 nodes to the GM6-PCI card(((connecting-rs485)))
 
-image::images/GM_RS485topology.png[align="center", scaledwidth="60%"]
+image::images/GM_RS485topology.png[align="center", scaledwidth="60%", alt="Connecting the RS485 nodes to the GM6-PCI card"]
 
 *Adressing:*
 

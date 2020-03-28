@@ -142,9 +142,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotDebug->joints[0].acc_limit;
-    acc_bound->y = emcmotDebug->joints[1].acc_limit;
-    acc_bound->z = emcmotDebug->joints[2].acc_limit;
+    acc_bound->x = emcmotDebug->axes[0].acc_limit; //0==>x
+    acc_bound->y = emcmotDebug->axes[1].acc_limit; //1==>y
+    acc_bound->z = emcmotDebug->axes[2].acc_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -154,9 +154,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotDebug->joints[0].vel_limit;
-    vel_bound->y = emcmotDebug->joints[1].vel_limit;
-    vel_bound->z = emcmotDebug->joints[2].vel_limit;
+    vel_bound->x = emcmotDebug->axes[0].vel_limit; //0==>x
+    vel_bound->y = emcmotDebug->axes[1].vel_limit; //1==>y
+    vel_bound->z = emcmotDebug->axes[2].vel_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -378,7 +378,7 @@ int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    struct state_tag_t tag = {0};
+    struct state_tag_t tag = {{0}};
     tp->execTag = tag;
     tp->motionType = 0;
     tp->termCond = TC_TERM_COND_PARABOLIC;
@@ -536,7 +536,7 @@ int tpGetExecId(TP_STRUCT * const tp)
 struct state_tag_t tpGetExecTag(TP_STRUCT * const tp)
 {
     if (0 == tp) {
-        struct state_tag_t empty = {0};
+        struct state_tag_t empty = {{0}};
         return empty;
     }
 

@@ -1,3 +1,129 @@
+ver 2.3.1
+- added a new hal pin for tool diameter
+
+ver 2.3.0
+- joint axis branch did change the handling between joints and axis. Previously
+  it was needed to include a unused Y axis for a lathe and now that is not longer
+  needed. There are some more changes, that needed some additional changes to
+  gmoccapy. I have passed a lot of code over to get_ini_info.
+- all config files have been changed to support the new behavior. I tried to make
+  all the code compatible with older configs. Some might need the not used axis
+  to be included in homing entries in the ini files.
+
+ver 2.2.5.2
+- if the GUI tries to reload a tool on restart and that tool was not found in 
+  the tool table, the GUI remained in MDI mode, while it was showing the manual 
+  view. This leaded to the problem, that jogging was not possible, but users 
+  thought they where in MANUAL mode, where jogging should be allowed.
+
+ver 2.2.5.1
+- added a new dictionary self.joint_axis_dic to maintain the relation between 
+  joints and axis. This was tested with gantry and non identical configs. There
+  might be configs out there witch won't work with gmoccapy.
+  I found that the only way to get gantry XYYZ and i.e. XYZCW config to work
+  with the homing button and the DRO settings
+
+ver 2.2.5
+- this repairs the parts I broke on glade applications and the former used
+  code in CombiDRO moved in a similar mode to gmoccapy. Now after the merge of
+  sequential homing branch it is easier to use a gantry config with gmoccapy.
+  There is still need to adapt the "on_btn_homing_selected" part of the GUI, as
+  now a XYZC config will not allow homing of C, as the joints are not ordered
+  correctly
+
+ver 2.2.4
+- introduced a check for double axis letters in [TRAJ]COORDINATES = X Y Y Z 
+  to set the homing button of the double mentioned axis. This is to protect 
+  a gantry from being damaged homing only one joint of two.
+  Thanks to rodw for insisting to solve the misbehavior
+
+ver 2.2.3.3
+- check on homing for double letters and get the correct joint number
+  for homing
+
+ver 2.2.3.2
+- solved a bug caused due to an unappropriated merge of Sebastian Kuzminski
+  causing a hal pin to be created twice.
+
+ver 2.2.3.1
+- solved the reload tool on start up bug after homing twice
+  if there is already a tool in spindle, the user 
+  homed the second time, unfortunately we will then
+  not get out of MDI mode any more
+  That happen, because the tool in spindle did not change, so the 
+  tool info is not updated and we self.change_tool will not be reseted
+  Thanks to timmert for reporting
+
+ver. 2.2.3
+- added patch from gmoccapy 1.5.7
+- new hal pin gmoccapy.ignore-limits so that this function can be
+  handled from hardware switch
+  Ask by some users, done because of a wish of Timothy Snowden
+  
+ver. 2.2.2
+- When running a program, press pause, then stop, the axis will make a jump to 
+  a unknown position, (I think related to read ahead). I added a additional 
+  command.aboard(), even that this command is already called within hal action.
+  I do not know why, but this solved the issue as far as I can see.
+  Thanks to racedirector for reporting
+
+ver. 2.2.1
+- if linuxcnc is restarted without shutting down gmoccapy, it was not possible
+  to close gmoccapy (except from comandline with killall -9 gmoccapy
+  I added a check to status.poll and now a raise SystemExit will be called.
+  as this also applies to CombiDRO a added that there too.
+  I added gmoccapy to the linuxcnc script to be killed on restart
+
+ver. 2.2.0.3
+- changed the height and width adjustments for the window size in the 
+  glade file, as width was limited to 1280 pixel. 
+  Now the max limit is 3920 pixel.
+
+ver. 2.2.0.2
+- if no MACROS was given in INI file, the getiniinfo returns a NONE,
+  leading to an exception in gmoccapy, corrected that
+
+ver. 2.2.0.1
+- make the reload tool option a selectable feature on the
+  settings page. It will be on by default!
+
+ver. 2.2.0
+- gmoccapy will save the tool in spindle on every change in its
+  preference file and reload that tool with it's length offset
+  till now only tested for mill!
+  This will not work if NO_FORCE_HOMING is used, because with such
+  a configuration the signal "all_homed" will not be emitted.
+
+ver. 2.1.6.5
+- changed the expanding way of the widgets in the INFO box
+  to better appearance on 16:9 screens, the tool info will 
+  not grow alone, but also spindle and vel info boxes
+
+ver. 2.1.6.4
+- Added the patch from ver. 1.5.6.9
+    * if no MACROS where given, or the paths where not correct, the Keyboard button
+      in MDI mode was not any more in the most right position, leading to wrong
+      order in horizontal hal button handling
+
+ver. 2.1.6.3
+- Dawey Garret changed the init_glcanondraw() behavior, making
+  some changes in gmoccapy and getiniinfo. That is why I changed the 
+  release number
+
+ver. 2.1.6.2
+- better solution for the G96 bug
+
+ver. 2.1.6.1
+- bug handling of G96 CSS, related to the update of the
+  real spindle speed label
+  Thanks to Hakan for reporting this
+- Jumping spindle speed label due to a calculation error between
+  two functions, and double setting of a label, Solved!
+
+ver. 2.1.6
+- merged the changes I made to 1.5.6.5 to 1.5.6.8
+  details see below
+
 ver. 2.1.5
 - halui spindle override bug, caused by a race conflict
   Thanks to pippin88 and dinkata to help solving his one
@@ -200,6 +326,35 @@ ver. 1.6.0
         * Init GUI to have a jog button per joint and not only per axis
         * change GUI appearance according to motion mode
 
+ver. 1.5.7
+- new hal pin gmoccapy.ignore-limits so that this function can be
+  handled from hardware switch
+  Ask by some users, done because of a wish of Timothy Snowden
+
+ver. 1.5.6.10
+- if no MARCO was found in INI getiniinfo returned a NONE, leading to an
+  exception in gmoccapy, corrected that.
+
+ver. 1.5.6.9
+- if no MACROS where given, or the paths where not correct, the Keyboard button
+  in MDI mode was not any more in the most right position, leading to wrong
+  order in horizontal hal button handling
+ 
+ver. 1.5.6.8
+- gmoccapy poll time for the GUI was hard coded till now, I changed that
+  to take care of the INI File settings. If no or a wrong entry is in the 
+  INI file a default value of 150 will be used.
+
+ver. 1.5.6.7
+- reading of subroutine paths did not take care of ":" separeted paths
+  so it was not possible to use NativeCAM together with gmoccapy macros
+  I corrected that misbehavior of gmoccapy. That change was used to
+  clear some macro code and I transfered some checking to get_ini_info
+
+ver. 1.5.6.6
+- check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
+  and set the gmoccapy settings accordingly.
+
 ver. 1.5.6.5
 - merged the bug fix from 2.6 branch gmoccapy 1.5.6.2.2
 
@@ -216,6 +371,14 @@ ver. 1.5.6.3
   so changes the user makes to the glade file was not been taken care of
 - In glade file a signal on_btn_load_state_changed was set, but no handler present, 
   leading to a error message on start in the terminal, erased the signal
+
+ver. 1.5.6.2.3
+- bug in handling a subroutine call from MDI, containing 
+  G96 code. Thanks to Hakan for reporting this.
+
+ver. 1.5.6.2.2
+- halui spindle override bug, caused by a race conflict
+  Thanks to pippin88 and dinkata to help solving his one
 
 ver. 1.5.6.2.1
 - bug in initialize optional stops
