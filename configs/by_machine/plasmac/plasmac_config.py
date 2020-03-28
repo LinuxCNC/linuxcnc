@@ -47,7 +47,7 @@ class HandlerClass:
         self.builder.get_object('arc-ok-low').set_digits(1)
         self.builder.get_object('arc-ok-low-adj').configure(30,0,100,0.5,0,0)
         self.builder.get_object('arc-ok-high').set_digits(1)
-        self.builder.get_object('arc-ok-high-adj').configure(200,0,300,0.5,0,0)
+        self.builder.get_object('arc-ok-high-adj').configure(9999,0,9999,0.5,0,0)
         self.builder.get_object('arc-max-starts').set_digits(0)
         self.builder.get_object('arc-max-starts-adj').configure(3,1,9,1,0,0)
         self.builder.get_object('arc-restart-delay').set_digits(0)
