@@ -288,6 +288,8 @@ if not codeError:
                 line = line[1:]
                 while line[0].isdigit() or line[0] == '.':
                     line = line[1:].lstrip()
+                    if not line:
+                        break
             # remove leading 0's from G & M codes
             if (line.lower().startswith('g') or \
                line.lower().startswith('m')) and \
