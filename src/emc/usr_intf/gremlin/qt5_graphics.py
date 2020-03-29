@@ -7,7 +7,7 @@ import warnings
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 
 from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
@@ -16,14 +16,14 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
 try:
     from PyQt5.QtOpenGL import QGLWidget
 except ImportError:
-    log.critical("Qtvcp error with qt5_graphics - is package python-pyqt5.qtopengl installed?")
+    LOG.critical("Qtvcp error with qt5_graphics - is package python-pyqt5.qtopengl installed?")
 
 LIB_GOOD = True
 try:
     from OpenGL import GL
     from OpenGL import GLU
 except ImportError:
-    log.error('Qtvcp Error with graphics - is python-openGL installed?')
+    LOG.error('Qtvcp Error with graphics - is python-openGL installed?')
     LIB_GOOD = False
 
 import pango
@@ -40,6 +40,7 @@ import shutil
 import os
 
 import thread
+from qtvcp.widgets.fake_status import fakeStatus
 
 ###################################
 # For stand alone window
@@ -138,6 +139,17 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             return [int(x * 255) for x in s + (a,)]
         # requires linuxcnc running before laoding this widget
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
+
+        # if status is not available then we are probably
+        # displaying in designer so fake it
+        stat = linuxcnc.stat()
+        try:
+            stat.poll()
+        except:
+            LOG.warning('linuxcnc staus failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
+            stat = fakeStatus()
+        print stat
+
         self.inifile = linuxcnc.ini(inifile)
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
             C('backplotjog'),
@@ -150,7 +162,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         )
         # start tracking linuxcnc position so we can plot it
         thread.start_new_thread(self.logger.start, (.01,))
-        glcanon.GlCanonDraw.__init__(self, linuxcnc.stat(), self.logger)
+        glcanon.GlCanonDraw.__init__(self, stat, self.logger)
 
         # set defaults
         self.current_view = 'p'
