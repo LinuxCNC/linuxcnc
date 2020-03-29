@@ -259,7 +259,6 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         #print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
         self.gradient_color1 = (value.redF(), value.greenF(), value.blueF())
-        self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
     def resetBackgroundColor(self):
         self._backgroundColor = QColor(0, 0, 0, 0)
