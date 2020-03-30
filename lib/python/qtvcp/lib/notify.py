@@ -1,6 +1,6 @@
 import sys
 # try to add a notify system so messages use the
-# nice intergrated pop-ups
+# nice integrated pop-ups
 # Ubuntu kinda wrecks this be not following the
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
@@ -22,8 +22,10 @@ sys_notify.init('notify')
 class Notify:
     def __init__(self):
         self.statusbar = None
+        self.lastnum = 0
         self.notify_list = []
         self.alarmpage = []
+        self.critical_message = None
         STATUS.connect('shutdown', self.cleanup)
 
     # This prints a message in the status bar (if available)
@@ -38,36 +40,44 @@ class Notify:
         try:
             n = self.show_notification(title, message, icon, timeout)
         except Exception as e:
-               log.warning('show_noficication error:', exc_info=e)
+               log.warning('show_notification error:', exc_info=e)
         return n
 
-    # 
+    # Screenoption uses this for errors / operator messages
+    # they stay up till cleared
+    # self.critical_message gives reference for external controls
     def new_critical(self, icon=""):
         messageid = None
         try:
-            n = self.build_error_notification(icon)
+            self.critical_message = self.build_error_notification(icon)
         except Exception as e:
                log.warning('New_critical error:', exc_info=e)
-        return n
+        return self.critical_message
 
-
+    # messages that require yes/no response.
     def notify_yn(self, title, message,icon, timeout, function_callback):
         try:
             self.show_yn_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_noficication_yn error:', exc_info=e)
+               log.warning('show_notification_yn error:', exc_info=e)
 
+    # message that require acknowledgement
     def notify_ok(self, title, message,icon, timeout, function_callback):
         try:
             self.show_ok_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_noficication_ok error:', exc_info=e)
+               log.warning('show_notification_ok error:', exc_info=e)
+
+
+#####################################################
+# actualy build the notices
+#####################################################
 
     def build_error_notification(self, icon=None):
         n = sys_notify.Notification('', '', icon)
         n.setUrgency(sys_notify.Urgency.CRITICAL)
         n.setTimeout(0)
-        n.addAction("action_click","Show All Messages", self.action_callback)
+        n.addAction("action_click","Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
         n.addAction('Clear Messages', 'Clear', self.clearClicked)
         self.notify_list.append(n)
@@ -77,7 +87,7 @@ class Notify:
         n = sys_notify.Notification(title, message, icon)
         n.setUrgency(sys_notify.Urgency.NORMAL)
         n.setTimeout(int(timeout * 1000))
-        n.addAction("action_click","Show All Messages", self.action_callback)
+        n.addAction("action_click","Show all Messages", self.action_callback)
         n.onClose(self.handle_closed)
         n.show()
         self.notify_list.append(n)
@@ -104,6 +114,9 @@ class Notify:
         n.show()
         self.notify_list.append(n)
 
+################################################
+# callback mechanism
+################################################
     def yesClicked(self, n, action, callback):
         callback(True)
 
@@ -135,23 +148,24 @@ class Notify:
         for num,i in enumerate(self.alarmpage):
             print num,i
 
-    def show_status(self, message, timeout=4):
-        if self.statusbar is not None:
-            try:
-                messageid = self.statusbar.showMessage(message, timeout * 1000)
-            except Exception as e:
-                log.warning('Error adding msg to  statusbar:', exc_info=e)
+    # pop up last five critical errors
+    def last5_callback(self, *args, **kwds):
+        n = self.critical_message
+        n.body = ''
+        for i in range(1,6):
+            num = len(self.alarmpage) - i
+            if i > len(self.alarmpage): break
+            n.body ='{}\nREVIEW #{} of {}\n{}'.format( n.body,
+                                                          i,
+                                                          len(self.alarmpage),
+                                                          self.alarmpage[num])
+        n.show()
 
-    def add_alarm_entry(self, message):
-        try:
-            self.alarmpage.append(message)
-        except:
-            pass
-
-    def cleanup(self, w):
-        for i in self.notify_list:
-            i.close()
-
+#####################################################
+# General work functions
+#####################################################
+    # update the critical message display
+    # this adds the new message to the old
     def update(self, n, title='', message=''):
         if title is not None:
             n.title = title
@@ -165,4 +179,52 @@ class Notify:
             self.add_alarm_entry(message)
         except:
             pass
+
+    # try to update a status bar if we were given reference to it
+    def show_status(self, message, timeout=4):
+        if self.statusbar is not None:
+            try:
+                messageid = self.statusbar.showMessage(message, timeout * 1000)
+            except Exception as e:
+                log.warning('Error adding msg to  statusbar:', exc_info=e)
+
+    # show the previous critical messages that popped up
+    # Currently alarm page doesn't keep track of what
+    # notice made the alarm so we might get question dialogs too.
+    def show_last(self):
+        num = len(self.alarmpage) - 1 - self.lastnum
+        if self.critical_message is not None:
+            if self.alarmpage:
+                n = self.critical_message
+                n.body ='{}\Review #{} of {}\n{}'.format( '',
+                                                          self.lastnum+1,
+                                                          len(self.alarmpage),
+                                                          self.alarmpage[num])
+                n.show()
+                # ready for next message if there is one, other wise reset counter
+                self.lastnum += 1
+                if self.lastnum >= len(self.alarmpage):
+                    n.body = ''
+                    self.lastnum = 0
+
+    def external_close(self):
+        n = self.critical_message
+        n.body =''
+        n.close()
+        self.lastnum = 0
+
+    # update the system alarm page, if there is one
+    # this should be sent to STATUS message I think?
+    def add_alarm_entry(self, message):
+        if message == None:message = ''
+        try:
+            self.alarmpage.append(message)
+        except:
+            pass
+
+    # close any remaining messages when we shutdown qtvcp
+    def cleanup(self, w):
+        for i in self.notify_list:
+            i.close()
+
 
