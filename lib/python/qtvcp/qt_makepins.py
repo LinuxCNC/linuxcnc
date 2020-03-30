@@ -42,6 +42,8 @@ class QTPanel():
         # if is is then initiate the preference file
         # and pass a preference object to the window
         # it's then available to all HALified objects
+        # also allow screenoptions to inject data into
+        # our main window object -Ie reference to Notify lib
         # we must do this first of course
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
@@ -53,6 +55,11 @@ class QTPanel():
                         LOG.warning('Preference instance error: {}'.format(e))
                         self.window['PREFS_'], pref_fn = (None,None)
                     path.PREFS_FILENAME = pref_fn
+                    try:
+                        widget._VCPObject_injection(window)
+                    except Exception as e:
+                        LOG.warning('VCPObject Injection error: {}'.format(e))
+
         # parse for HAL objects:
         # initiate the hal function on each
         # keep a register list of these widgets for later
