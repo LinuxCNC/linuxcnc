@@ -226,6 +226,8 @@ class _Lcnc_Action(object):
             outfile.close()
 
     def SET_AXIS_ORIGIN(self,axis,value):
+        if axis == '' or axis.upper() not in ("XYZABCUVW"):
+            log.warning("Couldn't set orgin -axis >{}< not recognized:".format(axis))
         m = "G10 L20 P0 %s%f"%(axis,value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)

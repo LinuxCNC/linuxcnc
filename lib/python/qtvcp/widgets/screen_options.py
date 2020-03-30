@@ -243,6 +243,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             return Access(self.pref_filename), self.pref_filename
         return None,None
 
+    # allow screen option to inject data to the main VCP object (basically the window)
+    def _VCPObject_injection(self, vcpObject):
+        if self.desktop_notify:
+            vcpObject._NOTICE = NOTICE # Guve reference
+
     def on_periodic(self, w):
         e = self.error.poll()
         if e:

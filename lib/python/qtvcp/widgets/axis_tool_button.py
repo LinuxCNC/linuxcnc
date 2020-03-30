@@ -117,17 +117,19 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
     def SetOrigin(self):
         axis, now = self._a_from_j(self._axis)
+        print '***set origin***',axis
         if axis:
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
             'AXIS':axis,'CURRENT':now,
             'TITLE':'Set %s Origin'% axis,
             'GEONAME':'axisToolButtonDialog_{}'.format(self.dialog_code),
-            'AXIS':self._axis}
+            'AXIS':axis}
             STATUS.emit('dialog-request', mess)
             LOG.debug('message sent:{}'.format (mess))
 
     # process the STATUS return message
     def return_value(self, w, message):
+        print message
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
