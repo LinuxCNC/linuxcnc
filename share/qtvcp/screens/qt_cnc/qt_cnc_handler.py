@@ -78,6 +78,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
+        self.setup_statusbar()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -178,6 +179,28 @@ class HandlerClass:
 
     def editor_exit(self):
         self.w.gcodeeditor.exit()
+
+    def setup_statusbar(self):
+        def last():
+            self.w._NOTICE.show_last()
+        def close():
+            self.w._NOTICE.external_close()
+
+        self.w.statusClear = QtWidgets.QPushButton()
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
+        self.w.statusClear.setIcon(icon)
+        self.w.statusClear.setMaximumSize(20,20)
+        self.w.statusClear.setIconSize(QtCore.QSize(22,22))
+        self.w.statusClear.clicked.connect(lambda:close())
+        self.w.statusbar.addPermanentWidget(self.w.statusClear)
+
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
+        self.w.statusLast = QtWidgets.QPushButton()
+        self.w.statusLast.setIcon(icon)
+        self.w.statusLast.setMaximumSize(20,20)
+        self.w.statusLast.setIconSize(QtCore.QSize(22,22))
+        self.w.statusLast.clicked.connect(lambda: last())
+        self.w.statusbar.addWidget(self.w.statusLast)
 
     #####################
     # KEY BINDING CALLS #
