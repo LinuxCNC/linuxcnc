@@ -80,20 +80,36 @@ class NurbsEditor(QDialog):
         self.set_spinbuttons_default()
 
         self.graphics = Lcnc_3dGraphics()
+
         self.setGraphicsDisplay()
         self.main.addWidget(self.graphics)
         self.updateDisplay(self.emptypath)
 
 
     def setGraphicsDisplay(self):
+        # class patch to catch gcode errors - in theory 
+        self.graphics.report_gcode_error = self.report_gcode_error
+        # reset trverse color so other displays don;t change
         self.defaultColor = self.graphics.colors['traverse']
-        # must start in default view(P) or else later rotation errors (glnav's lon is not initiated?) 
-        #self.graphics.current_view = 'Z'
+        # must start in default view(P) or else later rotation errors (glnav's lon is not initiated?)
+        # settimg the view as Z or z makes a difference
+        # z is proper it sets view as 2 and you get grids (grids check for not 3)
+        # Z gets you a default view 3 but make the display not flicker as much...
+        # flicker seems to come from resetting display and resizing.
+        self.graphics.current_view = 'z'
+        self.graphics.set_current_view()
         self.graphics.metric_units = INFO.MACHINE_IS_METRIC
         self.graphics.use_gradient_background = True
         self.graphics.show_tool = False
+        self.graphics.grid_size = 2
+        self.graphics.cancel_rotate = True
 
     def set_spinbuttons_default(self):
+        self.use_ctrl1.setChecked(True)
+        self.use_ctrl2.setChecked(True)
+        self.use_ctrl3.setChecked(True)
+        self.use_ctrl4.setChecked(True)
+
         self.x1.setValue(3.53)
         self.x2.setValue(5.53)
         self.x3.setValue(3.52)
@@ -110,38 +126,68 @@ class NurbsEditor(QDialog):
         self.w4.setValue(1)
         self.block = False
 
+    def checkChanged(self):
+        c = 0
+        for i in range(1,8):
+            u = 'use_ctrl{}'.format(i)
+            if self[u].isChecked(): c +=1
+        if c < 2:
+            self.sender().setChecked(True)
+        elif not self.block:
+            self.update()
+
     def spinChanged(self,data):
         if self.block: return
         self.update()
 
     def update(self):
-        self.graphics.colors['traverse'] = (0.0, 0.0, 1.0)
+        self.graphics.colors['traverse'] = (0.0, 1.0, 0.0)
         self.workfile = open(self.workpath, "w")
-        print >> self.workfile, ('( Starting position )')
-        print >> self.workfile, ('G0 x0 y0')
 
+        ###############################
+        # Setup
+        ###############################
+        t = self.toolNum.value()
+        if t:
+            print >> self.workfile, ('T{} M6 G43').format(self.toolNum.value())
+        print >> self.workfile, ('( Starting position )')
+        print >> self.workfile, ('G0 X {} Y {} Z {}').format(self.rapidX.value(),self.rapidY.value(),self.rapidZ.value())
+
+        ###############################
         # Nurbs block
+        ###############################
         print >> self.workfile, ('')
         print >> self.workfile, ('( Nurbs block )')
-        print >> self.workfile, ('f100')
+        f = self.feedRate.value()
+        if f:
+            print >> self.workfile, ('F{}').format(self.feedRate.value())
+        #print >> self.workfile, ('F')
         print >> self.workfile, ('G5.2')
-        for i in range(1,5):
+        for i in range(1,8):
+            u = 'use_ctrl{}'.format(i)
             X = 'x{}'.format(i)
             Y = 'y{}'.format(i)
             P = 'w{}'.format(i)
-            print >> self.workfile, ('X {} y {} P {}').format(self[X].value(),self[Y].value(),self[P].value())
+            if self[u].isChecked():
+                print >> self.workfile, ('X {} Y {} P {}').format(self[X].value(),self[Y].value(),self[P].value())
         print >> self.workfile, ('G5.3')
-        print >> self.workfile, ('G0 x0 y0')
 
+        ##############################
         # rapids to show boundry
+        ##############################
         print >> self.workfile, ('')
         print >> self.workfile, ('( Show control points with rapid lines )')
-        for i in range(1,5):
+        print >> self.workfile, ('G0 X {} Y {} Z {}').format(self.rapidX.value(),self.rapidY.value(),self.rapidZ.value())
+        for i in range(1,8):
+            u = 'use_ctrl{}'.format(i)
             X = 'x{}'.format(i)
             Y = 'y{}'.format(i)
-            print >> self.workfile, ('G0 X{} y{}').format(self[X].value(),self[Y].value())
-        print >> self.workfile, ('G0 x0 y0')
+            if self[u].isChecked():
+                print >> self.workfile, ('G0 X{} y{}').format(self[X].value(),self[Y].value())
 
+        ##############################
+        # cleanup
+        ##############################
         print >> self.workfile, ('m2')
 
         self.workfile.close()
@@ -164,6 +210,7 @@ class NurbsEditor(QDialog):
     def load_dialog(self):
         #self.updateDisplay(self.emptypath)
         self.graphics.current_view = 'Z'
+        self.graphics.set_current_view()
         self.graphics.updateGL()
         self.show()
         self.activateWindow()
@@ -196,6 +243,16 @@ class NurbsEditor(QDialog):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+
+###############
+# class patch
+############
+    def report_gcode_error(self, result, seq, filename):
+        error_str = gcode.strerror(result)
+        errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
+                    + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
+        print(errortext)
 
 ###########
 # Testing
