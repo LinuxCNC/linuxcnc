@@ -207,6 +207,25 @@ class _IStat(object):
                 self.ANGULAR_INCREMENTS.insert(0, "Continuous")
         else:
             self.ANGULAR_INCREMENTS = ["Continuous","1","45","180","360"]
+        # grid increments
+        grid_increments = self.inifile.find("DISPLAY", "GRIDS")
+        if grid_increments:
+            if "," in grid_increments:
+                self.GRID_INCREMENTS = [i.strip() for i in grid_increments.split(",")]
+            else:
+                self.GRID_INCREMENTS = grid_increments.split()
+            flag = True
+            for i in grid_increments:
+                if i.upper() in ('0', 'OFF'): flag = False
+                break
+            if flag:
+                self.GRID_INCREMENTS.insert(0, '0')
+        else:
+            if self.MACHINE_IS_METRIC:
+                self.GRID_INCREMENTS = ["0",".1 mm","1 mm","10 mm","50 mm"]
+            else:
+                self.GRID_INCREMENTS = ["0", ".5 in", "1 in","2 in","6 in"]
+
         temp = self.inifile.find("TRAJ", "COORDINATES")
         if temp:
             self.TRAJ_COORDINATES = temp.lower().replace(" ","")

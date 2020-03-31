@@ -436,6 +436,9 @@ class _Lcnc_Action(object):
                 'overlay-offsets-on','overlay-offsets-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
+    def SET_GRAPHICS_GRID_SIZE(self, size):
+            STATUS.emit('graphics-view-changed','GRID-SIZE',{'SIZE':size})
+
     def ADJUST_GRAPHICS_PAN(self, x, y):
         STATUS.emit('graphics-view-changed','pan-view',{'X':x,'Y':y})
 

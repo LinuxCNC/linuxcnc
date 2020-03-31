@@ -263,6 +263,8 @@ class ToolBarActions():
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
             self.addZeroSystemsActions(widget)
+        elif submenu == 'grid_size_submenu':
+           self.addGridSize(widget)
         else:
             LOG.warning('Unrecogzied sunmenu command: {}'.format(submenu))
 
@@ -528,4 +530,58 @@ class ToolBarActions():
         if self._recentActionWidget is not None and WIDGETS.PREFS_ is not None:
             for num, i in enumerate(self._recentActionWidget.actions()):
                 WIDGETS.PREFS_.putpref('RecentPath_%d'% num, i.text(), str, 'BOOK_KEEPING')
+
+    def addGridSize(self,widget):
+        def setSize(data):
+            ACTION.SET_GRAPHICS_GRID_SIZE(data)
+
+        print INFO.GRID_INCREMENTS
+        for temp in (INFO.GRID_INCREMENTS):
+            if temp == '0':
+                sizeAct = QtWidgets.QAction('Off', widget)
+                sizeAct.triggered.connect(lambda: setSize(0))
+                widget.addAction(sizeAct)
+                continue
+            i = self.parse_increment(temp)
+            sizeAct = QtWidgets.QAction('%s'%temp, widget)
+            # weird lambda i=i to work around 'function closure'
+            sizeAct.triggered.connect(lambda state, i=i: setSize(i))
+            widget.addAction(sizeAct)
+
+    # We convert INI parced increments to machine units
+    def parse_increment(self, gridIncr):
+        if gridIncr.endswith("mm"):
+            scale = self.conversion(1)
+        elif gridIncr.endswith("cm"):
+            scale = self.conversion(10)
+        elif gridIncr.endswith("um"):
+            scale = self.conversion(.001)
+        elif gridIncr.endswith("in") or gridIncr.endswith("inch"):
+            scale = self.conversion(1., metric = False)
+        elif gridIncr.endswith("mil"):
+            scale = self.conversion(.001, metric = False)
+        else:
+            scale = 1
+        incr = gridIncr.rstrip(" inchmuil")
+        if "/" in incr:
+            p, q = incr.split("/")
+            incr = float(p) / float(q)
+        else:
+            incr = float(incr)
+        LOG.debug("parceed: text: {} Increment: {} scaled: {}".format(gridIncr, incr, (incr * scale)))
+        return incr * scale
+
+    # This does the conversion
+    # calling function must tell us if the data is metric or not.
+    def conversion(self, data, metric = True):
+        if INFO.MACHINE_IS_METRIC:
+            if metric:
+                return INFO.convert_metric_to_machine(data)
+            else:
+                return INFO.convert_imperial_to_machine(data)
+        else:
+            if metric:
+                return INFO.convert_metric_to_machine(data)
+            else:
+                return INFO.convert_imperial_to_machine(data)
 
