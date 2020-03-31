@@ -110,16 +110,18 @@ def get_hole_radius(I, J):
 
 # get axis position
 def get_position(axis):
-    tmp1 = line.split(axis)[1]
+    tmp1 = line.split(axis)[1].replace(' ','')
     if not tmp1[0].isdigit() and not tmp1[0] == '.' and not tmp1[0] == '-':
-        tmp1 = tmp1[1:]
+        return None
+    n = 0
     tmp2 = ''
     while 1:
-        if tmp1[0].isdigit() or tmp1[0] == '.' or tmp1[0] == '-':
-            tmp2 += tmp1[0]
-        if len(tmp1) > 1:
-            tmp1 = tmp1[1:]
+        if tmp1[n].isdigit() or tmp1[n] == '.' or tmp1[n] == '-':
+            tmp2 += tmp1[n]
+            n += 1
         else:
+            break
+        if n >= len(tmp1):
             break
     return float(tmp2)
 
@@ -129,9 +131,11 @@ def get_last_position(Xpos, Ypos):
        line.startswith('x') or \
        line.startswith('y'):
         if 'x' in line:
-            Xpos = get_position('x')
+            if get_position('x') is not None:
+                Xpos = get_position('x')
         if 'y' in line:
-            Ypos = get_position('y')
+            if get_position('y') is not None:
+                Ypos = get_position('y')
     return Xpos, Ypos
 
 # comment out all Z commands
@@ -391,10 +395,6 @@ if not codeError:
                     torchEnable = True
             # if program end
             elif line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
-                # restore hole sensing to default
-                if holeEnable:
-                    print('#<holes> = 0 (disable hole sensing)')
-                    holeEnable = False
                 # restore velocity if required
                 if holeActive:
                     print('m68 e3 q0 (arc complete, velocity 100%)')
@@ -403,6 +403,10 @@ if not codeError:
                 if not torchEnable:
                     print('m65 p3 (enable torch)')
                     torchEnable = True
+                # restore hole sensing to default
+                if holeEnable:
+                    print('#<holes> = 0 (disable hole sensing)')
+                    holeEnable = False
                 print(line)
             # any other line
             else:
