@@ -197,6 +197,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.enable_dro = False
         self.use_default_controls = True
         self.mouse_btn_mode = 0
+        self.cancel_rotate = False
         self.use_gradient_background = False
         self.gradient_color1 = (0.0, 0.0, 1)
         self.gradient_color2 = (0.0, 0.0, 0.0)
@@ -769,8 +770,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.translateOrRotate(event.pos().x(), event.pos().y())
         # rotate
         elif event.buttons() & Qt.RightButton:
-            self.set_prime(event.pos().x(), event.pos().y())
-            self.rotateOrTranslate(event.pos().x(), event.pos().y())
+            if not self.cancel_rotate:
+                self.set_prime(event.pos().x(), event.pos().y())
+                self.rotateOrTranslate(event.pos().x(), event.pos().y())
         # zoom
         elif event.buttons() & Qt.MiddleButton:
             self.continueZoom(event.pos().y())
