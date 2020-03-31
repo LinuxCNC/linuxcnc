@@ -117,6 +117,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.panView(args.get('X'),args.get('Y'))
         elif v == 'rotate-view':
             self.rotateView(args.get('X'),args.get('Y'))
+        elif v == 'grid-size':
+            self.grid_size = args.get('SIZE')
+            self.updateGL()
         else:
             self.set_view(v)
 
