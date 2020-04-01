@@ -21,34 +21,57 @@ Everyone who gave a bug report ! I cannot test everything thoughly enough so rep
 Beta 1 version</property>
   </object>
   <object class="GtkTextBuffer" id="mill_textbuffer">
-    <property name="text" translatable="yes">X axis:
-Total Travel = 10
-Home Offset = Origin to Home Switch distance = 0
-Neg Travel Distance = Origin to neg limit distance = 0
-Pos Travel Distance = Total Travel - neg travel distance = 10
-Home Position = Origin to Home Position distance = 6
+    <property name="text" translatable="yes">  X axis:
+  Total Travel = 10
+  Home Offset = Origin to Home Switch distance = 0
+  Neg Travel Distance = Origin to neg limit distance = 0
+  Pos Travel Distance = Total Travel - neg travel distance = 10
+  Home Position = Origin to Home Position distance = 6
 
-Y axis:
-Total Travel = 8
-Home Offset = Origin to Home Switch distance = 0
-Neg Travel Distance = Origin to neg limit distance = -8
-Pos Travel Distance = Total Travel - neg travel distance = 0
-Home Position = Origin to Home Position distance = 0
+  Y axis:
+  Total Travel = 8
+  Home Offset = Origin to Home Switch distance = 0
+  Neg Travel Distance = Origin to neg limit distance = -8
+  Pos Travel Distance = Total Travel - neg travel distance = 0
+  Home Position = Origin to Home Position distance = 0
 
-Z axis:
-Total Travel = 12
-Home Offset = Origin to Home Switch distance = 0
-Neg Travel Distance = Origin to neg limit distance = -12
-Pos Travel Distance = Total Travel - neg travel distance = 0
-Home Position = Origin to Home Position distance = 0
+  Z axis:
+  Total Travel = 12
+  Home Offset = Origin to Home Switch distance = 0
+  Neg Travel Distance = Origin to neg limit distance = -12
+  Pos Travel Distance = Total Travel - neg travel distance = 0
+  Home Position = Origin to Home Position distance = 0
 
-Note that the direction indicators on the top right show 
-movement of the TOOL and on the actual machine,
-often it is the table that actually moves. In that case the 
-directions are opposite of shown.
+  Note that the direction indicators on the top right show 
+  movement of the TOOL and on the actual machine,
+  often it is the table that actually moves. In that case the 
+  directions are opposite of shown.
 
-Note this is an example, Many other combinations are 
-possible</property>
+  Note this is an example, Many other combinations are 
+  possible</property>
+  </object>
+  <object class="GtkTextBuffer" id="textbuffer1">
+    <property name="text" translatable="yes">Separate Home and Limt Switches Example
+
+    The negative and positive directions are based on Tool Movement which can be different
+    then the actual machine movement. ie on a mill typically the table moves rather then the tool.
+
+    Soft(ware) limits are inside the limit switch area.
+
+    (If using switch based homing) the homing switch(es) utilize the limit switches (shared home / limit switch)
+    or are inside the limit switch area when using a separate home switch.
+
+    The G53 machine zero origin is typically inside the soft limits area but not necessarily.
+
+    If using a separate homing switch, it’s possible to start homing on the wrong side of the home switch,
+    which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
+    You can avoid this by making the home switch toggle it’s state when the trip dog is on a particular side until it returns passed the trip point again.
+    Said another way, the home switch state must represent the position of the dog relative to the switch (ie before or after the switch),
+    and must stay that way even if the dog coasts past the switch in the same direction.
+
+    The distance between the limit switches and soft limits (-L&lt;-&gt;A and D&lt;-+L) is magnified in this example
+    Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
+</property>
   </object>
   <object class="GtkTextBuffer" id="textinputbuffer"/>
   <object class="GtkTextBuffer" id="textoutput_buffer"/>
@@ -57,8 +80,10 @@ possible</property>
     <signal name="delete-event" handler="on_help_window_delete_event" swapped="no"/>
     <child>
       <object class="GtkNotebook" id="helpnotebook">
+        <property name="height_request">500</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="scrollable">True</property>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow1">
             <property name="visible">True</property>
@@ -97,34 +122,45 @@ possible</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkImage" id="helppic0">
+                  <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">never</property>
                     <child>
-                      <object class="GtkTextView" id="textview1">
+                      <object class="GtkScrolledWindow" id="scrolledwindow7">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="buffer">mill_textbuffer</property>
+                        <property name="hscrollbar_policy">never</property>
+                        <child>
+                          <object class="GtkTextView" id="textview1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="buffer">mill_textbuffer</property>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="helppic0">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-missing-image</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </object>
@@ -144,35 +180,46 @@ possible</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkImage" id="helppic1">
+                  <object class="GtkHBox" id="hbox1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
+                    <child>
+                      <object class="GtkLabel" id="pictext1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">  Total Travel = 4 + 6 = 10
+  Z Home Offset = Origin to Home Switch distance = 10
+  Z Neg Travel Distance = Origin to neg limit distance = 0
+  Z Pos Travel Distance = Total Travel - neg travel distance = 10
+  Z Home Position = Origin to Home Position distance = 4
+
+  X axis would be similar but not shown fully for clarity.
+  This is just a sample reference other switch combinations are
+  possible.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="helppic1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-missing-image</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="pictext1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Total Travel = 4 + 6 = 10
-Z Home Offset = Origin to Home Switch distance = 10
-Z Neg Travel Distance = Origin to neg limit distance = 0
-Z Pos Travel Distance = Total Travel - neg travel distance = 10
-Z Home Position = Origin to Home Position distance = 4
-
-X axis would be similar but not shown fully for clarity.
-This is just a sample reference other switch combinations are
-possible.</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>
@@ -188,6 +235,183 @@ possible.</property>
               </object>
               <packing>
                 <property name="position">1</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkHBox" id="hbox3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImage" id="helppic3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-missing-image</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">-1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label7">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">    A is the negative software limit
+    B is the G53 machine coordinate Origin
+    C is the home switch trip point/ 
+                   Shared min limit trip
+    D is the positive software limit
+    H is the final Home Positon  = 3 units
+    The -L and +L are the limit switches trip points
+
+    A&lt;-&gt;B is the Negative Travel Distance  = -0 units
+    B&lt;-&gt;C is the home Switch Location  = -0.7 units
+    B&lt;-&gt;D is the Positive Travel Distance  = 10 units
+    A&lt;-&gt;D is the total travel = 10 units
+</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <child>
+                      <object class="GtkTextView" id="textview4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="buffer">textbuffer1</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label6">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Shared Home Switch</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkHBox" id="hbox4">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkLabel" id="label8">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">    A is the negative software limit
+    B is the G53 machine coordinate Origin
+    C is the home switch trip point
+    D is the positive software limit
+    H is the final home positon  = 0 units
+    The -L and +L are the limit switches trip points
+
+    A&lt;-&gt;B is the Negative Travel Distance  = -3 units
+    B&lt;-&gt;C is the Home Swicth Location  = -2.3 units
+    B&lt;-&gt;D is the Positive Travel Distance  = 7 units
+    A&lt;-&gt;D is the total travel = 10 units
+</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkImage" id="helppic2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-missing-image</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <child>
+                      <object class="GtkTextView" id="textview3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="buffer">textbuffer1</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label5">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Separate Homing Switches</property>
+              </object>
+              <packing>
+                <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
@@ -325,10 +549,24 @@ possible.</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="map_7i76_image">
+                  <object class="GtkScrolledWindow" id="scrolledwindow5">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <object class="GtkViewport" id="viewport1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkImage" id="map_7i76_image">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-missing-image</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -375,10 +613,24 @@ possible.</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="map_7i77_image">
+                  <object class="GtkScrolledWindow" id="scrolledwindow3">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="stock">gtk-missing-image</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <object class="GtkViewport" id="viewport2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkImage" id="map_7i77_image">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-missing-image</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">True</property>
