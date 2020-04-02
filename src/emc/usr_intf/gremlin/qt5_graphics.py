@@ -238,6 +238,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.update()
         return True
 
+    # when shown make sure display is set to the default view
+    def showEvent(self, event):
+        super(Lcnc_3dGraphics ,self).showEvent(event)
+        self.set_current_view()
+
     def load(self,filename = None):
         s = self.stat
         s.poll()
