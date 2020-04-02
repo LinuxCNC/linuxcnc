@@ -128,6 +128,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._reload_filename = fname
         self.load(fname)
         STATUS.emit('graphics-gcode-properties',self.gcode_properties)
+        # reset the current view to standard calculated zoom and position
+        self.set_current_view()
 
     def set_metric_units(self, w, state):
         self.metric_units = state
@@ -150,10 +152,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def reloadfile(self, w):
         LOG.debug('reload the display: {}'.format(self._reload_filename))
-        dist = self.get_zoom_distance()
         try:
-            self.load_program(None, self._reload_filename)
-            self.set_zoom_distance(dist)
+            self.load(self._reload_filename)
+            STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
             print 'error', self._reload_filename
             pass

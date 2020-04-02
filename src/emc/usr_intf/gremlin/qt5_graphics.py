@@ -268,8 +268,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         finally:
             shutil.rmtree(td)
 
-
-        self.set_current_view()
+        self._redraw()
 
     def calculate_gcode_properties(self, canon):
         def dist((x,y,z),(p,q,r)):
