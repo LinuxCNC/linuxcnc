@@ -26,6 +26,7 @@ class Notify:
         self.notify_list = []
         self.alarmpage = []
         self.critical_message = None
+        self.normal_message = None
         STATUS.connect('shutdown', self.cleanup)
 
     # This prints a message in the status bar (if available)
@@ -38,9 +39,10 @@ class Notify:
         except:
             pass
         try:
-            n = self.show_notification(title, message, icon, timeout)
+            n = self.build_general_notification(title, message, icon, timeout=timeout)
+            n.show()
         except Exception as e:
-               log.warning('show_notification error:', exc_info=e)
+               log.warning('build_generalnotification error:', exc_info=e)
         return n
 
     # Screenoption uses this for errors / operator messages
@@ -54,19 +56,30 @@ class Notify:
                log.warning('New_critical error:', exc_info=e)
         return self.critical_message
 
+    # Screenoption uses this for errors / operator messages
+    # they stay up till cleared
+    # self.critical_message gives reference for external controls
+    def new_normal(self, icon=""):
+        messageid = None
+        try:
+            self.normal_message = self.build_general_notification(icon)
+        except Exception as e:
+               log.warning('New_critical error:', exc_info=e)
+        return self.normal_message
+
     # messages that require yes/no response.
     def notify_yn(self, title, message,icon, timeout, function_callback):
         try:
             self.show_yn_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_notification_yn error:', exc_info=e)
+               log.warning('build_generalnotification_yn error:', exc_info=e)
 
     # message that require acknowledgement
     def notify_ok(self, title, message,icon, timeout, function_callback):
         try:
             self.show_ok_notification(title, message, icon, timeout,function_callback)
         except Exception as e:
-               log.warning('show_notification_ok error:', exc_info=e)
+               log.warning('build_generalnotification_ok error:', exc_info=e)
 
 
 #####################################################
@@ -83,13 +96,12 @@ class Notify:
         self.notify_list.append(n)
         return n
 
-    def show_notification(self, title, message, icon=None, timeout=4):
+    def build_general_notification(self, title='', message='', icon=None, timeout=2):
         n = sys_notify.Notification(title, message, icon)
         n.setUrgency(sys_notify.Urgency.NORMAL)
         n.setTimeout(int(timeout * 1000))
         n.addAction("action_click","Show all Messages", self.action_callback)
         n.onClose(self.handle_closed)
-        n.show()
         self.notify_list.append(n)
         return n
 
@@ -158,7 +170,7 @@ class Notify:
             n.body ='{}\nREVIEW #{} of {}\n{}'.format( n.body,
                                                           i,
                                                           len(self.alarmpage),
-                                                          self.alarmpage[num])
+                                                          self.alarmpage[num][1])
         n.show()
 
 #####################################################
@@ -166,17 +178,19 @@ class Notify:
 #####################################################
     # update the critical message display
     # this adds the new message to the old
-    def update(self, n, title='', message=''):
+    def update(self, n, title='', message='', status_timeout=5, timeout=None):
         if title is not None:
             n.title = title
         n.body = n.body +'\n'+ title+'\n'+ message
+        if timeout is not None:
+            n.setTimeout(timeout* 1000)
         n.show()
         try:
-            self.show_status(message, 5)
+            self.show_status(message, status_timeout)
         except:
             pass
         try:
-            self.add_alarm_entry(message)
+            self.add_alarm_entry(n, message)
         except:
             pass
 
@@ -195,12 +209,12 @@ class Notify:
         num = len(self.alarmpage) - 1 - self.lastnum
         if self.critical_message is not None:
             if self.alarmpage:
-                n = self.critical_message
-                n.body ='{}\Review #{} of {}\n{}'.format( '',
-                                                          self.lastnum+1,
-                                                          len(self.alarmpage),
-                                                          self.alarmpage[num])
+                n = self.alarmpage[num][0]
+                n.body ='Review #{} of {}\n{}'.format( self.lastnum+1,
+                                                       len(self.alarmpage),
+                                                       self.alarmpage[num][1])
                 n.show()
+                self.show_status(n.body)
                 # ready for next message if there is one, other wise reset counter
                 self.lastnum += 1
                 if self.lastnum >= len(self.alarmpage):
@@ -208,17 +222,22 @@ class Notify:
                     self.lastnum = 0
 
     def external_close(self):
-        n = self.critical_message
-        n.body =''
-        n.close()
+        for num,i in enumerate(self.alarmpage):
+            print num, i
+        if self.critical_message is not None:
+            n = self.critical_message
+            n.body =''
+            n.close()
+        if self.normal_message is not None:
+            self.normal_message.close()
         self.lastnum = 0
 
     # update the system alarm page, if there is one
     # this should be sent to STATUS message I think?
-    def add_alarm_entry(self, message):
+    def add_alarm_entry(self, mobject, message):
         if message == None:message = ''
         try:
-            self.alarmpage.append(message)
+            self.alarmpage.append((mobject,message))
         except:
             pass
 

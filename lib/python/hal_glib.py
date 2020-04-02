@@ -817,6 +817,12 @@ class _GStat(gobject.GObject):
     def is_all_homed(self):
         return self._is_all_homed
 
+    def is_homing(self):
+        for j in range(0, self.stat.joints):
+            if self.stat.joint[j].get('homing'):
+                return True
+        return False
+
     def machine_is_on(self):
         return self.old['state']  > linuxcnc.STATE_OFF
 
