@@ -148,7 +148,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except:
             LOG.warning('linuxcnc staus failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
             stat = fakeStatus()
-        print stat
 
         self.inifile = linuxcnc.ini(inifile)
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
@@ -239,6 +238,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.update()
         return True
 
+    # when shown make sure display is set to the default view
+    def showEvent(self, event):
+        super(Lcnc_3dGraphics ,self).showEvent(event)
+        self.set_current_view()
+
     def load(self,filename = None):
         s = self.stat
         s.poll()
@@ -268,8 +272,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         finally:
             shutil.rmtree(td)
 
-
-        self.set_current_view()
+        self._redraw()
 
     def calculate_gcode_properties(self, canon):
         def dist((x,y,z),(p,q,r)):
