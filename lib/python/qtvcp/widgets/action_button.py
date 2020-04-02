@@ -171,7 +171,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         def limits_override_test(data):
-            if data:
+            if STATUS.is_homing():
+                return
+            elif data:
                 self.setEnabled(True)
             else:
                 self.setEnabled(False)
