@@ -10,6 +10,7 @@ from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.widgets.nurbs_editor import NurbsEditor
 from qtvcp.lib.keybindings import Keylookup
 
 from qtvcp.core import Status, Action
@@ -29,6 +30,7 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 STYLEEDITOR = SSE()
+NURBSEDITOR = NurbsEditor()
 
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
@@ -74,7 +76,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F8','on_keycall_F8')
         KEYBIND.add_call('Key_F9','on_keycall_custom','f9 pressed tesst')
         KEYBIND.add_call('Key_F10','on_keycall_custom','f10 pressed tesst')
-        KEYBIND.add_call('Key_F11','on_keycall_custom','f11 pressed test')
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
@@ -245,6 +247,13 @@ class HandlerClass:
     def on_keycall_F8(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
+    # f9, f10  call this function with different values
+    def on_keycall_custom(self,event,state,shift,cntrl,value):
+        if state:
+            print 'custom keycall function value: ',value
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if state:
+            NURBSEDITOR.load_dialog()
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             STYLEEDITOR.load_dialog()
@@ -277,10 +286,6 @@ class HandlerClass:
         pass
         #self.kb_jog(state, 3, -1, shift, linear=False)
 
-    # f9, f10 and f11 call this function with different values
-    def on_keycall_custom(self,event,state,shift,cntrl,value):
-        if state:
-            print 'custom keycall function value: ',value
 
     ###########################
     # **** closing event **** #
