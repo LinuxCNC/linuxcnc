@@ -148,7 +148,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except:
             LOG.warning('linuxcnc staus failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
             stat = fakeStatus()
-        print stat
 
         self.inifile = linuxcnc.ini(inifile)
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
