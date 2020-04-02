@@ -264,6 +264,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
                 if self.desktop_notify:
                     NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
+            elif kind == 255: # temparary info
+                if self.desktop_notify:
+                    NOTICE.notify( title='OPERATOR DISPLAY:', message=text, status_timeout=0, timeout=2)
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
