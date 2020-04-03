@@ -1,0 +1,15 @@
+@startuml
+@startsalt
+{+
+reset  | stop           | start| . | <&power-standby>
+feed+  | feed-          | Spindle+ | spindle-        | .
+m-home | safe-z         | w-home   | s-on/off        | fn
+.      | .              | probe-z  | .               | .
+.      | .              | macro10  | .               | .
+.      | <&reload> axis | .        | <&reload> speed | .
+MPG    | .              | .        | .               |step 
+.      | .              | .        | .               | .
+.      | <&reload> hand wheel| *                     | .
+}
+@endsalt
+@enduml
