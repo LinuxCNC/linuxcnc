@@ -102,18 +102,6 @@ void HandWheelCounters::enableLeadCounter(bool isEnabled)
     mIsLeadCounterActive = isEnabled;
 }
 // ----------------------------------------------------------------------
-void HandWheelCounters::setLeadValueLimit(int32_t min, int32_t max)
-{
-    mLeadMinValue = min;
-    mLeadMaxValue = max;
-}
-// ----------------------------------------------------------------------
-void HandWheelCounters::setFeedValueLimit(int32_t min, int32_t max)
-{
-    mFeedMinValue = min;
-    mFeedMaxValue = max;
-}
-// ----------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const HandWheelCounters& data)
 {
     std::ios init(NULL);

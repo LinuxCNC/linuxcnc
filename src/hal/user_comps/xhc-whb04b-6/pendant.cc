@@ -337,7 +337,7 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_60(0x1a, "", "60%"),
     percent_100(0x1b, "", "100%"),
     lead(0x1c, "Lead", ""),
-    undefined(0x00, "Mpg", ""),
+    undefined(0x00, "", ""),
     codeMap{
         {speed_0_001.code, &speed_0_001},
         {speed_0_01.code,  &speed_0_01},

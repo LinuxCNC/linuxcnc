@@ -80,7 +80,6 @@ public:
     bool isLeadCounterActive() const;
     void enableLeadCounter(bool isEnabled);
     void setLeadValueLimit(int32_t min, int32_t max);
-    void setFeedValueLimit(int32_t min, int32_t max);
 
 protected:
     bool               mIsLeadCounterActive{false};
@@ -90,8 +89,6 @@ protected:
     };
     int32_t            mLeadMinValue{0};
     int32_t            mLeadMaxValue{150};
-    int32_t            mFeedMinValue{0};
-    int32_t            mFeedMaxValue{150};
 
 private:
 };
