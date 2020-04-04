@@ -52,7 +52,7 @@ net pdnt.mode.teleop                      whb.halui.mode.teleop                 
 net pdnt.mode.is-auto                     halui.mode.is-auto                    whb.halui.mode.is-auto
 net pdnt.mode.is-manual                   halui.mode.is-manual                  whb.halui.mode.is-manual
 net pdnt.mode.is-mdi                      halui.mode.is-mdi                     whb.halui.mode.is-mdi
-net halui-mode-is-joint                   halui.mode.is-joint                   whb.halui.mode.is-joint
+net pdnt.mode.is.joint                    halui.mode.is-joint                   whb.halui.mode.is-joint
 net pdnt.mode.is-teleop                   halui.mode.is-teleop                  whb.halui.mode.is-teleop
 
 

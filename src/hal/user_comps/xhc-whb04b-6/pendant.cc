@@ -337,7 +337,7 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_60(0x1a, "", "60%"),
     percent_100(0x1b, "", "100%"),
     lead(0x1c, "Lead", ""),
-    undefined(0x00, "", ""),
+    undefined(0x00, "Mpg", ""),
     codeMap{
         {speed_0_001.code, &speed_0_001},
         {speed_0_01.code,  &speed_0_01},
@@ -605,7 +605,6 @@ void FeedRotaryButton::update()
 
     if (*mKey == KeyCodes::Feed.lead)
     {
-        //mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
         mStepSize    = mLeadSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
         mIsPermitted = mLeadSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
     }
@@ -1390,7 +1389,6 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     else if (feed.code == KeyCodes::Feed.lead.code)
     {
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
-        mHal.setFeedValueSelectedLead(isActive);
     }
 }
 // ----------------------------------------------------------------------
@@ -1414,8 +1412,7 @@ void Pendant::dispatchFeedValueToHal()
             mHal.setStepMode(false);
             mHal.setMpgMode(true);
             mHal.setConMode(false);
-            mHal.setFeedOverrideScale(0);
-//            axisJogStepSize = feedButton.stepSize() * 0.001 * mHal.getFeedOverrideMaxVel();
+            mHal.setFeedOverrideScale(0);                                                  // NO SEND MOVE IN MPG MODE only used for Feed override
         }
         else if (feedButton.stepMode() == HandwheelStepmodes::Mode::CON)
         {
@@ -1448,28 +1445,27 @@ void Pendant::onFeedInactiveEvent(const KeyCode& feed)
 bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
 {
 
+    FeedRotaryButton& feedButton = mCurrentButtonsState.feedButton();
+    
     if (HandWheelCounters::CounterNameToIndex::UNDEFINED != counters.activeCounter() &&
         0 != counters.counts())
     {
         *mPendantCout << mPrefix << "wheel  event " << counters.counts() << endl;
 
-        if (mIsLeadModeSpindle)
+        if (counters.isLeadCounterActive() && mIsLeadModeSpindle)
         {
-            if (counters.isLeadCounterActive())
-            {
               mHandWheel.counters().setLeadValueLimit(
                   std::numeric_limits<int32_t>::min(),
                   std::numeric_limits<int32_t>::max());
-            }
         }
         else
         {
-            if (!counters.isLeadCounterActive())
-        {
-            mHandWheel.counters().setLeadValueLimit(
-                mHal.getFeedOverrideMinValue() * 100,
-                mHal.getFeedOverrideMaxValue() * 100);
-        }
+          if (feedButton.stepMode() == HandwheelStepmodes::Mode::MPG && mIsLeadModeFeed)
+          {
+                  mHandWheel.counters().setLeadValueLimit(
+                      mHal.getFeedOverrideMinValue() * 100,
+                      mHal.getFeedOverrideMaxValue() * 100);
+          }
         }
         
         if (0 != delta)
@@ -1485,10 +1481,22 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                     mHal.toggleSpindleDecrease();
                 }
             }
-            else // lead mode is feed
+            else if (feedButton.stepMode() == HandwheelStepmodes::Mode::MPG && mIsLeadModeFeed)
             {
-        mHal.setJogCounts(counters);
-            }
+                   if (delta > 0)
+                   {
+                       mHal.toggleFeedrateIncrease();
+                   }
+                   else
+                   {
+                       mHal.toggleFeedrateDecrease();
+                   }
+             }            
+             else
+                       // lead mode is feed    
+             {  
+                    mHal.setJogCounts(counters);
+             }
         }
         mDisplay.onJogDialEvent(counters, delta);
         return true;

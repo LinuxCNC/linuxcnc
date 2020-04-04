@@ -548,6 +548,14 @@ public:
     //! \sa HalMemory::Out::spindleDoDecrease
     //! \sa spindleDecrease(int8_t)
     void toggleSpindleDecrease();
+    //! Inverts the feedrate increase signal state once.
+    //! \sa HalMemory::Out::feedrateDoIncrease
+    //! \sa feedrateIncrease(int8_t)
+    void toggleFeedrateIncrease();
+    //! Inverts the feedrate decrease signal state once.
+    //! \sa HalMemory::Out::feedrateDoDecrease
+    //! \sa feedrateDecrease(int8_t)
+    void toggleFeedrateDecrease();
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);

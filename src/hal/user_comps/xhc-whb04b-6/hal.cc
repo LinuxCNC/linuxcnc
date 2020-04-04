@@ -1431,4 +1431,30 @@ void Hal::toggleSpindleDecrease()
         *memory->out.spindleOverrideDoDecrease = true;
     }
 }
+// ----------------------------------------------------------------------
+void Hal::toggleFeedrateIncrease()
+{
+    if (*memory->out.feedOverrideIncrease)
+    {
+        *memory->out.feedOverrideIncrease = false;
+    }
+    else
+    {
+        *memory->out.feedOverrideScale = 0.01;
+        *memory->out.feedOverrideIncrease = true;
+    }
+}
+// ----------------------------------------------------------------------
+void Hal::toggleFeedrateDecrease()
+{
+    if (*memory->out.feedOverrideDecrease)
+    {
+        *memory->out.feedOverrideDecrease = false;
+    }
+    else
+    {
+        *memory->out.feedOverrideScale = 0.01;
+        *memory->out.feedOverrideDecrease = true;
+    }
+}
 }

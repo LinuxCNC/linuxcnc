@@ -39,7 +39,6 @@ void HandWheelCounters::count(int8_t delta)
     {
         idx = CounterNameToIndex::LEAD;
     }
-
     if (CounterNameToIndex::UNDEFINED == idx)
     {
         return;
@@ -69,7 +68,7 @@ int32_t HandWheelCounters::counts() const
         auto idx = static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::LEAD);
         return mCounters[idx];
     }
-    else
+    else 
     {
         assert(mActiveAxisCounter != CounterNameToIndex::UNDEFINED);
         auto idx = static_cast<typename std::underlying_type<CounterNameToIndex>::type>(mActiveAxisCounter);
@@ -107,6 +106,12 @@ void HandWheelCounters::setLeadValueLimit(int32_t min, int32_t max)
 {
     mLeadMinValue = min;
     mLeadMaxValue = max;
+}
+// ----------------------------------------------------------------------
+void HandWheelCounters::setFeedValueLimit(int32_t min, int32_t max)
+{
+    mFeedMinValue = min;
+    mFeedMaxValue = max;
 }
 // ----------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const HandWheelCounters& data)

@@ -83,8 +83,8 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << "Lead + jogwheel changes the spindle speed. Each tick will increase/decrease the spindle speed.\n"
         << "\n"
         << " -f, \n"
-        << "    Lead in Feed mode: "
-        << "Lead + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
+        << "    MPG in Feed mode: "
+        << "MPG + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
         << "\n"        
         
         << " -u, -U" << endl
