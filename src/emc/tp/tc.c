@@ -822,7 +822,7 @@ int pmRigidTapInit(PmRigidTap * const tap,
 
     // Setup initial tap state
     tap->reversal_target = tap->xyz.tmag;
-    tap->state = TAPPING;
+    tap->state = RIGIDTAP_START;
     return TP_ERR_OK;
 
 }

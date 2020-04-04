@@ -2374,6 +2374,10 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
     if (emcmotStatus->spindle.direction < 0) new_spindlepos = -new_spindlepos;
 
     switch (tc->coords.rigidtap.state) {
+        case RIGIDTAP_START:
+            old_spindlepos = new_spindlepos;
+            tc->coords.rigidtap.state = TAPPING;
+            // Deliberate fallthrough
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
