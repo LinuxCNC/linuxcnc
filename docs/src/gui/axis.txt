@@ -1458,3 +1458,39 @@ root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-wid
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----
+
+== Axis Alternative GUI Displays
+
+It is possible to use a customized version of the original axis.tcl as the GUI display.
+
+There are two different ways this can be achieved:
+
+. A TCL file distributed with LinuxCNC. This allows developers to provide several
+ different GUI screens
+. A TCL file in the users home directory. This allows any user to use a
+ customized GUI without needing to change any source code
+ 
+Several rules need to be followed to achieve this:
+
+* The original widget names should not be changed
+* The original widget hierarchy should not be changed
+* The TCL file has to have the extension '.tcl'
+* The required file locations are:
+** For 1 above:
+*** <gui_name>.tcl in share/axis/tcl/
+*** images in share/axis/images/<gui_name>/
+** For 2 above:
+*** <gui_name>.tcl in ~/linuxcnc/axisguis/<gui_name>/
+*** images in ~/linuxcnc/axisguis/<gui_name>/
+
+To enable a customized GUI display requires editing the DISPLAY variable in the
+ <<sec:display-section, [DISPLAY] Section>> of the INI Configuration.
+ 
+Examples:
+
+----
+DISPLAY = axis           - uses the standard axis.tcl screen.
+DISPLAY = axis axis      - uses the LinuxCNC provided axis2.tcl screen.
+DISPLAY = axis ~myscreen - uses the user provided screen named myscreen.tcl
+                           located in ~/linuxcnc/axisguis/myscreen/
+----

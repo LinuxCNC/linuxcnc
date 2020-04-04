@@ -115,6 +115,15 @@ if sys.argv[1] != "-ini":
 
 inifile = linuxcnc.ini(sys.argv[2])
 
+if len(inifile.find("DISPLAY", "DISPLAY").split()) == 2:
+    gui_tmp = inifile.find("DISPLAY", "DISPLAY").split()[1]
+    if gui_tmp.startswith("~"):
+        gui_name = "~/linuxcnc/axisguis/{0}/{0}".format(gui_tmp.strip("~"))
+    else:
+        gui_name = gui_tmp
+else:
+    gui_name = "axis"
+
 ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
@@ -122,7 +131,7 @@ root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
 root_window.withdraw()
-nf.start(root_window)
+nf.start(root_window, gui_name)
 nf.makecommand(root_window, "_", _)
 rs274.options.install(root_window)
 root_window.tk.call("set", "version", linuxcnc.version)
@@ -143,7 +152,7 @@ try:
     root_window.tk.call("set","::INTERP_WAITING"     ,linuxcnc.INTERP_WAITING)
     root_window.tk.call("set","::TRAJ_MODE_FREE"     ,linuxcnc.TRAJ_MODE_FREE)
     root_window.tk.call("set","::KINEMATICS_IDENTITY",linuxcnc.KINEMATICS_IDENTITY)
-    nf.source_lib_tcl(root_window,"axis.tcl")
+    nf.source_lib_tcl(root_window,"{}.tcl".format(gui_name))
 except TclError:
     print root_window.tk.call("set", "errorInfo")
     raise

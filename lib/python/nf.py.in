@@ -108,10 +108,17 @@ SHARE = os.path.join(PREFIX, "share", "axis")
 tcl_libdir = os.path.join(SHARE, "tcl")
 
 def source_lib_tcl(r, f):
-    r.tk.call("source", os.path.join(tcl_libdir, f))
+    if f.startswith("~"):
+        r.tk.call("source", f)
+    else:
+        r.tk.call("source", os.path.join(tcl_libdir, f))
 
-def start(r):
-    r.tk.call("set", "imagedir", os.path.join(SHARE, "images"))
+def start(r,f):
+    if f:
+        if f.startswith("~"):
+            r.tk.call("set", "imagedir", "{}/images".format(os.path.dirname(f)))
+        else:
+            r.tk.call("set", "imagedir", os.path.join(SHARE, "images/{}".format(f)))
     r.tk.call("lappend", "auto_path", os.path.join(tcl_libdir, "bwidget"))
     r.tk.call("lappend", "auto_path", "/usr/lib")
 

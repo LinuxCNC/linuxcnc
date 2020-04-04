@@ -244,14 +244,35 @@ is .inc.  Do not use a file extension of .ini for included files.
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
 for LinuxCNC are AXIS and Touchy. There are several newer interfaces,
-like gmoccapy and gscreen. Axis is an interface for use with normal
+like Gmoccapy, Gscreen and Qtvcp. Axis is an interface for use with normal
 computer and monitor, Touchy is for use with touch screens. Gmoccapy
 can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
-* 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
+* 'DISPLAY = axis' - There are two ways to specify which GUI display to use:
+
+   . 'DISPLAY = option' - The name of the user interface to use. Valid options
+      may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'qtvcp','tklinuxcnc'. This
+      will use the specified standard user interface supplied with LinuxCNC.
+      An example would be:
+
+
+      DISPLAY = axis
+
+
+   . 'DISPLAY = axis option' - This selects AXIS as the user interface and
+      also selects a custom TCL file as the GUI display. Valid options are
+      either the name of a TCL file (without the extension) supplied with
+      LinuxCNC such as axis2.tcl or the prefix *+\~+* followed by the name
+      (without the extension) of a users own customised TCL file which needs
+      to be located in ~/linuxcnc/axisguis/<gui_name>/. Examples of these two
+      would be:
+
+
+      DISPLAY = axis axis2
+      DISPLAY = axis ~myscreen
+
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
