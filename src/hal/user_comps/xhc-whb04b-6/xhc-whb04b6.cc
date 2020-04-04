@@ -281,8 +281,8 @@ XhcWhb04b6Component::XhcWhb04b6Component() :
                  MetaButtonCodes(mKeyCodes.Buttons.probe_z, mKeyCodes.Buttons.function),
                  MetaButtonCodes(mKeyCodes.Buttons.macro10, mKeyCodes.Buttons.undefined),
                  MetaButtonCodes(mKeyCodes.Buttons.macro10, mKeyCodes.Buttons.function),
-                 MetaButtonCodes(mKeyCodes.Buttons.mpg, mKeyCodes.Buttons.undefined),
-                 MetaButtonCodes(mKeyCodes.Buttons.mpg, mKeyCodes.Buttons.function),
+                 MetaButtonCodes(mKeyCodes.Buttons.continuous, mKeyCodes.Buttons.undefined),
+                 MetaButtonCodes(mKeyCodes.Buttons.continuous, mKeyCodes.Buttons.function),
                  MetaButtonCodes(mKeyCodes.Buttons.step, mKeyCodes.Buttons.undefined),
                  MetaButtonCodes(mKeyCodes.Buttons.step, mKeyCodes.Buttons.function),
         //! it is expected to terminate this array with the "undefined" software button

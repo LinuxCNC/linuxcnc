@@ -45,7 +45,7 @@ class XhcWhb04b6Component;
 class Hal;
 class UsbOutPackageData;
 // ----------------------------------------------------------------------
-//! If hand wheel is in step mode (toggled by Step/Mpg" button) this speed setting is applied.
+//! If hand wheel is in step mode (toggled by Step/Con" button) this speed setting is applied.
 //! In step mode the step is in machine units distance.
 class HandwheelStepModeStepSize
 {
@@ -76,7 +76,7 @@ private:
     const float mSequence[static_cast<std::underlying_type<HandwheelStepModeStepSize::PositionNameIndex>::type>(PositionNameIndex::POSITIONS_COUNT)];
 };
 // ----------------------------------------------------------------------
-//! If hand wheel is in mpg mode (toggled by Step/Mpg" button) this speed setting is applied.
+//! If hand wheel is in MPG mode (toggled by Step/Con/Mpg button) this speed setting is applied.
 //! In Mpg mode the step speed is in percent of max-velocity.
 class HandwheelMpgModeStepSize
 {
@@ -105,6 +105,37 @@ public:
 
 private:
     const int8_t mSequence[static_cast<std::underlying_type<HandwheelMpgModeStepSize::PositionNameIndex>::type>(PositionNameIndex::POSITIONS_COUNT)];
+};
+// ----------------------------------------------------------------------
+//! If hand wheel is in con mode (toggled by Step/Con" button) this speed setting is applied.
+//! In Con mode the step speed is in percent of max-velocity.
+class HandwheelConModeStepSize
+{
+public:
+    enum class PositionNameIndex : uint8_t
+    {
+        RotaryButton2percent   = 0,
+        RotaryButton5percent   = 1,
+        RotaryButton10percent  = 2,
+        RotaryButton30percent  = 3,
+        RotaryButton60percent  = 4,
+        RotaryButton100percent = 5,
+        NA0                    = 6,
+        RotaryButtonUndefined  = 7,
+        POSITIONS_COUNT        = 8
+    };
+
+    HandwheelConModeStepSize();
+    ~HandwheelConModeStepSize();
+
+    //! Translates the button position to step size in %.
+    //! \param buttonPosition
+    //! \return the step size in percent N ? {[0, 100], -1}
+    float getStepSize(PositionNameIndex buttonPosition) const;
+    virtual bool isPermitted(PositionNameIndex buttonPosition) const;
+
+private:
+    const int8_t mSequence[static_cast<std::underlying_type<HandwheelConModeStepSize::PositionNameIndex>::type>(PositionNameIndex::POSITIONS_COUNT)];
 };
 // ----------------------------------------------------------------------
 //! If hand wheel is in Lead mode (activated by the feed rotary button) this speed setting is applied.
@@ -220,7 +251,7 @@ public:
     const KeyCode function;
     const KeyCode probe_z;
     const KeyCode macro10;
-    const KeyCode mpg;
+    const KeyCode continuous;
     const KeyCode step;
     const KeyCode undefined;
     const KeyCode& getKeyCode(uint8_t keyCode) const;
@@ -236,14 +267,14 @@ public:
     //! \param softwareButton the button pressed
     //! \return true if a subsequent re-evaluation should be performed.
     //! Example: A button event changes the feed rotary buttons step mode from
-    //! step to mpg. The button must be re-evaluated, otherwise the
+    //! step to con. The button must be re-evaluated, otherwise the
     //! button state remains untouched until the next button's event.
     virtual bool onButtonPressedEvent(const MetaButtonCodes& metaButton) = 0;
     //! Called when button is released.
     //! \param softwareButton the button released
     //! \return true if a subsequent re-evaluation should be performed.
     //! Example: A button event changes the feed rotary buttons step mode from
-    //! step to mpg. The button must be re-evaluated, otherwise the
+    //! step to con. The button must be re-evaluated, otherwise the
     //! button state remains untouched until the next button's event.
     virtual bool onButtonReleasedEvent(const MetaButtonCodes& metaButton) = 0;
     virtual void onAxisActiveEvent(const KeyCode& axis) = 0;
@@ -286,7 +317,7 @@ public:
     const MetaButtonCodes macro9;
     const MetaButtonCodes macro10;        // Hardcoded Absolue/relative Dro
     const MetaButtonCodes macro14;
-    const MetaButtonCodes mpg;
+    const MetaButtonCodes continuous;
     const MetaButtonCodes macro15;
     const MetaButtonCodes step;
     const MetaButtonCodes macro16;
@@ -372,12 +403,14 @@ private:
     float                    mStepSize;
     KeyEventListener* mEventListener;
 
-    static const HandwheelStepModeStepSize       mStepStepSizeMapper;
-    static const HandwheelMpgModeStepSize mMpgSizeMapper;
-    static const HandwheelLeadModeStepSize       mLeadStepSizeMapper;
+    static const HandwheelStepModeStepSize       mStepSizeMapper;
+    static const HandwheelMpgModeStepSize        mMpgSizeMapper;
+    static const HandwheelConModeStepSize        mConSizeMapper;
+    static const HandwheelLeadModeStepSize       mLeadSizeMapper;
 
     static const std::map<const KeyCode*, HandwheelStepModeStepSize::PositionNameIndex>       mStepKeycodeLut;
     static const std::map<const KeyCode*, HandwheelMpgModeStepSize::PositionNameIndex>        mMpgKeycodeLut;
+    static const std::map<const KeyCode*, HandwheelConModeStepSize::PositionNameIndex>        mConKeycodeLut;
     static const std::map<const KeyCode*, HandwheelLeadModeStepSize::PositionNameIndex>       mLeadKeycodeLut;
 
     void update();
@@ -540,8 +573,8 @@ public:
     void setLeadModeSpindle();
     //! Sets Lead mode to feed: Jog dial will change feed override.
     //! Note: Switching Lead mode is not supported at runtime, only at start.
-    //! \sa mIsLeadModeSpindle
-    //! \sa setLeadModeSpindle()
+    //! \sa mIsLeadModeFeed
+    //! \sa setLeadModeFeed()
     void setLeadModeFeed();
 private:
     Hal& mHal;
@@ -551,6 +584,7 @@ private:
     Display      mDisplay;
     //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
     bool         mIsLeadModeSpindle = true;
+    bool         mIsLeadModeFeed = true;
 
     float mScale;
     float mMaxVelocity;

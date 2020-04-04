@@ -488,6 +488,8 @@ public:
     void setMpgMode(bool enabled);
     //! \sa setStepMode(bool, size_t)
     void setStepMode(bool enabled);
+    //! \sa setConMode(bool, size_t)
+    void setConMode(bool enabled);
     //! Sets the hal state of the macro pin. Usually called in case the macro
     //! button is pressed or released. A macro button can be any button
     //! when pressed together with the modifier key.

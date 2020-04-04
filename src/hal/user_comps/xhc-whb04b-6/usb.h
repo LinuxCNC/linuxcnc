@@ -58,19 +58,19 @@ public:
     //! \see DisplayIndicatorBitFields::stepMode
     enum class StepMode : uint8_t
     {
-        //! Displays "CON:<xxx>%" according to feed rotary button position:
-        //! CON:2%, CON:5%, CON:10%, CON:30%, CON:60%, CON:100%
-            CON             = 0x00,
+        //! Displays "CON: <xxx>%" according to feed rotary button position:
+        //! CON:2%, CON:5%, CON:10%, CON:30%, CON:60%, CON:100%.
+            CON = 0x00,
         //! Displays "STP: <x.xxxx>" according to feed rotary button position:
         //! STP:0.001, STP:0.01, STP:0.1, STP:1.0.
         //! On 60%, 100% or Lead still displays "STP: 1.0" (firmware bug).
-            STEP                   = 0x01,
-        //! Displays "MPG <xx>%" according to feed rotary button position:
-        //! MPG:2%, MPG:5%, MPG:10%, MPG:30%, MPG:60%, MPG:100%.
+            STEP = 0x01,
+        //! Displays "MPG: <xxx>%" according to feed rotary button position:
+        //! MPG:2%, MPG:5%, MPG:10%, MPG:30%, MPG:60%, MPG:100%
             MPG = 0x02,
         //! Displays <xxx%> according to feed rotary button position:
         //! 2%, 5%, 10%, 30%, 60%, 100%.
-            PERCENT                = 0x03
+            PERCENT = 0x03
     };
 };
 // ----------------------------------------------------------------------

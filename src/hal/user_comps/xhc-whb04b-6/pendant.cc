@@ -88,6 +88,25 @@ bool HandwheelMpgModeStepSize::isPermitted(PositionNameIndex buttonPosition) con
     return (getStepSize(buttonPosition) > 0);
 }
 // ----------------------------------------------------------------------
+HandwheelConModeStepSize::HandwheelConModeStepSize() :
+    mSequence{2, 5, 10, 30, 60, 100, 0}
+{
+}
+// ----------------------------------------------------------------------
+HandwheelConModeStepSize::~HandwheelConModeStepSize()
+{
+}
+// ----------------------------------------------------------------------
+float HandwheelConModeStepSize::getStepSize(PositionNameIndex buttonPosition) const
+{
+    return mSequence[static_cast<uint8_t>(buttonPosition)];
+}
+// ----------------------------------------------------------------------
+bool HandwheelConModeStepSize::isPermitted(PositionNameIndex buttonPosition) const
+{
+    return (getStepSize(buttonPosition) > 0);
+}
+// ----------------------------------------------------------------------
 HandwheelLeadModeStepSize::HandwheelLeadModeStepSize() :
     mSequence{0, 0, 0, 0, 0, 0, 0.01}
 {
@@ -206,8 +225,8 @@ MetaButtonsCodes::MetaButtonsCodes(const ButtonsCode& buttons) :
     macro9(buttons.probe_z, buttons.function),
     macro10(buttons.macro10, buttons.undefined),
     macro14(buttons.macro10, buttons.function),
-    mpg(buttons.mpg, buttons.undefined),
-    macro15(buttons.mpg, buttons.function),
+    continuous(buttons.continuous, buttons.undefined),
+    macro15(buttons.continuous, buttons.function),
     step(buttons.step, buttons.undefined),
     macro16(buttons.step, buttons.function),
     undefined(buttons.undefined, buttons.undefined),
@@ -239,7 +258,7 @@ MetaButtonsCodes::MetaButtonsCodes(const ButtonsCode& buttons) :
         {&macro9},
         {&macro10},
         {&macro14},
-        {&mpg},
+        {&continuous},
         {&macro15},
         {&step},
         {&macro16},
@@ -347,7 +366,7 @@ ButtonsCode::ButtonsCode() :
     function(0x0c, "fn", "<unused>"),
     probe_z(0x0d, "probe-z", "macro-9"),
     macro10(0x10, "macro-10", "macro-14"),
-    mpg(0x0e, "mode-mpg", "macro-15"),
+    continuous(0x0e, "mode-continuous", "macro-15"),
     step(0x0f, "mode-step", "macro-16"),
     undefined(0x00, "", ""),
     codeMap{
@@ -365,8 +384,8 @@ ButtonsCode::ButtonsCode() :
         {function.code,               &function},
         {probe_z.code,                &probe_z},
         {macro10.code,                &macro10},
-        {mpg.code, &mpg},
-        {step.code,        &step},
+        {continuous.code,             &continuous},
+        {step.code,                   &step},
         {undefined.code,              &undefined}
     }
 {
@@ -476,9 +495,10 @@ RotaryButton& RotaryButton::operator=(const RotaryButton& other)
     return *this;
 }
 // ----------------------------------------------------------------------
-const HandwheelStepModeStepSize       FeedRotaryButton::mStepStepSizeMapper;
-const HandwheelMpgModeStepSize FeedRotaryButton::mMpgSizeMapper;
-const HandwheelLeadModeStepSize       FeedRotaryButton::mLeadStepSizeMapper;
+const HandwheelStepModeStepSize       FeedRotaryButton::mStepSizeMapper;
+const HandwheelMpgModeStepSize        FeedRotaryButton::mMpgSizeMapper;
+const HandwheelLeadModeStepSize       FeedRotaryButton::mLeadSizeMapper;
+const HandwheelConModeStepSize        FeedRotaryButton::mConSizeMapper;
 
 const std::map<const KeyCode*, HandwheelStepModeStepSize::PositionNameIndex>       FeedRotaryButton::mStepKeycodeLut{
     {&KeyCodes::Feed.speed_0_001, HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0001},
@@ -498,6 +518,15 @@ const std::map<const KeyCode*, HandwheelMpgModeStepSize::PositionNameIndex> Feed
     {&KeyCodes::Feed.percent_100, HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton100percent},
     {&KeyCodes::Feed.lead,        HandwheelMpgModeStepSize::PositionNameIndex::RotaryButtonUndefined}
 };
+const std::map<const KeyCode*, HandwheelConModeStepSize::PositionNameIndex> FeedRotaryButton::mConKeycodeLut{
+    {&KeyCodes::Feed.speed_0_001, HandwheelConModeStepSize::PositionNameIndex::RotaryButton2percent},
+    {&KeyCodes::Feed.speed_0_01,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton5percent},
+    {&KeyCodes::Feed.speed_0_1,   HandwheelConModeStepSize::PositionNameIndex::RotaryButton10percent},
+    {&KeyCodes::Feed.speed_1,     HandwheelConModeStepSize::PositionNameIndex::RotaryButton30percent},
+    {&KeyCodes::Feed.percent_60,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton60percent},
+    {&KeyCodes::Feed.percent_100, HandwheelConModeStepSize::PositionNameIndex::RotaryButton100percent},
+    {&KeyCodes::Feed.lead,        HandwheelConModeStepSize::PositionNameIndex::RotaryButtonUndefined}
+};
 const std::map<const KeyCode*, HandwheelLeadModeStepSize::PositionNameIndex>       FeedRotaryButton::mLeadKeycodeLut{
     {&KeyCodes::Feed.speed_0_001, HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
     {&KeyCodes::Feed.speed_0_01,  HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
@@ -509,8 +538,8 @@ const std::map<const KeyCode*, HandwheelLeadModeStepSize::PositionNameIndex>    
 };
 // ----------------------------------------------------------------------
 FeedRotaryButton::FeedRotaryButton(const KeyCode& keyCode,
-                                   HandwheelStepmodes::Mode stepMode,
-                                   KeyEventListener* listener) :
+    HandwheelStepmodes::Mode stepMode,
+    KeyEventListener* listener) :
     RotaryButton(keyCode),
     mStepMode(stepMode),
     mIsPermitted(false),
@@ -576,8 +605,9 @@ void FeedRotaryButton::update()
 
     if (*mKey == KeyCodes::Feed.lead)
     {
-        mStepSize    = mLeadStepSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
-        mIsPermitted = mLeadStepSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
+        //mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
+        mStepSize    = mLeadSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
+        mIsPermitted = mLeadSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
     }
     else if (mStepMode == HandwheelStepmodes::Mode::MPG)
     {
@@ -592,8 +622,16 @@ void FeedRotaryButton::update()
         auto enumValue = mStepKeycodeLut.find(mKey);
         assert(enumValue != mStepKeycodeLut.end());
         auto second = enumValue->second;
-        mStepSize    = mStepStepSizeMapper.getStepSize(second);
-        mIsPermitted = mStepStepSizeMapper.isPermitted(second);
+        mStepSize    = mStepSizeMapper.getStepSize(second);
+        mIsPermitted = mStepSizeMapper.isPermitted(second);
+    }
+    else if (mStepMode == HandwheelStepmodes::Mode::CON)
+    {
+        auto enumValue = mConKeycodeLut.find(mKey);
+        assert(enumValue != mConKeycodeLut.end());
+        auto second = enumValue->second;
+        mStepSize    = mConSizeMapper.getStepSize(second);
+        mIsPermitted = mConSizeMapper.isPermitted(second);
     }
     else
     {
@@ -1017,10 +1055,10 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
         mHal.setMacro10(true);                         // Hardcoded Absolue/relative Dro
         isHandled = true;
     }
-    else if (metaButton == KeyCodes::Meta.mpg)
+    else if (metaButton == KeyCodes::Meta.continuous)
     {
-        mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
-        mHal.setMpgMode(true);
+        mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::CON);
+        mHal.setConMode(true);
         dispatchFeedValueToHal();
         isHandled = true;
     }
@@ -1189,9 +1227,9 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
         mHal.setMacro10(false);                        // Hardcoded Absolue/relative Dro
         isHandled = true;
     }
-    else if (metaButton == KeyCodes::Meta.mpg)
+    else if (metaButton == KeyCodes::Meta.continuous)
     {
-        mHal.setMpgMode(false);
+        mHal.setConMode(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.step)
@@ -1351,6 +1389,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     }
     else if (feed.code == KeyCodes::Feed.lead.code)
     {
+        mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
         mHal.setFeedValueSelectedLead(isActive);
     }
 }
@@ -1366,6 +1405,7 @@ void Pendant::dispatchFeedValueToHal()
         {
             mHal.setStepMode(true);
             mHal.setMpgMode(false);
+            mHal.setConMode(false);
             mHal.setFeedOverrideScale(0);
             axisJogStepSize = feedButton.stepSize();
         }
@@ -1373,13 +1413,20 @@ void Pendant::dispatchFeedValueToHal()
         {
             mHal.setStepMode(false);
             mHal.setMpgMode(true);
+            mHal.setConMode(false);
             mHal.setFeedOverrideScale(0);
-//            axisJogStepSize = feedButton.stepSize() * 0.01;
+//            axisJogStepSize = feedButton.stepSize() * 0.001 * mHal.getFeedOverrideMaxVel();
+        }
+        else if (feedButton.stepMode() == HandwheelStepmodes::Mode::CON)
+        {
+            mHal.setStepMode(false);
+            mHal.setMpgMode(false);
+            mHal.setConMode(true);
+            mHal.setFeedOverrideScale(0);
             axisJogStepSize = feedButton.stepSize() * 0.001 * mHal.getFeedOverrideMaxVel();
         }
         else
         {
-        	//Here can add if (feedButton.stepMode() == HandwheelStepmodes::Mode::CON)
         }
         mHal.setStepSize(axisJogStepSize);
     }
@@ -1397,7 +1444,7 @@ void Pendant::onFeedInactiveEvent(const KeyCode& feed)
     dispatchActiveFeedToHal(feed, false);
     mDisplay.onFeedInactiveEvent(feed);
 }
-// ----------------------------------------------------------------------
+// ----------------------------------------------------------------------         // TODO need checking for different mode
 bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
 {
 
@@ -1424,6 +1471,7 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                 mHal.getFeedOverrideMaxValue() * 100);
         }
         }
+        
         if (0 != delta)
         {
             if (counters.isLeadCounterActive() && mIsLeadModeSpindle)
@@ -1531,7 +1579,7 @@ void Pendant::setLeadModeSpindle()
 // ----------------------------------------------------------------------
 void Pendant::setLeadModeFeed()
 {
-    mIsLeadModeSpindle = false;
+    mIsLeadModeFeed = true;
 }
 // ----------------------------------------------------------------------
     Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :
@@ -1549,18 +1597,16 @@ Display::~Display()
 // ----------------------------------------------------------------------
 bool Display::onButtonPressedEvent(const MetaButtonCodes& metaButton)
 {
-    if (metaButton == KeyCodes::Meta.mpg)
+    if (metaButton == KeyCodes::Meta.continuous)
     {
         mDisplayData.displayModeFlags.asBitFields.stepMode =
-            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(
-                DisplayIndicatorStepMode::StepMode::MPG);
+            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::CON);
         return true;
     }
     else if (metaButton == KeyCodes::Meta.step)
     {
         mDisplayData.displayModeFlags.asBitFields.stepMode =
-            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(
-                DisplayIndicatorStepMode::StepMode::STEP);
+            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::STEP);
         return true;
     }
     else if (metaButton == KeyCodes::Meta.macro10)
@@ -1608,14 +1654,17 @@ void Display::onFeedActiveEvent(const KeyCode& feed)
     if (mCurrentButtonsState.feedButton().stepMode() == HandwheelStepmodes::Mode::STEP)
     {
         mDisplayData.displayModeFlags.asBitFields.stepMode =
-            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(
-                DisplayIndicatorStepMode::StepMode::STEP);
+            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::STEP);
     }
     else if (mCurrentButtonsState.feedButton().stepMode() == HandwheelStepmodes::Mode::MPG)
     {
         mDisplayData.displayModeFlags.asBitFields.stepMode =
-            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(
-                DisplayIndicatorStepMode::StepMode::MPG);
+            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::MPG);
+    }
+    else if (mCurrentButtonsState.feedButton().stepMode() == HandwheelStepmodes::Mode::CON)
+    {
+        mDisplayData.displayModeFlags.asBitFields.stepMode =
+            static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::CON);
     }
 }
 // ----------------------------------------------------------------------
@@ -1662,8 +1711,7 @@ void Display::clearData()
     mDisplayData.feedRate     = 0;
     mDisplayData.spindleFeedRate = 0;
     mDisplayData.displayModeFlags.asBitFields.stepMode =
-        static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(
-            DisplayIndicatorStepMode::StepMode::MPG);
+        static_cast<typename std::underlying_type<DisplayIndicatorStepMode::StepMode>::type>(DisplayIndicatorStepMode::StepMode::MPG);
     mDisplayData.displayModeFlags.asBitFields.isReset              = true;
     mDisplayData.displayModeFlags.asBitFields.isRelativeCoordinate = false;
     mDisplayData.row1Coordinate.clear();

@@ -66,7 +66,7 @@ void Hal::freeSimulatedPin(void** pin)
 Hal::Hal(Profiles::HalRequestProfile halRequestProfile) :
     mButtonNameToIdx(),
     mHalCout(&mDevNull),
-    mStepMode(HandwheelStepmodes::Mode::STEP),
+    mStepMode(HandwheelStepmodes::Mode::MPG),
     mHalRequestProfile(halRequestProfile)
 {
 }
@@ -1109,7 +1109,7 @@ void Hal::setProbeZ(bool enabled)
 }
 }
 // ----------------------------------------------------------------------
-void Hal::setMpgMode(bool enabled)
+void Hal::setConMode(bool enabled)
 {
     if (enabled)
     {
@@ -1119,9 +1119,9 @@ void Hal::setMpgMode(bool enabled)
         *memory->out.axisASetVelocityMode = true;
         *memory->out.axisBSetVelocityMode = true;
         *memory->out.axisCSetVelocityMode = true;
-        *mHalCout << "hal   step mode is mpg" << endl;
+        *mHalCout << "hal   step mode is con" << endl;
     }
-    setPin(enabled, KeyCodes::Buttons.mpg.text);
+    setPin(enabled, KeyCodes::Buttons.continuous.text);
 }
 // ----------------------------------------------------------------------
 void Hal::setStepMode(bool enabled)
@@ -1137,6 +1137,21 @@ void Hal::setStepMode(bool enabled)
         *mHalCout << "hal   step mode is step" << endl;
     }
     setPin(enabled, KeyCodes::Buttons.step.text);
+}
+// ----------------------------------------------------------------------
+void Hal::setMpgMode(bool enabled)
+{
+    if (enabled)
+    {
+        *memory->out.axisXSetVelocityMode = false;
+        *memory->out.axisYSetVelocityMode = false;
+        *memory->out.axisZSetVelocityMode = false;
+        *memory->out.axisASetVelocityMode = false;
+        *memory->out.axisBSetVelocityMode = false;
+        *memory->out.axisCSetVelocityMode = false;
+        *mHalCout << "hal   step mode is mpg" << endl;
+    }
+//    setPin(enabled, KeyCodes::Buttons.mpg.text);                          // TODO Create a HAL pin
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro1(bool enabled)
@@ -1233,7 +1248,7 @@ void Hal::setMacro14(bool enabled)
 // ----------------------------------------------------------------------
 void Hal::setMacro15(bool enabled)
 {
-    setPin(enabled, KeyCodes::Buttons.mpg.altText);
+    setPin(enabled, KeyCodes::Buttons.continuous.altText);
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro16(bool enabled)
