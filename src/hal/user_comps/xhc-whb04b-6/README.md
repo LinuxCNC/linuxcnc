@@ -44,53 +44,15 @@ Macro-16. The keypad layout is as follows:
 | M-HOME (Macro-5)            | Safe-Z (Macro-6) | W-HOME   (Macro-7)     | S-ON/OFF (Macro-8) | Fn                         |
 |                             |                  | Probe-Z (Macro-9)      |                    |                            |
 | &lt;Axis Rotary Button&gt;  |                  | Macro-10 (Macro-14)    |                    | &lt;Feed Rotary Button&gt; |
-| MPG (Macro-15)              |                  |                        |                    | Step (Macro-16)            |
+| CON (Macro-15)              |                  |                        |                    | Step (Macro-16)            |
 |                             |                  | &lt;Jog Dial&gt;       |                    |                            |
 
 * Caution: The buttons' naming and user manual are somewhat unluckily translated. The **MPG** button puts the device into **continuous**, whereas the **Step/Continuous** button into **step mode**. Continuous mode means n jog dial events are translated to "move joint n times with speed x" whereas step mode to "move joint n steps" with a predefined speed.
 
 ### Pendant button naming
 
-The HAL pin names are derived from text written on the respective button. For example:
-
-```
-$ xhc-whb04b-6 -p
-[...] //! < skipped several lines
-hal   bit   out xhc-whb04b-6.out.button.reset
-hal   bit   out xhc-whb04b-6.out.button.macro-11
-hal   bit   out xhc-whb04b-6.out.button.stop
-hal   bit   out xhc-whb04b-6.out.button.macro-12
-hal   bit   out xhc-whb04b-6.out.button.start-pause
-hal   bit   out xhc-whb04b-6.out.button.macro-13
-hal   bit   out xhc-whb04b-6.out.button.feed-plus
-hal   bit   out xhc-whb04b-6.out.button.macro-1
-hal   bit   out xhc-whb04b-6.out.button.feed-minus
-hal   bit   out xhc-whb04b-6.out.button.macro-2
-hal   bit   out xhc-whb04b-6.out.button.spindle-plus
-hal   bit   out xhc-whb04b-6.out.button.macro-3
-hal   bit   out xhc-whb04b-6.out.button.spindle-minus
-hal   bit   out xhc-whb04b-6.out.button.macro-4
-hal   bit   out xhc-whb04b-6.out.button.m-home
-hal   bit   out xhc-whb04b-6.out.button.macro-5
-hal   bit   out xhc-whb04b-6.out.button.safe-z
-hal   bit   out xhc-whb04b-6.out.button.macro-6
-hal   bit   out xhc-whb04b-6.out.button.w-home
-hal   bit   out xhc-whb04b-6.out.button.macro-7
-hal   bit   out xhc-whb04b-6.out.button.s-on-off
-hal   bit   out xhc-whb04b-6.out.button.macro-8
-hal   bit   out xhc-whb04b-6.out.button.fn
-hal   bit   out xhc-whb04b-6.out.button.probe-z
-hal   bit   out xhc-whb04b-6.out.button.macro-9
-hal   bit   out xhc-whb04b-6.out.button.macro-10
-hal   bit   out xhc-whb04b-6.out.button.macro-14
-hal   bit   out xhc-whb04b-6.out.button.mode-continuous
-hal   bit   out xhc-whb04b-6.out.button.macro-15
-hal   bit   out xhc-whb04b-6.out.button.mode-step
-hal   bit   out xhc-whb04b-6.out.button.macro-16
-[...] //! < skipped several lines
-```
-
-#### An extensive list of HAL pins
+The HAL pin names are derived from text written on the respective button. 
+For example: An extensive list of HAL pins
 
 ```
 xhc-whb04b-6 -p
@@ -140,11 +102,11 @@ OPTIONS
  -n
     Force being silent and not printing any output except of errors. This will also inhibit messages prefixed with "init".
 
- -s <scale>
-    Specifies the number of pulses that corresponds to a move of one machine unit in [mm] or [inch]. Default is 80.
-
- -v <max_velocity>
-    The maximum velocity for any axis in machine units per second (same unit as -s). Default is 800.
+ -s 
+    Enable spindle override value using wheel with feed button to Lead mode.
+    
+ -f 
+    Enable feedrate override value using wheel after Lead mode or at first start (display MPG mode)
 
 EXAMPLES
 xhc-whb04b-6 -ue
@@ -153,11 +115,15 @@ xhc-whb04b-6 -ue
 xhc-whb04b-6 -p
     Prints hal pin names and events distributed to HAL memory.
 
-xhc-whb04b-6 -Ha
+xhc-whb04b-6 -Hn
     Start in HAL mode and avoid output, except of errors.
+    
+xhc-whb04b-6 -Hsfn
+    Start in HAL mode and avoid output, except of errors + spindle and feedrate override.
 
 AUTHORS
     This component was started by Raoul Rubien (github.com/rubienr) based on predecessor device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors gives you a more complete list of contributors.
+    Updated for Linuxcnc 2020 by alkabal_free.fr
  ```
 
 ## Protocol description
@@ -253,9 +219,9 @@ which is the report ID. The data **exclusive report ID** reads as follows:
 
 |Button Name              | Key Code | Button Text | Button Alternative Text |
 |:------------------------|:---------|:------------|:------------------------|
-|reset                    | 0x01     | RESET       | *Macro-11*              |
-|stop                     | 0x02     | STOP        | *Macro-12*              |
-|start                    | 0x03     | Start       | Pause                   |
+|reset                    | 0x01     | RESET       | Macro-11                |
+|stop                     | 0x02     | STOP        | Macro-12                |
+|start                    | 0x03     | Start       | Macro-13                |
 |feed_plus                | 0x04     | Feed+       | Macro-1                 |
 |feed_minus               | 0x05     | Feed-       | Macro-2                 |
 |spindle_plus             | 0x06     | Spindle+    | Macro-3                 |
@@ -266,9 +232,9 @@ which is the report ID. The data **exclusive report ID** reads as follows:
 |spindle_on_off           | 0x0b     | S-ON/OFF    | Macro-8                 |
 |function                 | 0x0c     | Fn          | Fn                      |
 |probe_z                  | 0x0d     | Probe-Z     | Macro-9                 |
-|macro10                  | 0x10     | Macro-10    | *Macro-13*              |
-|manual_pulse_generator   | 0x0e     | MPG         | *Macro-14*              |
-|step_continuous          | 0x0f     | STEP        | Continuous              |
+|macro10                  | 0x10     | Macro-10    | Macro-14                |
+|manual_pulse_generator   | 0x0e     | Continuous  | Macro-15                |
+|step_continuous          | 0x0f     | STEP        | Macro-16                |
 |&lt;no button pressed&gt;| 0x00     | &lt;NA&gt;  | &lt;NA&gt;              |
 
 |  Feed Rotary Button Name    | Key Code | Button Text | Button Alternative Text |
@@ -278,7 +244,7 @@ which is the report ID. The data **exclusive report ID** reads as follows:
 | speed_0_1                   | 0x0f     | 0.1         | 10%                     |
 | speed_1                     | 0x10     | 1           | 30%                     |
 | percent_60                  | 0x1a     | &lt;NA&gt;  | 60%                     |
-| percent_100                 | 0x1b     |   | 100%                    |
+| percent_100                 | 0x1b     |             | 100%                    |
 | lead                        | 0x1c     | Lead        | &lt;NA&gt;              |
 | &lt;no button pressed&gt;   | 0x00     | &lt;NA&gt;  | &lt;NA&gt;              |
 
@@ -338,46 +304,6 @@ event data interpreted, display data ready
 connection lost, cleaning up
 ```
 
-### HAL pins
-
-Print HAL pins and HAL related status messages.
-Hal pins' data types and direction are printed in the very first columns.
-For readability reasons all provided HAL pin names contain the pin direction in their name.
-Furthermore pin names also explain where a respective pin should be connected to, i.e.:
-* the output pin `xhc-whb04b-6.out.jog.counts-neg` should be connected to `jog.counts-neg` input pin, whereas
-* the input pin `xhc-whb04b-6.in.halui.max-velocity.value` should be connected to `halui.max-velocity.value` output pin.
-
-```
-$ ../bin/xhc-whb04b-6 -p
-init  setting machine configuration to scale=80 max_velocity=800
-init  starting in simulation mode
-hal   initialize simulated HAL memory  ... ok
-hal   bit   out xhc-whb04b-6.out.button.reset
-hal   bit   out xhc-whb04b-6.out.button.macro-11
-hal   bit   out xhc-whb04b-6.out.button.stop
-hal   bit   out xhc-whb04b-6.out.button.macro-12
-hal   bit   out xhc-whb04b-6.out.button.start-pause
-hal   bit   out xhc-whb04b-6.out.button.macro-13
-hal   bit   out xhc-whb04b-6.out.button.feed-plus
-hal   bit   out xhc-whb04b-6.out.button.macro-1
-[...] //! < skipped several lines
-hal   bit   out xhc-whb04b-6.out.halui.jog.c.speed-minus
-hal   s32   out xhc-whb04b-6.out.jog.counts
-hal   s32   out xhc-whb04b-6.out.jog.counts-neg
-hal   float out xhc-whb04b-6.out.jog.velocity
-hal   float in  xhc-whb04b-6.in.halui.max-velocity.value
-hal   float out xhc-whb04b-6.out.jog.increment
-hal   bit   out xhc-whb04b-6.out.halui.home-all
-init  usb context ... ok
-init  not waiting for device XHC-WHB04B-6 vendorId=0x10ce productId=0xeb93, will continue in 0s .... ok
-init  XHC-WHB04B-6 device found
-init  detaching active kernel driver ... already detached
-init  claiming interface ... ok
-init  enabling reception ... ok
-^Ctermination requested upon signal number 2 ...
-connection lost, cleaning up
-
-```
 
 ### Run in HAL mode (halrun)
 ```

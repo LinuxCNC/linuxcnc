@@ -140,10 +140,6 @@ public:
         hal_float_t* feedOverrideMaxVel{nullptr};
         //! to be connected to \ref halui.feed-override.value
         hal_float_t* feedOverrideValue{nullptr};
-        //! the minimum feed-override value when in Lead-mode, usually same as [DISPLAY]MIN_FEED_OVERRIDE
-        hal_float_t* feedOverrideMinValue{nullptr};
-        //! the maximum feed-override value when in Lead-mode, usually same as [DISPLAY]MAX_FEED_OVERRIDE
-        hal_float_t* feedOverrideMaxValue{nullptr};
 
         //! to be connected to \ref halui.program.is-running
         hal_bit_t* isProgramRunning{nullptr};
@@ -417,12 +413,6 @@ public:
     //! \sa Hal::In::feedOverrideValue
     //! \return the current feed override value v: 0 <= v <= 1
     hal_float_t getFeedOverrideValue() const;
-    //! \sa Hal::In::feedOverrideMinValue
-    //! \return the currently set minimum feed override value, i.e. 0.2 is equivalent to 20%
-    hal_float_t getFeedOverrideMinValue() const;
-    //! \sa Hal::In::feedOverrideMaxValue
-    //! \return the currently set maximum feed override value, i.e. 1.5 is equivalent to 150%
-    hal_float_t getFeedOverrideMaxValue() const;
     //! \xrefitem HalMemory::Out::feedOverrideScale setter
     void setFeedOverrideScale(hal_float_t scale);
 

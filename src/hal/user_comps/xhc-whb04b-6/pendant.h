@@ -583,8 +583,8 @@ private:
     Handwheel    mHandWheel;
     Display      mDisplay;
     //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
-    bool         mIsLeadModeSpindle = true;
-    bool         mIsLeadModeFeed = true;
+    bool         mIsLeadModeSpindle = false;
+    bool         mIsLeadModeFeed = false;
 
     float mScale;
     float mMaxVelocity;

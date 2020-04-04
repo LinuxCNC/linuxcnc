@@ -3,18 +3,10 @@
 
 Define section XHC_WHB04B_6_CONFIG section HAL:
 
-```
-[XHC_WHB04B_6_CONFIG]
-# -a to enable debug output
-#COMPONENT_ARGUMENTS = -a
-# normal operation mode
-COMPONENT_ARGUMENTS =
-
 [HAL]
 HALFILE = <your-machine-hal>.hal
 HALFILE = xhc-whb04b-6.hal
-...
-```
+
 
 ## Hal File xhc_whb04b_6.hal Example
 
@@ -158,9 +150,6 @@ net pdnt.max-velocity.value               whb.halui.max-velocity.value          
 net pdnt.feed-override.value              halui.feed-override.value             whb.halui.feed-override.value    # GUI feed rate related signals
 net pdnt.feed-override.increase           whb.halui.feed-override.increase      halui.feed-override.increase
 net pdnt.feed-override.decrease           whb.halui.feed-override.decrease      halui.feed-override.decrease
-setp                                      whb.halui.feed-override.min-value     [DISPLAY]MIN_FEED_OVERRIDE
-setp                                      whb.halui.feed-override.max-value     [DISPLAY]MAX_FEED_OVERRIDE
-
 
 
 # axis position related signals feedback

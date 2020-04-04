@@ -7,7 +7,7 @@ m-home | safe-z         | w-home   | s-on/off        | fn
 .      | .              | probe-z  | .               | .
 .      | .              | macro10  | .               | .
 .      | <&reload> axis | .        | <&reload> speed | .
-MPG    | .              | .        | .               |step 
+CON    | .              | .        | .               |step 
 .      | .              | .        | .               | .
 .      | <&reload> hand wheel| *                     | .
 }

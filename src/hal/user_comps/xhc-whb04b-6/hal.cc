@@ -108,8 +108,6 @@ Hal::~Hal()
 
     freeSimulatedPin((void**)(&memory->in.feedOverrideMaxVel));
     freeSimulatedPin((void**)(&memory->in.feedOverrideValue));
-    freeSimulatedPin((void**)(&memory->in.feedOverrideMinValue));
-    freeSimulatedPin((void**)(&memory->in.feedOverrideMaxValue));
 
     freeSimulatedPin((void**)(&memory->in.isProgramRunning));
     freeSimulatedPin((void**)(&memory->in.isProgramPaused));
@@ -505,8 +503,6 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalFloat(HAL_OUT, &(memory->out.feedOverrideScale), mHalCompId, "%s.halui.feed-override.scale", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxVel), mHalCompId, "%s.halui.max-velocity.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideValue), mHalCompId, "%s.halui.feed-override.value", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.feedOverrideMinValue), mHalCompId, "%s.halui.feed-override.min-value", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxValue), mHalCompId, "%s.halui.feed-override.max-value", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideDecrease), mHalCompId, "%s.halui.feed-override.decrease", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideIncrease), mHalCompId, "%s.halui.feed-override.increase", mComponentPrefix);
     
@@ -821,16 +817,6 @@ hal_float_t Hal::getFeedOverrideMaxVel() const
 hal_float_t Hal::getFeedOverrideValue() const
 {
     return *memory->in.feedOverrideValue;
-}
-// ----------------------------------------------------------------------
-hal_float_t Hal::getFeedOverrideMinValue() const
-{
-    return *memory->in.feedOverrideMinValue;
-}
-// ----------------------------------------------------------------------
-hal_float_t Hal::getFeedOverrideMaxValue() const
-{
-    return *memory->in.feedOverrideMaxValue;
 }
 // ----------------------------------------------------------------------
 void Hal::setFeedValueSelected0_001(bool selected)

@@ -1353,9 +1353,6 @@ void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
     if (feed.code == KeyCodes::Feed.lead.code)
     {
-        mHandWheel.counters().setLeadValueLimit(
-            mHal.getFeedOverrideMinValue() * 100,
-            mHal.getFeedOverrideMaxValue() * 100);
         mHandWheel.counters().enableLeadCounter(isActive);
     }
 }
@@ -1451,22 +1448,6 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
         0 != counters.counts())
     {
         *mPendantCout << mPrefix << "wheel  event " << counters.counts() << endl;
-
-        if (counters.isLeadCounterActive() && mIsLeadModeSpindle)
-        {
-              mHandWheel.counters().setLeadValueLimit(
-                  std::numeric_limits<int32_t>::min(),
-                  std::numeric_limits<int32_t>::max());
-        }
-        else
-        {
-          if (feedButton.stepMode() == HandwheelStepmodes::Mode::MPG && mIsLeadModeFeed)
-          {
-                  mHandWheel.counters().setLeadValueLimit(
-                      mHal.getFeedOverrideMinValue() * 100,
-                      mHal.getFeedOverrideMaxValue() * 100);
-          }
-        }
         
         if (0 != delta)
         {

@@ -45,15 +45,9 @@ void HandWheelCounters::count(int8_t delta)
     }
 
     int32_t& counter = mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(idx)];
-    int32_t tmp = counter + delta;
+    counter = counter + delta;
 
-    if (mIsLeadCounterActive)
-    {
-        tmp = (tmp < mLeadMinValue) ? mLeadMinValue : tmp;
-        tmp = (tmp > mLeadMaxValue) ? mLeadMaxValue : tmp;
-    }
-
-    counter = tmp;
+//    counter = tmp;
 }
 // ----------------------------------------------------------------------
 HandWheelCounters::HandWheelCounters()

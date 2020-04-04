@@ -79,7 +79,7 @@ public:
     CounterNameToIndex activeCounter() const;
     bool isLeadCounterActive() const;
     void enableLeadCounter(bool isEnabled);
-    void setLeadValueLimit(int32_t min, int32_t max);
+//    void setLeadValueLimit(int32_t min, int32_t max);
 
 protected:
     bool               mIsLeadCounterActive{false};
@@ -87,8 +87,6 @@ protected:
     int32_t            mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::COUNTERS_COUNT)]{
         0
     };
-    int32_t            mLeadMinValue{0};
-    int32_t            mLeadMaxValue{150};
 
 private:
 };
