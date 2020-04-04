@@ -73,8 +73,8 @@ public:
     void enableCrcDebugging(bool enable);
     void setWaitWithTimeout(uint8_t waitSecs = 3);
     void printCrcDebug(const UsbInPackage& inPackage, const UsbOutPackageData& outPackageBuffer) const;
-    void setLeadModeSpindle();
-    void setLeadModeFeed();
+    void setLeadModeSpindle(bool enable);
+    void setLeadModeFeed(bool enable);
 
 private:
     const char* mName;

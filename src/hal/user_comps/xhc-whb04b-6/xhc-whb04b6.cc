@@ -646,13 +646,13 @@ void XhcWhb04b6Component::enableCrcDebugging(bool enable)
     mIsCrcDebuggingEnabled = enable;
 }
 // ----------------------------------------------------------------------
-void XhcWhb04b6Component::setLeadModeSpindle()
+void XhcWhb04b6Component::setLeadModeSpindle(bool enable)
 {
-    mPendant.setLeadModeSpindle();
+    mPendant.setLeadModeSpindle(enable);
 }
 // ----------------------------------------------------------------------
-void XhcWhb04b6Component::setLeadModeFeed()
+void XhcWhb04b6Component::setLeadModeFeed(bool enable)
 {
-    mPendant.setLeadModeFeed();
+    mPendant.setLeadModeFeed(enable);
 }
 }

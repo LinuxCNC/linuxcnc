@@ -570,12 +570,12 @@ public:
     //! Note: Switching Lead mode is not supported at runtime, only at start.
     //! \sa mIsLeadModeSpindle
     //! \sa setLeadModeFeed()
-    void setLeadModeSpindle();
+    void setLeadModeSpindle(bool enable);
     //! Sets Lead mode to feed: Jog dial will change feed override.
     //! Note: Switching Lead mode is not supported at runtime, only at start.
     //! \sa mIsLeadModeFeed
     //! \sa setLeadModeFeed()
-    void setLeadModeFeed();
+    void setLeadModeFeed(bool enable);
 private:
     Hal& mHal;
     ButtonsState mPreviousButtonsState;
@@ -605,7 +605,6 @@ private:
     void dispatchAxisEventToHal(const KeyCode& axis, bool isActive);
     void dispatchActiveFeedToHal(const KeyCode& feed, bool isActive);
     void dispatchFeedValueToHal();
-//    void dispatchFeedValueToHal(const KeyCode& feed);
 };
 // ----------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const Pendant& data);

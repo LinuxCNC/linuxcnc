@@ -38,11 +38,9 @@ class HandwheelStepmodes
 public:
     enum class Mode : uint8_t
     {
-        CON  = 0,
-        STEP        = 1,
-        MPG         = 2,
-        //LEAD        = 2, // remove, unused
-        //MODES_COUNT = 2
+        CON     = 0,
+        STEP    = 1,
+        MPG     = 2,
     };
 };
 // ----------------------------------------------------------------------
@@ -59,8 +57,6 @@ public:
         AXIS_B,
         AXIS_C,
         LEAD,
-        MPG,
-        COUNTERS_COUNT,
         UNDEFINED
     };
 
@@ -79,12 +75,11 @@ public:
     CounterNameToIndex activeCounter() const;
     bool isLeadCounterActive() const;
     void enableLeadCounter(bool isEnabled);
-//    void setLeadValueLimit(int32_t min, int32_t max);
 
 protected:
     bool               mIsLeadCounterActive{false};
     CounterNameToIndex mActiveAxisCounter{HandWheelCounters::CounterNameToIndex::UNDEFINED};
-    int32_t            mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::COUNTERS_COUNT)]{
+    int32_t            mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::UNDEFINED)]{
         0
     };
 

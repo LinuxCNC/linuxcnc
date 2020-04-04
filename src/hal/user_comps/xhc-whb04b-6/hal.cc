@@ -1259,8 +1259,6 @@ void Hal::setPin(bool enabled, const char* pinName)
 // ----------------------------------------------------------------------
 void Hal::setJogCounts(const HandWheelCounters& counters)
 {
-    if (!counters.isLeadCounterActive())
-    {
         requestManualMode(true);
         requestTeleopMode(true);
     *memory->out.axisXJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_X);
@@ -1271,7 +1269,6 @@ void Hal::setJogCounts(const HandWheelCounters& counters)
     *memory->out.axisCJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C);
         requestManualMode(false);
         requestTeleopMode(false);
-    }
 }
 // ----------------------------------------------------------------------
 void Hal::setFunction(bool enabled)

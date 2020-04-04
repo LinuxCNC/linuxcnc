@@ -167,7 +167,7 @@ int main(int argc, char** argv)
 {
     WhbComponent = new XhcWhb04b6::XhcWhb04b6Component();
 
-    const char* optargs = "phaeHuctnUs:v:";
+    const char* optargs = "phaeHuctsfnU:v:";
     for (int opt = getopt(argc, argv, optargs); opt != -1; opt = getopt(argc, argv, optargs))
     {
         switch (opt)
@@ -207,10 +207,10 @@ int main(int argc, char** argv)
                 WhbComponent->enableCrcDebugging(true);
                 break;
             case 's':
-                WhbComponent->setLeadModeSpindle();
+                WhbComponent->setLeadModeSpindle(true);
                 break;
             case 'f':
-                WhbComponent->setLeadModeFeed();
+                WhbComponent->setLeadModeFeed(true);
                 break;
             case 'n':
                 break;

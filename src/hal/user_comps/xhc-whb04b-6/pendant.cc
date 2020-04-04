@@ -1452,7 +1452,7 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
         if (0 != delta)
         {
             if (counters.isLeadCounterActive() && mIsLeadModeSpindle)
-            {
+            {   // Spindle override mode
                 if (delta > 0)
                 {
                     mHal.toggleSpindleIncrease();
@@ -1462,8 +1462,8 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                     mHal.toggleSpindleDecrease();
                 }
             }
-            else if (feedButton.stepMode() == HandwheelStepmodes::Mode::MPG && mIsLeadModeFeed)
-            {
+            else if (!counters.isLeadCounterActive() && mIsLeadModeFeed && feedButton.stepMode() == HandwheelStepmodes::Mode::MPG)
+            {      // FeedRate override mode
                    if (delta > 0)
                    {
                        mHal.toggleFeedrateIncrease();
@@ -1473,9 +1473,8 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                        mHal.toggleFeedrateDecrease();
                    }
              }            
-             else
-                       // lead mode is feed    
-             {  
+             else if (!counters.isLeadCounterActive() && (feedButton.stepMode() == HandwheelStepmodes::Mode::CON || feedButton.stepMode() == HandwheelStepmodes::Mode::STEP))
+             {      // Normal Mode
                     mHal.setJogCounts(counters);
              }
         }
@@ -1561,12 +1560,12 @@ void Pendant::dispatchAxisEventToHal(const KeyCode& axis, bool isActive)
     }
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeSpindle()
+void Pendant::setLeadModeSpindle(bool enable)
 {
     mIsLeadModeSpindle = true;
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeFeed()
+void Pendant::setLeadModeFeed(bool enable)
 {
     mIsLeadModeFeed = true;
 }

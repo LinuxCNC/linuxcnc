@@ -647,9 +647,6 @@ private:
     //! on falling edge: false
     bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
     //! Toggles n times the spindle increase/decrease pin.
-    //! \sa Profiles::SindleRequest
-    //! \param count times to toggle the increase pin
-    //! \param increase increase pin if true, decrease pin otherwise
     void spindleSpeedToggle(int8_t count, bool increase);
 };
 }
