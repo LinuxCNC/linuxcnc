@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>626</width>
-    <height>465</height>
+    <width>668</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,7 +53,7 @@
               <item>
                <widget class="QSpinBox" name="toolNum">
                 <property name="maximum">
-                 <number>1000</number>
+                 <number>55</number>
                 </property>
                </widget>
               </item>
@@ -549,6 +549,77 @@
          </item>
         </layout>
        </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Options</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Invert X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Invert Y</string>
+              </property>
+              <property name="checkable">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Reset View</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="gridSpace">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_edit">
@@ -817,8 +888,8 @@
    <slot>spinChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>99</y>
+     <x>300</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -865,8 +936,8 @@
    <slot>spinChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>210</x>
-     <y>299</y>
+     <x>321</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>4</x>
@@ -881,8 +952,8 @@
    <slot>spinChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>309</y>
+     <x>423</x>
+     <y>321</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -897,8 +968,8 @@
    <slot>spinChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>335</y>
+     <x>321</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>5</x>
@@ -993,8 +1064,8 @@
    <slot>spinChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>421</x>
-     <y>375</y>
+     <x>504</x>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
      <x>622</x>
@@ -1009,8 +1080,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>156</x>
-     <y>171</y>
+     <x>219</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
      <x>128</x>
@@ -1025,8 +1096,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>162</x>
-     <y>198</y>
+     <x>219</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>32</x>
@@ -1041,8 +1112,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>235</y>
+     <x>219</x>
+     <y>248</y>
     </hint>
     <hint type="destinationlabel">
      <x>2</x>
@@ -1057,8 +1128,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>155</x>
-     <y>264</y>
+     <x>219</x>
+     <y>283</y>
     </hint>
     <hint type="destinationlabel">
      <x>3</x>
@@ -1089,8 +1160,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>158</x>
-     <y>345</y>
+     <x>219</x>
+     <y>353</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
@@ -1105,8 +1176,8 @@
    <slot>checkChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>159</x>
-     <y>377</y>
+     <x>219</x>
+     <y>388</y>
     </hint>
     <hint type="destinationlabel">
      <x>173</x>
@@ -1114,9 +1185,77 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>invertX()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>566</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>5</x>
+     <y>458</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>invertY()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>315</x>
+     <y>572</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>3</x>
+     <y>492</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>resetView()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>457</x>
+     <y>572</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>662</x>
+     <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gridSpace</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>Dialog</receiver>
+   <slot>gridSpinChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>548</x>
+     <y>557</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>664</x>
+     <y>423</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>spinChanged()</slot>
   <slot>checkChanged()</slot>
+  <slot>invertX()</slot>
+  <slot>invertY()</slot>
+  <slot>resetView()</slot>
+  <slot>gridSpinChanged()</slot>
  </slots>
 </ui>

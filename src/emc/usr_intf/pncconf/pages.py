@@ -1029,15 +1029,17 @@ class Pages:
             self.d[p] = signal
             self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
+        print '** pport** ',self.d.pp1_direction
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport1 callbacks:
+    # adjust available pins based on pp1_direction (1 is output 0 input)
     def on_pp1_direction_changed(self,widget):
         state = widget.get_active()
         for i in (2,3,4,5,6,7,8,9):
-            self.w['pp1_Ipin%s_in_box'%i].set_visible(state)
-            self.w['pp1_Opin%s_out_box'%i].set_visible(not state)
+            self.w['pp1_Ipin%s_in_box'%i].set_visible(not state)
+            self.w['pp1_Opin%s_out_box'%i].set_visible(state)
 
     def on_pport_panel_clicked(self, *args):self.t.parporttest(self)
 
@@ -1119,11 +1121,12 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport2 callbacks:
+    # adjust available pins based on pp2_direction (1 is output 0 input)
     def on_pp2_direction_changed(self,widget):
         state = widget.get_active()
         for i in (2,3,4,5,6,7,8,9):
-            self.w['pp2_Ipin%s_in_box'%i].set_visible(state)
-            self.w['pp2_Opin%s_out_box'%i].set_visible(not state)
+            self.w['pp2_Ipin%s_in_box'%i].set_visible(not state)
+            self.w['pp2_Opin%s_out_box'%i].set_visible(state)
 
     def on_parportpanel_clicked(self, *args):self.t.parporttest(self)
 #************

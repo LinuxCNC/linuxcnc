@@ -40,6 +40,7 @@
 
 import os
 import sys
+import traceback
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
@@ -49,6 +50,9 @@ from PyQt5 import QtGui, QtCore
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Path, Action
 
+from qtvcp import logger
+LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
+
 INFO = Info()
 PATH = Path()
 ACTION = Action()
@@ -57,15 +61,24 @@ DATADIR = os.path.abspath( os.path.dirname( __file__ ) )
 class NurbsEditor(QDialog):
     def __init__(self, parent=None, path=None):
         super(NurbsEditor, self).__init__(parent)
-        self.setMinimumSize(800, 800)
-        self.block = True
+        self.setMinimumSize(500, 500)
+        self.bluck_update = True
 
         # Load the widgets UI file:
         self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'nurbs_editor.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            LOG.critical(e)
+            #exc_type, exc_value, exc_traceback = sys.exc_info()
+            formatted_lines = traceback.format_exc().splitlines()
+            print
+            print "Ui loadinr error",formatted_lines[0]
+            #traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print formatted_lines[-1]
+            if 'slotname' in formatted_lines[-2]:
+                LOG.critical('Missing slot name {}'.format(e))
+            else:
+                LOG.critical(e)
 
         self.setWindowTitle('NurbsEditor Dialog');
 
@@ -78,26 +91,19 @@ class NurbsEditor(QDialog):
         emptyfile.close()
 
         self.set_spinbuttons_default()
-
         self.graphics = Lcnc_3dGraphics()
 
         self.setGraphicsDisplay()
         self.main.addWidget(self.graphics)
         self.updateDisplay(self.emptypath)
-
+        self.update()
 
     def setGraphicsDisplay(self):
         # class patch to catch gcode errors - in theory 
         self.graphics.report_gcode_error = self.report_gcode_error
         # reset trverse color so other displays don;t change
         self.defaultColor = self.graphics.colors['traverse']
-        # must start in default view(P) or else later rotation errors (glnav's lon is not initiated?)
-        # settimg the view as Z or z makes a difference
-        # z is proper it sets view as 2 and you get grids (grids check for not 3)
-        # Z gets you a default view 3 but make the display not flicker as much...
-        # flicker seems to come from resetting display and resizing.
         self.graphics.current_view = 'z'
-        self.graphics.set_current_view()
         self.graphics.metric_units = INFO.MACHINE_IS_METRIC
         self.graphics.use_gradient_background = True
         self.graphics.show_tool = False
@@ -124,7 +130,9 @@ class NurbsEditor(QDialog):
         self.w2.setValue(1)
         self.w3.setValue(1)
         self.w4.setValue(1)
-        self.block = False
+        self.gridSpace.setValue(2)
+
+        self.unblock()
 
     def checkChanged(self):
         c = 0
@@ -133,12 +141,43 @@ class NurbsEditor(QDialog):
             if self[u].isChecked(): c +=1
         if c < 2:
             self.sender().setChecked(True)
-        elif not self.block:
+        elif not self.bluck_update:
             self.update()
 
     def spinChanged(self,data):
-        if self.block: return
+        if self.bluck_update: return
         self.update()
+
+    def gridSpinChanged(self):
+        if self.bluck_update: return
+        self.graphics.grid_size = self.gridSpace.value()
+        self.graphics.updateGL()
+
+    def block(self):
+        self.bluck_update = True
+    def unblock(self):
+        self.bluck_update = False
+
+    def invertX(self):
+        self.block()
+        for i in range(1,8):
+            X = 'x{}'.format(i)
+            self[X].setValue(self[X].value() * -1)
+        self.rapidX.setValue(self.rapidX.value() * -1)
+        self.unblock()
+        self.update()
+
+    def invertY(self):
+        self.block()
+        for i in range(1,8):
+            Y = 'y{}'.format(i)
+            self[Y].setValue(self[Y].value() * -1)
+        self.rapidY.setValue(self.rapidY.value() * -1)
+        self.unblock()
+        self.update()
+
+    def resetView(self):
+        self.graphics.set_current_view()
 
     def update(self):
         self.graphics.colors['traverse'] = (0.0, 1.0, 0.0)
@@ -201,20 +240,14 @@ class NurbsEditor(QDialog):
             QTextStream(file) << gcode
 
     def updateDisplay(self,fn):
-        print fn
-        dist = self.graphics.get_zoom_distance()
-        #LOG.debug('load the display: {}'.format(fname))
         self.graphics.load(fn)
-        self.graphics.set_zoom_distance(dist)
 
     def load_dialog(self):
         #self.updateDisplay(self.emptypath)
-        self.graphics.current_view = 'Z'
+        self.graphics.current_view = 'z'
+        self.show() # must be realized before view will change
         self.graphics.set_current_view()
-        self.graphics.updateGL()
-        self.show()
-        self.activateWindow()
-        self.update()
+        #self.activateWindow()
 
     @pyqtSlot()
     def on_makeButton_clicked(self):
@@ -267,7 +300,7 @@ if __name__ == '__main__':
     else:
         usage()
     window = NurbsEditor(path = inifilename)
-    window.show()
+    window.load_dialog()
     sys.exit(app.exec_())
   
 
