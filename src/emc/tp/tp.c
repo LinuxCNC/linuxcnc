@@ -1396,7 +1396,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     return TP_ERR_OK;
 }
 
-STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT const * const tc)
+STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT * const tc)
 {
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
@@ -1404,7 +1404,7 @@ STATIC int handleModeChange(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
             (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
         tp_debug_print("Blending disabled: can't blend between rapid and feed motions\n");
-        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
+        tcSetTermCond(prev_tc, tc, TC_TERM_COND_STOP);
     }
     if (prev_tc->synchronized != TC_SYNC_POSITION &&
             tc->synchronized == TC_SYNC_POSITION) {
