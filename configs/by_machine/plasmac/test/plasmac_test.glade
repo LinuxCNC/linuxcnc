@@ -4,9 +4,9 @@
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="arcVoltageAdj">
-    <property name="lower">99.900000000000006</property>
-    <property name="upper">150.09999999999999</property>
-    <property name="step_increment">0.10000000000000001</property>
+    <property name="lower">50</property>
+    <property name="upper">300</property>
+    <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="voltsAdj">

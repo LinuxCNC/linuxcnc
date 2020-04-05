@@ -105,7 +105,7 @@ class plasmacTest:
     def torch_changed(self, halpin):
         if not halpin.get():
             self.B.get_object('arcVoltage').set_sensitive(0)
-            self.B.get_object('arcVoltage').set_value(99.9)
+            self.B.get_object('arcVoltage').set_value(50.0)
             time.sleep(.1)
             self.B.get_object('arcVoltage').set_sensitive(1)
 
