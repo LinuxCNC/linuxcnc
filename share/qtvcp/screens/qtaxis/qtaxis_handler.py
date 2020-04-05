@@ -129,6 +129,8 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
+        TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
+        TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)

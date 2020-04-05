@@ -402,6 +402,12 @@ class HandlerClass:
         if not state:
             self.w.lbl_start_line.setText('1')
 
+    def chk_alpha_mode_checked(self, state):
+        self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_display_selection_checked(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
+
     #####################
     # GENERAL FUNCTIONS #
     #####################

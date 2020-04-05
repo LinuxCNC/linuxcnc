@@ -215,7 +215,10 @@ class ToolBarActions():
             function = (self.actOnOriginOffsetDialog)
         elif action == 'calculatordialog':
             function = (self.actOnCalculatorDialog)
-
+        elif action == 'alpha_mode':
+            function = (self.actOnAlphaMode)
+        elif action == 'inhibit_selection':
+            function = (self.actOnInhibitSelection)
         elif not extFunction:
             LOG.warning('Unrecogzied action command: {}'.format(action))
 
@@ -428,6 +431,18 @@ class ToolBarActions():
 
     def actOnCalculatorDialog(self, wudget, state=None):
         STATUS.emit('dialog-request',{'NAME':'CALCULATOR'})
+
+    def actOnAlphaMode(self, widget, state):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('alpha-mode-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('alpha-mode-off')
+
+    def actOnInhibitSelection(self, widget, state):
+        if state:
+            ACTION.SET_GRAPHICS_VIEW('inhibit-selection-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('inhibit-selection-off')
 
     #########################################################
     # Sub menus
