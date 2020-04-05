@@ -434,7 +434,9 @@ class _Lcnc_Action(object):
                     'pan-left','pan-right','rotate-up',
                 'rotate-down', 'rotate-cw','rotate-ccw',
                 'overlay_dro_on','overlay_dro_off',
-                'overlay-offsets-on','overlay-offsets-off'):
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):

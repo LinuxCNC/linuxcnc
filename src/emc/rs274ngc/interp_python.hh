@@ -1,6 +1,6 @@
 #ifndef RS274NGC_INTERP_PYTHON
 #define RS274NGC_INTERP_PYTHON
-#ifndef BOOST_PYTHON_NAX_ARITY
+#ifndef BOOST_PYTHON_MAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4
 #endif
 #include <boost/python/object.hpp>

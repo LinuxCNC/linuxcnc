@@ -92,7 +92,8 @@ class Notify:
         n.setTimeout(0)
         n.addAction("action_click","Show Last Five", self.last5_callback)
         n.onClose(self.handle_closed)
-        n.addAction('Clear Messages', 'Clear', self.clearClicked)
+        n.addAction('destroy_clicked', 'Clear All', self.destroyClicked)
+        n.addAction('close_clicked', 'close', self.closeClicked)
         self.notify_list.append(n)
         return n
 
@@ -100,7 +101,9 @@ class Notify:
         n = sys_notify.Notification(title, message, icon)
         n.setUrgency(sys_notify.Urgency.NORMAL)
         n.setTimeout(int(timeout * 1000))
-        n.addAction("action_click","Show all Messages", self.action_callback)
+        n.addAction("action_click","Show Last Five", self.last5_callback)
+        n.addAction('destroy_click', 'Clear all', self.destroyClicked)
+        n.addAction('close_clicked', 'close', self.closeClicked)
         n.onClose(self.handle_closed)
         self.notify_list.append(n)
         return n
@@ -110,9 +113,9 @@ class Notify:
         n = sys_notify.Notification(title, message, icon)
         n.setUrgency(sys_notify.Urgency.CRITICAL)
         n.setTimeout(timeout* 1000)
-        n.addAction("Yes", "Yes", self.yesClicked)
+        n.addAction("Yes", "Yes", self.yesClicked, callback)
         n.onClose(self.handle_closed)
-        n.addAction('No', 'No', self.noClicked)
+        n.addAction('No', 'No', self.noClicked, callback)
         n.show()
         self.notify_list.append(n)
 
@@ -146,8 +149,7 @@ class Notify:
         #print self._n
         #print n
 
-    def clearClicked(self, n, text):
-        n.body = ''
+    def closeClicked(self, n, text):
         n.close()
 
     def OnClicked(self, n, signal_text):
@@ -161,8 +163,7 @@ class Notify:
             print num,i
 
     # pop up last five critical errors
-    def last5_callback(self, *args, **kwds):
-        n = self.critical_message
+    def last5_callback(self, n, signal_text):
         n.body = ''
         for i in range(1,6):
             num = len(self.alarmpage) - i
@@ -172,6 +173,10 @@ class Notify:
                                                           len(self.alarmpage),
                                                           self.alarmpage[num][1])
         n.show()
+
+    def destroyClicked(self, n, signal_text):
+        self.alarmpage = []
+
 
 #####################################################
 # General work functions

@@ -14,11 +14,12 @@
 # it returns this name so Qtscreen can call the function to actually do something.
 # you can add or change these
 
+import traceback
 from PyQt5.QtCore import Qt
 
 # Set up logging
 from qtvcp import logger
-log = logger.getLogger(__name__)
+LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -225,7 +226,7 @@ class Keylookup:
         try:
             function_name, value = self.convert(event)
         except TypeError:
-            raise NameError('No KeyCall binding defined for %s'% key_pressed(event))
+            raise NameError('No KeyCall binding defiimport tracebackned for %s'% key_pressed(event))
         if value is None:
             handler_instance[function_name](event,state,shift,cntrl)
         else:
@@ -240,8 +241,7 @@ class Keylookup:
             f,v = self.keycall[b]
             return f,v
         except:
-            log.info("no function name conversion for QT Event: '{}'".format(b))
-            return None
+            raise NameError("no function name conversion for QT Event: '{}'".format(b))
 
     # get a function name from a keyname
     def get_call(self,binding):
@@ -249,14 +249,27 @@ class Keylookup:
             a,v = self.keycall[binding]
             return a,v
         except:
-            print "No key function call"
-            return None
+            raise NameError("No key function call")
 
     # add a keyname and function name
     def add_call(self,binding,function,value=None):
         try:
             self.keycall[binding] = [function,value]
         except:
-            print "Binding %s could not be added"% binding
+            raise NameError("Binding %s could not be added"% binding)
 
-
+    def manage_function_calls(self,handler,event, is_pressed, key, shift, cntrl):
+        try:
+            b = self.call(handler,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            if is_pressed:
+                LOG.debug('Exception in KEYBINDING: {}'.format (e))
+        except Exception as e:
+            if is_pressed:
+                formatted_lines = traceback.format_exc().splitlines()
+                #LOG.debug('Exception in KEYBINDING:', exc_info=e)
+                print """Key Binding Error for key '%s' calling function: %s in handler file:"""%(key,self.convert(event))
+                for i in range(5, len(formatted_lines)):
+                    print formatted_lines[i]
+        event.accept()
+        return True

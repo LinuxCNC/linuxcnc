@@ -603,6 +603,18 @@ class MyOpengl(GlCanonDraw, Opengl):
 
         text.delete("0.0", "end")
         t = droposstrs[:]
+        i = 0
+        for ts in t:
+            if i < len(homed) and homed[i]:
+                t[i] += "*"
+            else:
+                t[i] += " "
+            if i < len(homed) and limit[i]:
+                t[i] += "!" # !!!1!
+            else:
+                t[i] += " "
+            i+=1
+
         text.insert("end", "\n".join(t))
 
         window_height = text.winfo_height()
@@ -1353,7 +1365,6 @@ for j in range(linuxcnc.MAX_JOINTS):
                           Radiobutton,
                           tabs_manual + ".joints.joint"+str(j)) )
 widgets = nf.Widgets(root_window,*widget_list)
-
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean

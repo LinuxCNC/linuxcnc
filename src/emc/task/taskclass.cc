@@ -268,7 +268,7 @@ int emcIoInit() { return task_methods->emcIoInit(); }
 int emcIoHalt() {
     try {
 	return task_methods->emcIoHalt();
-    } catch( bp::error_already_set ) {
+    } catch( const bp::error_already_set& ) {
 	std::string msg = handle_pyerror();
 	rcs_print("emcIoHalt(): %s\n", msg.c_str());
 	PyErr_Clear();
@@ -337,7 +337,7 @@ int emcTaskOnce(const char *filename)
 		rcs_print("cant extract a Task instance out of '%s'\n", instance_name);
 		task_methods = NULL;
 	    }
-	} catch( bp::error_already_set ) {
+	} catch( const bp::error_already_set& ) {
 	    std::string msg = handle_pyerror();
 	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 		// this really just means the task python backend wasnt configured.
