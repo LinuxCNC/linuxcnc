@@ -27,7 +27,7 @@ PlasmaC uses one of three different operating modes.
    Use external up/down for THC
 |===
 
-For full functionality, Plasmac requires LinuxCNC v2.9 (the current master) or later. It will work on LinuxCNC v2.8 with only the <<paused-motion, paused motion>> feature not available.
+For full functionality, Plasmac requires LinuxCNC v2.8 or later.
 
 No Z axis motion is required in G-Code, the standard PlasmaC configurations will comment out any Z commands during program load.
 
@@ -83,9 +83,7 @@ IMPORTANT: These pins will be entered later into the Configurator, they should *
 
 === Getting LinuxCNC With The PlasmaC Add-Ons
 
-The minimum requirement for PlasmaC is LinuxCNC v2.8, although this version does NOT support the <<paused-motion, paused motion>> feature.
-
-LinuxCNC v2.9 or later provides full functionality and is the recommended option.
+The minimum requirement for PlasmaC is LinuxCNC v2.8.
 
 === If You Do Not Have Linux Installed
 
@@ -101,7 +99,7 @@ Then boot from the device and follow the prompts.
 
 This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. The 'Buildbot' is recommended for most users that will not be doing any LinuxCNC development.
 
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.9 or later (or LinuxCNC v2.8 if you don't need reverse-run) then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
 
 All PlasmaC development has been done on a Stretch ISO installation.
 
@@ -152,6 +150,8 @@ You can then either edit or delete existing LinuxCNC entries from the repositori
 deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
 deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
 ----
+
+NOTE: At this time master is 2.9
 
 Where:
 
@@ -816,8 +816,6 @@ When a program is paused, this allows x/y motion to follow the programmed path i
 When reversing, motion will stop when it reaches a spindle on command.
 
 When forwarding, motion can continue until the end of the path.
-
-NOTE: Paused motion is only available in LinuxCNC version 2.9 or later.
 
 [underline]*Height Change*
 
@@ -1532,8 +1530,6 @@ BUTTON_n_NAME       = <NAME> (the name of a custom user buttons)
 BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 -----
-
-NOTE: <<paused-motion, PAUSED-MOTION-SPEED>> is only valid for LinuxCNC version 2.9 or later
 
 [underline]*[FILTER] Section*
 
