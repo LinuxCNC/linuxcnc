@@ -312,9 +312,7 @@ w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
 w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
 w('DynamicHelp::add',fpausedmotion + '.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
-# only show paused motion if LinuxCNC version 2.9 or later
-if int(linuxcnc.version.split('.')[0] + linuxcnc.version.split('.')[1]) >= 29:
-    w('grid',fpausedmotion,'-column','0','-row','4','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
+w('grid',fpausedmotion,'-column','0','-row','4','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
 
 # hide bottom pane until modified
 w('pack','forget','.pane.bottom.t.text')
