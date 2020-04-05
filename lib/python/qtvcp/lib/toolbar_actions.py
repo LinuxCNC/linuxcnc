@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 import os
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
 from qtvcp.qt_makegui import VCPWindow
@@ -267,6 +267,17 @@ class ToolBarActions():
            self.addGridSize(widget)
         else:
             LOG.warning('Unrecogzied sunmenu command: {}'.format(submenu))
+
+    def configure_statusbar(self, widget, option):
+        if option == 'message_controls':
+            self.addMessageControlsClose(widget)
+            self.addMessageControlsRecall(widget)
+        elif option == 'message_recall':
+            self.addMessageControlsRecall(widget)
+        elif option == 'message_close':
+            self.addMessageControlsClose(widget)
+        else:
+            LOG.warning('Unrecogzied statusbar command: {}'.format(submenu))
 
     #########################################################
     # Standard Actions
@@ -585,3 +596,32 @@ class ToolBarActions():
             else:
                 return INFO.convert_imperial_to_machine(data)
 
+    ###############################################
+    # status bar
+    ###############################################
+
+    def addMessageControlsClose(self, bar):
+        def close():
+            WIDGETS._NOTICE.external_close()
+        bar.setMaximumHeight(20)
+        bar.setSizeGripEnabled(False)
+        WIDGETS.statusClear = QtWidgets.QPushButton()
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
+        WIDGETS.statusClear.setIcon(icon)
+        WIDGETS.statusClear.setMaximumSize(20,20)
+        WIDGETS.statusClear.setIconSize(QtCore.QSize(22,22))
+        WIDGETS.statusClear.clicked.connect(lambda:close())
+        bar.addPermanentWidget(WIDGETS.statusClear)
+
+    def addMessageControlsRecall(self, bar):
+        def last():
+            WIDGETS._NOTICE.show_last()
+        bar.setMaximumHeight(20)
+        bar.setSizeGripEnabled(False)
+        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
+        WIDGETS.statusLast = QtWidgets.QPushButton()
+        WIDGETS.statusLast.setIcon(icon)
+        WIDGETS.statusLast.setMaximumSize(20,20)
+        WIDGETS.statusLast.setIconSize(QtCore.QSize(22,22))
+        WIDGETS.statusLast.clicked.connect(lambda: last())
+        bar.addPermanentWidget(WIDGETS.statusLast)

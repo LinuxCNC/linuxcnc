@@ -12,6 +12,7 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -19,6 +20,7 @@ STAT = Status()
 INFO = Info()
 ACTION = Action()
 STYLEEDITOR = SSE()
+TOOLBAR = ToolBarActions()
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -137,6 +139,7 @@ class HandlerClass:
         for key in sorted(titles.iterkeys()):
             self.w.gcode_list.addItem(key + ' ' + titles[key])
         self.w.gcode_description.setReadOnly(True)
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_recall')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
