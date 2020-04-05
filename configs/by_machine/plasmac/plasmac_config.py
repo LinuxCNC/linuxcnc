@@ -45,9 +45,7 @@ class HandlerClass:
         self.builder.get_object('arc-fail-delay').set_digits(1)
         self.builder.get_object('arc-fail-delay-adj').configure(3,0.1,60,0.1,0,0)
         self.builder.get_object('arc-ok-low').set_digits(1)
-        self.builder.get_object('arc-ok-low-adj').configure(30,0,100,0.5,0,0)
-        self.builder.get_object('arc-ok-high').set_digits(1)
-        self.builder.get_object('arc-ok-high-adj').configure(9999,0,9999,0.5,0,0)
+        self.builder.get_object('arc-ok-low-adj').configure(60,0,100,0.5,0,0)
         self.builder.get_object('arc-max-starts').set_digits(0)
         self.builder.get_object('arc-max-starts-adj').configure(3,1,9,1,0,0)
         self.builder.get_object('arc-restart-delay').set_digits(0)
@@ -134,10 +132,8 @@ class HandlerClass:
         maxPidP = self.thcFeedRate / units * 0.1
         if mode != self.oldMode:
             if mode == 0:
-                self.builder.get_object('arc-ok-high').show()
-                self.builder.get_object('arc-ok-high-label').set_text('OK High Volts')
                 self.builder.get_object('arc-ok-low').show()
-                self.builder.get_object('arc-ok-low-label').set_text('OK Low Volts')
+                self.builder.get_object('arc-ok-low-label').set_text('OK Threshold')
                 self.builder.get_object('arc-voltage-scale').show()
                 self.builder.get_object('arc-voltage-scale-label').set_text('Voltage Scale')
                 self.builder.get_object('arc-voltage-offset').show()
@@ -154,8 +150,6 @@ class HandlerClass:
                 self.builder.get_object('pid-d-label').set_text('PID D GAIN')
                 self.builder.get_object('threshold-box').show()
             elif mode == 1:
-                self.builder.get_object('arc-ok-high').hide()
-                self.builder.get_object('arc-ok-high-label').set_text('')
                 self.builder.get_object('arc-ok-low').hide()
                 self.builder.get_object('arc-ok-low-label').set_text('')
                 self.builder.get_object('arc-voltage-scale').show()
@@ -174,8 +168,6 @@ class HandlerClass:
                 self.builder.get_object('pid-d-label').set_text('PID D GAIN')
                 self.builder.get_object('threshold-box').show()
             elif mode == 2:
-                self.builder.get_object('arc-ok-high').hide()
-                self.builder.get_object('arc-ok-high-label').set_text('')
                 self.builder.get_object('arc-ok-low').hide()
                 self.builder.get_object('arc-ok-low-label').set_text('')
                 self.builder.get_object('arc-voltage-scale').hide()

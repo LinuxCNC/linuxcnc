@@ -65,6 +65,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._reload_filename = None
 
         self._view_incr = 20
+        self.inhibit_selection = False
 
     def _hal_init(self):
         STATUS.connect('file-loaded', self.load_program)
@@ -120,6 +121,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'grid-size':
             self.grid_size = args.get('SIZE')
             self.updateGL()
+        elif v == 'alpha-mode-on':
+            self.set_alpha_mode(True)
+        elif v == 'alpha-mode-off':
+            self.set_alpha_mode(False)
+        elif v == 'inhibit-selection-on':
+            self.inhibit_selection = True
+        elif v == 'inhibit-selection-off':
+            self.inhibit_selection = False
         else:
             self.set_view(v)
 
@@ -179,6 +188,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.emit('graphics-line-selected', line)
 
     def select_fire(self):
+        if self.inhibit_selection: return
         if STATUS.is_auto_running(): return
         if not self.select_primed: return
         x, y = self.select_primed
