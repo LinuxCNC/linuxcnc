@@ -30,7 +30,6 @@
 
 #include <map>
 
-// 3rd party includes
 
 // local library includes
 #include <hal.h>

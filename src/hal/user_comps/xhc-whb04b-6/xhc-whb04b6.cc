@@ -26,11 +26,6 @@
 #include <libusb.h>
 #include <bitset>
 
-// 3rd party includes
-
-// local library includes
-
-// local includes
 
 using std::endl;
 

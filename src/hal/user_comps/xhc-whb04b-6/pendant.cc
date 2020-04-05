@@ -28,10 +28,6 @@
 #include <limits>
 #include <cmath>
 
-// 3rd party includes
-
-// local library includes
-
 // local includes
 #include "./hal.h"
 #include "./xhc-whb04b6.h"

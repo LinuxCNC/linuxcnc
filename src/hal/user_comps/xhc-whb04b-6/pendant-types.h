@@ -24,9 +24,6 @@
 #include <type_traits>
 #include <iosfwd>
 
-// 3rd party includes
-
-// local library includes
 
 // forward declarations
 

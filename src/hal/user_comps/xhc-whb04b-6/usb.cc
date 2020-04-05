@@ -26,8 +26,6 @@
 #include <libusb.h>
 #include <unistd.h>
 
-// 3rd party includes
-
 // local library includes
 #include <math.h>
 #include <rtapi_math.h>

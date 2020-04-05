@@ -27,10 +27,8 @@
 #include <signal.h>
 #include <libgen.h>
 
-// 3rd party includes
+// 3rd party includes need : sudo apt-get install libprotobuf-dev protobuf-compiler
 //#include <google/protobuf/stubs/common.h>
-
-// local library includes
 
 // local includes
 #include "./xhc-whb04b6.h"
@@ -80,7 +78,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         
         << " -s, \n"
         << "    Lead in Spindle mode: "
-        << "Lead + jogwheel changes the spindle speed. Each tick will increase/decrease the spindle speed.\n"
+        << "Lead + jogwheel changes the spindle override speed. Each tick will increase/decrease the spindle override.\n"
         << "\n"
         << " -f, \n"
         << "    MPG in Feed mode: "

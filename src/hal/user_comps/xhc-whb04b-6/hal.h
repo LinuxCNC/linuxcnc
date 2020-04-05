@@ -28,13 +28,9 @@
 #include <string>
 #include <map>
 
-// 3rd party includes
-
 // local library includes
 #include <hal.h>
 #include <sys/types.h>
-
-// forward declarations
 
 namespace XhcWhb04b6 {
 

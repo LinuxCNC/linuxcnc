@@ -24,12 +24,6 @@
 #include <iostream>
 #include <iomanip>
 
-// 3rd party includes
-
-// local library includes
-
-// forward declarations
-
 namespace XhcWhb04b6 {
 // ----------------------------------------------------------------------
 void HandWheelCounters::count(int8_t delta)
@@ -46,8 +40,6 @@ void HandWheelCounters::count(int8_t delta)
 
     int32_t& counter = mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(idx)];
     counter = counter + delta;
-
-//    counter = tmp;
 }
 // ----------------------------------------------------------------------
 HandWheelCounters::HandWheelCounters()

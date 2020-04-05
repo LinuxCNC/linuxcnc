@@ -22,14 +22,11 @@
 // system includes
 #include <stdint.h>
 
-// 3rd party includes
-
 // local includes
 #include "./hal.h"
 #include "./usb.h"
 #include "./pendant.h"
 
-// forward declarations
 
 namespace XhcWhb04b6 {
 

@@ -27,8 +27,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 
-// 3rd party includes
-
 // local library includes
 #include "./pendant.h"
 
@@ -1338,7 +1336,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     do
     {
         if (false == *condition)
-    {
+        {
             usleep(timeoutMs * 1000);
         }
         else

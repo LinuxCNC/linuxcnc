@@ -23,12 +23,6 @@
 #include <stdint.h>
 #include <ostream>
 
-// 3rd party includes
-
-// local library includes
-
-// local includes
-
 // forward declarations
 struct libusb_device_handle;
 struct libusb_context;

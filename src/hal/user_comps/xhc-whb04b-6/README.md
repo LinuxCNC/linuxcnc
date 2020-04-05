@@ -28,6 +28,7 @@ This component provides an interface to the WHB04B-6 pendant. In productive mode
 
 ![Component started in simulation mode.](http://www.plantuml.com/plantuml/proxy?src=https://raw.githubusercontent.com/rubienr/machinekit/feature-xhc-whb04b-6/src/hal/user_comps/xhc-whb04b-6/components-diagram-simulation-mode.txt)
 
+YOU NEED TO INSTALL : sudo apt-get install libprotobuf-dev protobuf-compiler
 ## Pendant layout
 
 The device provides 16 buttons. One button - "Fn" - is used as key
