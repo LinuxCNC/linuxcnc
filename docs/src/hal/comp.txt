@@ -320,6 +320,10 @@ The currently defined options are:
    directory, "-L." refers to the temporary directory and not the directory where
    the .comp source file resides.
 
+* 'option extra_compile_args "..."' - (default: "")
+   This option is ignored if the option 'userspace' (see above) is set to
+   'no'.  When compiling a userspace component, the arguments given are inserted
+   in the compiler command line. 
 
 If an option's VALUE is not specified, then it is equivalent to 
 specifying 'option … yes'. 
