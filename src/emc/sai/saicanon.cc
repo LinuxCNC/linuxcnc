@@ -529,12 +529,12 @@ void CHANGE_TOOL(int slot)
 }
 
 void SELECT_TOOL(int tool)//TODO: fix slot number
-{PRINT1("SELECT_TOOL(%d)\n", tool);}
+{PRINT("SELECT_TOOL(%d)\n", tool);}
 
 void CHANGE_TOOL_NUMBER(int tool)
 {
-  PRINT1("CHANGE_TOOL_NUMBER(%d)\n", tool);
-  _active_slot = tool;
+  PRINT("CHANGE_TOOL_NUMBER(%d)\n", tool);
+  _sai._active_slot = tool;
 }
 
 
