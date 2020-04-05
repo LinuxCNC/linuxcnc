@@ -135,6 +135,7 @@ DOC_SRCS_EN := \
 	ladder/ladder-intro.txt \
 	lathe/lathe-user.txt \
 	motion/kinematics.txt \
+    motion/dh-parameters.txt \
 	motion/pid-theory.txt \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
