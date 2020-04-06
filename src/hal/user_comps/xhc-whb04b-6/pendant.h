@@ -55,9 +55,9 @@ public:
         RotaryButton0010      = 1,
         RotaryButton0100      = 2,
         RotaryButton100       = 3,
-        NA0                   = 4,
-        NA1                   = 5,
-        NA2                   = 6,
+        RotaryButton500       = 4,
+        RotaryButton1000      = 5,
+        NA0                   = 6,
         RotaryButtonUndefined = 7,
         POSITIONS_COUNT       = 8,
     };
@@ -219,12 +219,12 @@ public:
 class FeedRotaryButtonCodes
 {
 public:
-    const KeyCode                           speed_0_001;
-    const KeyCode                           speed_0_01;
-    const KeyCode                           speed_0_1;
-    const KeyCode                           speed_1;
-    const KeyCode                           percent_60;
-    const KeyCode                           percent_100;
+    const KeyCode                           percent_2;   
+    const KeyCode                           percent_5;   
+    const KeyCode                           percent_10;  
+    const KeyCode                           percent_30;  
+    const KeyCode                           percent_60;  
+    const KeyCode                           percent_100; 
     const KeyCode                           lead;
     const KeyCode                           undefined;
     const std::map<uint8_t, const KeyCode*> codeMap;

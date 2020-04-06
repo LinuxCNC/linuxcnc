@@ -160,13 +160,16 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.axisBSetVelocityMode));
     freeSimulatedPin((void**)(&memory->out.axisCSetVelocityMode));
 
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_001));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_01));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected_0_1));
-    freeSimulatedPin((void**)(&memory->out.feedValueSelected_1_0));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_2));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_5));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_10));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_30));
     freeSimulatedPin((void**)(&memory->out.feedValueSelected_60));
     freeSimulatedPin((void**)(&memory->out.feedValueSelected_100));
     freeSimulatedPin((void**)(&memory->out.feedValueSelected_lead));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_mpg_feed));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_continuous));
+    freeSimulatedPin((void**)(&memory->out.feedValueSelected_step));
 
     freeSimulatedPin((void**)(&memory->out.feedOverrideScale));
     freeSimulatedPin((void**)(&memory->out.feedOverrideDecrease));
@@ -491,13 +494,17 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalFloat(HAL_IN, &(memory->in.axisBPositionRelative), mHalCompId, "%s.halui.axis.4.pos-relative", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.axisCPositionRelative), mHalCompId, "%s.halui.axis.5.pos-relative", mComponentPrefix);
     
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_001), mHalCompId, "%s.halui.feed.selected-0.001", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_01), mHalCompId, "%s.halui.feed.selected-0.01", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_1), mHalCompId, "%s.halui.feed.selected-0.1", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_1_0), mHalCompId, "%s.halui.feed.selected-1.0", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_2), mHalCompId, "%s.halui.feed.selected-2", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_5), mHalCompId, "%s.halui.feed.selected-5", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_10), mHalCompId, "%s.halui.feed.selected-10", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_30), mHalCompId, "%s.halui.feed.selected-30", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_60), mHalCompId, "%s.halui.feed.selected-60", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_100), mHalCompId, "%s.halui.feed.selected-100", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_lead), mHalCompId, "%s.halui.feed.selected-lead", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_mpg_feed), mHalCompId, "%s.halui.feed.selected-mpg-feed", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_continuous), mHalCompId, "%s.halui.feed.selected-continuous", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.feedValueSelected_step), mHalCompId, "%s.halui.feed.selected-step", mComponentPrefix);
+    
     newHalFloat(HAL_OUT, &(memory->out.feedOverrideScale), mHalCompId, "%s.halui.feed-override.scale", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxVel), mHalCompId, "%s.halui.max-velocity.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideValue), mHalCompId, "%s.halui.feed-override.value", mComponentPrefix);
@@ -817,24 +824,24 @@ hal_float_t Hal::getFeedOverrideValue() const
     return *memory->in.feedOverrideValue;
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedValueSelected0_001(bool selected)
+void Hal::setFeedValueSelected2(bool selected)
 {
-    *memory->out.feedValueSelected_0_001 = selected;
+    *memory->out.feedValueSelected_2 = selected;
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedValueSelected0_01(bool selected)
+void Hal::setFeedValueSelected5(bool selected)
 {
-    *memory->out.feedValueSelected_0_01 = selected;
+    *memory->out.feedValueSelected_5 = selected;
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedValueSelected0_1(bool selected)
+void Hal::setFeedValueSelected10(bool selected)
 {
-    *memory->out.feedValueSelected_0_1 = selected;
+    *memory->out.feedValueSelected_10 = selected;
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedValueSelected1_0(bool selected)
+void Hal::setFeedValueSelected30(bool selected)
 {
-    *memory->out.feedValueSelected_1_0 = selected;
+    *memory->out.feedValueSelected_30 = selected;
 }
 // ----------------------------------------------------------------------
 void Hal::setFeedValueSelected60(bool selected)
@@ -1104,6 +1111,9 @@ void Hal::setConMode(bool enabled)
         *memory->out.axisBSetVelocityMode = true;
         *memory->out.axisCSetVelocityMode = true;
         *mHalCout << "hal   step mode is con" << endl;
+        *memory->out.feedValueSelected_mpg_feed = false;
+        *memory->out.feedValueSelected_continuous = true;
+        *memory->out.feedValueSelected_step = false;
     }
     setPin(enabled, KeyCodes::Buttons.continuous.text);
 }
@@ -1119,6 +1129,9 @@ void Hal::setStepMode(bool enabled)
         *memory->out.axisBSetVelocityMode = false;
         *memory->out.axisCSetVelocityMode = false;
         *mHalCout << "hal   step mode is step" << endl;
+        *memory->out.feedValueSelected_mpg_feed = false;
+        *memory->out.feedValueSelected_continuous = false;
+        *memory->out.feedValueSelected_step = true;
     }
     setPin(enabled, KeyCodes::Buttons.step.text);
 }
@@ -1134,6 +1147,9 @@ void Hal::setMpgMode(bool enabled)
         *memory->out.axisBSetVelocityMode = false;
         *memory->out.axisCSetVelocityMode = false;
         *mHalCout << "hal   step mode is mpg" << endl;
+        *memory->out.feedValueSelected_mpg_feed = true;
+        *memory->out.feedValueSelected_continuous = false;
+        *memory->out.feedValueSelected_step = false;
     }
 //    setPin(enabled, KeyCodes::Buttons.mpg.text);                          // TODO Create a HAL pin
 }

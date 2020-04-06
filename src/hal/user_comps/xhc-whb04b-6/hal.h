@@ -233,13 +233,16 @@ public:
         //! to be connected to \ref axis.5.jog-vel-mode
         hal_bit_t* axisCSetVelocityMode{nullptr};
 
-        hal_bit_t* feedValueSelected_0_001{nullptr};
-        hal_bit_t* feedValueSelected_0_01{nullptr};
-        hal_bit_t* feedValueSelected_0_1{nullptr};
-        hal_bit_t* feedValueSelected_1_0{nullptr};
+        hal_bit_t* feedValueSelected_2{nullptr};
+        hal_bit_t* feedValueSelected_5{nullptr};
+        hal_bit_t* feedValueSelected_10{nullptr};
+        hal_bit_t* feedValueSelected_30{nullptr};
         hal_bit_t* feedValueSelected_60{nullptr};
         hal_bit_t* feedValueSelected_100{nullptr};
         hal_bit_t* feedValueSelected_lead{nullptr};
+        hal_bit_t* feedValueSelected_mpg_feed{nullptr};
+        hal_bit_t* feedValueSelected_continuous{nullptr};
+        hal_bit_t* feedValueSelected_step{nullptr};
 
         //! to be connected to \ref  \ref halui.feed-override.scale
         hal_float_t* feedOverrideScale{nullptr};
@@ -413,22 +416,21 @@ public:
     void setFeedOverrideScale(hal_float_t scale);
 
     //! Propagates the feed value 0.001 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected_0_001
+    //! \sa Hal::Out::feedValueSelected_2
     //! \param selected true if 0.001 is selected, false otherwise
-    void setFeedValueSelected0_001(bool selected);
+    void setFeedValueSelected2(bool selected);
     //! Propagates the feed value 0.01 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected_0_01
+    //! \sa Hal::Out::feedValueSelected_5
     //! \param selected true if 0.01 is selected, false otherwise
-    void setFeedValueSelected0_01(bool selected);
+    void setFeedValueSelected5(bool selected);
     //! Propagates the feed value 0.1 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected_0_1
+    //! \sa Hal::Out::feedValueSelected_10
     //! \param selected true if 0.1 is selected, false otherwise
-    void setFeedValueSelected0_1(bool selected);
+    void setFeedValueSelected10(bool selected);
     //! Propagates the feed value 1.0 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected_1_0
+    //! \sa Hal::Out::feedValueSelected_30
     //! \param selected true if 1.0 is selected, false otherwise
-    void setFeedValueSelected1_0(bool selected);
-
+    void setFeedValueSelected30(bool selected);
     //! Propagates the feed value 60% selection state to hal.
     //! \sa Hal::Out::feedValueSelected_60
     //! \param selected true if 60% is selected, false otherwise

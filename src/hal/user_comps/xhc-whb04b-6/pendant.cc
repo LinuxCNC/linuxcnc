@@ -47,7 +47,7 @@ KeyEventListener::~KeyEventListener()
 }
 // ----------------------------------------------------------------------
 HandwheelStepModeStepSize::HandwheelStepModeStepSize() :
-    mSequence{0.001, 0.01, 0.1, 1, 0, 0, 0}
+    mSequence{0.001, 0.01, 0.1, 1, 5, 10, 0}
 {
 }
 // ----------------------------------------------------------------------
@@ -326,19 +326,19 @@ AxisRotaryButtonCodes::AxisRotaryButtonCodes() :
 }
 // ----------------------------------------------------------------------
 FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
-    speed_0_001(0x0d, "0.001", "2%"),
-    speed_0_01(0x0e, "0.01", "5%"),
-    speed_0_1(0x0f, "0.1", "10%"),
-    speed_1(0x10, "1", "30%"),
-    percent_60(0x1a, "", "60%"),
-    percent_100(0x1b, "", "100%"),
+    percent_2(0x0d, "0.001", "2%"),
+    percent_5(0x0e, "0.01", "5%"),
+    percent_10(0x0f, "0.1", "10%"),
+    percent_30(0x10, "1", "30%"),
+    percent_60(0x1a, "5", "60%"),
+    percent_100(0x1b, "10", "100%"),
     lead(0x1c, "Lead", ""),
     undefined(0x00, "", ""),
     codeMap{
-        {speed_0_001.code, &speed_0_001},
-        {speed_0_01.code,  &speed_0_01},
-        {speed_0_1.code,   &speed_0_1},
-        {speed_1.code,     &speed_1},
+        {percent_2.code,   &percent_2},
+        {percent_5.code,   &percent_5},
+        {percent_10.code,  &percent_10},
+        {percent_30.code,  &percent_30},
         {percent_60.code,  &percent_60},
         {percent_100.code, &percent_100},
         {lead.code,        &lead},
@@ -497,37 +497,37 @@ const HandwheelLeadModeStepSize       FeedRotaryButton::mLeadSizeMapper;
 const HandwheelConModeStepSize        FeedRotaryButton::mConSizeMapper;
 
 const std::map<const KeyCode*, HandwheelStepModeStepSize::PositionNameIndex>       FeedRotaryButton::mStepKeycodeLut{
-    {&KeyCodes::Feed.speed_0_001, HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0001},
-    {&KeyCodes::Feed.speed_0_01,  HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0010},
-    {&KeyCodes::Feed.speed_0_1,   HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0100},
-    {&KeyCodes::Feed.speed_1,     HandwheelStepModeStepSize::PositionNameIndex::RotaryButton100},
-    {&KeyCodes::Feed.percent_60,  HandwheelStepModeStepSize::PositionNameIndex::RotaryButtonUndefined},
-    {&KeyCodes::Feed.percent_100, HandwheelStepModeStepSize::PositionNameIndex::RotaryButtonUndefined},
+    {&KeyCodes::Feed.percent_2,   HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0001},
+    {&KeyCodes::Feed.percent_5,   HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0010},
+    {&KeyCodes::Feed.percent_10,  HandwheelStepModeStepSize::PositionNameIndex::RotaryButton0100},
+    {&KeyCodes::Feed.percent_30,  HandwheelStepModeStepSize::PositionNameIndex::RotaryButton100},
+    {&KeyCodes::Feed.percent_60,  HandwheelStepModeStepSize::PositionNameIndex::RotaryButton500},
+    {&KeyCodes::Feed.percent_100, HandwheelStepModeStepSize::PositionNameIndex::RotaryButton1000},
     {&KeyCodes::Feed.lead,        HandwheelStepModeStepSize::PositionNameIndex::RotaryButtonUndefined}
 };
 const std::map<const KeyCode*, HandwheelMpgModeStepSize::PositionNameIndex> FeedRotaryButton::mMpgKeycodeLut{
-    {&KeyCodes::Feed.speed_0_001, HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton2percent},
-    {&KeyCodes::Feed.speed_0_01,  HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton5percent},
-    {&KeyCodes::Feed.speed_0_1,   HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton10percent},
-    {&KeyCodes::Feed.speed_1,     HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton30percent},
+    {&KeyCodes::Feed.percent_2,   HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton2percent},
+    {&KeyCodes::Feed.percent_5,   HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton5percent},
+    {&KeyCodes::Feed.percent_10,  HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton10percent},
+    {&KeyCodes::Feed.percent_30,  HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton30percent},
     {&KeyCodes::Feed.percent_60,  HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton60percent},
     {&KeyCodes::Feed.percent_100, HandwheelMpgModeStepSize::PositionNameIndex::RotaryButton100percent},
     {&KeyCodes::Feed.lead,        HandwheelMpgModeStepSize::PositionNameIndex::RotaryButtonUndefined}
 };
 const std::map<const KeyCode*, HandwheelConModeStepSize::PositionNameIndex> FeedRotaryButton::mConKeycodeLut{
-    {&KeyCodes::Feed.speed_0_001, HandwheelConModeStepSize::PositionNameIndex::RotaryButton2percent},
-    {&KeyCodes::Feed.speed_0_01,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton5percent},
-    {&KeyCodes::Feed.speed_0_1,   HandwheelConModeStepSize::PositionNameIndex::RotaryButton10percent},
-    {&KeyCodes::Feed.speed_1,     HandwheelConModeStepSize::PositionNameIndex::RotaryButton30percent},
+    {&KeyCodes::Feed.percent_2,   HandwheelConModeStepSize::PositionNameIndex::RotaryButton2percent},
+    {&KeyCodes::Feed.percent_5,   HandwheelConModeStepSize::PositionNameIndex::RotaryButton5percent},
+    {&KeyCodes::Feed.percent_10,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton10percent},
+    {&KeyCodes::Feed.percent_30,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton30percent},
     {&KeyCodes::Feed.percent_60,  HandwheelConModeStepSize::PositionNameIndex::RotaryButton60percent},
     {&KeyCodes::Feed.percent_100, HandwheelConModeStepSize::PositionNameIndex::RotaryButton100percent},
     {&KeyCodes::Feed.lead,        HandwheelConModeStepSize::PositionNameIndex::RotaryButtonUndefined}
 };
 const std::map<const KeyCode*, HandwheelLeadModeStepSize::PositionNameIndex>       FeedRotaryButton::mLeadKeycodeLut{
-    {&KeyCodes::Feed.speed_0_001, HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
-    {&KeyCodes::Feed.speed_0_01,  HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
-    {&KeyCodes::Feed.speed_0_1,   HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
-    {&KeyCodes::Feed.speed_1,     HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
+    {&KeyCodes::Feed.percent_2,   HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
+    {&KeyCodes::Feed.percent_5,   HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
+    {&KeyCodes::Feed.percent_10,  HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
+    {&KeyCodes::Feed.percent_30,  HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
     {&KeyCodes::Feed.percent_60,  HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
     {&KeyCodes::Feed.percent_100, HandwheelLeadModeStepSize::PositionNameIndex::UNDEFINED},
     {&KeyCodes::Feed.lead,        HandwheelLeadModeStepSize::PositionNameIndex::LEAD}
@@ -1355,21 +1355,21 @@ void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 // ----------------------------------------------------------------------
 void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.speed_0_001.code)
+    if (feed.code == KeyCodes::Feed.percent_2.code)
     {
-        mHal.setFeedValueSelected0_001(isActive);
+        mHal.setFeedValueSelected2(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.speed_0_01.code)
+    else if (feed.code == KeyCodes::Feed.percent_5.code)
     {
-        mHal.setFeedValueSelected0_01(isActive);
+        mHal.setFeedValueSelected5(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.speed_0_1.code)
+    else if (feed.code == KeyCodes::Feed.percent_10.code)
     {
-        mHal.setFeedValueSelected0_1(isActive);
+        mHal.setFeedValueSelected10(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.speed_1.code)
+    else if (feed.code == KeyCodes::Feed.percent_30.code)
     {
-        mHal.setFeedValueSelected1_0(isActive);
+        mHal.setFeedValueSelected30(isActive);
     }
     else if (feed.code == KeyCodes::Feed.percent_60.code)
     {
@@ -1381,6 +1381,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     }
     else if (feed.code == KeyCodes::Feed.lead.code)
     {
+        mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
     }
 }

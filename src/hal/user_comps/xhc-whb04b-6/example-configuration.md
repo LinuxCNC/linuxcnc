@@ -81,7 +81,7 @@ net pdnt.G.92.3                           whb.button.macro-7                    
 net pdnt.reserved.for.spindle.dir         whb.button.macro-8                                                     # Harcoded for spindle direction inside pendant
 net pdnt.autoprobe-actual                 whb.button.macro-9                    halui.mdi-command-09             # Auto probe Z ou Y MDI command from main.ini
 net pdnt.reserved.for.ABS-REL             whb.button.macro-10                                                    # reserved for hardcoded swap  Relative/Absolue
-net pdnt.button.brake                     whb.button.macro-14                   halui.mdi-command-14             # Activate brake spindle
+net pdnt.button.brake                     whb.button.macro-14                   halui.mdi-command-14             # use MDI command from main.ini 
 
 net pdnt.macro.11                         whb.button.macro-11                   halui.mdi-command-11             # use MDI command from main.ini
 net pdnt.macro.12                         whb.button.macro-12                   halui.mdi-command-12             # use MDI command from main.ini
@@ -110,18 +110,22 @@ net pdnt.button.zero-actual               whb.button.probe-z                    
 
 
 # unused, just exposes pendant internal status or as basic button
-net pdnt.button.mode-mpg                  whb.button.mode-mpg                   halui.mdi-command-15
-net pdnt.button.mode-step                 whb.button.mode-step                  halui.mdi-command-16
-net pdnt.button.mode-lead                 whb.halui.feed.selected-lead          halui.mdi-command-17
+#net pdnt.mode-lead                        whb.halui.feed.selected-lead          
+#net pdnt.mode-mpg-feed                    whb.halui.feed.selected-mpg-feed      
+#net pdnt.mode-continuous                  whb.halui.feed.selected-continuous    
+#net pdnt.mode-step                        whb.halui.feed.selected-step          
+
+#net pdnt.button.mode-mpg                  whb.button.mode-continuous         
+#net pdnt.button.mode-step                 whb.button.mode-step               
 #net pdnt.button.fn                        whb.button.fn
 #net pdnt.button.reset                     whb.button.reset
 #net pdnt.button.stop                      whb.button.stop
 #net pdnt.button.start-pause               whb.button.start-pause
 #net pdnt.button.s-on-off                  whb.button.s-on-off
-#net pdnt.button.spindle-plus              whb.button.spindle-plus
-#net pdnt.button.spindle-minus             whb.button.spindle-minus
-#net pdnt.button.feed-plus                 whb.button.feed-plus
-#net pdnt.button.feed-minus                whb.button.feed-minus
+#net pdnt.button.spindle-plus              whb.button.spindle-plus                                                  
+#net pdnt.button.spindle-minus             whb.button.spindle-minus    
+#net pdnt.button.feed-plus                 whb.button.feed-plus                                                  
+#net pdnt.button.feed-minus                whb.button.feed-minus      
 
 
 # spindle related signals
