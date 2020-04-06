@@ -27,13 +27,15 @@ PlasmaC uses one of three different operating modes.
    Use external up/down for THC
 |===
 
+NOTE: If your plasma cutter has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft Arc OK of mode 0.
+
 For full functionality, Plasmac requires LinuxCNC v2.8 or later.
 
-No Z axis motion is required in G-Code, the standard PlasmaC configurations will comment out any Z commands during program load.
+No Z axis motion is required in G-Code, in fact the standard PlasmaC configurations will comment out any Z commands during program load.
 
-For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
+For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 ~ G59.3).
 
-Normally it is best to touch off your Z axis to roughly the top of your stock then bring the Z axis to almost the top of travel before starting your cuts.
+Normally it is best to touch off your Z axis to just above the top of your slats during initial  configuration then leave it at that.
 
 == I/O Requirements
 
@@ -73,7 +75,7 @@ Only one of either 'float switch' or 'ohmic probe' is required. If both are used
 
 If 'ohmic probe' is used then 'ohmic probe enable' is required.
 
-'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, the could be combined and connected as a 'float switch'
+'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, they could be combined and connected as a 'float switch'
 
 NOTE: The minimum I/O requirement for a PlasmaC configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, PlasmaC treats the float switch as a breakaway switch when it is not probing.
 
@@ -89,15 +91,15 @@ The minimum requirement for PlasmaC is LinuxCNC v2.8.
 
 Download an ISO image from one of the following and write it to a bootable device:
 
-* RTPREEMPT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
-For a machine using Mesa Electronics hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
+* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
+For a machine using Mesa Electronics or Pico Systems hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
 
 * RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso +
-For a machine using the parallel port.
+For a machine using the parallel port if the latency of PREEMPT_RT is inadequate.
 
-Then boot from the device and follow the prompts.
+Then boot from the device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNCs. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the menu and continue to install the system.
 
-This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. The 'Buildbot' is recommended for most users that will not be doing any LinuxCNC development.
+This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. A 'Buildbot' installation is recommended for most users that will not be doing any LinuxCNC development.
 
 NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
 
@@ -107,8 +109,12 @@ All PlasmaC development has been done on a Stretch ISO installation.
 
 You can then choose between:
 
-* <<buildbot-install, A Buildbot installation>> The LinuxCNC Buildbot provides pre-compiled packages which can be installed by a package manager.
+* <<buildbot-install, A Buildbot installation>> The LinuxCNC Buildbot provides pre-compiled packages which can be installed by a package manager. This is the preferred method for most users.
 * <<rip-install, A Run In Place installation>>. RIP builds are compiled on your computer and are normally used if you wish to do any development work.
+
+The preferred method for most users is to do a Buildbot installation of 2.8 which gives you the next stable branch and it will automatically be update if you update the Linux base.
+
+Run In Place installations are usually used for development.
 
 [[buildbot-install]]
 
@@ -151,19 +157,17 @@ deb     http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
 deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
 ----
 
-NOTE: At this time master is 2.9
-
 Where:
 
 * <distro> is stretch or wheezy
-* <branch> is master or 2.8
+* <branch> is 2.8 or master
 * <rt_type> is rtpreempt or rt
 
-So if you installed the 'stretch' version and wanted master branch then you would have:
+So if you installed the 'stretch' version and wanted '2.8' branch on a 'PREEMPT_RT' machine then you would have:
 
 ----
-deb     http://buildbot.linuxcnc.org/ stretch master-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ stretch master-rtpreempt
+deb     http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
+deb-src http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
 ----
 
 When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
@@ -172,7 +176,7 @@ Now do a Search with 'linuxcnc' as the search term and the result should be a li
 
 Right click on the package you want to install and then select Mark for Installation.
 
-For rtpreempt you would select linuxcnc-uspace and for rt it would be linuxcnc.
+For PREEMPT_RT you would select linuxcnc-uspace and for RTAI it would be linuxcnc.
 
 You may also select the documentation if you want it installed locally and/or the -dev package if you intend to build new realtime components and/or alternate front-ends for linuxcnc.
 
@@ -197,13 +201,13 @@ $ cd linuxcnc-dev/src
 $ ./autogen.sh
 ----
 
-for RTPREEMPT
+for PREEMPT_RT
 
 ----
 $ ./configure --with-realtime=uspace
 ----
 
-For RTAI (mostly for parallel port machines)
+For RTAI
 
 ----
 $ ./configure --with-realtime=/usr/realtime-$VERSION
@@ -255,9 +259,9 @@ You now have all the requirements to run PlasmaC, the next step is to create a w
 
 === Make A Working Base Machine Configuration
 
-IMPORTANT: Base machine configuration means a complete working system without the Plasmac configuration. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
+NOTE: Base machine configuration means a complete working system without any plasma connections. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
-Do NOT add any plasma specific connections here, these will be added later.
+IMPORTANT: Do NOT add any plasma connections such as torch_on or arc_ok etc. here, these will be added later.
 
 [[z_settings]]
 
@@ -292,6 +296,8 @@ https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC
 
 If you have a dual motor gantry configuration you may need to hand edit your configuration to suit: +
 https://forum.linuxcnc.org/49-basic-configuration/33079-how-to-2-or-more-motors-on-one-axis-gantry-linuxcnc-2-8-master?start=0[This LinuxCNC forum thread] may help.
+
+IMPORTANT: DO NOT CONTINUE UNTIL THE BASE MACHINE IS CONFIGURED AND WORKING
 
 === Add PlasmaC To Base Machine
 
