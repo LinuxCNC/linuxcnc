@@ -295,14 +295,21 @@ class _Lcnc_Action(object):
         self.cmd.feedrate(rate/100.0)
     def SET_SPINDLE_RATE(self, rate, number = 0):
         self.cmd.spindleoverride(rate/100.0, number)
+
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
+        # stop runaway jogging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
+        # stop runaway joging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
 
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
         self.cmd.spindle(direction, rpm, number)
@@ -393,6 +400,11 @@ class _Lcnc_Action(object):
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
+
+    def STOP_JOG(self, jointnum):
+        if STATUS.machine_is_on():
+            jjogmode,j_or_a = self.get_jog_info(jointnum)
+            self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 
     def TOGGLE_FLOOD(self):
         self.cmd.flood(not(STATUS.stat.flood))
