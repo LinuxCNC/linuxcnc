@@ -92,19 +92,9 @@ proc askKill {} {
     exit
 }
 
-# Wizard logo
-set lname $::env(LINUXCNC_HOME)/share/linuxcnc/linuxcnc-wizard.gif
-if { [file exists $lname] } {
-   set logo [image create photo -file $lname]
-} else {
-   set logo ""
-}
-
 wm title . [msgcat::mc "LinuxCNC Calibration"]
-set logo [label .logo -image $logo]
 set ::EC(main) [frame .main ]
 set ::EC(nbook) [NoteBook .main.top]
-pack $logo -side left -anchor nw
 pack $::EC(main) -side left -expand yes -fill both \
     -padx 18 -pady 18 -anchor n
 pack $::EC(nbook) -side top -fill both -expand yes
