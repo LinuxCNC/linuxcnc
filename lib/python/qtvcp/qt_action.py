@@ -314,7 +314,7 @@ class _Lcnc_Action(object):
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.old['spindle-speed']) >= INFO.MAX_SPINDLE_SPEED: return
+        if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(number)]: return
         self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
     def SET_SPINDLE_SLOWER(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
