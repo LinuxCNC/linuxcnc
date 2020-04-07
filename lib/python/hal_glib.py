@@ -882,8 +882,13 @@ class _GStat(gobject.GObject):
     def is_metric_mode(self):
         return self.old['metric']
 
-    def is_spindle_on(self):
-        return self.old['spindle-enabled']
+    def is_spindle_on(self, num = 0):
+        self.stat.poll()
+        return self.stat.spindle[num]['enabled']
+
+    def get_spindle_speed(self, num):
+        self.stat.poll()
+        return self.stat.spindle[num]['speed']
 
     def is_joint_mode(self):
         try:
