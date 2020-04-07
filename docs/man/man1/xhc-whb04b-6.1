@@ -1,6 +1,6 @@
 .TH XHC-WHB04B-6 "1" "2020-04-07" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
-xhc\-hb04 \- User-space HAL component for the xhc-whb04b-6 pendant.
+xhc\-whb04b\-6 \- User-space HAL component for the xhc-whb04b-6 pendant.
 
 .SH DESCRIPTION
 The xhc-whb04b-6 HAL component supports the XHC WHB04B-6, a 6-axis wireless USB pendant.
@@ -33,147 +33,44 @@ should be created (using sudo and a text editor or copy from source folder) as:
 .nf
 \fB/etc/udev/rules.d/99\-xhc\-whb04b\-6.rules\fR with the single line:
 
-ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"
+ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"
 .fi
 
 .SH Standalone Usage
 The xhc-whb04b-6 program can be run from the command line without LinuxCNC to test a pendant.
 This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data. 
 
-[cols="20%,90%",frame="none", grid="none",]
-|===
-| *xhc-whb04b-6 -ue* |
-Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
+Usage:
 
-| *xhc-whb04b-6 -p* |
-Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.
+\fIloadusr \-W \fR \fBxhc\-whb04b\-6\fR \fI\-H [Options]\fR
 
-| *xhc-whb04b-6 -Hn* |
-Start in HAL mode and avoid output, except of errors.
-|===
-
-.SH Hal Usage
-Use the -H option to specify HAL mode and other options as required: +
-*loadusr -W xhc-whb04b-6 -H*
-
-\fIloadusr \-W \fR \fBxhc\-hb04\fR \fI\-H [Options]\fR
-
-
-.SH Input Pins (Control)
-=== Input/Output Signals
-*Note:* For each button an output pin is provided even if no functionality is realized with that signal.
-For example, to stop a running program the Stop button pin may be directly connected to halui.program.stop.
-However, to start/pause/resume a program, the corresponding button toggles besides whb.button.start-pause
-also the whb.halui.program.{run,pause,resume} signals accordingly. +
-*Note:* The Spindle+/Spindle- buttons do manipulate the spindle override.
-The spindle speed is set with the respective combos Fn + Spindle- and FN + Spindle+.
-
-The following tables list all in-/output pins and state which signals they are meant to be connected to. +
-
-.SH Axis and Stepgen
-
-Signals utilized for moving axis.
-
-*<N>*  ... denotes the axis number, which is of {0, 1, 2, 3, 4, 5}
-
-[cols="30%,5%,5%,60%",options="header"]
-|====
-| Component Signal Name                 | Type  | In/Out | Notes
-| *whb.halui.home-all*                  | bit   | out    | connect to halui.home-all, driven by macro-10 +
-                                          Pin for requesting all axis to home.
-                                          See also *whb.button.macro-10*.
-| *whb.halui.joint.<N>.select*          | bit   | out    | connect to halui.joint.<N>.select +
-                                          Pin to select joint.
-| *whb.axis.<N>.jog-counts*             | s32   | out    | connect to axis.<N>.jog-counts +
-                                          The count pin of the jogwheel.
-| *whb.axis.<N>.jog-enable*             | bit   | out    | connect to axis.<N>.jog-enable +
-                                          If true (and in manual mode), any change to "jog-counts" will result in motion.
-                                          If false, "jog-counts" is ignored.
-| *whb.axis.<N>.jog-scale*              | float | out    | connect to axis.<N>.jog-scale +
-                                          The distance to move for each count on "jog-counts", in machine units.
-| *whb.axis.<N>.jog-vel-mode*           | bit   | out    | connect to axis.<N>.jog-jog-vel-mode +
-                                          If false the jogwheel operates in position mode.
-                                          The axis will move exactly jog-scale units for each count,
-                                          regardless of how long that might take.
-                                          If true, the jogwheel operates in velocity mode - motion stops when the wheel stops,
-                                          even if that means the commanded motion is not completed.
-| *whb.stepgen.<N>.maxvel*              | float | in     | connect to stepgen.<N>.maxvel +
-                                          The maximum allowable velocity, in units per second (<N> is two digit '0'-padded).
-| *whb.stepgen.<N>.position-scale*      | float | in     | connect to stepgen.<N>.position-scale +
-                                          The scaling for position feedback, position command, and velocity command, in steps per length unit (<N> is two digit '0'-padded).
-| *whb.halui.axis.<N>.pos-feedback*     | float | in     | connect to halui.axis.<N>.pos-feedback +
-                                          Feedback axis position in machine coordinates to be displayed.
-| *whb.halui.axis.<N>.pos-relative*    | float | in     | connect to halui.axis.<N>.pos-relative +
-                                          Commanded axis position in relative coordinates to be displayed.
-
-
-.SH Synthesized button pins
-Additional buttons are synthesized for buttons named
-\fBzero\fR, \fBgoto\-zero\fR, and \fBhalf\fR.  These synthesized
-buttons are active when the button is pressed AND the selector\-switch
-is set to the corresponding axis [xyza].
-
-.nf
-   (bit out) xhc\-hb04.button\-zero\-[xyza]
-   (bit out) xhc\-hb04.button\-goto\-zero\-[xyza]
-   (bit out) xhc\-hb04.button\-half\-[xyza]
-.fi
-
-.SH DEBUGGING
-For debugging USB activity, use environmental variable LIBUSB_DEBUG:
+.SH Options (suggested -HsfB)
 .TP
-export LIBUSB_DEBUG=[2 | 3 | 4]; xhc\-hb04 [options]
-2:warning, 3:info, 4:debug
+\fB\-h\fR list command line options and exit
+.TP
+\fB\-ue\fR Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
+.TP
+\fB\-H\fR    run in real-time HAL mode (because simulation mode is default without args)
+.TP
+\fB\-s\fR    Lead + jogwheel changes the spindle override speed. Each tick will increase/decrease the spindle override.
+.TP
+\fB\-f n\fR  MPG + jogwheel changes the feed override. Each tick will increment/decrement the feed override.
+.TP
+\fB\-B n\fR  Add 5mm and 10mm to Step feedrate output
+.PP
 
-.SH Sim Configs
-The distribution includes several simulation configurations in
-the directory:
-.nf
-   /usr/share/doc/linuxcnc/examples/sample\-configs/sim/axis/xhc\-hb04/
-or for a RIP build:
-   rip_base_dir/configs/sim/axis/xhc\-hb04/
-.fi
-.PP
-These configurations use a distribution-provided script (xhc\-hb04.tcl)
-to configure the pendant and make necessary HAL connections according
-to a number of ini file settings.  The script uses an additional
-HAL component (xhc_hb04_util) to provide common functionality and
-includes support for a standard method for the start-pause button.
-.PP
-The settings available include:
-  1) specify button\-cfg\-file for standard layout1 or layout2
-  2) select axes (up to 4 axes from set of x y z a b c u v w)
-  3) implement per-axis filtering coeficients
-  4) implement per-axis acceleration for mpg jogging
-  5) implement per-axis scale settings
-  6) select normal or velocity based jog modes
-  7) select stepsize sequence
-  8) option to initialize pin for inch or mm display icon
-  9) option to require pendant on startup
-.PP
-The sim configs illustrate button connections that:
-  1) connect pendant stepsize\-up button to the step input pin.
-  2) connect buttons to halui.* pins
-  3) connect buttons to motion.* pins
-.PP
-Another script is included to monitor the pendant and report loss
-of USB connectivity.  See the README and .txt files in the above
-directory for usage.
-.PP
-\fBNote:\fR The sim configs use the axis gui but the scripts are
-available with any HAL configuration or gui.  The same scripts can
-be used to adapt the xhc\-hb04 to existing configurations provided that
-the halui, motion, and axis.N pins needed are not otherwise claimed.
-Instructions are included in README file in the directory named above.
-.PP
-Use halcmd to display the pins and signals used by the xhc\-hb04.tcl
-script:
-.nf
-  halcmd show pin xhc\-hb04       (show all xhc\-hb04 pins)
-  halcmd show pin pendant_util   (show all pendant_util pins)
-  halcmd show sig pendant:       (show all pendant signals)
-.fi
+
+.SH hal CONNECTION
+
+You can found the file and copy in your config folder, rename to xhc-whb04b-6.hal
+https://github.com/linuxcnc/linuxcnc/blob/master/src/hal/user_comps/xhc-whb04b-6/example-configuration.md
+
+edit your ini file and add in this section
+[HAL]
+HALFILE = xhc-whb04b-6.hal
+
+
 
 .SH Author
-Frederick Rible (frible@teaser.fr)
+Copyright (C) 2018 Raoul Rubien (github.com/rubienr) Updated for Linuxcnc 2020 by alkabal_free.fr.
 
