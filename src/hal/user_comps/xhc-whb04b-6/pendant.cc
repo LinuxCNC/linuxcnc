@@ -1440,12 +1440,12 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
 {
 
     FeedRotaryButton& feedButton = mCurrentButtonsState.feedButton();
-    
+
     if (HandWheelCounters::CounterNameToIndex::UNDEFINED != counters.activeCounter() &&
         0 != counters.counts())
     {
         *mPendantCout << mPrefix << "wheel  event " << counters.counts() << endl;
-        
+
         if (0 != delta)
         {
             if (counters.isLeadCounterActive() && mIsLeadModeSpindle)
@@ -1469,7 +1469,7 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
                    {
                        mHal.toggleFeedrateDecrease();
                    }
-             }            
+             }
              else if (!counters.isLeadCounterActive() && (feedButton.stepMode() == HandwheelStepmodes::Mode::CON || feedButton.stepMode() == HandwheelStepmodes::Mode::STEP))
              {      // Normal Mode
                     mHal.setJogCounts(counters);
@@ -1565,6 +1565,11 @@ void Pendant::setLeadModeSpindle(bool enable)
 void Pendant::setLeadModeFeed(bool enable)
 {
     mIsLeadModeFeed = true;
+}
+// ----------------------------------------------------------------------
+void Pendant::setStepMode_5_10(bool enable)
+{
+    mIsStepMode_5_10 = true;
 }
 // ----------------------------------------------------------------------
     Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :

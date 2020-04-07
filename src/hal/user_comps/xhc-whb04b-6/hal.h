@@ -93,38 +93,38 @@ public:
     struct In
     {
     public:
-    
+
         //! to be connected to \ref halui.flood.is-on
         hal_bit_t  * floodIsOn{nullptr};
         //! to be connected to \ref halui.mist.is-on
         hal_bit_t  * mistIsOn{nullptr};
         //! to be connected to \ref halui.lube.is-on
         hal_bit_t  * lubeIsOn{nullptr};
-        
-        //! to be connected to \ref halui.axis.0.pos-feedback
+
+        //! to be connected to \ref halui.axis.x.pos-feedback
         hal_float_t* axisXPosition{nullptr};
-        //! to be connected to \ref halui.axis.1.pos-feedback
+        //! to be connected to \ref halui.axis.y.pos-feedback
         hal_float_t* axisYPosition{nullptr};
-        //! to be connected to \ref halui.axis.2.pos-feedback
+        //! to be connected to \ref halui.axis.z.pos-feedback
         hal_float_t* axisZPosition{nullptr};
-        //! to be connected to \ref halui.axis.3.pos-feedback
+        //! to be connected to \ref halui.axis.a.pos-feedback
         hal_float_t* axisAPosition{nullptr};
-        //! to be connected to \ref halui.axis.4.pos-feedback
+        //! to be connected to \ref halui.axis.b.pos-feedback
         hal_float_t* axisBPosition{nullptr};
-        //! to be connected to \ref halui.axis.5.pos-feedback
+        //! to be connected to \ref halui.axis.c.pos-feedback
         hal_float_t* axisCPosition{nullptr};
 
-        //! to be connected to \ref halui.axis.0.pos-relative
+        //! to be connected to \ref halui.axis.x.pos-relative
         hal_float_t* axisXPositionRelative{nullptr};
-        //! to be connected to \ref halui.axis.1.pos-relative
+        //! to be connected to \ref halui.axis.y.pos-relative
         hal_float_t* axisYPositionRelative{nullptr};
-        //! to be connected to \ref halui.axis.2.pos-relative
+        //! to be connected to \ref halui.axis.z.pos-relative
         hal_float_t* axisZPositionRelative{nullptr};
-        //! to be connected to \ref halui.axis.3.pos-relative
+        //! to be connected to \ref halui.axis.a.pos-relative
         hal_float_t* axisAPositionRelative{nullptr};
-        //! to be connected to \ref halui.axis.4.pos-relative
+        //! to be connected to \ref halui.axis.b.pos-relative
         hal_float_t* axisBPositionRelative{nullptr};
-        //! to be connected to \ref halui.axis.5.pos-relative
+        //! to be connected to \ref halui.axis.c.pos-relative
         hal_float_t* axisCPositionRelative{nullptr};
 
         //! to be connected to \ref halui.spindle.is-on
@@ -180,57 +180,57 @@ public:
         hal_bit_t  * lubeStop{nullptr};
         //! to be connected to \ref halui.lube.on
         hal_bit_t  * lubeStart{nullptr};
-        
-        //! to be connected to \ref axis.0.jog-counts
+
+        //! to be connected to \ref axis.x.jog-counts
         hal_s32_t* axisXJogCounts{nullptr};
-        //! to be connected to \ref axis.1.jog-counts
+        //! to be connected to \ref axis.y.jog-counts
         hal_s32_t* axisYJogCounts{nullptr};
-        //! to be connected to \ref axis.2.jog-counts
+        //! to be connected to \ref axis.z.jog-counts
         hal_s32_t* axisZJogCounts{nullptr};
-        //! to be connected to \ref axis.3.jog-counts
+        //! to be connected to \ref axis.a.jog-counts
         hal_s32_t* axisAJogCounts{nullptr};
-        //! to be connected to \ref axis.4.jog-counts
+        //! to be connected to \ref axis.b.jog-counts
         hal_s32_t* axisBJogCounts{nullptr};
-        //! to be connected to \ref axis.5.jog-counts
+        //! to be connected to \ref axis.c.jog-counts
         hal_s32_t* axisCJogCounts{nullptr};
 
-        //! to be connected to \ref axis.0.jog-enable
+        //! to be connected to \ref axis.x.jog-enable
         hal_bit_t* axisXJogEnable{nullptr};
-        //! to be connected to \ref axis.1.jog-enable
+        //! to be connected to \ref axis.y.jog-enable
         hal_bit_t* axisYJogEnable{nullptr};
-        //! to be connected to \ref axis.2.jog-enable
+        //! to be connected to \ref axis.z.jog-enable
         hal_bit_t* axisZJogEnable{nullptr};
-        //! to be connected to \ref axis.3.jog-enable
+        //! to be connected to \ref axis.a.jog-enable
         hal_bit_t* axisAJogEnable{nullptr};
-        //! to be connected to \ref axis.4.jog-enable
+        //! to be connected to \ref axis.b.jog-enable
         hal_bit_t* axisBJogEnable{nullptr};
-        //! to be connected to \ref axis.5.jog-enable
+        //! to be connected to \ref axis.c.jog-enable
         hal_bit_t* axisCJogEnable{nullptr};
 
-        //! to be connected to \ref axis.0.jog-scale
+        //! to be connected to \ref axis.x.jog-scale
         hal_float_t* axisXJogScale{nullptr};
-        //! to be connected to \ref axis.1.jog-scale
+        //! to be connected to \ref axis.y.jog-scale
         hal_float_t* axisYJogScale{nullptr};
-        //! to be connected to \ref axis.2.jog-scale
+        //! to be connected to \ref axis.z.jog-scale
         hal_float_t* axisZJogScale{nullptr};
-        //! to be connected to \ref axis.3.jog-scale
+        //! to be connected to \ref axis.a.jog-scale
         hal_float_t* axisAJogScale{nullptr};
-        //! to be connected to \ref axis.4.jog-scale
+        //! to be connected to \ref axis.b.jog-scale
         hal_float_t* axisBJogScale{nullptr};
-        //! to be connected to \ref axis.5.jog-scale
+        //! to be connected to \ref axis.c.jog-scale
         hal_float_t* axisCJogScale{nullptr};
 
-        //! to be connected to \ref axis.0.jog-vel-mode
+        //! to be connected to \ref axis.x.jog-vel-mode
         hal_bit_t* axisXSetVelocityMode{nullptr};
-        //! to be connected to \ref axis.1.jog-vel-mode
+        //! to be connected to \ref axis.y.jog-vel-mode
         hal_bit_t* axisYSetVelocityMode{nullptr};
-        //! to be connected to \ref axis.2.jog-vel-mode
+        //! to be connected to \ref axis.z.jog-vel-mode
         hal_bit_t* axisZSetVelocityMode{nullptr};
-        //! to be connected to \ref axis.3.jog-vel-mode
+        //! to be connected to \ref axis.a.jog-vel-mode
         hal_bit_t* axisASetVelocityMode{nullptr};
-        //! to be connected to \ref axis.4.jog-vel-mode
+        //! to be connected to \ref axis.b.jog-vel-mode
         hal_bit_t* axisBSetVelocityMode{nullptr};
-        //! to be connected to \ref axis.5.jog-vel-mode
+        //! to be connected to \ref axis.c.jog-vel-mode
         hal_bit_t* axisCSetVelocityMode{nullptr};
 
         hal_bit_t* feedValueSelected_2{nullptr};
@@ -443,7 +443,7 @@ public:
     //! \sa Hal::Out::feedValueSelected_lead
     //! \param selected true if Lead is selected, false otherwise
     void setFeedValueSelectedLead(bool selected);
-    
+
     //! Returns the current spindle override value.
     //! \sa Hal::In::spindleOverrideValue
     //! \return the current spindle override value v: 0 <= v <= 1

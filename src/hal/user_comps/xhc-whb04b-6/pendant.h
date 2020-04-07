@@ -219,12 +219,12 @@ public:
 class FeedRotaryButtonCodes
 {
 public:
-    const KeyCode                           percent_2;   
-    const KeyCode                           percent_5;   
-    const KeyCode                           percent_10;  
-    const KeyCode                           percent_30;  
-    const KeyCode                           percent_60;  
-    const KeyCode                           percent_100; 
+    const KeyCode                           percent_2;
+    const KeyCode                           percent_5;
+    const KeyCode                           percent_10;
+    const KeyCode                           percent_30;
+    const KeyCode                           percent_60;
+    const KeyCode                           percent_100;
     const KeyCode                           lead;
     const KeyCode                           undefined;
     const std::map<uint8_t, const KeyCode*> codeMap;
@@ -575,6 +575,7 @@ public:
     //! \sa mIsLeadModeFeed
     //! \sa setLeadModeFeed()
     void setLeadModeFeed(bool enable);
+    void setStepMode_5_10(bool enable);
 private:
     Hal& mHal;
     ButtonsState mPreviousButtonsState;
@@ -584,6 +585,7 @@ private:
     //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
     bool         mIsLeadModeSpindle = false;
     bool         mIsLeadModeFeed = false;
+    bool         mIsStepMode_5_10 = false;
 
     float mScale;
     float mMaxVelocity;

@@ -650,4 +650,9 @@ void XhcWhb04b6Component::setLeadModeFeed(bool enable)
 {
     mPendant.setLeadModeFeed(enable);
 }
+// ----------------------------------------------------------------------
+void XhcWhb04b6Component::setStepMode_5_10(bool enable)
+{
+    mPendant.setStepMode_5_10(enable);
+}
 }

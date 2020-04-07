@@ -54,7 +54,7 @@ int32_t HandWheelCounters::counts() const
         auto idx = static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::LEAD);
         return mCounters[idx];
     }
-    else 
+    else
     {
         assert(mActiveAxisCounter != CounterNameToIndex::UNDEFINED);
         auto idx = static_cast<typename std::underlying_type<CounterNameToIndex>::type>(mActiveAxisCounter);

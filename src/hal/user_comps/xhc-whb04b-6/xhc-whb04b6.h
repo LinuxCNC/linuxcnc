@@ -72,6 +72,7 @@ public:
     void printCrcDebug(const UsbInPackage& inPackage, const UsbOutPackageData& outPackageBuffer) const;
     void setLeadModeSpindle(bool enable);
     void setLeadModeFeed(bool enable);
+    void setStepMode_5_10(bool enable);
 
 private:
     const char* mName;

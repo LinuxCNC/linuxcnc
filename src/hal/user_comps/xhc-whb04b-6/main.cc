@@ -75,7 +75,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << " -t" << endl
         << "    Wait with timeout for USB device then proceed, exit otherwise. Without -t the timeout is "
         << "implicitly infinite." << endl
-        
+
         << " -s, \n"
         << "    Lead in Spindle mode: "
         << "Lead + jogwheel changes the spindle override speed. Each tick will increase/decrease the spindle override.\n"
@@ -83,8 +83,8 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << " -f, \n"
         << "    MPG in Feed mode: "
         << "MPG + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
-        << "\n"        
-        
+        << "\n"
+
         << " -u, -U" << endl
         << "    Show received data from device. With -U received and transmitted data will be printed. "
         << "Output is prefixed with \"usb\"." << endl
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 {
     WhbComponent = new XhcWhb04b6::XhcWhb04b6Component();
 
-    const char* optargs = "phaeHuctsfnU:v:";
+    const char* optargs = "phaeHuctsfbnU:v:";
     for (int opt = getopt(argc, argv, optargs); opt != -1; opt = getopt(argc, argv, optargs))
     {
         switch (opt)
@@ -209,6 +209,9 @@ int main(int argc, char** argv)
                 break;
             case 'f':
                 WhbComponent->setLeadModeFeed(true);
+                break;
+            case 'b':
+                WhbComponent->setStepMode_5_10(true);
                 break;
             case 'n':
                 break;

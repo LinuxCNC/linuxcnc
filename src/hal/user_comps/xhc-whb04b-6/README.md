@@ -20,7 +20,7 @@
    * [HAL pins](#hal-pins)
    * [Run in HAL mode (halrun)](#run-in-hal-mode-halrun)
 
-## Introduction 
+## Introduction
 
 This component provides an interface to the WHB04B-6 pendant. In productive mode the interface is placed in shared memory, where other components can interact with. The component may be alternatively started in simulation mode, which does not require shared memory at all, but allows a user to inspect the device connectivity.
 
@@ -52,7 +52,7 @@ Macro-16. The keypad layout is as follows:
 
 ### Pendant button naming
 
-The HAL pin names are derived from text written on the respective button. 
+The HAL pin names are derived from text written on the respective button.
 For example: An extensive list of HAL pins
 
 ```
@@ -103,10 +103,10 @@ OPTIONS
  -n
     Force being silent and not printing any output except of errors. This will also inhibit messages prefixed with "init".
 
- -s 
+ -s
     Enable spindle override value using wheel with feed button to Lead mode.
-    
- -f 
+
+ -f
     Enable feedrate override value using wheel after Lead mode or at first start (display MPG mode)
 
 EXAMPLES
@@ -118,7 +118,7 @@ xhc-whb04b-6 -p
 
 xhc-whb04b-6 -Hn
     Start in HAL mode and avoid output, except of errors.
-    
+
 xhc-whb04b-6 -Hsfn
     Start in HAL mode and avoid output, except of errors + spindle and feedrate override.
 
@@ -334,5 +334,5 @@ hal   start/stop disabled (pin # 4)
 ^Ctermination requested upon signal number 2 ...
 connection lost, cleaning up
 
-halcmd: 
+halcmd:
 ```

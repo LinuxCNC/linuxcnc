@@ -86,7 +86,7 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->in.floodIsOn));
     freeSimulatedPin((void**)(&memory->in.mistIsOn));
     freeSimulatedPin((void**)(&memory->in.lubeIsOn));
-    
+
     freeSimulatedPin((void**)(&memory->in.axisXPosition));
     freeSimulatedPin((void**)(&memory->in.axisYPosition));
     freeSimulatedPin((void**)(&memory->in.axisZPosition));
@@ -131,7 +131,7 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.mistStart));
     freeSimulatedPin((void**)(&memory->out.lubeStop));
     freeSimulatedPin((void**)(&memory->out.lubeStart));
-    
+
     freeSimulatedPin((void**)(&memory->out.axisXJogCounts));
     freeSimulatedPin((void**)(&memory->out.axisYJogCounts));
     freeSimulatedPin((void**)(&memory->out.axisZJogCounts));
@@ -435,65 +435,65 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
                   buttonName);
     }
 
-    newHalBit(HAL_IN, &(memory->in.floodIsOn), mHalCompId, "%s.halui.flood.is-on", mComponentPrefix);  
+    newHalBit(HAL_IN, &(memory->in.floodIsOn), mHalCompId, "%s.halui.flood.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.floodStop), mHalCompId, "%s.halui.flood.off", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.floodStart), mHalCompId, "%s.halui.flood.on", mComponentPrefix);
-    
-    newHalBit(HAL_IN, &(memory->in.mistIsOn), mHalCompId, "%s.halui.mist.is-on", mComponentPrefix);  
+
+    newHalBit(HAL_IN, &(memory->in.mistIsOn), mHalCompId, "%s.halui.mist.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.mistStop), mHalCompId, "%s.halui.mist.off", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.mistStart), mHalCompId, "%s.halui.mist.on", mComponentPrefix);
-    
-    newHalBit(HAL_IN, &(memory->in.lubeIsOn), mHalCompId, "%s.halui.lube.is-on", mComponentPrefix);  
+
+    newHalBit(HAL_IN, &(memory->in.lubeIsOn), mHalCompId, "%s.halui.lube.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.lubeStop), mHalCompId, "%s.halui.lube.off", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.lubeStart), mHalCompId, "%s.halui.lube.on", mComponentPrefix);
-    
-    newHalSigned32(HAL_OUT, &(memory->out.axisXJogCounts), mHalCompId, "%s.axis.0.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisXJogEnable), mHalCompId, "%s.axis.0.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisXJogScale), mHalCompId, "%s.axis.0.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisXSetVelocityMode), mHalCompId, "%s.axis.0.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisYJogCounts), mHalCompId, "%s.axis.1.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisYJogEnable), mHalCompId, "%s.axis.1.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisYJogScale), mHalCompId, "%s.axis.1.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisYSetVelocityMode), mHalCompId, "%s.axis.1.jog-vel-mode", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.axisXJogCounts), mHalCompId, "%s.axis.x.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisXJogEnable), mHalCompId, "%s.axis.x.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisXJogScale), mHalCompId, "%s.axis.x.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisXSetVelocityMode), mHalCompId, "%s.axis.x.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisZJogCounts), mHalCompId, "%s.axis.2.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisZJogEnable), mHalCompId, "%s.axis.2.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisZJogScale), mHalCompId, "%s.axis.2.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisZSetVelocityMode), mHalCompId, "%s.axis.2.jog-vel-mode", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.axisYJogCounts), mHalCompId, "%s.axis.y.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisYJogEnable), mHalCompId, "%s.axis.y.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisYJogScale), mHalCompId, "%s.axis.y.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisYSetVelocityMode), mHalCompId, "%s.axis.y.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisAJogCounts), mHalCompId, "%s.axis.3.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisAJogEnable), mHalCompId, "%s.axis.3.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisAJogScale), mHalCompId, "%s.axis.3.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisASetVelocityMode), mHalCompId, "%s.axis.3.jog-vel-mode", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.axisZJogCounts), mHalCompId, "%s.axis.z.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisZJogEnable), mHalCompId, "%s.axis.z.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisZJogScale), mHalCompId, "%s.axis.z.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisZSetVelocityMode), mHalCompId, "%s.axis.z.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisBJogCounts), mHalCompId, "%s.axis.4.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisBJogEnable), mHalCompId, "%s.axis.4.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisBJogScale), mHalCompId, "%s.axis.4.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisBSetVelocityMode), mHalCompId, "%s.axis.4.jog-vel-mode", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.axisAJogCounts), mHalCompId, "%s.axis.a.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisAJogEnable), mHalCompId, "%s.axis.a.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisAJogScale), mHalCompId, "%s.axis.a.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisASetVelocityMode), mHalCompId, "%s.axis.a.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisCJogCounts), mHalCompId, "%s.axis.5.jog-counts", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisCJogEnable), mHalCompId, "%s.axis.5.jog-enable", mComponentPrefix);
-    newHalFloat(HAL_OUT, &(memory->out.axisCJogScale), mHalCompId, "%s.axis.5.jog-scale", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.axisCSetVelocityMode), mHalCompId, "%s.axis.5.jog-vel-mode", mComponentPrefix);
+    newHalSigned32(HAL_OUT, &(memory->out.axisBJogCounts), mHalCompId, "%s.axis.b.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisBJogEnable), mHalCompId, "%s.axis.b.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisBJogScale), mHalCompId, "%s.axis.b.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisBSetVelocityMode), mHalCompId, "%s.axis.b.jog-vel-mode", mComponentPrefix);
+
+    newHalSigned32(HAL_OUT, &(memory->out.axisCJogCounts), mHalCompId, "%s.axis.c.jog-counts", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisCJogEnable), mHalCompId, "%s.axis.c.jog-enable", mComponentPrefix);
+    newHalFloat(HAL_OUT, &(memory->out.axisCJogScale), mHalCompId, "%s.axis.c.jog-scale", mComponentPrefix);
+    newHalBit(HAL_OUT, &(memory->out.axisCSetVelocityMode), mHalCompId, "%s.axis.c.jog-vel-mode", mComponentPrefix);
 
     newHalBit(HAL_OUT, &(memory->out.isPendantSleeping), mHalCompId, "%s.pendant.is-sleeping", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.isPendantConnected), mHalCompId, "%s.pendant.is-connected", mComponentPrefix);
 
-    newHalFloat(HAL_IN, &(memory->in.axisXPosition), mHalCompId, "%s.halui.axis.0.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisYPosition), mHalCompId, "%s.halui.axis.1.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisZPosition), mHalCompId, "%s.halui.axis.2.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisAPosition), mHalCompId, "%s.halui.axis.3.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisBPosition), mHalCompId, "%s.halui.axis.4.pos-feedback", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisCPosition), mHalCompId, "%s.halui.axis.5.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisXPosition), mHalCompId, "%s.halui.axis.x.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisYPosition), mHalCompId, "%s.halui.axis.y.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisZPosition), mHalCompId, "%s.halui.axis.z.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisAPosition), mHalCompId, "%s.halui.axis.a.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisBPosition), mHalCompId, "%s.halui.axis.b.pos-feedback", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisCPosition), mHalCompId, "%s.halui.axis.c.pos-feedback", mComponentPrefix);
 
-    newHalFloat(HAL_IN, &(memory->in.axisXPositionRelative), mHalCompId, "%s.halui.axis.0.pos-relative", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisYPositionRelative), mHalCompId, "%s.halui.axis.1.pos-relative", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisZPositionRelative), mHalCompId, "%s.halui.axis.2.pos-relative", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisAPositionRelative), mHalCompId, "%s.halui.axis.3.pos-relative", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisBPositionRelative), mHalCompId, "%s.halui.axis.4.pos-relative", mComponentPrefix);
-    newHalFloat(HAL_IN, &(memory->in.axisCPositionRelative), mHalCompId, "%s.halui.axis.5.pos-relative", mComponentPrefix);
-    
+    newHalFloat(HAL_IN, &(memory->in.axisXPositionRelative), mHalCompId, "%s.halui.axis.x.pos-relative", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisYPositionRelative), mHalCompId, "%s.halui.axis.y.pos-relative", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisZPositionRelative), mHalCompId, "%s.halui.axis.z.pos-relative", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisAPositionRelative), mHalCompId, "%s.halui.axis.a.pos-relative", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisBPositionRelative), mHalCompId, "%s.halui.axis.b.pos-relative", mComponentPrefix);
+    newHalFloat(HAL_IN, &(memory->in.axisCPositionRelative), mHalCompId, "%s.halui.axis.c.pos-relative", mComponentPrefix);
+
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_2), mHalCompId, "%s.halui.feed.selected-2", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_5), mHalCompId, "%s.halui.feed.selected-5", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_10), mHalCompId, "%s.halui.feed.selected-10", mComponentPrefix);
@@ -504,13 +504,13 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_mpg_feed), mHalCompId, "%s.halui.feed.selected-mpg-feed", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_continuous), mHalCompId, "%s.halui.feed.selected-continuous", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_step), mHalCompId, "%s.halui.feed.selected-step", mComponentPrefix);
-    
+
     newHalFloat(HAL_OUT, &(memory->out.feedOverrideScale), mHalCompId, "%s.halui.feed-override.scale", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideMaxVel), mHalCompId, "%s.halui.max-velocity.value", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.feedOverrideValue), mHalCompId, "%s.halui.feed-override.value", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideDecrease), mHalCompId, "%s.halui.feed-override.decrease", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideIncrease), mHalCompId, "%s.halui.feed-override.increase", mComponentPrefix);
-    
+
     newHalFloat(HAL_IN, &(memory->in.spindleOverrideValue), mHalCompId, "%s.halui.spindle-override.value",mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.spindleOverrideScale), mHalCompId, "%s.halui.spindle-override.scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleDoIncrease), mHalCompId, "%s.halui.spindle.increase", mComponentPrefix);
@@ -524,7 +524,7 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.spindleDoRunReverse), mHalCompId, "%s.halui.spindle.reverse", mComponentPrefix);
 
     newHalBit(HAL_IN, &(memory->in.isMachineOn), mHalCompId, "%s.halui.machine.is-on", mComponentPrefix);
-        
+
     newHalBit(HAL_OUT, &(memory->out.doMachineOn), mHalCompId, "%s.halui.machine.on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.doMachineOff), mHalCompId, "%s.halui.machine.off", mComponentPrefix);
 
@@ -797,7 +797,7 @@ void Hal::toggleStartResumeProgram()
 // ----------------------------------------------------------------------
 void Hal::setFeedPlus(bool enabled)
 {
-    *memory->out.feedOverrideScale = 0.05;   
+    *memory->out.feedOverrideScale = 0.05;
     *memory->out.feedOverrideIncrease = enabled;
     setPin(enabled, KeyCodes::Buttons.feed_plus.text);
 }
@@ -952,7 +952,7 @@ void Hal::setWorkpieceHome(bool enabled)
 void Hal::toggleSpindleDirection(bool isButtonPressed)
 {
         if (isButtonPressed)
-        { 
+        {
         	// on running spindle update direction immediately
         	if (*memory->in.spindleIsOn)
           {
@@ -963,10 +963,10 @@ void Hal::toggleSpindleDirection(bool isButtonPressed)
                else
                {
                    *memory->out.spindleDoRunReverse = true;
-               } 
+               }
           }
           else
-          {  
+          {
           	// on stopped spindle update direction for next start
              mIsSpindleDirectionForward = !mIsSpindleDirectionForward;
           }

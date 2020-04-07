@@ -1,15 +1,15 @@
 
-## INI Example
-
-Define section XHC_WHB04B_6_CONFIG section HAL:
-
-[HAL]
-HALFILE = <your-machine-hal>.hal
-HALFILE = xhc-whb04b-6.hal
-
-
-## Hal File xhc_whb04b_6.hal Example
-
+### INI Example
+#
+#Define section XHC_WHB04B_6_CONFIG section HAL:
+#
+#[HAL]
+#HALFILE = <your-machine-hal>.hal
+#HALFILE = xhc-whb04b-6.hal
+#
+#
+### Hal File xhc_whb04b_6.hal Example
+#
 ```
 # ######################################################################
 # load pendant components
@@ -50,24 +50,24 @@ net pdnt.mode.is-teleop                   halui.mode.is-teleop                  
 
 # "selected axis" signals
 net pdnt.axis.X.select                    whb.halui.axis.x.select               halui.axis.x.select
-net pdnt.axis.y.select                    whb.halui.axis.y.select               halui.axis.y.select
+net pdnt.axis.y.select                    whb.halui.axis.c.select               halui.axis.y.select
 net pdnt.axis.Z.select                    whb.halui.axis.z.select               halui.axis.z.select
 
-net pdnt.axis.x.jog-scale                 whb.axis.0.jog-scale                  axis.x.jog-scale
-net pdnt.axis.y.jog-scale                 whb.axis.1.jog-scale                  axis.y.jog-scale
-net pdnt.axis.z.jog-scale                 whb.axis.2.jog-scale                  axis.z.jog-scale
+net pdnt.axis.x.jog-scale                 whb.axis.x.jog-scale                  axis.x.jog-scale
+net pdnt.axis.y.jog-scale                 whb.axis.c.jog-scale                  axis.y.jog-scale
+net pdnt.axis.z.jog-scale                 whb.axis.z.jog-scale                  axis.z.jog-scale
 
-net pdnt.axis.x.jog-counts                whb.axis.0.jog-counts                 axis.x.jog-counts
-net pdnt.axis.y.jog-counts                whb.axis.1.jog-counts                 axis.y.jog-counts
-net pdnt.axis.z.jog-counts                whb.axis.2.jog-counts                 axis.z.jog-counts
+net pdnt.axis.x.jog-counts                whb.axis.x.jog-counts                 axis.x.jog-counts
+net pdnt.axis.y.jog-counts                whb.axis.c.jog-counts                 axis.y.jog-counts
+net pdnt.axis.z.jog-counts                whb.axis.z.jog-counts                 axis.z.jog-counts
 
-net pdnt.axis.x.jog-enable                whb.axis.0.jog-enable                 axis.x.jog-enable
-net pdnt.axis.y.jog-enable                whb.axis.1.jog-enable                 axis.y.jog-enable
-net pdnt.axis.z.jog-enable                whb.axis.2.jog-enable                 axis.z.jog-enable
+net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable
+net pdnt.axis.y.jog-enable                whb.axis.c.jog-enable                 axis.y.jog-enable
+net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable
 
-net pdnt.axis.x.jog-vel-mode              whb.axis.0.jog-vel-mode               axis.x.jog-vel-mode
-net pdnt.axis.y.jog-vel-mode              whb.axis.1.jog-vel-mode               axis.y.jog-vel-mode
-net pdnt.axis.z.jog-vel-mode              whb.axis.2.jog-vel-mode               axis.z.jog-vel-mode
+net pdnt.axis.x.jog-vel-mode              whb.axis.x.jog-vel-mode               axis.x.jog-vel-mode
+net pdnt.axis.y.jog-vel-mode              whb.axis.c.jog-vel-mode               axis.y.jog-vel-mode
+net pdnt.axis.z.jog-vel-mode              whb.axis.z.jog-vel-mode               axis.z.jog-vel-mode
 
 
 # macro buttons to MDI commands
@@ -81,7 +81,7 @@ net pdnt.G.92.3                           whb.button.macro-7                    
 net pdnt.reserved.for.spindle.dir         whb.button.macro-8                                                     # Harcoded for spindle direction inside pendant
 net pdnt.autoprobe-actual                 whb.button.macro-9                    halui.mdi-command-09             # Auto probe Z ou Y MDI command from main.ini
 net pdnt.reserved.for.ABS-REL             whb.button.macro-10                                                    # reserved for hardcoded swap  Relative/Absolue
-net pdnt.button.brake                     whb.button.macro-14                   halui.mdi-command-14             # use MDI command from main.ini 
+net pdnt.button.brake                     whb.button.macro-14                   halui.mdi-command-14             # use MDI command from main.ini
 
 net pdnt.macro.11                         whb.button.macro-11                   halui.mdi-command-11             # use MDI command from main.ini
 net pdnt.macro.12                         whb.button.macro-12                   halui.mdi-command-12             # use MDI command from main.ini
@@ -110,22 +110,22 @@ net pdnt.button.zero-actual               whb.button.probe-z                    
 
 
 # unused, just exposes pendant internal status or as basic button
-#net pdnt.mode-lead                        whb.halui.feed.selected-lead          
-#net pdnt.mode-mpg-feed                    whb.halui.feed.selected-mpg-feed      
-#net pdnt.mode-continuous                  whb.halui.feed.selected-continuous    
-#net pdnt.mode-step                        whb.halui.feed.selected-step          
+#net pdnt.mode-lead                        whb.halui.feed.selected-lead
+#net pdnt.mode-mpg-feed                    whb.halui.feed.selected-mpg-feed
+#net pdnt.mode-continuous                  whb.halui.feed.selected-continuous
+#net pdnt.mode-step                        whb.halui.feed.selected-step
 
-#net pdnt.button.mode-mpg                  whb.button.mode-continuous         
-#net pdnt.button.mode-step                 whb.button.mode-step               
+#net pdnt.button.mode-mpg                  whb.button.mode-continuous
+#net pdnt.button.mode-step                 whb.button.mode-step
 #net pdnt.button.fn                        whb.button.fn
 #net pdnt.button.reset                     whb.button.reset
 #net pdnt.button.stop                      whb.button.stop
 #net pdnt.button.start-pause               whb.button.start-pause
 #net pdnt.button.s-on-off                  whb.button.s-on-off
-#net pdnt.button.spindle-plus              whb.button.spindle-plus                                                  
-#net pdnt.button.spindle-minus             whb.button.spindle-minus    
-#net pdnt.button.feed-plus                 whb.button.feed-plus                                                  
-#net pdnt.button.feed-minus                whb.button.feed-minus      
+#net pdnt.button.spindle-plus              whb.button.spindle-plus
+#net pdnt.button.spindle-minus             whb.button.spindle-minus
+#net pdnt.button.feed-plus                 whb.button.feed-plus
+#net pdnt.button.feed-minus                whb.button.feed-minus
 
 
 # spindle related signals
