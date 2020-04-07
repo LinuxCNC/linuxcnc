@@ -1151,7 +1151,6 @@ void Hal::setMpgMode(bool enabled)
         *memory->out.feedValueSelected_continuous = false;
         *memory->out.feedValueSelected_step = false;
     }
-//    setPin(enabled, KeyCodes::Buttons.mpg.text);                          // TODO Create a HAL pin
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro1(bool enabled)

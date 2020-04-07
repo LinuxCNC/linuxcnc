@@ -619,6 +619,9 @@ void FeedRotaryButton::update()
         auto second = enumValue->second;
         mStepSize    = mStepSizeMapper.getStepSize(second);
         mIsPermitted = mStepSizeMapper.isPermitted(second);
+        
+        if ((mIsStepMode_5_10 = false) && mStepSize > 2) {mStepSize    = 0;}             // TODO DOES NOT WORK bool variable seems to be not synched inside pendant.h
+        
     }
     else if (mStepMode == HandwheelStepmodes::Mode::CON)
     {
@@ -1435,7 +1438,7 @@ void Pendant::onFeedInactiveEvent(const KeyCode& feed)
     dispatchActiveFeedToHal(feed, false);
     mDisplay.onFeedInactiveEvent(feed);
 }
-// ----------------------------------------------------------------------         // TODO need checking for different mode
+// ----------------------------------------------------------------------
 bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
 {
 

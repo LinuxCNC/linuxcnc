@@ -400,6 +400,7 @@ private:
     HandwheelStepmodes::Mode mStepMode;
     bool                     mIsPermitted;
     float                    mStepSize;
+    bool                     mIsStepMode_5_10;
     KeyEventListener* mEventListener;
 
     static const HandwheelStepModeStepSize       mStepSizeMapper;

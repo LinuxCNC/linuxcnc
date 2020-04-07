@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 {
     WhbComponent = new XhcWhb04b6::XhcWhb04b6Component();
 
-    const char* optargs = "phaeHuctsfbnU:v:";
+    const char* optargs = "phaeHuctsfBnU:v:";
     for (int opt = getopt(argc, argv, optargs); opt != -1; opt = getopt(argc, argv, optargs))
     {
         switch (opt)
@@ -210,7 +210,7 @@ int main(int argc, char** argv)
             case 'f':
                 WhbComponent->setLeadModeFeed(true);
                 break;
-            case 'b':
+            case 'B':
                 WhbComponent->setStepMode_5_10(true);
                 break;
             case 'n':
