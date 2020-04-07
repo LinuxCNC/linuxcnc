@@ -467,6 +467,8 @@ if version == "$Revision$" or version < "1.0":
     'halui.joint.selected.on-soft-limit':'halui.joint.selected.on-soft-max-limit',
     'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
+    'shuttlexpress':              'shuttle',
+    'shuttlepro':                 'shuttle',
 
     '(setp +gantrykins.+)':       '# \\1',
     '(.+servo_period_ns.+)':      '\\1 %s' % lock_string
