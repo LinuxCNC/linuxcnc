@@ -221,6 +221,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.timer.start(100)
 
         self.Green = QColor.fromCmykF(0.40, 0.0, 1.0, 0.0)
+        self.inhibit_selection = True
 
     def poll(self):
         s = self.stat
@@ -717,6 +718,16 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glMatrixMode(GL.GL_MODELVIEW) # To operate on model-view matrix
 
     ####################################
+    # Property setting functions
+    ####################################
+    def set_alpha_mode(self, state):
+        self.program_alpha = state
+        self.updateGL()
+
+    def set_inhibit_selection(self, state):
+        self.inhibit_selection = state
+
+    ####################################
     # view controls
     ####################################
     def set_prime(self, x, y):
@@ -732,7 +743,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # Also stop the display from pausing plotting update while searching
     # probably needs a thread - strange that Tkinter and GTK don't suffer...
     def select_fire(self):
-        return
+        if self.inhibt_selection: return
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None

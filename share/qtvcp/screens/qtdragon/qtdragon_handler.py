@@ -12,6 +12,7 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -19,6 +20,7 @@ STAT = Status()
 INFO = Info()
 ACTION = Action()
 STYLEEDITOR = SSE()
+TOOLBAR = ToolBarActions()
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -137,6 +139,7 @@ class HandlerClass:
         for key in sorted(titles.iterkeys()):
             self.w.gcode_list.addItem(key + ' ' + titles[key])
         self.w.gcode_description.setReadOnly(True)
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_recall')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -187,15 +190,10 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            self.add_alarm('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.error('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     #########################
     # CALLBACKS FROM STATUS #
@@ -403,6 +401,12 @@ class HandlerClass:
     def chk_run_from_line_checked(self, state):
         if not state:
             self.w.lbl_start_line.setText('1')
+
+    def chk_alpha_mode_checked(self, state):
+        self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_display_selection_checked(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
 
     #####################
     # GENERAL FUNCTIONS #

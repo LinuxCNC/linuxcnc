@@ -1040,6 +1040,10 @@ class gmoccapy(object):
         self.active_increment = "rbt_0" 
 
     def _jog_increment_changed(self, widget,):
+        # first cancel any joints jogging
+        JOGMODE = self._get_jog_mode()
+        for jnum in range(self.stat.joints):
+            self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
         self.distance = self._parse_increment(widget.name)
         self.halcomp["jog.jog-increment"] = self.distance
         self.active_increment = widget.name

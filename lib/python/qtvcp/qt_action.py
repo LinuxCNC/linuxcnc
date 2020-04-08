@@ -295,19 +295,26 @@ class _Lcnc_Action(object):
         self.cmd.feedrate(rate/100.0)
     def SET_SPINDLE_RATE(self, rate, number = 0):
         self.cmd.spindleoverride(rate/100.0, number)
+
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
+        # stop runaway jogging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
+        # stop runaway joging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
 
     def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.old['spindle-speed']) >= INFO.MAX_SPINDLE_SPEED: return
+        if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(number)]: return
         self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
     def SET_SPINDLE_SLOWER(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
@@ -394,6 +401,11 @@ class _Lcnc_Action(object):
             else:
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
+    def STOP_JOG(self, jointnum):
+        if STATUS.machine_is_on():
+            jjogmode,j_or_a = self.get_jog_info(jointnum)
+            self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
+
     def TOGGLE_FLOOD(self):
         self.cmd.flood(not(STATUS.stat.flood))
     def SET_FLOOD_ON(self):
@@ -434,7 +446,9 @@ class _Lcnc_Action(object):
                     'pan-left','pan-right','rotate-up',
                 'rotate-down', 'rotate-cw','rotate-ccw',
                 'overlay_dro_on','overlay_dro_off',
-                'overlay-offsets-on','overlay-offsets-off'):
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off'):
             STATUS.emit('graphics-view-changed',view,None)
 
     def SET_GRAPHICS_GRID_SIZE(self, size):

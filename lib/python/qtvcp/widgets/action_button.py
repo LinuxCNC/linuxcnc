@@ -469,9 +469,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self._toggle_state = self._toggle_state * -1
         elif self.spindle_over:
             if self.toggle_float and not self._toggle_state:
-                ACTION.SET_SPINDLE_RATE(self.float_alt)
+                ACTION.SET_SPINDLE_RATE(self.float_alt,self.joint)
             else:
-                ACTION.SET_SPINDLE_RATE(self.float)
+                ACTION.SET_SPINDLE_RATE(self.float,self.joint)
             self._toggle_state -= 1
             self._toggle_state = self._toggle_state * -1
         elif self.view_change:
@@ -484,21 +484,21 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                     print e
                     pass
         elif self.spindle_fwd:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
         elif self.spindle_rev:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED)
+            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
         elif self.spindle_stop:
-            ACTION.SET_SPINDLE_STOP()
+            ACTION.SET_SPINDLE_STOP(self.joint)
         elif self.spindle_up:
-            if STATUS.is_spindle_on():
-                ACTION.SET_SPINDLE_FASTER()
+            if STATUS.is_spindle_on(self.joint):
+                ACTION.SET_SPINDLE_FASTER(self.joint)
             else:
-                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED)
+                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
         elif self.spindle_down:
-            if STATUS.is_spindle_on():
-                ACTION.SET_SPINDLE_SLOWER()
+            if STATUS.is_spindle_on(self.joint):
+                ACTION.SET_SPINDLE_SLOWER(self.joint)
             else:
-                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED)
+                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
         elif self.limits_override:
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         elif self.flood:

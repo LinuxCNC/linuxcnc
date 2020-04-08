@@ -12,6 +12,7 @@ from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets.nurbs_editor import NurbsEditor
 from qtvcp.lib.keybindings import Keylookup
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 from qtvcp.core import Status, Action
 
@@ -31,6 +32,7 @@ STATUS = Status()
 ACTION = Action()
 STYLEEDITOR = SSE()
 NURBSEDITOR = NurbsEditor()
+TOOLBAR = ToolBarActions()
 
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
@@ -79,8 +81,9 @@ class HandlerClass:
         KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
+
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
-        self.setup_statusbar()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -123,15 +126,10 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            LOG.debug('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     ########################
     # callbacks from STATUS #
@@ -181,28 +179,6 @@ class HandlerClass:
 
     def editor_exit(self):
         self.w.gcodeeditor.exit()
-
-    def setup_statusbar(self):
-        def last():
-            self.w._NOTICE.show_last()
-        def close():
-            self.w._NOTICE.external_close()
-
-        self.w.statusClear = QtWidgets.QPushButton()
-        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxCritical)
-        self.w.statusClear.setIcon(icon)
-        self.w.statusClear.setMaximumSize(20,20)
-        self.w.statusClear.setIconSize(QtCore.QSize(22,22))
-        self.w.statusClear.clicked.connect(lambda:close())
-        self.w.statusbar.addPermanentWidget(self.w.statusClear)
-
-        icon = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
-        self.w.statusLast = QtWidgets.QPushButton()
-        self.w.statusLast.setIcon(icon)
-        self.w.statusLast.setMaximumSize(20,20)
-        self.w.statusLast.setIconSize(QtCore.QSize(22,22))
-        self.w.statusLast.clicked.connect(lambda: last())
-        self.w.statusbar.addWidget(self.w.statusLast)
 
     #####################
     # KEY BINDING CALLS #
