@@ -282,11 +282,12 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
         if (block->dollar_flag){
             CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
                 (_("Invalid spindle ($) number in Spindle speed command")));
-            settings->active_spindle = (int)block->dollar_number;
+            status = convert_speed(block->dollar_number, block, settings);
+        } else {
+            status = convert_speed(0, block, settings);
         }
-        status = convert_speed(settings->active_spindle, block, settings);
-        CHP(status);
-      }
+    CHP(status);
+    }
   }
   if ((block->t_flag) && ONCE(STEP_PREPARE)) {
       if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
