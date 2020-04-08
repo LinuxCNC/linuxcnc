@@ -28,7 +28,7 @@ net pdnt.machine.off                      whb.halui.machine.off                 
 # program related signals
 net pdnt.program.is-idle                  whb.halui.program.is-idle             halui.program.is-idle
 net pdnt.program.is-paused                whb.halui.program.is-paused           halui.program.is-paused
-net tool-program-is-running               whb.halui.program.is-running          halui.program.is-running
+net pdnt.program-is-running               whb.halui.program.is-running          halui.program.is-running
 net pdnt.program.resume                   whb.halui.program.resume              halui.program.resume
 net pdnt.program.pause                    whb.halui.program.pause               halui.program.pause
 net pdnt.program.run                      whb.halui.program.run                 halui.program.run
@@ -128,11 +128,11 @@ net pdnt.button.zero-actual               whb.button.probe-z                    
 
 
 # spindle related signals
-net spindle.is-on                         whb.halui.spindle.is-on               halui.spindle.0.on
-net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start
-net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop
-net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward
-net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse
+net pdnt.spindle.is-on                    whb.halui.spindle.is-on               spindle.0.on
+net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start            #  
+net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop             #
+net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward          #
+net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse          #
 net pdnt.spindle.increase                 whb.halui.spindle.increase            halui.spindle.0.increase         # reserved or whb.button.macro-3
 net pdnt.spindle.decrease                 whb.halui.spindle.decrease            halui.spindle.0.decrease         # reserved or whb.button.macro-4
 
@@ -156,15 +156,15 @@ net pdnt.feed-override.decrease           whb.halui.feed-override.decrease      
 
 
 # axis position related signals feedback
-net pdnt.axis.x.pos-feedback              halui.axis.x.pos-feedback             whb.halui.axis.0.pos-feedback
-net pdnt.axis.y.pos-feedback              halui.axis.y.pos-feedback             whb.halui.axis.1.pos-feedback
-net pdnt.axis.z.pos-feedback              halui.axis.z.pos-feedback             whb.halui.axis.2.pos-feedback
+net pdnt.axis.x.pos-feedback              halui.axis.x.pos-feedback             whb.halui.axis.x.pos-feedback
+net pdnt.axis.y.pos-feedback              halui.axis.y.pos-feedback             whb.halui.axis.y.pos-feedback
+net pdnt.axis.z.pos-feedback              halui.axis.z.pos-feedback             whb.halui.axis.z.pos-feedback
 
 
 # axis position related signals relative
-net pdnt.axis.x.pos-relative              halui.axis.x.pos-relative             whb.halui.axis.0.pos-relative
-net pdnt.axis.y.pos-relative              halui.axis.y.pos-relative             whb.halui.axis.1.pos-relative
-net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             whb.halui.axis.2.pos-relative
+net pdnt.axis.x.pos-relative              halui.axis.x.pos-relative             whb.halui.axis.x.pos-relative
+net pdnt.axis.y.pos-relative              halui.axis.y.pos-relative             whb.halui.axis.y.pos-relative
+net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             whb.halui.axis.z.pos-relative
 
 
 
