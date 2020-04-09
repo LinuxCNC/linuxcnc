@@ -263,8 +263,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             else:
                 imgpath = os.path.join(path, svg_name)
                 btn = QtWidgets.QPushButton()
-                btn.setIcon(QtGui.QIcon(imgpath))
-                btn.setIconSize(QtCore.QSize(30, 30)) 
+                btn.setStyleSheet("border-image: url(" + imgpath + ");")
             btn.setToolTip('Macro: {}'.format(tName))
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
