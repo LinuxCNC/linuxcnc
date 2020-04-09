@@ -74,12 +74,18 @@ TWOPASS = on,verbose,nodelete
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
-accumulated.  No hal commands are executed in this initial pass.
+accumulated.  User components (loadusr) are loaded in order
+but no other hal commands are executed in the initial pass.
 
-After the initial pass, the modules are loaded automatically
-with a number equal to the total number when using the count=
-option or with all of the individual names specified when using
-the names= option.
+[NOTE]
+
+User components should use the wait (-W) option to ensure
+the component is ready before other commands are executed.
+
+After the initial pass, the realtime modules are loaded (loadrt)
+automatically with a number equal to the total number when using
+the count= option or with all of the individual names specified
+when using the names= option.
 
 A second pass is then made to execute all of the other hal
 instructions specified in the HALFILES.  The addf commands that
@@ -104,38 +110,38 @@ Alternatively, using the names= option like:
 ----
 loadrt ddt names=xvel,yvel,zvel
 ...
-loadrt ddt names=xacel,yacel,zacel
+loadrt ddt names=xaccel,yaccel,zaccel
 ----
 
-results in components sensibly named xvel,yvel,zvel, xacel,yacel,zacel.
+results in components sensibly named xvel,yvel,zvel, xaccel,yaccel,zaccel.
 
 Many comps supplied with the distribution are created with the
-comp utility and support the names= option.  These include the
+halcompile utility and support the names= option.  These include the
 common logic components that are the glue of many hal configurations.
 
-User-created comps that use the comp utility automatically
+User-created comps that use the halcompile utility automatically
 support the names= option as well.  In addition to comps generated
-with the comp utility, numerous other comps support the names=option.
+with the halcompile utility, numerous other comps support the names=option.
 Comps that support names= option include: at_pid, encoder,
 encoder_ratio, pid, siggen, and sim_encoder.
 
-Twopass processing occurs before the loading of a gui.  When using a
-[HAL]POSTGUI_HALFILE, it is convenient to place all the loadrt
-statements for components needed in a halfile that is loaded earlier.
+== Post GUI
 
-Example of a HAL section when using a POSTGUI_HALFILE :
+Some GUIs support halfiles that are processed after the GUI is started in order
+to connect hal pins that are created by the GUI.  When using a postgui halfile with
+TWOPASS processing, include all loadrt items for components added by postgui halfiles
+in a separate halfile that is processed before the GUI.  The addf commands can also
+be included in the file.
+Example:
 ----
 [HAL]
-
 TWOPASS = on
-HALFILE = core_sim.hal
-HALFILE = sim_spindle_encoder.hal
-HALFILE = axis_manualtoolchange.hal
-HALFILE = simulated_home.hal
-HALFILE = load_for_postgui.hal  <-- loadrt lines for components in postgui.hal
-
-POSTGUI_HALFILE = postgui.hal
-HALUI = halui
+HALFILE = file_1.hal
+...
+HALFILE = file_n.hal
+HALFILE = file_with_all_loads_for_postgui.hal
+...
+POSTGUI_HALFILE = the_postgui_file.hal
 ----
 
 == Exluding .hal files
@@ -153,9 +159,18 @@ with the string: '#NOTWOPASS'.  Files specified with this magic comment are
 sourced by halcmd using the '-k' (keep going if failure) and '-v' (verbose)
 options.
 
-This exclusion provision can be used to isolate problems or for loading any hal
-component that does not require or benefit from TWOPASS processing that handles
-multiple component loadrt instances.
+This exclusion provision can be used to isolate problems or for loading any
+special hal component that does not require or benefit from TWOPASS processing.
+
+Ordinarily, the loadrt ordering of realtime components is not critical,
+but loadrt ordering for special components can be enforced by placing the
+such loadrt directives in an excluded file.
+
+[NOTE]
+
+While the order of loadrt directives is not usually critical,
+ordering of addf directives is often very important for proper
+operation of servo loop components.
 
 Excluded '.hal' file example:
 ----
@@ -164,30 +179,25 @@ $ cat twopass_excluded.hal
 # be excluded from twopass processing:
 # NOTWOPASS
 
+# debugging component with complex options:
 loadrt mycomponent parm1="abc def" parm2=ghi
 show pin mycomponent
+
+# ordering special components
+loadrt component_1
+loadrt component_2
 ----
 
 [NOTE]
-   Case and whitespace within the magic comment are ignored.
 
-== Post GUI
+Case and whitespace within the magic comment are ignored.  The loading of
+components that use names= or count= parameters (typically built by
+halcompile) should not be used in excluded files as that would eliminate
+the benefits of TWOPASS processing.  The hal commands that create signals
+(net) and commands that establish execution order (addf) should not be
+placed in excluded files.  This is especially true for addf commands since
+their ordering may be important.
 
-Some GUIs support halfiles that are processed after the GUI is started in order
-to connect hal pins that are created by the GUI.  When using a postgui halfile with
-TWOPASS processing, include all loadrt items for components added by postgui halfiles
-in a separate halfile that is processed before the GUI.  The addf commands can also
-be included in the file.
-Example:
-----
-[HAL]
-HALFILE = file_1.hal
-...
-HALFILE = file_n.hal
-HALFILE = file_with_all_loads_for_postgui.hal
-...
-POSTGUI_HALFILE = the_postgui_file.hal
-----
 
 == Examples
 

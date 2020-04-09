@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,12 +83,12 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
-        if( ModbusDebugLevel>=2 ){   printf("INFO CLASSICLADDER--- INIT SOCKET!!!\n");  }	
+        if( ModbusDebugLevel>=2 ){   printf(_("INFO CLASSICLADDER--- INIT SOCKET!!!\n"));  }	
 	// Create a socket
 	server_s = socket(AF_INET, SOCK_STREAM, 0);
 	if ( server_s==SOCK_INVALID )
 	{
-		printf("ERROR CLASSICLADDER--- Failed to open socket server...\n");
+		printf(_("ERROR CLASSICLADDER--- Failed to open socket server...\n"));
 	}
 	else
 	{
@@ -97,7 +100,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 		Error = bind(server_s, (struct sockaddr *)&server_addr, sizeof(server_addr));
 		if ( Error==SOCK_INVALID )
 		{
-			printf("ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n", strerror(errno));
+			printf(_("ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"), strerror(errno));
 			CloseSocketServer( );
 		}
 		else
@@ -106,7 +109,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 			Error = listen(server_s, 1);
 			if ( Error==SOCK_INVALID )
 			{
-				printf("ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n", strerror(errno));
+				printf(_("ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"), strerror(errno));
 				CloseSocketServer( );
 			}
 			else
@@ -124,12 +127,12 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 				if (Error)
 #endif
 				{
-					printf("ERROR CLASSICLADDER--- Failed to create thread socket server...\n");
+					printf(_("ERROR CLASSICLADDER--- Failed to create thread socket server...\n"));
 					CloseSocketServer( );
 				}
 				else
 				{       SocketRunning = 1;
-					printf("INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n", PortNbr);
+					printf(_("INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"), PortNbr);
 				}
 
 			}
@@ -168,7 +171,7 @@ int AskAndAnswer( unsigned char * Ask, int LgtAsk, unsigned char * Answer )
 		Answer[ LgtHeaderReply++ ] = (unsigned char)(LgtModbusReply+1);
 		// unit identifier					
 		Answer[ LgtHeaderReply++ ] = 1;
-                printf("INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n", LgtHeaderReply, LgtModbusReply );   
+                printf(_("INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"), LgtHeaderReply, LgtModbusReply );   
 		printf("<- ");
 		for (i=0; i<LgtHeaderReply+LgtModbusReply; i++)
 		{
@@ -198,21 +201,21 @@ void SocketServerTcpMainLoop( void )
 
 	while( SocketRunning )
 	{
-                if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET WAITING...\n");   }
+                if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET WAITING...\n"));   }
 		addr_len = sizeof(client_addr);
 		client_s = accept(server_s, (struct sockaddr *)&client_addr, &addr_len);
 		if ( client_s!=-1 )
 		{
-                  if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n");   }
+                  if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"));   }
 			do
 			{
 				// Request received from the client
 				//  - The return code from recv() is the number of bytes received
 				retcode = recv(client_s, in_buf, BUF_SIZE, 0);
-                                if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n", retcode);   }
+                                if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"), retcode);   }
 				if ( retcode==-1 )
 				{
-					printf("ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n", strerror(errno));
+					printf(_("ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"), strerror(errno));
 				}
 				else
 				{
@@ -226,7 +229,7 @@ void SocketServerTcpMainLoop( void )
 
 			}
 			while( retcode>0 );
-                        if( ModbusDebugLevel>=2 ){   printf("INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n");   }
+                        if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"));   }
 			#ifdef __WIN32__
 			closesocket(client_s);
 			#else
@@ -256,7 +259,7 @@ void CloseSocketServer( void )
 		close(server_s);
 #endif
 		SocketOpened = 0;
-		printf("INFO CLASSICLADDER--- Server socket closed!\n");
+		printf(_("INFO CLASSICLADDER--- Server socket closed!\n"));
 	}
 }
 

@@ -1,0 +1,20 @@
+########################################################################
+# Statusbar
+########################################################################
+
+style "statusbar"
+{
+	engine "pixmap"
+	{
+### Statusbsr ###
+		image
+		{
+			function = RESIZE_GRIP
+			detail = "statusbar"
+			overlay_file = "statusbar/resizer.png"
+			overlay_stretch	= FALSE
+		}
+	}
+}
+
+class "GtkStatusbar*" style "statusbar"

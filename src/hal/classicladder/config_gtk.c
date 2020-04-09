@@ -21,6 +21,9 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 //Chris Morley July 08
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -103,85 +106,85 @@ GtkWidget * CreateGeneralParametersPage( void )
 		switch( NumObj )
 		{ 
 			case 0:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Rung Refresh Rate (milliseconds)" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
+				snprintf(BuffLabel, sizeof(BuffLabel),, _("Rung Refresh Rate (milliseconds)") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", InfosGene->GeneralParams.PeriodicRefreshMilliSecs );
 				break;
 			case 1:
 				InfoUsed = GetNbrRungsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_rungs;
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of rungs (%d%c used      ", InfoUsed,'%' );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of rungs (%d%c used      "), InfoUsed,'%' );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_rungs );
 				break;
 			case 2:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Bits                  " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Bits                  ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_bits );
 				break;
-                        case 3:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Error Bits                  " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
+      case 3:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Error Bits                  ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_error_bits );
 				break;
 			case 4:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Words                 " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_words );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Words                 ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_words );
 				break;
 			case 5:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Counters              " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Counters              ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_counters );
 				break;
 			case 6:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Timers IEC            " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
+				ssnprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers IEC            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_timers_iec );
 				break;
 			case 7:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Arithmetic Expressions " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Arithmetic Expressions ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 				break;
 			case 8:
 				InfoUsed = NbrSectionsDefined( )*100/InfosGene->GeneralParams.SizesInfos.nbr_sections;
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Sections (%d%c used)   ", InfoUsed,'%' );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Sections (%d%c used)   "), InfoUsed,'%' );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_sections );
 				break;
 			case 9:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Symbols                " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Symbols                ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_symbols );
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case 10:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Timers                 " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Timers                 ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_timers );
 				break;
 			case 11:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of Monostables            " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of Monostables            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_monostables );
 				break;
 #endif
                         case 12:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of BIT Inputs HAL pins           " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Inputs HAL pins           ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_inputs );
 				break;
 			case 13:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of BIT Outputs HAL pins          " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of BIT Outputs HAL pins          ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_outputs );
 				break;
 			case 14:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of S32in HAL pins             " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32in HAL pins             ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
 				break;
 			case 15:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of S32out HAL pins            " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of S32out HAL pins            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
 				break;
                         case 16:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of floatin HAL pins             " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatin HAL pins             ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_inputs );
 				break;
 			case 17:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Number of floatout HAL pins            " );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatout HAL pins            ") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
 				break;
                         case 18:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Current path/filename" );
-                                snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
-                                //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
+                                sprintf( BuffValue, "%s",InfosGene->CurrentProjectFileName);
+                                //sprintf( BuffValue, "Not available yet" );
 				break;                                
 			default:
 				snprintf(BuffLabel, sizeof(BuffLabel), "???" );
@@ -377,7 +380,7 @@ GtkWidget * CreateModbusModulesIO( void )
 						case 4:
 						{
 							GtkWidget **IOParamFlag = &ModbusParamEntry[ NumLine ][ NumObj ];
-							*IOParamFlag = gtk_check_button_new_with_label( "Inverted" );
+							*IOParamFlag = gtk_check_button_new_with_label( _("Inverted") );
 							gtk_widget_set_usize( *IOParamFlag,100,0 );
 							gtk_box_pack_start( GTK_BOX (hbox[NumLine+1]), *IOParamFlag, FALSE, FALSE, 0 );
 							gtk_widget_show ( *IOParamFlag );
@@ -497,9 +500,9 @@ switch( pConf->TypeReq )
 		{
 			if ( pConf->OffsetVarMapped+pConf->NbrModbusElements>MaxVars )
 			{
-				printf("Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected...ASKED=%i,MAX=%i\n",  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
+				printf(_("Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected...ASKED=%i,MAX=%i\n"),  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
 				rtapi_strxcpy( BuffValue, "" );
-				ShowMessageBox("Error","Overflow error for I,B,Q,IQ or WQ mapping detected...","Ok");
+				ShowMessageBox(_("Error"),_("Overflow error for I,B,Q,IQ or WQ mapping detected..."),_("Ok"));
 			}
 		}
 		
@@ -625,54 +628,52 @@ GtkWidget * CreateModbusComParametersPage( void )
 		switch( NumLine )
 		{
 			case 0:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Serial port (blank = IP mode)" );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Serial port (blank = IP mode)") );
 				rtapi_strxcpy( BuffValue, ModbusSerialPortNameUsed );
 				break;
 			case 1:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Serial baud rate" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusSerialSpeed );
-                                
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Serial baud rate") );
+				snprintf(BuffLabel, sizeof(BuffLabel),, "%d", ModbusSerialSpeed );                   
 				break;
-                        case 2:
-				snprintf(BuffLabel, sizeof(BuffLabel), "After transmit pause - milliseconds" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeAfterTransmit );
+      case 2:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("After transmit pause - milliseconds") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusTimeAfterTransmit );
 				break;
-			
 			case 3:
-				snprintf(BuffLabel, sizeof(BuffLabel), "After receive pause - milliseconds" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeInterFrame );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("After receive pause - milliseconds") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusTimeInterFrame );
 				break;
 			case 4:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Request Timeout length - milliseconds" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusTimeOutReceipt );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Request Timeout length - milliseconds") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusTimeOutReceipt );
 				break;
 			case 5:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Use RTS to send" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusSerialUseRtsToSend );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Use RTS to send") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusSerialUseRtsToSend );
 				break;
 			case 6:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Modbus element offset" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusEleOffset );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Modbus element offset") );
+				snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusEleOffset );
 				break;
 			case 7:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Debug level" );
-				snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Debug level") );
+				snprintf(BuffLabel, sizeof(BuffLabel),, "%d", ModbusDebugLevel );
 				break;
-                        case 8:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Read Coils/inputs map to" );
-				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
+      case 8:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Read Coils/inputs map to") );
+				//snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusDebugLevel );
 				break;
-                        case 9:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Write Coils map from" );
-				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
+      case 9:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Write Coils map from") );
+				//snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusDebugLevel );
 				break;
-                        case 10:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Read register/holding map to" );
-				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
+      case 10:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Read register/holding map to") );
+				//snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusDebugLevel );
 				break;
-                        case 11:
-				snprintf(BuffLabel, sizeof(BuffLabel), "Write registers map from" );
-				//snprintf(BuffValue, sizeof(BuffValue), "%d", ModbusDebugLevel );
+      case 11:
+				snprintf(BuffLabel, sizeof(BuffLabel), _("Write registers map from") );
+				//snprintf(BuffLabel, sizeof(BuffLabel), "%d", ModbusDebugLevel );
 				break;
 		}
             switch( NumLine )
@@ -725,12 +726,12 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                gtk_widget_show( LabelComParam[NumLine] ); 
 
                                 //radio buttons
-                                RtsButton[0]= gtk_radio_button_new_with_label (NULL, "NO");
+                                RtsButton[0]= gtk_radio_button_new_with_label (NULL, _("NO"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), RtsButton[0], FALSE, TRUE, 0);
                                 gtk_widget_show (RtsButton[0]);
                                 group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (RtsButton[0]));
 
-                                RtsButton[1]= gtk_radio_button_new_with_label (group, "YES");
+                                RtsButton[1]= gtk_radio_button_new_with_label (group, _("YES"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), RtsButton[1], FALSE, TRUE, 0);
                                 gtk_widget_show (RtsButton[1]);
 
@@ -776,20 +777,20 @@ GtkWidget * CreateModbusComParametersPage( void )
 		                gtk_widget_show( LabelComParam[NumLine] ); 
 
                                 //radio buttons
-                                DebugButton[0]= gtk_radio_button_new_with_label (NULL, "QUIET");
+                                DebugButton[0]= gtk_radio_button_new_with_label (NULL, _("QUIET"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[0], FALSE, TRUE, 0);
                                 gtk_widget_show (DebugButton[0]);
                                 group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (DebugButton[0]));
 
-                                DebugButton[1]= gtk_radio_button_new_with_label (group, "LEVEL 1");
+                                DebugButton[1]= gtk_radio_button_new_with_label (group, _("LEVEL 1"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[1], FALSE, TRUE, 0);
                                 gtk_widget_show (DebugButton[1]);
  
-                                DebugButton[2]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),"LEVEL 2");
+                                DebugButton[2]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),_("LEVEL 2"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[2], FALSE, TRUE, 0);
                                 gtk_widget_show (DebugButton[2]);
 
-                                DebugButton[3]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),"LEVEL 3");
+                                DebugButton[3]= gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON (DebugButton[0]),_("LEVEL 3"));
                                 gtk_box_pack_start (GTK_BOX (hbox[NumLine]), DebugButton[3], FALSE, TRUE, 0);
                                 gtk_widget_show (DebugButton[3]);
 
@@ -962,10 +963,10 @@ void GetModbusComParameters( void )
 	ModbusTimeOutReceipt = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 4 ] )) );
 	if ( (update) && (modmaster) ) 
            {
-            MessageInStatusBar( " To change Modbus port settings, save and reload ladder GUI");
+            MessageInStatusBar( _(" To change Modbus port settings, save and reload ladder GUI"));
            // PrepareModbusMaster( );
             }else{
-                  MessageInStatusBar("Updated Modbus configuration");
+                  MessageInStatusBar(_("Updated Modbus configuration"));
                  }
 }
 void GetSettings( void )
@@ -988,7 +989,7 @@ void OpenConfigWindowGtk( void )
 	if ( !GTK_WIDGET_VISIBLE( ConfigWindow ) )
 	{ 
 		gtk_widget_show (ConfigWindow);
-		MessageInStatusBar("Opened Configuration window. Press again to update changes and close");
+		MessageInStatusBar(_("Opened Configuration window. Press again to update changes and close"));
 #ifdef GTK2
 		gtk_window_present( GTK_WINDOW(ConfigWindow) );
 #endif
@@ -1017,16 +1018,16 @@ void IntConfigWindowGtk()
 { 	
         GtkWidget *nbook;
 	ConfigWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);        
-	gtk_window_set_title( GTK_WINDOW(ConfigWindow), "Config" );       
+	gtk_window_set_title( GTK_WINDOW(ConfigWindow), _("Config") );       
 	nbook = gtk_notebook_new( );
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateGeneralParametersPage( ),
-				 gtk_label_new ("Period/object info") );
+				 gtk_label_new (_("Period/object info")) );
 #ifdef MODBUS_IO_MASTER
         gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
-				 gtk_label_new ("Modbus communication setup") );
+				 gtk_label_new (_("Modbus communication setup")) );
        
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusModulesIO(  ),
-				 gtk_label_new ("Modbus  I/O register setup ") );       
+				 gtk_label_new (_("Modbus  I/O register setup ")) );       
 #endif
 	gtk_container_add( GTK_CONTAINER (ConfigWindow), nbook );
 	gtk_widget_show( nbook );

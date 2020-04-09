@@ -179,6 +179,8 @@ class Calculator( gtk.VBox ):
         self.wTree.get_object( "displayText" ).set_text( "" )
 
     def displayOperand( self, i ):
+        if self.wTree.get_object( "displayText" ).get_selection_bounds():
+            self.delete()
         if "Error" in self.eval_string:
             self.eval_string = ""
         self.eval_string = self.eval_string + i

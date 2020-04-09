@@ -41,16 +41,14 @@
 == M0, M1 Program Pause
 (((M0, M1 Program Pause)))
 
-* 'M0' - pause a running program temporarily. LinuxCNC remains
-         in the Auto Mode so MDI and other manual actions
-         are not enabled. Pressing the cycle start button
-         will restart the program at the following line.
+* 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
+         so MDI and other manual actions are not enabled. Pressing the resume
+         button will restart the program at the following line.
 
-* 'M1' - pause a running program temporarily if the optional
-         stop switch is on. LinuxCNC remains in the Auto Mode
-         so MDI and other manual actions are not enabled.
-         Pressing the cycle start button
-         will restart the program at the following line.
+* 'M1' - pause a running program temporarily if the optional stop switch is on.
+         LinuxCNC remains in the Auto Mode so MDI and other manual actions are
+         not enabled. Pressing the resume button will restart the program at the
+         following line.
 
 [NOTE]
 It is OK to program 'M0' and 'M1' in MDI mode,
@@ -62,11 +60,11 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 (((M2, M30 Program End)))
 
-* 'M2' - end the program. Pressing cycle start will
-         start the program at the beginning of the file.
-         
+* 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
+         will restart the program at the beginning of the file.
+
 * 'M30' - exchange pallet shuttles and end the program.
-          Pressing cycle start will start the program
+          Pressing `Cycle Start` will start the program
           at the beginning of the file.
 
 Both of these commands have the following effects:
@@ -83,8 +81,8 @@ Both of these commands have the following effects:
 . Coolant is turned off (like 'M9').
 
 [NOTE]
-Lines of code after M2/M30 will not be executed. Pressing cycle start will
-start the program at the beginning of the file.
+Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
+will start the program at the beginning of the file.
 
 [WARNING]
 Using % to wrap the G code does not do the same thing as a 'Program End'. See
@@ -104,27 +102,35 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 == M3, M4, M5 Spindle Control
 (((M3, M4, M5 Spindle Control)))
 
-* 'M3' - start the selected spindle clockwise at the 'S' speed.
-* 'M4' - start the selected spindle counterclockwise at the 'S' speed.
-* 'M5' - stop the selected spindle.
+* 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
+* 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
+* 'M5 [$n]' - stop the selected spindle.
 
-Use $ to operate on specific spindles. If $ is omitted then thr commands
+Use $ to operate on specific spindles. If $ is omitted then the commands
 operate on all spindles. 
 
-For example 
+This example will start spindles 0, 1, and 2 simultaneously at different
+speeds:
 [source,{ngc}]
----
+----
 S100 $0
 S200 $1
 S300 $2 
 M3
 ----
-Will start all three spindles simultaneously at different speeds
-[source,{ngc]]
+
+This example will then reverse spindle 1 but leave the other spindles
+rotating forwards:
+[source,{ngc}]
 ----
 M4 $1
 ----
-Will then reverse spindle 1 but leave the other spindles rotating forwards.
+
+And this will stop spindle 2 and leave the other spindles rotating:
+[source,{ngc}]
+----
+M5 $2
+----
 
 If the $ is omitted then behaviour is exactly as normal for a single
 spindle machine
@@ -171,7 +177,7 @@ When the tool change is complete:
    flow during the tool change unless it has been turned off by an 'M9'.
 
 [WARNING]
-The tool length offset is not changed by 'M6', use 'G43' after the
+The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
 The tool change may include axis motion. 
@@ -303,7 +309,12 @@ When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
 to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
-from 0 (feed hold) to 1 (full speed).
+from -1 (programmed speed in reverse) to 1 (full speed). 0 is equivalent
+to feed-hold.
+[NOTE]
+The use of negative adaptive-feed for reverse run is a new
+feature and is not very well tested as yet. The intended use is for plasma
+cutters and wire spark eroders but it is not limited to such applications.
 
 [[mcode:m53]]
 == M53 Feed Stop Control
@@ -322,9 +333,15 @@ from 0 (feed hold) to 1 (full speed).
 == M61 Set Current Tool
 (((M61 Set Current Tool)))
 
-* 'M61 Q-' - change the current tool number while in MDI or Manual mode.
-             One use is when you power up LinuxCNC with a tool currently in
-             the spindle you can set that tool number without doing a tool change.
+* 'M61 Q-' - change the current tool number while in MDI or Manual mode without
+             a tool change. One use is when you power up LinuxCNC with a tool
+             currently in the spindle you can set that tool number without
+             doing a tool change.
+
+[WARNING]
+The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' after
+the 'M61' to change the tool length offset.
+
 
 It is an error if:
 

@@ -62,7 +62,7 @@ Il est nommé 'tool.tbl'. Les outils peuvent être dans un changeur d'outils ou
 changés manuellement. Le fichier peut être édité avec un éditeur de texte ou
 être mis à jour avec la commande G10 L1. Voir la section spécifique au tour
 pour ce qui concerne les outils de tour, avec un exemple de table. Le nombre
-d'outils est limité à 56 dans une table d'outils même si la numérotation des
+d'outils est limité à 1000 dans une table d'outils même si la numérotation des
 outils et des poches peut aller jusqu'à 99999.
 
 === Format de la table d'outils[[sec:Tool-Table-Format]]
@@ -92,9 +92,9 @@ En général, le format d'une ligne de table d'outils est le suivant:
  - ;  début de commentaire ou remarque - texte
 
 Le fichier commence par un point-virgule en première ligne, suivi par les
-caractéristiques de 56 outils au maximum.
+caractéristiques de 1000 outils au maximum.
 footnote:[Bien que les numéros d'outils puissent aller jusqu'à 99999, le nombre
-d'outils dans la table, en ce moment, est limité à un maximum de 56 outils pour
+d'outils dans la table, en ce moment, est limité à un maximum de 1000 outils pour
 des raisons techniques. Les développeurs de LinuxCNC envisagent la possibilité de
 faire sauter cette limitation. Si vous avez un très gros changeur d'outils,
 merci d'être patient.]

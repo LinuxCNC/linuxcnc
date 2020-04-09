@@ -127,7 +127,15 @@ typedef union {
     hal_s32_t s;
     hal_u32_t u;
     hal_float_t f;
+    hal_port_t p;
 } hal_data_u;
+
+typedef struct {
+    volatile unsigned int read;  //offset into buff that outgoing data gets read from
+    volatile unsigned int write; //offset into buff that incoming data gets written to
+    unsigned int size;           //size of allocated buffer
+    char buff[];                 
+} hal_port_shm_t;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -426,6 +434,15 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+
+/** hal_port_alloc allocates a new empty hal_port having a buffer of size bytes. 
+    returns a negative value on failure or a hal_port_t which can be used with
+    all other hal_port functions.
+*/
+extern hal_port_t hal_port_alloc(unsigned size);
+
+
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
 struct hal_stream_shm {

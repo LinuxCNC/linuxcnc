@@ -167,6 +167,8 @@ struct PM_CARTESIAN;
 #define EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE         ((NMLTYPE) 517)
 #define EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE          ((NMLTYPE) 518)
 #define EMC_TASK_PLAN_OPTIONAL_STOP_TYPE             ((NMLTYPE) 519)
+#define EMC_TASK_PLAN_REVERSE_TYPE                   ((NMLTYPE) 520)
+#define EMC_TASK_PLAN_FORWARD_TYPE                   ((NMLTYPE) 521)
 
 #define EMC_TASK_STAT_TYPE                           ((NMLTYPE) 599)
 
@@ -337,8 +339,8 @@ extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((forma
 extern int emcAxisSetUnits(int axis, double units);
 extern int emcAxisSetMinPositionLimit(int axis, double limit);
 extern int emcAxisSetMaxPositionLimit(int axis, double limit);
-extern int emcAxisSetMaxVelocity(int axis, double vel);
-extern int emcAxisSetMaxAcceleration(int axis, double acc);
+extern int emcAxisSetMaxVelocity(int axis, double vel, double ext_offset_vel);
+extern int emcAxisSetMaxAcceleration(int axis, double acc, double ext_offset_acc);
 extern double emcAxisGetMaxVelocity(int axis);
 extern double emcAxisGetMaxAcceleration(int axis);
 extern int emcAxisSetLockingJoint(int axis,int joint);
@@ -357,7 +359,7 @@ extern int emcJointSetFerror(int joint, double ferror);
 extern int emcJointSetMinFerror(int joint, double ferror);
 extern int emcJointSetHomingParams(int joint, double home, double offset, double home_vel,
 				  double search_vel, double latch_vel,
-				  int use_index, int ignore_limits,
+				  int use_index, int encoder_does_not_reset, int ignore_limits,
 				  int is_shared, int home_sequence, int volatile_home, int locking_indexer,
                   int absolute_encoder);
 extern int emcJointUpdateHomingParams(int joint, double home, double offset, int sequence);
@@ -411,11 +413,13 @@ extern int emcTrajEnable();
 extern int emcTrajDisable();
 extern int emcTrajAbort();
 extern int emcTrajPause();
+extern int emcTrajReverse();
+extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(EmcPose end, int type, double vel,
-                             double ini_maxvel, double acc, int indexrotary);
+                             double ini_maxvel, double acc, int indexer_jnum);
 extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);
@@ -532,6 +536,8 @@ int emcSetupArcBlends(int arcBlendEnable,
         double arcBlendRampFreq,
         double arcBlendTangentKinkRatio);
 int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit);
+int emcGetExternalOffsetApplied(void);
+EmcPose emcGetExternalOffsets(void);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status

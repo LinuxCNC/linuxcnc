@@ -225,15 +225,13 @@ is .inc.  Do not use a file extension of .ini for included files.
 
 === [EMC] Section
 
-* 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd
-    because it is automatically updated when using the Revision Control
-    System. It's a good idea to change this number each time you revise
-    your file. If you want to edit this manually just change the number and
-    leave the other tags alone. 
+* 'VERSION = 1.1' - The version number for the configuration. Any value other
+    than 1.1 will cause the configuration checker to run and try to update the
+    configuration to the new style joint axes type of configuration.
 
-* 'MACHINE = My Controller' - This is the name of the controller, which is printed out at the top
-    of most graphical interfaces. You can put whatever you want here as
-    long as you make it a single line long.
+* 'MACHINE = My Controller' - This is the name of the controller, which is
+    printed out at the top of most graphical interfaces. You can put whatever
+    you want here as long as you make it a single line long.
 
 * 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is
   run from a <<faq:terminal,terminal>>. Debug flags are usually only useful to
@@ -253,8 +251,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
-   'mini', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
@@ -279,6 +276,9 @@ User Manual.
   Python practice.
   https://docs.python.org/2/library/string.html#format-specification-mini-language
   An error will be raised if the format can not accept a floating-point value.
+
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in 
+  the graphics display
 
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
@@ -349,7 +349,7 @@ Many of them are used also from gmoccapy, see the
 
 * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts. Use
    a blank string "" and no file will be loaded at start up. gmoccapy will not use this setting, as it
-   offers a coresponding entry on its settings page.
+   offers a corresponding entry on its settings page.
 
 * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
     from the AXIS menu. This must be configured for this menu item to
@@ -363,6 +363,10 @@ Many of them are used also from gmoccapy, see the
 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
     <<cha:pyvcp,PyVCP Chapter>> for more information.
+
+* 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
+    If this variable is omitted the panel will default to the right side. The only valid
+    alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 
@@ -583,6 +587,12 @@ time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
+
+* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
+* 'ON_ABORT_COMMAND=O <on_abort> call'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
@@ -891,7 +901,7 @@ small, tight corners, since you're limited by cornering acceleration.
    trivkins and other kinematics modules.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).
+    Possible choices are mm or inch.
     This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
@@ -1004,6 +1014,16 @@ The <letter> specifies one of: X Y Z A B C U V W
     Example: loadrt motmod ... unlock_joints_mask=0x38
     creates  unlock  pins for joints 3,4,5
 
+* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of
+   hal input pins for external axis offsets:
+
+   'axis.<letter>.eoffset-enable'
+   'axis.<letter>.eoffset-counts'
+   'axis.<letter>.eoffset-scale'
+
+See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for
+usage information.
+
 [[sec:joint-section]](((INI File, JOINT Section)))
 
 === [JOINT_<num>] Section
@@ -1061,6 +1081,8 @@ For more information on kinematics modules see the manpage: '$ man kins'
     axis to jerk as it changes direction. If a COMP_FILE is specificed for an
     axis BACKLASH is not used.
 
+// add a link to machine units
+
 * 'COMP_FILE = file.extension' -
     (((Compensation))) The compensation file consists of map of position
     information for the joint. Compensation file values are in machine units.
@@ -1085,7 +1107,7 @@ For more information on kinematics modules see the manpage: '$ man kins'
     (decreasing value).
     +
     +
-    Type 0 Example
+Type 0 Example
 +
 ----
 -1.000 -1.005 -0.995
@@ -1179,6 +1201,11 @@ These parameters are Homing related, for a better explanation read the
     yes, it will affect the kind of home pattern used. Currently, you can't
     home to index with steppers unless you're using stepgen in velocity mode
     and PID.
+
+* 'HOME_INDEX_NO_ENCODER_RESET = NO' -
+     Use YES if the encoder used for this joint does not reset its counter
+     when an index pulse is detected after assertion of the joint
+     index_enable hal pin. Applicable only for HOME_USE_INDEX = YES.
 
 * 'HOME_IGNORE_LIMITS = NO' -
      When you use the limit switch as a home switch and the limit switch

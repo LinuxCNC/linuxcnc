@@ -20,9 +20,17 @@
 //Kludge because I didn't know any better at the time
 //FIXME replace these with better names?
 #define tp_debug_print(...) rtapi_print(__VA_ARGS__)
+#elif defined(UNIT_TEST)
+#include <stdio.h>
+#define tp_debug_print(...) printf(__VA_ARGS__)
 #else
-#define tp_debug_print(...) 
+#define tp_debug_print(...)
 #endif
+
+// Verbose but effective wrappers for building faux-JSON debug output for a function
+#define tp_debug_json_double(varname_) tp_debug_print("%s: %g, ", #varname_, varname_)
+#define tp_debug_json_start(fname_) tp_debug_print("%s: {", #fname_)
+#define tp_debug_json_end() tp_debug_print("}\n")
 
 /** Use for profiling to make static function names visible */
 #ifdef TP_PROFILE

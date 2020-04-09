@@ -31,6 +31,10 @@
 #include "inihal.hh"
 
 extern value_inihal_data old_inihal_data;
+double ext_offset_a_or_v_ratio[EMCMOT_MAX_AXIS]; // all zero
+
+// default ratio or external offset velocity,acceleration
+#define DEFAULT_A_OR_V_RATIO 0
 
 /*
   loadAxis(int axis)
@@ -47,8 +51,8 @@ extern value_inihal_data old_inihal_data;
 
   emcAxisSetMinPositionLimit(int axis, double limit);
   emcAxisSetMaxPositionLimit(int axis, double limit);
-  emcAxisSetMaxVelocity(int axis, double vel);
-  emcAxisSetMaxAcceleration(int axis, double acc);
+  emcAxisSetMaxVelocity(int axis, double vel, double ext_offset_vel);
+  emcAxisSetMaxAcceleration(int axis, double acc, double ext_offset_acc);
   */
 
 static int loadAxis(int axis, EmcIniFile *axisIniFile)
@@ -97,10 +101,27 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
         old_inihal_data.axis_max_limit[axis] = limit;
 
-        // set maximum velocity
+        ext_offset_a_or_v_ratio[axis] = DEFAULT_A_OR_V_RATIO;
+        axisIniFile->Find(&ext_offset_a_or_v_ratio[axis], "OFFSET_AV_RATIO", axisString);
+
+#define REPLACE_AV_RATIO 0.1
+#define MAX_AV_RATIO     0.9
+        if (   (ext_offset_a_or_v_ratio[axis] < 0)
+            || (ext_offset_a_or_v_ratio[axis] > MAX_AV_RATIO)
+           ) {
+           rcs_print_error("\n   Invalid:[%s]OFFSET_AV_RATIO= %8.5f\n"
+                             "   Using:  [%s]OFFSET_AV_RATIO= %8.5f\n",
+                           axisString,ext_offset_a_or_v_ratio[axis],
+                           axisString,REPLACE_AV_RATIO);
+           ext_offset_a_or_v_ratio[axis] = REPLACE_AV_RATIO;
+        }
+
+        // set maximum velocities for axis: vel,ext_offset_vel
         maxVelocity = DEFAULT_AXIS_MAX_VELOCITY;
         axisIniFile->Find(&maxVelocity, "MAX_VELOCITY", axisString);
-        if (0 != emcAxisSetMaxVelocity(axis, maxVelocity)) {
+        if (0 != emcAxisSetMaxVelocity(axis,
+                   (1 - ext_offset_a_or_v_ratio[axis]) * maxVelocity,
+                   (    ext_offset_a_or_v_ratio[axis]) * maxVelocity)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMaxVelocity\n");
             }
@@ -108,9 +129,12 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
         old_inihal_data.axis_max_velocity[axis] = maxVelocity;
 
+        // set maximum accels for axis: acc,ext_offset_acc
         maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
         axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
-        if (0 != emcAxisSetMaxAcceleration(axis, maxAcceleration)) {
+        if (0 != emcAxisSetMaxAcceleration(axis,
+                    (1 - ext_offset_a_or_v_ratio[axis]) * maxAcceleration,
+                    (    ext_offset_a_or_v_ratio[axis]) * maxAcceleration)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print_error("bad return from emcAxisSetMaxAcceleration\n");
             }

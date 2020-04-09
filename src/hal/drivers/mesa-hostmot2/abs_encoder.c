@@ -182,11 +182,14 @@ int hm2_absenc_setup_biss(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     chan->reg_0_addr = md->base_address 
             + (0 * md->register_stride)
             + chan->index * md->instance_stride;
-    chan->reg_cs_addr = md->base_address 
+    chan->reg_1_addr = md->base_address 
             + (1 * md->register_stride)
             + chan->index * md->instance_stride;
+    chan->reg_2_addr = md->base_address 
+            + (2 * md->register_stride)
+            + chan->index * md->instance_stride;
     hm2->absenc.biss_global_start_addr = md->base_address 
-            + (2 * md->register_stride);
+            + (3 * md->register_stride);
     chan->data_written = 0;
     
     chan->params->float_param = 500;
@@ -369,7 +372,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
         }
         break;
     case HM2_GTAG_BISS:
-        if ( ! hm2_md_is_consistent_or_complain(hm2, md_index, 0, 3, 4, 0x03)) {
+        if ( ! hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 4, 0x07)) {
             HM2_ERR("inconsistent absenc Module Descriptor!\n");
             return -EINVAL;
         }
@@ -556,7 +559,7 @@ void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
 void hm2_absenc_write(hostmot2_t *hm2){
 
     int i;
-    rtapi_u32 buff, buff2, buff3;
+    rtapi_u32 buff, buff2, buff3, dds, filt;
     if (hm2->absenc.num_chans <= 0) return;
 
     for (i = 0; i < hm2->absenc.num_chans; i ++) {
@@ -578,22 +581,37 @@ void hm2_absenc_write(hostmot2_t *hm2){
                 chan->data_written = buff;
             }
             break;
+        
         case HM2_GTAG_BISS:
             if (chan->params->timer_num > 4) chan->params->timer_num = 4;
-            buff = ((rtapi_u32)(0x10000 * (chan->params->float_param * 1000
-                    / hm2->absenc.clock_frequency))) << 16
-                    | chan->params->timer_num << 12
-                    | (chan->params->timer_num == 0) << 10
-                    | (chan->params->timer_num != 0) << 11
-                    | chan->num_read_bits;
+            dds = ((rtapi_u32)(0x10000 * (chan->params->float_param * 1000
+            / hm2->absenc.clock_frequency)));
+            filt = 0x8000/dds;               // RX data filter set to 1/2 a clock period
+            if (filt > 63) { filt = 63; }    // bound so we dont splatter into adjacent fields
+            buff = dds << 16
+            | filt << 10				
+            | chan->num_read_bits;
             if (buff != chan->data_written){
-                hm2->llio->write(hm2->llio,
-                        chan->reg_cs_addr,
+               HM2_PRINT("BISS DDS set to %d\n",dds);
+               HM2_PRINT("BISS Filter set to %d\n",filt);
+               hm2->llio->write(hm2->llio,
+                        chan->reg_1_addr,
                         &buff,
                         sizeof(rtapi_u32));
                 chan->data_written = buff;
-            }
-            break;
+             }     
+             buff2 =   chan->params->timer_num << 12
+                    | (chan->params->timer_num == 0) << 8
+                    | (chan->params->timer_num != 0) << 9;
+             if (buff2 != chan->data2_written){
+                hm2->llio->write(hm2->llio,
+                        chan->reg_2_addr,
+                        &buff2,
+                        sizeof(rtapi_u32));
+                chan->data2_written = buff2;
+              }
+        break;
+        
         case HM2_GTAG_FABS:
             if (chan->params->timer_num > 4) chan->params->timer_num = 4;
             if (chan->params->u32_param > 15) chan->params->u32_param = 15;
@@ -652,8 +670,8 @@ void hm2_absenc_cleanup(hostmot2_t *hm2) {
 
 void hm2_absenc_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("Absolute Encoder (Generic): %d\n", hm2->absenc.num_chans);
     if (hm2->absenc.num_chans <= 0) return;
+    HM2_PRINT("Absolute Encoder (Generic): %d\n", hm2->absenc.num_chans);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n",
             hm2->absenc.clock_frequency,
             hm2_hz_to_mhz(hm2->absenc.clock_frequency));

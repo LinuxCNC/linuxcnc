@@ -18,7 +18,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include "hal.h"
 #include "hal/hal_priv.h"
 
@@ -55,7 +57,7 @@
 
 char * ConvVarNameToHalSigName( char * VarNameParam ) 
 {
-    if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return "Error blank symbol name";}
+    if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return _("Error blank symbol name");}
     if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
     if( VarNameParam[0] == '%'){
         char pin_name[100] = {0};
@@ -67,13 +69,13 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 switch(VarNameParam[2]) {
                     case 'W':
                         sscanf(VarNameParam+3, "%d", &idx);
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs) {return _("out of bounds variable number");}
                         snprintf(pin_name, 100, "classicladder.0.s32in-%02d", idx);
                         arrowside = 1;
                         break;
                     case 'F':
                         sscanf(VarNameParam+3, "%d", &idx);
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs) {return _("out of bounds variable number");}
                         snprintf(pin_name, 100, "classicladder.0.floatin-%02d", idx);
                         arrowside = 1;
                         break;
@@ -81,7 +83,7 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                         sscanf(VarNameParam+2, "%d", &idx);
                         snprintf(pin_name, 100, "classicladder.0.in-%02d", idx);
                         arrowside = 1;
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs) {return _("out of bounds variable number");}
                         break;
                 }
                 break;
@@ -89,13 +91,13 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                 switch(VarNameParam[2]) {
                     case 'W':
                         sscanf(VarNameParam+3, "%d", &idx);
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs) {return _("out of bounds variable number");}
                         snprintf(pin_name, 100, "classicladder.0.s32out-%02d", idx);
                         arrowside = 0;
                         break;
                     case 'F':
                         sscanf(VarNameParam+3, "%d", &idx);
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs) {return _("out of bounds variable number");}
                         snprintf(pin_name, 100, "classicladder.0.floatout-%02d", idx);
                         arrowside = 0;
                         break;
@@ -103,29 +105,29 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                         sscanf(VarNameParam+2, "%d", &idx);
                         snprintf(pin_name, 100, "classicladder.0.out-%02d", idx);
                         arrowside = 0;
-                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs) {return "out of bounds variable number";}
+                        if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs) {return _("out of bounds variable number");}
                         break;
                 }
                 break;
             case 'W':
                 sscanf(VarNameParam+2, "%d", &idx);
-                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return "out of bounds variable number";}
-                return "None -Internal Memory";
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_words) {return _("out of bounds variable number");}
+                return _("None -Internal Memory");
             case 'B':
                 sscanf(VarNameParam+2, "%d", &idx);
-                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return "out of bounds variable number";}
-                return "None -Internal Memory";
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_bits) {return _("out of bounds variable number");}
+                return _("None -Internal Memory");
             case 'E':
                 sscanf(VarNameParam+2, "%d", &idx);
-                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return "out of bounds variable number";}
-                return "None -Internal Error Status";
+                if((idx) >= InfosGene->GeneralParams.SizesInfos.nbr_error_bits) {return _("out of bounds variable number");}
+                return _("None -Internal Error Status");
             case 'T':
             case 'C':
             case 'M':
             case 'X':
-                return "None";
+                return _("None");
             default:
-                return "error";
+                return _("error");
         }
 
         if(*pin_name) {
@@ -146,11 +148,11 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
                     return sig_name;
                 }
             }
-            if (pin && !pin->signal) {return "no signal connected";  }
+            if (pin && !pin->signal) {return _("no signal connected");  }
         }
     }
 
-    return "Conv. HAL signal ERROR";
+    return _("Conv. HAL signal ERROR");
 }
 
 // function to check for first Variable in an arithmetic expression
@@ -172,7 +174,7 @@ char * FirstVariableInArithm(char * Expr)
 		Buffer[0] = '\0';
 
 	if (Expr[0]=='\0' || Expr[0]=='#')
-		return "No expression";
+		return _("No expression");
 	
 //parse expression till we find a symbol that marks the end of a variable or symbol name , or find the end of expression
 
@@ -191,14 +193,14 @@ char * FirstVariableInArithm(char * Expr)
 			case '(' :
 
 			snprintf(Buffer, i+1, "%s", Expr);
-			snprintf(Tempbuf, 100, " %s (for %s)  Exprsn~ %s",ConvVarNameToHalSigName(Buffer),Buffer,Expr);
+			snprintf(Tempbuf, 100, _(" %s (for %s)  Exprsn~ %s"),ConvVarNameToHalSigName(Buffer),Buffer,Expr);
 			return Tempbuf;
 			break;
 
 			default:;
 		}
 	}
-	return "first var. expression error";
+	return _("first var. expression error");
 }
 
 //auto assignment of names for symbols of s32in,s32out, bitin 
@@ -252,30 +254,30 @@ void SymbolsAutoAssign (void)
 		        case TIMERS:
                                     numofvariable= NBR_TIMERS;
                                     rtapi_strxcpy(SymbolBuf,"T");
-                                    rtapi_strxcpy(CommentBuf,"Old Timer");
+                                    rtapi_strxcpy(CommentBuf,_("Old Timer"));
                                     break;
                         case IEC_TIMERS:
                                     numofvariable= NBR_TIMERS_IEC ;
                                     rtapi_strxcpy(SymbolBuf,"TM");
-                                    rtapi_strxcpy(CommentBuf,"New Timer");
+                                    rtapi_strxcpy(CommentBuf,_("New Timer"));
                                     break;
                         case MONOS:
                                     numofvariable= NBR_MONOSTABLES;
                                     rtapi_strxcpy(SymbolBuf,"M");
-                                    rtapi_strxcpy(CommentBuf,"One-shot");
+                                    rtapi_strxcpy(CommentBuf,_("One-shot"));
                                     break;
 			case COUNTERS:
                                     numofvariable= NBR_COUNTERS;
                                     rtapi_strxcpy(SymbolBuf,"C");
-                                    rtapi_strxcpy(CommentBuf,"Counter");
+                                    rtapi_strxcpy(CommentBuf,_("Counter"));
                                     break;
 		        case ERRORS:
                                     numofvariable= NBR_ERROR_BITS;
                                     rtapi_strxcpy(SymbolBuf,"E");
-                                    rtapi_strxcpy(CommentBuf,"Error Flag Bit");
+                                    rtapi_strxcpy(CommentBuf,_("Error Flag Bit"));
                                     break;
 			default : 
-                                 rtapi_print_msg(RTAPI_MSG_ERR, "Cannot auto assign symbol names-wrong variable name");
+                                 rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot auto assign symbol names-wrong variable name"));
                                  return;
 	        }
          //printf("symbol-%s number-%i\n",SymbolBuf,v);

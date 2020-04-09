@@ -6,6 +6,8 @@
 hm2_pktuart_read \- read data from a Hostmot2 UART buffer
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_pktuart_read(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[])
 

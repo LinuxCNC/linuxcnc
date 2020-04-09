@@ -1,0 +1,47 @@
+loadrt eoffset_per_angle names=xo
+setp   xo.k     10000
+setp   xo.fnum  2
+addf   xo       servo-thread
+
+#-----------------------------------------------------------
+# required standard connections to xo
+net E:angle          <= axis.c.pos-cmd
+net E:angle          => xo.angle
+
+net E:is-on          <= halui.machine.is-on
+net E:is-on          => xo.is-on
+
+net E:active         <= motion.eoffset-active
+net E:active         => xo.active
+
+net E:radius-ref     <= motion.analog-out-00
+net E:radius-ref     => xo.radius-ref
+
+#-----------------------------------------------------------
+# required standard connections from xo
+net E:eoffset-enable <= xo.enable-out
+net E:eoffset-enable => axis.x.eoffset-enable
+
+net E:clear          <= xo.clear
+net E:clear          => axis.x.eoffset-clear
+
+net E:scale          <= xo.kreciprocal
+net E:scale          => axis.x.eoffset-scale
+
+net E:kcounts        <= xo.kcounts 
+net E:kcounts        => axis.x.eoffset-counts
+
+#-----------------------------------------------------------
+# signals with sink elsewhere (sim: opa_panel.hal)
+net E:x-eoffset      <= axis.x.eoffset
+
+# convenience pin, use as required:
+net E:is-off         <= xo.is-off
+
+#-----------------------------------------------------------
+# signals with source elsewhere (sim: opa_panel.hal)
+net E:enable-in      => xo.enable-in
+net E:fnum           => xo.fnum
+net E:rfraction      => xo.rfraction
+net E:fmult          => xo.fmult
+net E:start-angle    => xo.start-angle

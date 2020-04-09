@@ -64,8 +64,12 @@ static void print_help_general(int showR);
 static int release_HAL_mutex(void);
 static int propose_completion(char *all, char *fragment, int start);
 
-static char *prompt = "";
+static char *prompt             = "";
+static char *prompt_script      = "%%\n";
+static char *prompt_interactive = "halcmd: ";
+static char *prompt_continue    = "halcmd+: ";
 
+#define MAX_EXTEND_LINES 20
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -223,9 +227,9 @@ int main(int argc, char **argv)
 
     if (srcfile && isatty(fileno(srcfile))) {
         if (scriptmode) {
-            prompt = "%%\n";
+            prompt = prompt_script;
         } else {
-            prompt = "halcmd: ";
+            prompt = prompt_interactive;
         }
     }
 
@@ -249,15 +253,53 @@ int main(int argc, char **argv)
             }
         }
     } else {
+        int   extend_ct = 0; // extend lines with backslash (\)
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    char *tokens[MAX_TOK+1];
+            char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
+            char *elineptr;
+            char *elinenext;
+            int   newLinePos;
+
 	    halcmd_set_linenumber(linenumber++);
+
+            newLinePos = (int)strlen(raw_buf) - 1; // interactive
+            if (raw_buf[newLinePos] == '\n') { newLinePos--; }  // tty
+
+            if (newLinePos > 0 && raw_buf[newLinePos] == '\\') { // backslash
+                raw_buf[newLinePos] = 0;
+                newLinePos++;
+                if (!extend_ct) { //first extend
+                    if (prompt == prompt_interactive) prompt = prompt_continue;
+                    elineptr = eline;
+                    strncpy(elineptr,raw_buf,strlen(raw_buf));
+                    elinenext = elineptr + strlen(raw_buf);
+                } else { // subsequent extends
+                    strncpy(elinenext,raw_buf,newLinePos);
+                    elinenext = elinenext + strlen(raw_buf);
+                }
+                *elinenext = 0;
+                extend_ct++;
+                continue; // get next line to extend
+            } else { // no backslash
+                if (extend_ct) { // extend finished
+                    strncpy(elinenext,raw_buf,strlen(raw_buf));
+                    *(eline+strlen(eline)+0)='\n';
+                    elinenext = elinenext + strlen(raw_buf);
+                    *elinenext = 0;
+                    elineptr = eline;
+                }
+            }
+            if (!extend_ct) { elineptr = (char*)raw_buf; }
+            extend_ct = 0;
+            if (prompt == prompt_continue) { prompt = prompt_interactive; }
+
 	    /* remove comments, do var substitution, and tokenise */
-	    retval = halcmd_preprocess_line(raw_buf, tokens);
-        if(echo_mode) { 
-            halcmd_echo("%s\n", raw_buf);
-        }
+	    retval = halcmd_preprocess_line(elineptr, tokens);
+	    if(echo_mode) {
+	        halcmd_echo("%s\n", eline);
+	    }
 	    if (retval == 0) {
 		/* the "quit" command is not handled by parse_line() */
 		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
@@ -281,7 +323,8 @@ int main(int argc, char **argv)
 		/* exit from loop */
 		break;
 	    }
-	}
+	} //while get_input()
+        extend_ct=0;
     }
     /* all done */
     halcmd_shutdown();

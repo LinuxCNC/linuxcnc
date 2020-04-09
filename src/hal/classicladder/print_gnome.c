@@ -21,6 +21,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -155,7 +158,7 @@ void DrawPrint( GnomePrintContext *gpc )
 			}
 			else
 			{
-				printf( "Failed to create pixbuf_for_print\n" );
+				printf( _("Failed to create pixbuf_for_print\n") );
 			}
 		}
 		while( !TheEnd );
@@ -165,7 +168,7 @@ void DrawPrint( GnomePrintContext *gpc )
 	}
 	else
 	{
-		printf( "Failed to create pixmap_for_print\n" );
+		printf( _("Failed to create pixmap_for_print\n") );
 	}
 }
 
@@ -199,7 +202,7 @@ void PrintPreviewGnome( void )
 	DrawPrint(gpc);	
 	gnome_print_job_close (job);
 
-	preview = gnome_print_job_preview_new (job, (guchar*)"classicladder-preview");
+	preview = gnome_print_job_preview_new (job, (guchar*)_("classicladder-preview"));
 //	g_signal_connect (G_OBJECT (preview), "unrealize",
 //			  G_CALLBACK (gtk_main_quit), NULL);
 //    g_signal_connect (G_OBJECT (preview), "unrealize",
@@ -218,7 +221,7 @@ void PrintGnome( void )
 
 	PrintInit( );
 
-	dialog = gnome_print_dialog_new( job, (guchar*)"ClassicLadder", 0 );
+	dialog = gnome_print_dialog_new( job, (guchar*)_("ClassicLadder"), 0 );
 	ret = gtk_dialog_run( GTK_DIALOG( dialog ) );
 	gtk_widget_destroy( dialog );
 

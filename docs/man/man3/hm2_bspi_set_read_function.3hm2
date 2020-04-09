@@ -7,6 +7,8 @@
 hm2_bspi_set_read_function \- Register a function to handle the tram write phase
 of a hostmot2 buffered SPI driver. 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_bspi_set_read_function(char *name, void *func, void *subdata)
 

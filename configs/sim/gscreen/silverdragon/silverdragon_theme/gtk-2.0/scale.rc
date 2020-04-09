@@ -1,0 +1,59 @@
+########################################################################
+# Scale
+########################################################################
+
+style "scale"
+{
+	GtkRange::slider_width = 16
+	
+	engine "pixmap"
+	{
+### Trough ###
+		image
+		{
+			function = BOX
+			detail = "trough"
+			file = "scale/trough-horiz.png"
+			border = {14, 14, 7, 7}
+			stretch	= TRUE
+			orientation	= HORIZONTAL
+		}
+
+		image
+		{
+			function = BOX
+			detail = "trough"
+			file = "scale/trough-vert.png"
+			border = {7, 7, 14, 14}
+			stretch	= TRUE
+			orientation	= VERTICAL
+		}
+
+### Slider ###
+		image
+		{
+			function = SLIDER
+			overlay_file = "scale/slider-horiz.png"
+			overlay_stretch	= FALSE
+			orientation	= HORIZONTAL
+		}
+
+		image
+		{
+			function = SLIDER
+			overlay_file = "scale/slider-vert.png"
+			overlay_stretch	= FALSE
+			orientation	= VERTICAL
+		}
+		
+### Focus ###
+		image 
+		{
+			function = FOCUS
+			file = "null.png"
+		} 
+	}
+}
+
+class "GtkRange*" style "scale"
+

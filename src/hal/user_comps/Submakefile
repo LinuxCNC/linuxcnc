@@ -44,6 +44,19 @@ $(call TOOBJSDEPS, $(HY_GT_SRCS)) : EXTRAFLAGS += $(HY_GT_CCFLAGS)
 USERSRCS += $(HY_GT_SRCS)
 TARGETS += ../bin/hy_gt_vfd
 
+SVD_PS_SRCS := hal/user_comps/svd-ps_vfd.c
+SVD_PS_LDFLAGS := $(LIBMODBUS_LIBS)
+SVD_PS_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(SVD_PS_SRCS)) : EXTRAFLAGS += $(SVD_PS_CCFLAGS)
+
+../bin/svd-ps_vfd: $(call TOOBJS, $(SVD_PS_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(SVD_PS_LDFLAGS)
+
+USERSRCS += $(SVD_PS_SRCS)
+TARGETS += ../bin/svd-ps_vfd
+
 endif # HAVE_LIBMODBUS
 
 

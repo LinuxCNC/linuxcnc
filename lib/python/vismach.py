@@ -18,6 +18,7 @@ import rs274.OpenGLTk, Tkinter, signal, hal
 from minigl import *
 from math import *
 import glnav
+import hal
 
 class Collection(object):
     def __init__(self, parts):
@@ -678,6 +679,7 @@ class Hud(object):
 		self.strs = []
 		self.messages = []
 		self.showme = 0
+		self.fontbase = []
 		
 	def show(self, string="xyzzy"):
 		self.showme = 1
@@ -702,8 +704,8 @@ class Hud(object):
 		glPushMatrix()
 		glLoadIdentity()
 		
-		#pointer to font?
-		fontbase = int(self.app.loadbitmapfont("9x15"))
+		if not self.fontbase:
+			self.fontbase = int(self.app.loadbitmapfont("9x15"))
 		char_width, char_height = 9, 15
 		xmargin,ymargin = 5,5
 		ypos = float(self.app.winfo_height())
@@ -746,7 +748,7 @@ class Hud(object):
 		#		glBitmap(13, 16, 0, 3, 17, 0, homeicon)
 			glRasterPos2i(xmargin, int(ypos))
 			for char in string:
-				glCallList(fontbase + ord(char))
+				glCallList(self.fontbase + ord(char))
 		#	if i < len(homed) and limit[i]:
 		#		glBitmap(13, 16, -5, 3, 17, 0, limiticon)
 			ypos -= char_height
@@ -880,6 +882,9 @@ class O(rs274.OpenGLTk.Opengl):
 	# back to world again
 	glPopMatrix()
 
+    def plotclear(self):
+        del self.plotdata[:self.plotlen]
+
 class Color(Collection):
     def __init__(self, color, parts):
         self.color = color
@@ -919,7 +924,7 @@ class AsciiSTL:
                         dx2 = t[2][0] - t[0][0]
                         dy2 = t[2][1] - t[0][1]
                         dz2 = t[2][2] - t[0][2]
-                        n = [y1*z2 - y2*z1, z1*x2 - z2*x1, y1*x2 - y2*x1]
+                        n = [dy1*dz2 - dy2*dz1, dz1*dx2 - dz2*dx1, dy1*dx2 - dy2*dx1]
                     d.append((n, t))
                     t = []
                     n = [0,0,0]
@@ -999,6 +1004,8 @@ class AsciiOBJ:
         glCallList(self.list)
 
 
+old_plotclear = False
+
 def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
     app = Tkinter.Tk()
 
@@ -1009,6 +1016,10 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     t.set_latitudelimits(-180, 180)
     # set starting viewpoint if desired
     t.after(100, lambda: t.set_viewangle(lat, lon))
+
+    vcomp = hal.component("vismach")
+    vcomp.newpin("plotclear",hal.HAL_BIT,hal.HAL_IN)
+    vcomp.ready()
 
     #there's probably a better way of doing this
     global HUD
@@ -1034,7 +1045,12 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     t.pack(fill="both", expand=1)
 
     def update():
+	global old_plotclear
 	t.tkRedraw()
+	new_plotclear = vcomp["plotclear"]
+	if new_plotclear and not old_plotclear:
+	    t.plotclear()
+	old_plotclear=new_plotclear
 	t.after(100, update)
     update()
 

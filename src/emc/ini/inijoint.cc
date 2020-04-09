@@ -61,7 +61,8 @@ extern value_inihal_data old_inihal_data;
   emcJointSetFerror(int joint, double ferror);
   emcJointSetMinFerror(int joint, double ferror);
   emcJointSetHomingParams(int joint, double home, double offset, double home_vel, 
-                          double search_vel, double latch_vel, int use_index, 
+                          double search_vel, double latch_vel,
+                          int use_index, int encoder_does_not_reset,
                           int ignore_limits, int is_shared, int sequence, int volatile_home));
   emcJointActivate(int joint);
   emcJointSetMaxVelocity(int joint, double vel);
@@ -83,6 +84,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     double latch_vel;
     double final_vel; // moving from OFFSET to HOME
     bool use_index;
+    bool encoder_does_not_reset;
     bool ignore_limits;
     bool is_shared;
     int sequence;
@@ -175,6 +177,8 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         jointIniFile->Find(&is_shared, "HOME_IS_SHARED", jointString);
         use_index = false;	        // default
         jointIniFile->Find(&use_index, "HOME_USE_INDEX", jointString);
+        encoder_does_not_reset = false;	// default
+        jointIniFile->Find(&encoder_does_not_reset, "HOME_INDEX_NO_ENCODER_RESET", jointString);
         ignore_limits = false;	        // default
         jointIniFile->Find(&ignore_limits, "HOME_IGNORE_LIMITS", jointString);
 
@@ -194,6 +198,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
         if (0 != emcJointSetHomingParams(joint, home, offset
                                         ,final_vel, search_vel, latch_vel
                                         ,(int)use_index
+                                        ,(int)encoder_does_not_reset
                                         ,(int)ignore_limits
                                         ,(int)is_shared
                                         ,sequence

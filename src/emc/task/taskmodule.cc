@@ -24,6 +24,7 @@
 #include <boost/python/implicit.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
+#include <boost_pyenum_macros.hh>
 #include <boost/python/scope.hpp>
 #include "python_plugin.hh"
 #include "rs274ngc.hh"
@@ -66,7 +67,7 @@ static int handle_exception(const char *name)
 	    try {						\
 		return f();					\
 	    }							\
-	    catch( bp::error_already_set ) {			\
+	    catch( const bp::error_already_set& ) {			\
 		return handle_exception(#method);		\
 	    }							\
 	}							\
@@ -81,7 +82,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name);						\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch( const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -95,7 +96,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name,name2);					\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch(const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -134,7 +135,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 		std::string buffer(msg,len);
 		return f(len,buffer);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoPluginCall");
 	    }
 	} else
@@ -147,7 +148,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcToolSetOffset");
 	    }
 	else
@@ -159,7 +160,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(); /// bug in Boost.Python, fixed in 1.44 I guess: return_int("foo",f());
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoUpdate");
 	    }
 	else
@@ -270,58 +271,55 @@ BOOST_PYTHON_MODULE(emctask) {
 	operator_display_overloads ( args("id"),
 				   "send a message to the operator display"  ));
 
+    BOOST_PYENUM_(RCS_STATUS)
+            .BOOST_PYENUM_VAL(RCS_EXEC)
+            .BOOST_PYENUM_VAL(RCS_DONE)
+            .BOOST_PYENUM_VAL(RCS_ERROR)
+            ;
 
-#define VAL(X)  .value(#X, X)
+    BOOST_PYENUM_(EMC_TASK_MODE_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_MANUAL)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_AUTO)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_MDI)
+            ;
 
-    enum_<RCS_STATUS>("RCS_STATUS")
-	VAL(RCS_EXEC)
-	VAL(RCS_DONE)
-	VAL(RCS_ERROR)
-	;
+    BOOST_PYENUM_(EMC_TASK_STATE_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ESTOP_RESET)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_OFF)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ON)
+            ;
 
-    enum_<EMC_TASK_MODE_ENUM>("EMC_TASK_MODE")
-	VAL(EMC_TASK_MODE_MANUAL)
-	VAL(EMC_TASK_MODE_AUTO)
-	VAL(EMC_TASK_MODE_MDI)
-	;
+    BOOST_PYENUM_(EMC_TASK_EXEC_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_ERROR)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_DONE)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
+            ;
 
-    enum_<EMC_TASK_STATE_ENUM>("EMC_TASK_STATE")
-	VAL(EMC_TASK_STATE_ESTOP)
-	VAL(EMC_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_TASK_STATE_OFF)
-	VAL(EMC_TASK_STATE_ON)
-	;
-
-    enum_<EMC_TASK_EXEC_ENUM>("EMC_TASK_EXEC")
-	VAL(EMC_TASK_EXEC_ERROR)
-	VAL(EMC_TASK_EXEC_DONE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
-	;
-
-    enum_<EMC_TASK_INTERP_ENUM>("EMC_TASK_INTERP")
-	VAL(EMC_TASK_INTERP_IDLE)
-	VAL(EMC_TASK_INTERP_READING)
-	VAL(EMC_TASK_INTERP_PAUSED)
-	VAL(EMC_TASK_INTERP_WAITING)
-	;
+    BOOST_PYENUM_(EMC_TASK_INTERP_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_IDLE)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_READING)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_PAUSED)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_WAITING)
+            ;
 
 
-    enum_<EMC_IO_ABORT_REASON_ENUM>("EMC_IO_ABORT_REASON")
-	VAL(EMC_ABORT_TASK_EXEC_ERROR)
-	VAL(EMC_ABORT_AUX_ESTOP)
-	VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
-	VAL(EMC_ABORT_TASK_STATE_OFF)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP)
-	VAL(EMC_ABORT_TASK_STATE_NOT_ON)
-	VAL(EMC_ABORT_TASK_ABORT)
-	VAL(EMC_ABORT_USER)
-	;
+    BOOST_PYENUM_(EMC_IO_ABORT_REASON_ENUM)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_EXEC_ERROR)
+            .BOOST_PYENUM_VAL(EMC_ABORT_AUX_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_OFF)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_NOT_ON)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_ABORT)
+            .BOOST_PYENUM_VAL(EMC_ABORT_USER)
+            ;
 
     class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
 

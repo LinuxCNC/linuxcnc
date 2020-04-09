@@ -146,7 +146,6 @@ static void flush_segments(void);
   defined here that are used for convenience but no longer have decls
   in the 6-axis canon.hh. So, we declare them here now.
 */
-extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 #ifndef D2R
 #define D2R(r) ((r)*M_PI/180.0)
@@ -155,7 +154,8 @@ extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2))
 static void rotate(double &x, double &y, double theta) {
     double xx, yy;
     double t = D2R(theta);
-    xx = x, yy = y;
+    xx = x;
+    yy = y;
     x = xx * cos(t) - yy * sin(t); 
     y = xx * sin(t) + yy * cos(t);
 }
@@ -528,6 +528,60 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
 }
 
 /**
+ * Get the shortest linear axis displacement that the TP can handle as a discrete move.
+ *
+ * If this looks dirty, it's because it is. Canon runs in its own units, but
+ * the TP uses user units. Therefore, the minimum displacement has to be
+ * computed the same way, with the same threshold, or short moves do strange
+ * things (accel violations or infinite pauses).
+ *
+ * @todo revisit this when the TP is overhauled to use a consistent set of internal units.
+ */
+static double getMinLinearDisplacement()
+{
+    return FROM_EXT_LEN(CART_FUZZ);
+}
+
+/**
+ * Equivalent of getMinLinearDisplacement for rotary axes.
+ */
+static double getMinAngularDisplacement()
+{
+    return FROM_EXT_ANG(CART_FUZZ);
+}
+
+/**
+ * Apply the minimum displacement check to each axis delta.
+ *
+ * Checks that the axis is valid / active, and looks up the appropriate minimum
+ * displacement for the axis type and user units.
+ */
+static void applyMinDisplacement(double &dx,
+                                 double &dy,
+                                 double &dz,
+                                 double &da,
+                                 double &db,
+                                 double &dc,
+                                 double &du,
+                                 double &dv,
+                                 double &dw
+                                 )
+{
+    const double tiny_linear = getMinLinearDisplacement();
+    const double tiny_angular = getMinAngularDisplacement();
+    if(!axis_valid(0) || dx < tiny_linear) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny_linear) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny_linear) dz = 0.0;
+    if(!axis_valid(3) || da < tiny_angular) da = 0.0;
+    if(!axis_valid(4) || db < tiny_linear) db = 0.0;
+    if(!axis_valid(5) || dc < tiny_linear) dc = 0.0;
+    if(!axis_valid(6) || du < tiny_linear) du = 0.0;
+    if(!axis_valid(7) || dv < tiny_linear) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny_linear) dw = 0.0;
+}
+
+
+/**
  * Get the limiting acceleration for a displacement from the current position to the given position.
  * returns a single acceleration that is the minimum of all axis accelerations.
  */
@@ -554,15 +608,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
     dv = fabs(v - canon.endPoint.v);
     dw = fabs(w - canon.endPoint.w);
 
-    if(!axis_valid(0) || dx < tiny) dx = 0.0;
-    if(!axis_valid(1) || dy < tiny) dy = 0.0;
-    if(!axis_valid(2) || dz < tiny) dz = 0.0;
-    if(!axis_valid(3) || da < tiny) da = 0.0;
-    if(!axis_valid(4) || db < tiny) db = 0.0;
-    if(!axis_valid(5) || dc < tiny) dc = 0.0;
-    if(!axis_valid(6) || du < tiny) du = 0.0;
-    if(!axis_valid(7) || dv < tiny) dv = 0.0;
-    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
 
     if(debug_velacc) 
         printf("getStraightAcceleration dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ", 
@@ -692,15 +738,7 @@ static VelData getStraightVelocity(double x, double y, double z,
     dv = fabs(v - canon.endPoint.v);
     dw = fabs(w - canon.endPoint.w);
 
-    if(!axis_valid(0) || dx < tiny) dx = 0.0;
-    if(!axis_valid(1) || dy < tiny) dy = 0.0;
-    if(!axis_valid(2) || dz < tiny) dz = 0.0;
-    if(!axis_valid(3) || da < tiny) da = 0.0;
-    if(!axis_valid(4) || db < tiny) db = 0.0;
-    if(!axis_valid(5) || dc < tiny) dc = 0.0;
-    if(!axis_valid(6) || du < tiny) du = 0.0;
-    if(!axis_valid(7) || dv < tiny) dv = 0.0;
-    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
 
     if(debug_velacc) 
         printf("getStraightVelocity dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
@@ -815,6 +853,10 @@ struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
 
 static std::vector<struct pt> chained_points;
 
+static void drop_segments(void) {
+    chained_points.clear();
+}
+
 static void flush_segments(void) {
     if(chained_points.empty()) return;
 
@@ -873,14 +915,14 @@ static void flush_segments(void) {
     linearMoveMsg.acc = toExtAcc(acc);
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    linearMoveMsg.indexrotary = -1;
+    linearMoveMsg.indexer_jnum = -1;
     if ((vel && acc) || canon.spindle[canon.spindle_num].synched) {
         interp_list.set_line_number(line_no);
         interp_list.append(linearMoveMsg);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
-    chained_points.clear();
+    drop_segments();
 }
 
 static void get_last_pos(double &lx, double &ly, double &lz) {
@@ -959,6 +1001,11 @@ void FINISH() {
     flush_segments();
 }
 
+void ON_RESET() {
+    drop_segments();
+}
+
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
 		       double a, double b, double c,
@@ -988,7 +1035,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.indexrotary = canon.rotary_unlock_for_traverse;
+    linearMoveMsg.indexer_jnum = canon.rotary_unlock_for_traverse;
 
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
@@ -1488,6 +1535,11 @@ void ARC_FEED(int line_number,
         case CANON_PLANE_YZ:
             shift_ind = -1;
             break;
+        case CANON_PLANE_UV:
+        case CANON_PLANE_VW:
+        case CANON_PLANE_UW:
+            CANON_ERROR("Can't set plane in UVW axes, assuming XY");
+            break;
     }
 
     canon_debug("active plane is %d, shift_ind is %d\n",canon.activePlane,shift_ind);
@@ -1728,7 +1780,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(v_max);
         linearMoveMsg.acc = toExtAcc(a_max);
-        linearMoveMsg.indexrotary = -1;
+        linearMoveMsg.indexer_jnum = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
@@ -1837,9 +1889,8 @@ void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 void SET_SPINDLE_SPEED(int s, double r)
 {
     // speed is in RPMs everywhere
-    for (int i = 0; i < 3; i++) {printf("Before: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
+
 	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
-    for (int i = 0; i < 3; i++) {printf("After: spindle %i speed %f\n", i, canon.spindle[i].speed) ;}
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
@@ -2035,7 +2086,7 @@ void CHANGE_TOOL(int slot)
         linearMoveMsg.acc = toExtAcc(acc);
         linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
 	linearMoveMsg.feed_mode = 0;
-        linearMoveMsg.indexrotary = -1;
+        linearMoveMsg.indexer_jnum = -1;
 
 	int old_feed_mode = canon.feed_mode;
 	if(canon.feed_mode)
@@ -2569,9 +2620,22 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     CANON_POSITION position;
     EmcPose pos;
 
-    chained_points.clear();
+    drop_segments();
 
     pos = emcStatus->motion.traj.position;
+
+    if (GET_EXTERNAL_OFFSET_APPLIED() ) {
+        EmcPose eoffset = GET_EXTERNAL_OFFSETS();
+        pos.tran.x -= eoffset.tran.x;
+        pos.tran.y -= eoffset.tran.y;
+        pos.tran.z -= eoffset.tran.z;
+        pos.a      -= eoffset.a;
+        pos.b      -= eoffset.b;
+        pos.c      -= eoffset.c;
+        pos.u      -= eoffset.u;
+        pos.v      -= eoffset.v;
+        pos.w      -= eoffset.w;
+    }
 
     // first update internal record of last position
     canonUpdateEndPoint(FROM_EXT_LEN(pos.tran.x), FROM_EXT_LEN(pos.tran.y), FROM_EXT_LEN(pos.tran.z),
@@ -2733,8 +2797,12 @@ int GET_EXTERNAL_POCKETS_MAX()
     return CANON_POCKETS_MAX;
 }
 
-char _parameter_file_name[LINELEN];	/* Not static.Driver
-					   writes */
+static char _parameter_file_name[LINELEN];
+
+void SET_PARAMETER_FILE_NAME(const char *name)
+{
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+}
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *file_name,	/* string: to copy
 							   file name into */
@@ -2960,6 +3028,14 @@ int GET_EXTERNAL_FEED_HOLD_ENABLE()
 
 int GET_EXTERNAL_AXIS_MASK() {
     return emcStatus->motion.traj.axis_mask;
+}
+
+int GET_EXTERNAL_OFFSET_APPLIED(void) {
+    return emcGetExternalOffsetApplied();
+}
+
+EmcPose GET_EXTERNAL_OFFSETS() {
+    return emcGetExternalOffsets();
 }
 
 CANON_PLANE GET_EXTERNAL_PLANE()
@@ -3201,7 +3277,7 @@ int UNLOCK_ROTARY(int line_number, int joint_num) {
                         canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
                         canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
     m.vel = m.acc = 1; // nonzero but otherwise doesn't matter
-    m.indexrotary = -1;
+    m.indexer_jnum = -1;
 
     // issue it
     int old_feed_mode = canon.feed_mode;

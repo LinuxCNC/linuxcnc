@@ -1,0 +1,46 @@
+# Keep your plasmac i/o connections here to prevent them from
+# being overwritten by updates or pncconf/stepconf changes
+
+# Other customisations may be placed here as well
+# This file is built by the configurator in your configuration directory
+
+#***** DEBOUNCE FOR THE FLOAT SWITCH *****
+# the lower the delay here the better
+# each 1 is a 0.001mm (0.00004") increase in probed height result
+loadrt  debounce                cfg=3
+setp    debounce.0.delay        5
+addf    debounce.0              servo-thread
+
+#***** arc voltage lowpass cutoff frequency *****
+#***** change to the cutoff frequency you require *****
+setp plasmac.lowpass-frequency 0
+
+#***** the joint associated with the Z axis *****
+net plasmac:axis-position        joint.3.pos-fb                  =>  plasmac.axis-z-position
+
+# FOR MODE 0 ***************************************************************************#
+#net plasmac:arc-voltage-in      ***YOUR_PLASMA_ARC_VOLTAGE***   =>  plasmac.arc-voltage-in
+
+# FOR MODE 1 ***************************************************************************#
+#net plasmac:arc-voltage-in      ***YOUR_PLASMA_ARC_VOLTAGE***   =>  plasmac.arc-voltage-in
+#net plasmac:arc-ok-in           ***YOUR_PLASMA_ARC_OK***        =>  plasmac.arc-ok-in
+
+# FOR MODE 2 ***************************************************************************
+#net plasmac:arc-ok-in           ***YOUR_PLASMA_ARC_OK***        =>  plasmac.arc-ok-in
+#net plasmac:move-down           ***YOUR_MOVE_DOWN_SIGNAL***     =>  plasmac.move-down
+#net plasmac:move-up             ***YOUR_MOVE_UP_SIGNAL***       =>  plasmac.move-up
+
+# FOR ALL MODES
+#net plasmac:float-switch        ***YOUR_FLOAT_SWITCH***         =>  debounce.0.0.in
+#net plasmac:breakaway           ***YOUR_BREAKAWAY_SWITCH***     =>  debounce.0.1.in
+#net plasmac:ohmic-probe         ***YOUR_OHMIC_PROBE***          =>  debounce.0.2.in
+#net plasmac:torch-on                                            =>  ***YOUR_TORCH_ON***
+#net plasmac:ohmic-enable        plasmac.ohmic-enable            =>  ***YOUR_OHMIC_PROBE_ENABLING_CIRCUIT***
+
+# a 1 here allows multiple tools to be used
+# gcode M3 S1 needs to be changed to:
+# M3 $0 S1 for the plasma torch'
+# M3 $1 S1 for the scribe'
+setp plasmac.multi-tool 0
+#net plasmac:scribe-arm plasmac.scribe-arm => ***YOUR_SCRIBE_ARMING_OUTPUT***
+#net plasmac:scribe-on  plasmac.scribe-on  => ***YOUR_SCRIBE_ON_OUTPUT***

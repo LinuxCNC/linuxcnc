@@ -36,7 +36,6 @@
 #include "motion.h"
 #include <rtapi_string.h>
 
-
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
 //note:the +1 is for the PROGRAM_PREFIX or default directory==nc_files
@@ -498,9 +497,13 @@ int emcTaskPlanSetBlockDelete(bool state)
     return 0;
 }
 
+
 int emcTaskPlanSynch()
 {
     int retval = interp.synch();
+    if (retval == INTERP_ERROR) {
+        emcTaskAbort();
+    }
 
     if (emc_debug & EMC_DEBUG_INTERP) {
         rcs_print("emcTaskPlanSynch() returned %d\n", retval);

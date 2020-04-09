@@ -685,7 +685,7 @@ List of variables :
    variable. Some might call this vectored variables. Example: %W0[%W4] =>
    if %W4 equals 23 it corresponds to %W23 
 
-== GRAFCET Programming
+== GRAFCET (State Machine) Programming
 
 [WARNING]
 This is probably the least used and most poorly understood 
@@ -934,6 +934,124 @@ If there is a communication error, a warning window will pop up (if
 the GUI is running) and %E0 will be true. Modbus will continue to try
 to communicate. The %E0 could be used to make a decision based on the
 error. A timer could be used to stop the machine if timed out, etc.
+
+=== Debugging modbus problems
+A good reference for the protocol: +
+http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf +
+If you run linuxcnc/classocladder from a terminal, it will print 
+the Modbus commands and slave responses. +
+
+Here we set Classiclader to request slave 1, +
+to read holding registers (function code 3) starting at address 8448 (0x2100) +
+We ask for 1 (2 byte wide) data element to be returned +
+We map it to a Classicladder variable starting at 2 +
+
+image::images/modbus_register_setting.png[align="center", alt="Config I/O Register Setting"]
+
+Note in this image we have set the debug level to 1 so modbus messages are printed to the terminal +
+We have mapped our read and written holding registers to classicladder's %W variables +
+so our returned data will be in %W2 as in the other image we mapped the data starting at the 2nd element +
+ 
+image::images/modbus_com_setting.png[align="center", alt="Comunication Setting"]
+
+==== Request
+Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex) +
+
+Looking in the Modbus protocol reference: +
+
+.Read holding register request
+
+[width="50%", options="header", cols="<6,<2,<6"]
+|========================================
+|Name | number of bytes |  Value (hex)
+|Function code | (1 Byte) | 3  (0x03) 
+|Starting Address | (2 Bytes)  | 0 - 65535 (0x0000 to 0xFFFF) 
+|Number of Registers | (2 Bytes) | 1 to 125 (0x7D)
+|Checksum | (2 bytes) | Calculated automatically
+|========================================
+
+
+Here is an example sent command as printed in the terminal (all Hex): +
+----
+INFO CLASSICLADDER-   Modbus I/O module to send: Lgt=8 <-  Slave address-1  Function code-3  Data-21 0 0 1 8E 36
+----
+meaning (Hex): +
+
+ * Lgt = 8 = message is 8 bytes long including slave number and checksum number +
+ * Slave number = 1 (0x1) = Slave address 1
+ * Function code = 3 (0x3) = read holding register
+ * Start at address = highbyte 33 (0x21) lowbyte 0 (0x00) = combined address = 8448 (0x2100)
+ * Number of Registers = 1 (0x1) = return 1 2-byte register (holding and reading registers are always 2 bytes wide)
+ * Checksum = high byte 0x8E lowbyte 0x36  = (0x8E36)
+
+==== Error response
+If there is an error response, it sends the function code plus 0x80, an error code, and a checksum. +
+Getting an error response means the slave is seeing the request command but can not give valid data. +
+Looking in the Modbus protocol reference: +
+
+.Error returned for function code 3 (read holding register)
+
+[width="50%", options="header", cols="<6,<2,<6"]
+|========================================
+|Name | number of bytes |  Value (hex)
+|Error code | 1 Byte | 131 (0x83)
+|Exception code  | 1 Byte  | 1-4 (0x01 to 0x04)
+|Checksum | (2 bytes) | Calculated automatically
+|========================================
+
+exception code meaning:
+
+ * 1 - illegal Function
+ * 2 - illegal data address
+ * 3 - illegal data value
+ * 4 - slave device failure
+
+Here is an example received command as printed in the terminal (all Hex): +
+----
+INFO CLASSICLADDER-   Modbus I/O module received: Lgt=5 ->   (Slave address-1  Function code-83 ) 2 C0 F1
+----
+meaning (Hex): +
+
+ * Slave number = 1 (0x1) = Slave address 1
+ * Function code = 131 (0x83) =  error while reading holding register
+ * Error code = 2  (0x2) = illegal data address requested
+ * Checksum = (0x8E36)
+
+==== Data response
+Looking in the Modbus protocol reference for Response: +
+
+.Data response for function code 3 (read holding register)
+
+[width="50%", options="header", cols="<6,<2,<6"]
+|========================================
+|Name | number of bytes |  Value (hex)
+|Function code | 1 Byte | 3 (0x03)
+|Byte count | 1 Byte | 2 x N*
+|Register value | N* x 2 Bytes | returned value of requested address
+|Checksum | (2 bytes) | Calculated automatically
+| ( *N = Number of Registers ) | |
+|========================================
+
+
+Here is an example received command as printed in the terminal (all Hex): +
+----
+INFO CLASSICLADDER-   Modbus I/O module received: Lgt=7 ->   (Slave address-1  Function code-3 2 0 0 B8 44 
+----
+
+meaning (Hex): +
+
+ * Slave number = 1 (0x1) = Slave address 1
+ * Requested function code = 3 (0x3) = read holding register requested
+ * count of byte registers = 2 (0x1) = return 2 bytes (each register value is 2 bytes wide)
+ * value of highbyte = 0 (0x0) = high byte value of address 8448 (0x2100)
+ * value of lowbyte = 0 (0x0) = high byte value of address 8448 (0x2100)
+ * Checksum = (0xB844)
+
+(high and low bytes are combined to create a 16 bit value and then transferred to Classicladder's variable) +
+Read Registers can be mapped to %W or %QW  (internal memory or HAL out pins) +
+Write registers can be mapped from %W, %QW or %IW (internal memory, HAL out pins or HAL in pins) +
+The variable number will start at the number entered in the modbus I/O registry setup page's column: 'First variable mapped' +
+If multiple registers are requested in one read/write then the variable number are sequential after the first one. +
 
 === MODBUS Bugs
 

@@ -101,4 +101,19 @@ extern int kinematicsHome(struct EmcPose * world,
 
 extern KINEMATICS_TYPE kinematicsType(void);
 
+/* map letters in a coordinates string to joint numbers
+** sequentially.  Axis indices are 0:x,1:y,...,etc
+** Example: coordinates=XYZYAC
+** Result:  axis_idx_for_jno[0] = 0 ==> X
+**          axis_idx_for_jno[1] = 1 ==> Y
+**          axis_idx_for_jno[2] = 2 ==> Z
+**          axis_idx_for_jno[3] = 1 ==> Y (duplicate allowed)
+**          axis_idx_for_jno[4] = 1 ==> A
+**          axis_idx_for_jno[5] = 1 ==> C
+*/
+extern int map_coordinates_to_jnumbers(char *coordinates,
+                                       int  max_joints,
+                                       int  allow_duplicates,
+                                       int  axis_idx_for_jno[]);
+
 #endif

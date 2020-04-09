@@ -15,7 +15,12 @@
  *    along with this program; if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef BOOST_PYTHON_NAX_ARITY
+
+#ifndef PARAM_CLASS_HH
+#define PARAM_CLASS_HH
+#include <interp_fwd.hh>
+
+#ifndef BOOST_PYTHON_MAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4
 #endif
 #include <boost/python/list.hpp>
@@ -35,3 +40,5 @@ struct ParamClass {
 };
 
 extern void export_ParamClass();
+
+#endif

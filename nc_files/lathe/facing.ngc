@@ -1,0 +1,56 @@
+; MACROCOMMAND=Face Diameter,SFM,DOC,FPR,Z Length,Angle,Tool Number
+; MACRODEFAULTS=1,500,.02,.007,-2,0,1
+; MACROSVG=LatheMacro.svg,2,10
+; O<facing>call [${face.x-f}] [${face.sf-f}] [${face.cut-f}] [${face.feed-f}] [${face.z-f}] [${face.angle-s}] [${face.tool-s}] 
+
+; #1 face diameter
+; #2 surface speed
+; #3 DOC
+; #4 feed/rpm
+; #5 Face Z length
+; #6 face angle
+; #7 tool numbber
+
+O<facing> sub
+
+G7 ; Lathe Diameter Mode
+G18 ; XZ Plane
+;G21 ; Metric Units
+G90 ; Absolute Distance
+
+M6 T#7 G43
+
+(MSG, Press Cycle Start To start Facing Macro)
+m0
+
+O10 IF [#6 NE 0]
+   (MSG, Angled facing isn't supported yet)
+O10 ENDIF
+
+#14 = [#<_x> * 2] (starting X)
+#13 = #<_z> (starting Z)
+
+G96 D2500 S#2 ; Constant Surface Speed Mode
+M3
+g95 F#4 ; Feed-Per-Rev Mode
+
+g4p1 ; Wait to reach speed
+
+	O200 WHILE [#13 GT #5 + #3]
+	
+	#13=[#13-#3]
+	G1 Z#13
+	G1 X#1
+	G0 Z[#13+#3]
+	G0 X#14
+	G0 Z#13
+	O200 ENDWHILE
+	
+	G1 Z#5
+	G1 X#1
+	G0 Z[#13+#3]
+	G0 X[#14+#3]
+	G0 Z#5 ; For touch-off
+    M5
+O<facing> endsub
+M2

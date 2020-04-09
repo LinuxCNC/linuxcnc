@@ -1,2 +1,2 @@
-and2.0 m.q m.r or2.0 or2.1 or2.2 
-and2.0.in0 and2.0.in1 and2.0.out and2.0.time m.q.in0 m.q.in1 m.q.out m.q.sel m.q.time m.r.in0 m.r.in1 m.r.out m.r.sel m.r.time or2.0.in0 or2.0.in1 or2.0.out or2.0.time or2.1.in0 or2.1.in1 or2.1.out or2.1.time or2.2.in0 or2.2.in1 or2.2.out or2.2.time 
+and2.0 d1 d2 d3 l1 l2 m.q m.r or2.0 or2.1 or2.2 xor2.0 xor2.1 
+and2.0.in0 and2.0.in1 and2.0.out and2.0.time d1.in d1.out d1.time d2.in d2.out d2.time d3.in d3.out d3.time l1.and l1.in-00 l1.in-01 l1.time l2.in-00 l2.in-01 l2.in-02 l2.or l2.time m.q.in0 m.q.in1 m.q.out m.q.sel m.q.time m.r.in0 m.r.in1 m.r.out m.r.sel m.r.time or2.0.in0 or2.0.in1 or2.0.out or2.0.time or2.1.in0 or2.1.in1 or2.1.out or2.1.time or2.2.in0 or2.2.in1 or2.2.out or2.2.time xor2.0.in0 xor2.0.in1 xor2.0.out xor2.0.time xor2.1.in0 xor2.1.in1 xor2.1.out xor2.1.time 

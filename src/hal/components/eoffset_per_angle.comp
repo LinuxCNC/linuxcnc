@@ -1,0 +1,341 @@
+component eoffset_per_angle "Compute External Offset Per Angle";
+//" vim
+description
+"""
+
+An offset is computed (from one of several functions) based on
+an input angle in degrees.  The angle could be a rotary
+coordinate value or a spindle angle.
+
+The computed offset is represented as an s32 \\fBkcounts\\fR output
+pin that is a compatible input to external offset pins like
+\\fBaxis.L.eoffset-counts\\fR where \\fBL\\fR is the coordinate
+letter.  Scaling of the s32 \\fBkcounts\\fR is controlled by the
+input (\\fBk\\fR) -- its reciprocal value is presented on an output pin
+(\\fBkreciprocal\\fR) for connection to \\fBaxis.L.eoffset-scale\\fR.
+The default value for \\fBk\\fR should be suitable for most uses.
+
+The built-in functions use pins \\fBfmult\\fR and \\fBrfraction\\fR
+to control the output frequency (or number of polygon sides)
+and amplitude respectively.  The  \\fBrfraction\\fR pin controls
+the offset amplitude as a fraction of the \\fBradius-ref\\fR pin.
+
+One of the four built-in functions is specified by the \\fBfnum\\fR pin:
+  \\fB0\\fR: f0 inside  polygon  (requires \\fBfmult\\fR == nsides >= 3)
+  \\fB1\\fR: f1 outside polygon  (requires \\fBfmult\\fR == nsides >= 3)
+  \\fB2\\fR: f2 sinusoid
+  \\fB3\\fR: f3 square wave
+
+Unsupported \\fBfnum\\fR values default to use function f0.
+
+\\fBNOTES:\\fR
+
+\\fBradius-ref\\fR:
+The computed offsets are based on the \\fBradius-ref\\fR pin
+value.  This pin may be set to a constant radius value or
+controlled by a user interface or by g code program (using
+\\fBM68\\fR and a \\fBmotion.analog-out-NN pin for instance).
+
+\\fBStopping\\fR:
+When the \\fBenable-in\\fR pin is deasserted, the offset is
+returned to zero respecting the allocated acceleration
+and velocity limits.  The allocations for coordinate \\fBL\\fR
+are typically controlled by an ini file setting:
+\\fB[AXIS_L]OFFSET_AV_RATIO\\fR.
+
+\\fBNOTES\\fR:
+If unsupported parameters are supplied to a function (for instance
+a polygon with fewer than three sides), the current offset
+will be returned to zero (respecting velocity and acceleration
+constraints).  After correcting the offending parameter, the
+\\fBenable-in\\fR pin must be toggled to resume offset
+computations.
+
+\\fBEXAMPLE:\\fR
+An example simulation configuration is provided at:
+\\fBconfigs/sim/axis/external_offsets/opa.ini\\fR.  A
+simulated XZC machine uses the \\fBC\\fR coordinate angle to
+offset the transverse \\fBX\\fR coordinate according to
+the selected \\fBfnum\\fR function.
+""";
+
+//" quote char for vim highlighting
+
+pin  in   bit active      = 0     "From: motion.eoffset-active";
+pin  in   bit is_on       = 0     "From: halui.machine.is-on";
+
+pin  in   bit enable_in   = 0     "Enable Input";
+pin  in float radius_ref  = 1     "Radius reference (see notes)";
+pin  in float angle       = 0     "Input angle (in degrees)";
+pin  in float start_angle = 0     "Start angle (in degrees)";
+pin  in   s32 fnum        = 0     "Function selector (default 0)";
+pin  in float rfraction   = 0.1   "Offset amplitude (+/- fraction of radius_ref)";
+pin  in float fmult       = 6     "Offset frequency multiplier";
+pin  in   u32 k           = 10000 "Scaling Factor (if 0, use 10000)";
+
+pin out   bit is_off      "invert is_on (for convenience)";
+
+pin out   bit enable_out  "To: axis.L.eoffset-enable";
+pin out   bit clear       "To: axis.L.eoffset-clear";
+pin out   s32 kcounts     "To: axis.L.eoffset-counts";
+pin out float kreciprocal "To: axis.L.eoffset-scale (1/k)";
+
+pin out float eoffset_dbg "offset (debug pin--use kcounts & kreciprocal)";
+pin out   u32 state_dbg   "state  (debug pin)";
+
+//---------------------------------------------------------------------
+// per-instance items:
+variable int  run_ct   = 0;
+variable int  delay_ct = 0;
+variable int  messaged = 0;
+variable int  err_stop = 0;
+
+// Note: use of 'option data TYPE' with halcompile is deprecated
+//       but the recommended alternative, 'variable CTYPE',
+//       does not support typedefs for structs.
+//       If support for 'option data TYPE' is removed, this file
+//       should be converted from a .comp to a .c file with
+//       additional Makefile support
+option data the_data;
+//---------------------------------------------------------------------
+
+function _;
+license "GPL";
+;;
+
+#include <rtapi_math.h>
+
+#define FINISH_DELAY 0
+#define TO_RAD       M_PI/180
+
+typedef enum {
+    OFF,
+    READY,
+    RUNNING,
+    STOPPING,
+    FINISH,
+} state;
+
+typedef struct ofunc_data {
+  state  thestate;
+  double adeg;
+  double astart;
+  double r_ref;
+  double r_frac;
+  double fmultiplier;
+  double ovalue;
+} the_data;
+
+typedef int ofunc(struct ofunc_data*);
+static      ofunc func0,func1,func2,func3;
+
+#define OPA_DEBUG
+#undef  OPA_DEBUG
+#ifdef  OPA_DEBUG
+  #define LVL RTAPI_MSG_INFO
+  #define dprint(msg,n) do { \
+    rtapi_set_msg_level(LVL); \
+    rtapi_print_msg(LVL,"%20s %5d\n",msg,n); \
+  } while (0)
+#else
+  #define dprint(msg,n)
+#endif
+
+FUNCTION(_) {
+    struct ofunc_data* dptr = &data;
+#define STATE dptr->thestate
+
+    int    kfactor;
+    ofunc* thefunc;
+
+    run_ct++;
+    state_dbg = STATE;
+    if (k == 0) {kfactor = 10000;}
+    kreciprocal = 1/((float)kfactor);
+
+    is_off = !is_on; // convenience pin
+
+    if (is_off) {
+        // note: the external_offsets implementation defines
+        //       axis.L.eoffset as zero when machine is off
+        err_stop   = 0;
+        enable_out = 0;
+        kcounts    = 0; eoffset_dbg = 0;
+        messaged   = 0;
+        STATE      = OFF;
+        return;
+    }
+
+    switch (STATE) {
+    case OFF:
+        // require an enable_in 0-->1 transition to advance to READY
+        if (enable_in) {
+            if (!messaged) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                "eoffset_per_angle: active enable-in not honored at start");
+                messaged = 1;
+            }
+            return;
+        }
+        err_stop = 0;
+        messaged = 1;
+        kcounts  = 0;
+        STATE    = READY;
+        dprint("OFF->READY",kcounts);
+        return;
+        break;
+    case READY:
+        if (!enable_in) {return;}
+        kcounts    = 0; eoffset_dbg = 0;
+        enable_out = 0;
+        delay_ct   = 0;
+        STATE      = RUNNING;
+        dprint("READY->RUNNING",kcounts);
+        return;
+        break;
+    case RUNNING:
+        if (enable_in) {
+            enable_out = 1;
+            STATE      = RUNNING;
+        } else {
+            /*
+            ** When the enable_in pin is deasserted, kcounts are set to
+            ** zero and the simple trajectory planner removes the offset to
+            ** within its stopping criterion.  Under some conditions, a
+            ** residual offset may remain.  Connecting the clear pin to
+            ** axis.L.eoffset-clear forces the axis->ext_offset_tp.pos_cmd
+            ** to zero to remove any residual with no modifications to
+            ** simple_tp.c
+            */
+            clear    = 1;
+            kcounts  = 0; eoffset_dbg = 0;
+            STATE    = STOPPING;
+            delay_ct = run_ct;
+            dprint("RUNNING->STOPPING",kcounts);
+            return;
+        }
+        break;
+    case STOPPING:
+        if (active) {
+            STATE = STOPPING;
+        } else {
+            // !active ==> stopping criterion met
+            delay_ct = run_ct;
+            STATE    = FINISH;
+            dprint("STOPPING->FINISH",kcounts);
+        }
+        return;
+        break;
+    case FINISH:
+        // provision for delay if needed
+        if (run_ct < (FINISH_DELAY + delay_ct) ) {
+            STATE = FINISH;
+        } else {
+            enable_out = 0;
+            if (err_stop) {
+                STATE = OFF;
+                dprint("FINISH->OFF",kcounts);
+            } else {
+                STATE = READY;
+                dprint("FINISH->READY",kcounts);
+            }
+        }
+        clear = 0;
+        return;
+        break;
+    } //switch (STATE)
+
+    switch (fnum) {
+      case  0: thefunc = func0; break;
+      case  1: thefunc = func1; break;
+      case  2: thefunc = func2; break;
+      case  3: thefunc = func3; break;
+      default: thefunc = func0; break;
+    }
+    dptr->adeg        = angle;
+    dptr->astart      = start_angle;
+    dptr->r_ref       = radius_ref;
+    dptr->r_frac      = rfraction;
+    dptr->fmultiplier = fmult;
+
+    if (thefunc(dptr) ) {
+        // thefunc returned nonzero (problem)
+        err_stop     = 1;
+        dptr->ovalue = 0;
+        kcounts      = 0; eoffset_dbg = 0;
+        STATE        = STOPPING;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "eoffset_per_angle stopping:func%d problem\n",fnum);
+        return;
+    }
+
+    kcounts     = kfactor * dptr->ovalue;
+    eoffset_dbg = kcounts * kreciprocal; // debug pin
+    return;
+}
+
+static int func0 (struct ofunc_data* d)
+{
+    // for cutting an inside polygon
+    // (start with negative rfraction, and gradually increase to zero)
+    // polygon outscribed by circle of radius r_ref
+    // (fmultiplier > 2)
+    double uangle,divisor;
+
+    if (d->fmultiplier <= 2) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "func0 bad fmultiplier: %g\n",d->fmultiplier);
+        return -1;
+    }
+
+    divisor   = 360/d->fmultiplier;
+    uangle    = d->adeg + divisor/2 - d->astart;
+    d->ovalue = (1 + d->r_frac)
+              * d->r_ref/cos((divisor/2 - fmod(uangle,divisor))*TO_RAD)
+              - d->r_ref;
+    return 0;
+}
+
+static int func1 (struct ofunc_data* d)
+{
+    // for cutting an outside polygon
+    // (start with positive rfraction, and gradually reduce to zero)
+    // polygon inscribed by circle of radius r_ref
+    // (fmultiplier > 2)
+    double uangle,divisor;
+
+    if (d->fmultiplier <= 2) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             "func1 bad fmultiplier: %g\n",d->fmultiplier);
+        return -1;
+    }
+
+    divisor   = 360/d->fmultiplier;
+    uangle    = d->adeg + divisor/2 - d->astart;
+    d->ovalue = (1 + d->r_frac)
+              * d->r_ref*cos(M_PI/d->fmultiplier)/cos((divisor/2 - fmod(uangle,divisor))*TO_RAD)
+              - d->r_ref;
+    return 0;
+}
+
+static int func2 (struct ofunc_data* d)
+{
+    // sin() -90 ==> start at zero amplitude
+    double uangle;
+    uangle    = d->fmultiplier * (d->adeg - d->astart) + -90;
+    d->ovalue = (0.5 * d->r_frac* d->r_ref) * (1 + sin(uangle * TO_RAD));
+    return 0;
+}
+
+static int func3 (struct ofunc_data* d)
+{
+    // square() -90 ==> start at zero amplitude
+    // useful for looking at affects of ini settings
+    // max vel & accel and offset_av_ratio
+    double uangle;
+    double value = -1;
+    uangle = d->fmultiplier * (d->adeg - d->astart) + -90;
+    if (sin(uangle * TO_RAD) >= 0) {value = 1;}
+    d->ovalue = (0.5 * d->r_frac* d->r_ref) * (1 + value);
+    return 0;
+}

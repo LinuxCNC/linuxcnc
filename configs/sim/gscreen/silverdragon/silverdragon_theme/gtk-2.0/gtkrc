@@ -1,0 +1,65 @@
+########################################################################
+# BrushedMetal
+# Andrey Tverdov 2010
+# GPL2
+########################################################################
+
+gtk_color_scheme = "fg_color:#000\nbg_color:#C0C0C0\nbase_color:#D5D5D2\ntext_color:#000\nselected_bg_color:#8BA4A4\nselected_fg_color:#000\ntooltip_bg_color:#ffffe1\ntooltip_fg_color:#000"
+gtk-icon-sizes ="gtk-small-toolbar=16,16:gtk-large-toolbar=24,24:gtk-button=16,16"
+gtk-button-images = 0
+gtk-menu-images = 1
+
+include "scrollbar.rc" 
+include "scale.rc"
+include "notebook.rc"
+include "button.rc" 
+include "radio.rc" 
+include "c_box.rc"
+include "progressbar.rc"
+include "statusbar.rc"
+include "entry.rc"
+include "menubar.rc"
+include "spin.rc"
+
+style "default"
+{
+	fg[ACTIVE] = @fg_color
+  	fg[INSENSITIVE] = shade (0.7,@bg_color)
+  	fg[NORMAL] = @fg_color
+  	fg[PRELIGHT] = @fg_color
+  	fg[SELECTED] = @selected_fg_color
+
+	bg[ACTIVE] = @bg_color
+	bg[INSENSITIVE] = @bg_color
+	bg[NORMAL] = @bg_color
+	bg[PRELIGHT] = @bg_color
+	bg[SELECTED] = @selected_bg_color
+	bg_pixmap[NORMAL] = "bg.png"
+
+	base[ACTIVE] = @selected_bg_color
+	base[INSENSITIVE] = @bg_color
+	base[NORMAL] = @base_color
+	base[PRELIGHT] = @selected_bg_color
+	base[SELECTED] = @selected_bg_color
+
+	text[ACTIVE] = shade (0.9,@selected_fg_color)
+	text[INSENSITIVE] = shade (0.7,@bg_color)
+	text[NORMAL] = @text_color
+	text[PRELIGHT] = @selected_fg_color
+	text[SELECTED] = @selected_fg_color
+	
+	engine "clearlooks"
+	{
+		radius = 0.0
+	}
+} 
+class "GtkWidget" style "default"
+
+style "tooltips" = "default"
+{
+	bg[NORMAL] = "#FFFCDB"
+	fg[NORMAL] = "#000000"
+}
+
+widget "gtk-tooltips*" style "tooltips"
+

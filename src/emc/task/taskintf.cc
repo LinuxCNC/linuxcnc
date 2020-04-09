@@ -280,7 +280,8 @@ int emcJointSetMinFerror(int joint, double ferror)
 
 int emcJointSetHomingParams(int joint, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
-			   int use_index, int ignore_limits, int is_shared,
+			   int use_index, int encoder_does_not_reset,
+			   int ignore_limits, int is_shared,
 			   int sequence,int volatile_home, int locking_indexer,int absolute_encoder)
 {
 #ifdef ISNAN_TRAP
@@ -307,6 +308,9 @@ int emcJointSetHomingParams(int joint, double home, double offset, double home_f
     emcmotCommand.volatile_home = volatile_home;
     if (use_index) {
 	emcmotCommand.flags |= HOME_USE_INDEX;
+    }
+    if (encoder_does_not_reset) {
+	emcmotCommand.flags |= HOME_INDEX_NO_ENCODER_RESET;
     }
     if (ignore_limits) {
 	emcmotCommand.flags |= HOME_IGNORE_LIMITS;
@@ -464,7 +468,7 @@ int emcAxisSetMaxPositionLimit(int axis, double limit)
     return retval;
 }
 
-int emcAxisSetMaxVelocity(int axis, double vel)
+int emcAxisSetMaxVelocity(int axis, double vel,double ext_offset_vel)
 {
     CATCH_NAN(std::isnan(vel));
 
@@ -481,6 +485,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
     emcmotCommand.command = EMCMOT_SET_AXIS_VEL_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.vel = vel;
+    emcmotCommand.ext_offset_vel = ext_offset_vel;
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -489,7 +494,7 @@ int emcAxisSetMaxVelocity(int axis, double vel)
     return retval;
 }
 
-int emcAxisSetMaxAcceleration(int axis, double acc)
+int emcAxisSetMaxAcceleration(int axis, double acc,double ext_offset_acc)
 {
     CATCH_NAN(std::isnan(acc));
 
@@ -506,6 +511,7 @@ int emcAxisSetMaxAcceleration(int axis, double acc)
     emcmotCommand.command = EMCMOT_SET_AXIS_ACC_LIMIT;
     emcmotCommand.axis = axis;
     emcmotCommand.acc = acc;
+    emcmotCommand.ext_offset_acc = ext_offset_acc;
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -910,8 +916,9 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 	stat[joint_num].ferrorCurrent = joint->ferror;
 	stat[joint_num].ferrorHighMark = joint->ferror_high_mark;
 
-	stat[joint_num].homing = (joint->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0);
-	stat[joint_num].homed = (joint->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0);
+	stat[joint_num].homing = joint->homing;
+	stat[joint_num].homed  = joint->homed;
+
 	stat[joint_num].fault = (joint->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0);
 	stat[joint_num].enabled = (joint->flag & EMCMOT_JOINT_ENABLE_BIT ? 1 : 0);
 	stat[joint_num].inpos = (joint->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0);
@@ -928,10 +935,6 @@ int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints)
 	// for
 	// all
 
-/*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - per-joint Vscale temporarily? removed */
-	stat[joint_num].scale = emcmotStatus.axVscale[joint_num];
-#endif
 #ifdef WATCH_FLAGS
 	if (old_joint_flag[joint_num] != joint->flag) {
 	    printf("joint %d flag: %04X -> %04X\n", joint_num,
@@ -1305,6 +1308,20 @@ int emcTrajPause()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
+int emcTrajReverse()
+{
+    emcmotCommand.command = EMCMOT_REVERSE;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcTrajForward()
+{
+    emcmotCommand.command = EMCMOT_FORWARD;
+
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
 int emcTrajStep()
 {
     emcmotCommand.command = EMCMOT_STEP;
@@ -1363,7 +1380,7 @@ int emcTrajSetTermCond(int cond, double tolerance)
 }
 
 int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, double acc,
-                      int indexrotary)
+                      int indexer_jnum)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1383,7 +1400,7 @@ int emcTrajLinearMove(EmcPose end, int type, double vel, double ini_maxvel, doub
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
-    emcmotCommand.turn = indexrotary;
+    emcmotCommand.turn = indexer_jnum;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1909,7 +1926,6 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
 	return -1;
     }
-
     new_config = 0;
     if (emcmotStatus.config_num != emcmotConfig.config_num) {
 	if (0 != usrmotReadEmcmotConfig(&emcmotConfig)) {
@@ -1956,6 +1972,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
+
+    stat->numExtraJoints=emcmotStatus.numExtraJoints;
 
     // set the status flag
     error = 0;
@@ -2016,4 +2034,12 @@ int emcSetProbeErrorInhibit(int j_inhibit, int h_inhibit) {
     emcmotCommand.probe_jog_err_inhibit = j_inhibit;
     emcmotCommand.probe_home_err_inhibit = h_inhibit;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcGetExternalOffsetApplied(void) {
+    return emcmotStatus.external_offsets_applied;
+}
+
+EmcPose emcGetExternalOffsets(void) {
+    return emcmotStatus.eoffset_pose;
 }

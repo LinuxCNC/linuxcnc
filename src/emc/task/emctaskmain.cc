@@ -61,7 +61,6 @@
 #include "usrmotintf.h"
 #include <rtapi_string.h>
 
-
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
 #include <fpu_control.h>
@@ -932,6 +931,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
@@ -977,8 +978,14 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
-		// otherwise we can't handle it
+	    case EMC_TASK_PLAN_RUN_TYPE:
+                if (GET_EXTERNAL_OFFSET_APPLIED()) {
+                    // err here, fewer err reports
+		    retval = -1;
+		}
+		break;
 
+		// otherwise we can't handle it
 	    default:
 		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
 				 emc_symbol_lookup(type),(int) type);
@@ -1013,7 +1020,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
@@ -1040,6 +1047,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1122,6 +1131,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1209,6 +1220,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_ABORT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1277,6 +1290,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1371,6 +1386,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
@@ -1706,12 +1723,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,
+					set_homing_params_msg->encoder_does_not_reset,
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer,
-                                        set_homing_params_msg->absolute_encoder);
+					set_homing_params_msg->locking_indexer,
+					set_homing_params_msg->absolute_encoder);
 	break;
 
     case EMC_JOINT_SET_FERROR_TYPE:
@@ -1806,7 +1824,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
-                                   emcTrajLinearMoveMsg->indexrotary);
+                                   emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
@@ -2288,6 +2306,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
 	    emcStatus->task.task_paused = 1;
 	}
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_REVERSE_TYPE:
+	emcTrajReverse();
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_FORWARD_TYPE:
+	emcTrajForward();
 	retval = 0;
 	break;
 

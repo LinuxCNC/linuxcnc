@@ -116,6 +116,10 @@ greatly reduces quantization noise as compared to simply differentiating the
 \fBposition\fR output.  When the magnitude of the true velocity is below
 \fRmin\-speed\-estimate\fR, the \fRvelocity\fR output is 0.
 .TP
+\fBencoder.\fIN\fB.velocity-rpm\fR float out
+Velocity in scaled units per minute. Simply \fBencoder.\fIN\fB.velocity\fR 
+scaled by a factor of 60 for convenience.
+.TP
 \fBencoder.\fIN\fB.x4\-mode\fR bit i/o
 Enables times\-4 mode.  When true (the default), the counter counts each edge
 of the quadrature waveform (four counts per full cycle).  When false, it only

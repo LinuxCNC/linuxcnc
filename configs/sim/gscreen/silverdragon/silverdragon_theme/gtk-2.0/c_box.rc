@@ -1,0 +1,47 @@
+########################################################################
+# Check boxes
+########################################################################
+
+style "check_box"
+{
+### Check box ###
+	engine "pixmap" 
+	{
+		image 
+		{
+			function = CHECK
+			shadow = OUT
+			overlay_file = "c_box/c_box.png"
+			overlay_stretch = FALSE
+		}
+
+		image 
+		{
+			function = CHECK
+			shadow = IN
+			overlay_file = "c_box/c_box-pressed.png"
+			overlay_stretch = FALSE
+		}
+		
+		image 
+		{
+			function = OPTION
+			shadow = OUT
+			overlay_file = "c_box/c_box.png"
+			overlay_stretch = FALSE
+		}
+
+		image 
+		{
+			function = OPTION
+			shadow = IN
+			overlay_file = "c_box/c_box-pressed.png"
+			overlay_stretch = FALSE
+		}
+	}
+}
+
+class "GtkCheckButton*" style "check_box"
+class "GtkCheckMenuItem*" style "check_box"
+class "GtkTreeView*" style "check_box"
+

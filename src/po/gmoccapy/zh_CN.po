@@ -5,22 +5,21 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: gmoccapy-zh_CN\n"
+"Project-Id-Version: Gmoccapy 2.2.3.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-13 01:11+0800\n"
-"PO-Revision-Date: 2017-11-13 19:41+0800\n"
-"Last-Translator: David Shaw <373103793@qq.com>\n"
-"Language-Team: David Shaw <373103793@qq.com>\n"
+"POT-Creation-Date: 2018-12-09 14:15+0800\n"
+"PO-Revision-Date: 2018-12-14 13:16+0800\n"
+"Last-Translator: David <davidshore@yeah.net>\n"
+"Language-Team: David <davidshore@yeah.net>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:244
-#: emc/usr_intf/gmoccapy/gmoccapy.py:249
+#: emc/usr_intf/gmoccapy/gmoccapy.py:244 emc/usr_intf/gmoccapy/gmoccapy.py:249
 msgid "**** GMOCCAPY INI Entry **** \n"
 msgstr "**** GMOCCAPY INI 条目 **** \n"
 
@@ -44,17 +43,15 @@ msgstr "找到Logofile条目，但无法转换为路径。\n"
 msgid "The file path should not contain any spaces"
 msgstr "文件路径不应该包含任何空格"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:389
-#: emc/usr_intf/gmoccapy/gmoccapy.py:880
-#: emc/usr_intf/gmoccapy/gmoccapy.py:919
-#: emc/usr_intf/gmoccapy/gmoccapy.py:930
-#: emc/usr_intf/gmoccapy/gmoccapy.py:945
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1103
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1116
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1265
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1272
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1275
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2355
+#: emc/usr_intf/gmoccapy/gmoccapy.py:389 emc/usr_intf/gmoccapy/gmoccapy.py:407
+#: emc/usr_intf/gmoccapy/gmoccapy.py:885 emc/usr_intf/gmoccapy/gmoccapy.py:924
+#: emc/usr_intf/gmoccapy/gmoccapy.py:935 emc/usr_intf/gmoccapy/gmoccapy.py:950
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1108
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1121
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1271
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1278
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1281
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2361
 msgid "**** GMOCCAPY INFO ****"
 msgstr "**** GMOCCAPY 信息****"
 
@@ -66,11 +63,19 @@ msgstr "**** INI文件中没有有效的探针配置****"
 msgid "**** disabled tool measurement ****"
 msgstr "****禁用刀具测量****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:650
-msgid "**** GMOCCAPY INFO : ****"
-msgstr "**** GMOCCAPY INFO ****"
+#: emc/usr_intf/gmoccapy/gmoccapy.py:408
+msgid "**** found valid probe config in INI File ****"
+msgstr "****在INI文件中找到有效的探针配置****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:651
+#: emc/usr_intf/gmoccapy/gmoccapy.py:409
+msgid "**** will use auto tool measurement ****"
+msgstr "****将使用自动刀具测量****"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:654
+msgid "**** GMOCCAPY INFO : ****"
+msgstr "**** GMOCCAPY 信息 ****"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:655
 msgid ""
 "**** gmoccapy can only handle 5 axis, ****\n"
 "**** but you have given {0} through your INI file ****\n"
@@ -78,7 +83,7 @@ msgstr ""
 "**** gmoccapy 只能处理5轴, ****\n"
 "**** 但是您在INI文件里面配置了{0} 轴****\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:652
+#: emc/usr_intf/gmoccapy/gmoccapy.py:656
 msgid ""
 "**** gmoccapy will not start ****\n"
 "\n"
@@ -86,93 +91,105 @@ msgstr ""
 "**** gmoccapy 无法启动****\n"
 "\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:654
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1044
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1356
+#: emc/usr_intf/gmoccapy/gmoccapy.py:658
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1049
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1362
 msgid "Very critical situation"
-msgstr "情况十分危急"
+msgstr "紧急情况"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:679
-#: emc/usr_intf/gmoccapy/gmoccapy.py:687
-#: emc/usr_intf/gmoccapy/gmoccapy.py:716
+#: emc/usr_intf/gmoccapy/gmoccapy.py:683 emc/usr_intf/gmoccapy/gmoccapy.py:691
+#: emc/usr_intf/gmoccapy/gmoccapy.py:720
 msgid "Home axis {0}"
 msgstr "{0} 轴回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:697
-#: emc/usr_intf/gmoccapy/gmoccapy.py:726
+#: emc/usr_intf/gmoccapy/gmoccapy.py:701 emc/usr_intf/gmoccapy/gmoccapy.py:730
 msgid "Set axis {0} value to"
 msgstr "将轴{0}的值设置为"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:881
+#: emc/usr_intf/gmoccapy/gmoccapy.py:839
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2722
+msgid "mm/min"
+msgstr "毫米/分钟"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:842
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2725
+msgid "inch/min"
+msgstr "英寸/分钟"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:886
 msgid "**** To many increments given in INI File for this screen ****"
-msgstr "**** 在INI文件中为此屏幕提供的许多增量 ****"
+msgstr "**** 在此界面的INI文件中给出的许多增量 ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:882
+#: emc/usr_intf/gmoccapy/gmoccapy.py:887
 msgid "**** Only the first 10 will be reachable through this screen ****"
-msgstr "**** 只有前10个可以通过此屏幕到达 ****"
+msgstr "**** 只有前10个才能通过此界面访问 ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:891
+#: emc/usr_intf/gmoccapy/gmoccapy.py:896
 msgid "Continuous"
 msgstr "连续"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:920
-msgid "**** gmoccapy screen 2 found ****"
-msgstr "**** 发现gmoccapy屏幕2****"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.py:925
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1286
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2403
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2413
+msgid "**** gmoccapy screen 2 found ****"
+msgstr "**** 发现gmoccapy界面2****"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:930
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1292
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2409
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2419
 msgid "**** GMOCCAPY ERROR ****"
 msgstr "**** GMOCCAPY 错误****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:926
-msgid "**** screen 2 GLADE ERROR: ****"
-msgstr "**** 屏幕2 GLADE 错误 ****"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.py:931
+msgid "**** screen 2 GLADE ERROR: ****"
+msgstr "**** 界面2 GLADE 错误 ****"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:936
 msgid "**** No gmoccapy2.glade file present ****"
 msgstr "**** 没有gmoccapy2.glade文件存在****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:946
+#: emc/usr_intf/gmoccapy/gmoccapy.py:951
 msgid "**** Invalid embedded tab configuration ****"
 msgstr "**** 嵌入式标签配置无效 ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:947
+#: emc/usr_intf/gmoccapy/gmoccapy.py:952
 msgid "**** No tabs will be added! ****"
-msgstr "**** 没有标签将被添加！****"
+msgstr "**** 不会添加任何标签!****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:960
+#: emc/usr_intf/gmoccapy/gmoccapy.py:965
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr "错误，尝试初始化用户选项卡或面板，检查拼写错误"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1041
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1353
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1046
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1359
 msgid "**** GMOCCAPY ERROR ****\n"
 msgstr "**** GMOCCAPY 错误****\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1042
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1047
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgstr "**** 没有在[EMCIO] TOOL_TABLE 中找到刀具文件****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1104
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1072
+msgid "Follow System Theme"
+msgstr "跟随系统主题"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1109
 msgid "**** audio available! ****"
-msgstr "**** 音频可用！****"
+msgstr "**** 音频可用!****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1117
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1122
 msgid "**** no audio available! ****"
-msgstr "**** 没有音频可用！ ****"
+msgstr "**** 没有音频可用! ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1118
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1123
 msgid "**** PYGST libray not installed? ****"
 msgstr "****PYGST库没有安装? ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1119
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1124
 msgid "**** is python-gstX.XX installed? ****"
 msgstr "****是安装python-gstX.XX？****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1219
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4267
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1225
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4284
 msgid ""
 " Joint\n"
 "mode"
@@ -180,241 +197,252 @@ msgstr ""
 "关节\n"
 "模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1266
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1272
 msgid "**** virtual keyboard program found : <onboard>"
 msgstr "**** 发现虚拟键盘程序: <onboard>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1273
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1279
 msgid "**** virtual keyboard program found : <matchbox-keyboard>"
 msgstr "**** 发现虚拟键盘程序 : <matchbox-keyboard>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1276
-msgid "**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1282
+msgid ""
+"**** No virtual keyboard installed, we checked for <onboard> and <matchbox-"
+"keyboard>."
 msgstr "**** 没有安装虚拟键盘，我们检查了 <onboard> 和<matchbox-keyboard>."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1287
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1293
 msgid "**** Error with launching virtual keyboard,"
 msgstr "**** 启动虚拟键盘时出错,"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1288
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1294
 msgid "**** is onboard or matchbox-keyboard installed? ****"
 msgstr "**** 是安装板载或火柴盒键盘吗? ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1324
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1783
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2061
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1330
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1789
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2067
 msgid "interrupt running macro"
 msgstr "中断运行宏"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1354
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1360
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgstr "**** 没有在[RS274NGC] PARAMETER_FILE 中找到参数文件****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1424
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1430
 msgid "Select the file you want to be loaded at program start"
 msgstr "选择要在程序启动时加载的文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1458
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1482
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1464
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1488
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgstr "**** GMOCCAPY错误**** /n 不支持消息类型{0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1594
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1600
 msgid "Unknown error type and no error text given"
 msgstr "未知的错误类型，并没有给出错误文本"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1608
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1614
 msgid "Important Warning"
 msgstr "重要警告"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1628
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1634
 msgid "ERROR : External ESTOP is set, could not change state!"
-msgstr "错误：外部ESTOP设置，无法更改状态！"
+msgstr "错误:外部ESTOP设置，无法更改状态!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1641
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1647
 msgid "ERROR : Could not switch the machine on, is limit switch activated?"
-msgstr "错误：无法打开机器，限位开关是否被激活?"
+msgstr "错误:无法打开机器，限位开关是否被激活?"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1719
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1725
 msgid "No file loaded"
 msgstr "没有文件加载"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1886
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1892
 msgid "It is not possible to change to MDI Mode at the moment"
-msgstr "此时无法更改为MDI模式"
+msgstr "目前无法更改为MDI模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1919
+#: emc/usr_intf/gmoccapy/gmoccapy.py:1925
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr "此时无法更改为自动模式"
+msgstr "目前无法更改为自动模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2037
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2043
 msgid "Enter value:"
 msgstr "输入值："
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2038
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2044
 msgid "Set parameter {0} to:"
 msgstr "将参数 {0} 设置为:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2040
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2046
 msgid "conversion error"
 msgstr "转换错误"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2041
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3974
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3997
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2047
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3991
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4014
 msgid "Conversion error !"
 msgstr "转换错误！"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2168
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2174
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr "模式改变只有在解释器空闲的情况下才允许！"
+msgstr "模式改变只有在解释器空闲的情况下才允许!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2356
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2362
 msgid "**** replaced {0} to {1} ****"
 msgstr "**** 将{0} 替换为 {1} . ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2370
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2376
 msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** GMOCCAPY 信息****\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2371
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2377
 msgid "**** found more than 9 macros, only the first 9 will be used ****"
 msgstr "**** 发现超过9个宏，只有前9个将被使用 ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2404
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2410
 msgid "**** {0} ****"
-msgstr "**** {0}  ****"
+msgstr "**** {0} ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2414
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2420
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr "**** 没有命名为: {0} 的小部件****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2578
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2584
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
 msgid "No tool description available"
 msgstr "没有刀具描述可用"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2816
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2752
+msgid "inch"
+msgstr "英寸"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2755
+msgid "mm"
+msgstr "毫米"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2829
 msgid "Halo, welcome to the test message {0}"
 msgstr "欢迎来到测试信息 {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3002
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3015
 msgid "Hal Pin is low, Access denied"
 msgstr "Hal Pin低，访问被拒绝"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3004
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3017
 msgid "wrong code entered, Access denied"
 msgstr "输入代码错误，访问被拒绝"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3005
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3018
 msgid "Just to warn you"
 msgstr "只是为了警告你"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3145
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3158
 msgid "ERROR : No limit switch is active, ignore limits will not be set."
-msgstr "错误：无限位开关被激活，忽略限制将不被设置。"
+msgstr "错误:无限位开关被激活，忽略限制将不被设置。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3184
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3197
 msgid "INFO:"
 msgstr "信息:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3185
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3198
 msgid "Classicladder real-time component not detected"
 msgstr "未检测到ClassicLadder实时组件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3296
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3309
 msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr "出了点问题，我们有一个未知的主轴部件 {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3407
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3420
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "你真的要删除MDI历史记录吗?\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3408
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3421
 msgid "this will not delete the MDI History file, but will\n"
 msgstr "这不会删除MDI历史记录文件，但将\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3409
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3422
 msgid "delete the listbox entries for this session"
 msgstr "删除此会话的列表框条目"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3410
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3423
 msgid "Attention!!"
 msgstr "注意!!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3437
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3450
 msgid "This button will show or hide the keyboard"
 msgstr "该按钮将显示或隐藏键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3535
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3549
 msgid "Offset {0} could not be set, because off unknown axis"
 msgstr "偏移量{0} 无法设置，因为未知轴"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3536
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3550
 msgid "Wrong offset setting!"
-msgstr "错误的偏移设置！"
+msgstr "错误的偏移设置!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3541
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3555
 msgid "Enter value for diameter"
 msgstr "输入直径的值"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3542
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3556
 msgid "Set diameter to:"
-msgstr "将直径设置为："
+msgstr "将直径设置为:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3545
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3559
 msgid "Enter value for radius"
 msgstr "输入半径值"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3546
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3560
 msgid "Set radius to:"
-msgstr "将半径设置为："
+msgstr "将半径设置为:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3549
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3563
 msgid "Enter value for axis {0}"
 msgstr "输入轴{0}的值"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3550
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3564
 msgid "Set axis {0} to:"
 msgstr "将轴{0}设置为:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3554
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3568
 msgid "Conversion error in btn_set_value"
 msgstr "btn_set_value中的转换错误"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3555
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3569
 msgid "Conversion error in btn_set_value!"
 msgstr "btn_set_value中的转换错误!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3556
-msgid "Please enter only numerical values. Values have not been applied"
-msgstr "请仅输入数值。 值未被应用"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3570
-msgid "you did not selected a system to be changed to, so nothing will be changed"
+msgid "Please enter only numerical values. Values have not been applied"
+msgstr "请仅输入数字值，值未被应用"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3584
+msgid ""
+"you did not selected a system to be changed to, so nothing will be changed"
 msgstr "您没有选择要更改的坐标系，所以没有任何改变"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3571
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4003
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4017
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4021
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4036
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3585
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4020
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4034
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4038
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4053
 msgid "Important Warning!"
-msgstr "重要警告！"
+msgstr "重要警告!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3618
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3635
 msgid "Enter the block height"
 msgstr "输入块高度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3619
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3636
 msgid "Block height measured from base table"
 msgstr "从基台测量的座高"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3631
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3648
 msgid "Conversion error in btn_block_height!"
 msgstr "btn_block_height中的转换错误!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3632
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3649
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -422,11 +450,11 @@ msgstr ""
 "请仅输入数值\n"
 "值未被应用"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3896
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3913
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "请卸下已安装的刀具，完成后按OK"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3899
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3916
 msgid ""
 "Please change to tool\n"
 "\n"
@@ -440,110 +468,113 @@ msgstr ""
 "\n"
 " 然后单击确定."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3900
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3917
 msgid "Manual Tool change"
 msgstr "手动换刀"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3909
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3926
 msgid "Tool Change has been aborted!\n"
-msgstr "刀具更改已中止!\n"
+msgstr "换刀已中止!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3910
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3927
 msgid "The old tool will remain set!"
 msgstr "旧刀具将保持设置！"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3918
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3935
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "您试图删除安装在主轴上的刀具\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3919
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3936
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr "这是不允许的，请删除之前更换刀具。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3920
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3937
 msgid "Warning Tool can not be deleted!"
 msgstr "警告：刀具无法删除！"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3939
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3956
 msgid "No or more than one tool selected in tool table"
-msgstr "刀具表中没有或多于一个刀具，"
+msgstr "在刀具表中选择了一个或多个刀具"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3940
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3957
 msgid "Please select only one tool in the table"
 msgstr "请在刀具表中只选择一个刀具。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3941
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3947
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3955
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3958
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3964
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3972
 msgid "Warning Tool Touch off not possible!"
 msgstr "警告:无法对刀!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3945
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3962
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "无法对刀，刀具还没有安装刀主轴上，"
+msgstr "无法对刀，刀具还没有安装到主轴上，"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3946
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3963
 msgid "your selection has been reseted to the tool in spindle"
 msgstr "您的选择将被重置回主轴中的刀具。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3953
-msgid "Tool touch off is not possible with cutter radius compensation switched on!\n"
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3970
+msgid ""
+"Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr "刀具半径补偿打开时，不能对刀!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3954
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3971
 msgid "Please emit an G40 before tool touch off"
-msgstr "在刀具对刀前，请发出G40"
+msgstr "在对刀前，请发出G40"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3963
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3980
 msgid "Real big error!"
-msgstr "真正的大错误！"
+msgstr "严重错误!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3964
-msgid "You managed to come to a place that is not possible in on_btn_tool_touchoff"
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3981
+msgid ""
+"You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr "你设法来到一个不可能在 on_btn_tool_touchoff 的地方"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3968
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3985
 msgid "Enter value for axis {0} to set:"
 msgstr "输入轴{0} 的值进行设置："
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3969
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3986
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "将刀具{0:d} 和轴{1} 的参数设置为："
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3973
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3990
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "轴{0}对刀偏移量输入错误导致转换错误"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3992
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4009
 msgid "Enter the tool number as integer "
-msgstr "输入刀具号为整数"
+msgstr "输入刀号为整数"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3993
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4010
 msgid "Select the tool to change"
 msgstr "选择要更改的刀具"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3995
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4012
 msgid "Conversion error because of wrong entry for tool number\n"
-msgstr "由于刀具编号输入错误导致转换错误\n"
+msgstr "由于刀号输入错误导致转换错误\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3996
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4013
 msgid "enter only integer numbers"
-msgstr "只输入整数"
+msgstr "只能输入整数"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4002
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4020
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4019
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4037
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "所选刀具已经在主轴上，不需要改变。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4016
-msgid "you selected no or more than one tool, the tool selection must be unique"
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4033
+msgid ""
+"you selected no or more than one tool, the tool selection must be unique"
 msgstr "您没有选择或选择了多个刀具，刀具选择必须是唯一的"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4035
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4052
 msgid "Could not understand the entered tool number. Will not change anything"
-msgstr "无法理解输入的刀具号。 不会改变任何东西"
+msgstr "无法理解输入的刀号。 不会改变任何东西"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4272
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4289
 msgid ""
 "World\n"
 "mode"
@@ -551,16 +582,15 @@ msgstr ""
 "世界\n"
 "模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4456
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4473
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr "点动只能在世界模式下进行，但是您处于关节模式！"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4477
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4494
 msgid "Joint jogging is only allowed in joint mode, but you are in world mode!"
 msgstr "关节点动只能在关节模式下进行，但是您处于世界模式！"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:46
-#: emc/usr_intf/gmoccapy/dialogs.py:51
+#: emc/usr_intf/gmoccapy/dialogs.py:46 emc/usr_intf/gmoccapy/dialogs.py:51
 msgid "Enter System Unlock Code"
 msgstr "输入系统解锁码"
 
@@ -572,35 +602,34 @@ msgstr "输入值"
 msgid "Enter the value to set"
 msgstr "输入要设置的值"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:108
-#: emc/usr_intf/gmoccapy/dialogs.py:123
-#: emc/usr_intf/gmoccapy/dialogs.py:137
+#: emc/usr_intf/gmoccapy/dialogs.py:111 emc/usr_intf/gmoccapy/dialogs.py:126
+#: emc/usr_intf/gmoccapy/dialogs.py:140
 msgid "Operator Message"
 msgstr "操作者信息"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:175
-#: emc/usr_intf/gmoccapy/dialogs.py:179
+#: emc/usr_intf/gmoccapy/dialogs.py:178 emc/usr_intf/gmoccapy/dialogs.py:182
 msgid "Restart Entry"
 msgstr "重新启动条目"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:191
+#: emc/usr_intf/gmoccapy/dialogs.py:194
 msgid "Up"
-msgstr "上"
+msgstr "向上"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:193
+#: emc/usr_intf/gmoccapy/dialogs.py:196
 msgid "Enter"
 msgstr "输入"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:195
+#: emc/usr_intf/gmoccapy/dialogs.py:198
 msgid "Down"
-msgstr "下"
+msgstr "向下"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:383
 msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCCAPY 获取INI信息****\n"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:384
-msgid "**** No subroutine folder or program prefix is given in the ini file **** \n"
+msgid ""
+"**** No subroutine folder or program prefix is given in the ini file **** \n"
 msgstr "**** ini文件中没有给出子例程文件夹或程序前缀**** \n"
 
 #: emc/usr_intf/gmoccapy/notification.py:205
@@ -637,310 +666,316 @@ msgid "No Program loaded"
 msgstr "没有加载程序"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
+msgid "blockheight = 0.0"
+msgstr "块高度= 0.0"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "clear plot"
 msgstr "清除走刀轨迹"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
 msgid "Zoom in"
 msgstr "放大"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "Zoom out"
 msgstr "缩小"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "view perspective"
 msgstr "等轴视图"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "view along the X axis from positive to negative"
 msgstr "侧视图"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view along the Y axis from positive to negative"
 msgstr "正视图"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the Z axis from positive to negative"
 msgstr "俯视图"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "Show or hide tool path"
 msgstr "显示或隐藏刀具路径"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
 msgid "Show or hide dimensions"
 msgstr "显示或隐藏尺寸"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
-msgid "view along the Y axis from positive to negative as viewn for a back tool lathe"
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
+msgid ""
+"view along the Y axis from positive to negative as viewn for a back tool "
+"lathe"
 msgstr "正视图/后置刀架"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Preview"
 msgstr "预览"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid "Offset Page"
 msgstr "偏移量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Tooledit"
 msgstr "刀具编辑"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "File Selection"
 msgstr "文件选择"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
 msgid "Toggle between metric and imperial units"
 msgstr "在公制和英制单位之间切换"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
 msgid "Switch DRO to DTG mode"
 msgstr "将DRO切换到DTG模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "Toggle between machine and relative coordinates"
 msgstr "在机床和相对坐标之间切换"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "Klick to toggle through the DRO modes"
 msgstr "点击切换DRO模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "jog axes"
 msgstr "点动轴"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "jog joints"
 msgstr "点动关节"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "Logo"
 msgstr "Logo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Ignore limits"
 msgstr "忽略限制"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "<b>Jogging</b>"
 msgstr "<b>点动</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid "Information over the tool in spindle"
 msgstr "主轴上的刀具信息"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
-msgid "Tool no."
-msgstr "刀具号"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
+msgid "Tool no."
+msgstr "刀号"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "Diameter"
 msgstr "直径"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
 msgid "offset z"
 msgstr "偏移量z"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "offset x"
 msgstr "偏移量x"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "Vc= 0.00"
 msgstr "Vc= 0.00"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
 msgid "<b>Tool information</b>"
 msgstr "<b>刀具信息</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
 msgid "G and M code information as well as speed and feed"
 msgstr "G和M代码信息以及速度和进给"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
-msgid "active_mcodes_label"
-msgstr "active_mcodes_label"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
-msgid "active_gcodes_label"
-msgstr "active_gcodes_label"
+msgid "active_mcodes_label"
+msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
+msgid "active_gcodes_label"
+msgstr ""
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "<b>G-Code</b>"
 msgstr "<b>当前插补指令集</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "<b>Cooling</b>"
 msgstr "<b>冷却</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "<b>Spindle [rpm]</b>"
 msgstr "<b>主轴[转速]</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Vel."
 msgstr "速度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
 msgid "Displays the current velocity"
 msgstr "显示当前速度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 msgid "<b>Rapid Override</b>"
 msgstr "<b>空程速率</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
 msgid "Displayes the programmed feed rate"
 msgstr "显示编程的进给速率"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "reset feed override to 100 %"
 msgstr "将进给速率重置为100 %"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "<b>Feed Override</b>"
 msgstr "<b>进给速率</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
-msgid "Undo"
-msgstr "复原"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
+msgid "Undo"
+msgstr "撤消"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
 msgid ""
 "Search\n"
 " back"
 msgstr ""
-"搜索\n"
-"  返回"
+"向后\n"
+"搜索"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
-"搜索\n"
-"  fwd"
+"向前\n"
+"搜索"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid "Redo"
 msgstr "重做"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:59
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
 "替换\n"
-"   文本："
+"内容:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:61
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
 "替换\n"
-"   所有"
+"所有"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:63
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
 "忽略\n"
-" 事件"
+"例子"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid "Replace"
 msgstr "替换"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
 msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
 "搜索\n"
-"  文本:"
+"内容:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "Main"
 msgstr "主要"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
 msgid "Start as fullscreen"
 msgstr "以全屏启动"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "Start maximized"
 msgstr "启动时最大化"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "Start as window"
 msgstr "以窗口启动"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
-msgid "X Pos."
-msgstr "X 位置"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
-msgid "Y Pos."
-msgstr "Y 位置"
+msgid "X Pos."
+msgstr "X位置"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
-msgid "Width"
-msgstr "宽度"
+msgid "Y Pos."
+msgstr "Y位置"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
-msgid "Height"
-msgstr "高度"
+msgid "Width"
+msgstr "宽 度"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
+msgid "Height"
+msgstr "高 度"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide cursor"
 msgstr "隐藏光标"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "<b>Main Window</b>"
 msgstr "<b>主窗口</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "Show keyboard on offset"
 msgstr "在偏移量上显示键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
 msgid "Show keyboard on tooledit"
 msgstr "在刀具编辑上显示键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "Show keyboard on MDI"
 msgstr "在MDI上显示键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "Show keyboard on EDIT"
 msgstr "在EDIT上显示键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Show keyboard on load file"
 msgstr "在加载文件上显示键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 msgid "<b>Keyboard</b>"
 msgstr "<b>键盘</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "show preview"
 msgstr "显示预览"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "show offsets"
 msgstr "显示偏移量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "<b>On Touch off</b>"
 msgstr "<b>对刀</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
 msgid ""
 "  Display \n"
 "Aux Screen"
@@ -948,77 +983,77 @@ msgstr ""
 "  显示\n"
 "辅助屏幕"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "Relative Color"
 msgstr "相对颜色"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Absolute Color"
 msgstr "绝对颜色"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "DTG Color"
 msgstr "DTG颜色"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Use Auto Units"
 msgstr "使用自动单位"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Show the DRO Button"
 msgstr "显示DRO按钮"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
-msgid "Homed color"
-msgstr "主色"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
-msgid "Unhomed color"
-msgstr "未命名的颜色"
+msgid "Homed color"
+msgstr "回零颜色"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
-msgid "Size"
-msgstr "大小\t"
+msgid "Unhomed color"
+msgstr "消零颜色"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
+msgid "Size"
+msgstr "大小"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Digits"
 msgstr "位数"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid ""
 "toggle DRO mode \n"
 "clicking on the DRO"
 msgstr "单击DRO，切换DRO模式。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
-msgid "<b>DRO</b>"
-msgstr "<b>DRO</b>"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
+msgid "<b>DRO</b>"
+msgstr ""
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "Grid size"
 msgstr "网格大小"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "Show DRO"
 msgstr "显示DRO"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "Show offsets"
 msgstr "显示偏移量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid "Show DTG"
 msgstr "显示DTG"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "<b>Mouse Button mode</b>"
 msgstr "<b>鼠标按钮模式</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "<b>Preview</b>"
 msgstr "<b>预览</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid ""
 "current\n"
 "   file"
@@ -1026,155 +1061,155 @@ msgstr ""
 "当前\n"
 "    文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "none"
 msgstr "无"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "<b>File to load on start</b>"
 msgstr "<b>启动时加载文件</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Select user dir"
 msgstr "选择用户目录"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "<b>Select jump to dir</b>"
 msgstr "<b>选择跳转到目录</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "Themes"
 msgstr "主题"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Warning Audio"
 msgstr "警告声音"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Alert Audio"
 msgstr "报警声音"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>Themes and sound</b>"
 msgstr "<b>主题和声音</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Appearance"
 msgstr "外观"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-msgid "Scale rapid override"
-msgstr "调整空程速率"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
-msgid "Scale jog velocity"
-msgstr "调整点动速度"
+msgid "Scale rapid override"
+msgstr "空程速率范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
-msgid "Scale feed override"
-msgstr "调整进给速率"
+msgid "Scale jog velocity"
+msgstr "点动速度范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
-msgid "Scale spindle override"
-msgstr "调整主轴速率"
+msgid "Scale feed override"
+msgstr "进给速率范围"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
+msgid "Scale spindle override"
+msgstr "主轴速率范围"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "<b>Hardware MPG Scale</b>"
 msgstr "<b>硬件MPG范围</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Use keyboard shortcuts"
 msgstr "使用键盘快捷键"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "<b>Keyboard shortcuts</b>"
 msgstr "<b>键盘快捷键</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
-msgid "Use unlock code"
-msgstr "使用解锁码"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
-msgid "Do not use unlock code"
-msgstr "不使用解锁码"
+msgid "Use unlock code"
+msgstr "启用解锁码"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
-msgid "Use hal pin to unlock"
-msgstr "使用硬件pin解锁"
+msgid "Do not use unlock code"
+msgstr "禁用解锁码"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
+msgid "Use hal pin to unlock"
+msgstr "使用HAL针脚解锁"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "<b>Unlock settings</b>"
 msgstr "<b>解锁设置</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "Starting RPM"
 msgstr "启动转速"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Spindle bar min"
 msgstr "最低转速"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Spindle bar max"
 msgstr "最高转速"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "<b>Spindle</b>"
 msgstr "<b>主轴</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hide turtle Jog Button"
 msgstr "隐藏低速点动切换按钮"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Turtle jog Factor"
 msgstr "低速点动速度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "<b>Turtle Jog</b>"
 msgstr "<b>低速点动</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "Hardware"
 msgstr "硬件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Use auto tool measurement"
 msgstr "使用自动刀具测量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Probe Height"
 msgstr "探测高度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
-msgid "0.000"
-msgstr "0.000"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
+msgid "0.000"
+msgstr ""
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Z Pos."
 msgstr "Z 位置"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Max. Probe"
 msgstr "最大探测"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "<b>Probe Informations</b>"
 msgstr "<b>探测信息</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 msgid "Search Vel."
 msgstr "搜索速度."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
 msgid "Probe Vel."
 msgstr "探测速度."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:144
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
 msgid "<b>Probe velocitys</b>"
 msgstr "<b>探测速度</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:146
 msgid ""
 "No valid configuration\n"
 "found in your INI file,\n"
@@ -1185,15 +1220,15 @@ msgstr ""
 "在INI文件中找不到有效的配置，\n"
 "请查看WIKI以查看如何配置设置。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
 msgid "<b>Tool Measurement</b>"
 msgstr "<b>刀具测量</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:151
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
 msgid "Reload Tool on Start"
 msgstr "启动时重新加载刀具"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:152
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:153
 msgid ""
 "If checked, the tool in spindle\n"
 "will be saved on each change\n"
@@ -1205,7 +1240,7 @@ msgstr ""
 "时保存，最后一个刀具将在GUI开始时重\n"
 "新加载。而且它的长度偏移将被重新加载。\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid ""
 "You use NO_FORCE_HOMING,\n"
 "so the reload of a tool at start\n"
@@ -1214,59 +1249,59 @@ msgstr ""
 "您使用了 NO_FORCE_HOMING,\n"
 "所以不会在启动时重新加载刀具。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
-msgid "<b>Reload Tool</b>"
-msgstr "重新加载刀具"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
+msgid "<b>Reload Tool</b>"
+msgstr "<b>重新加载刀具</b>"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
 msgstr "使用边框"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr "如果选中，将为每条消息加上边框。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Font"
 msgstr "字体"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "max."
 msgstr "最大"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
 msgstr "要使用的字体"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The maximum messages you want to be shown\t"
 msgstr "要显示的最大消息条数"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The width of the messages"
 msgstr "消息的宽度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 msgid "X-position in pixel from top left corner of the screen"
 msgstr "消息框在屏幕左上角的X位置"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Y-position in pixel from top left corner of the screen"
 msgstr "消息框在屏幕左上角的Y位置"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Launch test message"
 msgstr "启动测试消息"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr "按这里启动测试消息来测试您的设置。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
@@ -1274,7 +1309,7 @@ msgstr ""
 "<b>      gmoccapy 消息\n"
 " 行为和外观 </b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
 "It is not recommended to use run from line\n"
 "as LinuxCNC is handling this without \n"
@@ -1286,37 +1321,37 @@ msgstr ""
 "而不检查所选行之前的代码，因此您必须注意刀具更换，\n"
 "加速进给和冷却等。"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid "Do not use run from line"
 msgstr "不要使用从行运行"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
 msgid "Use run from line"
 msgstr "使用从行运行"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid "<b>Run from line</b>"
 msgstr "<b>从行运行</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
 msgid ""
 "Advanced\n"
 " Settings"
 msgstr "高级"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
 msgid "Settings"
 msgstr "设置"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 msgid "User tab 1"
 msgstr "用户选项卡1"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
 msgid "User tabs"
 msgstr "用户选项卡"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid ""
 "Estop the machine\n"
 "[F1]"
@@ -1324,7 +1359,7 @@ msgstr ""
 "机床急停\n"
 "[F1]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
@@ -1332,7 +1367,7 @@ msgstr ""
 "打开/关闭机床\n"
 "[F2]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
@@ -1340,7 +1375,7 @@ msgstr ""
 "进入手动模式，点动各轴或对刀\n"
 "[F3]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid ""
 "enter MDI mode to launch g-code commands\n"
 "[F5]"
@@ -1348,31 +1383,31 @@ msgstr ""
 "进入MDI模式启动G代码命令行\n"
 "[F5]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:198
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
 msgid "enter auto mode to run programs"
 msgstr "进入自动模式运行程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
-msgid "Enter the settings page, the default code is \"123\""
-msgstr "进入设置页面，默认代码为“123”"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:200
+msgid "Enter the settings page, the default code is \"123\""
+msgstr "进入设置页面，默认密码为“123”"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "show user tabs"
 msgstr "显示用户选项卡"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "open homing button list"
 msgstr "打开回零按钮列表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "open touch off button list"
 msgstr "打开对刀按钮列表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Open the tooleditor page"
 msgstr "打开刀具编辑页面"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid ""
 "World\n"
 "Mode"
@@ -1380,7 +1415,7 @@ msgstr ""
 "世界\n"
 "模式"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
@@ -1388,83 +1423,90 @@ msgstr ""
 "在关节和世界模式之间切换运动模式\n"
 "F12或$键也一样"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid "make the preview as large as possible"
 msgstr "缩放预览窗口"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid "Close moccapy / leave the program"
 msgstr "关闭moccapy /离开程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "This button will show or hide the Keyboard"
 msgstr "此按钮将显示或隐藏键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "Load a new program"
 msgstr "加载新程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "Run the loaded program"
 msgstr "运行加载的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Stop the running program"
 msgstr "停止正在运行的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
 msgid "Pause the running program"
 msgstr "暂停正在运行的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "pause the running program"
 msgstr "暂停正在运行的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Run the  loaded program step by step"
 msgstr "单步运行加载的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
-msgid "run the program from a certain line, attention, that is dangerous, because the previous lines will not checed!"
-msgstr "从某一行开始运行程序。注意：这是危险的，因为前面的行不会检查！"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
-msgid "Machine or not the optional blocks of the program. If the button is pressed, the optional blocks will not be machined. The button will indicate this by a yellow background."
-msgstr "程序跳段， 当程序段首有”/“并且按下该按钮，则自动运行时此程序段跳过不用。"
+msgid ""
+"run the program from a certain line, attention, that is dangerous, because "
+"the previous lines will not checed!"
+msgstr "从某一行运行程序，注意:这是危险的，因为之前的行不会被检查!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
-msgid "Make optional stops or not. if an M1 is programed and the button is pressed (is active) the programm will pause if it found a M1"
-msgstr "选择性暂停，如果M1被编程并按下该按钮（有效），则如果找到M1，程序将暂停"
+msgid ""
+"Machine or not the optional blocks of the program. If the button is pressed, "
+"the optional blocks will not be machined. The button will indicate this by a "
+"yellow background."
+msgstr "程序跳段， 当程序段首有”/“并且按下该按钮，则自动运行时此程序段跳过不用。按钮将以黄色背景显示。"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
+msgid ""
+"Make optional stops or not. if an M1 is programed and the button is pressed "
+"(is active) the programm will pause if it found a M1"
+msgstr "选择性暂停，如果M1被编程并按下该按钮(有效)，则如果找到M1，程序将暂停"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Edit the loaded program"
 msgstr "编辑加载的程序"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "home all axis"
 msgstr "全部轴回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "home x axis"
 msgstr "X 轴回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "home y axis"
 msgstr "Y 轴回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "home z axis"
 msgstr "Z 轴回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
-msgid "Unhome all axis"
-msgstr "全部轴离零"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
+msgid "Unhome all axis"
+msgstr "全部轴消零"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "go back to main button list"
 msgstr "返回主按钮列表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid ""
 "  edit\n"
 "offsets"
@@ -1472,23 +1514,23 @@ msgstr ""
 "编辑\n"
 "偏移量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Edit offsets"
 msgstr "编辑偏移量"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "touch off X / set X to an desired value"
 msgstr "将轴X的值设置为"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "touch off Y / set Y to an desired value"
 msgstr "将轴Y的值设置为"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "touch off Z / set Z to an desired value"
 msgstr "将轴Z的值设置为"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid ""
 "zero\n"
 "G92"
@@ -1496,11 +1538,11 @@ msgstr ""
 "置零\n"
 "G92"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Zero all G92 offsets"
 msgstr "将所有G92的偏移量置零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid ""
 " Block\n"
 "Height"
@@ -1508,7 +1550,7 @@ msgstr ""
 "块\n"
 "高度"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid ""
 "    set\n"
 "selected"
@@ -1516,139 +1558,136 @@ msgstr ""
 "设置\n"
 "坐标系"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "set the selected coordinate system to be the active one"
 msgstr "将选定的坐标系设置为活动坐标系"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 msgid "Go back to main view"
 msgstr "返回主界面"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
 msgid "delete MDI"
 msgstr "删除MDI"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:243
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 msgid "delete MDI history"
 msgstr "删除MDI历史记录"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
 msgid "Cl.-ladder"
 msgstr "梯形图"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Open classicladder"
 msgstr "打开梯形图页面"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Hal-Scope"
 msgstr "Hal 示波器"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "launch hal scope"
 msgstr "启动 hal 示波器"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Status"
 msgstr "状态"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "launch linuxcnc status"
 msgstr "启动linuxcnc状态"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Hal Meter"
 msgstr "Hal 仪表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "launch hal meter"
 msgstr "启动 hal 仪表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
-msgid "Calibration"
-msgstr "校准"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
-msgid "launch calibration"
-msgstr "启动校准"
+msgid "Calibration"
+msgstr "调校"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
-msgid "Halshow"
-msgstr "Hal配置"
+msgid "launch calibration"
+msgstr "启动调校"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:255
+msgid "Halshow"
+msgstr "Hal 配置"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
 msgid "opens the show hal tool"
 msgstr "打开HAL配置"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:256
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
 msgid "save the file using the original name"
 msgstr "使用原始名称保存文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:257
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:258
 msgid "save the file with a new name"
 msgstr "使用新的名称保存文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:258
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:259
 msgid "clear the edit field and make a new file"
 msgstr "清除编辑字段并创建一个新文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:259
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:260
 msgid "Show or hide the virtual keyboard"
 msgstr "显示或隐藏虚拟键盘"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:260
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:261
 msgid "Go back to main button list"
 msgstr "返回主界面"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:261
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:1
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:262
 msgid "Delete"
 msgstr "删除"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:262
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:263
 msgid "delete selected tool or tools"
 msgstr "删除选定的刀具或刀具组"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:263
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:2
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:264
 msgid "Add"
 msgstr "添加"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:264
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:265
 msgid "add a new tool to tool table"
 msgstr "在刀具表中添加一个新刀具"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:265
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:3
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:266
 msgid "Reload"
 msgstr "刷新"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:266
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:267
 msgid "reload tool table from file"
 msgstr "从文件重新加载刀具表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:267
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:4
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:268
 msgid "Apply"
 msgstr "应用"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:268
-msgid "apply the changes you made, G43 will be excecuted only if it is active g-code"
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:269
+msgid ""
+"apply the changes you made, G43 will be excecuted only if it is active g-code"
 msgstr "应用您所做的更改，G43将仅在活动的g代码时执行"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:269
-msgid "Select a tool by number"
-msgstr "按号码选择一个刀具"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:270
-msgid "change tool with the command M61 Q?, no machine move will be done"
-msgstr "使用M61 Q？命令更换刀具，不会移动机床"
+msgid "Select a tool by number"
+msgstr "按编号选择刀具"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:271
-msgid "change tool to the selected one"
-msgstr "将刀具更改为所选的刀具"
+msgid "change tool with the command M61 Q?, no machine move will be done"
+msgstr "使用M61 Q?指令更换刀具，不会移动机床"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:272
+msgid "change tool to the selected one"
+msgstr "将刀具更改为选定的刀具"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:273
 msgid ""
 "touchoff\n"
 "  tool x"
@@ -1656,11 +1695,11 @@ msgstr ""
 "对刀\n"
 "  刀具 x"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:274
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:275
 msgid "touch off the tool and set the value to the tool table"
 msgstr "用刀具对刀并把值设置到刀具表"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:275
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:276
 msgid ""
 "touchoff\n"
 "  tool z"
@@ -1668,1171 +1707,54 @@ msgstr ""
 "对刀\n"
 "  刀具 z"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:277
-#: ../lib/python/gladevcp/iconview.py:112
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:278
 msgid "Move to your home directory"
 msgstr "移动到您的主目录"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:278
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:279
 msgid "Move to parrent directory"
 msgstr "移动到父目录"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:279
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:280
 msgid "Select the previos file"
 msgstr "选择上一个文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:280
-#: ../lib/python/gladevcp/iconview.py:136
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:281
 msgid "Select the next file"
 msgstr "选择下一个文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:281
-#: ../lib/python/gladevcp/iconview.py:160
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:282
 msgid "Jump to user defined directory"
 msgstr "跳转到用户定义的目录"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:282
-#: ../lib/python/gladevcp/iconview.py:168
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:283
 msgid "select the highlighted file and return the path"
 msgstr "选择突出显示的文件并返回路径"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:283
-#: ../lib/python/gladevcp/iconview.py:176
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:284
 msgid "Close without returning a file path"
 msgstr "关闭而不返回文件路径"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:284
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:285
 msgid "Load File"
 msgstr "加载文件"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:285
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:286
 msgid "home all joints"
 msgstr "全部关节回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:286
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:287
 msgid "home joint 0"
 msgstr "关节0回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:287
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:288
 msgid "home joint 1"
 msgstr "关节1回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:288
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:289
 msgid "home joint 2"
 msgstr "关节2回零"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:289
+#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:290
 msgid "home joints"
 msgstr "关节回零"
-
-#: ../lib/python/gladevcp/iconview.py:120
-msgid "Move to parent directory"
-msgstr "移动到父目录"
-
-#: ../lib/python/gladevcp/iconview.py:128
-msgid "Select the previous file"
-msgstr "选择上一个文件"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:1
-msgid "Tool"
-msgstr "刀具"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:2
-msgid "1"
-msgstr "1"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:3
-msgid "2"
-msgstr "2"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:4
-msgid "3"
-msgstr "3"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:5
-msgid "4"
-msgstr "4"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:6
-msgid "5"
-msgstr "5"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:7
-msgid "6"
-msgstr "6"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:8
-msgid "7"
-msgstr "7"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:9
-msgid "8"
-msgstr "8"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:10
-msgid "9"
-msgstr "9"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:11
-msgid "black"
-msgstr "黑色"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:12
-msgid "G5x"
-msgstr "G5x"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:13
-msgid "Rot"
-msgstr "红色"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:14
-msgid "Rotation of Z"
-msgstr "旋转 Z"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:15
-msgid "G92"
-msgstr "G92"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:16
-msgid "0"
-msgstr "0"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:17
-msgid "G54"
-msgstr "G54"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:18
-msgid "G55"
-msgstr "G55"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:19
-msgid "G56"
-msgstr "G56"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:20
-msgid "G57"
-msgstr "G57"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:21
-msgid "G58"
-msgstr "G58"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:22
-msgid "G59"
-msgstr "G59"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:23
-msgid "G59.1"
-msgstr "G59.1"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:24
-msgid "G59.2"
-msgstr "G59.2"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:25
-msgid "G59.3"
-msgstr "G59.3"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:26
-msgid ""
-"Zero\n"
-"G92"
-msgstr ""
-"置零\n"
-"G92"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:28
-msgid ""
-"    Zero\n"
-"Rotational"
-msgstr ""
-"置零\n"
-"旋转"
-
-#: ../lib/python/gladevcp/offsetpage.glade.h:30
-msgid "Edit"
-msgstr "编辑"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:5
-msgid "All Offsets"
-msgstr "所有偏移量"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:6
-msgid "Lathe Wear Offsets"
-msgstr "车床磨损偏移"
-
-#: ../lib/python/gladevcp/tooledit_gtk.glade.h:7
-msgid "Lathe Tool Offsets"
-msgstr "车床刀具补偿"
-
-msgid "mm/min"
-msgstr "毫米/秒"
-
-msgid "inch/min"
-msgstr "英寸/秒"
-
-msgid "Follow System Theme"
-msgstr "跟随系统主题"
-
-#~ msgid "**** GMOCCAPY ERROR : ****"
-#~ msgstr "**** GMOCCAPY 错误： ****"
-
-#~ msgid "Axis %s are homed"
-#~ msgstr "轴%s被归位"
-
-#~ msgid "tool_in_spindle has changed to %s"
-#~ msgstr "tool_in_spindle 已更改为 %s"
-
-#~ msgid "**** so the corresponding file could not be found ****"
-#~ msgstr "**** 因此无法找到相应的文件 ****"
-
-#~ msgid ""
-#~ "\n"
-#~ "**** File %s of the macro could not be found ****\n"
-#~ msgstr ""
-#~ "\n"
-#~ "****无法找到宏的文件%s ****\n"
-
-#~ msgid "**** we searched in subdirectory %s ****"
-#~ msgstr "**** 我们在子目录%s 中搜索****"
-
-#~ msgid "Conversion error because off wrong entry for macro %s"
-#~ msgstr "转换错误，因为宏%s的错误输入 "
-
-#~ msgid "entry for macro %s has been canceled"
-#~ msgstr "宏%s的条目已被取消"
-
-#~ msgid "macro {0} , parameter {1} set to {2:f}"
-#~ msgstr "宏 {0} , 参数 {1} 设置为 {2:f}"
-
-#~ msgid "ladder not available - is the real-time component loaded?"
-#~ msgstr "梯型图不可用，是否加载实时组件?"
-
-#~ msgid "Offset conversion error because off wrong entry"
-#~ msgstr "偏移转换错误，因为错误输入"
-
-#~ msgid "offset {0} set to {1:f}"
-#~ msgstr "偏移量 {0}设置为 {1:f}"
-
-#~ msgid "Conversion error in btn_block_height"
-#~ msgstr "btn_block_height中的转换错误"
-
-#~ msgid "entry for axis %s has been canceled"
-#~ msgstr "轴%s的条目已被取消"
-
-#~ msgid "axis {0} , has been set to {1:f}"
-#~ msgstr "轴{0} 已设置为{1:f}"
-
-#~ msgid "entry for selection of tool number has been canceled"
-#~ msgstr "选择刀具编号的条目已被取消"
-
-#~ msgid "Ready to Restart program from line %d"
-#~ msgstr "准备从行%d重新启动程序"
-
-#~ msgid ""
-#~ "  Log\n"
-#~ "actions"
-#~ msgstr ""
-#~ "  登录\n"
-#~ "动作"
-
-#~ msgid "<b>Feed Override [%]</b>"
-#~ msgstr "<b>进给速率[%]</b>"
-
-#~ msgid "<b>Max. Velocity</b>"
-#~ msgstr "<b>空程速率</b>"
-
-#~ msgid "<b>Program</b>"
-#~ msgstr "<b>程序</b>"
-
-#~ msgid "<b>Tool Changer</b>"
-#~ msgstr "<b>换刀器</b>"
-
-#~ msgid "Alarm History"
-#~ msgstr "报警历史"
-
-#~ msgid "Do you want to use keyboard shortcuts to control the machine?"
-#~ msgstr "要使用键盘快捷键来控制机器吗？"
-
-#~ msgid "Estop the machine"
-#~ msgstr "机床急停"
-
-#~ msgid "Hide 4'th axis"
-#~ msgstr "隐藏第4轴"
-
-#~ msgid ""
-#~ "If the 4'th axis is used\n"
-#~ "for a tool changer, you\n"
-#~ "hide the DRO and\n"
-#~ "jog buttons."
-#~ msgstr ""
-#~ "如果第4轴用于换刀器，则可以\n"
-#~ "隐藏第4轴的DRO和手动按钮。"
-
-#~ msgid ""
-#~ "Log all actions to the history board, this is very usefull for debugging."
-#~ msgstr "将所有操作记录到历史记录板，这对调试非常有用。"
-
-#~ msgid "Scale max velocity"
-#~ msgstr "调整空程速率"
-
-#~ msgid ""
-#~ "Select if you want to use the \"Run from line\" option. This is not "
-#~ "recommended at all! It is very dangerous, because LinucCNC will not take "
-#~ "aware of any settings before that line. No offsets, no coordinate system "
-#~ "change of feed or spindle speed changes will be noticed."
-#~ msgstr ""
-#~ "选择是否要使用“从行运行”选项。 这是不推荐的！ 而且是非常危险的，因为"
-#~ "LinucCNC不会意识到该行之前的任何设置。 没有偏移量，不会检查进给或主轴转速"
-#~ "以及坐标系变化。"
-
-#~ msgid ""
-#~ "Select the speed to start the spindle with, when no spindle speed has "
-#~ "been given."
-#~ msgstr "当没有给出主轴转速时，选择启动主轴的速度。"
-
-#~ msgid "Select the way to unlock the settings page"
-#~ msgstr "选择解锁设置页面的方式"
-
-#~ msgid ""
-#~ "Set the Max limit of the spindle feedback bar, this settings will not "
-#~ "afect the INI values."
-#~ msgstr "设置主轴反馈条的最大极限，此设置不会影响INI值。"
-
-#~ msgid ""
-#~ "Set the Min limit of the spindle feedback bar, this settings will not "
-#~ "afect the INI values."
-#~ msgstr "设置主轴反馈条的最小极限，此设置不会影响INI值。"
-
-#~ msgid "The name and location of the loaded program"
-#~ msgstr "加载程序的名称和位置"
-
-#~ msgid "Turn the machine on/off"
-#~ msgstr "打开/关闭机床"
-
-#~ msgid ""
-#~ "You can select a scale for the MPG to be applied, as default a value of "
-#~ "(MAX - MIN) / 100 will be used"
-#~ msgstr "您可以为要应用的MPG选择刻度，默认值为（MAX - MIN）/ 100"
-
-#~ msgid "adjust feed override"
-#~ msgstr "调整进给速率"
-
-#~ msgid "adjust max vel of machine"
-#~ msgstr "调整机器空程速率"
-
-#~ msgid "enter MDI mode to launch g-code commands"
-#~ msgstr "进入MDI模式启动G代码命令行"
-
-#~ msgid "enter manual mode to jog axis by hand or touch off"
-#~ msgstr "进入手动模式点动各轴或对刀"
-
-#~ msgid "touch off X / set X to 0"
-#~ msgstr "X 对刀/将X设置为0"
-
-#~ msgid "touch off Y / set Y to 0"
-#~ msgstr "Y 对刀/将Y设置为0"
-
-#~ msgid "touch off Z / set Z to 0"
-#~ msgstr "Z 对刀/将Z设置为0"
-
-#~ msgid "touch off z / set z to 0"
-#~ msgstr "Z 对刀/将Z设置为0"
-
-#~ msgid "white"
-#~ msgstr "白色"
-
-#~ msgid "<b>Jog Rates</b>"
-#~ msgstr "<b>Incrementos</b>"
-
-#~ msgid "Debug"
-#~ msgstr "Depurar"
-
-#~ msgid "Jog. Vel."
-#~ msgstr "Man. Vel."
-
-#~ msgid "save the program reload it and run it"
-#~ msgstr "guardar, recargar y ejecutar programa"
-
-#~ msgid "undo"
-#~ msgstr "rehacer"
-
-#~ msgid "Error Message"
-#~ msgstr "Mensage de errores"
-
-#~ msgid "Message"
-#~ msgstr "Mensaje"
-
-#~ msgid "Question"
-#~ msgstr "Pregunta"
-
-#~ msgid "Please decide:"
-#~ msgstr "Porfavor decide:"
-
-#~ msgid "Adjust spindle override"
-#~ msgstr "Ajustar el override del husillo"
-
-#~ msgid "Displayes the actual spindle speed"
-#~ msgstr "Indica la velocidad actual del husillo"
-
-#~ msgid "Indicates if the spindle is at speed"
-#~ msgstr "Indica que el husillo a alcanzado la velocidad programada"
-
-#~ msgid "Jog selected axis in the given direction"
-#~ msgstr "Mueve el eje seleccionado en la dirección seleccionada"
-
-#~ msgid "Reset spindle overide to 100 %"
-#~ msgstr "reajustar el override del husillo a 100 %"
-
-#~ msgid "Show DRO in preview"
-#~ msgstr "Mostrar DRO en vista previa"
-
-#~ msgid "Show DTG in preview"
-#~ msgstr "Mostrar DTG en vista previa"
-
-#~ msgid "Show offsets in preview"
-#~ msgstr "Mostrar offsets en vista previa"
-
-#~ msgid "Shows the MDI command history"
-#~ msgstr "Mostrar los comandos en el historial de MDI"
-
-#~ msgid "Stop spindle turning"
-#~ msgstr "Detener husillo"
-
-#~ msgid "Switch on spindle in reverse "
-#~ msgstr "Prender husillo en dirección reversa"
-
-#~ msgid "The feedback spindle speed"
-#~ msgstr "La velocidad \"feedback\" del husillo"
-
-#~ msgid "Toggle flood on / off"
-#~ msgstr "Cambian entre refrigerante prendido y apagado"
-
-#~ msgid "Toggle mist on / off"
-#~ msgstr "Cambian entre refrigerante spay prendido y apagado"
-
-#~ msgid "Turn on spindle clockwise"
-#~ msgstr "encienda el husillo en sentido horario"
-
-#~ msgid "buttons to jog the different axis"
-#~ msgstr "botones para mover los diferentes ejes"
-
-#~ msgid ""
-#~ "ignore limits / turn on this if you need to move an axis which is in "
-#~ "contact with the end switch"
-#~ msgstr ""
-#~ "ignorar los lÃímites / activar esta opción si necesita mover un eje que "
-#~ "esté en contacto con el interruptor fin de carrerra"
-
-#~ msgid "select jog distance"
-#~ msgstr "Seleccione distancia a mover"
-
-#~ msgid "shows the source of the loaded program"
-#~ msgstr "Mostrar el origen del archivo cargado"
-
-#~ msgid "Path %s from DISPLAY , PROGRAM_PREFIX does not exist"
-#~ msgstr "Path %s de DISPLAY , PROGRAM_PREFIX no existe"
-
-#~ msgid "Trying default path..."
-#~ msgstr "Intento con path estandard"
-
-#~ msgid "Default path to ~/linuxcnc/nc_files does not exist"
-#~ msgstr "Path estandard ace ~/linuxcnc/nc_files no existe"
-
-#~ msgid "setting now home as path"
-#~ msgstr "se toma home as path"
-
-#~ msgid ""
-#~ "Error with launching 'Onboard' on-screen keyboard program, is onboard "
-#~ "installed?"
-#~ msgstr "Error intentando de iniciar el teclado onboard, esta instalado?"
-
-#~ msgid "error trying opening file %s"
-#~ msgstr "error intentando de abrir el archivo %s"
-
-#~ msgid "No default jog increments entry found in [DISPLAY] of INI file"
-#~ msgstr "no se encuentran incremetros en el [DISPLAY] del archivo INI"
-
-#~ msgid "adding import dir %s"
-#~ msgstr "anadir directorio de importacion %s"
-
-#~ msgid "module '%s' imported OK"
-#~ msgstr "El modulo %s ha sido importado sin errores"
-
-#~ msgid ""
-#~ "\n"
-#~ "**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
-#~ msgstr ""
-#~ "\n"
-#~ "**** GSCREEN Informacion: Usando CUSTOM glade archivo de %s ****"
-
-#~ msgid ""
-#~ "\n"
-#~ "**** GSCREEN INFO:  using STOCK glade file from: %s ****"
-#~ msgstr ""
-#~ "\n"
-#~ "**** GSCREEN Informacion: usando STOCK glade archivo de %s ****"
-
-#~ msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
-#~ msgstr ""
-#~ "**** Gscreen GLADE ERROR:   con el archivo del main screen xml de %s"
-
-#~ msgid "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"
-#~ msgstr ""
-#~ "**** Gscreen GLADE ERROR:   con el archivo del secundo screen xml de %s"
-
-#~ msgid "No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"
-#~ msgstr ""
-#~ "no se encuentran unidades en la secion [TRAJ] o [AXIS_0] en el archivo INI"
-
-#~ msgid ""
-#~ "*** Gscreen ERROR:    Asking for a HAL component using a name that "
-#~ "already exists."
-#~ msgstr ""
-#~ "*** Gscreen ERROR:    Preguntando por una componente hal cujo nombre ja "
-#~ "existe"
-
-#~ msgid ""
-#~ "No default angular jog increments entry found in [DISPLAY] of INI file"
-#~ msgstr ""
-#~ "no se encuentran incremetros angulares en el [DISPLAY] del archivo INI"
-
-#~ msgid ""
-#~ "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
-#~ "internal default of %s"
-#~ msgstr ""
-#~ "No se encontraron DEFAULT_LINEAR_VELOCITY en la seccion [DISPLAY] del "
-#~ "archivo  INI: uaremos el standard de %s"
-
-#~ msgid ""
-#~ "No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
-#~ "internal default of %s"
-#~ msgstr ""
-#~ "No se encontraron MAX_LINEAR_VELOCITY en la seccion [DISPLAY] del "
-#~ "archivo  INI: uaremos el standard de %s"
-
-#~ msgid "No MAX_VELOCITY found in [TRAJ] of the INI file"
-#~ msgstr ""
-#~ "No se encontraron MAX_VELOCITY en la seccion [TRAJ] del archivo  INI: "
-#~ "uaremos el standard de %s"
-
-#~ msgid ""
-#~ "No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
-#~ "internal default of %s"
-#~ msgstr ""
-#~ "No se encontraron DEFAULT_ANGULAR_VELOCITY en la seccion [DISPLAY] del "
-#~ "archivo  INI: uaremos el standard de %s"
-
-#~ msgid ""
-#~ "No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
-#~ "internal default of %s"
-#~ msgstr ""
-#~ "No se encontraron MAX_ANGULAR_VELOCITY en la seccion [DISPLAY] del "
-#~ "archivo  INI: uaremos el standard de %s"
-
-#~ msgid "No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
-#~ msgstr "No hay MAX_SPINDLE_OVERRIDE en la seccion [DISPLAY] del archivo INI"
-
-#~ msgid "No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
-#~ msgstr "No hay MIN_SPINDLE_OVERRIDE en la seccion [DISPLAY] del archivo INI"
-
-#~ msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
-#~ msgstr "No hay MAX_FEED_OVERRIDE en la seccion [DISPLAY] del archivo INI"
-
-#~ msgid "This screen will be orientated for Lathe options"
-#~ msgstr "Esta pantalla sera orientada para tornos"
-
-#~ msgid "CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"
-#~ msgstr ""
-#~ "CYCLE_TIME en la seccion [DISPLAY] del archivo INI no fue encontrada: se "
-#~ "usara el estandard de 100ms"
-
-#~ msgid ""
-#~ "CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"
-#~ msgstr ""
-#~ "CYCLE_TIME en la seccion [DISPLAY] del archivo INI demasiodo pequeno: se "
-#~ "usara el estandard de 100ms"
-
-#~ msgid "timeout %d"
-#~ msgstr "Tiempo excesido: %d"
-
-#~ msgid ""
-#~ "**** WARNING GSCREEN: could not understand the window geometry info in "
-#~ "hidden preference file"
-#~ msgstr ""
-#~ "**** Attencion GSCREEN: no pudo entender la geometria de la pantalla del "
-#~ "archivo escondido .preference"
-
-#~ msgid "Control powered up and initialized"
-#~ msgstr "Control initializado y encendido"
-
-#~ msgid "Cycle start pressed in AUTO mode"
-#~ msgstr "Cyclo start presionado el modo AUTO"
-
-#~ msgid "Cycle start pressed in MDI mode"
-#~ msgstr "Cyclo start presionado el modo MDI"
-
-#~ msgid "Please change to tool # %s, then click OK."
-#~ msgstr "Favor de cambiar a la herramienta no. %s y presionar OK"
-
-#~ msgid "Can't start spindle manually while MDI busy"
-#~ msgstr "No puedo encender el husillo si MDI esta trabajando"
-
-#~ msgid "can't start spindle manually in Auto mode"
-#~ msgstr "No puedo encender manualmente el husillo en modo AUTO"
-
-#~ msgid "No direction selected for spindle"
-#~ msgstr "No ha eligido una direccion de giro para el husillo"
-
-#~ msgid "Spindle Speed Preset Entry"
-#~ msgstr "Entrada de velocidad del husillo "
-
-#~ msgid "Manual Tool Index Entry"
-#~ msgstr "Entrada del index manual de la herramienta"
-
-#~ msgid "Entry dialog"
-#~ msgstr "Entrada de valores"
-
-#~ msgid "Classicladder realtime component not detected"
-#~ msgstr "Classicladder real-time componente no detectado"
-
-#~ msgid "ladder not available - is the realtime component loaded?"
-#~ msgstr "ladder no disponible - esta cargando un componente en tiempo-real? "
-
-#~ msgid "Override Entry"
-#~ msgstr "Entrada para los override"
-
-#~ msgid "Machine powered on"
-#~ msgstr "Maquina prendida"
-
-#~ msgid "Machine Estopped!"
-#~ msgstr "maquinada en estado estop"
-
-#~ msgid "Calculator"
-#~ msgstr "Calculador"
-
-#~ msgid "Axes %s are homed"
-#~ msgstr "Ejes %s son referenciados"
-
-#~ msgid "All the axes have been homed"
-#~ msgstr "Todos los ejes han sido referenciados"
-
-#~ msgid "There are unhomed axes: %s"
-#~ msgstr "Aun hay ejes no referenciados %s"
-
-#~ msgid "Program loaded: %s"
-#~ msgstr "Programa cargado %s"
-
-#~ msgid "Manual Spindle Control"
-#~ msgstr "Control manual del husillo"
-
-#~ msgid "Keyboard"
-#~ msgstr "Teclado"
-
-#~ msgid "**** GSCREEN INFO: Overriding internal signal call to %s"
-#~ msgstr "**** GSCREEN informacion: sobreescibiendo el signal interno con %s"
-
-#~ msgid " Zero Origin"
-#~ msgstr "zero el origen"
-
-#~ msgid "Offset Origin"
-#~ msgstr "zero el offset"
-
-#~ msgid ""
-#~ "**** Gscreen ERROR:    Invalid message configuration (missing text or "
-#~ "type) in INI File [DISPLAY] section"
-#~ msgstr ""
-#~ "**** Gscreen ERROR:    message configuration no valida (faltan text o "
-#~ "type) en el archivo INI en la seccion [DISPLAY]"
-
-#~ msgid ""
-#~ "**** Gscreen ERROR:    Invalid message configuration (missing pinname) in "
-#~ "INI File [DISPLAY] section"
-#~ msgstr ""
-#~ "**** Gscreen ERROR:    message configuration no valida (faltan pinname) "
-#~ "en el archivo INI en la seccion [DISPLAY]"
-
-#~ msgid ""
-#~ "**** Gscreen ERROR:    Invalid message configuration (missing boldtext) "
-#~ "in INI File [DISPLAY] section"
-#~ msgstr ""
-#~ "**** Gscreen ERROR:    message configuration no valida (faltan boldtext) "
-#~ "en el archivo INI en la seccion [DISPLAY]"
-
-#~ msgid ""
-#~ "**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] "
-#~ "section"
-#~ msgstr ""
-#~ "**** Gscreen ERROR:    message type (%s) en el archivo INIel la seccion "
-#~ "[DISPLAY] no es valido"
-
-#~ msgid "Dialog error - Is the dialog handler missing from the handler file?"
-#~ msgstr "Error del dialogo, no esta el handler del archivo handler? "
-
-#~ msgid "Can't jog multiple axis"
-#~ msgstr "No puedo mover varios ejes de una vez"
-
-#~ msgid "No axis selected to jog"
-#~ msgstr "No eje ha sido sellecionado para mover"
-
-#~ msgid "No axis selected to move"
-#~ msgstr "No ha elegido un eje que se debe mover"
-
-#~ msgid "Can't home multiple axis - select HOME ALL instead"
-#~ msgstr ""
-#~ "No puedo referenciar varios ejes de una vez, favor de elegir: "
-#~ "\"referenciar todos\""
-
-#~ msgid "No axis selected to home"
-#~ msgstr "No eje para referenciar ha sido elegido "
-
-#~ msgid "Can't unhome multiple axis"
-#~ msgstr "no puedo quitar referencia a varios ejes"
-
-#~ msgid "No axis selected to unhome"
-#~ msgstr "No se elegio eje para quitar referencia"
-
-#~ msgid "No axis selected for origin zeroing"
-#~ msgstr "No eje ha sido elegido para poner el origen en cero"
-
-#~ msgid "No axis selected for origin touch-off"
-#~ msgstr "No eje ha sido elegido para poner el touch-off en cero"
-
-#~ msgid "Can't tool touch-off multiple axes"
-#~ msgstr "No puedo touch-off multiples ejes"
-
-#~ msgid "No axis selected for tool touch-off"
-#~ msgstr "No eje ha sido elegido para touch-off la herramienta"
-
-#~ msgid "Tool editor error - is the %s editor available?"
-#~ msgstr "error del editor de herramientas - esta el editor %s suministrable"
-
-#~ msgid "%d RPM"
-#~ msgstr "%d RPM"
-
-#~ msgid "Start"
-#~ msgstr "Start"
-
-#~ msgid "Stop"
-#~ msgstr "Parar"
-
-#~ msgid "Machine"
-#~ msgstr "Maquina"
-
-#~ msgid "<b>Error handling</b>"
-#~ msgstr "<b>Tratamiento de errores</b>"
-
-#~ msgid "<b>Messages</b>"
-#~ msgstr "<b>Mensajes</b>"
-
-#~ msgid "Give the maximum number of messages you want to be displayed"
-#~ msgstr "Numero de cantidad de mensajes a mostrar"
-
-#~ msgid "Search forward"
-#~ msgstr "busca adelante"
-
-#~ msgid ""
-#~ "Select the X position to display the first message, counted from the left "
-#~ "top corner of the screen"
-#~ msgstr "Seleccione la posición X para el primer mensaje."
-
-#~ msgid ""
-#~ "Select the Y position to display the first message, counted from the left "
-#~ "top corner of the screen"
-#~ msgstr "Seleccione la posición Y para el primer mensaje."
-
-#~ msgid "Select the font to be used for the messages"
-#~ msgstr "Seleccione el tipo de letras de usar para los mensajes y errores"
-
-#~ msgid "Select the width of the messages"
-#~ msgstr "Seleccione la anchura de los mensajes"
-
-#~ msgid ""
-#~ "Show the errors and warnings also in the Desktop Notify style of the OS, "
-#~ "This is not recommended, because the messages will desapear allone after "
-#~ "a while."
-#~ msgstr ""
-#~ "Muestra mensajes y errores también en el sistema \"Desktop Notify\" del "
-#~ "sistema de operación. No se recomienda el uso de esta opción, ya que los "
-#~ "mensajes desaparecerán solos después de un tiempo."
-
-#~ msgid "Use desktop notify"
-#~ msgstr "Usar noticaciones de escritorio"
-
-#~ msgid ""
-#~ "Use frames for each message, will need a little bit more space but the "
-#~ "messages are separated in a clearer way"
-#~ msgstr ""
-#~ "Usar margen para cada mensaje. Esto lo hace mas fácil de diferenciar los "
-#~ "mensajes, pero necesitara un poco mas de espacio."
-
-#~ msgid "Use gmoccapy style"
-#~ msgstr "Usar estilo gmoccapy"
-
-#~ msgid "Use gscreen style"
-#~ msgstr "Usar estilo gscreen"
-
-#~ msgid ""
-#~ "Use the gmoccapy error reporting style, showing the errors in little "
-#~ "popup windows. You can delete the last one with the \"Window\" key on the "
-#~ "keyboard or all messages at ones with <CTRL><SPACE>, or you click the "
-#~ "delete button with the mouse"
-#~ msgstr ""
-#~ "Usar el sistema gmoccapy para reportar mensajes y errores, enseñando los "
-#~ "mensajes en pequeñas ventanas popup. Puede borrar el ultimo mensaje "
-#~ "presionando el botón \"Windows\" en el teclado o borrar todos los "
-#~ "mensajes presionando <CTRL><SPACE>. También puede borrar mensajes "
-#~ "individuales presionando el botón correspondiente en el mensaje. "
-
-#~ msgid ""
-#~ "Use the gscreen style for error reporting, showing the messages in the "
-#~ "status bar, yxou will only see the last one. Deleting that one will show "
-#~ "the previous one and so on\t"
-#~ msgstr ""
-#~ "Usar el sistema gscreen para mostrar mensajes y errores, mostrando los "
-#~ "mensajes en la barra estatus. Solo vera el ultimo mensaje el penúltimo "
-#~ "aparecerá después de borrar el ultimo."
-
-#~ msgid "clear the statusbar messages"
-#~ msgstr "Borrar la barra estatus"
-
-#~ msgid "enter the textr to search for"
-#~ msgstr "Texto de busqueda"
-
-#~ msgid "adjust the jogging speed"
-#~ msgstr "Ajustar la velocidad de manual"
-
-#~ msgid "Chosse a theme to be used for the GUI"
-#~ msgstr "Elije un tema para la superficie de operación "
-
-#~ msgid "Display the second screen"
-#~ msgstr ""
-#~ "Pantalla\n"
-#~ "auxiliar"
-
-#~ msgid "Do not load any file on start up"
-#~ msgstr "No cargar archivo al inicio"
-
-#~ msgid "Do you want the DRO of the preview to be shown"
-#~ msgstr "Meustra el DRO en vista previa"
-
-#~ msgid "Hide or show the mouse"
-#~ msgstr "Esconder o enseñar la mouse"
-
-#~ msgid "If checked, the offsets will be shown in the preview window"
-#~ msgstr "Mostrar los offsets en la vista previa"
-
-#~ msgid "Load the currently loaded file at start up"
-#~ msgstr ""
-#~ "Carcar el archivo carcado actualmente al iniciar la pantalla de operación"
-
-#~ msgid "Select the audio sound to be played when a warning apears"
-#~ msgstr "Seleccione el sonido para mensajes"
-
-#~ msgid "Select the audio sound to be played when an error ocure"
-#~ msgstr "Seleccione el sonido para errores"
-
-#~ msgid "Select the color for DTG mode"
-#~ msgstr "Elije el color para el modo DTG del DRO"
-
-#~ msgid "Select the color for absolut mode"
-#~ msgstr "Elije el color para el modo de coordinadas absolutas del DRO"
-
-#~ msgid "Select the color for relative mode"
-#~ msgstr "Elije el color para el modo coordinadas relativos del DRO"
-
-#~ msgid "Select the directory to jump to while loading a file"
-#~ msgstr ""
-#~ "Seleccione el directorio de salto para el botón correspondiente al carcar "
-#~ "un archivo."
-
-#~ msgid "Select the file to be loaded on start up"
-#~ msgstr "Seleccione el archivo que desea cargar al iniciar gmoccapy"
-
-#~ msgid ""
-#~ "Show the DRO button, this is not recommended, because the user looses the "
-#~ "auto unit capability of the DRO"
-#~ msgstr ""
-#~ "Muestra los botones DRO, no es recomendable, ya que el operario pierde la "
-#~ "opción de auto unidades del DRO"
-
-#~ msgid "Show the distance to go in preview window"
-#~ msgstr "mostrar distancia a ir en DRO"
-
-#~ msgid "Show the onboard keyboard when a file should be loaded"
-#~ msgstr "Muestra el teclado virtual al carcar un archivo"
-
-#~ msgid "Show the onboard keyboard when the MDI page is shown"
-#~ msgstr "Muestra el teclado virtual con la entrada al modo MDI"
-
-#~ msgid "Show the onboard keyboard when the edit page is shown"
-#~ msgstr "Muestra el teclado virtual si un archivo es editado"
-
-#~ msgid "Show the onboard keyboard when the offset page is shown"
-#~ msgstr "Muestra el teclado virtual al mostrar la pagina offsets"
-
-#~ msgid "Show the onboard keyboard when the tooledit page is shown"
-#~ msgstr ""
-#~ "Muestra el teclado virtual al mostrar la pagina de administración de "
-#~ "herramientas"
-
-#~ msgid "Start the GUI as Window with the given size and position"
-#~ msgstr ""
-#~ "Iniciar la pantalla de operación como ventana con las dimensiones y la "
-#~ "posición indicada"
-
-#~ msgid "Start the GUI in fullscreen mode, no window frame"
-#~ msgstr ""
-#~ "Iniciar la pantalla de operación en modo pantalla completa sin margen de "
-#~ "ventana"
-
-#~ msgid "Start the GUI maximized, with window frame"
-#~ msgstr "iniciar la pantalla de operación maximizada, con margen de ventana"
-
-#~ msgid ""
-#~ "The X position of the Window, counted from the left top corner of the "
-#~ "screen"
-#~ msgstr ""
-#~ "La posición X de la ventana, contando del eje arriba izquierdo de la "
-#~ "pantalla"
-
-#~ msgid ""
-#~ "The Y position of the Window, counted from the left top corner of the "
-#~ "screen"
-#~ msgstr ""
-#~ "La posición Y de la ventana, contando del eje arriba izquierdo de la "
-#~ "pantalla"
-
-#~ msgid "The height of the window"
-#~ msgstr "La altura de la ventana"
-
-#~ msgid ""
-#~ "The size of the grid shown on preview, must be given in imperial units "
-#~ "and will not be visible in perspective mode"
-#~ msgstr ""
-#~ "La dimensión del \"grid\" en la vista previa, tiene que ser indicada en "
-#~ "pulgadas y no sera visible en vista perspectiva"
-
-#~ msgid "The width of the window"
-#~ msgstr "La anchura de la ventana"
-
-#~ msgid ""
-#~ "Use the auto units capability of the DRO, it will change units according "
-#~ "to gcode G20 / G21"
-#~ msgstr ""
-#~ "Usar la opción auto unidades del DRO, cambiando las unidades mostradas "
-#~ "según el código g G21 / G21"
-
-#~ msgid ""
-#~ "select if you want the preview tab or the offset tab been shown when "
-#~ "entering the touch off page"
-#~ msgstr ""
-#~ "Seleccione si quiere indicar la pantalla offsets o la pantalla vista "
-#~ "previa entrando a la pagina de \"touch off\""
-
-#~ msgid "Embeded keyboard"
-#~ msgstr "Teclado virtual"
-
-#~ msgid "Info"
-#~ msgstr "Información"
-
-#~ msgid "touch off y / set y to 0"
-#~ msgstr "setear Y / setear Y a 0"
-
-#~ msgid "touch off y / set y to an desired value"
-#~ msgstr "setear Y / setear Y a un valor deseado"
-
-#~ msgid "touch off z / set to 0"
-#~ msgstr "setear Z / setear Z a 0"
-
-#~ msgid "touch off z / set z to an desired value"
-#~ msgstr "setear Z / setear Z a un valor deseado"
-
-#~ msgid "view along the y axis from positive to negative"
-#~ msgstr "vista a lo largo del eje Y de positivo a negativo"
-
-#~ msgid "view along the z axis from positive to negative"
-#~ msgstr "vista a lo largo del eje Z de positivo a negativo"
-
-#~ msgid "Abs."
-#~ msgstr "Abs."
-
-#~ msgid "GTD."
-#~ msgstr "GTD."
-
-#~ msgid "DTG."
-#~ msgstr "DTG."
-
-#~ msgid "DTG"
-#~ msgstr "DTG"
-
-#~ msgid "Rel."
-#~ msgstr "Rel."
-
-#~ msgid "open a file to edit"
-#~ msgstr "Abrir un archivo para editar"
-
-#~ msgid "switch flood coolant"
-#~ msgstr "Interruptor del refrigerante"
-
-#~ msgid "switch mist coolant"
-#~ msgstr "Interruptor del refrigerante en niebla"
-
-#~ msgid "turn on spindle counterclockwise"
-#~ msgstr "encienda en husillo en sentido antihorario"
-
-#~ msgid "<b>Desktop notify</b>"
-#~ msgstr "<b>Notificaciones</b>"
-
-#~ msgid "<b>Hardware and security</b>"
-#~ msgstr "<b>Hardware y seguridad</b>"
-
-#~ msgid "DRO settings"
-#~ msgstr "DRO ajustes"
-
-#~ msgid ""
-#~ "Do you want to use run from line, it is not very save to use this option, "
-#~ "because linuxcnc will ignore all information previous of the start line"
-#~ msgstr ""
-#~ "Realmente quiere usas la opcion <partir de linea>Esta opcion es "
-#~ "peligrosa, ya que linuxcnc ingnora todas las lineas anteriores"
-
-#~ msgid ""
-#~ "If you select this, you will be able to use several keyboard buttons to "
-#~ "operate your machine"
-#~ msgstr ""
-#~ "Si selecciona esta opción, usted será capaz de usar varios botones del "
-#~ "teclado para operar su maquina"
-
-#~ msgid ""
-#~ "here you can set the scales to apply to the hardware MPG to avoid to fast "
-#~ "or to slow moving of the sliders, default is (max-min)/100"
-#~ msgstr ""
-#~ "Aquí puede establecer las escalas de aplicar a la MPG hardware para "
-#~ "evitar que ayune opara reducir la velocidad de movimiento de los "
-#~ "controles deslizantes, por defecto es (max-min) / 100"
-
-#~ msgid "select how to start gmoccapy"
-#~ msgstr "Seleccione como iniciar gmoccapy"
-
-#~ msgid "select the jump to dir for file open dialog"
-#~ msgstr "Elige el directorio \"jump to\" para la selecion de archivos"
-
-#~ msgid "select virtual keyboard behavior"
-#~ msgstr "seleccione el funcionamiento del teclado virtual"
-
-#~ msgid "spindle relevant settings"
-#~ msgstr "Ajustes relevantes del husillo"
-
-#~ msgid "themes and sounds to be used"
-#~ msgstr "Temas y sonidos a usar"
-
-#~ msgid "Something went wrong, we are in a non defined mode"
-#~ msgstr "Algo salió mal, estamos en un modo no definido"
-
-#~ msgid "unknown axis clicked"
-#~ msgstr "eje desconocido presionado"
-
-#~ msgid "unknow axis clicked"
-#~ msgstr "eje desconocido presionado"
-
-#~ msgid "Big problem, because you should not get here"
-#~ msgstr "Gran problema, porque usted no debe llegar hasta aquí"
-
-#~ msgid ""
-#~ "you must select the tool to be changed\n"
-#~ "Will not change anything"
-#~ msgstr ""
-#~ "Debe seleccionar una herramienta para cambiar\n"
-#~ "No se cambiara nada!"
-
-#~ msgid ""
-#~ "You are trying to use G95, please do not do this in this development "
-#~ "state \n"
-#~ msgstr ""
-#~ "Usted está tratando de usar G95, por favor, no lo hagas en este estado de "
-#~ "desarrollo \n"
-
-#~ msgid ""
-#~ "there is an error in gscreen / gmoccapy witch will result in wrong "
-#~ "values!! \n"
-#~ msgstr ""
-#~ "Hay un error en GSCREEN / GMOCCAPY, que producira valores incorectos!! \n"
-
-#~ msgid ""
-#~ "\n"
-#~ " We are looking for a solution!"
-#~ msgstr ""
-#~ "\n"
-#~ " Estamos en busca de una solución!"
-
-#~ msgid "Very important Warning"
-#~ msgstr "Advertencia muy importante"
-
-#~ msgid ""
-#~ " Line\n"
-#~ "Down"
-#~ msgstr ""
-#~ "Linea\n"
-#~ "Abajo"
-
-#~ msgid "Cancel"
-#~ msgstr "Cancelar"
-
-#~ msgid "Clear the messages from status bar"
-#~ msgstr "Borrar mensajes de la barra de estado"
-
-#~ msgid ""
-#~ "Highlighting the run-at-line with the up / down buttons or entering the "
-#~ "line directly."
-#~ msgstr ""
-#~ "Make la linea de partida con los botones ariba y abajo o indique la linea "
-#~ "directamente"
-
-#~ msgid ""
-#~ "Ignore or not the optional stops. A pushed button will result in ignoring "
-#~ "all M1 commands. The button will indicate a yellow background."
-#~ msgstr ""
-#~ "Ignorar o no el paro opcional. Botón pulsado se traducirá en ignorar "
-#~ "todos los comandos M1. El botón indicará un fondo amarillo"
-
-#~ msgid ""
-#~ "Line\n"
-#~ " Up"
-#~ msgstr ""
-#~ "Linea\n"
-#~ "Arriba"
-
-#~ msgid "Log all actions in the alarm history"
-#~ msgstr "Registrar todas las acciones en el historial de alarmas"
-
-#~ msgid "Run from line"
-#~ msgstr "Ejecutar desde linea"
-
-#~ msgid "close the editor without saving any changes"
-#~ msgstr "cerrar el editor sin guardar los cambios"
-
-#~ msgid "edit the program"
-#~ msgstr "Edición de programas"
-
-#~ msgid "home Y axis"
-#~ msgstr "Referenciar eje Y"
-
-#~ msgid "home Z axis"
-#~ msgstr "Referenciar eje Z"
-
-#~ msgid "offset Z"
-#~ msgstr "Offset Z"
-
-#~ msgid "reload the program, you need to do that after editing"
-#~ msgstr "Recargar programa, es necesario luego de editarlo"
-
-#~ msgid "run from line"
-#~ msgstr "Ejecutar desde linea"
-
-#~ msgid ""
-#~ "touchoff\n"
-#~ "  tool Z"
-#~ msgstr ""
-#~ "Setear Z\n"
-#~ "herramienta"

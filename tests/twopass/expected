@@ -1,16 +1,18 @@
 twopass:invoked with <> options
 twopass:found ./a.hal
 twopass:found ./b.hal
-and2 bit   IN FALSE andX.in0 <== p
-and2 bit   IN FALSE andX.in1 <== p
-and2 bit   OUT FALSE andX.out
-and2 s32   OUT 0 andX.time
-and2 bit   IN FALSE andY.in0
-and2 bit   IN FALSE andY.in1
-and2 bit   OUT FALSE andY.out ==> p
-and2 s32   OUT 0 andY.time
-and2 bit   IN FALSE andZ.in0 <== p
-and2 bit   IN FALSE andZ.in1
-and2 bit   OUT FALSE andZ.out
-and2 s32   OUT 0 andZ.time
+Component Pins:
+Owner   Type  Dir         Value  Name
+     4  bit   IN          FALSE  andX.in0 <== p
+     4  bit   IN          FALSE  andX.in1 <== p
+     4  bit   OUT         FALSE  andX.out
+     4  s32   OUT             0  andX.time
+     4  bit   IN          FALSE  andY.in0
+     4  bit   IN          FALSE  andY.in1
+     4  bit   OUT         FALSE  andY.out ==> p
+     4  s32   OUT             0  andY.time
+     4  bit   IN          FALSE  andZ.in0 <== p
+     4  bit   IN          FALSE  andZ.in1
+     4  bit   OUT         FALSE  andZ.out
+     4  s32   OUT             0  andZ.time
 

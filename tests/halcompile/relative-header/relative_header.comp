@@ -1,0 +1,7 @@
+component relative_header;
+pin out bit out;
+include "local.h";
+function _;
+license "GPL";
+;;
+out = X;

@@ -58,7 +58,7 @@ set tkemc 1
 # called *.msg, (e.g. en_US.msg).
 package require msgcat
 if ([info exists env(LANG)]) {
-    msgcat::mclocale $env(LANG)
+    msgcat::mclocale
     msgcat::mcload $linuxcnc::LANG_DIR
 }
 
@@ -331,7 +331,7 @@ proc popupDiagnostics {} {
     pack $d.motionstatus.val -side right
 
     frame $d.buttons
-    button $d.buttons.ok -text OK -default active -command "destroy $d"
+    button $d.buttons.ok -text [msgcat::mc "OK"] -default active -command "destroy $d"
 
     pack $d.buttons -side bottom -fill x -pady 2m
     pack $d.buttons.ok -side left -expand 1
@@ -351,7 +351,7 @@ proc popupAbout {} {
     wm title .about [msgcat::mc "About TkLinuxCNC"]
     message .about.msg -aspect 1000 -justify center -font {Helvetica 12 bold} -text [ format "%s\n(LinuxCNC %s)" [msgcat::mc "TkLinuxcnc\n\nTcl/Tk GUI for LinuxCNC\n\nGPL Version 2 (2012)"] $env(LINUXCNCVERSION) ]
     frame .about.buttons
-    button .about.buttons.ok -default active -text OK -command "destroy .about"
+    button .about.buttons.ok -default active -text [msgcat::mc "OK"] -command "destroy .about"
     pack .about.msg -side top
     pack .about.buttons -side bottom -fill x -pady 2m
     pack .about.buttons.ok -side left -expand 1
@@ -803,7 +803,7 @@ if { $windows == 0 } {
 	    set fname [file rootname $file]
 	    # if it's executable, arrange for direct execution
 	    if {[file executable $linuxcnc::TCL_SCRIPT_DIR/$file]} {
-		$scriptsmenu add command -label $fname -command "exec $linuxcnc::TCL_SCRIPT_DIR/$file -- -ini $EMC_INIFILE &"
+		$scriptsmenu add command -label [msgcat::mc "Set Coordinates"] -command "exec $linuxcnc::TCL_SCRIPT_DIR/$file -- -ini $EMC_INIFILE &"
 	    }
 	}
     }
@@ -1014,7 +1014,7 @@ for {set joint 0} {$joint < $::MAX_JOINTS} {incr joint} {
     }
   }
 }
-unset vitems tempini ;# remove clutter
+catch {unset vitems tempini} ;# remove clutter
 
 set jogType continuous
 set jogIncrement 0.0010

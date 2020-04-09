@@ -19,4 +19,6 @@
 /* initializes axis modules from ini file */
 extern int iniAxis(int axis, const char *filename);
 
+extern double ext_offset_a_or_v_ratio[];
+
 #endif

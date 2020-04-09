@@ -6,6 +6,8 @@
 hm2_bspi_setup_chan \- setup a Hostmot2 bspi channel
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
 int delay, int cpol, int cpha, int noclear, int noecho)

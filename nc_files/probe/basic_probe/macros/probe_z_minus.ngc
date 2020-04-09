@@ -1,0 +1,65 @@
+(author: Chris P)
+(version: 0.1)
+(date: 04/25/19)
+
+(Probe Z Minus direction to locate top, end at clearance distance)
+(Start probe position is over stock within max z distance)
+(ensure all settings have been set properly according to help diagrams)
+
+o<probe_z_minus> sub
+
+  (uses NGCGUI style arg spec)
+  (number after "=" in comment is default value)
+  #<probe_tool_number> = #1
+  #<max_z_distance> = #2
+  #<z_clearance> = #3
+  #<probe_slow_fr> = #4
+  #<probe_fast_fr> = #5
+
+  (Current Z Position including offsets in current program units)
+  #<z> = #5422
+
+  (Initial Fast Z- Probe)
+  G91
+  F[#<probe_fast_fr>]
+  G38.2 Z-[#<max_z_distance>]
+  #<z_minus_probed> = #5063
+
+  (Probe Error check, #5070 will be 0 if failed)
+  o<120> if [#5070 EQ 0]
+    (back to start point and feed)
+    G90
+    G0 Z#<z>
+    F[#<probe_fast_fr>]
+    (return from sub)
+    o<probe_z_minus> return
+  o<120> endif
+
+  (Move to z_clearance height for slow probe)
+  G90
+  G0 Z[#<z_minus_probed> + #<z_clearance>]
+
+  (Slow Probe Rule, if Slow Probe FR is set to 0, Slow Probe is Bypassed)
+  o<130> if [#<probe_slow_fr> GT 0]
+    (Initiate Slow Z- Probe)
+    G91
+    F[#<probe_slow_fr>]
+    G38.2 Z-[#<z_clearance> * 2]
+    #<z_minus_probed> = #5063
+;    (debug, Probed Pos: #5063 Z Pos: #<_z>)
+    G90
+    G0 Z[#<z_minus_probed> + #<z_clearance>]
+  o<130> endif
+
+  (defines the edge as z_probed_position for DRO reporting)
+  #<z_minus_probed_position> = #<z_minus_probed>
+
+  (analog aio output to gui DRO "Z PROBED POSITION")
+  M68 E7 Q[#<z_minus_probed_position>]
+
+  #<z_finish_height> = [#<z_minus_probed> + #<z_clearance>]
+
+o<probe_z_minus> endsub [#<z_finish_height>]
+
+M2 (end program)
+

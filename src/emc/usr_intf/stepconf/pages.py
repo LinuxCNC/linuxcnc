@@ -56,7 +56,7 @@ class Pages:
             Gtk.main_quit()
             return True
         else:
-            return False
+            return True
 
     # seaches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
@@ -459,7 +459,7 @@ class Pages:
         # Get first row
         treeiter = self.w.lstStore1.get_iter_first()
         if treeiter == None:
-            return True
+            return False
         self.d.halui_list.append(self.w.lstStore1.get_value(treeiter, 1))
         while treeiter != None:
             treeiter = self.w.lstStore1.iter_next(treeiter)
@@ -873,7 +873,7 @@ class Pages:
 # FINISH PAGE
 #*************
     def finished_prepare(self):
-        pass
+        self.w.label_simulator_warning.set_visible(self.w.createsimconfig.get_active())
     def finished_finish(self):
         self.a.buid_config()
 

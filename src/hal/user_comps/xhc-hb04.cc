@@ -799,7 +799,11 @@ int main (int argc,char **argv)
 			perror("libusb_init");
 			return 1;
 		}
+#if LIBUSB_API_VERSION >= 0x01000106
+		libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, 2);
+#else
 		libusb_set_debug(ctx, 2);
+#endif
 		// use environmental variable LIBUSB_DEBUG if needed
 
 		printf("%s: waiting for XHC-HB04 device\n",modname);
@@ -879,7 +883,8 @@ int main (int argc,char **argv)
 			libusb_cancel_transfer(transfer_in); // ignore result
 			assert (0 == libusb_handle_events_completed(ctx, nullptr));
 			libusb_free_transfer(transfer_in);
-			assert (0 == libusb_release_interface(dev_handle, 0));
+			r = libusb_release_interface(dev_handle, 0);
+			assert (r == 0 || r == LIBUSB_ERROR_NO_DEVICE);
 			libusb_close(dev_handle);
 		} else {
 			while (!do_exit) usleep(70000);

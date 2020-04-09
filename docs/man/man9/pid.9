@@ -126,8 +126,16 @@ cases, it can result in better tuning if used properly.
 Second order feed-forward term.  Produces a contribution to the output that is
 \fBFF2\fR multiplied by the second derivative of the commanded value.  For
 position loops, the contribution is proportional to acceleration, and can be
-used to compensate for inertia.  For velocity loops, it should usually be
-left at zero.
+used to compensate for inertia.  For velocity loops, the contribution is
+proportional to jerk, and should usually be left at zero.
+.TP
+\fBpid.\fIN\fB.FF3\fR float in
+Third order feed-forward term.  Produces a contribution to the output that is
+\fBFF3\fR multiplied by the third derivative of the commanded value.  For
+position loops, the contribution is proportional to jerk, and can be
+used to compensate for residual errors during acceleration.  For velocity
+loops, the contribution is proportional to snap(jounce), and should usually
+be left at zero.
 .TP
 \fBpid.\fIN\fB.deadband\fR float in
 Defines a range of "acceptable" error.  If the absolute value of \fBerror\fR
@@ -177,6 +185,12 @@ Limit on command second derivative.  The command second derivative used by
 used to prevent \fBFF2\fR from producing large output spikes if there is a
 step change on the command.  Not normally needed.
 .TP
+\fBpid.\fIN\fB.maxcmdDDD\fR float in
+Limit on command third derivative.  The command third derivative used by
+\fBFF3\fR will be limited to this value, unless the value is zero.  Can be
+used to prevent \fBFF3\fR from producing large output spikes if there is a
+step change on the command.  Not normally needed.
+.TP
 \fBpid.\fIN\fB.saturated\fR bit out
 When true, the current PID output is saturated.  That is,
 .RS 12
@@ -202,6 +216,10 @@ Derivative of command.  This is the value that is multiplied by \fBFF1\fR to pro
 \fBpid.\fIN\fB.commandDD\fR float ro (only if debug=1)
 Second derivative of command.  This is the value that is multiplied by
 \fBFF2\fR to produce the second order feed-forward term of the output.
+.TP
+\fBpid.\fIN\fB.commandDDD\fR float ro (only if debug=1)
+Third derivative of command.  This is the value that is multiplied by
+\fBFF3\fR to produce the third order feed-forward term of the output.
 
 .SH BUGS
 Some people would argue that deadband should be implemented such that error is

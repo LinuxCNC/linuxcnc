@@ -32,6 +32,14 @@ if len(sys.argv) > 1 and sys.argv[1] == '-ini':
 
 s = linuxcnc.stat(); s.poll()
 
+def show_spindles(l):
+    ct = 0; s = ""
+    for d in l:
+        for key in d:
+            s = s+"%d %20s %s\n"% (ct,key,d[key])
+        ct = ct+1
+    return s
+
 def show_mcodes(l):
     return " ".join(["M%g" % i for i in l[1:] if i != -1])
     
@@ -78,6 +86,7 @@ maps = {
 'kinematics_type': {linuxcnc.KINEMATICS_IDENTITY: 'identity', linuxcnc.KINEMATICS_FORWARD_ONLY: 'forward_only', 
                     linuxcnc.KINEMATICS_INVERSE_ONLY: 'inverse_only', linuxcnc.KINEMATICS_BOTH: 'both'},
 'mcodes': show_mcodes, 'gcodes': show_gcodes, 'poll': None, 'tool_table': None,
+'spindle':show_spindles,
 'axis': None, 'joint': None, 'gettaskfile': None,
 'actual_position': show_position, 
 'position': show_position, 
