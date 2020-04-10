@@ -197,6 +197,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        # if no list of names then continue looking
+                        if name[0]=='':continue
                         l = QtWidgets.QLabel(name[0])
                         if name[1].lower() in('false', 'true'):
                             self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
@@ -263,8 +265,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             else:
                 imgpath = os.path.join(path, svg_name)
                 btn = QtWidgets.QPushButton()
-                btn.setIcon(QtGui.QIcon(imgpath))
-                btn.setIconSize(QtCore.QSize(30, 30)) 
+                btn.setStyleSheet("border-image: url(" + imgpath + ");")
             btn.setToolTip('Macro: {}'.format(tName))
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))

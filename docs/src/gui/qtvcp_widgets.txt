@@ -578,6 +578,12 @@ It is based on pyQT's QToolButton
 This Widget allows a user to select and adjust special macro programs for 
 doing small jobs. +
 It uses images for visual representation of the macro and for an icon. +
+It searches for special macros using the INI definition: +
+[source,INI]
+----
+[RS274NGC]
+SUBROUTINE_PATH = 
+----
 The macros are Oword subroutine with special comments to work with the launcher. +
 The first three lines must have the keywords: (The forth is optional) +
 Here is a sample fr the forst four lines in an Oword file: +
@@ -604,7 +610,8 @@ If you use the word 'true' or 'false' in the list, a checkbutton will be shown.
 
 This must be the third line in the Oword file. +
 if using a SVG image file, the must end b .svg +
-It can use layers to define different images for macro and icon. +
+The image must be added to an svg layer. +
+It uses layers to define different images for macro and icon. +
 The first entry will be the SVG image file name. +
 It is assumed to be in the same folder as the Oword file. +
 The second item will be the image layer. +

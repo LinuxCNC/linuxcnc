@@ -16,6 +16,9 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * New experimental QT based VCP
   * New G52 local coordinate system offset
   * New support for multiple spindles up to 9
+  * G33.1 Rigid Tapping speedup, with optional faster return move
+  * Back tool lathe support in axis and gmoccapy
+  * Seperate joint and axis limits for non trivial kins machines
 
 linuxcnc (1:2.7.15) unstable; urgency=medium
 
