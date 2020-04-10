@@ -194,6 +194,7 @@ EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsHome);
+MODULE_LICENSE("GPL");
 
 int comp_id;
 
