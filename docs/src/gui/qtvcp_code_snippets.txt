@@ -144,18 +144,8 @@ Loads the toolbar library.
 in the 'INSTANTIATE LIBRARY' Section add:
 [source,python]
 ----
-TOOLBAR = None
+TOOLBAR = ToolBarActions()
 ----
-Make a global variable
-
-In the 'INITIALIZE SECTION'
-Under the 'def \_\_init__.(self, halcomp, widgets, paths):' function add: +
-[source,python]
-----
-        global TOOLBAR
-        TOOLBAR = ToolBarActions(widgets)
-----
-
 In the 'SPECIAL FUNCTIONS SECTION'
 Under the 'def initialized__(self):' function add: +
 [source,python]
@@ -216,4 +206,32 @@ In the 'GENERAL FUNCTIONS SECTION' add:
                     self.w.filemanager.load()
             elif tab == self.w.tab_mdi:
                 self.w.mditouchy.run_command()
+----
+
+== Add a special Max Velocity Slider based on percent
+Some times you want to build a widget to do something not built in. +
+The built in Max velocity slider acts on units per minute, here we show how to do percent: +
+The STATUS command makes sure the slider adjusts if linuxcnc changes the current max velocity. +
+valueChanged.connect() calls a function when the slider is moved. +
+
+In Designer add a QSlider widget called 'mvPercent'
+Then add the code to the handler file.
+[source,python]
+----
+    #############################
+    # SPECIAL FUNCTIONS SECTION #
+    #############################
+
+    def initialized__(self):
+        self.w.mvPercent.setMaximum(100)
+        STATUS.connect('max-velocity-override-changed', lambda w, data: self.w.mvPercent.setValue((data / INFO.MAX_TRAJ_VELOCITY)*100))
+        self.w.mvPercent.valueChanged.connect(self.setMVPercentValue)
+
+    #####################
+    # GENERAL FUNCTIONS #
+    #####################
+
+   def setMVPercentValue(self, value):
+        ACTION.SET_MAX_VELOCITY_RATE(INFO.MAX_TRAJ_VELOCITY * (value/100.0))
+
 ----
