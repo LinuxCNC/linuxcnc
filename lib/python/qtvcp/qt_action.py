@@ -311,11 +311,19 @@ class _Lcnc_Action(object):
         for jnum in range(STATUS.stat.joints):
             self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(number)]: return
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]: return
+            self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, i)
     def SET_SPINDLE_SLOWER(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
     def SET_SPINDLE_STOP(self, number = 0):
@@ -584,6 +592,12 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 #############################
 ###########################################
 # Filter Class
@@ -659,5 +673,3 @@ class FilterProgram:
             'TITLE':'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
-
-
