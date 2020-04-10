@@ -65,7 +65,7 @@
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
 #include <linux/uaccess.h>	/* copy_from_user() */
-#include <asm/msr.h>		/* rdtscll() */
+#include <asm/msr.h>		/* rdtsc_ordered() */
 
 /* get inb(), outb(), ioperm() */
 #include <asm/io.h>
@@ -536,7 +536,7 @@ long long int rtapi_get_clocks(void)
 {
     long long int retval;
 
-    rdtscll(retval);
+    retval = rdtsc_ordered();
     return retval;    
 }
 
