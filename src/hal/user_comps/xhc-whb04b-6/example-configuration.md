@@ -49,23 +49,23 @@ net pdnt.mode.is-teleop                   halui.mode.is-teleop                  
 
 # "selected axis" signals
 net pdnt.axis.X.select                    whb.halui.axis.x.select               halui.axis.x.select
-net pdnt.axis.y.select                    whb.halui.axis.c.select               halui.axis.y.select
+net pdnt.axis.y.select                    whb.halui.axis.y.select               halui.axis.y.select
 net pdnt.axis.Z.select                    whb.halui.axis.z.select               halui.axis.z.select
 
 net pdnt.axis.x.jog-scale                 whb.axis.x.jog-scale                  axis.x.jog-scale
-net pdnt.axis.y.jog-scale                 whb.axis.c.jog-scale                  axis.y.jog-scale
+net pdnt.axis.y.jog-scale                 whb.axis.y.jog-scale                  axis.y.jog-scale
 net pdnt.axis.z.jog-scale                 whb.axis.z.jog-scale                  axis.z.jog-scale
 
 net pdnt.axis.x.jog-counts                whb.axis.x.jog-counts                 axis.x.jog-counts
-net pdnt.axis.y.jog-counts                whb.axis.c.jog-counts                 axis.y.jog-counts
+net pdnt.axis.y.jog-counts                whb.axis.y.jog-counts                 axis.y.jog-counts
 net pdnt.axis.z.jog-counts                whb.axis.z.jog-counts                 axis.z.jog-counts
 
 net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable
-net pdnt.axis.y.jog-enable                whb.axis.c.jog-enable                 axis.y.jog-enable
+net pdnt.axis.y.jog-enable                whb.axis.y.jog-enable                 axis.y.jog-enable
 net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable
 
 net pdnt.axis.x.jog-vel-mode              whb.axis.x.jog-vel-mode               axis.x.jog-vel-mode
-net pdnt.axis.y.jog-vel-mode              whb.axis.c.jog-vel-mode               axis.y.jog-vel-mode
+net pdnt.axis.y.jog-vel-mode              whb.axis.y.jog-vel-mode               axis.y.jog-vel-mode
 net pdnt.axis.z.jog-vel-mode              whb.axis.z.jog-vel-mode               axis.z.jog-vel-mode
 
 
