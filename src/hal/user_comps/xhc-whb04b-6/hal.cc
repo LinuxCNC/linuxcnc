@@ -898,7 +898,8 @@ void Hal::setSpindleMinus(bool enabled)
  */
 void Hal::setMachineHomingAll(bool enabled)
 {
-    if (requestManualMode(enabled))
+//    if (requestManualMode(enabled))
+    if (requestJointMode(enabled))
     {
         if (enabled)
         {
