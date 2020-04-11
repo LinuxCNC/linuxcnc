@@ -79,7 +79,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">cutting current in amps
-indicator only, not used.</property>
+indicator only, not used by plasmac.</property>
                                     <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
@@ -98,12 +98,12 @@ indicator only, not used.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="labelR200120">
+                                  <object class="GtkLabel" id="cut-amps-label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">cutting current in amps
-indicator only, not used.</property>
+indicator only, not used by plasmac.</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
                                     <property name="label" translatable="yes">Cut Amps</property>
@@ -565,7 +565,8 @@ set to 0 to disable</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">Powermax gas pressure</property>
+                                <property name="tooltip_text" translatable="yes">Powermax gas pressure
+0 = automatic gas pressure </property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -648,10 +649,11 @@ set to 0 to disable</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
-                                <property name="tooltip_text" translatable="yes">Powermax gas pressure</property>
+                                <property name="tooltip_text" translatable="yes">Powermax gas pressure
+0 = automatic gas pressure </property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Gas Pressure (psi)</property>
+                                <property name="label" translatable="yes">Gas Pressure</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
