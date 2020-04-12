@@ -364,7 +364,7 @@ class HandlerClass:
 
     # alarm tab
     def btn_clear_alarms_clicked(self):
-        ACTION.UPDATE_MACHINE_LOG('update-machine-log', None, 'DELETE')
+        ACTION.UPDATE_MACHINE_LOG('', 'DELETE')
 
     def btn_save_alarms_clicked(self):
         text = self.w.machinelog.toPlainText()
