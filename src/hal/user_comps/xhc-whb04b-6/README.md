@@ -100,14 +100,18 @@ OPTIONS
  -c
     Enable checksum output which is necessary for debugging the checksum generator function. Do not rely on this feature since it will be removed once the generator is implemented.
 
- -n
-    Force being silent and not printing any output except of errors. This will also inhibit messages prefixed with "init".
-
  -s
     Enable spindle override value using wheel with feed button to Lead mode.
 
  -f
     Enable feedrate override value using wheel after Lead mode or at first start (display MPG mode)
+
+ -B
+    Add 5mm and 10mm to Step feedrate output
+
+ -n
+    Force being silent and not printing any output except of errors. This will also inhibit messages prefixed with "init".
+    
 
 EXAMPLES
 xhc-whb04b-6 -ue
@@ -119,8 +123,8 @@ xhc-whb04b-6 -p
 xhc-whb04b-6 -Hn
     Start in HAL mode and avoid output, except of errors.
 
-xhc-whb04b-6 -Hsfn
-    Start in HAL mode and avoid output, except of errors + spindle and feedrate override.
+xhc-whb04b-6 -HsfB
+    Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10mm).
 
 AUTHORS
     This component was started by Raoul Rubien (github.com/rubienr) based on predecessor device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors gives you a more complete list of contributors.
