@@ -1201,7 +1201,16 @@ def open_file_guts(f, filtered=False, addrecent=True):
             initcodes.append("t%d m6" % s.tool_in_spindle)
             for i in range(9):
                 if s.axis_mask & (1<<i):
-                    position = "g53 g0 %s%.8f" % ("XYZABCUVW"[i], s.position[i])
+                    axis = "XYZABCUVW"[i]
+
+                    if (axis == "A" and a_axis_wrapped) or\
+                       (axis == "B" and b_axis_wrapped) or\
+                       (axis == "C" and c_axis_wrapped):
+                        pos = s.position[i] % 360.000
+                    else:
+                        pos = s.position[i]
+
+                    position = "g53 g0 %s%.8f" % (axis, pos)
                     initcodes.append(position)
             for i, g in enumerate(s.gcodes):
                 # index 0 is "sequence number" and index 2 is the last block's
@@ -1344,7 +1353,6 @@ for j in range(linuxcnc.MAX_JOINTS):
                           Radiobutton,
                           tabs_manual + ".joints.joint"+str(j)) )
 widgets = nf.Widgets(root_window,*widget_list)
-
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean
@@ -1447,6 +1455,8 @@ def jogspeed_continuous():
 
 def jogspeed_incremental(dir=1):
     global jogincr_index_last
+    global continuous_jog_in_progress
+    if continuous_jog_in_progress: return
     jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
@@ -3167,6 +3177,8 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
     else:
+        global continuous_jog_in_progress
+        continuous_jog_in_progress = 1
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
@@ -3177,6 +3189,8 @@ def jog_off(a):
     jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a))
 
 def jog_off_actual(a):
+    global continuous_jog_in_progress
+    continuous_jog_in_progress = 0
     if not manual_ok(): return
     jog_after[a] = None
     jogging[a] = 0
@@ -3813,7 +3827,10 @@ if hal_present == 1 :
         import vcpparse
         comp.setprefix("pyvcp")
         f = Tkinter.Frame(root_window)
-        f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
+        if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
+            f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
+        else:
+            f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
         vcpparse.create_vcp(f, comp)
         vcp_frame = f
@@ -4017,8 +4034,7 @@ if lathe:
     widgets.view_x.pack_forget()
     widgets.view_p.pack_forget()
     widgets.rotate.pack_forget()
-# my patch for display Y inside lathe for ful use the tailstock (with a W axis G33.1 G73 G81 G82 g83 does not work fine)
-#    widgets.axis_y.grid_forget()
+    widgets.axis_y.grid_forget()
     widgets.menu_view.delete(0, 5)
 else:
     widgets.view_y2.pack_forget()
