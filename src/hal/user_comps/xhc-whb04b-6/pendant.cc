@@ -1010,12 +1010,12 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.spindle_plus)
     {
-        mHal.setSpindlePlus(true);
+        mHal.setSpindleOverridePlus(true);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.spindle_minus)
     {
-        mHal.setSpindleMinus(true);
+        mHal.setSpindleOverrideMinus(true);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.function)
@@ -1182,12 +1182,12 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.spindle_plus)
     {
-        mHal.setSpindlePlus(false);
+        mHal.setSpindleOverridePlus(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.spindle_minus)
     {
-        mHal.setSpindleMinus(false);
+        mHal.setSpindleOverrideMinus(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.function)
@@ -1454,11 +1454,11 @@ bool Pendant::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
             {   // Spindle override mode
                 if (delta > 0)
                 {
-                    mHal.toggleSpindleIncrease();
+                    mHal.toggleSpindleOverrideIncrease();
                 }
                 else
                 {
-                    mHal.toggleSpindleDecrease();
+                    mHal.toggleSpindleOverrideDecrease();
                 }
             }
             else if (!counters.isLeadCounterActive() && mIsLeadModeFeed && feedButton.stepMode() == HandwheelStepmodes::Mode::MPG)
@@ -1574,7 +1574,7 @@ void Pendant::setStepMode_5_10(bool enable)
     mIsStepMode_5_10 = true;
 }
 // ----------------------------------------------------------------------
-    Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :
+Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackageData& displayData) :
     mCurrentButtonsState(currentButtonsState),
     mHal(hal),
     mDisplayData(displayData),
@@ -1673,13 +1673,25 @@ void Display::updateData()
 {
     mDisplayData.displayModeFlags.asBitFields.isReset = !mHal.getIsMachineOn();
 
+    uint32_t spindleSpeedIncrease = static_cast<uint32_t>(mHal.getspindleSpeedChangeIncrease());
+    uint32_t spindleSpeedDecrease = static_cast<uint32_t>(mHal.getspindleSpeedChangeDecrease());
     uint32_t spindleFeedRate = static_cast<uint32_t>(mHal.getSpindleOverrideValue() * 100);
+    uint32_t spindleSpeedCmd = static_cast<uint32_t>(mHal.getspindleSpeedCmd());
     uint32_t feedRate     = static_cast<uint32_t>(mHal.getFeedOverrideValue() * 100);
 
     assert(spindleFeedRate <= std::numeric_limits<uint16_t>::max());
+    assert(spindleSpeedCmd <= std::numeric_limits<uint16_t>::max());
     assert(feedRate <= std::numeric_limits<uint16_t>::max());
 
-    mDisplayData.spindleFeedRate = spindleFeedRate;
+    if (spindleSpeedIncrease || spindleSpeedDecrease)
+    {
+    	  mDisplayData.spindleFeedRate = spindleSpeedCmd;
+    }
+    else
+    {
+        mDisplayData.spindleFeedRate = spindleFeedRate;   
+    }
+    	
     mDisplayData.feedRate     = feedRate;
 
     bool isAbsolutePositionRequest = (mAxisPositionMethod == AxisPositionMethod::ABSOLUTE);

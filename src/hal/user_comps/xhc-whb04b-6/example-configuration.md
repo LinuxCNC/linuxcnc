@@ -80,9 +80,9 @@ net pdnt.axis.x.jog-counts                whb.axis.x.jog-counts                 
 net pdnt.axis.y.jog-counts                whb.axis.y.jog-counts                 axis.y.jog-counts
 net pdnt.axis.z.jog-counts                whb.axis.z.jog-counts                 axis.z.jog-counts
 
-net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable          
-net pdnt.axis.y.jog-enable                whb.axis.y.jog-enable                 axis.y.jog-enable          
-net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable          
+net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable
+net pdnt.axis.y.jog-enable                whb.axis.y.jog-enable                 axis.y.jog-enable
+net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable
 
 net pdnt.axis.x.jog-vel-mode              whb.axis.x.jog-vel-mode               axis.x.jog-vel-mode
 net pdnt.axis.y.jog-vel-mode              whb.axis.y.jog-vel-mode               axis.y.jog-vel-mode
@@ -124,10 +124,10 @@ net  pdnt.mist.on                         whb.halui.mist.on                     
 
 
 # default function button signals
-net pdnt.button.m-home                    whb.button.m-home                     halui.home-all                   # Homeing use built-in halui home all
+net pdnt.button.m-home                    whb.button.m-home                     halui.home-all                   # Homing use built-in halui home all
 net pdnt.button.safe-z                    whb.button.safe-z                     halui.mdi-command-03             # Safe-z  use MDI command from main.ini
 net pdnt.button.w-home                    whb.button.w-home                     halui.mdi-command-04             # Unpark  use MDI command from main.ini
-net pdnt.button.zero-selected-axis        whb.button.probe-z                    halui.mdi-command-08             # Probe-Z use MDI command from main.ini
+net pdnt.button.probe-z                   whb.button.probe-z                    halui.mdi-command-08             # Probe-Z use MDI command from main.ini
 
 
 # unused, just exposes pendant internal status or as basic button
@@ -151,12 +151,13 @@ net pdnt.button.zero-selected-axis        whb.button.probe-z                    
 
 # spindle related signals
 net pdnt.spindle.is-on                    whb.halui.spindle.is-on               spindle.0.on
-net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start              
-net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop             
-net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward          
-net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse          
+net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start
+net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop
+net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward
+net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse
 net pdnt.spindle.increase                 whb.halui.spindle.increase            halui.spindle.0.increase         # reserved whb.button.macro-3
 net pdnt.spindle.decrease                 whb.halui.spindle.decrease            halui.spindle.0.decrease         # reserved whb.button.macro-4
+net pdnt.spindle-speed-abs                whb.halui.spindle-speed-cmd           spindle.0.speed-out-abs          # speed cmd from motion in rpm absolue
 
 
 # spindle speed override signals

@@ -131,6 +131,9 @@ public:
         hal_bit_t  * spindleIsOn{nullptr};
         //! to be connected to \ref halui.spindle-override.value
         hal_float_t* spindleOverrideValue{nullptr};
+        //! To be connected to an encoded and correctly scaled value of an spindle feedback signal.
+        //! See also \ref encoder and \ref scale.
+        hal_float_t* spindleSpeedCmd{nullptr};
 
         //! to be connected to \ref halui.max-velocity.value
         hal_float_t* feedOverrideMaxVel{nullptr};
@@ -444,14 +447,19 @@ public:
     //! \param selected true if Lead is selected, false otherwise
     void setFeedValueSelectedLead(bool selected);
 
+    //! Returns the spindle speed.
+    //! \return the spindle speed in rounds per second
+    hal_float_t getspindleSpeedCmd() const;
+    hal_float_t getspindleSpeedChangeIncrease() const;
+    hal_float_t getspindleSpeedChangeDecrease() const;
     //! Returns the current spindle override value.
     //! \sa Hal::In::spindleOverrideValue
     //! \return the current spindle override value v: 0 <= v <= 1
     hal_float_t getSpindleOverrideValue() const;
-    //! \sa setSpindlePlus(bool, size_t)
-    void setSpindlePlus(bool enabled);
-    //! \sa setSpindleMinus(bool, size_t)
-    void setSpindleMinus(bool enabled);
+    //! \sa setSpindleOverridePlus(bool, size_t)
+    void setSpindleOverridePlus(bool enabled);
+    //! \sa setSpindleOverrideMinus(bool, size_t)
+    void setSpindleOverrideMinus(bool enabled);
     //! \sa setFunction(bool, size_t)
     void setFunction(bool enabled);
     //! Requests machine to search home for all axis. \ref halui.home-all
@@ -461,15 +469,15 @@ public:
     //! \sa setWorkpieceHom(bool, size_t)
     void setWorkpieceHome(bool enabled);
     //! \sa toggleSpindleDirection(bool, size_t)
-    void toggleSpindleDirection(bool isButtonPressed);
+    void toggleSpindleDirection(bool enabled);
     //! \sa toggleSpindleOnOff(bool, size_t)
-    void toggleSpindleOnOff(bool isButtonPressed);
+    void toggleSpindleOnOff(bool enabled);
     //! \sa toggleFloodOnOff(bool, size_t)
-    void toggleFloodOnOff(bool isButtonPressed);
+    void toggleFloodOnOff(bool enabled);
     //! \sa toggleMistOnOff(bool, size_t)
-    void toggleMistOnOff(bool isButtonPressed);
+    void toggleMistOnOff(bool enabled);
     //! \sa toggleLubeOnOff(bool, size_t)
-    void toggleLubeOnOff(bool isButtonPressed);
+    void toggleLubeOnOff(bool enabled);
     //! \sa setProbeZ(bool, size_t)
     void setProbeZ(bool enabled);
     //! \sa setMpgMode(bool, size_t)
@@ -516,32 +524,13 @@ public:
     void setMacro16(bool enabled);
     //! \sa setMacro16(bool, size_t)
 
-    //! \xrefitem HalMemory::Out::spindleOverrideScale setter
-//    void setSpindleOverrideScale(hal_float_t scale);
-    //! Toggles (high then low) spindle increase signal count times.
-    //! \sa HalMemory::Out::spindleDoIncrease
-    //! \sa spindleSpeedToggle(int8_t, bool)
-    //! \sa toggleSpindleIncrease()
-    void spindleIncrease(int8_t count);
-    //! Toggles (high then low) spindle decrease signal count times.
-    //! \sa HalMemory::Out::spindleDoDecrease
-    //! \sa spindleSpeedToggle(int8_t, bool)
-    //! \sa toggleSpindleDecrease()
-    void spindleDecrease(int8_t count);
-    //! Inverts the spindle increase signal state once.
-    //! \sa HalMemory::Out::spindleDoIncrease
-    //! \sa spindleIncrease(int8_t)
-    void toggleSpindleIncrease();
+    void toggleSpindleOverrideIncrease();
     //! Inverts the spindle decrease signal state once.
-    //! \sa HalMemory::Out::spindleDoDecrease
-    //! \sa spindleDecrease(int8_t)
-    void toggleSpindleDecrease();
+    void toggleSpindleOverrideDecrease();
     //! Inverts the feedrate increase signal state once.
-    //! \sa HalMemory::Out::feedrateDoIncrease
     //! \sa feedrateIncrease(int8_t)
     void toggleFeedrateIncrease();
     //! Inverts the feedrate decrease signal state once.
-    //! \sa HalMemory::Out::feedrateDoDecrease
     //! \sa feedrateDecrease(int8_t)
     void toggleFeedrateDecrease();
     //! Writes the corresponding counter to to each axis' count.
@@ -575,7 +564,7 @@ private:
     std::ostream mDevNull{nullptr};
     std::ostream* mHalCout{nullptr};
     HandwheelStepmodes::Mode mStepMode;
-    bool                     mIsSpindleDirectionForward{true};
+    bool mIsSpindleDirectionForward{true};
     Profiles::HalRequestProfile mHalRequestProfile;
 
     //! //! Allocates new hal_bit_t pin according to \ref mIsSimulationMode. If \ref mIsSimulationMode then
@@ -617,7 +606,6 @@ private:
     bool requestAutoMode(bool isRisingEdge);
     //! Requests manual mode if in MDI mode. Skips request if in AUTO mode.
     //! \sa requestMode(bool, hal_bit_t*, hal_bit_t*)
-    //! \param isButtonPressed true on button press, false on release
     //! \return true if machine has selected the mode, false otherwise
     bool requestManualMode(bool isRisingEdge);
     //! \sa requestManualMode(bool)
@@ -644,7 +632,5 @@ private:
     //! \return on rising edge: true if the machine has selected or is in the desired mode, false otherwise;
     //! on falling edge: false
     bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
-    //! Toggles n times the spindle increase/decrease pin.
-    void spindleSpeedToggle(int8_t count, bool increase);
 };
 }

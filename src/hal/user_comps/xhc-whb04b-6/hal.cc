@@ -103,6 +103,7 @@ Hal::~Hal()
 
     freeSimulatedPin((void**)(&memory->in.spindleIsOn));
     freeSimulatedPin((void**)(&memory->in.spindleOverrideValue));
+    freeSimulatedPin((void**)(&memory->in.spindleSpeedCmd));
 
     freeSimulatedPin((void**)(&memory->in.feedOverrideMaxVel));
     freeSimulatedPin((void**)(&memory->in.feedOverrideValue));
@@ -511,6 +512,7 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.feedOverrideDecrease), mHalCompId, "%s.halui.feed-override.decrease", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedOverrideIncrease), mHalCompId, "%s.halui.feed-override.increase", mComponentPrefix);
 
+    newHalFloat(HAL_IN, &(memory->in.spindleSpeedCmd), mHalCompId, "%s.halui.spindle-speed-cmd", mComponentPrefix);
     newHalFloat(HAL_IN, &(memory->in.spindleOverrideValue), mHalCompId, "%s.halui.spindle-override.value",mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.spindleOverrideScale), mHalCompId, "%s.halui.spindle-override.scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.spindleDoIncrease), mHalCompId, "%s.halui.spindle.increase", mComponentPrefix);
@@ -809,6 +811,21 @@ void Hal::setFeedMinus(bool enabled)
     setPin(enabled, KeyCodes::Buttons.feed_minus.text);
 }
 // ----------------------------------------------------------------------
+hal_float_t Hal::getspindleSpeedCmd() const
+{
+    return *memory->in.spindleSpeedCmd;
+}
+// ----------------------------------------------------------------------
+hal_float_t Hal::getspindleSpeedChangeIncrease() const
+{
+    return *memory->out.spindleDoIncrease;
+}
+// ----------------------------------------------------------------------
+hal_float_t Hal::getspindleSpeedChangeDecrease() const
+{
+    return *memory->out.spindleDoDecrease;
+}
+// ----------------------------------------------------------------------
 hal_float_t Hal::getSpindleOverrideValue() const
 {
     return *memory->in.spindleOverrideValue;
@@ -864,7 +881,7 @@ void Hal::setFeedOverrideScale(hal_float_t scale)
     *memory->out.feedOverrideScale = scale;
 }
 // ----------------------------------------------------------------------
-void Hal::setSpindlePlus(bool enabled)
+void Hal::setSpindleOverridePlus(bool enabled)
 {
     if (enabled)
     {
@@ -878,7 +895,7 @@ void Hal::setSpindlePlus(bool enabled)
     setPin(enabled, KeyCodes::Buttons.spindle_plus.text);
 }
 // ----------------------------------------------------------------------
-void Hal::setSpindleMinus(bool enabled)
+void Hal::setSpindleOverrideMinus(bool enabled)
 {
     if (enabled)
     {
@@ -950,38 +967,41 @@ void Hal::setWorkpieceHome(bool enabled)
 }
 }
 // ----------------------------------------------------------------------
-void Hal::toggleSpindleDirection(bool isButtonPressed)
+void Hal::toggleSpindleDirection(bool enabled)
 {
-        if (isButtonPressed)
+    if (enabled)
+    {
+        mIsSpindleDirectionForward = !mIsSpindleDirectionForward;
+    }
+
+    // on running spindle update direction immediately
+    if (*memory->in.spindleIsOn)
+    {
+        if (enabled)
         {
-        	// on running spindle update direction immediately
-        	if (*memory->in.spindleIsOn)
-          {
-               if (mIsSpindleDirectionForward)
-               {
-                   *memory->out.spindleDoRunForward = true;
-               }
-               else
-               {
-                   *memory->out.spindleDoRunReverse = true;
-               }
-          }
-          else
-          {
-          	// on stopped spindle update direction for next start
-             mIsSpindleDirectionForward = !mIsSpindleDirectionForward;
-          }
+            if (mIsSpindleDirectionForward)
+            {
+                *memory->out.spindleDoRunForward = true;
+                *memory->out.spindleDoIncrease = true;
+            }
+            else
+            {
+                *memory->out.spindleDoRunReverse = true;               
+                *memory->out.spindleDoIncrease = true;
+            }
         }
         else
         {
             *memory->out.spindleDoRunForward = false;
             *memory->out.spindleDoRunReverse = false;
+            *memory->out.spindleDoIncrease   = false;
         }
+    }
 }
 // ----------------------------------------------------------------------
-void Hal::toggleSpindleOnOff(bool isButtonPressed)
+void Hal::toggleSpindleOnOff(bool enabled)
 {
-    if (isButtonPressed)
+    if (enabled)
     {
         if (*memory->in.spindleIsOn)
         {
@@ -994,10 +1014,13 @@ void Hal::toggleSpindleOnOff(bool isButtonPressed)
             if (mIsSpindleDirectionForward)
             {
                 *memory->out.spindleDoRunForward = true;
+                *memory->out.spindleDoIncrease = true;
             }
             else
             {
                 *memory->out.spindleDoRunReverse = true;
+                *memory->out.spindleDoIncrease = true;
+                
             }
             *memory->out.spindleStart = true;
         }
@@ -1009,13 +1032,14 @@ void Hal::toggleSpindleOnOff(bool isButtonPressed)
         *memory->out.spindleStop         = false;
         *memory->out.spindleDoRunForward = false;
         *memory->out.spindleDoRunReverse = false;
+        *memory->out.spindleDoIncrease   = false;
     }
-    setPin(isButtonPressed, KeyCodes::Buttons.spindle_on_off.text);
+    setPin(enabled, KeyCodes::Buttons.spindle_on_off.text);
 }
 // ----------------------------------------------------------------------
-void Hal::toggleFloodOnOff(bool isButtonPressed)
+void Hal::toggleFloodOnOff(bool enabled)
 {
-    if (isButtonPressed)
+    if (enabled)
     {
         if (*memory->in.floodIsOn)
         {
@@ -1036,9 +1060,9 @@ void Hal::toggleFloodOnOff(bool isButtonPressed)
     }
 }
 // ----------------------------------------------------------------------
-void Hal::toggleMistOnOff(bool isButtonPressed)
+void Hal::toggleMistOnOff(bool enabled)
 {
-    if (isButtonPressed)
+    if (enabled)
     {
         if (*memory->in.mistIsOn)
         {
@@ -1059,9 +1083,9 @@ void Hal::toggleMistOnOff(bool isButtonPressed)
     }
 }
 // ----------------------------------------------------------------------
-void Hal::toggleLubeOnOff(bool isButtonPressed)
+void Hal::toggleLubeOnOff(bool enabled)
 {
-    if (isButtonPressed)
+    if (enabled)
     {
         if (*memory->in.lubeIsOn)
         {
@@ -1373,37 +1397,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     return false;
 }
 // ----------------------------------------------------------------------
-void Hal::spindleIncrease(int8_t count)
-{
-    std::cout << " spindleIncrease\n";
-    spindleSpeedToggle(count, true);
-}
-// ----------------------------------------------------------------------
-void Hal::spindleDecrease(int8_t count)
-{
-     std::cout << " spindleDecrease\n";
-    spindleSpeedToggle(count, false);
-}
-// ----------------------------------------------------------------------
-void Hal::spindleSpeedToggle(int8_t count, bool increase)
-{
-    hal_bit_t* spindlePin = memory->out.spindleDoIncrease;
-    if (!increase)
-    {
-        spindlePin = memory->out.spindleDoDecrease;
-    }
-    for (; count > 0; --count)
-    {
-        auto holdMs = mHalRequestProfile.spindle.holdMs;
-        auto spaceMs = mHalRequestProfile.spindle.spaceMs;
-        *spindlePin = true;
-        usleep(holdMs * 1000);
-        *spindlePin = false;
-        usleep(spaceMs * 1000);
-    }
-}
-// ----------------------------------------------------------------------
-void Hal::toggleSpindleIncrease()
+void Hal::toggleSpindleOverrideIncrease()
 {
     if (*memory->out.spindleOverrideDoIncrease)
     {
@@ -1416,7 +1410,7 @@ void Hal::toggleSpindleIncrease()
     }
 }
 // ----------------------------------------------------------------------
-void Hal::toggleSpindleDecrease()
+void Hal::toggleSpindleOverrideDecrease()
 {
     if (*memory->out.spindleOverrideDoDecrease)
     {
