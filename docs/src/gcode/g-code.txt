@@ -1310,7 +1310,7 @@ NOTE: G43.1 does not write to the tool table.
 (((G43.2 Apply additional Tool Length Offset)))
 
 ----
-G43.2 H-
+G43.2 H- axes-
 ----
 * 'H' - tool number
 
@@ -1334,8 +1334,9 @@ compensated axis is moved, that axis's endpoint is the compensated location.
 
 It is an error if:
 
-* 'H' is unspecified, or
-* the given tool number does not exist in the tool table
+* 'H' is unspecified and no axis offsets are specified
+* 'H is specified and the given tool number does not exist in the tool table
+* 'H' is specified and axes are also specified
 
 NOTE: G43.2 does not write to the tool table.
 
