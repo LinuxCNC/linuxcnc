@@ -218,7 +218,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         # critical messages don't timeout, the greeting does
         if self.desktop_notify:
-            self.desktop_dialog = NOTICE.new_critical(None)
+            self.notify_critical = NOTICE.new_critical()
+            self.notify_normal = NOTICE.new_normal()
             if self.notify_start_greeting:
                 NOTICE.notify(self.notify_start_title, self.notify_start_detail, None,
                         self.notify_start_timeout, self. notify_start_timeout)
@@ -243,6 +244,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             return Access(self.pref_filename), self.pref_filename
         return None,None
 
+    # allow screen option to inject data to the main VCP object (basically the window)
+    def _VCPObject_injection(self, vcpObject):
+        if self.desktop_notify:
+            vcpObject._NOTICE = NOTICE # Guve reference
+
     def on_periodic(self, w):
         e = self.error.poll()
         if e:
@@ -252,13 +258,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def process_error(self, w, kind, text):
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='ERROR:', message=text)
+                    NOTICE.update(self.notify_critical, title='ERROR:', message=text)
             elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
                 if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='OPERATOR TEXT:', message=text)
+                    NOTICE.update(self.notify_critical, title='OPERATOR TEXT:', message=text)
             elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
                 if self.desktop_notify:
-                    NOTICE.update(self.desktop_dialog, title='OPERATOR DISPLAY:', message=text)
+                    NOTICE.update(self.notify_critical, title='OPERATOR DISPLAY:', message=text)
+            elif kind == 255: # temparary info
+                if self.desktop_notify:
+                    NOTICE.update(self.notify_normal,
+                                    title='Low Priority:',
+                                     message=text,
+                                    status_timeout=0,
+                                    timeout=2)
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:

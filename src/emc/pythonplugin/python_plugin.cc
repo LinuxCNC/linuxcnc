@@ -70,7 +70,7 @@ int PythonPlugin::run_string(const char *cmd, bp::object &retval, bool as_file)
 	    retval = bp::exec(cmd, main_namespace, main_namespace);
 	status = PLUGIN_OK;
     }
-    catch (bp::error_already_set) {
+    catch (const bp::error_already_set&) {
 	if (PyErr_Occurred()) {
 	    exception_msg = handle_pyerror();
 	} else
@@ -97,7 +97,7 @@ int PythonPlugin::call_method(bp::object method, bp::object &retval)
 	retval = method(); 
 	status = PLUGIN_OK;
     }
-    catch (bp::error_already_set) {
+    catch (const bp::error_already_set&) {
 	if (PyErr_Occurred()) {
 	   exception_msg = handle_pyerror();
 	} else
@@ -147,7 +147,7 @@ int PythonPlugin::call(const char *module, const char *callable,
 	    retval = bp::object();
 	status = PLUGIN_OK;
     }
-    catch (bp::error_already_set) {
+    catch (const bp::error_already_set&) {
 	if (PyErr_Occurred()) {
 	   exception_msg = handle_pyerror();
 	} else
@@ -187,7 +187,7 @@ bool PythonPlugin::is_callable(const char *module,
 	}
 	result = PyCallable_Check(function.ptr());
     }
-    catch (bp::error_already_set) {
+    catch (const bp::error_already_set&) {
 	// KeyError expected if not callable
 	if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
 	    // something else, strange
@@ -270,7 +270,7 @@ int PythonPlugin::initialize()
 						  main_namespace);
 	    status = PLUGIN_OK;
 	}
-	catch (bp::error_already_set) {
+	catch (const bp::error_already_set&) {
 	    if (PyErr_Occurred()) {
 		exception_msg = handle_pyerror();
 	    } else

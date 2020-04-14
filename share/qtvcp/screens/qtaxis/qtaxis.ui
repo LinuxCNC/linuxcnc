@@ -1346,15 +1346,15 @@
                    <property name="_dtg" stdset="0">
                     <bool>false</bool>
                    </property>
-                   <property name="overlay" stdset="0">
-                    <bool>true</bool>
-                   </property>
                    <property name="background_color" stdset="0">
                     <color>
                      <red>0</red>
                      <green>0</green>
                      <blue>0</blue>
                     </color>
+                   </property>
+                   <property name="overlay" stdset="0">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -1603,7 +1603,7 @@
      <x>0</x>
      <y>0</y>
      <width>744</width>
-     <height>23</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1674,6 +1674,11 @@
     <property name="title">
      <string>View</string>
     </property>
+    <widget class="QMenu" name="menuGridSize">
+     <property name="title">
+      <string>Grid Size</string>
+     </property>
+    </widget>
     <addaction name="actionPerspectiveView"/>
     <addaction name="actionSideView"/>
     <addaction name="actionFrontView"/>
@@ -1681,6 +1686,9 @@
     <addaction name="actionRotatedView"/>
     <addaction name="actionClearPlot"/>
     <addaction name="actionShowOffsets"/>
+    <addaction name="menuGridSize"/>
+    <addaction name="actionAlphaMode"/>
+    <addaction name="actionInhibitSelection"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -2073,6 +2081,22 @@
   <action name="actionCalculatorDialog">
    <property name="text">
     <string>Calculator</string>
+   </property>
+  </action>
+  <action name="actionAlphaMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Alpha Mode</string>
+   </property>
+  </action>
+  <action name="actionInhibitSelection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Inhibit Selection</string>
    </property>
   </action>
  </widget>

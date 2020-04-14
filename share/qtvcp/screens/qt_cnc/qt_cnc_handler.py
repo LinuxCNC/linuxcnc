@@ -10,7 +10,9 @@ from PyQt5 import QtCore, QtWidgets
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.widgets.nurbs_editor import NurbsEditor
 from qtvcp.lib.keybindings import Keylookup
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 from qtvcp.core import Status, Action
 
@@ -29,6 +31,8 @@ KEYBIND = Keylookup()
 STATUS = Status()
 ACTION = Action()
 STYLEEDITOR = SSE()
+NURBSEDITOR = NurbsEditor()
+TOOLBAR = ToolBarActions()
 
 LOG = logger.getLogger(__name__)
 # Set the log level for this module
@@ -74,8 +78,10 @@ class HandlerClass:
         KEYBIND.add_call('Key_F8','on_keycall_F8')
         KEYBIND.add_call('Key_F9','on_keycall_custom','f9 pressed tesst')
         KEYBIND.add_call('Key_F10','on_keycall_custom','f10 pressed tesst')
-        KEYBIND.add_call('Key_F11','on_keycall_custom','f11 pressed test')
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
 
         self.w.toolOffsetDialog_._geometry_string='0 0 600 400 onwindow '
 
@@ -120,15 +126,10 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            LOG.debug('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     ########################
     # callbacks from STATUS #
@@ -222,6 +223,13 @@ class HandlerClass:
     def on_keycall_F8(self,event,state,shift,cntrl):
         if state:
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG','NONBLOCKING':True})
+    # f9, f10  call this function with different values
+    def on_keycall_custom(self,event,state,shift,cntrl,value):
+        if state:
+            print 'custom keycall function value: ',value
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if state:
+            NURBSEDITOR.load_dialog()
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             STYLEEDITOR.load_dialog()
@@ -254,10 +262,6 @@ class HandlerClass:
         pass
         #self.kb_jog(state, 3, -1, shift, linear=False)
 
-    # f9, f10 and f11 call this function with different values
-    def on_keycall_custom(self,event,state,shift,cntrl,value):
-        if state:
-            print 'custom keycall function value: ',value
 
     ###########################
     # **** closing event **** #

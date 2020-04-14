@@ -817,6 +817,12 @@ class _GStat(gobject.GObject):
     def is_all_homed(self):
         return self._is_all_homed
 
+    def is_homing(self):
+        for j in range(0, self.stat.joints):
+            if self.stat.joint[j].get('homing'):
+                return True
+        return False
+
     def machine_is_on(self):
         return self.old['state']  > linuxcnc.STATE_OFF
 
@@ -876,8 +882,13 @@ class _GStat(gobject.GObject):
     def is_metric_mode(self):
         return self.old['metric']
 
-    def is_spindle_on(self):
-        return self.old['spindle-enabled']
+    def is_spindle_on(self, num = 0):
+        self.stat.poll()
+        return self.stat.spindle[num]['enabled']
+
+    def get_spindle_speed(self, num):
+        self.stat.poll()
+        return self.stat.spindle[num]['speed']
 
     def is_joint_mode(self):
         try:

@@ -31,7 +31,6 @@ LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 class _PStat(object):
     def __init__(self):
         # only initialize once for all instances
-        print self.__class__._instanceNum
         if self.__class__._instanceNum >=1:
             return
         self.__class__._instanceNum += 1

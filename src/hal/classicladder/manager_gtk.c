@@ -116,7 +116,7 @@ void ButtonAddSectionDoneClickSignal( )
 	int Language = SECTION_IN_LADDER;
 	// get language type
 	strcpy( BuffLanguage , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleLanguage)->entry) );
-	if ( strcmp( BuffLanguage, _("Sequential") )==0 )
+	if ( strcmp( BuffLanguage, "Sequential" )==0 )
 		Language = SECTION_IN_SEQUENTIAL;
 	// get if main or sub-routine (and which number if sub, used in the 'C'all coils)
 	strcpy( SubNbrValue , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleSubRoutineNbr)->entry) );

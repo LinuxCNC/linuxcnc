@@ -223,7 +223,7 @@ int Interp::add_parameters(setup_pointer settings,
 	try {								\
 	    active_frame->pystuff.impl->kwargs[name] = value;		\
         }								\
-        catch (bp::error_already_set) {					\
+        catch (const bp::error_already_set&) {					\
 	    PyErr_Print();						\
 	    PyErr_Clear();						\
 	    ERS("add_parameters: cant add '%s' to args",name);		\

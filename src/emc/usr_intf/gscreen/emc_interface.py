@@ -164,6 +164,10 @@ class emc_control:
                     self.emccommand.jog(self.emc.JOG_CONTINUOUS
                     ,0 ,axis ,direction * rate)
 
+        def stop_jog(self, axis):
+            self.isjogging[axis] = 0
+            self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
+
         def incremental_jog(self, axis, direction, distance):
                 if self.masked: return
                 self.set_motion_mode()

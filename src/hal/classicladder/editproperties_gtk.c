@@ -42,7 +42,7 @@ int SavePosY = -1;
 void SetProperty(int NumParam,char * LblParam,char * ValParam)
 {
 	gtk_label_set_text((GtkLabel *)PropLabelParam[NumParam],LblParam);
-	if (strcmp(LblParam,_("Base"))==0)
+	if (strcmp(LblParam,"Base")==0)
 	{
 		gtk_widget_hide(PropEntryParam[NumParam]);
 		gtk_widget_show(PropEntryBaseParam[NumParam]);
@@ -53,7 +53,7 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 	}
 	else
 	{
-		if (strcmp(LblParam,_("TimerMode"))==0)
+		if (strcmp(LblParam,"TimerMode")==0)
 		{
 			gtk_widget_hide(PropEntryParam[NumParam]);
 			gtk_widget_hide(PropEntryBaseParam[NumParam]);
@@ -102,13 +102,13 @@ char * GetProperty(int NumParam)
 	gchar * TxtParameter;
 	/* Convert to a number if it is a base */
 	gtk_label_get(GTK_LABEL(PropLabelParam[NumParam]),&TxtParameter);
-	if (strcmp(TxtParameter,_("Base"))==0)
+	if (strcmp(TxtParameter,"Base")==0)
 	{
 		strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
 	}
 	else
 	{
-		if (strcmp(TxtParameter,_("TimerMode"))==0)
+		if (strcmp(TxtParameter,"TimerMode")==0)
 		{
 			strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
 		}

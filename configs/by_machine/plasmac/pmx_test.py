@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 '''
-pmx.py
+pmx_test.py
 
 Copyright (C) 2019 2020 Phillip A Carter
 
@@ -24,6 +24,19 @@ import gtk
 import gobject
 import time
 
+address      = '01'
+regRead      = '04'
+regWrite     = '06'
+rCurrent     = '2094'
+rCurrentMax  = '209A'
+rCurrentMin  = '2099'
+rFault       = '2098'
+rMode        = '2093'
+rPressure    = '2096'
+rPressureMax = '209D'
+rPressureMin = '209C'
+validRead    = '0402'
+
 while 1:
     try:
         import serial
@@ -44,19 +57,6 @@ while 1:
         response = dialog.run()
         dialog.destroy()
         raise SystemExit
-
-address      = '01'
-regRead      = '04'
-regWrite     = '06'
-rCurrent     = '2094'
-rCurrentMax  = '209A'
-rCurrentMin  = '2099'
-rFault       = '2098'
-rMode        = '2093'
-rPressure    = '2096'
-rPressureMax = '209D'
-rPressureMin = '209C'
-validRead    = '0402'
 
 class pmx(gtk.Window):
 
@@ -93,8 +93,23 @@ class pmx(gtk.Window):
         if not self.connected: return
         if reg == rMode:
             mode = self.modeSet.get_active() + 1
-            data = ('{:04X}'.format(mode))
-        else:
+            self.pressureSet.set_value(0)
+            if not self.write_to_register(rMode, '{:04x}'.format(mode)): return
+            self.mode_changed()
+            return
+        elif reg == rPressure:
+            if self.pressureType == 'bar':
+                if widget.get_value() == 0.1:
+                    widget.set_value(self.minPressure)
+                elif widget.get_value() == self.minPressure - 0.1:
+                    widget.set_value(0)
+            else:
+                if widget.get_value() == 1:
+                    widget.set_value(self.minPressure)
+                elif widget.get_value() == self.minPressure - 1:
+                    widget.set_value(0)
+            data = ('{:04X}'.format(int(widget.get_value() * multiplier))).upper()
+        elif reg == rCurrent:
             data = ('{:04X}'.format(int(widget.get_value() * multiplier))).upper()
         self.write_to_register(reg , data)
 
@@ -166,12 +181,14 @@ class pmx(gtk.Window):
                         elif reg == rCurrent:
                             data = float(int(result[7:11], 16) / 64.0)
                             #if not self.first:
-                            self.currentValue.set_text('{:.1f}'.format(data))
+                            self.currentValue.set_text('{:.0f}'.format(data))
                             return data
                         elif reg == rPressure:
                             data = float(int(result[7:11], 16) / 128.0)
-                            #if not self.first:
-                            self.pressureValue.set_text('{:.1f}'.format(data))
+                            if self.pressureType == 'bar':
+                                self.pressureValue.set_text('{:.1f}'.format(data))
+                            else:
+                                self.pressureValue.set_text('{:.0f}'.format(data))
                             return data
                         elif reg == rFault:
                             fault = int(result[7:11], 16)
@@ -195,19 +212,34 @@ class pmx(gtk.Window):
                             return code
                         elif reg == rCurrentMin:
                             data = float(int(result[7:11], 16) / 64.0)
-                            self.currentMin.set_text('{:.1f}'.format(data))
+                            self.currentMin.set_text('{:.0f}'.format(data))
                             return data
                         elif reg == rCurrentMax:
                             data = float(int(result[7:11], 16) / 64.0)
-                            self.currentMax.set_text('{:.1f}'.format(data))
+                            self.currentMax.set_text('{:.0f}'.format(data))
                             return data
                         elif reg == rPressureMin:
                             data = float(int(result[7:11], 16) / 128.0)
-                            self.pressureMin.set_text('{:.1f}'.format(data))
+                            self.minimumPressure = data
+                            if data < 15:
+                                self.pressureType = 'bar'
+                                self.pressureMin.set_text('{:.1f}'.format(data))
+                                self.pressureAdj.set_step_increment(0.1)
+                                self.pressureSet.set_digits(1)
+                            else:
+                                self.pressureType = 'psi'
+                                self.pressureMin.set_text('{:.0f}'.format(data))
+                                self.pressureAdj.set_step_increment(1)
+                                self.pressureSet.set_digits(0)
                             return data
                         elif reg == rPressureMax:
                             data = float(int(result[7:11], 16) / 128.0)
-                            self.pressureMax.set_text('{:.1f}'.format(data))
+                            if self.pressureType == 'bar':
+                                self.pressureMax.set_text('{:.1f}'.format(data))
+                                self.pressureAdj.set_upper(data)
+                            else:
+                                self.pressureMax.set_text('{:.0f}'.format(data))
+                                self.pressureAdj.set_upper(data)
                             return data
 
     def on_use_toggled(self,button):
@@ -234,13 +266,18 @@ class pmx(gtk.Window):
             if not self.write_to_register(rCurrent, data): return
             data = '{:04X}'.format(int(self.pressureSet.get_value() * 128))
             if not self.write_to_register(rPressure, data): return
-            if not self.read_register(rCurrentMin): return
-            if not self.read_register(rCurrentMax): return
-            self.currentSet.set_range(float(self.currentMin.get_text()),float(self.currentMax.get_text()))
-            if not self.read_register(rPressureMin): return
-            if not self.read_register(rPressureMax): return
-            self.pressureSet.set_range(float(self.pressureMin.get_text()),float(self.pressureMax.get_text()))
+            self.mode_changed()
             self.connected = True
+
+    def mode_changed(self):
+        if not self.read_register(rCurrentMin): return
+        if not self.read_register(rCurrentMax): return
+        self.currentSet.set_range(int(float(self.currentMin.get_text())),int(float(self.currentMax.get_text())))
+        if not self.read_register(rPressureMin): return
+        if not self.read_register(rPressureMax): return
+        self.pressureSet.set_range((0),float(self.pressureMax.get_text()))
+        self.minPressure = float(self.pressureMin.get_text())
+        self.maxPressure = float(self.pressureMax.get_text())
 
     def on_port_scan(self,widget):
         try:
@@ -292,8 +329,8 @@ class pmx(gtk.Window):
         self.currentMax.set_text('')
         self.pressureMax.set_text('')
         self.modeSet.set_active(0)
-        self.currentSet.set_value(114)
-        self.pressureSet.set_value(99)
+        self.currentSet.set_value(41)
+        self.pressureSet.set_value(0)
 
     def dialog_ok(self,title,text):
         dialog = gtk.Dialog(title,
@@ -395,8 +432,8 @@ class pmx(gtk.Window):
         self.modeSet.append_text('Gouge')
         self.modeSet.set_active(0)
         self.T.attach(self.modeSet, 4, 5, 3, 4)
-        self.currentAdj = gtk.Adjustment(0, 0, 115, 0.1, 5.0, 0.0)
-        self.currentSet = gtk.SpinButton(self.currentAdj, 0, 1)
+        self.currentAdj = gtk.Adjustment(0, 0, 125, 1, 10, 0.0)
+        self.currentSet = gtk.SpinButton(self.currentAdj, 0, 0)
         self.currentSet.set_wrap(True)
         self.T.attach(self.currentSet, 4, 5, 4, 5)
         self.pressureAdj = gtk.Adjustment(0, 0, 100, 0.1, 5.0, 0.0)

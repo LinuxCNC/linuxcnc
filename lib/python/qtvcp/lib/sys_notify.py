@@ -138,8 +138,11 @@ class Notification(object):
 
     def close(self):
         """Ask the notification server to close the notification"""
-        if self.id != 0:
-            DBUS_IFACE.CloseNotification(self.id)
+        try:
+            if self.id != 0:
+                DBUS_IFACE.CloseNotification(self.id)
+        except:
+            pass
 
     def onClose(self, callback):
         """Set the callback called when the notification is closed"""

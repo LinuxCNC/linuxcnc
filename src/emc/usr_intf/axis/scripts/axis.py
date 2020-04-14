@@ -1353,7 +1353,6 @@ for j in range(linuxcnc.MAX_JOINTS):
                           Radiobutton,
                           tabs_manual + ".joints.joint"+str(j)) )
 widgets = nf.Widgets(root_window,*widget_list)
-
 # Work around an apparent regression in python-tk which causes the value
 # associated with the Y axis button to be changed to the string "True",
 # related to the interpretation of the string "y" as true in a boolean
@@ -1456,6 +1455,8 @@ def jogspeed_continuous():
 
 def jogspeed_incremental(dir=1):
     global jogincr_index_last
+    global continuous_jog_in_progress
+    if continuous_jog_in_progress: return
     jogincr_size = int(root_window.call(widgets.jogincr._w, "list", "size"))
     # pdb.set_trace()
     cursel = root_window.call(widgets.jogincr._w, "curselection")
@@ -3176,6 +3177,8 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
     else:
+        global continuous_jog_in_progress
+        continuous_jog_in_progress = 1
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
@@ -3186,6 +3189,8 @@ def jog_off(a):
     jog_after[a] = root_window.after_idle(lambda: jog_off_actual(a))
 
 def jog_off_actual(a):
+    global continuous_jog_in_progress
+    continuous_jog_in_progress = 0
     if not manual_ok(): return
     jog_after[a] = None
     jogging[a] = 0

@@ -12,13 +12,15 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.lib.toolbar_actions import ToolBarActions
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
-STAT = Status()
+STATUS = Status()
 INFO = Info()
 ACTION = Action()
 STYLEEDITOR = SSE()
+TOOLBAR = ToolBarActions()
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -34,16 +36,16 @@ class HandlerClass:
         KEYBIND.add_call('Key_Plus', 'on_keycall_plus')
         KEYBIND.add_call('Key_Minus', 'on_keycall_minus')
                 
-        STAT.connect('general', self.dialog_return)
-        STAT.connect('state-on', lambda w: self.enable_onoff(True))
-        STAT.connect('state-off', lambda w: self.enable_onoff(False))
-        STAT.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
-        STAT.connect('hard-limits-tripped', self.hard_limit_tripped)
-        STAT.connect('interp-idle', lambda w: self.set_start_line(0))
-        STAT.connect('user-system-changed', self.user_system_changed)
-        STAT.connect('file-loaded', self.file_loaded)
-        STAT.connect('all-homed', self.all_homed)
-        STAT.connect('not-all-homed', lambda w, list: self.set_dro_homed(False))
+        STATUS.connect('general', self.dialog_return)
+        STATUS.connect('state-on', lambda w: self.enable_onoff(True))
+        STATUS.connect('state-off', lambda w: self.enable_onoff(False))
+        STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
+        STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
+        STATUS.connect('interp-idle', lambda w: self.set_start_line(0))
+        STATUS.connect('user-system-changed', self.user_system_changed)
+        STATUS.connect('file-loaded', self.file_loaded)
+        STATUS.connect('all-homed', self.all_homed)
+        STATUS.connect('not-all-homed', lambda w, list: self.set_dro_homed(False))
 
 # some global variables
         self.axis_list = INFO.AVAILABLE_AXES
@@ -137,6 +139,7 @@ class HandlerClass:
         for key in sorted(titles.iterkeys()):
             self.w.gcode_list.addItem(key + ' ' + titles[key])
         self.w.gcode_description.setReadOnly(True)
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_recall')
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -174,7 +177,7 @@ class HandlerClass:
                 if isinstance(receiver2, GCODE):
                     # if in manual do our keybindings - otherwise
                     # send events to gcode widget
-                    if STAT.is_man_mode() == False:
+                    if STATUS.is_man_mode() == False:
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
@@ -187,15 +190,10 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
-        except NameError as e:
-            self.add_alarm('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.error('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     #########################
     # CALLBACKS FROM STATUS #
@@ -285,7 +283,7 @@ class HandlerClass:
     def btn_start_clicked(self):
         if self.w.main_tab_widget.currentIndex() != 0:
             return
-        if not STAT.is_auto_mode():
+        if not STATUS.is_auto_mode():
             self.add_alarm("Must be in AUTO mode to run a program")
             return
         self.w.btn_start.setProperty('running', True)
@@ -313,7 +311,7 @@ class HandlerClass:
         if self.w.statuslabel_tool.text() == "0":
             self.add_alarm("Cannot touchoff with no tool loaded")
             return
-        if not STAT.is_all_homed():
+        if not STATUS.is_all_homed():
             self.add_alarm("Must be homed to perform tool touchoff")
             return
         max_probe = self.w.lbl_max_probe.text()
@@ -341,7 +339,7 @@ class HandlerClass:
 
     # file tab
     def btn_gcode_edit_clicked(self, state):
-        if not STAT.is_on_and_idle():
+        if not STATUS.is_on_and_idle():
             return
         for x in ["load", "next", "prev"]:
             self.w["btn_file_{}".format(x)].setEnabled(not state)
@@ -404,20 +402,26 @@ class HandlerClass:
         if not state:
             self.w.lbl_start_line.setText('1')
 
+    def chk_alpha_mode_checked(self, state):
+        self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_display_selection_checked(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
-        if not STAT.is_man_mode() or not STAT.machine_is_on():
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             self.add_alarm('Machine must be ON and in Manual mode to jog')
             return
         if linear:
-            distance = STAT.get_jog_increment()
-            rate = STAT.get_jograte()/60
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte()/60
         else:
-            distance = STAT.get_jog_increment_angular()
-            rate = STAT.get_jograte_angular()/60
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular()/60
         if state:
             if fast:
                 rate = rate * 2
@@ -479,11 +483,11 @@ class HandlerClass:
             ACTION.ABORT()
 
     def on_keycall_HOME(self,event,state,shift,cntrl):
-        if state and not STAT.is_all_homed() and self.use_keyboard():
+        if state and not STATUS.is_all_homed() and self.use_keyboard():
             ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_pause(self,event,state,shift,cntrl):
-        if state and STAT.is_auto_mode() and self.use_keyboard():
+        if state and STATUS.is_auto_mode() and self.use_keyboard():
             ACTION.PAUSE()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):

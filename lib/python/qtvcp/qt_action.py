@@ -108,7 +108,8 @@ class _Lcnc_Action(object):
             STATUS.emit('error',linuxcnc.OPERATOR_ERROR,'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error',linuxcnc.OPERATOR_TEXT,'Hard Limits Are Reset To Active!')
+            # make it temparary
+            STATUS.emit('error',255,'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -226,6 +227,8 @@ class _Lcnc_Action(object):
             outfile.close()
 
     def SET_AXIS_ORIGIN(self,axis,value):
+        if axis == '' or axis.upper() not in ("XYZABCUVW"):
+            log.warning("Couldn't set orgin -axis >{}< not recognized:".format(axis))
         m = "G10 L20 P0 %s%f"%(axis,value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
@@ -292,20 +295,35 @@ class _Lcnc_Action(object):
         self.cmd.feedrate(rate/100.0)
     def SET_SPINDLE_RATE(self, rate, number = 0):
         self.cmd.spindleoverride(rate/100.0, number)
+
     def SET_JOG_RATE(self, rate):
         STATUS.set_jograte(float(rate))
     def SET_JOG_RATE_ANGULAR(self, rate):
         STATUS.set_jograte_angular(float(rate))
     def SET_JOG_INCR(self, incr, text):
         STATUS.set_jog_increments(incr, text)
+        # stop runaway jogging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
     def SET_JOG_INCR_ANGULAR(self, incr, text):
         STATUS.set_jog_increment_angular(incr, text)
+        # stop runaway joging
+        for jnum in range(STATUS.stat.joints):
+            self.STOP_JOG(jnum)
 
-    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = 0):
+    def SET_SPINDLE_ROTATION(self, direction = 1, rpm = 100, number = -1):
         self.cmd.spindle(direction, rpm, number)
     def SET_SPINDLE_FASTER(self, number = 0):
-        if abs(STATUS.old['spindle-speed']) >= INFO.MAX_SPINDLE_SPEED: return
-        self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]: return
+            self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, i)
     def SET_SPINDLE_SLOWER(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
     def SET_SPINDLE_STOP(self, number = 0):
@@ -391,6 +409,11 @@ class _Lcnc_Action(object):
             else:
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
+    def STOP_JOG(self, jointnum):
+        if STATUS.machine_is_on():
+            jjogmode,j_or_a = self.get_jog_info(jointnum)
+            self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
+
     def TOGGLE_FLOOD(self):
         self.cmd.flood(not(STATUS.stat.flood))
     def SET_FLOOD_ON(self):
@@ -431,8 +454,13 @@ class _Lcnc_Action(object):
                     'pan-left','pan-right','rotate-up',
                 'rotate-down', 'rotate-cw','rotate-ccw',
                 'overlay_dro_on','overlay_dro_off',
-                'overlay-offsets-on','overlay-offsets-off'):
+                'overlay-offsets-on','overlay-offsets-off',
+                'inhibit-selection-on','inhibit-selection-off',
+                'alpha-mode-on','alpha-mode-off'):
             STATUS.emit('graphics-view-changed',view,None)
+
+    def SET_GRAPHICS_GRID_SIZE(self, size):
+            STATUS.emit('graphics-view-changed','GRID-SIZE',{'SIZE':size})
 
     def ADJUST_GRAPHICS_PAN(self, x, y):
         STATUS.emit('graphics-view-changed','pan-view',{'X':x,'Y':y})
@@ -564,6 +592,12 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 #############################
 ###########################################
 # Filter Class
@@ -639,5 +673,3 @@ class FilterProgram:
             'TITLE':'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format (stderr))
-
-

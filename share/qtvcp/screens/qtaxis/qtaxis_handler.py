@@ -94,6 +94,7 @@ class HandlerClass:
         TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
         TOOLBAR.configure_submenu(self.w.menuUnhome, 'unhome_submenu')
         TOOLBAR.configure_submenu(self.w.menuZeroCoordinateSystem, 'zero_systems_submenu')
+        TOOLBAR.configure_submenu(self.w.menuGridSize, 'grid_size_submenu')
         TOOLBAR.configure_action(self.w.actionEstop, 'estop')
         TOOLBAR.configure_action(self.w.actionMachineOn, 'power')
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
@@ -128,6 +129,9 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionToolOffsetDialog, 'tooloffsetdialog')
         TOOLBAR.configure_action(self.w.actionOriginOffsetDialog, 'originoffsetdialog')
         TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
+        TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
+        TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
+        TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
         if not INFO.HOME_ALL_FLAG:
@@ -174,17 +178,10 @@ class HandlerClass:
                     event.accept()
                     return True
 
-        # ok if we got here then try keybindings
-        try:
-            b = KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            event.accept()
-            return True
-        except NameError as e:
-            LOG.debug('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
-            return False
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     def closing_cleanup__(self):
         TOOLBAR.saveRecentPaths()

@@ -1723,8 +1723,15 @@ class Gscreen:
            if in manual mode, it will increase or decrease jog increments
            by calling set_jog_increments(index_dir = )
            It will ether increase or decrease the increments based on 'SHIFT'
+           Any jogging will be cancelled to avoid a runaway.
         """
+
         if state and self.data._MAN in self.check_mode(): # manual mode required
+            # stop any jogging if increments are changed
+            if self.data.machine_on:
+                for jnum in range(self.emcstat.joints):
+                    self.emc.stop_jog(jnum)
+
             if SHIFT:
                 self.set_jog_increments(index_dir = -1)
             else:

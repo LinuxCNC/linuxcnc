@@ -11,9 +11,11 @@ PlasmaC and all its related software is released under GPLv2.
 
 == Introduction
 
-PlasmaC is a LinuxCNC configuration for plasma cutting incorporating the PlasmaC HAL component with GUI configurations for both <<cha:axis-gui, Axis>> and <<cha:gmoccapy,Gmoccapy>>. It should run on any hardware that is supported on LinuxCNC provide there are enough I/O pins.
+PlasmaC is a plasma cutting configuration for LinuxCNC v2.8 or later. It includes a HAL component plus GUI configurations for both <<cha:axis-gui, Axis>> and <<cha:gmoccapy,Gmoccapy>>.
 
-If you are new user, it may be worthwhile having a read through the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
+It should run on any hardware that is supported on LinuxCNC provided there are enough I/O pins for the configuration.
+
+If you are new to plasma user, it may be worthwhile having a read through the link:plasma-cnc-primer.html[Plasma CNC Primer] document which is a generic introduction to CNC plasma cutting.
 
 PlasmaC uses one of three different operating modes.
 
@@ -27,13 +29,13 @@ PlasmaC uses one of three different operating modes.
    Use external up/down for THC
 |===
 
-For full functionality, Plasmac requires LinuxCNC v2.9 (the current master) or later. It will work on LinuxCNC v2.8 with only the <<paused-motion, paused motion>> feature not available.
+NOTE: If your plasma cutter has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft Arc OK of mode 0.
 
-No Z axis motion is required in G-Code, the standard PlasmaC configurations will comment out any Z commands during program load.
+No Z axis motion is required in G-Code, in fact the standard PlasmaC configurations will comment out any Z commands during program load.
 
-For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 -G59.3).
+For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 ~ G59.3).
 
-Normally it is best to touch off your Z axis to roughly the top of your stock then bring the Z axis to almost the top of travel before starting your cuts.
+Normally it is best to touch off your Z axis to just above the top of your slats during the initial configuration then leave it at that.
 
 == I/O Requirements
 
@@ -51,7 +53,7 @@ This section only touches on the I/O required for PlasmaC itself, base machine r
 |Ohmic Probe|0,1,2|Digital input. Optional, see below +
                    Connected to the probe output +
                    If used, this is the primary probe sensor
-|Ohmic Probe Enable|0,1,2|Digital output. Only required if using ohmic probing +
+|Ohmic Probe Enable|0,1,2|Digital output. Optional, only required if using ohmic probing +
                           Connected to the probe enabling input +
                           This pin is used to arm the ohmic probe
 |Breakaway Switch|0,1,2|Digital input. Optional, see below +
@@ -73,35 +75,33 @@ Only one of either 'float switch' or 'ohmic probe' is required. If both are used
 
 If 'ohmic probe' is used then 'ohmic probe enable' is required.
 
-'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, the could be combined and connected as a 'float switch'
+'breakaway switch' is not mandatory because 'float switch' is treated the same as a breakaway when not probing. If they were two separate switches, they could be combined and connected as a 'float switch'
 
 NOTE: The minimum I/O requirement for a PlasmaC configuration is 'arc voltage' input, 'float switch' input and 'torch on' output. In this case, PlasmaC treats the float switch as a breakaway switch when it is not probing.
 
-IMPORTANT: These pins will be entered later into the Configurator, they should *NOT* be used in your base machine .hal file.
+IMPORTANT: THESE PINS WILL BE ENTERED LATER INTO THE CONFIGURATOR, THEY SHOULD *NOT* BE USED IN YOUR BASE MACHINE .HAL FILE.
 
-== Installation
+== Installing LinuxCNC
 
-=== Getting LinuxCNC With The PlasmaC Add-Ons
-
-The minimum requirement for PlasmaC is LinuxCNC v2.8, although this version does NOT support the <<paused-motion, paused motion>> feature.
-
-LinuxCNC v2.9 or later provides full functionality and is the recommended option.
+The minimum requirement for PlasmaC is LinuxCNC v2.8.
 
 === If You Do Not Have Linux Installed
 
-Download an ISO image from one of the following and write it to a bootable device:
+Download one of the following ISO images and write it to a bootable device:
 
-* RTPREEMPT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
-For a machine using Mesa Electronics hardware, this can also be used for a machine using a parallel port and is recommended for most modern machines.
+* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
+This is the preferred option and is the environment PlasmaC is developed on. +
+If using Mesa Electronics Ethernet hardware then it is required and may also be used for other Mesa Electronics, Pico Systems and parallel port provide the latency is acceptable.
 
 * RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso +
-For a machine using the parallel port.
+Try this on a machine that has unacceptable latency when running PREEMPT_RT. +
+Not suitable if using Mesa Electronics Ethernet hardware.
 
-Then boot from the device and follow the prompts.
+Then boot from the device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNC. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the menu and continue to install the system.
 
-This will give you a machine with the current stable (v2.7) branch of LinuxCNC, go to the next section and follow the type of installation you would like. The 'Buildbot' is recommended for most users that will not be doing any LinuxCNC development.
+This will give you a machine with the current stable branch (v2.7) of LinuxCNC, go to the next section and follow the type of installation you would like. A 'Buildbot' installation is recommended for users that will not be doing any LinuxCNC development.
 
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.9 or later (or LinuxCNC v2.8 if you don't need reverse-run) then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
 
 All PlasmaC development has been done on a Stretch ISO installation.
 
@@ -109,14 +109,16 @@ All PlasmaC development has been done on a Stretch ISO installation.
 
 You can then choose between:
 
-* <<buildbot-install, A Buildbot installation>> The LinuxCNC Buildbot provides pre-compiled packages which can be installed by a package manager.
-* <<rip-install, A Run In Place installation>>. RIP builds are compiled on your computer and are normally used if you wish to do any development work.
+* <<buildbot-install, A Buildbot installation>> +
+This is the preferred method for most users. +
+The LinuxCNC Buildbot provides pre-compiled packages which can be installed and updated by the package manager. 
+* <<rip-install, A Run In Place installation>>. +
+Use this if you wish to do any development work. +
+RIP builds are manually downloaded and compiled locally on your computer.
 
 [[buildbot-install]]
 
 ==== Buildbot Installation
-
-For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC buildbot]
 
 To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
 
@@ -134,7 +136,7 @@ sudo apt-get install dirmngr
 
 The missing dirmngr package will then be installed.
 
-If you get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
+If you still get an error downloading the key it may be caused by being behind a firewall or a proxy server. In this case it may be worthwhile specifying port 80 rather than using the default of 11371:
 
 ----
 sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-key E0EE663E
@@ -142,7 +144,7 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net:80 --recv-key E0EE663E
 
 Close the terminal, then from the Main Menu, open Synaptic Package Manager.
 
-Select Search in the menu bar and do a search using 'linuxcnc' as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be deleted.
+Select Search in the menu bar and do a search using 'linuxcnc' as the search term. Right click on any linuxcnc results and then click Mark for Removal. When all installed results are selected click Apply on the menu bar and these will be removed.
 
 Click Settings from the menu and select Repositories.
 
@@ -156,14 +158,14 @@ deb-src http://buildbot.linuxcnc.org/ <distro> <branch>-<rt_type>
 Where:
 
 * <distro> is stretch or wheezy
-* <branch> is master or 2.8
+* <branch> is 2.8 or master
 * <rt_type> is rtpreempt or rt
 
-So if you installed the 'stretch' version and wanted master branch then you would have:
+So if you installed the 'stretch' version and wanted '2.8' branch on a 'PREEMPT_RT' machine then you would have:
 
 ----
-deb     http://buildbot.linuxcnc.org/ stretch master-rtpreempt
-deb-src http://buildbot.linuxcnc.org/ stretch master-rtpreempt
+deb     http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
+deb-src http://buildbot.linuxcnc.org/ stretch 2.8-rtpreempt
 ----
 
 When this is completed Synaptic should do a package reload, if not do a manual Reload from the menu bar.
@@ -172,7 +174,7 @@ Now do a Search with 'linuxcnc' as the search term and the result should be a li
 
 Right click on the package you want to install and then select Mark for Installation.
 
-For rtpreempt you would select linuxcnc-uspace and for rt it would be linuxcnc.
+For PREEMPT_RT you would select linuxcnc-uspace and for RTAI it would be linuxcnc.
 
 You may also select the documentation if you want it installed locally and/or the -dev package if you intend to build new realtime components and/or alternate front-ends for linuxcnc.
 
@@ -180,14 +182,14 @@ When you have made all your selections, click Apply on the menu bar and the sele
 
 Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
 
+NOTE: For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC Buildbot home page]
+
 [[rip-install]]
 
 ==== Run In Place Installation
 
-For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
-
-CAUTION: Ensure you are *NOT* the root user +
-Do *NOT* use sudo except for the 'make setuid' step
+CAUTION: ENSURE YOU ARE *NOT* THE ROOT USER +
+DO *NOT* USE SUDO EXCEPT FOR THE 'make setuid' STEP
 
 Open a terminal window:
 
@@ -197,13 +199,13 @@ $ cd linuxcnc-dev/src
 $ ./autogen.sh
 ----
 
-for RTPREEMPT
+for PREEMPT_RT
 
 ----
 $ ./configure --with-realtime=uspace
 ----
 
-For RTAI (mostly for parallel port machines)
+For RTAI
 
 ----
 $ ./configure --with-realtime=/usr/realtime-$VERSION
@@ -231,13 +233,15 @@ My preferred method of opening a run in place version of LinuxCNC is:
 $ ~/linuxcnc-dev/scripts/linuxcnc
 ----
 
-This script will set the required environment variables and start linuxcnc.
+This script can be run from anywhere in the directory structure and will set all the required environment variables and open the LinuxCNC config picker which then allows the selection of a configuration to run from LinuxCNC.
 
-You could then point this to an .ini file and open a configuration. This command could then be put in a desktop shortcut.
+Alternatively you could point the above script directly to an .ini file and open a configuration. This command could then be put in a desktop shortcut.
 
 ----
 $ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/plasmac/plasmac.ini
 ----
+
+NOTE: For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
 
 [[sec:testing-linuxcnc]]
 
@@ -251,13 +255,15 @@ Select either Axis or Gmoccapy.
 
 Select either metric or imperial.
 
+The selected PlasmaC simulation configuration will now open and be tested at will.
+
 You now have all the requirements to run PlasmaC, the next step is to create a working configuration for your machine.
 
 === Make A Working Base Machine Configuration
 
-IMPORTANT: Base machine configuration means a complete working system without the Plasmac configuration. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
+NOTE: Base machine configuration means a complete working system without any plasma connections. All axes should be working and tuned for best performance and all home and limit switches if installed should be operating correctly.
 
-Do NOT add any plasma specific connections here, these will be added later.
+IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. HERE, THESE WILL BE ADDED LATER DURING THE PlasmaC CONFIGURATION.
 
 [[z_settings]]
 
@@ -267,9 +273,9 @@ Recommended settings for the Z axis are:
 * Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (must not be lower than Z HOME_OFFSET)
 * Z HOME should be just below the maximum limit
 
-IMPORTANT: You should be able to home your machine, touch off, jog to soft limits without crashing and run some test G-Code without any errors.
+IMPORTANT: YOU SHOULD BE ABLE TO HOME YOUR MACHINE, TOUCH OFF, JOG TO SOFT LIMITS WITHOUT CRASHING AND RUN SOME TEST G-CODE WITHOUT ANY ERRORS.
 
-When this stage is completed you can configure PlasmaC on top of your working machine.
+When and ONLY WHEN this stage is successfully completed can you configure PlasmaC on top of your working machine.
 
 You can create a base machine manually or you may use existing configuration helpers:
 
@@ -293,11 +299,13 @@ https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC
 If you have a dual motor gantry configuration you may need to hand edit your configuration to suit: +
 https://forum.linuxcnc.org/49-basic-configuration/33079-how-to-2-or-more-motors-on-one-axis-gantry-linuxcnc-2-8-master?start=0[This LinuxCNC forum thread] may help.
 
-=== Add PlasmaC To Base Machine
+CAUTION: DO *NOT* CONTINUE UNTIL THE BASE MACHINE IS CONFIGURED AND WORKING
 
-You need to have a fully tested and working base machine configuration without any connections to plasma specific equipment before proceeding.
+== Add A PlasmaC Configuration To The Base Machine
 
-CAUTION: Do *NOT* proceed until this has been done
+You NEED to have a fully tested and working base machine configuration without any connections to plasma specific equipment before proceeding.
+
+CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
 If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
 
@@ -305,7 +313,7 @@ If you are using a Mesa Electronics THCAD card for arc voltage measurement, see 
 
 Installing a Plasmac configuration is done from the Configurator, the type of installation determines the location of the Configurator (configurator.py):
 
-=== Start A Plasmac BuildBot Installation
+=== Start A Plasmac BuildBot Configuration
 
 From a terminal:
 
@@ -313,7 +321,7 @@ From a terminal:
 $ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ====
 
-=== Start A PlasmaC Run In Place Installation
+=== Start A PlasmaC Run In Place Configuration
 
 From a terminal:
 
@@ -321,9 +329,9 @@ From a terminal:
 $ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
 ====
 
-TIP: If the Configurator does not run make sure that the file permissions allow executable.
+TIP: If the Configurator does not run make sure that the file permissions for configurator.py include executable.
 
-=== Install
+=== Configure
 
 The selection window is now visible:
 
@@ -372,8 +380,6 @@ image::images/plasmac_configurator_new.png[width=400]
               the HAL pin to turn the scribe on
 |Powermax Comms|only required if using Powermax communications +
                 the serial port used for communications
-|Gas Units|select the units display you require +
-           psi, Bar or None if not being used
 |===
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
@@ -397,17 +403,24 @@ After creating a new configuration some initial setup is required.
 === Initial Setup
 
 LinuxCNC should now be running with the PlasmaC panels visible.
+
 Open the Config Panel and ensure every one of these settings suits your machine.
 
 See <<config-panel, Config Panel>>
 
-IMPORTANT: If using a Mesa THCAD then up until now the 'Voltage Scale' value was obtained mathematically. If you intend to use cut voltages from manufactures cut charts then it would be advisable to do measurements of actual voltages and fine tune the 'Voltage Scale' and 'Voltage Offset'.
+If you use a float switch or ohmic probe then you will need to set the offset in the Config Panel to suit your table. To do this use the Probe Test button. The machine needs to be homed before a probe test can commence. Probe Test will cause the Z axis to probe to the surface of the material then retract to the Pierce Height set in the Run Panel. It will then wait at Pierce Height for 30 seconds during which time you can measure the actual distance and adjust the offset accordingly. Continue this procedure until you are satisfied with the result.
 
-CAUTION: Plasma cutting voltages can be lethal, if you are not experienced in doing these measurements get some qualified help.
+The next step is not necessary but it does show a more realistic position of the material if you switch the Preview to perspective.
+
+Jog Z down to the height of your most commonly used material then Touchoff the Z axis with a zero offset. Rehome the Z axis. This never needs changing and is cosmetic only. You could in theory touchoff Z each time you begin a job but there is no advantage as this measurement is not used in a PlasmaC config.
+
+IMPORTANT: IF USING A Mesa THCAD THEN UP UNTIL NOW THE 'Voltage Scale' VALUE WAS OBTAINED MATHEMATICALLY. IF YOU INTEND TO USE CUT VOLTAGES FROM MANUFACTURES CUT CHARTS THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE 'Voltage Scale' AND 'Voltage Offset'.
+
+CAUTION: PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF YOU ARE NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
 
 [[lowpass]]
 
-=== Lowpass Filter
+== Lowpass Filter
 
 The PlasmaC HAL component has an inbuilt lowpass filter which has the same behaviour as the LinuxCNC lowpass HAL component. This filter if used is applied to the 'plasmac.arc-voltage output'. The pin name to use for this filter is 'plasmac.lowpass-frequency' and as the name suggests you enter the cutoff frequency that is required, if the frequency is zero then there is no filtering applied.
 
@@ -419,7 +432,7 @@ setp plasmac.lowpass-frequency 100
 
 Would give a cutoff frequency of 100Hz.
 
-=== Contact Debounce
+== Contact Debounce
 
 Contact bounce or external interference may cause some inconsistent behaviour of the following switches:
 
@@ -725,7 +738,7 @@ The *'Save'* button has two modes of operation:
 
 [underline]*Reload Button*
 
-The *'Reload'* button will reload the default material and the material file.
+The *'Reload'* button will reload all the saved settings and the material file then redisplay the current material. If Powermax communications was enabled it will ignore the saved settings and keep it enabled.
 
 [underline]*New Button*
 
@@ -816,8 +829,6 @@ When a program is paused, this allows x/y motion to follow the programmed path i
 When reversing, motion will stop when it reaches a spindle on command.
 
 When forwarding, motion can continue until the end of the path.
-
-NOTE: Paused motion is only available in LinuxCNC version 2.9 or later.
 
 [underline]*Height Change*
 
@@ -1422,8 +1433,8 @@ m30
 
 NOTE: The 'high feed rate' is to ensure that the motion is at the machines highest feed rate.
 
-IMPORTANT: Some plasma cutters will not be suitable for this feature. +
-It is recommended that you carry out some test spotting to ensure that your plasma cutter is capable of utilising this feature.
+IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
+IT IS RECOMMENDED THAT YOU CARRY OUT SOME TEST SPOTTING TO ENSURE THAT YOUR PLASMA CUTTER IS CAPABLE OF UTILISING THIS FEATURE.
 
 == Error Messages
 
@@ -1533,8 +1544,6 @@ BUTTON_n_CODE       = <CODE> (the code run by a custom user button)
 BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 -----
 
-NOTE: <<paused-motion, PAUSED-MOTION-SPEED>> is only valid for LinuxCNC version 2.9 or later
-
 [underline]*[FILTER] Section*
 
 -----
@@ -1553,7 +1562,7 @@ FEATURES              = 12 (for reading .ini and HAL variables)
 USER_M_PATH           = ./ (for M190 material change)
 -----
 
-IMPORTANT: see <<path-tolerance, path tolerance>>
+IMPORTANT: SEE <<path-tolerance, PATH TOLERANCE>>
 
 [underline]*[HAL] Section*
 
@@ -1886,7 +1895,7 @@ PUDDLE_JUMP_HEIGHT  = value
 PUDDLE_JUMP_DELAY   = value
 CUT_HEIGHT          = value
 CUT_SPEED           = value
-CUT_AMPS            = value (only used for operator information)
+CUT_AMPS            = value (for info only unless Powermax communications is enabled)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
 PAUSE_AT_END        = value
 GAS_PRESSURE        = value (only used for Powermax communications)
@@ -2090,7 +2099,7 @@ If connecting to the plasma machines full arc voltage then a common setup is a 1
 
 To get the divider ratio use (R1 + R2 + 100000) / 100000 so for the above it would be (1000000 + 1000000 + 100000) / 100000 giving a ratio of 21.
 
-IMPORTANT: If you are using a HF start plasma power supply then each of these resistances should be made up of several high voltage resistors.
+IMPORTANT: IF YOU ARE USING A HF START PLASMA POWER SUPPLY THEN EACH OF THESE RESISTANCES SHOULD BE MADE UP OF SEVERAL HIGH VOLTAGE RESISTORS.
 
 [underline]*THCAD-300*
 
@@ -2176,13 +2185,13 @@ NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if us
 
 Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of 'Cut Mode', 'Cutting Amperage' and 'Gas Pressure' automatically from the 'Cut Parameters' of the material file.
 
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
 
-If Gas Pressure is set to Zero then the Powermax will calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
 
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are set with these values.
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
 
-This function is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file.
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
 
 ----
 [PLASMAC]
@@ -2196,17 +2205,16 @@ If you are unsure of the name of your port there is a python script in the confi
 $ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
 ----
 
-The gas pressure units display is configured by the PM_PRESSURE_DISPLAY variable. This should be set to the units configured in the Powermax unit being connected to, then the text entered for the PM_PRESSURE_DISPLAY variable is shown next to the Gas Pressure spinbutton on the Run Panel.
+The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
 
-If the PM_PORT variable is not set in the .ini file then the widgets associated with this function will not be visible.
 
 The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
 
 To switch the Powermax back to local mode you can either:
 
 .  Disable Powermax Comms from the Run panel
-.  Powerdown the Powermax for 30 seconds and then power it back on.
 .  Close LinuxCNC which will put the Powermax into local mode during shutdown.
+.  Powerdown the Powermax for 30 seconds and then power it back on.
 
 NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
@@ -2217,6 +2225,8 @@ To install pyserial, type the following in a terminal:
 sudo apt-get install python-serial
 ----
 
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+
 It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 
 == Support
@@ -2224,5 +2234,20 @@ It should be noted that during the initial testing phase of this feature it was 
 On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
 
 == Appendix
+
 [[rs485_connections]]
+
+=== RS485 Connections
+
 image::images/plasmac_rs485_connections.png[width=75%]
+
+[[reed-arc-ok]]
+
+=== Arc OK With A Reed Relay
+
+An effective and very reliable method of obtaining an Arc OK signal from a plasma power supply without a CNC port is to mount a reed relay inside a non-conductive tube and wrap and secure three turns of the work lead around the tube.
+
+This assembly will now act as a relay that will switch on when current is flowing through the work lead which only occurs when a cutting arc has been established.
+
+image::images/plasmac_reed_arc_ok.png[width=75%]
+

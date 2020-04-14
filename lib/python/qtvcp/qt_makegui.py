@@ -116,15 +116,21 @@ class _VCPWindow(QtWidgets.QMainWindow):
         try:
             instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
-            log.critical(e)
-            log.critical('Did a widget signal call a missing function name in the handler file?')
-            message = 'Did a widget signal call a missing function name in the handler file?\nPython Error:\n'+ str(e)
-            rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
-            sys.exit(0)
-
-        log.debug('QTVCP top instance: {}'.format(self))
-        for widget in instance.findChildren(QtCore.QObject):
-            log.debug('QTVCP Widget: {}'.format(widget))
+            formatted_lines = traceback.format_exc().splitlines()
+            if 'slotname' in formatted_lines[-2]:
+                log.critical('Missing slot name in handler file {}'.format(e))
+                message = '''A widget in the ui file, was assigned a signal \
+call to a missing function name in the handler file?\n
+There may be more. Some functions might not work.\n
+Python Error:\n {}'''.format(str(e))
+                rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
+            else:
+                log.critical(e)
+                sys.exit(0)
+        else:
+            log.debug('QTVCP top instance: {}'.format(self))
+            for widget in instance.findChildren(QtCore.QObject):
+                log.debug('QTVCP Widget: {}'.format(widget))
 
     def apply_styles(self, fname = None):
         if self.PATHS.IS_SCREEN:
