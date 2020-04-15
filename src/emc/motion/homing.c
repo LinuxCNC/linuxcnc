@@ -384,7 +384,8 @@ void do_homing(void)
                     joint->home_flags &= ~HOME_IS_SHARED; // shared not applicable
                     joint->home_state = HOME_SET_SWITCH_POSITION;
                     immediate_state = 1;
-                    SET_JOINT_HOMED_FLAG(joint, 1);
+                    // Note: SET_JOINT_HOMED_FLAG
+                    // is not set in case there is a final move
 		    break;
                 }
 		if (joint->home_flags & HOME_UNLOCK_FIRST) {
