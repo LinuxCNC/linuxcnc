@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 
 '''
 plasmac_gcode.py
@@ -73,8 +73,8 @@ def negative_cutoff(I, J, radius):
     global lastX, lastY, torchEnable
     centerX = lastX + I
     centerY = lastY + J
-    cosA = math.cos(4 / radius / scale)
-    sinA = math.sin(4 / radius / scale)
+    cosA = math.cos(oclength / radius / scale)
+    sinA = math.sin(oclength / radius / scale)
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
     print('m62 p3 (disable torch)')
@@ -167,7 +167,7 @@ def comment_out_z_commands():
         else:
             newline += bit
     if holeActive:
-        print 'm67 e3 q0 (arc complete, velocity 100%)'
+        print('m67 e3 q0 (arc complete, velocity 100%)')
         holeActive = False
     print('{} {})'.format(newline, newz))
 
@@ -199,6 +199,7 @@ fRead = open(infile, 'r')
 # first pass, check for valid material numbers and distance modes
 count = 0
 firstMaterial = 0
+oclength = 4
 for line in fRead:
     count += 1
     # convert to lower case and remove whitespace and spaces
@@ -268,6 +269,9 @@ for line in fRead:
                 print('*** invalid diameter word\n'
                       'Error in line #{}: {}\n'
                       .format(count, line))
+    # get overcut length
+    if line.startswith('#<oclength>'):
+        oclength = float(line.split('=')[1])
     if (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or cutType == 1:
         pierceOnly = True
     if line.startswith('m3$1s'):
