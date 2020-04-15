@@ -760,7 +760,7 @@ class HandlerClass:
                         else:
                             self.connTimer = time.time() + 5
                     self.pmx485Connected = False
-                elif hal.get_value('pmx485.fault'):
+                elif hal.get_value('pmx485.fault')and self.pmx485Connected:
                     faultRaw = '{:04.0f}'.format(hal.get_value('pmx485.fault'))
                     faultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
                     if faultRaw in self.pmx485FaultName.keys():
@@ -786,11 +786,15 @@ class HandlerClass:
                         if hal.get_value('pmx485.pressure_max') > 10:
                             self.builder.get_object('gas-pressure-label').set_text('Gas Pressure (psi)')
                             self.builder.get_object('gas-pressure').set_digits(0)
-                            self.builder.get_object('gas-pressure-adj').configure(0,-.1,150,1,0,0)
+                            self.builder.get_object('gas-pressure-adj').set_lower(-0.1)
+                            self.builder.get_object('gas-pressure-adj').set_upper(150)
+                            self.builder.get_object('gas-pressure-adj').set_step_increment(1)
                         else:
                             self.builder.get_object('gas-pressure-label').set_text('Gas Pressure (bar)')
                             self.builder.get_object('gas-pressure').set_digits(1)
-                            self.builder.get_object('gas-pressure-adj').configure(0,-.1,10,.1,0,0)
+                            self.builder.get_object('gas-pressure-adj').set_lower(-0.1)
+                            self.builder.get_object('gas-pressure-adj').set_upper(10)
+                            self.builder.get_object('gas-pressure-adj').set_step_increment(0.1)
                         toolTip = 'Powermax cutting current'
                         for widget in ['cut-amps','cut-amps-label']:
                                 self.builder.get_object(widget).set_tooltip_text(toolTip)
