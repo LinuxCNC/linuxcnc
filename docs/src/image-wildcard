@@ -9,7 +9,7 @@ except:
 	    """Return a relative version of a path"""
 
 	    if not path:
-		raise ValueError("no path specified")
+	        raise ValueError("no path specified")
 
 	    start_list = os.path.abspath(start).split(os.path.sep)
 	    path_list = os.path.abspath(path).split(os.path.sep)
@@ -19,7 +19,7 @@ except:
 
 	    rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
 	    if not rel_list:
-		return os.path.curdir
+	        return os.path.curdir
 	    return os.path.join(*rel_list)
 
 if len(sys.argv) > 1:
@@ -55,4 +55,4 @@ def lookup(image):
 i = lookup(image)
 if not i:
 	i = image
-print relpath(i, docpath)
+print(relpath(i, docpath))
