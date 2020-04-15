@@ -1542,6 +1542,7 @@ fi
 
 AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
 AC_TRY_COMPILE([
+        #include <stdio.h>
         #include <readline/readline.h>
     ],[
         #if RL_VERSION_MAJOR > 5
