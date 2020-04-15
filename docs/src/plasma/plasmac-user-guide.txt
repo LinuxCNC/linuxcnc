@@ -642,6 +642,8 @@ The *'Save'* button will save the currently displayed parameters as the default.
 
 The *'Reload'* button will reload the last saved parameters.
 
+[[run-panel]]
+
 === Run Panel
 
 This panel shows the parameters which are active for the current cut.
