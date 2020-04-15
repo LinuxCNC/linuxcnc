@@ -410,7 +410,7 @@ class _Lcnc_Action(object):
                 self.cmd.jog(linuxcnc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
 
     def STOP_JOG(self, jointnum):
-        if STATUS.machine_is_on():
+        if STATUS.machine_is_on() and STATUS.is_man_mode():
             jjogmode,j_or_a = self.get_jog_info(jointnum)
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
 
