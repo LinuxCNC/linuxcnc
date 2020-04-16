@@ -137,7 +137,7 @@ variable gear_t gears[16];
 function _ fp;
 license "GPL";
 option extra_setup yes;
-include "./spindle.h";
+include "hal/components/spindle.h";
 
 ;;
 
