@@ -572,7 +572,7 @@ void hm2_stepgen_allocate_pins(hostmot2_t *hm2) {
 
         hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
         if (hm2->pin[i].sec_pin & 0x80){
-            hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+            hm2_set_pin_direction_at_start(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
         }
     }
 }
