@@ -390,6 +390,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
+            # check for macro that needs no data
+            if i == ('', ''):break
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
             if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
