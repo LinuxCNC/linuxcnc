@@ -127,6 +127,12 @@ static void hm2_write(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
+    if (!hm2->ddr_initialized) {
+        hm2_ioport_initialize_ddr(hm2);
+        hm2->ddr_initialized = true;
+    }
+
+    hm2_watchdog_prepare_tram_write(hm2);
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_inmux_prepare_tram_write(hm2);
@@ -136,7 +142,6 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
     hm2_ssr_prepare_tram_write(hm2);
-    hm2_watchdog_prepare_tram_write(hm2);
     //UARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
 

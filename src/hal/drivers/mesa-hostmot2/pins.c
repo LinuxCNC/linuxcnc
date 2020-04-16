@@ -380,11 +380,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 snprintf(unknown, sizeof(unknown), "Out-%02d",sec_pin - 1);
                 return unknown;
             } else if (sec_pin == 32) {
-<<<<<<< HEAD
                 snprintf(unknown, sizeof(unknown), "AC Ref (internal)");
-=======
-                sprintf(unknown, "AC Ref");
->>>>>>> 6a1ae6fcb... hostmot2: Take a mass of updates from Peter
                 return unknown;
             }
             break;
@@ -783,21 +779,39 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
 
 
 
-void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
+void hm2_set_pin_direction_immediate(hostmot2_t *hm2, int pin_number, int direction) {
 
     if ((pin_number < 0) 
         || (pin_number >= hm2->num_pins)
         || (hm2->ioport.num_instances <= 0)) {
-        HM2_ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
+        HM2_ERR("hm2_set_pin_direction_immediate: invalid pin number %d\n", pin_number);
         return;
     }
 
     if ((direction != HM2_PIN_DIR_IS_INPUT) && (direction != HM2_PIN_DIR_IS_OUTPUT)) {
-        HM2_ERR("hm2_set_pin_direction: invalid pin direction 0x%08X\n", direction);
+        HM2_ERR("hm2_set_pin_direction_immediate: invalid pin direction 0x%08X\n", direction);
         return;
     }
 
     hm2->pin[pin_number].direction = direction;
+    hm2->pin[pin_number].direction_at_start = direction;
+}
+
+void hm2_set_pin_direction_at_start(hostmot2_t *hm2, int pin_number, int direction) {
+
+    if ((pin_number < 0) 
+        || (pin_number >= hm2->num_pins)
+        || (hm2->ioport.num_instances <= 0)) {
+        HM2_ERR("hm2_set_pin_direction_at_start: invalid pin number %d\n", pin_number);
+        return;
+    }
+
+    if ((direction != HM2_PIN_DIR_IS_INPUT) && (direction != HM2_PIN_DIR_IS_OUTPUT)) {
+        HM2_ERR("hm2_set_pin_direction_at_start: invalid pin direction 0x%08X\n", direction);
+        return;
+    }
+
+    hm2->pin[pin_number].direction_at_start = direction;
 }
 
 
@@ -858,7 +872,7 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
 // all pins whose secondary_tag == gtag and whose
 // secondary_unit < num_instances get their source set to secondary and
 // their pin direction updated to match
-static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances) {
+static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances, bool immediate) {
     int i;
 
     for (i = 0; i < hm2->num_pins; i ++) {
@@ -868,7 +882,11 @@ static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances) 
         ) {
             hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_SECONDARY);
             if (hm2->pin[i].sec_pin & 0x80){
-                hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+                if(immediate) {
+                    hm2_set_pin_direction_immediate(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+                } else {
+                    hm2_set_pin_direction_at_start(hm2, i, HM2_PIN_DIR_IS_OUTPUT);
+                }
             }
         }
     }
@@ -903,7 +921,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     // everything defaults to GPIO input...
     for (i = 0; i < hm2->num_pins; i ++) {
         hm2_set_pin_source(hm2, i, HM2_PIN_SOURCE_IS_PRIMARY);
-        hm2_set_pin_direction(hm2, i, HM2_PIN_DIR_IS_INPUT);
+        hm2_set_pin_direction_immediate(hm2, i, HM2_PIN_DIR_IS_INPUT);
     }
 
 
@@ -915,30 +933,31 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_stepgen_allocate_pins(hm2);
 
     // encoder and pwmgen just get all their enabled instances' pins
-    hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances, false);
     // Abs encoders are all packed together, not necessarily contiguously
-    hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_BISS, MAX_ABSENCS);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_FABS, MAX_ABSENCS);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_RESOLVER, hm2->resolver.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_INMUX, hm2->inmux.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_INM, hm2->inm.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_XY2MOD, hm2->xy2mod.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_UART_TX ,  hm2->uart.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_RX,  hm2->pktuart.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_TX ,  hm2->pktuart.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_BISS, MAX_ABSENCS, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_FABS, MAX_ABSENCS, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_INM, hm2->inm.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_INMUX, hm2->inmux.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_RX,  hm2->pktuart.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_TX ,  hm2->pktuart.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_RCPWMGEN,  hm2->rcpwmgen.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_RESOLVER, hm2->resolver.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_UART_TX ,  hm2->uart.num_instances, true);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_XY2MOD, hm2->xy2mod.num_instances, false);
     // smart-serial might also not be contiguous
-    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  HM2_SSERIAL_MAX_PORTS);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SMARTSERIAL,  HM2_SSERIAL_MAX_PORTS, true);
     // muxed encoder gets the sel pins
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER_SEL, hm2->encoder.num_instances, true);
     // and about half as many I/Os as you'd expect
-    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances, false);
 }
 
 const char *hm2_get_general_function_hal_name(int gtag) {
