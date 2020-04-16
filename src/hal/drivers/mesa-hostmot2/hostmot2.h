@@ -122,6 +122,7 @@
 #define HM2_GTAG_INM               (35) 
 #define HM2_GTAG_DPAINTER          (42) 
 #define HM2_GTAG_XY2MOD            (43) 
+#define HM2_GTAG_RCPWMGEN          (44) 
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -571,6 +572,54 @@ typedef struct {
     rtapi_u32 enable_addr;
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
+
+//
+// rcpwmgen pwmgen optimized for RC servos
+// 
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *width;
+            hal_float_t *scale;
+            hal_float_t *offset;
+        } pin;
+
+    } hal;
+} hm2_rcpwmgen_instance_t;
+
+
+// this hal param affects all rcpwmgen instances
+typedef struct {
+    struct {
+        hal_float_t rate;
+    } param;
+} hm2_rcpwmgen_module_global_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_rcpwmgen_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    // module-global HAL objects...
+    hm2_rcpwmgen_module_global_t *hal;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 rate_reg;
+ 
+    double written_rate;
+    rtapi_u32 error_throttle;
+
+} hm2_rcpwmgen_t;
+
 
 //
 // inmux
@@ -1360,6 +1409,7 @@ typedef struct {
         struct rtapi_list_head absenc_formats;
         int num_resolvers;
         int num_pwmgens;
+        int num_rcpwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
         int stepgen_width;
@@ -1406,6 +1456,7 @@ typedef struct {
     hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
+    hm2_rcpwmgen_t rcpwmgen;
     hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
@@ -1567,6 +1618,17 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
+
+//
+// rcpwmgen functions
+//
+
+int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_rcpwmgen_print_module(hostmot2_t *hm2);
+void hm2_rcpwmgen_cleanup(hostmot2_t *hm2);
+void hm2_rcpwmgen_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_force_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_prepare_tram_write(hostmot2_t *hm2);
 
 
 //

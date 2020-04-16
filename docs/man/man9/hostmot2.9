@@ -117,6 +117,7 @@ The valid entries in the format string are:
  [num_resolvers=\fIN\fB]
  [num_pwmgens=\fIN\fB]
  [num_3pwmgens=\fIN\fB]
+ [num_rcpwmgens=\fIN\fB]
  [num_stepgens=\fIN\fB]
  [stepgen_width=\fIN\fB]
  [num_sserials=\fIN\fB]
@@ -186,6 +187,11 @@ pwmgens available in the firmware, the board will fail to register.
 Only enable the first N Three-phase pwmgens.  If N is \-1, all 3pwmgens
 are enabled. If N is 0, no pwmgens are enabled.  If N is greater than the
 number of pwmgens available in the firmware, the board will fail to register.
+.TP
+\fBnum_rcpwmgens\fR [optional, default: \-1]
+Only enable the first N RC pwmgens.  If N is \-1, all rcpwmgens
+are enabled. If N is 0, no rcpwmgens are enabled.  If N is greater than the
+number of rcpwmgens available in the firmware, the board will fail to register.
 .TP
 \fBnum_stepgens\fR [optional, default: \-1]
 Only enable the first N stepgens.  If N is \-1, all stepgens are enabled.

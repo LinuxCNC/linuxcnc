@@ -111,6 +111,12 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_RCPWMGEN:
+            switch (sec_pin) {
+                case 1: return "PWM";
+            }
+            break;
+
         case HM2_GTAG_TPPWM:
             switch (sec_pin) {
                 case 1: return "PWM A";
@@ -469,6 +475,12 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 1: return "out0";
                 case 2: return "out1";
                 case 3: return "enable";
+            }
+            break;
+ 
+       case HM2_GTAG_RCPWMGEN:
+            switch (sec_pin) {
+                case 1: return "pwm";
             }
             break;
 
