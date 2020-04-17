@@ -26,17 +26,13 @@ if {[bind Scale <Right>] == ""} {
 
 lappend auto_path $::linuxcnc::TCL_LIB_DIR
 
-# wm geometry . [winfo screenwidth .]x[winfo screenheight .]+0+0
-after 1 update idletasks            ;# updates the full-screen
-
-#----------------------------------------------------------------- Menu items  
+#------------------------------------------------------ Menu items  
  . configure \
-	-menu .menu 
-	
+	-menu .menu	
 menu .menu \
 	-cursor {}
 menu .menu.colors \
-	-tearoff 1
+	-tearoff 0
 menu .menu.file \
 	-tearoff 0
 menu .menu.file.recent \
@@ -56,100 +52,8 @@ menu .menu.machine.touchoff \
 menu .menu.machine.clearoffset \
     -tearoff 0
 
-#---------------------------------------------- Add menu "Colors"
-proc ::tk_setPalette {args} {	 
-# Create an array that has the complete new palette.  If no colors specified, compute it
-    if {[llength $args] == 1} {
-	set new(background) [lindex $args 0]
-    } else {
-	array set new $args
-    }
+#--------------------------------------------------------- menu bodies
 
-    set bg [winfo rgb . $new(background)]
-     if {![info exists new(foreground)]} {		
-# Note that the range of each value in the triple returned by [winfo rgb] is 0-65535	
-	foreach {r g b} $bg {break}
-	if {$r+1.5*$g+0.5*$b > 100000} {
-	    set new(foreground) black
-	} else {
-	    set new(foreground) grey80
-	   }
-    }   
-# to darker by x percent 
-    lassign [winfo rgb . $new(foreground)] fg_r fg_g fg_b
-    lassign $bg bg_r bg_g bg_b
-    set darkerBg [format #%02x%02x%02x [expr {(7*$bg_r)/2560}] \
-	    [expr {(7*$bg_g)/2560}] [expr {(7*$bg_b)/2560}]]
-   
-    if {![info exists new(highlightColor)]} {
-	set new(highlightColor) [format #%02x%02x%02x \
-		[expr {(3*$bg_r + $fg_r)/2000}] \
-		[expr {(3*$bg_g + $fg_g)/2222}] \
-		[expr {(3*$bg_b + $fg_b)/2400}]]
-    }  
-    if {![info exists new(insertBackground)]} {
-	set new(insertBackground) [format #%02x%02x%02x \
-		[expr {(3*$bg_r + $fg_r)/900}] \
-		[expr {(3*$bg_g + $fg_g)/900}] \
-		[expr {(3*$bg_b + $fg_b)/900}]]
-    }      
-    if {![info exists new(selectForeground)]} {
-	set new(selectForeground) [format #%02x%02x%02x \
-		[expr {(3*$bg_r + $fg_r)/900}] \
-		[expr {(3*$bg_g + $fg_g)/1100}] \
-		[expr {(3*$bg_b + $fg_b)/1500}]]
-    }   
-    if {![info exists new(activeForeground)]} {
-	set new(activeForeground) [format #%02x%02x%02x \
-		[expr {(2*$bg_r + $fg_r)/4300}] \
-		[expr {(2*$bg_g + $fg_g)/2400}] \
-		[expr {(2*$bg_b + $fg_b)/2400}]]
-    }     
-    if {![info exists new(disabledForeground)]} {
-	set new(disabledForeground) [format #%02x%02x%02x \
-		[expr {(3*$bg_r + 2*$fg_r)/1200}] \
-		[expr {(3*$bg_g + 2*$fg_g)/1200}] \
-		[expr {(3*$bg_b + 2*$fg_b)/1200}]]
-    }
-    if {![info exists new(highlightBackground)]} {
-	set new(highlightBackground) $new(background)
-    }  
-# Pick a default acivebackground that is lighter round each color component   
-    if {![info exists new(activeBackground)]} {
-	foreach i {0 1 2} color $bg {
-	    set light($i) [expr {$color/256}]
-	    set inc1 [expr {($light($i)*20)/100}]
-	    set inc2 [expr {(255-$light($i))/4}]
-	    if {$inc1 > $inc2} {
-		incr light($i) $inc1
-	    } else {
-		incr light($i) $inc2
-	    }
-	    if {$light($i) > 255} {
-		set light($i) 255
-	    }
-	}
-	set new(activeBackground) [format #%02x%02x%02x $light(0) \
-		$light(1) $light(2)]
-    }  
-    if {![info exists new(selectBackground)]} {
-	set new(selectBackground) $darkerBg
-    }
-   
-    if {![info exists new(troughColor)]} {
-	set new(troughColor) $darkerBg
-    }
-# Recoloring all existing windows.
-    eval [tk::RecolorTree . new]
-    destroy .___tk_set_palette
-}
- #---------------------------------------------------------------------------------
-	set ::xcolorx "#a5a4a3"	
-	proc colchg {} {
-		set newcol [tk_chooseColor -title "Select color" -initialcolor $::xcolorx]
-        tk_setPalette $newcol 
-        update tk_setPalette
-	 }
 .menu.colors add command \
         -command "colchg"
 setup_menu_accel .menu.colors end [_ "Custom"]
@@ -562,7 +466,7 @@ setup_menu_accel .menu.help end [_ "_About AXIS"]
 	-command {wm transient .keys .;wm deiconify .keys; focus .keys.ok}
 setup_menu_accel .menu.help end [_ "Quick _Reference"]
 
-#---------------------------------------------------------- Add menu items
+#--------------------------------------------------- Add top menu items
 .menu add cascade 	-menu .menu.file
 setup_menu_accel .menu end [_ _File]
 
@@ -579,53 +483,58 @@ setup_menu_accel .menu end [_ _Colors]
 setup_menu_accel .menu end [_ _Help]
 
 # ------------------------------------------------- Toolbar  -------------------------------------------
-canvas .toolbar -borderwidth "0" -relief flat 
+canvas .toolbar -borderwidth "0" -relief flat \
 
 vrule .toolbar.rule16
 
 Button .toolbar.machine_estop \
         -image [load_image e] \
-	-helptext [_ "Toggle Emergency Stop \[F1\]"] \
+	    -helptext [_ "Toggle Emergency Stop \[F1\]"] \
         -bg "darkred" \
         -activebackground "red" \
         -borderwidth 0 \
-       -relief flat \
-       -width 77 \
-	   -takefocus 0
+        -relief flat \
+	    -takefocus 0 \
+	
 bind .toolbar.machine_estop <Button-1> { estop_clicked }
 setup_widget_accel .toolbar.machine_estop {}
 
 Button .toolbar.machine_power \
        -command onoff_clicked \
-               -image [load_image on] \
+       -image [load_image on] \
        -helptext [_ "Toggle Machine power \[F2\]"] \
-       -bg "darkgreen" \
-       -activebackground "green" \
+       -bg "green" \
+       -activebackground "darkgreen" \
        -borderwidth 0 \
        -relief flat \
        -takefocus 0 \
-       -width 77
+
+
 setup_widget_accel .toolbar.machine_power {}
 
 vrule .toolbar.rule0
 
 Button .toolbar.file_open \
-        -image [load_image o] \
+    -image [load_image o] \
 	-command { open_file } \
 	-helptext [_ "Open G-Code file \[O\]"] \
-        -borderwidth "0" \
+    -borderwidth "0" \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.file_open {}
 
 Button .toolbar.reload \
-        -image [load_image re] \
+    -image [load_image re] \
 	-text "Reload" \
 	-command { reload_file } \
 	-helptext [_ "Reopen current file \[Control-R\]"] \
-        -borderwidth 0 \
+    -borderwidth 0 \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.reload {}
 
 vrule .toolbar.rule4
@@ -635,16 +544,20 @@ Button .toolbar.program_run \
 	        -image [load_image run] \
 	-helptext [_ "Begin executing current file \[R\]"] \
 	-text "Run" \
-	 -relief flat \
-	-takefocus 0
+    -relief flat \
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.program_run {}
 
 Button .toolbar.program_step \
 	-command task_step \
 	-helptext [_ "Execute next line \[T\]"] \
-        -image [load_image nl] \
-	 -relief flat \
-	-takefocus 0
+    -image [load_image nl] \
+ -relief flat \
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.program_step {}
 
 Button .toolbar.program_pause \
@@ -652,7 +565,9 @@ Button .toolbar.program_pause \
 	-helptext [_ "Pause \[P\] / resume \[S\] execution"] \
 	-image [load_image pse] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.program_pause {}
 
 proc pause_image_normal {} {
@@ -667,24 +582,29 @@ Button .toolbar.program_stop \
 	-helptext [_ "Stop program execution \[ESC\]"] \
 	-image [load_image e] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.program_stop {}
 
 vrule .toolbar.rule8
 
 Button .toolbar.program_blockdelete \
-        -command { set block_delete [expr {!$block_delete}]; toggle_block_delete } \
-        -helptext [_ "Toggle skip lines with '/' \[Alt-M /\]"] \
+    -command { set block_delete [expr {!$block_delete}]; toggle_block_delete } \
+    -helptext [_ "Toggle skip lines with '/' \[Alt-M /\]"] \
 	-image [load_image sl] \
-        -relief flat \
-        -takefocus 0
+    -relief flat \
+    -takefocus 0 \
+	
+
 
 Button .toolbar.program_optpause \
-        -command { set optional_stop [expr {!$optional_stop}]; toggle_optional_stop } \
-        -helptext [_ "Toggle optional pause \[Alt-M 1\]"] \
+    -command { set optional_stop [expr {!$optional_stop}]; toggle_optional_stop } \
+    -helptext [_ "Toggle optional pause \[Alt-M 1\]"] \
 	-image [load_image pse2] \
-        -relief flat \
-        -takefocus 0
+    -relief flat \
+    -takefocus 0 \
+	
 
 vrule .toolbar.rule9
  
@@ -693,7 +613,9 @@ Button .toolbar.view_zoomin \
 	-helptext [_ "Zoom in"] \
 	-image [load_image +] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_zoomin {}
 
 Button .toolbar.view_zoomout \
@@ -701,7 +623,9 @@ Button .toolbar.view_zoomout \
 	-helptext [_ "Zoom out"] \
 	-image [load_image -] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_zoomout {}
 
 Button .toolbar.view_z \
@@ -709,7 +633,9 @@ Button .toolbar.view_z \
 	-helptext [_ "Top view"] \
         -image [load_image topa] \
 	 -relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_z {}
 
 Button .toolbar.view_z2 \
@@ -717,23 +643,29 @@ Button .toolbar.view_z2 \
 	-helptext [_ "Rotated top view"] \
         -image [load_image topb] \
 	 -relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_z2 {}
 
 Button .toolbar.view_x \
 	-command set_view_x \
 	-helptext [_ "Side view"] \
-        -image [load_image x] \
-	 -relief flat \
-	-takefocus 0
+    -image [load_image x] \
+	-relief flat \
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_x {}
 
 Button .toolbar.view_y \
 	-command set_view_y \
 	-helptext [_ "Front view"] \
-        -image [load_image y] \
-	 -relief flat \
-	-takefocus 0
+    -image [load_image y] \
+	-relief flat \
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_y {}
 
 Button .toolbar.view_y2 \
@@ -741,36 +673,43 @@ Button .toolbar.view_y2 \
 	-helptext [_ "Inverted Front view"] \
 	-image [load_image p] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_y2 {}
 
 Button .toolbar.view_p \
 	-command set_view_p \
-        -image [load_image p] \
-	 -relief flat \
-	-takefocus 0
+    -image [load_image p] \
+	-relief flat \
+	-takefocus 0 \
+	
+
 setup_widget_accel .toolbar.view_p {}
 
 Button .toolbar.rotate \
         -image [load_image dr] \
-	-helptext [_ "Toggle between Drag and Rotate Mode \[D\]"] \
+	    -helptext [_ "Toggle between Drag and Rotate Mode \[D\]"] \
         -relief flat \
-        -command {
-            set rotate_mode [expr {!$rotate_mode}]
+        -command {set rotate_mode [expr {!$rotate_mode}]
             if {$rotate_mode} {
                 .toolbar.rotate configure -relief flat
             } else {
                 .toolbar.rotate configure -relief raised
           }
     }
-vrule .toolbar.rule12
+    
+vrule .toolbar.rule12 \
+ 
 
 Button .toolbar.clear_plot \
 	-command clear_live_plot \
 	-helptext [_ "Clear live plot \[Ctrl-K\]"] \
 	-image [load_image cl] \
 	-relief flat \
-	-takefocus 0
+	-takefocus 0 \
+	
+	
 setup_widget_accel .toolbar.clear_plot {}
 
 # ---------------------------------------------------------------------Pack widgets
@@ -808,20 +747,27 @@ panedwindow .pane \
         -handlesize 0 \
         -orient v \
         -sashpad 0 \
-        -showhandle 1
+        -showhandle 1 \
+        -bg white
+    
 
-set pane_top [frame .pane.top]
-set pane_bottom [frame .pane.bottom]
-.pane add $pane_top -sticky nsew
-.pane add $pane_bottom -sticky nsew
+set pane_top [canvas .pane.top]
+set pane_bottom [canvas .pane.bottom]
+.pane add $pane_top -sticky nsew 
+	 
+.pane add $pane_bottom -sticky nsew 
+	 
 catch {
     .pane paneconfigure $pane_top -stretch always
     .pane paneconfigure $pane_bottom -stretch never
 }
-NoteBook ${pane_top}.tabs \
+
+ NoteBook ${pane_top}.tabs \
 	-borderwidth "1" \
-	-arcradius 0
-	
+	-arcradius 0 \
+	-tabbevelsize  0 \
+
+
 proc show_all_tabs w {
     upvar 0 NoteBook::$w data
     set a [winfo reqwidth $w]
@@ -857,10 +803,12 @@ after idle {
 #--------------------------------------------------------------------- Axis buttons
 label $_tabs_manual.axis \
        -font "fixed 8" \
-       -pady 6 
+	   
+            
 setup_widget_accel $_tabs_manual.axis [_ Axis]
 
-frame $_tabs_manual.axes 
+frame $_tabs_manual.axes  \
+	
 
 # These set the variable ja_rbutton to alphabetic value
 foreach {letter} {x y z a b c u v w} {
@@ -875,7 +823,8 @@ foreach {letter} {x y z a b c u v w} {
 	-variable ja_rbutton \
 	-width 1 \
     -text [string toupper $letter] \
-    -command axis_activated
+    -command axis_activated \
+    
 }
 
 # grid for Axis select radiobuttons
@@ -888,7 +837,8 @@ for {set row 0} {$row < 3} {incr row} {
   }
 }
 #--------------------------------------------------------------------- Joint buttons 
-frame $_tabs_manual.joints \
+frame $_tabs_manual.joints  \
+	
 
 # These set the variable ja_rbutton to numeric values [0,MAX_JOINTS)
 for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
@@ -901,7 +851,8 @@ for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
 	-variable ja_rbutton \
 	-width 1 \
     -text $num \
-    -command axis_activated
+    -command axis_activated 
+
 }
 # grid for Joint select radiobuttons
 set jno 0
@@ -916,14 +867,20 @@ for {set row 0} {$row < 3} {incr row} {
   if {$jno >= $::MAX_JOINTS} break
 }
 #-------------------------------------------------------------- Jogging 
-frame $_tabs_manual.jogf 
-frame $_tabs_manual.jogf.jog 
+frame $_tabs_manual.jogf  \
+	
+
+frame $_tabs_manual.jogf.jog  \
+	
+
 button $_tabs_manual.jogf.jog.jogminus 	\
     -command {if {![is_continuous]} {jog_minus 1}} \
    	-padx 9 -pady 0 \
     -font "fixed 20" \
 	-width 1 \
-    -text -
+    -text - \
+	
+	
 bind $_tabs_manual.jogf.jog.jogminus <Button-1> {
     if {[is_continuous]} { jog_minus }
 }
@@ -936,7 +893,9 @@ button $_tabs_manual.jogf.jog.jogplus \
 	-pady 0 \
     -font "fixed 20" \
 	-width 1 \
-    -text +
+    -text + \
+	
+	
 bind $_tabs_manual.jogf.jog.jogplus <Button-1> {
     if {[is_continuous]} { jog_plus }
 }
@@ -947,21 +906,33 @@ combobox $_tabs_manual.jogf.jog.jogincr \
 	-editable 0 \
 	-textvariable jogincrement \
 	-value [_ Continuous] \
-	-width 12
+	-width 12 \
+	
+
 $_tabs_manual.jogf.jog.jogincr list insert end [_ Continuous] 0.1000 0.0100 0.0010 0.0001
 
-frame $_tabs_manual.jogf.zerohome 
-button $_tabs_manual.jogf.zerohome.home 	-command home_joint 	    -padx 47    -font "fixed 14" 	-pady 1
+frame $_tabs_manual.jogf.zerohome  \
+	
+
+button $_tabs_manual.jogf.zerohome.home 	-command home_joint 	    -padx 47    -font "fixed 14" 	-pady 1 \
+	
+
 setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home All"]
 
-button $_tabs_manual.jogf.zerohome.zero 	-command touch_off_system 	-padx 43    -font "fixed 14" 	-pady 1
+button $_tabs_manual.jogf.zerohome.zero 	-command touch_off_system 	-padx 43    -font "fixed 14" 	-pady 1 \
+	
+
 setup_widget_accel $_tabs_manual.jogf.zerohome.zero [_ "Touch Off"]
 
 #-----------------------------------------------------------------------
-button $_tabs_manual.jogf.zerohome.tooltouch -command touch_off_tool 	-padx 24    -font "fixed 14" 	-pady 1
+button $_tabs_manual.jogf.zerohome.tooltouch -command touch_off_tool 	-padx 24    -font "fixed 14" 	-pady 1 \
+	
+
 setup_widget_accel $_tabs_manual.jogf.zerohome.tooltouch [_ "Tool TouchOff"]
 
-button $_tabs_manual.jogf.zerohome.rth 	      -command rthome           -padx 20    -font "fixed 14"	-pady 1 
+button $_tabs_manual.jogf.zerohome.rth 	      -command rthome           -padx 20    -font "fixed 14"	-pady 1  \
+	
+
 setup_widget_accel $_tabs_manual.jogf.zerohome.rth [_ "Rapid To Home"]
 
 #----------------------------------------------------------- Jog overide ?
@@ -971,7 +942,9 @@ checkbutton $_tabs_manual.jogf.override \
        -indicatoron 0 \
        -bg red \
        -fg red \
-	   -variable override_limits
+	   -variable override_limits \
+	   
+
 setup_widget_accel $_tabs_manual.jogf.override [_ "Override Limits"]
 
 #--------------------------------------------------------------- grid
@@ -991,12 +964,19 @@ vspace $_tabs_manual.space1 \
 
 label $_tabs_manual.spindlel\
       -font "fixed 8" \
-      -pady 6 
+      -pady 6  \
+	  
+
 setup_widget_accel $_tabs_manual.spindlel [_ Spindle]
 
-frame $_tabs_manual.spindlef 
-frame $_tabs_manual.spindlef.row1 
-frame $_tabs_manual.spindlef.row2 
+frame $_tabs_manual.spindlef  \
+	
+
+frame $_tabs_manual.spindlef.row1  \
+	
+
+frame $_tabs_manual.spindlef.row2  \
+	
 
 #-----------------------------------------------------------------  Spindle 
 radiobutton $_tabs_manual.spindlef.ccw \
@@ -1008,7 +988,9 @@ radiobutton $_tabs_manual.spindlef.ccw \
 	-indicatoron 0 \
     -width 2 \
 	-value -1 \
-	-variable spindledir
+	-variable spindledir \
+	
+
 setup_widget_accel $_tabs_manual.spindlef.ccw [_ <]
 
 radiobutton $_tabs_manual.spindlef.stop \
@@ -1021,7 +1003,9 @@ radiobutton $_tabs_manual.spindlef.stop \
 	-activeforeground "darkred" \
 	-background "darkorange" \
 	-value 0 \
-	-variable spindledir
+	-variable spindledir \
+	
+
 setup_widget_accel $_tabs_manual.spindlef.stop [_ Stop]
 
 radiobutton $_tabs_manual.spindlef.cw \
@@ -1033,7 +1017,9 @@ radiobutton $_tabs_manual.spindlef.cw \
 	-indicatoron 0 \
     -width 2 \
 	-value 1 \
-	-variable spindledir
+	-variable spindledir \
+	
+
 setup_widget_accel $_tabs_manual.spindlef.cw [_ >]
 
 #--------------------------------------------------------------- Spindle 
@@ -1041,7 +1027,8 @@ button $_tabs_manual.spindlef.spindleminus \
 	-padx 5 \
 	-pady 4 \
     -font "fixed 14" \
-	-width 1 
+	-width 1  \
+	
 
 bind $_tabs_manual.spindlef.spindleminus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
@@ -1057,7 +1044,8 @@ button $_tabs_manual.spindlef.spindleplus \
 	-padx 5 \
 	-pady 4 \
     -font "fixed 14" \
-	-width 1
+	-width 1 \
+	
 
 bind $_tabs_manual.spindlef.spindleplus <Button-1> {
 	if {[%W cget -state] == "disabled"} { continue }
@@ -1071,7 +1059,9 @@ setup_widget_accel $_tabs_manual.spindlef.spindleplus [_ +]
 
 checkbutton $_tabs_manual.spindlef.brake \
 	-command brake \
-	-variable brake
+	-variable brake \
+	
+
 setup_widget_accel $_tabs_manual.spindlef.brake [_ Brake]
 
 #--------------------------------------------------------------------------
@@ -1094,12 +1084,15 @@ pack $_tabs_manual.spindlef.spindleplus \
  #------------------------------------------------------------ Coolant (optional)    
  vspace $_tabs_manual.space2 \
 	-height 0	
-
-frame $_tabs_manual.cool \
+	
+frame $_tabs_manual.cool  \
+	
 
 label $_tabs_manual.coolant \
        -font "fixed 8" \
-       -pady 6 
+       -pady 6  \
+	   
+
 setup_widget_accel $_tabs_manual.coolant [_ Coolant]
 
 checkbutton $_tabs_manual.mist \
@@ -1108,7 +1101,9 @@ checkbutton $_tabs_manual.mist \
        -indicatoron 0 \
        -pady 6 \
        -padx 8 \
-	-variable mist
+	   -variable mist \
+	   
+
 setup_widget_accel $_tabs_manual.mist [_ Mist]
 
 checkbutton $_tabs_manual.flood \
@@ -1117,7 +1112,9 @@ checkbutton $_tabs_manual.flood \
 	   -indicatoron 0 \
        -pady 6 \
        -padx 8 \
-	-variable flood
+	   -variable flood \
+	   
+
 setup_widget_accel $_tabs_manual.flood [_ Flood]
 
 pack $_tabs_manual.flood       -in $_tabs_manual.cool       -side left        -padx 6       -pady 2       
@@ -1138,7 +1135,11 @@ grid $_tabs_manual.spindlef -column 1 	-row 3 	-padx 4 	-sticky w
 grid $_tabs_manual.spindlel -column 0 	-row 3 	-pady 2 	-sticky nsw
 
 #-------------------------------------------------------------------- MDI 
-label $_tabs_mdi.historyl 
+
+variable bgcol #dadada
+
+label $_tabs_mdi.historyl  \
+	
 
 setup_widget_accel $_tabs_mdi.historyl [_ History]
 
@@ -1148,14 +1149,16 @@ listbox $_tabs_mdi.history \
     -selectmode extended \
     -relief flat \
     -takefocus 1 \
-    -yscrollcommand "$_tabs_mdi.history.sby set"
+    -yscrollcommand "$_tabs_mdi.history.sby set" \
+	
 
 # always have an empty element at the end
 $_tabs_mdi.history insert end ""
 
 scrollbar $_tabs_mdi.history.sby \
     -borderwidth 0   -width 22   \
-    -command "$_tabs_mdi.history yview"
+    -command "$_tabs_mdi.history yview" \
+	-troughcolor $bgcol
     
 pack $_tabs_mdi.history.sby                       -side right    -fill y 
 
@@ -1163,22 +1166,27 @@ grid rowconfigure $_tabs_mdi.history 4            -weight 1
 
 vspace $_tabs_mdi.vs1                          	  -height 0
 
-label $_tabs_mdi.commandl 
-setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command"]
+label $_tabs_mdi.commandl  \
+	
+setup_widget_accel $_tabs_mdi.commandl [_ "MDI Command"] \
 
 entry $_tabs_mdi.command \
-	-textvariable mdi_command      -width 29
+	-textvariable mdi_command      -width 25
 
 button $_tabs_mdi.go \
 	-command send_mdi \
 	-padx 1m \
-	-pady 0
+	-pady 0 \
+	
+		
 setup_widget_accel $_tabs_mdi.go [_ Go]
 
 vspace $_tabs_mdi.vs2                             -height 0
 
-label $_tabs_mdi.gcodel 
-setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes"]
+label $_tabs_mdi.gcodel  \
+	
+
+setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes"] \
 
 text $_tabs_mdi.gcodes   	-height 3   	-width 8    	-undo 0 	-wrap word
 
@@ -1202,7 +1210,10 @@ grid rowconfigure $_tabs_mdi 1                   -weight 1
 #-------------------------------------------------------Tab Preview, DRO
 NoteBook ${pane_top}.right \
         -borderwidth "1" \
-        -arcradius 0
+        -arcradius 0 \
+        -tabbevelsize 0 \
+
+	    
 after 1 after idle show_all_tabs ${pane_top}.right
 
 set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"]] 
@@ -1220,14 +1231,23 @@ pack ${_tabs_numbers}.text -fill both -expand 1
 bindtags ${_tabs_numbers}.text [list ${_tabs_numbers}.text . all]
 
 #--------------------------------------------------------------  Slider JogSpeed (a) 
-frame ${pane_top}.ajogspeed                                -pady 3
-label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]      -pady 3
-label ${pane_top}.ajogspeed.l1                             -pady 3
+frame ${pane_top}.ajogspeed                                -pady 3 \
+	
+
+label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]      -pady 3 \
+	
+
+label ${pane_top}.ajogspeed.l1                             -pady 3 \
+	
+
 scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 \
 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h \
--length 120 -width 22 -sliderlength 33 -takefocus 0
+-length 120 -width 22 -sliderlength 33 -takefocus 0 \
+	
           
-label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e   -pady 3
+label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e   -pady 3 \
+	
+
 #----------------------------------------------------------pack
 pack ${pane_top}.ajogspeed.s    -side bottom   -fill x
 pack ${pane_top}.ajogspeed.l0   -side left     -ipadx 55
@@ -1237,14 +1257,23 @@ pack ${pane_top}.ajogspeed.l1   -side left
 bind . <less> [regsub %W [bind Scale <Left>] ${pane_top}.ajogspeed.s]
 bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
 
-#---------------------------------------------------------------- Slider Jog XYZ etc
-frame ${pane_top}.jogspeed                                 -pady 3
-label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]       -pady 3     
-label ${pane_top}.jogspeed.l1                              -pady 3
+#----------------------------------------------------- Slider Jog XYZ 
+frame ${pane_top}.jogspeed                                 -pady 3 \
+	
+
+label ${pane_top}.jogspeed.l0 -text [_ "Jog Speed:"]       -pady 3   \
+	
+   
+label ${pane_top}.jogspeed.l1                              -pady 3 \
+	
+
 scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 \
 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0 \
-        -length 120 -width 22 -sliderlength 33       
-label ${pane_top}.jogspeed.l -textv jog_speed   -width 6   -anchor e      -pady 3
+        -length 120 -width 22 -sliderlength 33   \
+	
+     
+label ${pane_top}.jogspeed.l -textv jog_speed   -width 6   -anchor e      -pady 3 \
+	
 
 #---------------------------------------------------------------------
 pack ${pane_top}.jogspeed.s         -side bottom     -fill x
@@ -1255,13 +1284,22 @@ pack ${pane_top}.jogspeed.l1        -side left
 bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
 bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
 #---------------------------------------------------------------------
-frame ${pane_top}.maxvel                                 -pady 3
-label ${pane_top}.maxvel.l0    -text [_ "Max Velo:"]     -pady 3
-label ${pane_top}.maxvel.l1
+frame ${pane_top}.maxvel                                 -pady 3 \
+	
+
+label ${pane_top}.maxvel.l0    -text [_ "Max Velo:"]     -pady 3 \
+	
+
+label ${pane_top}.maxvel.l1 \
+	
+
 scale ${pane_top}.maxvel.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 \
 -variable maxvel_slider_val -command update_maxvel_slider_vel -orient h -takefocus 0 \
-        -length 120 -width 22 -sliderlength 33
-label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e 
+        -length 120 -width 22 -sliderlength 33 \
+	
+
+label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e  \
+	
 
 #---------------------------------------------------------------------
 pack ${pane_top}.maxvel.s     -side bottom       -fill x
@@ -1273,11 +1311,14 @@ pack ${pane_top}.maxvel.l1    -side left
 bind . <semicolon> [regsub %W [bind Scale <Left>] ${pane_top}.maxvel.s]
 bind . ' [regsub %W [bind Scale <Right>] ${pane_top}.maxvel.s]
 
-frame ${pane_top}.spinoverride        -pady 3
+frame ${pane_top}.spinoverride        -pady 3 \
+	
 
 label ${pane_top}.spinoverride.foentry \
 	-textvariable spindlerate -width 3  \
-        -anchor e
+        -anchor e \
+        
+
 setup_widget_accel ${pane_top}.spinoverride.foentry 0
 
 scale ${pane_top}.spinoverride.foscale \
@@ -1288,12 +1329,17 @@ scale ${pane_top}.spinoverride.foscale \
 	-takefocus 0 \
 	-to 120.0 \
     -length 120 -width 22 -sliderlength 33 \
-	-variable spindlerate
+	-variable spindlerate \
+	
 
-label ${pane_top}.spinoverride.l 
+label ${pane_top}.spinoverride.l  \
+	
+
 setup_widget_accel ${pane_top}.spinoverride.l [_ "Spindle Override:"]
 
-label ${pane_top}.spinoverride.m -width 1      -pady 3
+label ${pane_top}.spinoverride.m -width 1      -pady 3 \
+	
+
 setup_widget_accel ${pane_top}.spinoverride.m [_ "%"]
 
 #-----------------------------------------------------------------
@@ -1303,10 +1349,14 @@ pack ${pane_top}.spinoverride.foentry   -side left
 pack ${pane_top}.spinoverride.m         -side left 
 #--------------------------------------------------------- FeedRate
 
-frame ${pane_top}.feedoverride             -pady 3
+frame ${pane_top}.feedoverride             -pady 3 \
+	
+
 label ${pane_top}.feedoverride.foentry \
 	-textvariable feedrate 	-width 4 \
-        -anchor e
+    -anchor e \
+	
+
 setup_widget_accel ${pane_top}.feedoverride.foentry 0
 
 scale ${pane_top}.feedoverride.foscale \
@@ -1317,12 +1367,17 @@ scale ${pane_top}.feedoverride.foscale \
 	-takefocus 0 \
 	-to 120.0 \
     -length 120 -width 22 -sliderlength 33 \
-	-variable feedrate
+	-variable feedrate \
+	
 
-label ${pane_top}.feedoverride.l         -pady 3
+label ${pane_top}.feedoverride.l         -pady 3 \
+	
+
 setup_widget_accel ${pane_top}.feedoverride.l [_ "Feed Override:"]
 
-label ${pane_top}.feedoverride.m -width 1 
+label ${pane_top}.feedoverride.m -width 1  \
+	
+
 setup_widget_accel ${pane_top}.feedoverride.m [_ "%"]
 
 # --------------------------------------------------------------------
@@ -1331,10 +1386,14 @@ pack ${pane_top}.feedoverride.l         -side left     -ipadx 55
 pack ${pane_top}.feedoverride.foentry   -side left
 pack ${pane_top}.feedoverride.m         -side left
 #---------------------------------------------------------------- Rapid 
-frame ${pane_top}.rapidoverride             -pady 3
+frame ${pane_top}.rapidoverride             -pady 3 \
+	
+
 label ${pane_top}.rapidoverride.foentry \
 	-textvariable rapidrate         	-width 4 \
-        -anchor e
+        -anchor e \
+	
+
 setup_widget_accel ${pane_top}.rapidoverride.foentry 0
 
 scale ${pane_top}.rapidoverride.foscale \
@@ -1345,11 +1404,16 @@ scale ${pane_top}.rapidoverride.foscale \
 	-takefocus 0 \
 	-to 120.0 \
     -length 120 -width 22 -sliderlength 33 \
-	-variable rapidrate
+	-variable rapidrate \
+	
 
-label ${pane_top}.rapidoverride.l 
+label ${pane_top}.rapidoverride.l  \
+	
+
 setup_widget_accel ${pane_top}.rapidoverride.l [_ "Rapid Override:"]
-label ${pane_top}.rapidoverride.m -width 1 
+label ${pane_top}.rapidoverride.m -width 1  \
+	
+
 setup_widget_accel ${pane_top}.rapidoverride.m [_ "%"]
 
 #---------------------------------------------------------------------- 
@@ -1360,9 +1424,10 @@ pack ${pane_top}.rapidoverride.m        -side left
 #----------------------------------------------------------------- Gcode 
 
 frame ${pane_bottom}.t \
-	-borderwidth "0" \
+	-borderwidth "1" \
 	-relief flat \
 	-highlightthickness 0 \
+	
 
 text ${pane_bottom}.t.text \
         -font "fixed 12" \
@@ -1384,11 +1449,12 @@ scrollbar ${pane_bottom}.t.sb \
 	-borderwidth "0" \
 	-width 22 \
 	-command [list ${pane_bottom}.t.text yview] \
-	-highlightthickness 4
+	-highlightthickness 4 \
+	-troughcolor $bgcol
 
 #--------------------------------------------------------------- info 
-frame .info 
-
+canvas .info  \
+	
 label .info.task_state \
 	-anchor w \
 	-borderwidth "0" \
@@ -1398,7 +1464,9 @@ label .info.task_state \
     -bg "grey" \
     -fg "white" \
 	-width 5 \
-    -padx 8
+    -padx 8 \
+	
+	
 setup_widget_accel .info.task_state {}
 
 label .info.tool \
@@ -1406,35 +1474,40 @@ label .info.tool \
 	-borderwidth "0" \
 	-relief flat \
 	-textvariable ::tool \
-	-width 22
+	-width 22 \
+	
 
 label .info.position \
 	-anchor w \
 	-borderwidth "0" \
 	-relief flat \
 	-textvariable ::position \
-	-width 20
+	-width 20 \
+	
+
 #---------------------------------------------------------------------	
-button .info.do \
-	-anchor w \
+canvas .info.ticker \
 	-borderwidth "0" \
 	-relief flat \
-	-width 1 \
-	-command ???????????????????????
+	-width 24 \
+	-height 24 \
+
 #---------------------------------------------------------------------
 button .info.exit \
 	-borderwidth "0" \
 	-fg "red" \
 	-text "X" \
 	-width 1 \
-	-command hard_exit	
+	-command hard_exit	 \
+	
+
 # --------------------------------------------------------------------
 pack ${pane_bottom}.t.sb    -side left    -fill y 
 pack ${pane_bottom}.t.text 	-side left 	  -fill both  -expand 1 	
 pack .info.task_state   	-side left 
 pack .info.tool         	-side left 	  -fill x     -expand 1	
 pack .info.exit         	-side right 	
-pack .info.do         	    -side right 
+pack .info.ticker         	-side right 
 pack .info.position     	-side right 
 #-------------------------------------------------------------
 
@@ -1460,8 +1533,8 @@ grid .pane 					          -column 0     -row 1    -sticky nsew      -rowspan 4
 grid .toolbar               	      -column 0     -row 0    -sticky nesw      -columnspan 3 
 grid columnconfigure . 0              -weight 1
 grid rowconfigure . 1                 -weight 1
-
 #--------------------------------------------------------------- about
+
 toplevel .about
 bind .about <Key-Return> { wm wi .about }
 bind .about <Key-Escape> { wm wi .about }
@@ -1484,7 +1557,7 @@ text .about.message \
 	.about.message tag configure link -foreground red}
 .about.message tag bind link <ButtonPress-1><ButtonRelease-1> {launch_website}
 .about.message insert end \
-[subst [_ "   LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2020 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  \n\ngui edits by Jason Mc \n\nSee the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
+[subst [_ "   LinuxCNC/AXIS version \$version\n\nCopyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2020 Jeff Epler and Chris Radek.\n\nThis is free software, and you are welcome to redistribute it under certain conditions.  \n\ngui edits by Jason Mc \u1F637 \n\nSee the file COPYING, included with LinuxCNC.\n\nVisit the LinuxCNC web site: "]] {} {http://www.linuxcnc.org/} link
 .about.message configure -state disabled
 
 button .about.ok \
@@ -1647,6 +1720,7 @@ proc update_state {args} {
             && $spindledir != 0} \
                 $::_tabs_manual.spindlef.spindleminus \
                 $::_tabs_manual.spindlef.spindleplus
+                
     if {   $::motion_mode     == $::TRAJ_MODE_FREE
         && $::kinematics_type != $::KINEMATICS_IDENTITY
        } {
@@ -1670,7 +1744,7 @@ proc update_state {args} {
 		 && "$::teleop_mode"  != 0  } {
         enable_group $::mdigroup
     } else {
-        disable_group $::mdigroup
+        disable_group $::mdigroup   
     }
     
     if {    $::task_state   == $::STATE_ON
@@ -1694,19 +1768,32 @@ proc update_state {args} {
     }
 
     if {    $::task_state   == $::STATE_ON } {
-        .info.task_state configure -bg "green"
+       .info.task_state          configure   -bg "darkgreen"
+       .toolbar.machine_estop    configure   -bg "darkred"    
+       .toolbar.machine_power    configure   -bg "green"
+    
+
 	} elseif {    $::task_state   == $::STATE_ESTOP_RESET } {
-		.info.task_state configure -bg "Slategrey"
+	   .info.task_state          configure   -bg "Slategrey"
+	   .toolbar.machine_estop    configure   -bg "#ddaaaa"    
+       .toolbar.machine_power    configure   -bg "#aaddaa"
+    	
+
 	} elseif {    $::task_state   == $::STATE_ESTOP } {
     	.info.task_state configure -bg "red"
+    	.toolbar.machine_estop    configure   -bg "red"    
+        .toolbar.machine_power    configure   -bg "#aabbaa" 
+	
 	}
 	
 	    if {    $::task_state   == $::STATE_ON  && "$::teleop_mode"  != 0 } {
         $::_tabs_manual.jogf.zerohome.rth configure -state normal ; \
-        $::_tabs_manual.jogf.zerohome.zero configure -state normal  
+        $::_tabs_manual.jogf.zerohome.zero configure -state normal
+
     } else {
         $::_tabs_manual.jogf.zerohome.rth configure -state disabled ; \
         $::_tabs_manual.jogf.zerohome.zero configure -state disabled
+
 	}	
 }
 proc set_mode_from_tab {} {
@@ -1920,7 +2007,7 @@ proc setval {vel max_speed} {
     if {$vel == 0} { return 0 }
     if {$vel >= 60*$max_speed} { set vel [expr 60*$max_speed] }
     set x [expr {-1/(log($vel/60./$max_speed)-1)}]
-    expr {round($x * 200.) / 200.}
+    expr {round($x * 200.) / 200.} 
 }
 proc val2vel {val max_speed} {
     if {$val == 0} { return 0 }
@@ -2036,53 +2123,43 @@ bind . <Key-Return> {focus .}
 bind . <Control-q> {destroy .}
 bind . <Control-Q> {destroy .}
 
-bind . <h> { 
+bind . <Control-h> { 
 	 grid forget ${pane_bottom}.t ; \
     .pane paneconfigure ${pane_bottom} -height 1
 }
 
-bind . <g> 	{
+bind . <Control-g> 	{
 	grid ${pane_bottom}.t \
 		 -column 1 	-row 1   -sticky nesw ; \
 	    .pane paneconfigure ${pane_bottom} -height 90 
 	}
 
-proc hard_exit {} {
-    destroy .
-}
-
-# need to find all trajcoordinates
-proc rthome {} {
-	    if {$::task_state == $::STATE_ON \
-		&& $::queued_mdi_commands < $::max_queued_mdi_commands } {
-        enable_group $::mdigroup; set ::mdi_command "G91 G28 Z0 X0 Y0"; \
-        after 200 [send_mdi]}
-}
-
 wm withdraw .about
 wm withdraw .keys
 
-DynamicHelp::add $_tabs_manual.spindlef.ccw -text [_ "Turn spindle counterclockwise \[F10\]"]
-DynamicHelp::add $_tabs_manual.spindlef.cw -text [_ "Turn spindle clockwise \[F9\]"]
-DynamicHelp::add $_tabs_manual.spindlef.stop -text [_ "Stop spindle \[F9/F10\]"]
-DynamicHelp::add $_tabs_manual.spindlef.spindleplus -text [_ "Turn spindle Faster \[F12\]"]
-DynamicHelp::add $_tabs_manual.spindlef.spindleminus -text [_ "Turn spindle Slower \[F11\]"]
-DynamicHelp::add $_tabs_manual.spindlef.brake -text [_ "Turn spindle brake on \[Shift-B\] or off \[B\]"]
-DynamicHelp::add $_tabs_manual.flood -text [_ "Turn flood on or off \[F8\]"]
-DynamicHelp::add $_tabs_manual.mist -text [_ "Turn mist on or off \[F7\]"]
-DynamicHelp::add $_tabs_manual.jogf.zerohome.home -text [_ "Send active axis home \[Home\]"]
-DynamicHelp::add $_tabs_manual.jogf.zerohome.zero -text [_ "Set G54 offset for active axis \[End\]"]
-DynamicHelp::add $_tabs_manual.jogf.zerohome.tooltouch -text [_ "Set tool offset for loaded tool \[Control-End\]"]
-DynamicHelp::add $_tabs_manual.axes.axisx -text [_ "Activate axis \[X\]"]
-DynamicHelp::add $_tabs_manual.axes.axisy -text [_ "Activate axis \[Y\]"]
-DynamicHelp::add $_tabs_manual.axes.axisz -text [_ "Activate axis \[Z\]"]
-DynamicHelp::add $_tabs_manual.axes.axisa -text [_ "Activate axis \[A\]"]
-DynamicHelp::add $_tabs_manual.axes.axisb -text [_ "Activate axis \[4\]"]
-DynamicHelp::add $_tabs_manual.axes.axisc -text [_ "Activate axis \[5\]"]
-DynamicHelp::add $_tabs_manual.jogf.jog.jogminus -text [_ "Jog selected axis"]
-DynamicHelp::add $_tabs_manual.jogf.jog.jogplus -text [_ "Jog selected axis"]
-DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog increment"]
-DynamicHelp::add $_tabs_manual.jogf.override -text [_ "Temporarily allow jogging outside machine limits \[L\]"]
+# is this not in axis.py ???
+
+#DynamicHelp::add $_tabs_manual.spindlef.ccw -text [_ "Turn spindle counterclockwise \[F10\]"]
+#DynamicHelp::add $_tabs_manual.spindlef.cw -text [_ "Turn spindle clockwise \[F9\]"]
+#DynamicHelp::add $_tabs_manual.spindlef.stop -text [_ "Stop spindle \[F9/F10\]"]
+#DynamicHelp::add $_tabs_manual.spindlef.spindleplus -text [_ "Turn spindle Faster \[F12\]"]
+#DynamicHelp::add $_tabs_manual.spindlef.spindleminus -text [_ "Turn spindle Slower \[F11\]"]
+#DynamicHelp::add $_tabs_manual.spindlef.brake -text [_ "Turn spindle brake on \[Shift-B\] or off \[B\]"]
+#DynamicHelp::add $_tabs_manual.flood -text [_ "Turn flood on or off \[F8\]"]
+#DynamicHelp::add $_tabs_manual.mist -text [_ "Turn mist on or off \[F7\]"]
+#DynamicHelp::add $_tabs_manual.jogf.zerohome.home -text [_ "Send active axis home \[Home\]"]
+#DynamicHelp::add $_tabs_manual.jogf.zerohome.zero -text [_ "Set G54 offset for active axis \[End\]"]
+#DynamicHelp::add $_tabs_manual.jogf.zerohome.tooltouch -text [_ "Set tool offset for loaded tool \[Control-End\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisx -text [_ "Activate axis \[X\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisy -text [_ "Activate axis \[Y\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisz -text [_ "Activate axis \[Z\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisa -text [_ "Activate axis \[A\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisb -text [_ "Activate axis \[4\]"]
+#DynamicHelp::add $_tabs_manual.axes.axisc -text [_ "Activate axis \[5\]"]
+#DynamicHelp::add $_tabs_manual.jogf.jog.jogminus -text [_ "Jog selected axis"]
+#DynamicHelp::add $_tabs_manual.jogf.jog.jogplus -text [_ "Jog selected axis"]
+#DynamicHelp::add $_tabs_manual.jogf.jog.jogincr -text [_ "Select jog increment"]
+#DynamicHelp::add $_tabs_manual.jogf.override -text [_ "Temporarily allow jogging outside machine limits \[L\]"]
 
 # On at least some versions of Tk (tk8.4 on fixed 6.06), this hides files
 # beginning with "." from the open dialog.  Who knows what it does on other
@@ -2092,7 +2169,9 @@ catch {
     namespace eval ::tk::dialog::file {}
     set ::tk::dialog::file::showHiddenBtn 1
     set ::tk::dialog::file::showHiddenVar 1
-}
+    namespace import NoteBook::*
+ }   
+
 # Show what alphabetic letters are left for a specific menu
 proc show_menu_available {m} {
     for {set i 0} {$i < [$m index end]} {incr i} {
@@ -2110,4 +2189,204 @@ proc show_menu_available {m} {
         if {![info exists used($i)]} { puts "Available: $i" }
     }
 }
+
 # vim:ts=8:sts=4:et:sw=4:
+
+############################################################### "Colors"
+
+proc set_colors {cdata} { 
+			
+    if {[llength $cdata] == 1} {				
+	set new(background) [lindex $cdata 0]
+    } else {
+	array set new $args
+    }
+        
+    if {![info exists new(background)]} {
+	return -code error -errorcode {TK SET_PALETTE BACKGROUND} \
+	    "Please specify a background color"
+    }          
+
+    set bg [winfo rgb . $new(background)]
+    
+    if {![info exists new(foreground)]} {
+	foreach {r g b} $bg {break}
+	if {$r+1.5*$g+0.5*$b > 100000} {
+	    set new(foreground) #0a0b0c
+	} else {
+	    set new(foreground) #fcfbfa
+	    }
+    }
+   
+    lassign [winfo rgb . $new(foreground)] fg_r fg_g fg_b
+    lassign [winfo rgb . $new(background)] bg_r bg_g bg_b  
+      
+    set darkerBg [format #%02x%02x%02x \
+		[expr {(3*$bg_r + $fg_r)/1200}] \
+		[expr {(3*$bg_g + $fg_g)/1100}] \
+		[expr {(3*$bg_b + $fg_b)/1000}]]					
+		
+    if {![info exists new(highlightColor)]} {
+	set new(highlightColor) [format #%02x%02x%02x \
+		[expr {(3*$bg_r + 2*$fg_r)/3200}] \
+		[expr {(3*$bg_g + 2*$fg_g)/3000}] \
+		[expr {(3*$bg_b + 2*$fg_b)/2700}]]
+       }  
+    if {![info exists new(insertBackground)]} {
+	set new(insertBackground) [format #%02x%02x%02x \
+		[expr {(3*$bg_r + $fg_r)/800}] \
+		[expr {(3*$bg_g + $fg_g)/900}] \
+		[expr {(3*$bg_b + $fg_b)/1000}]]
+       }      
+    if {![info exists new(selectForeground)]} {
+	set new(selectForeground) [format #%02x%02x%02x \
+    [expr {($bg_r)/320}] \
+	[expr {($bg_g + 50)/300}] \
+	[expr {($bg_b + 90)/280}]]   
+       }   
+    if {![info exists new(activeForeground)]} {
+	set new(activeForeground) [format #%02x%02x%02x \
+		[expr {($bg_r + 2*$fg_r)/2600}] \
+		[expr {($bg_g + 2*$fg_g)/2400}] \
+		[expr {($bg_b + 2*$fg_b)/2200}]]
+       }     
+    if {![info exists new(disabledForeground)]} {
+	set new(disabledForeground) [format #%02x%02x%02x \
+		[expr {(2*$bg_r + 2*$fg_r)/1400}] \
+		[expr {(2*$bg_g + 2*$fg_g)/1600}] \
+		[expr {(2*$bg_b + 2*$fg_b)/1800}]]
+       }
+              
+    if {![info exists new(selectColor)]} {
+	set new(selectColor) [format #%02x%02x%02x \
+		[expr {(2*$bg_r + 3*$fg_r)/1100}] \
+		[expr {(2*$bg_g + 3*$fg_g)/1200}] \
+		[expr {(2*$bg_b + 3*$fg_b)/1300}]]
+       }
+           
+    if {![info exists new(activeBackground)]} {
+	set new(activeBackground) [format #%02x%02x%02x \
+		[expr {(3*$bg_r + 2*$fg_r)/1212}] \
+		[expr {(3*$bg_g + 2*$fg_g)/1300}] \
+		[expr {(3*$bg_b + 2*$fg_b)/1375}]]
+       }
+      
+    if {![info exists new(selectBackground)]} {
+	set new(selectBackground) "darkorange"
+       }
+      
+    if {![info exists new(troughColor)]} {
+	set new(troughColor) $darkerBg
+       }
+#outline
+    if {![info exists new(highlightBackground)]} {
+	set new(highlightBackground) $new(background)
+       }                        
+ 
+set data "$new(background)\n"	 
+   set filename "color.txt"
+   set filethis [open $filename "w"]
+   puts -nonewline $filethis $data
+   close $filethis
+   
+set data [array get new]
+   set filename "xcolor.txt"
+   set filethis [open $filename "w"]
+   puts -nonewline $filethis $data
+   close $filethis
+   
+    global bgcol
+    set bgcol $cdata
+  
+   Recolor_widgets . new
+  }
+#---------------------------------------------------------------------
+proc Recolor_widgets {w newcdata} {
+	
+	upvar $newcdata c
+    set result {0}
+
+    foreach dbOption [array names c] {
+	set option -[string tolower $dbOption]
+	set class [string replace $dbOption 0 0 [string toupper \
+		[string index $dbOption 0]]]
+		
+	if {![catch {$w configure $option} value]} {
+	    set defaultcolor [option get $w $dbOption $class]
+	    
+	    if {$defaultcolor eq ""} {
+		set defaultcolor [lindex $value 3]
+	    }
+	    
+	    if {$defaultcolor ne ""} {
+		set defaultcolor [winfo rgb . $defaultcolor]
+	    }
+	    
+	    set chosencolor [lindex $value 3]; #should be 4
+	    
+	    if {$chosencolor ne ""} {
+		set chosencolor [winfo rgb . $chosencolor]
+	    }
+	    
+	    if {[string match $defaultcolor $chosencolor]} {
+		$w configure $option $c($dbOption)	
+	    }
+      }
+    }
+    foreach child [winfo children $w] {
+	append result ";\n[Recolor_widgets $child c]"
+	}
+      
+   .toolbar.machine_estop    configure   -bg "#bbaaaa"    
+   .toolbar.machine_power    configure   -bg "#aabbaa"
+
+    return $result
+}
+#----------------------------------------------------------
+proc colchg {} {
+	for {set xy 320} {$xy < 500} {incr xy} {
+    event generate . <Motion> -x $xy -y $xy -warp 1
+    update
+    after 1
+}
+	set cdata [tk_chooseColor -title "Select color" \
+	-initialcolor #dadada ]           
+    set_colors $cdata 
+    }	  
+#-----------------------------------------------------------
+proc if_file_col {} {
+ if {[file exists "color.txt"] == 1} {  		
+    set cfile [open "color.txt" r] 
+    set cdata [read -nonewline $cfile]
+    close $cfile   
+    set_colors $cdata 
+    }
+}
+if_file_col
+#-----------------------------------------------------------
+proc hard_exit {} {
+    destroy .     }
+#-----------------------------------------------------------
+# Still need to find all trajcoordinates for 4 or 5 axis machines
+proc rthome {} {
+	    if {$::task_state == $::STATE_ON \
+		&& $::queued_mdi_commands < $::max_queued_mdi_commands } {
+        enable_group $::mdigroup; set ::mdi_command "G91 G28 Z0 X0 Y0"; \
+        after 200 [send_mdi]}
+}
+
+proc fmon {angle speed}  {   
+    set angle [expr {$angle - $speed}]
+    if {$angle >= 360} {set angle 0}
+    if {[winfo exist .info.ticker]} {
+        after 1 fmon $angle $speed  ;# speed = Hz rate
+        .info.ticker itemconfig arc -start $angle
+    }
+}
+	# make ticker
+    .info.ticker create oval 0 3 30 30 -fill "$bgcol" -outline "$bgcol" 
+    .info.ticker create arc 0 0 22 22 -start 0 -extent 60 \
+    -fill "grey70" -outline "$bgcol"  -tag arc 
+    .info.ticker create oval 4 5 21 21 -fill "$bgcol" -outline "$bgcol"
+    
+    fmon 0 0.3
