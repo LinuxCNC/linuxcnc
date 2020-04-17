@@ -211,7 +211,24 @@ if version == "$Revision$" or version < "1.0":
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
-    copysection("RS274NGC")
+
+    #[RS274NGC] Section, change FEATURES to separate entries
+    all_sections.remove("RS274NGC")
+    section = re.search("\[RS274NGC\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("\n[RS274NGC]\n")
+    if section != None:
+        features = int(ini.find('RS274NGC', 'FEATURES'))
+        if features != None:
+            section = re.sub("FEATURES.*?\n", "", section)
+            section += ("RETAIN_G43 = %s\n"   % ("1" if features & 0x1 else "0"))
+            section += ("INI_VARS = %s\n"     % ("1" if features & 0x4 else "0"))
+            section += ("HAL_PIN_VARS = %s\n" % ("1" if features & 0x8 else "0"))
+            if features & 0x2: section  += ("OWORD_NARGS = 1\n" )
+            if features & 0x10: section += ("NO_DOWNCASE_OWORD = 1\n" )
+            if features & 0x20: section += ("OWORD_WARNONLY = 1\n" )
+    section += "\n"
+    newini.write(section)
 
     all_sections.remove("EMCMOT")
     section = re.search("\[EMCMOT\](.+?)\n\[", inistring, re.DOTALL)

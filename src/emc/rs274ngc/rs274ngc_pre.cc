@@ -861,7 +861,7 @@ int Interp::init()
       if (inifile.Open(iniFileName) == false) {
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
-
+          bool opt;
           const char *inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
@@ -871,8 +871,29 @@ int Interp::init()
           inifile.Find(&_setup.b_axis_wrapped, "WRAPPED_ROTARY", "AXIS_B");
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-          inifile.Find(&_setup.feature_set, "FEATURES", "RS274NGC");
           inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+
+          // First the features that default to ON
+          opt = true;
+          inifile.Find(&opt, "INI_VARS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_INI_VARS;
+          opt = true;
+          inifile.Find(&opt, "HAL_PIN_VARS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_HAL_PIN_VARS;
+
+          // Now those that (currently) default to off
+          opt = false;
+          inifile.Find(&opt, "RETAIN_G43", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_RETAIN_G43;
+          opt = false;
+          inifile.Find(&opt, "OWORD_NARGS", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_OWORD_N_ARGS;
+          opt = false;
+          inifile.Find(&opt, "NO_DOWNCASE_OWORD", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_NO_DOWNCASE_OWORD;
+          opt = false;
+          inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
+          if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
           if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
               _setup.a_indexer_jnum = atol(inistring);

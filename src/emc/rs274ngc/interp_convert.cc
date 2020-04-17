@@ -3118,20 +3118,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       }
   }
 
-  // needs more testing.. once? test tool_change_flag!
-  //#ifdef DEBATABLE
   if (FEATURE(RETAIN_G43)) {
-    // I consider this useful, so make it configurable.
-    // Turn it on optionally . -mah
-
-    // I would like this, but it's a big change.  It changes the
-    // operation of legal ngc programs, but it could be argued that
-    // those programs are buggy or likely to be not what the author
-    // intended.
-
-    // It would allow you to turn on G43 after loading the first tool,
-    // and then not worry about it through the program.  When you
-    // finally unload the last tool, G43 mode is canceled.
 
       if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
@@ -3147,7 +3134,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         }
     }
   }
-  //#endif
 
  if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
