@@ -562,32 +562,32 @@ The first executable M1xx found in the search is used for each M1xx.
 The maximum number of USER_M_PATH directories is defined at compile
 time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
-* 'INI_VARS = Y' Default Y
+* 'INI_VARS = 1' Default 1
 Allows G-code programs to read values from the INI file using the format
 #<_ini[section]name>. See <<gcode:parameters,G-code Parameters>
 
-* 'HAL_PIN_VARS = Y' Default Y
+* 'HAL_PIN_VARS = 1' Default 1
 Allows G-code programs to read the values of HAL pins using the format
 #<_hal[Hal item]> Variable access is read-only
 See <<gcode:parameters,G-code Parameters>> for more details and an
 important caveat
 
-* 'RETAIN_G43 = N' Default N
+* 'RETAIN_G43 = 0' Default 0
 When set, you can  turn on G43 after loading the first tool,
 and then not worry about it through the program.  When you
 finally unload the last tool, G43 mode is canceled.
 
-* 'OWORD_NARGS = N' Default N
+* 'OWORD_NARGS = 0' Default 0
 If this feature is enabled then a called subroutine can determine the
 number of actual positional parameters passed by inspecting the
 +#<n_args>+ parameter.
 
-* 'NO_DOWNCASE_OWORD = N' Default N
+* 'NO_DOWNCASE_OWORD = 0' Default 0
 Preserve case in O-word names within comments if set, enables reading of
 mixed-case HAL items in structured comments like
 '(debug, #<_hal[MixedCaseItem])'.
 
-* 'OWORD_WARNONLY = N' Default N
+* 'OWORD_WARNONLY = 0' Default 0
 Warn rather than error in case of errors in O-word subroutines.
 
 [NOTE] The above six options were controlled by the 'FEATURES' bitmask
