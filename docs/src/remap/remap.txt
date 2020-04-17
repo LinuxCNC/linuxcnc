@@ -159,9 +159,7 @@ procedure:
 // . <<remap:extracting-words,extracting words from the current block>>
 . extracting words from the current block  and pass them to the
   procedure as parameters (like `X22.34` or `P47`)
-//. <<remap:referto-inifile-variables, referring to ini file
-//variables>>
-. referring to ini file variables
+. referring to <<gcode:ini-hal-params,ini file variables>>
 . referring to global variables (like `#2200 = 47.11` or
    `#<_global_param> = 315.2`
 
@@ -810,7 +808,7 @@ NGC procedure by returning INTERP_OK.
 Our first iteration of the O-word procedure is unexciting - just
 verify we got parameters right, and signal success by returning a
 positive value; steps 3-5 would eventually be covered here (see
-<<remap:referto-inifile-variables,here>> for the variables referring
+<<gcode:ini-hal-params,here>> for the variables referring
 to ini file settings):
 
 [source,{ngc}]
@@ -1107,8 +1105,8 @@ o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
-NOTE: ini and HAL variable expansion need explicit enabling with the
-<<remap:ini-features,FEATURES>> mask.
+NOTE: ini and HAL variable expansion is optional and can be disabled in
+the <<gcode:ini-features,INI file>>
 
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:

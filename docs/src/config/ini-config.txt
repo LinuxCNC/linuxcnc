@@ -507,7 +507,7 @@ if __name__ == "__main__":
 ----
 
 [[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
-[[remap:ini-features]]
+[[gcode:ini-features]]
 
 === [RS274NGC] Section
 
