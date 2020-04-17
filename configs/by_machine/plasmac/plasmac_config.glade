@@ -5,6 +5,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAdjustment" id="arc-fail-delay-adj"/>
   <object class="GtkAdjustment" id="arc-max-starts-adj"/>
+  <object class="GtkAdjustment" id="arc-ok-high-adj"/>
   <object class="GtkAdjustment" id="arc-ok-low-adj"/>
   <object class="GtkAdjustment" id="arc-restart-delay-adj"/>
   <object class="GtkAdjustment" id="arc-voltage-offset-adj"/>
@@ -889,7 +890,7 @@ this may be reduced due to THC movement</property>
                           <object class="GtkTable" id="table6">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_rows">7</property>
+                            <property name="n_rows">8</property>
                             <property name="n_columns">2</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
@@ -992,6 +993,55 @@ this may be reduced due to THC movement</property>
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkHBox" id="arc-ok-high-box">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="HAL_SpinButton" id="arc-ok-high">
+                                    <property name="width_request">90</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">maximum voltage level for valid arc ok signal</property>
+                                    <property name="invisible_char">●</property>
+                                    <property name="xalign">1</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                    <property name="adjustment">arc-ok-high-adj</property>
+                                    <property name="wrap">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="arc-ok-high-label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="has_tooltip">True</property>
+                                    <property name="tooltip_text" translatable="yes">maximum voltage level for valid arc ok signal</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xpad">2</property>
+                                    <property name="label" translatable="yes">OK High Volts</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkHBox" id="arc-ok-low-box">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -1025,7 +1075,7 @@ this may be reduced due to THC movement</property>
                                     <property name="tooltip_text" translatable="yes">minimum voltage level for valid arc ok signal</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
-                                    <property name="label" translatable="yes">OK Threshold</property>
+                                    <property name="label" translatable="yes">OK Low Volts</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -1036,8 +1086,8 @@ this may be reduced due to THC movement</property>
                               </object>
                               <packing>
                                 <property name="right_attach">2</property>
-                                <property name="top_attach">6</property>
-                                <property name="bottom_attach">7</property>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
                               </packing>
                             </child>
                             <child>

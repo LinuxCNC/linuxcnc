@@ -107,7 +107,8 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 * 'M5 [$n]' - stop the selected spindle.
 
 Use $ to operate on specific spindles. If $ is omitted then the commands
-operate on all spindles. 
+default to operating on spindle.0
+Use $-1 to operate on all active spindles. 
 
 This example will start spindles 0, 1, and 2 simultaneously at different
 speeds:
@@ -116,7 +117,7 @@ speeds:
 S100 $0
 S200 $1
 S300 $2 
-M3
+M3 $-1
 ----
 
 This example will then reverse spindle 1 but leave the other spindles

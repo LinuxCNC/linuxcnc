@@ -1080,7 +1080,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:

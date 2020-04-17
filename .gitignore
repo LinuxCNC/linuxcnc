@@ -38,3 +38,5 @@ oprofile*
 position.txt
 *.9
 *.glade.h
+# Ignore test results
+*.result

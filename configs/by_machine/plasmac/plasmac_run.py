@@ -251,10 +251,13 @@ class HandlerClass:
 
     def on_reload_clicked(self,widget,data=None):
         self.materialUpdate = True
-        self.load_settings()
+        material = self.builder.get_object('material').get_active()
+        if widget:
+            self.load_settings()
         self.materialFileDict = {}
         self.materialNumList = []
         self.get_material()
+        self.builder.get_object('material').set_active(material)
         self.materialUpdate = False
 
     def on_new_clicked(self, widget):
@@ -468,14 +471,14 @@ class HandlerClass:
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
         self.builder.get_object('cornerlock-enable').set_active(1)
-        self.builder.get_object('cut-amps').set_digits(1)
-        self.builder.get_object('cut-amps-adj').configure(45,0,999,0.1,0,0)
+        self.builder.get_object('cut-amps').set_digits(0)
+        self.builder.get_object('cut-amps-adj').configure(45,0,999,1,0,0)
         self.builder.get_object('cut-mode').set_digits(0)
         self.builder.get_object('cut-mode-adj').configure(1,1,3,1,0,0)
         self.builder.get_object('cut-volts').set_digits(1)
         self.builder.get_object('cut-volts-adj').configure(122,50,300,0.1,0,0)
-        self.builder.get_object('gas-pressure').set_digits(1)
-        self.builder.get_object('gas-pressure-adj').configure(0,-0.1,250,0.1,0,0)
+        self.builder.get_object('gas-pressure').set_digits(0)
+        self.builder.get_object('gas-pressure-adj').configure(0,0,0,1,0,0)
         self.builder.get_object('kerfcross-enable').set_active(0)
         self.builder.get_object('ohmic-probe-enable').set_active(1)
         self.builder.get_object('pause-at-end').set_digits(1)
@@ -517,39 +520,6 @@ class HandlerClass:
         else:
             self.dialog_error('Configuration Error', 'incorrect [TRAJ]LINEAR_UNITS in ini file')
             print('*** incorrect [TRAJ]LINEAR_UNITS in ini file')
-
-    def periodic(self):
-        if self.builder.get_object('thc-auto').get_active():
-            self.halcomp['thc-enable-out'] = self.builder.get_object('thc-enable').get_active()
-
-        mode = hal.get_value('plasmac.mode')
-        if mode != self.oldMode:
-            if mode == 0:
-                self.builder.get_object('kerfcross-enable').show()
-                self.builder.get_object('kerfcross-enable-label').show()
-                self.builder.get_object('volts-box').show()
-            elif mode == 1:
-                self.builder.get_object('kerfcross-enable').show()
-                self.builder.get_object('kerfcross-enable-label').show()
-                self.builder.get_object('volts-box').show()
-            elif mode == 2:
-                self.builder.get_object('kerfcross-enable').hide()
-                self.builder.get_object('kerfcross-enable-label').hide()
-                self.builder.get_object('volts-box').hide()
-            else:
-                pass
-            self.oldMode = mode
-        self.s.poll()
-        homed = True
-        for n in range(self.s.joints):
-            if not self.s.homed[n]:
-                homed = False
-        hal.set_p('plasmac.homed', str(homed))
-        if homed and self.s.interp_state == linuxcnc.INTERP_IDLE:
-            self.builder.get_object('single-cut').set_sensitive(True)
-        else:
-            self.builder.get_object('single-cut').set_sensitive(False)
-        return True
 
     def set_theme(self):
         theme = gtk.settings_get_default().get_property('gtk-theme-name')
@@ -621,7 +591,11 @@ class HandlerClass:
                             print('*** {} missing from {}'.format(item,self.configFile))
                 elif isinstance(self.builder.get_object(item), gladevcp.hal_widgets.HAL_CheckButton):
                     if item in tmpDict:
-                        self.builder.get_object(item).set_active(int(self.configDict.get(item)))
+                        # keep pmx485 alive if it was on when reload pressed
+                        if item in ['powermax-enable'] and self.builder.get_object('powermax-enable').get_active():
+                            self.builder.get_object(item).set_active(1)
+                        else:
+                            self.builder.get_object(item).set_active(int(self.configDict.get(item)))
                     else:
                         if self.i.find('PLASMAC', 'PM_PORT'):
                             print('*** {} missing from {}'.format(item,self.configFile))
@@ -786,7 +760,7 @@ class HandlerClass:
                         else:
                             self.connTimer = time.time() + 5
                     self.pmx485Connected = False
-                elif hal.get_value('pmx485.fault'):
+                elif hal.get_value('pmx485.fault')and self.pmx485Connected:
                     faultRaw = '{:04.0f}'.format(hal.get_value('pmx485.fault'))
                     faultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
                     if faultRaw in self.pmx485FaultName.keys():
@@ -807,8 +781,25 @@ class HandlerClass:
                         self.dialog_error('Powermax Error', '\nUnknown Powermax fault code: {}'.format(faultRaw))
                 elif hal.get_value('pmx485.mode') or hal.get_value('pmx485.current') or hal.get_value('pmx485.pressure'):
                     self.fault = '0000'
-                    self.builder.get_object('powermax-label').set_text('Connected')
                     self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(green = 0.8))
+                    if not self.builder.get_object('powermax-label').get_text() == 'Connected':
+                        if hal.get_value('pmx485.pressure_max') > 10:
+                            self.builder.get_object('gas-pressure-label').set_text('Gas Pressure (psi)')
+                            self.builder.get_object('gas-pressure').set_digits(0)
+                            self.builder.get_object('gas-pressure-adj').set_lower(-0.1)
+                            self.builder.get_object('gas-pressure-adj').set_upper(150)
+                            self.builder.get_object('gas-pressure-adj').set_step_increment(1)
+                        else:
+                            self.builder.get_object('gas-pressure-label').set_text('Gas Pressure (bar)')
+                            self.builder.get_object('gas-pressure').set_digits(1)
+                            self.builder.get_object('gas-pressure-adj').set_lower(-0.1)
+                            self.builder.get_object('gas-pressure-adj').set_upper(10)
+                            self.builder.get_object('gas-pressure-adj').set_step_increment(0.1)
+                        toolTip = 'Powermax cutting current'
+                        for widget in ['cut-amps','cut-amps-label']:
+                                self.builder.get_object(widget).set_tooltip_text(toolTip)
+                        self.on_reload_clicked(None)
+                    self.builder.get_object('powermax-label').set_text('Connected')
                     if not self.pmx485Connected:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
                             self.builder.get_object('cut-amps').set_range(hal.get_value('pmx485.current_min'), hal.get_value('pmx485.current_max'))
@@ -830,9 +821,7 @@ class HandlerClass:
                 print('\n*** pmx485 component not loaded ***\n')
                 raise SystemExit
             self.builder.get_object('powermax-enable').connect('toggled', self.pmx485_state_change)
-            hal.new_sig('plasmac:powermax-mode-set',hal.HAL_FLOAT)
-            hal.connect('plasmac_run.cut-mode-f','plasmac:powermax-mode-set')
-            hal.connect('pmx485.mode_set','plasmac:powermax-mode-set')
+            self.builder.get_object('cut-mode').connect('value_changed',self.pmx485_mode_changed)
             hal.new_sig('plasmac:powermax-current-set',hal.HAL_FLOAT)
             hal.connect('plasmac_run.cut-amps-f','plasmac:powermax-current-set')
             hal.connect('pmx485.current_set','plasmac:powermax-current-set')
@@ -840,8 +829,7 @@ class HandlerClass:
             hal.connect('plasmac_run.gas-pressure-f','plasmac:powermax-pressure-set')
             hal.connect('pmx485.pressure_set','plasmac:powermax-pressure-set')
             self.pmx485_state_change(self.builder.get_object('powermax-enable'))
-            self.builder.get_object('gas-pressure-label').set_text('Gas Pressure ({})'.format(self.i.find('PLASMAC', 'PM_PRESSURE_DISPLAY')))
-            self.builder.get_object('gas-pressure').connect('value-changed', self.pressure_changed)
+            self.builder.get_object('gas-pressure').connect('value-changed', self.pmx485_pressure_changed)
             self.pressure = self.builder.get_object('gas-pressure').get_value()
             self.connTimer = 0
         else:
@@ -852,7 +840,12 @@ class HandlerClass:
             self.builder.get_object('powermax-frame').hide()
 
     # for powermax communications
-    def pressure_changed(self, widget):
+    def pmx485_mode_changed(self, widget):
+        self.builder.get_object('gas-pressure').set_value(0)
+        hal.set_p('pmx485.mode_set', str(self.builder.get_object('cut-mode').get_value())) 
+
+    # for powermax communications
+    def pmx485_pressure_changed(self, widget):
         if self.pmx485Started:
             if self.builder.get_object('gas-pressure').get_value() < self.pressure:
                 if self.builder.get_object('gas-pressure').get_value() < 0:
@@ -869,7 +862,7 @@ class HandlerClass:
     # for powermax communications
     def pmx485_state_change(self, widget):
         if widget.get_active():
-#            print('Starting Powermax communications') 
+#            print('Starting Powermax communications')
             if not hal.component_exists('pmx485'):
                 port = self.i.find('PLASMAC', 'PM_PORT')
                 Popen('halcmd loadusr -Wn pmx485 ./pmx485.py {}'.format(port), stdout = PIPE, shell = True)
@@ -882,8 +875,7 @@ class HandlerClass:
                         self.dialog_error('Communication Error', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
                         return
                     if hal.component_exists('pmx485'):
-                        print('Powermax component reloaded') 
-                        hal.connect('pmx485.mode_set','plasmac:powermax-mode-set')
+#                        print('Powermax component reloaded') 
                         hal.connect('pmx485.current_set','plasmac:powermax-current-set')
                         hal.connect('pmx485.pressure_set','plasmac:powermax-pressure-set')
                         break
@@ -894,6 +886,7 @@ class HandlerClass:
                 return
             else:
                 self.pmx485Started = True
+                hal.set_p('pmx485.mode_set', str(self.builder.get_object('cut-mode').get_value())) 
                 hal.set_p('pmx485.enable', '1')
                 self.connTimer = 0
         else:
@@ -904,7 +897,10 @@ class HandlerClass:
             if hal.component_exists('pmx485'):
                 hal.set_p('pmx485.enable', '0')
                 self.builder.get_object('powermax-label').set_text('')
-                self.builder.get_object('gas-pressure-adj').configure(0,-0.1,250,0.1,0,0)
+                self.builder.get_object('gas-pressure-adj').configure(0,0,0,1,0,0)
+                toolTip = 'cutting current in amps\nindicator only, not used by plasmac.'
+                for widget in ['cut-amps','cut-amps-label']:
+                    self.builder.get_object(widget).set_tooltip_text(toolTip)
 
     # for powermax communications
     pmx485FaultName = {

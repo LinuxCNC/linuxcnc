@@ -380,8 +380,6 @@ image::images/plasmac_configurator_new.png[width=400]
               the HAL pin to turn the scribe on
 |Powermax Comms|only required if using Powermax communications +
                 the serial port used for communications
-|Gas Units|select the units display you require +
-           psi, Bar or None if not being used
 |===
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
@@ -602,7 +600,8 @@ WARNING: Probe Height is the height above the minimum Z axis limit.
 |Voltage Offset|0,1|The value required to display zero volts when there is zero arc voltage input. +
                     For initial setup multiply the arc voltage out value by -1 and enter that for Voltage Offset.
 |Height Per Volt|0,1,2|The distance the torch would need to move to change the arc voltage by one volt.
-|OK Threshold|0|The voltage required for Arc OK.
+|OK High Volts|0|High voltage threshold for Arc OK.
+|OK Low Volts|0|Low voltage threshold for Arc OK.
 |===
 
 [underline]*Motion*
@@ -642,6 +641,8 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 The *'Save'* button will save the currently displayed parameters as the default.
 
 The *'Reload'* button will reload the last saved parameters.
+
+[[run-panel]]
 
 === Run Panel
 
@@ -739,7 +740,7 @@ The *'Save'* button has two modes of operation:
 
 [underline]*Reload Button*
 
-The *'Reload'* button will reload the default material and the material file.
+The *'Reload'* button will reload all the saved settings and the material file then redisplay the current material. If Powermax communications was enabled it will ignore the saved settings and keep it enabled.
 
 [underline]*New Button*
 
@@ -1091,14 +1092,14 @@ If using a custom user button then the GUI will automatically reload the file wh
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 PlasmaC can utilise GCode commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you don't have a PP or your PP doesn't support these methods then PlasmaC can automatically adapt the GCode to suit. This automatic mode is disabled by default.
 
 There are three methods available for improving the quality of small holes.
 
 . Velocity Reduction: Reduce the velocity to approximately 60% of the 'CutFeedRate'.
-. Arc Dwell: Keep the torch on for a short time while all motion is stopped to allow the arc to catch up.
+. Arc Dwell: Keep the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
 . Overcut: Turn the torch off at the end of the hole then continue along the path of the hole for about 4mm (0.015").
 
 NOTE: If both 'Arc Dwell' and 'Overcut' are active at the same time then 'Overcut' will take precedence.
@@ -1116,13 +1117,13 @@ See the <<velocity_thc,Velocity Based THC>> section.
 
 [underline]*Arc Dwell*
 
-Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
+Hold motion for a time by setting 'Pause At End' in the Cut Parameters frame of the <<run-panel, Run Panel>>
 
 [underline]*Overcut*
 
-The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes 'M62' or 'M64'. After turning the torch off it is necessary to allow the torch to be turned on again by resetting the 'motion.digital-out-03' pin with the M-Codes 'M63' or 'M65', this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
+The torch can be turned off at the end of the hole by setting the 'motion.digital-out-03' pin with the M-Codes 'M62' or 'M64'. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the 'motion.digital-out-03' pin with the M-Codes 'M63' or 'M65', this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a 'M63 P3' or 'M65 P3'.
 
-After the torch is turned of the hole path should be followed for approximately 4mm (0.15")
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.15"). This distance may be specified by adding #<oclength> = n to the gcode file.
 
 * 'M62 P3' will turn the torch off (synchronised with motion)
 * 'M63 P3' will allow the torch to be turned on (synchronised with motion)
@@ -1167,7 +1168,7 @@ PlasmaC hole sensing is enabled/disabled by setting the following GCode paramete
 
 [underline]*Arc Dwell*
 
-Hold motion for a time by setting the 'Off Delay' in the Arc frame of the <<config-panel, Config Panel>>
+Hold motion for a time by setting 'Pause At End' in the Cut Parameters frame of the <<run-panel, Run Panel>>
 
 Use #<holes> = 1 to allow velocity reduction.
 
@@ -1192,6 +1193,8 @@ M2 (end job)
 
 Use #<holes> = 2 to allow velocity reduction and overcut.
 
+Use #<oclength> = n to specify an overcut length different to the default of 4mm (0.015").
+
 Sample code:
 
 ----
@@ -1199,7 +1202,8 @@ G21 (metric)
 G64 P0.005
 M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
-#<holes> = 2 (Overcut for holes)
+#<holes> = 2 (overcut for holes)
+#<oclength> = 6.5 (optional, 6.5mm overcut length)
 G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
@@ -1896,7 +1900,7 @@ PUDDLE_JUMP_HEIGHT  = value
 PUDDLE_JUMP_DELAY   = value
 CUT_HEIGHT          = value
 CUT_SPEED           = value
-CUT_AMPS            = value (only used for operator information)
+CUT_AMPS            = value (for info only unless Powermax communications is enabled)
 CUT_VOLTS           = value (modes 0 & 1 only, if not using auto voltage sampling)
 PAUSE_AT_END        = value
 GAS_PRESSURE        = value (only used for Powermax communications)
@@ -2186,13 +2190,13 @@ NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if us
 
 Communications can be established with a Hypertherm Powermax plasma cutter that has a RS485 port. This then enables the setting of 'Cut Mode', 'Cutting Amperage' and 'Gas Pressure' automatically from the 'Cut Parameters' of the material file.
 
-A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
+If Gas Pressure is set to Zero then the Powermax will automatically calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
 
-If Gas Pressure is set to Zero then the Powermax will calculate the required pressure from the Cut Mode, Cut Current, torch type and torch length.
+Changing the cutting mode will set the gas pressure to zero causing the machine to use its automatic gas pressure mode.
 
-The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are set with these values.
+The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values. Gas pressure can not be changed from zero until communications have been established.
 
-This function is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file.
+This feature is enabled by setting the correct port name for the PM_PORT variable in the [PLASMAC] section of the .ini file. If the PM_PORT variable is not set in the .ini file then the widgets associated with this feature will not be visible.
 
 ----
 [PLASMAC]
@@ -2206,17 +2210,16 @@ If you are unsure of the name of your port there is a python script in the confi
 $ python ~/user/linuxcnc/configs/<your_config>/pmx_test.py
 ----
 
-The gas pressure units display is configured by the PM_PRESSURE_DISPLAY variable. This should be set to the units configured in the Powermax unit being connected to, then the text entered for the PM_PRESSURE_DISPLAY variable is shown next to the Gas Pressure spinbutton on the Run Panel.
+The gas pressure units display, either psi or bar, is determined by the data received during initial setup of the communication link and is then shown next to the Gas Pressure spinbutton on the Run Panel.
 
-If the PM_PORT variable is not set in the .ini file then the widgets associated with this function will not be visible.
 
 The Powermax machine will go into remote mode after communications have been established and will be controlled remotely. The connection can be validated by observing the Powermax display.
 
 To switch the Powermax back to local mode you can either:
 
 .  Disable Powermax Comms from the Run panel
-.  Powerdown the Powermax for 30 seconds and then power it back on.
 .  Close LinuxCNC which will put the Powermax into local mode during shutdown.
+.  Powerdown the Powermax for 30 seconds and then power it back on.
 
 NOTE: To use the Powermax communictions feature it is necessary to have the python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
@@ -2226,6 +2229,8 @@ To install pyserial, type the following in a terminal:
 ----
 sudo apt-get install python-serial
 ----
+
+A typical <<rs485_connections, connection diagram>> is shown in the appendix of this document.
 
 It should be noted that during the initial testing phase of this feature it was found that the USB to RS485 converter had reliability issues and that a PCI RS485 card was then installed on the test machine with no issues at all.
 

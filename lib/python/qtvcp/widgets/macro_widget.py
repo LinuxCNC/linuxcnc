@@ -159,7 +159,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         self.runButton.setEnabled(False)
-        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
+        STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.runButton.setEnabled(STATUS.machine_is_on()
+                                                                and (STATUS.is_all_homed()
+                                                                or INFO.NO_HOME_REQUIRED)))
+        STATUS.connect('interp-run', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False or INFO.NO_HOME_REQUIRED))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
         STATUS.connect('general',self.returnFromDialog)
 
@@ -197,6 +203,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        # if no list of names then continue looking
+                        if name[0]=='':continue
                         l = QtWidgets.QLabel(name[0])
                         if name[1].lower() in('false', 'true'):
                             self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
@@ -263,8 +271,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             else:
                 imgpath = os.path.join(path, svg_name)
                 btn = QtWidgets.QPushButton()
-                btn.setIcon(QtGui.QIcon(imgpath))
-                btn.setIconSize(QtCore.QSize(30, 30)) 
+                btn.setStyleSheet("border-image: url(" + imgpath + ");")
             btn.setToolTip('Macro: {}'.format(tName))
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
@@ -383,6 +390,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
+            # check for macro that needs no data
+            if i == ('', ''):break
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
             if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):

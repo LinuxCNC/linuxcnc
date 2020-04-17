@@ -490,15 +490,29 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.spindle_stop:
             ACTION.SET_SPINDLE_STOP(self.joint)
         elif self.spindle_up:
-            if STATUS.is_spindle_on(self.joint):
-                ACTION.SET_SPINDLE_FASTER(self.joint)
+            if self.joint == -1:
+                a = 0
+                b = INFO.AVAILABLE_SPINDLES
             else:
-                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
+                a = self.joint
+                b = self.joint +1
+            for i in range(a,b):
+                if STATUS.is_spindle_on(i):
+                    ACTION.SET_SPINDLE_FASTER(i)
+                else:
+                    ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD, INFO.DEFAULT_SPINDLE_SPEED,i)
         elif self.spindle_down:
-            if STATUS.is_spindle_on(self.joint):
-                ACTION.SET_SPINDLE_SLOWER(self.joint)
+            if self.joint ==-1:
+                a = 0
+                b = INFO.AVAILABLE_SPINDLES
             else:
-                ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED,self.joint)
+                a = self.joint
+                b = self.joint +1
+            for i in range(a,b):
+                if STATUS.is_spindle_on(i):
+                    ACTION.SET_SPINDLE_SLOWER(i)
+                else:
+                    ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE, INFO.DEFAULT_SPINDLE_SPEED,i)
         elif self.limits_override:
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         elif self.flood:
