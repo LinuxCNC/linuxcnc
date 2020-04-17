@@ -214,9 +214,9 @@ while (time.time() - start) < 2:
 c.mdi('g43.2')
 c.wait_complete()
 error = e.poll()
-if error[1] != "G43.2: H-word missing":
+if error[1] != "G43.2: No axes specified and H word missing":
     print "G43.2 with missing H-word did not produce expected error"
-    print "got [%s]" % e.error[1]
+    print "got [%s]" % error[1]
     sys.exit(1)
 
 
