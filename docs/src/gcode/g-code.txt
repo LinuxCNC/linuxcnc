@@ -89,6 +89,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g61,G61>>                  |Exact Path Mode
 |<<gcode:g61.1,G61.1>>              |Exact Stop Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
+|<<gcode:g70,G70>>                  |Lathe finishing cycle
+|<<gcode:g71-g72,G71-G72>>          |Lathe roughing cycle
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
@@ -1308,7 +1310,7 @@ NOTE: G43.1 does not write to the tool table.
 (((G43.2 Apply additional Tool Length Offset)))
 
 ----
-G43.2 H-
+G43.2 H- axes-
 ----
 * 'H' - tool number
 
@@ -1332,8 +1334,9 @@ compensated axis is moved, that axis's endpoint is the compensated location.
 
 It is an error if:
 
-* 'H' is unspecified, or
-* the given tool number does not exist in the tool table
+* 'H' is unspecified and no axis offsets are specified
+* 'H is specified and the given tool number does not exist in the tool table
+* 'H' is specified and axes are also specified
 
 NOTE: G43.2 does not write to the tool table.
 
@@ -1487,6 +1490,112 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 
 It is a good idea to include a path control specification in the preamble
 of each G code file.
+
+[[gcode:g70]]
+== G70 Lathe finishing cycle
+(((G70 Lathe finishing cycle)))
+
+----
+G70 Q- <X-> <Z-> <D-> <E-> <P->
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position, defaults to the initial position.
+* 'Z' - The starting Z position, defaults to the initial position.
+* 'D' - The starting distance of the profile, defaults to 0.
+* 'E' - The ending distance of the profile, defaults to 0.
+* 'P' - The number of passes to use, defaults to 1.
+
+The 'G70' cycle is intended to be used after the shape of the profile given
+in the subroutine with number Q has been cut with G71 or G72.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done. This position is also used between each finishing pass.
+   ** Then a <<gcode:g0,rapid move>> to the start of the profile is
+      executed.
+   ** The path given in Q- is followed using the <<gcode:g1,G1>> and
+      <<gcode:g2-g3>> commands.
+   ** If a next pass is required there is another rapid to the intermediate
+      location, before a rapid is done to the start of the profile.
+   ** After the final pass, the tool is left at the end of the profile
+      including E-.
+ . Multiple passes.
+   The distance between the pass and the final profile is (pass-1)*(D-E)/P+E.
+   Where pass the pass number and D,E and P are the D/E/P numbers.
+ . The distance is computed using the starting position of the cycle, with
+   a positive distance towards this point.
+ . Fillet and chamfers in the profile.
+   It is possible to add fillets or chamfers in the profile, see
+   <<gcode:g71-g72>> for more details.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* <<gcode:g17-g19.1>> has not been used to select the ZX plane.
+
+[[gcode:g71-g72]]
+== G71 G72 Lathe roughing cycle
+(((G71 G72 Lathe roughing cycle)))
+
+----
+G71   Q- <X-> <Z-> <D-> <I-> <R->
+G71.1 Q- <X-> <Z-> <D-> <I-> <R->
+G71.2 Q- <X-> <Z-> <D-> <I-> <R->
+G72   Q- <X-> <Z-> <D-> <I-> <R->
+G72.1 Q- <X-> <Z-> <D-> <I-> <R->
+G72.2 Q- <X-> <Z-> <D-> <I-> <R->
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position, defaults to the initial position.
+* 'Z' - The starting Z position, defaults to the initial position.
+* 'D' - The remaining distance to the profile, defaults to 0.
+* 'I' - The cutting increment, defaults to 1.
+* 'R' - The retracting distance, defaults to 0.5.
+
+The G71/G72 cycle is intended to rough cut a profile on a lathe. The G71
+cycles remove layers of the material while traversing in the Z direction.
+The G72 cycles remove material while traversing the X axis, the so called
+facing cycle. The direction of travel is the same as in the path given in
+the subroutine. For the G71 cycle the Z coordinate must be monotonically
+changing, for the G72 this is required for the X axis.
+
+The profile is given in a subroutine with number Q-. This subroutine
+may contain G0, G1, G2 and G3 motion commands. All other commands are
+ignored, including feed and speed settings. The <<gcode:g0>> commands are
+interpreted as <<gcode:g1,G1>> commands. Each motion command may also include
+an optional A- or C- number.  If the number A- is added a fillet with
+the radius given by A will be inserted at the endpoint of that motion, if
+this radius is too large the algorithm will fail with a non-monotonic path
+error. It is also possible to use the C- number, which allows a chamfer to
+be inserted. This chamfer has the same endpoints as a fillet of the same
+dimension would have but a straight line is inserted instead of an arc.
+
+When in absolute mode the U (for X) and W (for Z) can be used as
+incremental displacements.
+
+The G7x.1 cycles do not cut pockets. The G7x.2 cycles only cut after the
+first pocket and continue where G7x.1 stopped. It is advisible to leave
+some additional material to cut before the G7x.2 cycle, so if G7x.1 used
+a D1.0 the G7x.2 can use D0.5 and 0.5mm will be removed while moving
+from one pocket to the next.
+
+The normal G7x cycles cut the entire profile in one cycle.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done.
+   ** After the profile has been cut, the tool stops at the end of the
+   profile, including the distance specified in D.
+ . The D number is used to  keep a distance from the final profile,
+   to allow material to remain for finishing.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* <<gcode:g17-g19.1>> has not been used to select the ZX plane.
+* <<gcode:g41-g42>> is active.
 
 [[gcode:g73]]
 == G73 Drilling Cycle with Chip Breaking

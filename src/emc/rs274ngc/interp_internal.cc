@@ -189,6 +189,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((!axis_flag && !polar_flag) && 
             mode1 != G_0 && mode1 != G_1 && 
             mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
+            mode1 != G_70 &&
+            mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
+            mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
 	    ! IS_USER_GCODE(mode1)),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
@@ -200,7 +203,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1),
+         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
+         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
     if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
        block->motion_to_be = settings->motion_mode;

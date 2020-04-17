@@ -3503,6 +3503,12 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
     CHP(convert_nurbs(motion, block, settings));
+  } else if (
+    motion == G_70 ||
+    motion == G_71 || motion == G_71_1 || motion == G_71_2 ||
+    motion == G_72 || motion == G_72_1 || motion == G_72_2
+  ) {
+    CHP(convert_g7x(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
   }
@@ -5379,18 +5385,35 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->v_flag) tool_offset.v = block->v_number;
     if(block->w_flag) tool_offset.w = block->w_number;
   } else if (g_code == G_43_2) {
-    CHKS((!block->h_flag), (_("G43.2: H-word missing")));
-    CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    CHKS((block->h_flag && (block->x_flag || block->y_flag || block->z_flag
+         || block->a_flag || block->b_flag || block->c_flag || block->u_flag
+         || block->v_flag || block->w_flag)), (_("G43.2: Can not have both H and axis words")));
+    CHKS((!block->h_flag && !block->x_flag && !block->y_flag && !block->z_flag
+         && !block->a_flag &&!block->b_flag && !block->c_flag && !block->u_flag
+         && !block->v_flag && !block->w_flag), (_("G43.2: No axes specified and H word missing")));
     tool_offset = settings->tool_offset;
-    tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
-    tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
-    tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
-    tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
-    tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
-    tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
-    tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
-    tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
-    tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
+    if (block->h_flag){
+        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+        tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
+        tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
+        tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
+        tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
+        tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
+        tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
+        tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
+        tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
+        tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
+    } else {
+        if(block->x_flag) tool_offset.tran.x += block->x_number;
+        if(block->y_flag) tool_offset.tran.y += block->y_number;
+        if(block->z_flag) tool_offset.tran.z += block->z_number;
+        if(block->a_flag) tool_offset.a += block->a_number;
+        if(block->b_flag) tool_offset.b += block->b_number;
+        if(block->c_flag) tool_offset.c += block->c_number;
+        if(block->u_flag) tool_offset.u += block->u_number;
+        if(block->v_flag) tool_offset.v += block->v_number;
+        if(block->w_flag) tool_offset.w += block->w_number;
+    }
   } else {
     ERS("BUG: Code not G43, G43.1, G43.2, or G49");
   }

@@ -286,6 +286,7 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
         hm2->pwmgen.instance[i].written_output_type = hm2->pwmgen.instance[i].hal.param.output_type;
+        hm2->pwmgen.instance[i].written_offset_mode = hm2->pwmgen.instance[i].hal.param.offset_mode;
         hm2->pwmgen.instance[i].written_enable = *hm2->pwmgen.instance[i].hal.pin.enable;
     }
 
@@ -310,8 +311,13 @@ void hm2_pwmgen_write(hostmot2_t *hm2) {
         if (hm2->pwmgen.instance[i].hal.param.output_type != hm2->pwmgen.instance[i].written_output_type) {
             goto force_write;
         }
-    }
-
+    }	
+    // check offset mode
+    for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
+        if (hm2->pwmgen.instance[i].hal.param.offset_mode != hm2->pwmgen.instance[i].written_offset_mode) {
+            goto force_write;
+        }
+    } 
     // check pwm & pdm frequency
     if (hm2->pwmgen.hal->param.pwm_frequency != hm2->pwmgen.written_pwm_frequency) goto force_write;
     if (hm2->pwmgen.hal->param.pdm_frequency != hm2->pwmgen.written_pdm_frequency) goto force_write;
@@ -473,6 +479,12 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             // parameters
+            rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.offset-mode", hm2->llio->name, i);
+            r = hal_param_bit_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.offset_mode), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding param '%s', aborting\n", name);
+                goto fail1;
+            }
 
             rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.scale", hm2->llio->name, i);
             r = hal_param_float_new(name, HAL_RW, &(hm2->pwmgen.instance[i].hal.param.scale), hm2->llio->comp_id);
@@ -498,8 +510,8 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             *(hm2->pwmgen.instance[i].hal.pin.enable) = 0;
             *(hm2->pwmgen.instance[i].hal.pin.value) = 0.0;
             hm2->pwmgen.instance[i].hal.param.scale = 1.0;
+            hm2->pwmgen.instance[i].hal.param.offset_mode = 0;
             hm2->pwmgen.instance[i].hal.param.output_type = HM2_PWMGEN_OUTPUT_TYPE_PWM;
-
             hm2->pwmgen.instance[i].written_output_type = -666;  // force an update at the start
             hm2->pwmgen.instance[i].written_enable = -666;       // force an update at the start
         }
@@ -534,8 +546,8 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2) {
 
 void hm2_pwmgen_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("PWMGen: %d\n", hm2->pwmgen.num_instances);
     if (hm2->pwmgen.num_instances <= 0) return;
+    HM2_PRINT("PWMGen: %d\n", hm2->pwmgen.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->pwmgen.clock_frequency, hm2_hz_to_mhz(hm2->pwmgen.clock_frequency));
     HM2_PRINT("    version: %d\n", hm2->pwmgen.version);
     HM2_PRINT("    pwmgen_master_rate_dds: 0x%08X (%d)\n", hm2->pwmgen.pwmgen_master_rate_dds_reg, hm2->pwmgen.pwmgen_master_rate_dds_reg);
@@ -572,30 +584,42 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         double abs_duty_cycle;
         int bits;
 
+        scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
+        if (scaled_value > 1.0) scaled_value = 1.0;
+	if (scaled_value < -1.0) scaled_value = -1.0;
+
         // Normally the PWM & Dir IO pins of the pwmgen instance keep doing
         // their thing even if the enable bit is low.  This is because the
         // downstream equipment *should* ignore PWM & Dir if /Enable is
         // high (this is how it handles bootup & watchdog bites).
         // However, there apparently is equipment that does not behave this
         // way, and that benefits from having PWM & Dir go low when /Enable
-        // goes high.  So...
+        // goes high. (note that PWM will go to 50% when offset mode is enabled)
         if (*hm2->pwmgen.instance[i].hal.pin.enable == 0) {
-            hm2->pwmgen.pwm_value_reg[i] = 0;
-            continue;
+            scaled_value = 0.0;
         }
-
-        scaled_value = *hm2->pwmgen.instance[i].hal.pin.value / hm2->pwmgen.instance[i].hal.param.scale;
-
+	
         abs_duty_cycle = fabs(scaled_value);
-        if (abs_duty_cycle > 1.0) abs_duty_cycle = 1.0;
 
         // duty_cycle goes from 0.0 to 1.0, and needs to be puffed out to pwm_bits (if it's pwm) or 12 (if it's pdm)
-        if (hm2->pwmgen.instance[i].hal.param.output_type == HM2_PWMGEN_OUTPUT_TYPE_PDM) {
-            bits = 12;
-        } else {
-            bits = hm2->pwmgen.pwm_bits;
-        }
-        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (double)((1 << bits) - 1);
+ 	if  (hm2->pwmgen.instance[i].hal.param.offset_mode == 0) {
+	     //normal PWM/PDM modes	
+	     if (hm2->pwmgen.instance[i].hal.param.output_type == HM2_PWMGEN_OUTPUT_TYPE_PDM) {
+	            bits = 12;
+	        } else {
+	            bits = hm2->pwmgen.pwm_bits;
+	        }
+	        hm2->pwmgen.pwm_value_reg[i] = abs_duty_cycle * (double)((1 << bits) - 1);
+
+	} else {
+	     // offset PWM/PDM modes where 0 PWM value = 50% duty cycle	also choose active low
+	     if (hm2->pwmgen.instance[i].hal.param.output_type == HM2_PWMGEN_OUTPUT_TYPE_PDM) {
+	            bits = 11;
+	        } else {
+	            bits = hm2->pwmgen.pwm_bits -1;
+	        }
+	        hm2->pwmgen.pwm_value_reg[i] = scaled_value * (double)(((1 << bits) - 1))+ (1 << bits);
+	}
         hm2->pwmgen.pwm_value_reg[i] <<= 16;
         if (scaled_value < 0) {
             hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);

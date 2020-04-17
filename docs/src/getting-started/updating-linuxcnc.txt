@@ -1208,9 +1208,67 @@ settings separated by blanks and enclosed with quotes.  Example:
 loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
 ----
 
-== Changes beyond 2.8.x
+== Changes beyond 2.8.x (master branch development)
 
-Future versions of this document will note changes made to the development
-branch subsequent to 2.8.x release(s).
+The master branch is version-tagged with prerelease notation, typically
+2.9~pre*
+
+=== G-code changes
+G43.2 (additional offsets) now accepts transient offsets to be added by
+axis words as well as from the tool table.
+
+=== Configuration Updates
+
+==== Inifile Settings
+
+New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
+index that does not reset upon receipt of index pulse following
+assertion of index_enable.
+
+=== Code Updates
+
+==== Reverse Run
+
+Support added for reverse run in the trajectory planner, the task, and
+motion modules, the python interface, the axis gui, and the test suite.
+
+==== Number of Joints
+
+The maximum number of joints (EMCMOT_MAX_JOINTS) increased from 9
+to 16.  The axis gui now supports display of up to 16 joints.
+
+==== Extra Joints
+
+A new motmod parameter (num_extrajoints) specifies joints that are
+homed by conventional joint homing methods but controlled by new hal
+pins (joint.N.posthome-cmd) after homing.  Such joints may be
+managed by independent motion planner/controllers in hal and manipulated
+from gcode using custom M-codes.  See the motion man page for
+more info.
+
+==== Homing
+
+A homing api is provided by src/emc/motion/homing.h to support users'
+custom homing code that replaces src/emc/motion/homing.c with
+a user-customized homing.c file.
+
+==== Other
+
+lib/hallib/sim_lib.tcL: simulate encoder index if [JOINT_n]HOME_USE_INDEX
+is specified.
+
+lib/python/vismach.py: new hal pin vismach.plotclear
+
+=== Hal
+
+==== Components
+
+sim_home_switch: added I/O pin for index-enable
+
+=== Configs
+
+==== Simulation Configs
+
+sim/configs/axis/axis_9axis: demonstrate simulated encoder index
 
 // vim: set syntax=asciidoc:

@@ -118,7 +118,7 @@ The following is an example circuit that has been proven to work and is compatib
 
 image::images/primer_ohmic-sensing.png[width=1000]
 
-== Hypersensing with a MESA THCAD-5
+=== Hypersensing with a MESA THCAD-5
 
 A more sophisticated method of material sensing that eliminates the relays and diodes is to use another THCAD-5 to monitor the material sensing circuit voltage from an isolated power supply. The advantage this has is the THCAD is designed for the hostile plasma electrical environment and totally and safely isolates the logic side from the high voltage side.
 
@@ -134,7 +134,7 @@ image::images/primer_hypersensing.png[width=1000]
 
 We used a 15W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24V DIN rail based isolated power supply.. This is a double insulated  Isolation Class II device that will withstand any arc voltage that might be applied to the terminals.
 
-== Example HAL Code for Hypersensing
+.Example HAL Code for Hypersensing
 
 The following HAL code can be pasted into your plasmac_connections.hal to enable Ohmic sensing on Encoder 2 of a 7i76e. Install the correct bit file and connect the THCAD to IDX+ and IDX-. Be sure to change the calibration settings to agree with your THCAD-5.
 

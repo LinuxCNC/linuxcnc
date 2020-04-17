@@ -419,6 +419,26 @@ RTAPI_BEGIN_DECLS
 */
     extern int rtapi_task_self(void);
 
+#if defined(RTAPI_USPACE) || defined(USPACE)
+
+#define RTAPI_TASK_PLL_SUPPORT
+
+/** 'rtapi_task_pll_get_reference()' gets the reference timestamp
+    for the start of the current cycle.
+    Returns 0 if not called from within task context or on
+    platforms that do not support this.
+*/
+    extern long long rtapi_task_pll_get_reference(void);
+
+/** 'rtapi_task_pll_set_correction()' sets the correction value for
+    the next scheduling cycle of the current task. This could be
+    used to synchronize the task cycle to external sources.
+    Returns -EINVAL if not called from within task context or on
+    platforms that do not support this.
+*/
+    extern int rtapi_task_pll_set_correction(long value);
+#endif /* USPACE */
+
 #endif /* RTAPI */
 
 /***********************************************************************
