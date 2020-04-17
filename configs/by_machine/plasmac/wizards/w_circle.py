@@ -112,6 +112,13 @@ class circle:
         if radius > 0:
             angle = math.radians(45)
             ijOffset = radius * math.sin(angle)
+            ijDiff = 0
+            if self.offset.get_active():
+                if self.outside.get_active():
+                    ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * math.sin(angle)
+                else:
+                    ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * -math.sin(angle)
+
             if self.liEntry.get_text():
                 leadInOffset = math.sin(angle) * float(self.liEntry.get_text())
             else:
@@ -171,6 +178,7 @@ class circle:
                         break
                     outNgc.write(line)
             else:
+                outNgc.write('(preamble)\n')
                 outNgc.write('{}\n'.format(self.preamble))
                 outNgc.write('f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(speed))
             outTmp.write('\n(wizard circle)\n')
@@ -184,8 +192,6 @@ class circle:
                     xlStart = xlCentre + (leadInOffset * math.cos(angle + dir[1]))
                     ylStart = ylCentre + (leadInOffset * math.sin(angle + dir[1]))
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-                if self.offset.get_active():
-                    outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
                 outTmp.write('m3 $0 s1\n')
                 if sHole and not self.outside.get_active():
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
@@ -195,9 +201,9 @@ class circle:
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 outTmp.write('m3 $0 s1\n')
             if self.outside.get_active():
-                outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
+                outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset + ijDiff))
             else:
-                outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
+                outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset + ijDiff))
             if leadOutOffset and not self.overcut.get_active() and not (not self.outside.get_active() and sHole):
                     if self.outside.get_active():
                         dir = [left, up]
@@ -212,7 +218,7 @@ class circle:
             if self.overcut.get_active() and sHole and not self.outside.get_active():
                 Torch = False
                 outTmp.write('m62 p3 (disable torch)\n')
-                self.over_cut(xS, yS, ijOffset, radius, outTmp)
+                self.over_cut(xS, yS, ijOffset + ijDiff, radius, outTmp)
             outTmp.write('g40\n')
             outTmp.write('m5\n')
             if not torch:
@@ -384,7 +390,11 @@ class circle:
         self.dEntry.set_width_chars(10)
         self.dEntry.connect('changed', self.diameter_changed)
         t.attach(self.dEntry, 1, 2, 6, 7)
-        self.overcut = gtk.CheckButton('Overcut')
+        ocDesc = gtk.Label('Over Cut')
+        ocDesc.set_alignment(0.95, 0.5)
+        ocDesc.set_width_chars(10)
+        t.attach(ocDesc, 0, 1, 7, 8)
+        self.overcut = gtk.CheckButton('')
         self.overcut.connect('toggled', self.overcut_toggled)
         self.overcut.set_sensitive(False)
         t.attach(self.overcut, 1, 2, 7, 8)
