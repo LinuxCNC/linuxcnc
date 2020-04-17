@@ -132,7 +132,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         if self.PREFS_:
-            last_path = self.PREFS_.getpref('last_file_path', self.default_path, str, 'BOOK_KEEPING')
+            last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
             self.updateDirectoryView(last_path)
             LOG.debug("lAST FILE PATH: {}".format(last_path))
         else:
@@ -151,7 +151,8 @@ class FileManager(QWidget, _HalWidgetBase):
             return
         if fname:
             if self.PREFS_:
-                self.PREFS_.putpref('last_file_path', fname, str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
 
