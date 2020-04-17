@@ -73,8 +73,8 @@ def negative_cutoff(I, J, radius):
     global lastX, lastY, torchEnable
     centerX = lastX + I
     centerY = lastY + J
-    cosA = math.cos(oclength / radius / scale)
-    sinA = math.sin(oclength / radius / scale)
+    cosA = math.cos(oclength / radius)
+    sinA = math.sin(oclength / radius)
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
     print('m62 p3 (disable torch)')

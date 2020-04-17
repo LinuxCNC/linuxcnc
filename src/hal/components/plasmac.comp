@@ -5,11 +5,9 @@ description
 
 A plasma cutting table control component for use with the LinuxCNC V2.8 or later.
 
-LinuxCNC V2.9 or later is required to use the "Paused Motion" feature.
-
 .I VERSION:
 .br
-0.112 - 2020 Apr 15
+0.113 - 2020 Apr 17
 
 .I SUMMARY:
 .br
