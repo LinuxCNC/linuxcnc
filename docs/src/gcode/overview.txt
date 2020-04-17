@@ -687,8 +687,10 @@ can be added easily without changes to the source code.
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
 
+[[remap:referto-inifile-variables]]
+
 == HAL pins and INI values
-If enabled in the <<ini-config:[RS274NGC], INI file>> G-code has access
+If enabled in the <<remap:ini-features, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
 
 * '#<_ini[section]name>' Returns the value of the corresponding item in
