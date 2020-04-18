@@ -838,6 +838,9 @@ class ActionButtonDialog(QtWidgets.QDialog):
 
     def statusSelectionChanged(self,index):
         choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
+        if choice is None:
+            self.jnum.hide()
+            return
         if  choice == 'is_joint_homed' or 'is_spindle' in choice:
             self.jnum.show()
         else:
@@ -987,10 +990,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 self.wfraction.show()
 
             choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
-            if  choice == 'is_joint_homed' or 'is_spindle' in choice:
-                self.jnum.show()
-            else:
-                self.jnum.hide()
+            if choice is not None:
+                if  choice == 'is_joint_homed' or 'is_spindle' in choice:
+                    self.jnum.show()
+                else:
+                    self.jnum.hide()
         else:
             self.halP.hide()
             self.size.hide()
