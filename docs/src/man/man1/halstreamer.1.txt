@@ -47,7 +47,7 @@ Each line of input must match the pins that are attached to the FIFO,
 for example, if the *streamer* config string was "ffbs" then each line
 of input must consist of two floats, a bit, and a signed integer, in that
 order and separated by whitespace.  Floats must be formatted as required
-by *strtod*(3), signed and unsigned integers must be formated as required
+by *strtod*(3), signed and unsigned integers must be formatted as required
 by *strtol*(3) and *strtoul*(3), and bits must be either '0' or '1'.
 
 Input lines that begin with '#' will be treated as comments and silently

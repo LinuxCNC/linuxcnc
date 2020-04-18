@@ -51,7 +51,7 @@ specified by
 .  They must also agree which component (the first one loaded)
 will
 .B hal_stream_create
-the stream, and wich component (the second one loaded) will
+the stream, and which component (the second one loaded) will
 .B hal_stream_attach
 to the already-created stream.
 
@@ -181,7 +181,7 @@ A buffer big enough to hold all the data in one sample.
 
 .IP \fIsampleno\fR
 If non-NULL, the last sample number is stored here.  Gaps in this sequence
-indicate that an overrun occured between the previous read and this one.  May
+indicate that an overrun occurred between the previous read and this one.  May
 be NULL, in which case the sample number is not retrieved.
 
 .IP \fIstop\fR

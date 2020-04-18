@@ -3,7 +3,7 @@ component mesa_pktgyro_test "PktUART simple test with Microstrain 3DM-GX3-15 gyr
 description """This component is written in order to test
 the PktUART driver for Mesa. It resembles partly Andy Pugh's mesa_uart.comp .
 
-This module uses the names= mode of loadrt declaration to specifiy which PktUART
+This module uses the names= mode of loadrt declaration to specify which PktUART
 instances to enable. A check is included to ensure that the count= option is
 not used instead.
 For simplicity we test only one PktUART instance, therefore load the component

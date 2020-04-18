@@ -128,7 +128,7 @@ int hm2_pktuart_parse_md(hostmot2_t *hm2, int md_index)
                                   +i * md->instance_stride);    
         }
         else{
-            HM2_ERR("Something very wierd happened");
+            HM2_ERR("Something very weird happened");
             goto fail0;
         }       
         
