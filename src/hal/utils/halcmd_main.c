@@ -259,7 +259,7 @@ int main(int argc, char **argv)
 	    char *tokens[MAX_TOK+1];
             char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
             char *elineptr;
-            char *elinenext;
+            char *elinenext = 0;
             int   newLinePos;
 
 	    halcmd_set_linenumber(linenumber++);

@@ -69,7 +69,6 @@
 static CanonConfig_t canon;
 
 static int debug_velacc = 0;
-static const double tiny = 1e-7;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
