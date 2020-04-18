@@ -92,17 +92,17 @@ net pdnt.axis.z.jog-vel-mode              whb.axis.z.jog-vel-mode               
 # macro buttons to MDI commands
 net pdnt.macro-1                          whb.button.macro-1                    halui.mdi-command-01             # use MDI command from main.ini
 net pdnt.macro-2                          whb.button.macro-2                    halui.mdi-command-02             # use MDI command from main.ini or used for Hardcoded lube on/off
-net pdnt.reserved.for.spindle+            whb.button.macro-3                                                     # Harcoded for spindle+ whb.halui.spindle.increase
-net pdnt.reserved.for.spindle-            whb.button.macro-4                                                     # Harcoded for spindle- whb.halui.spindle.decrease
+net pdnt.reserved.for.spindle+            whb.button.macro-3                                                     # Hardcoded for spindle+ whb.halui.spindle.increase
+net pdnt.reserved.for.spindle-            whb.button.macro-4                                                     # Hardcoded for spindle- whb.halui.spindle.decrease
 net pdnt.macro-5                          whb.button.macro-5                    halui.mdi-command-05             # use MDI command from main.ini
 net pdnt.macro-6                          whb.button.macro-6                    halui.mdi-command-06             # use MDI command from main.ini
 net pdnt.macro-7                          whb.button.macro-7                    halui.mdi-command-07             # use MDI command from main.ini
-net pdnt.reserved.for.spindle.dir         whb.button.macro-8                                                     # Harcoded for spindle direction inside pendant
+net pdnt.reserved.for.spindle.dir         whb.button.macro-8                                                     # Hardcoded for spindle direction inside pendant
 net pdnt.macro-9                          whb.button.macro-9                    halui.mdi-command-09             # use MDI command from main.ini
 net pdnt.reserved.for.ABS-REL             whb.button.macro-10                                                    # Hardcoded for swap Dro  Relative/Absolue
 net pdnt.macro-14                         whb.button.macro-14                   halui.mdi-command-14             # use MDI command from main.ini
-net pdnt.reserved.for.flood               whb.button.macro-15                                                    # Harcoded for halui.flood on/off
-net pdnt.reserved.for.mist                whb.button.macro-16                                                    # Harcoded for halui.mist on/off
+net pdnt.reserved.for.flood               whb.button.macro-15                                                    # Hardcoded for halui.flood on/off
+net pdnt.reserved.for.mist                whb.button.macro-16                                                    # Hardcoded for halui.mist on/off
 
 net pdnt.macro.11                         whb.button.macro-11                   halui.mdi-command-11             # use MDI command from main.ini
 net pdnt.macro.12                         whb.button.macro-12                   halui.mdi-command-12             # use MDI command from main.ini
