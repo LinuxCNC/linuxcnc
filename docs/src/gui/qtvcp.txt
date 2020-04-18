@@ -215,8 +215,9 @@ now not be resizable. +
  +
 Drag and drop the screenoption widget onto the main window (anywhere). +
 This widget doesn't add anything visually but sets up some common options. +
-right click on the main window and set the layout as vertical. +
-The screenoption widget will now be fullsized. +
+It's recommended to always add this widget before any other. +
+Right click on the main window (not the screenoptions widget) +
+and set the layout as vertical. The screenoption widget will now be fullsized. +
 
 On the right hand side there is a panel with tabs for a Property editor and +
 an object inspector. On the Object inspector click on the screenoption. then +
@@ -232,9 +233,8 @@ can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', 
 'Run', 'Pause' and 'stop'. +
 Action buttons default to no action so we must change the properties for defined functions. +
 You can edit the properties directly in the property editor on the right side of designer. +
-A convenient alternating is right clicking on the button and choosing 'Set Actions' or +
-'Set Indicator Actions'. Each will launch a Dialog that allows selecting actions while +
-only display relevant data to the action. +
+A convenient alternating is left double clicking on the button This will launch a Dialog +
+that allows selecting actions while only display relevant data to the action. +
  +
 We will describe the convenient way first: +
 
