@@ -150,7 +150,7 @@ void LoadElementProperties(StrElement * Element)
 				break;
 			case ELE_OUTPUT_CALL:
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("Sub-Routine",TextToWrite));
+				SetProperty(0,_("Sub-Routine"),TextToWrite);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
