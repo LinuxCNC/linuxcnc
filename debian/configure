@@ -312,5 +312,7 @@ for P in $DOCS_PACKAGES; do
     fi
 done
 
+echo "$MAIN_PACKAGE_NAME: python-script-but-no-python-dep usr/bin/update_ini" > $MAIN_PACKAGE_NAME.lintian-overrides
+
 rm -f ../build-stamp
 echo "successfully configured for '$DISTRIB_NAME'-'$TARGET$TARGET_EXTRA'.."
