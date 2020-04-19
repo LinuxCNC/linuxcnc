@@ -44,7 +44,7 @@
                 off_t off, int count, int *eof, void *data)  */
 
 #define PROC_PRINT(fmt,args...)                         \
-    len += sprintf(page + len , fmt, ##args);           \
+    len += snprintf(page, sizeof(page) + len , fmt, ##args);           \
     pos += len;                                         \
     if(pos < off) {                                     \
         len = 0;                                        \

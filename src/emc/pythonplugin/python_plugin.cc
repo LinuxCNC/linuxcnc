@@ -373,7 +373,7 @@ int PythonPlugin::configure(const char *iniFilename,
     int lineno;
     while (NULL != (inistring = inifile.Find("PATH_PREPEND", "PYTHON",
 					     n, &lineno))) {
-	sprintf(pycmd, "import sys\nsys.path.insert(0,\"%s\")", inistring);
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.insert(0,\"%s\")", inistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 
 	if (PyRun_SimpleString(pycmd)) {
@@ -387,7 +387,7 @@ int PythonPlugin::configure(const char *iniFilename,
     n = 1;
     while (NULL != (inistring = inifile.Find("PATH_APPEND", "PYTHON",
 					     n, &lineno))) {
-	sprintf(pycmd, "import sys\nsys.path.append(\"%s\")", inistring);
+	snprintf(pycmd, sizeof(pycmd), "import sys\nsys.path.append(\"%s\")", inistring);
 	logPP(1, "%s:%d: executing '%s'",iniFilename, lineno, pycmd);
 	if (PyRun_SimpleString(pycmd)) {
 	    logPP(-1, "%s:%d: exception running '%s'",iniFilename, lineno, pycmd);

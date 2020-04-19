@@ -70,6 +70,7 @@
 #endif
 #endif
 
+#include <rtapi_string.h>
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
 #endif
@@ -254,7 +255,7 @@ int main( int   argc, char *argv[] )
 			rtapi_print(_("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n"));
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName  );
-			if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+			if (pathswitch){   rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
 			hal_ready(compId);
@@ -269,7 +270,7 @@ int main( int   argc, char *argv[] )
 						ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
 						InitGtkWindows( argc, argv );
 						UpdateAllGtkWindows();
-						if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+						if (pathswitch){   rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 						UpdateWindowTitleWithProjectName( );
 						MessageInStatusBar( ProjectLoadedOk?_("Project loaded and running"):_("Project failed to load..."));
 						if (!ProjectLoadedOk) 
@@ -280,7 +281,7 @@ int main( int   argc, char *argv[] )
 					    }else{
 							   InitGtkWindows( argc, argv );
 							   UpdateAllGtkWindows();
-							   if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+							   if (pathswitch){   rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 							   UpdateWindowTitleWithProjectName( );
 							   MessageInStatusBar(_("GUI reloaded with existing ladder program"));
 							   if (modmaster) {    PrepareModbusMaster( );    }

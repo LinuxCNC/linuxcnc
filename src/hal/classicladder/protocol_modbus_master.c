@@ -37,6 +37,7 @@
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
 #include "socket_modbus_master.h"
+#include <rtapi_string.h>
 
 StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
 // if '\0' => IP mode used for I/O modbus modules

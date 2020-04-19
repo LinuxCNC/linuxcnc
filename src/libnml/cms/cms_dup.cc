@@ -33,6 +33,7 @@ extern "C" {
 #include "cms.hh"		/* class CMS */
 #include "cms_dup.hh"		/* class CMS_DISPLAY_ASCII_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
+#include <rtapi_string.h>
 #define DEFAULT_WARNING_COUNT_MAX 100
 /* Member functions for CMS_DISPLAY_ASCII_UPDATER Class */
     CMS_DISPLAY_ASCII_UPDATER::CMS_DISPLAY_ASCII_UPDATER(CMS * _cms_parent):
@@ -230,7 +231,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update_char(char &x)
 	    length_current_string += 2;
 	} else if (x == 0 && updating_string) {
 	} else if (!isgraph(x)) {
-	    sprintf(end_current_string, "\\%3.3d", x);
+	    snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "\\%3.3d", x);
 	    end_current_string += 4;
 	    length_current_string += 4;
 	} else {
@@ -366,7 +367,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(short int &x)
     }
 
     if (encoding) {
-	sprintf(end_current_string, "%+d,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%+d,", x);
     } else {
 	errno = 0;
 	long number = strtol(end_current_string, (char **) NULL, 10);
@@ -413,7 +414,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned short int &x)
     }
 
     if (encoding) {
-	sprintf(end_current_string, "%d,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%d,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -473,7 +474,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(int &x)
 		("CMS_DISPLAY_ASCII_UPDATER: int %d is too large. (Use type long.)\n",
 		x);
 	}
-	sprintf(end_current_string, "%+6d,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%+6d,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -529,7 +530,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned int &x)
 		("CMS_DISPLAY_ASCII_UPDATER: unsigned int %d is too large. (Use type long.)\n",
 		x);
 	}
-	sprintf(end_current_string, "%6d,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%6d,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -583,7 +584,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long int &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%+ld,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%+ld,", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -634,7 +635,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
     }
 
     if (encoding) {
-	sprintf(end_current_string, "%ld,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%ld,", x);
 
     } else {
 	if (0 == end_current_string[0]) {
@@ -683,7 +684,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(float &x)
     }
 
     if (encoding) {
-	sprintf(end_current_string, "%f,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%f,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -736,7 +737,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(double &x)
     }
 
     if (encoding) {
-	sprintf(end_current_string, "%f,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%f,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -783,7 +784,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(long double &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14.8e,", (double) x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%-14.8e,", (double) x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;

@@ -29,6 +29,7 @@
 #include "interp_internal.hh"
 #include "interp_queue.hh"
 #include "interp_parameter_def.hh"
+#include <rtapi_string.h>
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
@@ -806,7 +807,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double midx, midy;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* angle for testing corners */
-    double opx, opy, opz;
+    double opx = 0, opy = 0, opz = 0;
     double theta;                 /* direction of tangent to last cut */
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
@@ -1368,12 +1369,12 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                 int n = snprintf(valbuf, VAL_LEN, "%lf", pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
-                    strcpy(valbuf, "######");
+                    rtapi_strxcpy(valbuf, "######");
 
             }
             else
             {
-                strcpy(valbuf, "######");
+                rtapi_strxcpy(valbuf, "######");
             }
             logDebug("found:%d value:|%s|", found, valbuf);
 
@@ -2900,7 +2901,7 @@ int Interp::restore_settings(setup_pointer settings,
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
 		char currentError[LINELEN+1];
-		strcpy(currentError,getSavedError());
+		rtapi_strxcpy(currentError,getSavedError());
 		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
 	    }
 	}
@@ -4246,7 +4247,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   char *line;
   int length;
 
-  double cx, cy, cz;
+  double cx = 0, cy = 0, cz = 0;
   comp_get_current(settings, &cx, &cy, &cz);
   CHP(move_endpoint_and_flush(settings, cx, cy));
   dequeue_canons(settings);
@@ -4989,7 +4990,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     double radius;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
-    double opx, opy, opz;      /* old programmed beginning point */
+    double opx = 0, opy = 0, opz = 0;      /* old programmed beginning point */
     double theta;
     double cx, cy, cz;
     int concave;

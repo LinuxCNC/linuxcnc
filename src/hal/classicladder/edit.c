@@ -45,6 +45,7 @@
 #endif
 #include "symbols.h"
 #include "vars_names.h"
+#include <rtapi_string.h>
 
 /* This array give for each special elements the size used */
 #define TYPEELERULE 0
@@ -142,57 +143,57 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				strcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
+				rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
 				SetProperty(0,_("Variable"),TextToWrite);
 				break;
 			case ELE_OUTPUT_JUMP:
 				SetProperty(0,_("JumpToLabel"),RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("Sub-Routine"),TextToWrite);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("TimerNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",Timer->Preset/Timer->Base);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Timer->Preset/Timer->Base);
 				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("MonostNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",Monostable->Preset/Monostable->Base);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Monostable->Preset/Monostable->Base);
 				SetProperty(2,_("Preset"),TextToWrite);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("CounterNbr"),TextToWrite);
-				sprintf(TextToWrite,"%d",Counter->Preset);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Counter->Preset);
 				SetProperty(1,_("Preset"),TextToWrite);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
-				sprintf(TextToWrite,"%d",Element->VarNum);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
 				SetProperty(0,_("TimerNbr"),TextToWrite);
-				sprintf(TextToWrite,"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
 				SetProperty(1,_("Base"),TextToWrite);
-				sprintf(TextToWrite,"%d",TimerIEC->Preset);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%d",TimerIEC->Preset);
 				SetProperty(2,_("Preset"),TextToWrite);
-				sprintf(TextToWrite,"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				snprintf(TextToWrite, sizeof(TextToWrite),"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
 				SetProperty(3,_("TimerMode"),TextToWrite);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				strcpy(TextToWrite,DisplayArithmExpr(EditArithmExpr[Element->VarNum].Expr,0));
+				rtapi_strxcpy(TextToWrite,DisplayArithmExpr(EditArithmExpr[Element->VarNum].Expr,0));
 				SetProperty(0,_("Expression"),TextToWrite);
 				break;
 		}
@@ -209,7 +210,7 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 	StrCounter * Counter = NULL;
 	StrTimerIEC * TimerIEC = NULL;
 
-	strcpy( PropertiesText, "" );
+	rtapi_strxcpy( PropertiesText, "" );
 
 	if (Element)
 	{
@@ -223,35 +224,35 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:				
-				sprintf(PropertiesText, _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
 				break;
 			case ELE_OUTPUT_JUMP:
-				sprintf(PropertiesText, _("Label: %s"), RungArray[Element->VarNum].Label);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Label: %s"), RungArray[Element->VarNum].Label);
 				break;
 			case ELE_OUTPUT_CALL:
-				sprintf(PropertiesText, _("Sub-Routine: %d"), Element->VarNum);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Sub-Routine: %d"), Element->VarNum);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cT%d: Preset=%d Base=%s"), '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cT%d: Preset=%d Base=%s"), '%', Element->VarNum, Timer->Preset/Timer->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cM%d: Preset=%d Base=%s"), '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cM%d: Preset=%d Base=%s"), '%', Element->VarNum, Monostable->Preset/Monostable->Base, CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cC%d: Preset=%d"), '%', Element->VarNum, Counter->Preset);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cC%d: Preset=%d"), '%', Element->VarNum, Counter->Preset);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
-				sprintf(PropertiesText, _("%cTM%d: Preset=%d Base=%s Mode=%s"), '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
+				snprintf(PropertiesText, sizeof(PropertiesText), _("%cTM%d: Preset=%d Base=%s Mode=%s"), '%', Element->VarNum, TimerIEC->Preset, CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect, TimersModesStrings[ (int)TimerIEC->TimerMode ]);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				sprintf(PropertiesText,_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+				snprintf(PropertiesText, sizeof(PropertiesText),_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
 							
 				break;
 		}
@@ -291,7 +292,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 	if ( text[0]=='\0' )
 		return NULL;
 
-	strcpy(NewExpr,"");
+	rtapi_strxcpy(NewExpr,"");
 	/* Convert expression for variables authorized */
 	do
 	{
@@ -337,12 +338,12 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			{
 //printf( "parser var give => %d/%d length=%d\n", VarType, VarOffset, StringLength );
 				if ( VarIndexedIsFound==FALSE )
-					strcat( NewExpr, "@" );
-				sprintf(Buffer,"%d/%d",VarType,VarOffset);
-				strcat(NewExpr,Buffer);
+					rtapi_strxcat( NewExpr, "@" );
+				snprintf(Buffer, sizeof(Buffer),"%d/%d",VarType,VarOffset);
+				rtapi_strxcat(NewExpr,Buffer);
 				ptr = ptr + (SymbolFound==TRUE?SymbolLength:StringLength);
 				if ( *ptr!='[' && VarIndexedIsFound==FALSE )
-					strcat( NewExpr, "@" );
+					rtapi_strxcat( NewExpr, "@" );
 
 				if ( TEST_VAR_IS_A_BOOL( VarType,VarOffset ) )
 
@@ -366,12 +367,12 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 		if ( SimpleCharCopy )
 		{
 //printf("copy:'%c'.\n", *ptr);
-			sprintf(Buffer,"%c",*ptr);
-			strcat(NewExpr, Buffer);
+			snprintf(Buffer, sizeof(Buffer),"%c",*ptr);
+			rtapi_strxcat(NewExpr, Buffer);
 			// end of variable mark to add now after an indexed one !
 			if ( *ptr==']' )
 			{
-				strcat( NewExpr, "@" );
+				rtapi_strxcat( NewExpr, "@" );
 				VarIndexedIsFound = FALSE;
 			}
 			if ( *ptr=='[' )
@@ -478,7 +479,7 @@ void SaveElementProperties()
 				Timer = &TimerArray[EditDatas.ElementUnderEdit->VarNum];
 				IdBase = ConvBaseInTextToId(GetProperty(1));
 				Timer->Base = CorresDatasForBase[IdBase].ValueInMS;
-				strcpy(Timer->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
+				rtapi_strxcpy(Timer->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
 				if (TextToNumber(GetProperty(2),0,999,&Preset))
 					Timer->Preset = Preset * Timer->Base;
 				break;
@@ -487,7 +488,7 @@ void SaveElementProperties()
 				Monostable = &MonostableArray[EditDatas.ElementUnderEdit->VarNum];
 				IdBase = ConvBaseInTextToId(GetProperty(1));
 				Monostable->Base = CorresDatasForBase[IdBase].ValueInMS;
-				strcpy(Monostable->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
+				rtapi_strxcpy(Monostable->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
 				if (TextToNumber(GetProperty(2),0,999,&Preset))
 					Monostable->Preset = Preset * Monostable->Base;
 				break;
@@ -503,7 +504,7 @@ void SaveElementProperties()
 				TimerIEC = &NewTimerArray[EditDatas.ElementUnderEdit->VarNum];
 				IdBase = ConvBaseInTextToId(GetProperty(1));
 				TimerIEC->Base = CorresDatasForBase[IdBase].ValueInMS;
-				strcpy(TimerIEC->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
+				rtapi_strxcpy(TimerIEC->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
 				if (TextToNumber(GetProperty(2),0,999,&Preset))
 					TimerIEC->Preset = Preset;
 				TimerIEC->TimerMode = ConvTimerModeInTextToId( GetProperty(3) );
@@ -523,16 +524,16 @@ void SaveElementProperties()
 			case ELE_COMPAR:
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_COMPAR);
 				if (NewArithmExpr)
-					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
+					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
 				else
-					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
+					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 			case ELE_OUTPUT_OPERATE:
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_OUTPUT_OPERATE);
 				if (NewArithmExpr)
-					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
+					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
 				else
-					strcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
+					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 		}
 		/* display back to show what we have really understand... */
@@ -548,13 +549,13 @@ void CopyCurrentArithmExpr()
 {
 	int NumExpr;
 	for (NumExpr=0; NumExpr<NBR_ARITHM_EXPR; NumExpr++)
-		strcpy(EditArithmExpr[NumExpr].Expr,ArithmExpr[NumExpr].Expr);
+		rtapi_strxcpy(EditArithmExpr[NumExpr].Expr,ArithmExpr[NumExpr].Expr);
 }
 void ApplyNewArithmExpr()
 {
 	int NumExpr;
 	for (NumExpr=0; NumExpr<NBR_ARITHM_EXPR; NumExpr++)
-		strcpy(ArithmExpr[NumExpr].Expr,EditArithmExpr[NumExpr].Expr);
+		rtapi_strxcpy(ArithmExpr[NumExpr].Expr,EditArithmExpr[NumExpr].Expr);
 }
 void CheckForFreeingArithmExpr(int PosiX,int PosiY)
 {
@@ -580,7 +581,7 @@ void CheckForAllocatingArithmExpr(int PosiX,int PosiY)
 				Found = TRUE;
 				/* Allocate this expr for the operate/compar block ! */
 				EditDatas.Rung.Element[PosiX][PosiY].VarNum = NumExpr;
-				strcpy(EditArithmExpr[NumExpr].Expr,"#"); //used but invalid!
+				rtapi_strxcpy(EditArithmExpr[NumExpr].Expr,"#"); //used but invalid!
 			}
 			NumExpr++;
 		}
@@ -825,7 +826,7 @@ void DeleteCurrentRung()
 				if ( (RungArray[OldCurrent].Element[x][y].Type == ELE_COMPAR)
 				|| (RungArray[OldCurrent].Element[x][y].Type == ELE_OUTPUT_OPERATE) )
 				{
-					strcpy(ArithmExpr[ RungArray[OldCurrent].Element[x][y].VarNum ].Expr,"");
+					rtapi_strxcpy(ArithmExpr[ RungArray[OldCurrent].Element[x][y].VarNum ].Expr,"");
 				}
 			}
 		}

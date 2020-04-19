@@ -42,6 +42,7 @@
 #include "canon_position.hh"		// data type for a machine position
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
+#include <rtapi_string.h>
 
 //#define EMCCANON_DEBUG
 
@@ -68,7 +69,6 @@
 static CanonConfig_t canon;
 
 static int debug_velacc = 0;
-static const double tiny = 1e-7;
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -1466,7 +1466,7 @@ void ARC_FEED(int line_number,
     if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
         double mx, my;
         double lx, ly, lz;
-        double unused;
+        double unused = 0;
 
         get_last_pos(lx, ly, lz);
 

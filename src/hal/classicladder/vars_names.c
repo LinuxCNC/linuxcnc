@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include "classicladder.h"
 #include "global.h"
+#include <rtapi_string.h>
 
 #include "symbols.h"
 #include "vars_names.h"
@@ -46,74 +47,74 @@ char * CreateVarName(int Type, int Offset)
 	switch(Type)
 	{
 		case VAR_MEM_BIT:
-			sprintf(Buffer,"%cB%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cB%d",'%',Offset);
 			break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_DONE:
-			sprintf(Buffer,"%cT%d.D",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.D",'%',Offset);
 			break;
 		case VAR_TIMER_RUNNING:
-			sprintf(Buffer,"%cT%d.R",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.R",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_RUNNING:
-			sprintf(Buffer,"%cM%d.R",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.R",'%',Offset);
 			break;
 #endif
 		case VAR_TIMER_IEC_DONE:
-			sprintf(Buffer,"%cTM%d.Q",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.Q",'%',Offset);
 			break;
 		case VAR_COUNTER_DONE:
-			sprintf(Buffer,"%cC%d.D",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.D",'%',Offset);
 			break;
 		case VAR_COUNTER_EMPTY:
-			sprintf(Buffer,"%cC%d.E",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.E",'%',Offset);
 			break;
 		case VAR_COUNTER_FULL:
-			sprintf(Buffer,"%cC%d.F",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.F",'%',Offset);
 			break;
 		case VAR_STEP_ACTIVITY:
-			sprintf(Buffer,"%cX%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cX%d",'%',Offset);
 			break;
 		case VAR_PHYS_INPUT:
-			sprintf(Buffer,"%cI%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cI%d",'%',Offset);
 			break;
 		case VAR_PHYS_OUTPUT:
-			sprintf(Buffer,"%cQ%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cQ%d",'%',Offset);
 			break;
 		case VAR_MEM_WORD:
-			sprintf(Buffer,"%cW%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cW%d",'%',Offset);
 			break;
 		case VAR_STEP_TIME:
-			sprintf(Buffer,"%cX%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cX%d.V",'%',Offset);
 			break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_PRESET:
-			sprintf(Buffer,"%cT%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.P",'%',Offset);
 			break;
 		case VAR_TIMER_VALUE:
-			sprintf(Buffer,"%cT%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.V",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_PRESET:
-			sprintf(Buffer,"%cM%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.P",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_VALUE:
-			sprintf(Buffer,"%cM%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.V",'%',Offset);
 			break;
 #endif
 		case VAR_TIMER_IEC_PRESET:
-			sprintf(Buffer,"%cTM%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.P",'%',Offset);
 			break;
 		case VAR_TIMER_IEC_VALUE:
-			sprintf(Buffer,"%cTM%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.V",'%',Offset);
 			break;
 		case VAR_COUNTER_PRESET:
-			sprintf(Buffer,"%cC%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.P",'%',Offset);
 			break;
 		case VAR_COUNTER_VALUE:
-			sprintf(Buffer,"%cC%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.V",'%',Offset);
 			break;
 		default:
-			sprintf(Buffer,"???");
+			snprintf(Buffer, sizeof(Buffer),"???");
 			break;
 	}
 printf(_("infogene display symbols=&i\n"),InfosGene->DisplaySymbols);
@@ -708,22 +709,22 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 	pConv = ConvIdVarEnPtrSurEleConv( TypeVarSearched, OffsetVarSearched );
 	if (pConv)
 	{
-		strcpy(tcBuffer,"%");
+		rtapi_strxcpy(tcBuffer,"%");
 		iIdFound = pConv->iIdVar;
 		if (pConv->iSize2<=0 && pConv->iSize3<=0)
 		{
-			sprintf(tcBuffer2, pConv->StringBaseVarName, OffsetVarSearched-iIdFound +pConv->iFirstVal1 );
+			snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, OffsetVarSearched-iIdFound +pConv->iFirstVal1 );
 		}
 		else
 		{
 			if (pConv->iSize3<=0)
-				sprintf(tcBuffer2, pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/pConv->iSize2 +pConv->iFirstVal1,
+				snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/pConv->iSize2 +pConv->iFirstVal1,
 					(OffsetVarSearched-iIdFound)%pConv->iSize2 +pConv->iFirstVal2 );
 			else
-				sprintf(tcBuffer2, pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/(pConv->iSize2*pConv->iSize3) +pConv->iFirstVal1,
+				snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/(pConv->iSize2*pConv->iSize3) +pConv->iFirstVal1,
 					((OffsetVarSearched-iIdFound)/pConv->iSize3)%pConv->iSize2 +pConv->iFirstVal2, (OffsetVarSearched-iIdFound)%pConv->iSize3 +pConv->iFirstVal3 );
 		}
-		strcat(tcBuffer,tcBuffer2);
+		rtapi_strxcat(tcBuffer,tcBuffer2);
 
 		if ( InfosGene->DisplaySymbols )
 		{

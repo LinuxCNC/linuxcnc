@@ -29,6 +29,7 @@
 #include "nml_oi.hh"
 #include "timer.hh"
 #include "nml_srv.hh"           // run_nml_servers()
+#include <rtapi_string.h>
 
 static int tool_channels = 1;
 
@@ -58,7 +59,7 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }

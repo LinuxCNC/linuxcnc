@@ -34,6 +34,7 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include "motion.h"
+#include <rtapi_string.h>
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -66,8 +67,8 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
-    strcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
-    strcat(fmt, " %f %f");
+    rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
+    rtapi_strxcat(fmt, " %f %f");
     snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
     interp_list.append(system_cmd);
 }
@@ -695,7 +696,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     // readLine set in main
 
     char buf[LINELEN];
-    strcpy(stat->file, interp.file(buf, LINELEN));
+    rtapi_strxcpy(stat->file, interp.file(buf, LINELEN));
     // command set in main
 
     // update active G and M codes

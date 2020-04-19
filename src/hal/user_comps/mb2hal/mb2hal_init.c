@@ -191,15 +191,15 @@ retCode parse_transaction_section(const int mb_tx_num)
     if (tmpstr != NULL) {
         if (strcasecmp(tmpstr, "tcp") == retOK) {
             this_mb_tx->cfg_link_type = linkTCP;
-            strcpy(this_mb_tx->cfg_link_type_str, tmpstr);
+            rtapi_strxcpy(this_mb_tx->cfg_link_type_str, tmpstr);
         }
         else if (strcasecmp(tmpstr, "serial") == retOK) {
             this_mb_tx->cfg_link_type = linkRTU;
-            strcpy(this_mb_tx->cfg_link_type_str, tmpstr);
+            rtapi_strxcpy(this_mb_tx->cfg_link_type_str, tmpstr);
         }
         else {
             this_mb_tx->cfg_link_type = -1;
-            strcpy(this_mb_tx->cfg_link_type_str, "");
+            rtapi_strxcpy(this_mb_tx->cfg_link_type_str, "");
             ERR(gbl.init_dbg, "[%s] [%s] [%s] is not valid", section, tag, tmpstr);
             return retERR;
         }
@@ -207,11 +207,11 @@ retCode parse_transaction_section(const int mb_tx_num)
     else {
         if (mb_tx_num > 0) { //previous value
             this_mb_tx->cfg_link_type = gbl.mb_tx[mb_tx_num-1].cfg_link_type;
-            strcpy(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str);
+            rtapi_strxcpy(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str);
         }
         else { //required 1rst time
             this_mb_tx->cfg_link_type = -1;
-            strcpy(this_mb_tx->cfg_link_type_str, "");
+            rtapi_strxcpy(this_mb_tx->cfg_link_type_str, "");
             ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
@@ -361,7 +361,7 @@ retCode parse_transaction_section(const int mb_tx_num)
         strncpy(this_mb_tx->hal_tx_name, tmpstr, HAL_NAME_LEN);
     }
     else {
-        sprintf(this_mb_tx->hal_tx_name, "%02d", mb_tx_num);
+        snprintf(this_mb_tx->hal_tx_name, sizeof(this_mb_tx->hal_tx_name), "%02d", mb_tx_num);
     }
     DBG(gbl.init_dbg, "[%s] [%s] [%s]", section, tag, this_mb_tx->hal_tx_name);
 
@@ -369,7 +369,7 @@ retCode parse_transaction_section(const int mb_tx_num)
         str = iniFind(gbl.ini_file_ptr, "PINNAME", mb_tx_name);
         if (str != NULL) {
             pin_name = malloc(strlen(str) + 1);
-            strcpy(pin_name, str);	// convert a const string into one
+            rtapi_strxcpy(pin_name, str);	// convert a const string into one
             // we can modify
         }
         else {
@@ -380,7 +380,7 @@ retCode parse_transaction_section(const int mb_tx_num)
             strncpy(mb_tx_name, mb_tx->name, HAL_NAME_LEN);
         }
         else {
-            sprintf(mb_tx_name, "%02d", mb_tx_num);
+            snprintf(mb_tx_name, sizeof(mb_tx_name), "%02d", mb_tx_num);
         }
         memcpy(&gbl.mb_tx[mb_tx_num], mb_tx, sizeof(mb_tx_t));
         rc = create_pins(mb_tx_name, &gbl.mb_tx[mb_tx_num], pin_name);
@@ -420,16 +420,16 @@ retCode parse_tcp_subsection(const char *section, const int mb_tx_num)
     else {
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
-                strcpy(this_mb_tx->cfg_tcp_ip, gbl.mb_tx[mb_tx_num-1].cfg_tcp_ip);
+                rtapi_strxcpy(this_mb_tx->cfg_tcp_ip, gbl.mb_tx[mb_tx_num-1].cfg_tcp_ip);
             }
             else {
-                strcpy(this_mb_tx->cfg_tcp_ip, "");
+                rtapi_strxcpy(this_mb_tx->cfg_tcp_ip, "");
                 ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(this_mb_tx->cfg_tcp_ip, "");
+            rtapi_strxcpy(this_mb_tx->cfg_tcp_ip, "");
             ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
@@ -476,16 +476,16 @@ retCode parse_serial_subsection(const char *section, const int mb_tx_num)
     else {
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
-                strcpy(this_mb_tx->cfg_serial_device, gbl.mb_tx[mb_tx_num-1].cfg_serial_device);
+                rtapi_strxcpy(this_mb_tx->cfg_serial_device, gbl.mb_tx[mb_tx_num-1].cfg_serial_device);
             }
             else {
-                strcpy(this_mb_tx->cfg_serial_device, "");
+                rtapi_strxcpy(this_mb_tx->cfg_serial_device, "");
                 ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(this_mb_tx->cfg_serial_device, "");
+            rtapi_strxcpy(this_mb_tx->cfg_serial_device, "");
             ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }
@@ -544,16 +544,16 @@ retCode parse_serial_subsection(const char *section, const int mb_tx_num)
     else {
         if (mb_tx_num > 0) { //previous value?
             if (strcasecmp(this_mb_tx->cfg_link_type_str, gbl.mb_tx[mb_tx_num-1].cfg_link_type_str) == 0) {
-                strcpy(this_mb_tx->cfg_serial_parity, gbl.mb_tx[mb_tx_num-1].cfg_serial_parity);
+                rtapi_strxcpy(this_mb_tx->cfg_serial_parity, gbl.mb_tx[mb_tx_num-1].cfg_serial_parity);
             }
             else {
-                strcpy(this_mb_tx->cfg_serial_parity, "");
+                rtapi_strxcpy(this_mb_tx->cfg_serial_parity, "");
                 ERR(gbl.init_dbg, "required [%s] [%s] not found, and previous LINK_TYPE is useless", section, tag);
                 return retERR;
             }
         }
         else { //required 1rst time
-            strcpy(this_mb_tx->cfg_serial_parity, "");
+            rtapi_strxcpy(this_mb_tx->cfg_serial_parity, "");
             ERR(gbl.init_dbg, "required 1st time [%s] [%s] not found", section, tag);
             return retERR;
         }

@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <rtapi_string.h>
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
