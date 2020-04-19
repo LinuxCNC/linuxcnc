@@ -629,9 +629,11 @@ bool Usb::init()
     }
     *verboseInitOut << " ok" << endl;
 
+    /* not available in older versions of lubusb
     libusb_log_level logLevel = LIBUSB_LOG_LEVEL_INFO;
     //logLevel = LIBUSB_LOG_LEVEL_DEBUG;
     libusb_set_debug(context, logLevel);
+    */
 
     std::ios init(NULL);
     init.copyfmt(*verboseInitOut);
