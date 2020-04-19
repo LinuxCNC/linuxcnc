@@ -1,3 +1,6 @@
+GCC_VERSION := $(shell gcc -dumpversion)
+MIN_VERSION := 4.7
+ifeq ($(MIN_VERSION),$(firstword $(sort $(GCC_VERSION) $(MIN_VERSION))))
 ifdef HAVE_LIBUSB10
 
 XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
@@ -43,3 +46,7 @@ USERSRCS += $(XHC_WHB04B6_SRC)
 TARGETS += ../bin/xhc-whb04b-6
 
 endif # HAVE_LIBUSB10
+
+else
+$(info gcc version $(GCC_VERSION) too old: skipping hal/user_comps/xhc-whb04b-6)
+endif # GCC VERSION CHECK
