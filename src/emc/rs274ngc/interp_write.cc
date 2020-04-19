@@ -200,7 +200,7 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   vals = settings->active_settings;
   vals[0] = settings->sequence_number;    /* 0 sequence number */
   vals[1] = settings->feed_rate;          /* 1 feed rate       */
-  vals[2] = settings->speed;              /* 2 spindle speed   */
+  vals[2] = settings->speed[0];           /* 2 spindle speed   */
   vals[3] = settings->tolerance;          /* 3 blend tolerance */
   vals[4] = settings->naivecam_tolerance; /* 4 naive CAM tolerance */
 
@@ -293,7 +293,7 @@ int Interp::write_state_tag(block_pointer block,
 	settings->naivecam_tolerance;
 
     state.flags[GM_FLAG_CSS_MODE] =
-	(settings->spindle_mode == CONSTANT_RPM);
+	(settings->spindle_mode[0] == CONSTANT_RPM);
     state.flags[GM_FLAG_IJK_ABS] =
 	(settings->ijk_distance_mode == MODE_ABSOLUTE);
     state.flags[GM_FLAG_DIAMETER_MODE] =
@@ -304,9 +304,9 @@ int Interp::write_state_tag(block_pointer block,
 	(block == NULL) ? -1 : block->m_modes[4];
 
     state.flags[GM_FLAG_SPINDLE_ON] =
-	!(settings->spindle_turning != CANON_STOPPED);
+	!(settings->spindle_turning[0] != CANON_STOPPED);
     state.flags[GM_FLAG_SPINDLE_CW] =
-	(settings->spindle_turning == CANON_CLOCKWISE);
+	(settings->spindle_turning[0] == CANON_CLOCKWISE);
 
     state.fields[GM_FIELD_TOOLCHANGE] =
 	(block == NULL) ? -1 : block->m_modes[6];
@@ -322,7 +322,7 @@ int Interp::write_state_tag(block_pointer block,
     state.flags[GM_FLAG_FEED_HOLD] =  (settings->feed_hold);
 
     state.fields_float[GM_FIELD_FLOAT_FEED] = settings->feed_rate;
-    state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed;
+    state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed[0];
 
     return 0;
 }

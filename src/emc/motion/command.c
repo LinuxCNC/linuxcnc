@@ -1704,7 +1704,6 @@ void emcmotCommandHandler(void *arg, long period)
 
 	    /* append it to the emcmotDebug->tp */
 	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-                             emcmotCommand->scale, emcmotCommand->tag);
         int res_addtap = tpAddRigidTap(&emcmotDebug->coord_tp,
                                     emcmotCommand->pos,
                                     emcmotCommand->vel,
