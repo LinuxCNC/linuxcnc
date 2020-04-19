@@ -8,7 +8,7 @@ executing
 multiply: number of arguments= 2
 multiply: number of arguments= 3
     7 N..... USE_LENGTH_UNITS(CANON_UNITS_INCHES)
-    8 N..... SELECT_POCKET(1)
+    8 N..... SELECT_TOOL(1)
     9 N..... START_CHANGE()
    10 N..... STOP_SPINDLE_TURNING(0)
    11 N..... CHANGE_TOOL(1)

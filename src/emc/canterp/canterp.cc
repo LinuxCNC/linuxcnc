@@ -406,11 +406,11 @@ int Canterp::execute(const char *line) {
     }
 #endif
 
-    if (!strcmp(the_command_name, "SELECT_POCKET")) {
+    if (!strcmp(the_command_name, "SELECT_TOOL")) {
 	if (1 != sscanf(the_command_args, "%d", &i1)) {
 	    return INTERP_ERROR;
 	}
-	SELECT_POCKET(i1, i1);
+	SELECT_TOOL(i1);
 	return 0;
     }
 

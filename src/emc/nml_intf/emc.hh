@@ -458,7 +458,7 @@ int setup_inihal(void);
 extern int emcToolInit();
 extern int emcToolHalt();
 extern int emcToolAbort();
-extern int emcToolPrepare(int pocket, int tool);
+extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
