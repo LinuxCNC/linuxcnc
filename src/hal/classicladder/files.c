@@ -931,7 +931,7 @@ char LoadModbusIOConfParams(char * FileName)
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
-	int IntDatas[ 6 ];
+	int IntDatas[] = {0,0,0,0,0,0};
 	char * LineOk;
 	StrModbusMasterReq * pConf = &ModbusMasterReq[ 0 ];
 	File = fopen(FileName,"rt");

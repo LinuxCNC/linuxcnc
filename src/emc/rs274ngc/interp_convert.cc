@@ -807,7 +807,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double midx, midy;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* angle for testing corners */
-    double opx, opy, opz;
+    double opx = 0, opy = 0, opz = 0;
     double theta;                 /* direction of tangent to last cut */
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
@@ -4247,7 +4247,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   char *line;
   int length;
 
-  double cx, cy, cz;
+  double cx = 0, cy = 0, cz = 0;
   comp_get_current(settings, &cx, &cy, &cz);
   CHP(move_endpoint_and_flush(settings, cx, cy));
   dequeue_canons(settings);
@@ -4990,7 +4990,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     double radius;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
-    double opx, opy, opz;      /* old programmed beginning point */
+    double opx = 0, opy = 0, opz = 0;      /* old programmed beginning point */
     double theta;
     double cx, cy, cz;
     int concave;
