@@ -1466,7 +1466,7 @@ void ARC_FEED(int line_number,
     if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
         double mx, my;
         double lx, ly, lz;
-        double unused = 0
+        double unused = 0;
 
         get_last_pos(lx, ly, lz);
 
