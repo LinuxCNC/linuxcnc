@@ -1,4 +1,4 @@
-component plasmac;
+component plasmac "A plasma cutter controller";
 
 description
 """
