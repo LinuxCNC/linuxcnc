@@ -351,7 +351,7 @@ static vector<string> read_strings(int fd) {
 
 static void write_number(string &buf, int num) {
     char numbuf[10];
-    sprintf(numbuf, "%d ", num);
+    snprintf(numbuf, sizeof(numbuf), "%d ", num);
     buf = buf + numbuf;
 }
 

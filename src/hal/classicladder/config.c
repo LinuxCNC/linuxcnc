@@ -31,6 +31,7 @@
 #include <errno.h>
 #include "classicladder.h"
 #include "global.h"
+#include <rtapi_string.h>
 
 #define TYPE_INT	1
 #define TYPE_STRING	2

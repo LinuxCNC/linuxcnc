@@ -29,6 +29,7 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
+#include <rtapi_string.h>
 
 using namespace interp_param_global;
 
@@ -1577,7 +1578,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  } else
 	      CHKS((block->p_number - n) > 0.0001,
 		   NCE_NON_INTEGER_VALUE_FOR_INTEGER);
-	  sprintf(oNameBuf, "%d", n);
+	  snprintf(oNameBuf, sizeof(oNameBuf), "%d", n);
       } else if (oNumber == 99) {
 	  // Fanuc-style subroutine return: "m99"
 
@@ -1616,7 +1617,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  {
 	      CHP(read_integer_value(line, counter, &oNumber,
 				     parameters));
-	      sprintf(oNameBuf, "%d", oNumber);
+	      snprintf(oNameBuf, sizeof(oNameBuf), "%d", oNumber);
 	  }
 
       // We stash the text the offset part of setup
@@ -1703,7 +1704,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  subName = "";
 	  logDebug("not defining_sub:|%s|", subName);
 	}
-      sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
+      snprintf(fullNameBuf, sizeof(fullNameBuf), "%s#%s", subName, oNameBuf);
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
@@ -3152,7 +3153,7 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    strcpy(line, raw_line);
+    strncpy(line, raw_line, LINELEN);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
         FINISH();
@@ -3160,8 +3161,8 @@ int Interp::read_text(
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    strcpy(raw_line, command);
-    strcpy(line, command);
+    strncpy(raw_line, command, LINELEN);
+    strncpy(line, command, LINELEN);
     CHP(close_and_downcase(line));
   }
 

@@ -265,8 +265,8 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 conf = &(chan->confs[chan->num_confs - 1]);
                 conf->DataDir = LBP_IN;
                 conf->DataLength = q;
-                strcpy(conf->NameString, name);
-                strcpy(conf->UnitString, "none");
+                rtapi_strxcpy(conf->NameString, name);
+                rtapi_strxcpy(conf->UnitString, "none");
                 conf->RecordType = 0xA0;
                 conf->ParmAddr = 0;
                 conf->Flags = 0;
@@ -343,7 +343,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 return -EINVAL;
             }
             //Start a new name
-            strcpy(name, "");
+            rtapi_strxcpy(name, "");
             //move to the next string
             format++;
         }

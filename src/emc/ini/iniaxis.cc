@@ -65,15 +65,15 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
 
     // compose string to match, axis = 0 -> AXIS_X etc.
     switch (axis) {
-	case 0: sprintf(axisString, "AXIS_X"); break;
-	case 1: sprintf(axisString, "AXIS_Y"); break;
-	case 2: sprintf(axisString, "AXIS_Z"); break;
-	case 3: sprintf(axisString, "AXIS_A"); break;
-	case 4: sprintf(axisString, "AXIS_B"); break;
-	case 5: sprintf(axisString, "AXIS_C"); break;
-	case 6: sprintf(axisString, "AXIS_U"); break;
-	case 7: sprintf(axisString, "AXIS_V"); break;
-	case 8: sprintf(axisString, "AXIS_W"); break;
+	case 0: snprintf(axisString, sizeof(axisString), "AXIS_X"); break;
+	case 1: snprintf(axisString, sizeof(axisString), "AXIS_Y"); break;
+	case 2: snprintf(axisString, sizeof(axisString), "AXIS_Z"); break;
+	case 3: snprintf(axisString, sizeof(axisString), "AXIS_A"); break;
+	case 4: snprintf(axisString, sizeof(axisString), "AXIS_B"); break;
+	case 5: snprintf(axisString, sizeof(axisString), "AXIS_C"); break;
+	case 6: snprintf(axisString, sizeof(axisString), "AXIS_U"); break;
+	case 7: snprintf(axisString, sizeof(axisString), "AXIS_V"); break;
+	case 8: snprintf(axisString, sizeof(axisString), "AXIS_W"); break;
     }
 
     axisIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);

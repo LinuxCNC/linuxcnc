@@ -43,6 +43,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
+#include <rtapi_string.h>
 
 #include <stdio.h>
 #include <stdlib.h>

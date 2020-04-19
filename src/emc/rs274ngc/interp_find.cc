@@ -715,9 +715,25 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
     *pocket = -1;
     for(int i=0; i<CANON_POCKETS_MAX; i++) {
         if(settings->tool_table[i].toolno == toolno)
-            *pocket = i;
+            *pocket = settings->tool_table[i].pocketno;
     }
 
     CHKS((*pocket == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    return INTERP_OK;
+}
+
+int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
+{
+    if(!settings->random_toolchanger && toolno == 0) {
+        *index = 0;
+        return INTERP_OK;
+    }
+    *index = -1;
+    for(int i=0; i<CANON_POCKETS_MAX; i++) {
+        if(settings->tool_table[i].toolno == toolno)
+            *index = i;
+    }
+
+    CHKS((*index == -1), (_("Requested tool %d not found in the tool table")), toolno);
     return INTERP_OK;
 }

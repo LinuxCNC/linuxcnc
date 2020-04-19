@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <rtapi_string.h>
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
@@ -528,13 +529,13 @@ void CHANGE_TOOL(int slot)
   _sai._tools[0] = _sai._tools[slot];
 }
 
-void SELECT_POCKET(int slot, int tool)
-{PRINT("SELECT_POCKET(%d)\n", slot);}
+void SELECT_TOOL(int tool)//TODO: fix slot number
+{PRINT("SELECT_TOOL(%d)\n", tool);}
 
-void CHANGE_TOOL_NUMBER(int slot)
+void CHANGE_TOOL_NUMBER(int tool)
 {
-  PRINT("CHANGE_TOOL_NUMBER(%d)\n", slot);
-  _sai._active_slot = slot;
+  PRINT("CHANGE_TOOL_NUMBER(%d)\n", tool);
+  _sai._active_slot = tool;
 }
 
 

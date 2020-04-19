@@ -35,6 +35,7 @@
 #include <limits.h>
 #include <fcntl.h>
 #include "rtapi.h"
+#include <rtapi_string.h>
 
 #include "hy_comm.h"
  
@@ -161,7 +162,7 @@ static int check_crc16(hycomm_param_t *hc_param, uint8_t *msg,
 			ret = 0;
 	} else {
 			char s_error[64];
-			sprintf(s_error,
+			snprintf(s_error, sizeof(s_error),
 					"invalid crc received %0X - crc_calc %0X", 
 					crc_received, crc_calc);
 			ret = INVALID_CRC;
@@ -657,9 +658,9 @@ void hycomm_init(hycomm_param_t *hc_param, const char *device,
                      int stop_bit)
 {
         memset(hc_param, 0, sizeof(hycomm_param_t));
-        strcpy(hc_param->device, device);
+        rtapi_strxcpy(hc_param->device, device);
         hc_param->baud = baud;
-        strcpy(hc_param->parity, parity);
+        rtapi_strxcpy(hc_param->parity, parity);
         hc_param->debug = FALSE;
         hc_param->data_bit = data_bit;
         hc_param->stop_bit = stop_bit;

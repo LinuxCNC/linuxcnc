@@ -372,11 +372,10 @@ int emcLubeOff()
     return 0;
 }
 
-int emcToolPrepare(int p, int tool)
+int emcToolPrepare(int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
-    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 
@@ -416,7 +415,7 @@ int emcToolLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE toolLoadToolTableMsg;
 
-    strcpy(toolLoadToolTableMsg.file, file);
+    rtapi_strxcpy(toolLoadToolTableMsg.file, file);
 
     sendCommand(&toolLoadToolTableMsg);
 

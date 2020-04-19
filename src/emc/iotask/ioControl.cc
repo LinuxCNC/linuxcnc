@@ -69,6 +69,7 @@
 #include "timer.hh"
 #include "rcs_print.hh"
 #include "tool_parse.h"
+#include <rtapi_string.h>
 
 static RCS_CMD_CHANNEL *emcioCommandBuffer = 0;
 static RCS_CMD_MSG *emcioCommand = 0;
@@ -218,7 +219,7 @@ static int iniLoad(const char *filename)
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -642,7 +643,7 @@ int main(int argc, char *argv[])
                     rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		strcpy(emc_inifile, argv[t + 1]);
+		rtapi_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -793,8 +794,12 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
             {
-                signed int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+                int p = 0;
                 int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+                for(int i = 0;i < CANON_POCKETS_MAX;i++){
+                    if(emcioStatus.tool.toolTable[i].toolno == t)
+                        p = i;
+                }
                 rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
                 // Set HAL pins/params for tool number, pocket, and index.

@@ -28,6 +28,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
 #include "rcs_print.hh"
 #include "linklist.hh"
 #ifndef _TIMER_H
@@ -170,7 +171,7 @@ void convert_print_list_to_lines()
 	    if (NULL == next_line) {
 		if (NULL == temp_buf) {
 		    temp_buf = (char *) malloc(strlen(string_from_list) + 1);
-		    strcpy(temp_buf, string_from_list);
+		    rtapi_strlcpy(temp_buf, string_from_list, strlen(string_from_list) + 1);
 		} else {
 		    temp_buf = (char *) realloc(temp_buf, strlen(temp_buf)
 			+ strlen(string_from_list) + 1);
@@ -236,7 +237,7 @@ char *strip_control_characters(char *_dest, char *_src)
     if (NULL == _dest) {
 	destination = line_buffer;
 	if (strlen(_src) < 255) {
-	    strcpy(line_buffer, _src);
+	    rtapi_strxcpy(line_buffer, _src);
 	} else {
 	    if (NULL == strpbrk(_src, "\n\r\t\b")) {
 		return (_src);
@@ -273,7 +274,7 @@ int separate_words(char **_dest, int _max, char *_src)
     if (strlen(_src) > 255) {
 	return -1;
     }
-    strcpy(word_buffer, _src);
+    rtapi_strxcpy(word_buffer, _src);
     _dest[0] = strtok(word_buffer, " \n\r\t");
     for (i = 0; NULL != _dest[i] && i < _max - 1; i++) {
 	_dest[i + 1] = strtok(NULL, " \n\r\t");
@@ -417,7 +418,7 @@ int set_rcs_print_file(char *_file_name)
     if (strlen(_file_name) > 80) {
 	return -1;
     }
-    strcpy(rcs_print_file_name, _file_name);
+    rtapi_strxcpy(rcs_print_file_name, _file_name);
     if (NULL != rcs_print_file_stream) {
 	fclose(rcs_print_file_stream);
     }
