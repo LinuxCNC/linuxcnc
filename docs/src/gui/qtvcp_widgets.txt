@@ -325,7 +325,8 @@ The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
 eg. 'ACTION.TOGGLE_FLOOD()' +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
 eg. 'PROGRAM_LOADER.load_halshow()' +
-
+The capitalized word 'HAL' will give access to HAL's python module. +
+eg. 'HAL.set_p('motion.probe-input','1')' +
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
 === RoundButton
