@@ -21,7 +21,7 @@ creating or writing files, but this is not enforced.
 
 .SH DESCRIPTION
 In "uspace" realtime, root privileges are dropped whenever possible.  This API
-temporarily switches on root priveleges to open a file, and switches them
+temporarily switches on root privileges to open a file, and switches them
 off before returning.  This can be useful for example when accessing device
 nodes or memory-mapped I/O.
 

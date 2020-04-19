@@ -109,8 +109,8 @@ def optimal_size(space, info, address, nbytes):
     raise ValueError("Access size incompatible with address or length (address=%d nbytes=%d memsizes=%d)" % (address, nbytes, memsizes))
 
 if options.read:
-    if options.space is None: raise SystemExit("--read must specifiy --space")
-    if options.address is None: raise SystemExit("--read must specifiy --address")
+    if options.space is None: raise SystemExit("--read must specify --space")
+    if options.address is None: raise SystemExit("--read must specify --address")
     size = optimal_size(options.space, options.info, options.address, options.read if options.increment else 0)
     command = make_read_request(options.space, options.info, size, options.increment, options.address, options.read)
     command = command.encode("hex")
@@ -118,8 +118,8 @@ if options.read:
     transact(command)
 
 elif options.write:
-    if options.space is None: raise SystemExit("--write must specifiy --space")
-    if options.address is None: raise SystemExit("--write must specifiy --address")
+    if options.space is None: raise SystemExit("--write must specify --space")
+    if options.address is None: raise SystemExit("--write must specify --address")
     write = options.write.decode("hex")
     size = optimal_size(options.space, options.info, options.address, len(write) if options.increment else 0)
     command = make_write_request(options.space, options.info, size, options.increment, options.address, write)

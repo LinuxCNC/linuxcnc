@@ -1,0 +1,7 @@
+Document: linuxcnc-doc-es
+Title: LinuxCNC Documentation Spanish
+Section: Science/Engineering
+
+Format: PDF
+Files: /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_es.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_Documentation_es.pdf

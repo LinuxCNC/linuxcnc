@@ -737,7 +737,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
 
 
 /******************************************************************************
-  A HAL port pin is an asyncronous one way byte stream
+  A HAL port pin is an asynchronous one way byte stream
   
   A hal port should have only one reader and one writer. Both sides can
   read or write respectivly at any time without interfering with the other

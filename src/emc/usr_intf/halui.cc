@@ -68,13 +68,13 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,mode_is_joint) /* pin for joint mode is on */ \
 \
     FIELD(hal_bit_t,mist_on) /* pin for starting mist */ \
-    FIELD(hal_bit_t,mist_off) /* pin for stoping mist */ \
+    FIELD(hal_bit_t,mist_off) /* pin for stopping mist */ \
     FIELD(hal_bit_t,mist_is_on) /* pin for mist is on */ \
     FIELD(hal_bit_t,flood_on) /* pin for starting flood */ \
-    FIELD(hal_bit_t,flood_off) /* pin for stoping flood */ \
+    FIELD(hal_bit_t,flood_off) /* pin for stopping flood */ \
     FIELD(hal_bit_t,flood_is_on) /* pin for flood is on */ \
     FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
-    FIELD(hal_bit_t,lube_off) /* pin for stoping lube */ \
+    FIELD(hal_bit_t,lube_off) /* pin for stopping lube */ \
     FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
@@ -105,7 +105,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,tool_diameter) /* current tool diameter (0 if no tool) */ \
 \
     ARRAY(hal_bit_t,spindle_start,EMCMOT_MAX_SPINDLES+1) /* pin for starting the spindle */ \
-    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stoping the spindle */ \
+    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stopping the spindle */ \
     ARRAY(hal_bit_t,spindle_is_on,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle is on */ \
     ARRAY(hal_bit_t,spindle_forward,EMCMOT_MAX_SPINDLES+1) /* pin for making the spindle go forward */ \
     ARRAY(hal_bit_t,spindle_runs_forward,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle running forward */ \
