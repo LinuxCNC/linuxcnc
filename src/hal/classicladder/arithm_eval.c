@@ -414,16 +414,22 @@ arithmtype MulDivMod(void)
 		{
 			Expr++;
 			Val = Pow();
-			if ( ErrorDesc==NULL )
-				Res = Res / Val;
+			if (Val != 0) {
+				if (ErrorDesc == NULL) {
+					Res = Res / Val;
+				}
+			}
 		}
 		else
 		if (*Expr=='%')
 		{
 			Expr++;
 			Val = Pow();
-			if ( ErrorDesc==NULL )
-				Res = Res % Val;
+			if (Val != 0) {
+				if ( ErrorDesc==NULL ) {
+					Res = Res % Val;
+				}
+			}
 		}
 		else
 		{
