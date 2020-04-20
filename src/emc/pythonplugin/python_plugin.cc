@@ -36,8 +36,12 @@ namespace bp = boost::python;
 #define ERRMSG(fmt, args...)					\
     do {							\
         char msgbuf[MAX_ERRMSG_SIZE];				\
-        snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args);	\
-        error_msg = std::string(msgbuf);			\
+        size_t ret = snprintf(msgbuf, sizeof(msgbuf) -1,  fmt, ##args); \
+        if (ret >= sizeof(msgbuf)){                                      \
+            snprintf(msgbuf, sizeof(msgbuf), "Error message too long"); \
+        } else {                                                        \
+            error_msg = std::string(msgbuf);                            \
+        }                                                               \
     } while(0)
 
 #define logPP(level, fmt, ...)						\

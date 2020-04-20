@@ -21,6 +21,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     char *fnct_name = "create_each_mb_tx_hal_pins";
     char hal_pin_name[HAL_NAME_LEN + 1];
     int pin_counter;
+    int ret;
 
     if (mb_tx == NULL) {
         ERR(gbl.init_dbg, "NULL pointer");
@@ -35,8 +36,8 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         return retERR;
     }
     memset(mb_tx->num_errors, 0, sizeof(hal_u32_t *));
-    snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
-    if (0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
+    ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
+    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
         ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_u32_newf failed", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
         return retERR;
     }
@@ -85,10 +86,11 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 
     for (pin_counter = 0; pin_counter < mb_tx->mb_tx_nelem; pin_counter++) {
         if(mb_tx->mb_tx_names){
-            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
+            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
         }else{
-            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
+            ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
         }
+        if (ret >= HAL_NAME_LEN || ret < 0) ERR(gbl.init_dbg, "hal pin name too long");
         DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 
         switch (mb_tx->mb_tx_fnct) {

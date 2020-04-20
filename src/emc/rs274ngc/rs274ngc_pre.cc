@@ -2552,7 +2552,7 @@ int Interp::on_abort(int reason, const char *message)
 // config file parsing (REMAP... ngc=<basename>)
 FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
 {
-    FILE *newFP;
+    FILE *newFP = NULL;
     char tmpFileName[PATH_MAX+1];
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
@@ -2565,19 +2565,23 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     // use first file found
 
     // first look in the program_prefix place
-    snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
-    newFP = fopen(newFileName, "r");
+    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
+    if (chk < sizeof(newFileName)){
+        newFP = fopen(newFileName, "r");
+    }
 
     // then look in the subroutines place
     if (!newFP) {
 	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
 	    if (!settings->subroutines[dct])
 		continue;
-	    snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
-	    newFP = fopen(newFileName, "r");
-	    if (newFP) {
-		// logOword("fopen: |%s|", newFileName);
-		break; // use first occurrence in dir search
+	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
+        if (chk <  sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+            if (newFP) {
+            // logOword("fopen: |%s|", newFileName);
+            break; // use first occurrence in dir search
+            }
 	    }
 	}
     }
@@ -2588,9 +2592,9 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
 
 	if (INTERP_OK == ret) {
 	    // create the long name
-	    snprintf(newFileName, sizeof(newFileName), "%s/%s",
+	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
 		    foundPlace, tmpFileName);
-	    newFP = fopen(newFileName, "r");
+	    if (chk < sizeof(newFileName)) newFP = fopen(newFileName, "r");
 	}
     }
     if (foundhere && (newFP != NULL)) 
