@@ -1855,21 +1855,27 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
         void* dptr;
         unsigned int runtime_pin_value;
 
-        snprintf(name, sizeof(name), "%s.time",tptr->name);
-        pin = halpr_find_pin_by_name(name);
-        if (pin) {
-            if (pin->signal != 0) {
-                sig = SHMPTR(pin->signal);
-                dptr = SHMPTR(sig->data_ptr);
-            } else {
-                sig = 0;
-                dptr = &(pin->dummysig);
-            }
-            runtime_pin_value = (int)*(int*)dptr;
-        } else {
-            runtime_pin_value = 0;
+        size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+        if (ret > sizeof(name)) {
             rtapi_print_msg(RTAPI_MSG_ERR,
-                 "unexpected: cannot find time pin for %s thread",tptr->name);
+                 "unexpected: pin name too long for %s thread",tptr->name);
+            runtime_pin_value = 0;
+        } else { 
+            pin = halpr_find_pin_by_name(name);
+            if (pin) {
+                if (pin->signal != 0) {
+                    sig = SHMPTR(pin->signal);
+                    dptr = SHMPTR(sig->data_ptr);
+                } else {
+                    sig = 0;
+                    dptr = &(pin->dummysig);
+                }
+                runtime_pin_value = (int)*(int*)dptr;
+            } else {
+                runtime_pin_value = 0;
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                     "unexpected: cannot find time pin for %s thread",tptr->name);
+            }
         }
 
         snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11d %s %d %d",
@@ -2852,7 +2858,7 @@ static cmdResponseType setLoadRt(char *s, connectionRecType *context)
   char *args[MAX_TOK+3];
   int i;
   
-  if (s == '\0') return rtCustomHandledError;
+  if (*s == '\0') return rtCustomHandledError;
   i = 0;
   pch = strtok(NULL, delims);
   while (pch != NULL) {

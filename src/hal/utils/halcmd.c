@@ -753,11 +753,12 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		var[next_delim]='\0';
 		replacement = getenv(var);
 		if (replacement == NULL) 
-                {
-                    snprintf(info, sizeof(info), "%s", var);
-                    *detail = info;
-		    return -4;
-                }
+            {
+                size_t ret = snprintf(info, sizeof(info), "%s", var);
+                if (ret > sizeof(info)) return -7;
+                *detail = info;
+            return -4;
+            }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) <0)
 		    return -6;
 		sp += next_delim;
@@ -795,10 +796,11 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		    replacement = (char *) iniFind(halcmd_inifile, var, NULL);
 		}
 		if (replacement==NULL) {
-                    *detail = info;
-                    snprintf(info, sizeof(info), "[%s]%s", sec, var);
+            *detail = info;
+            size_t ret = snprintf(info, sizeof(info), "[%s]%s", sec, var);
+            if (ret > sizeof(info)) return -7;
 		    return -5;
-                }
+        }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
 		    return -6;
 		sp += next_delim;

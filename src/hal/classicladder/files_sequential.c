@@ -148,7 +148,7 @@ char LoadSequential(char * FileName)
 						pSeqComment->NumPage = StepData[ ScanData++ ];
 						pSeqComment->PosiX = StepData[ ScanData++ ];
 						pSeqComment->PosiY = StepData[ ScanData++ ];
-						if ( pCommentString!='\0' )
+						if ( pCommentString!= NULL && *pCommentString != '\0' )
 						{
 							rtapi_strxcpy( pSeqComment->Comment, pCommentString );
 //							RemoveEndLine( pSeqComment->Comment );

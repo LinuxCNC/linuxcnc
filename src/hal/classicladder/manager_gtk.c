@@ -78,7 +78,8 @@ char buffer_debug[ 50 ];
 			}
 			if ( pSection->SubRoutineNumber>=0 )
 			{
-				snprintf(BufferForSRx, sizeof(BufferForSRx), "SR%d", pSection->SubRoutineNumber );
+				size_t ret = snprintf(BufferForSRx, sizeof(BufferForSRx), "SR%d", pSection->SubRoutineNumber );
+                if (ret > sizeof(BufferForSRx)) snprintf(BufferForSRx, sizeof(BufferForSRx), "<toolong>");
 				RowList[ 2 ] = BufferForSRx;
 			}
 snprintf(buffer_debug, sizeof(buffer_debug), "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );

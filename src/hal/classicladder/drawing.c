@@ -65,7 +65,8 @@ char * DisplayArithmExpr(char * Expr,int NumCarMax)
 				{
 					// buffer for index required as CreateVarName() returns on a static buffer !
 					rtapi_strxcpy( VarIndexBuffer, CreateVarName(IndexTypeVar,IndexNumVar) );
-					snprintf(VarBuffer, sizeof(VarBuffer), "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
+					size_t ret = snprintf(VarBuffer, sizeof(VarBuffer), "%s[%s]", CreateVarName(TypeVar,NumVar), VarIndexBuffer );
+                    if (ret > sizeof(VarBuffer)) snprintf(VarBuffer, sizeof(VarBuffer), "<format too long>");
 				}
 				else
 				{

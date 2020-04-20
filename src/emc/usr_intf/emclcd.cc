@@ -1437,7 +1437,8 @@ static int stepCount(char *fileName)
   char buffer[80];
   int len;
 
-  snprintf(buffer, sizeof(buffer), "wc -l < %s", fileName);
+  size_t ret = snprintf(buffer, sizeof(buffer), "wc -l < %s", fileName);
+  if (ret > sizeof(buffer)) return -EMSGSIZE;
   f = popen(buffer, "r");
   memset(buffer, '\0', sizeof(buffer));
   if (f != NULL) {

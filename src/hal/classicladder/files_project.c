@@ -279,8 +279,9 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 					if (strncmp(Buff,FILE_HEAD,STR_LEN_FILE_HEAD) ==0)
 					{
 ////WIN32PORT added /
-						snprintf(ParametersFile, sizeof(ParametersFile), "%s/%s", TmpDirectoryFiles, &Buff[STR_LEN_FILE_HEAD]);
-						ParametersFile[ strlen( ParametersFile )-1 ] = '\0';
+						size_t ret = snprintf(ParametersFile, sizeof(ParametersFile), "%s/%s", TmpDirectoryFiles, &Buff[STR_LEN_FILE_HEAD]);
+						if (ret > sizeof(ParametersFile)) ProjectFileOk = FALSE;
+                        ParametersFile[ strlen( ParametersFile )-1 ] = '\0';
 //WIN32PORT
 if ( ParametersFile[ strlen(ParametersFile)-1 ]=='\r' )
 ParametersFile[ strlen(ParametersFile)-1 ] = '\0';

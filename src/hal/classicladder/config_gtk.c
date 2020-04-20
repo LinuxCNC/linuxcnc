@@ -97,6 +97,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 	{
 		char BuffLabel[ 50 ];
 		char BuffValue[ 200 ];
+        size_t ret;
                 
 		int InfoUsed = 0;
 		hbox[NumObj] = gtk_hbox_new (FALSE, 0);
@@ -181,10 +182,11 @@ GtkWidget * CreateGeneralParametersPage( void )
 				snprintf(BuffLabel, sizeof(BuffLabel), _("Number of floatout HAL pins            ") );
 				snprintf(BuffValue, sizeof(BuffValue), "%d", GeneralParamsMirror.SizesInfos.nbr_phys_float_outputs );
 				break;
-                        case 18:
-				snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
-                                snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
-                                //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
+            case 18:
+                snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
+                ret = snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
+                if (ret > sizeof(BuffLabel)) snprintf(BuffValue, sizeof(BuffValue), "<path too long>");
+                //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
 				break;                                
 			default:
 				snprintf(BuffLabel, sizeof(BuffLabel), "???" );

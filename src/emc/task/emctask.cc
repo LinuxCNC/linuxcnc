@@ -141,30 +141,34 @@ int emcTaskInit()
 		rcs_print("emcTaskInit: TildeExpansion failed for %s, ignoring\n",
 			 mdir[dct]);
             }
-	    snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
-	    if (0 == stat(path, &buf)) {
+	    size_t ret = snprintf(path, sizeof(path), "%s/M1%02d",expanddir,num);
+	    if (ret <= sizeof(path) && 0 == stat(path, &buf)) {
 	        if (buf.st_mode & S_IXUSR) {
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
-		    snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
+		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]), 
 			     "%s/M1%%02d", expanddir); // update global
-		    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
-		    if (emc_debug & EMC_DEBUG_CONFIG) {
-		        rcs_print("emcTaskInit: adding user-defined function %s\n",
-			     path);
-		    }
-	            user_defined_function_dirindex[num] = dct;
-	            break; // use first occurrence found for num
-	        } else {
-		    if (emc_debug & EMC_DEBUG_CONFIG) {
-		        rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
-			     path);
-		    }
-	        }
-	    }
-	}
+                 if (ret > sizeof(user_defined_fmt[0])){
+                     return -EMSGSIZE; // name truncated
+                 } else {
+                    USER_DEFINED_FUNCTION_ADD(user_defined_add_m_code,num);
+                    if (emc_debug & EMC_DEBUG_CONFIG) {
+                        rcs_print("emcTaskInit: adding user-defined function %s\n",
+                         path);
+                    }
+                    user_defined_function_dirindex[num] = dct;
+                    break; // use first occurrence found for num
+                }
+            } else {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print("emcTaskInit: user-defined function %s found, but not executable, so ignoring\n",
+                     path);
+                }
+            }
+        }
     }
+	}
 
     return 0;
 }

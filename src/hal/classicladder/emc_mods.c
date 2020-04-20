@@ -320,7 +320,8 @@ void SymbolsAutoAssign (void)
 	    	        	        //printf("%s\n",Buffer);
                                         // copy a comment if there is one...
 		        	        rtapi_strxcpy(Buffer,"");
-		        	        snprintf(Buffer, sizeof(Buffer),"%s",CommentBuf);
+		        	        size_t ret = snprintf(Buffer, sizeof(Buffer),"%s",CommentBuf);
+                            if (ret > sizeof(Buffer)) snprintf(Buffer, sizeof(Buffer),"<comment too long>");
 		        	        rtapi_strxcpy( SymbolArray[scansymb].Comment, Buffer );
 	
 		       	                 break;// we are done looking
