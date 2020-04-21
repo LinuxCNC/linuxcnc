@@ -11,7 +11,7 @@ Plasma torches are similar in design to the automotive spark plug. They consist 
 
 In a Plasma Cutting Torch a cool gas enters Zone B, where a pilot arc between the electrode and the torch tip heats and ionises the gas. The main cutting arc then transfers to the workpiece through the column of plasma gas in Zone C. By forcing the plasma gas and electric arc through a small orifice, the torch delivers a high concentration of heat to a small area. The stiff, constricted plasma arc is shown in Zone C. Direct current (DC) straight polarity is used for plasma cutting, as shown in the illustration. Zone A channels a secondary gas that cools the torch. This gas also assists the high velocity plasma gas in blowing the molten metal out of the cut allowing for a fast, slag - free cut.
 
-image::images/primer_torch-head.png[width=400]
+image::images/primer_torch-head.png[width=50%]
 
 == Arc Initialisation
 
@@ -36,7 +36,7 @@ A plasma Arc is oval in shape and the cutting height needs to be controlled to m
 
 *Torch to work distance can impact granularity*
 
-image::images/primer_cut-angularity.png[width=400]
+image::images/primer_cut-angularity.png[width=50%]
 
 *Negative cut angle:* torch too low, increase torch to work distance.
 
@@ -46,7 +46,7 @@ NOTE: A slight variation in cut angles may be normal, as long as it is within to
 
 The ability to precisely control the cutting height in such a hostile and ever changing environment is a very difficult challenge. Fortunately there is a very linear relationship between Torch height (Arc length) and arc voltage as this graph shows.
 
-image::images/primer_volts-height.png[width=600]
+image::images/primer_volts-height.png[width=50%]
 
 This graph was prepared from a sample of about 16,000 readings at varying cut height and the regression analysis shows 7.53 volts per mm with 99.4% confidence. In this particular instance this sample was taken from an Everlast 50 amp machine being controlled by Linuxcnc.
 
@@ -116,7 +116,7 @@ Ohmic sensing relies on contact between the torch and the material acting as a s
 
 The following is an example circuit that has been proven to work and is compatible with the Linuxcnc PlasmaC configuration.
 
-image::images/primer_ohmic-sensing.png[width=1000]
+image::images/primer_ohmic-sensing.png[width=100%]
 
 == Hypersensing with a MESA THCAD-5
 
@@ -130,7 +130,7 @@ The THCAD is sensitive enough to see the ramp up in  circuit voltage as contact 
 
 The following circuit diagram shows how to implement a hypersensing circuit.
 
-image::images/primer_hypersensing.png[width=1000]
+image::images/primer_hypersensing.png[width=75%]
 
 We used a 15W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24V DIN rail based isolated power supply.. This is a double insulated  Isolation Class II device that will withstand any arc voltage that might be applied to the terminals.
 
@@ -167,7 +167,7 @@ net plasmac:ohmic-enable    =>  ohmicsense.is-probing
 
 When an arc is established, arc voltage peaks significantly and then settles back to a stable voltage at cut height. As shown by the green line in the image below.
 
-image::images/primer_thc-delay.png[width=1000]
+image::images/primer_thc-delay.png[width=100%]
 
 It is important for the plasma controller to “wait it out” before auto sampling the torch voltage and commencing THC control. If enabled too early, the voltage will be above the desired cut volts and the torch will be driven down in an attempt to address a perceived over-height condition.
 
@@ -194,7 +194,7 @@ If the plasma torch passes over a void while cutting, arc voltage rapidly rises 
 
 One suggested technique is to monitor the rate of change in torch volts over time (dv/dt) because this parameter is orders of magnitude higher when crossing a void than what occurs due to normal warpage of the material. The following graph shows a low resolution plot of dv/dt (in blue) while crossing a void. The red curve is a moving average of torch volts.
 
-image::images/primer_kerf-cross.png[width=600]
+image::images/primer_kerf-cross.png[width=50%]
 
 So it should be possible to compare the moving average with the dv/dt and halt THC operation once the dv/dt exceeds the normal range expected due to warpage. More work needs to be done in this area to come up with a working solution in LinuxCNC.
 

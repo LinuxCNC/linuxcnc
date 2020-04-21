@@ -640,11 +640,12 @@ base Gtk classes.
 // .Buttons
 Check button:
 image:images/checkbutton.png[]
+
 Radio buttons:
 image:images/radiobutton.png[]
+
 Toggle button:
 image:images/button.png[]
-.
 
 [TIP]
 Defining radio button groups in Glade:

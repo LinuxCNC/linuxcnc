@@ -335,13 +335,13 @@ TIP: If the Configurator does not run make sure that the file permissions for co
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_new.png[width=300]
+image::images/plasmac_configurator_home_new.png[width=30%]
 
 Select 'New' from the selection window, this shows an info dialog, select 'Continue' and the New Configuration window will display.
 
 NOTE: There will be different fields visible depending on the mode you select.
 
-image::images/plasmac_configurator_new.png[width=400]
+image::images/plasmac_configurator_new.png[width=50%]
 
 [[configurator-table]]
 
@@ -548,7 +548,7 @@ It is possible to disable this panel so machine settings cannot be modified by u
 
 A HAL pin named 'plasmac_config.config-disable' can then be set to Zero to enable the panel. This pin could be tied to a key-switch or similar so only authorised personnel could enable the Config Panel.
 
-image::images/plasmac_config.png[width=400]
+image::images/plasmac_config.png[width=50%]
 
 [underline]*Probing*
 
@@ -650,7 +650,7 @@ This panel shows the parameters which are active for the current cut.
 
 There are two formats for this panel, a tab behind the preview tab or a panel at the side of the GUI. The formats are different but the functionality is identical.
 
-image::images/plasmac_run.png[width=600]
+image::images/plasmac_run.png[width=70%]
 
 See <<axis-display-section, Axis [DISPLAY] Section>> or <<gmoccapy-display-section, Gmoccapy [DISPLAY] section>>
 
@@ -762,7 +762,7 @@ If the deletion is confirmed it will delete the material from the material file 
 
 The Monitor Panel is used for display only, both Axis and Gmoccapy have similar Monitor Panels.
 
-image::images/plasmac_monitor.png[width=400]
+image::images/plasmac_monitor.png[width=40%]
 
 [width="100%",cols="6,2,14"]
 |===
@@ -792,11 +792,11 @@ Both GUIs have a 'Torch Enable' button which is permanent, all other buttons are
 
 Axis button layout:
 
-image::images/plasmac_buttons_a.png[width=400]
+image::images/plasmac_buttons_a.png[width=40%]
 
 Gmoccapy button layout:
 
-image::images/plasmac_buttons_g.png[width=100]
+image::images/plasmac_buttons_g.png[width=10%]
 
 The 'Torch Enable' button toggles between Enabled and Disabled.
 
@@ -812,11 +812,11 @@ These functions are enabled and disable automatically depending on the status of
 
 Axis Control Panel: 
 
-image::images/plasmac_control_a.png[width=300]
+image::images/plasmac_control_a.png[width=40%]
 
 Gmoccapy Control Panel:
 
-image::images/plasmac_control_g.png[width=300]
+image::images/plasmac_control_g.png[width=40%]
 
 [underline]*Torch Pulse*
 
@@ -846,7 +846,7 @@ Job statistics are reset when the current program is run.
 
 The total values may be reset either individually or all together.
 
-image::images/plasmac_stats.png[width=400]
+image::images/plasmac_stats.png[width=60%]
 
 === Extras Panel
 
@@ -858,7 +858,7 @@ See <<shape-library, shape library>> for shape usage.
  
 See <<custom-user-buttons, custom user buttons>> for button usage.
 
-image::images/plasmac_extras.png[width=400]
+image::images/plasmac_extras.png[width=60%]
 
 The Extras panel may be disabled by commenting out the appropriate entries in the [DISPLAY] section of the .ini file. This will have no effect on the operation of the PlasmaC configuration.
 
@@ -1984,11 +1984,11 @@ $ python linuxcnc/<your_configuration_directory>/configurator.py
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_used.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=30%]
 
 Select 'Upgrade' from the selection window, this shows an info dialog, select 'Continue' and the Upgrade window will display.
 
-image::images/plasmac_configurator_upgrade.png[width=400]
+image::images/plasmac_configurator_upgrade.png[width=40%]
 
 Select the .ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
 
@@ -2012,11 +2012,11 @@ $ python linuxcnc/<your_configuration_directory>/configurator.py
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_used.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=30%]
 
 Select 'Reconfigure' from the selection window, this shows an info dialog, select 'Continue' and the Reconfigure window will display.
 
-image::images/plasmac_configurator_reconfigure.png[width=400]
+image::images/plasmac_configurator_reconfigure.png[width=40%]
 
 Select the .ini file of the PlasmaC configuration you wish to reconfigure.
 
@@ -2048,7 +2048,7 @@ $ python ~/linuxcnc/configs/<machine-name>/materialverter.py
 
 This will bring up the materialverter dialog:
 
-image::images/plasmac_material_main.png[width=400]
+image::images/plasmac_material_main.png[width=30%]
 
 Select one of:
 
@@ -2068,7 +2068,7 @@ For a Manual creation or a Fusion360 conversion a dialog will show and any entry
 
 with any required parameters displayed for input.
 
-image::images/plasmac_material_dialogs.png[width=300]
+image::images/plasmac_material_dialogs.png[width=40%]
 
 NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
 
