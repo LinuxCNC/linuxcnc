@@ -1,14 +1,8 @@
----
----
+= xhc-whb04b-6(1)
 
-:skip-front-matter:
-
-= xhc-whb04b-6
-:toc:
-[[cha:xhcwhb04b6-driver]] (((XHC WHB04B-6 Pendant)))
 
 == NAME
-*xhc-whb04b-6* - Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device.
+xhc-whb04b-6 - Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device.
 
 == SYNOPSIS
 xhc-whb04b-6 [-h] | [-H] [OPTIONS]
@@ -98,20 +92,13 @@ The xhc-whb04b-6 program can be run from the command line without LinuxCNC to te
 This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data. 
 
 === EXAMPLES
-[cols="20%,90%",frame="none", grid="none",]
+[cols="20%,80%",frame="none", grid="none",]
 |===
-| *xhc-whb04b-6 -ue* |
-Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
-
-| *xhc-whb04b-6 -p* |
-Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.
-
-| *xhc-whb04b-6 -H* |
-Start in HAL mode (Normal mode for real machine use).
-|===
-
-| *xhc-whb04b-6 -HsfB* |
-Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10mm).
+| *xhc-whb04b-6 -ue* | Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
+| *xhc-whb04b-6 -p* | Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.
+| *xhc-whb04b-6 -H* | Start in HAL mode (Normal mode for real machine use).
+|
+| *xhc-whb04b-6 -HsfB* | Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10mm).
 |===
 
 == Hal Usage
@@ -319,7 +306,7 @@ whereas blue ones (whb.button.macro-<M>) by combining them with Fn (press Fn fir
 
 Button macro need to add this in your ini and need to be edited for your own use :
 
-[HALUI]
+\[HALUI]
 MDI_COMMAND=(debug,macro0)  # this one is for numbering but not used by pendant (need 1 to 16)
 MDI_COMMAND=(debug,macro1)
 MDI_COMMAND=(debug,macro2)
@@ -604,7 +591,7 @@ net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             
 
 
 == SEE ALSO 
-xhc-whb04b-6.1, https://github.com/linuxcnc/linuxcnc/tree/master/src/hal/user_comps/xhc-whb04b-6/[xhc-whb04b-6 developer documentation on GitHub]
+https://github.com/linuxcnc/linuxcnc/tree/master/src/hal/user_comps/xhc-whb04b-6/[xhc-whb04b-6 developer documentation on GitHub]
 
 == NOTES
 The CRC code function is not disclosed by the manufacturer.

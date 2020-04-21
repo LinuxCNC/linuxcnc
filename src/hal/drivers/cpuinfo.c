@@ -35,7 +35,7 @@ char *get_cpuinfo_revision(char *revision)
       return 0;
 
    while(!feof(fp)) {
-      fgets(buffer, sizeof(buffer) , fp);
+      (fgets(buffer, sizeof(buffer) , fp));
       sscanf(buffer, "Hardware	: %s", hardware);
       if (strcmp(hardware, "BCM2708") == 0)
          rpi_found = 1;
