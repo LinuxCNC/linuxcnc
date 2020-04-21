@@ -1292,7 +1292,7 @@ widget_list=[
        ("right", bwidget.NoteBook, pane_top + ".right"),
        ("mdi_history", Listbox, tabs_mdi + ".history"),
        ("mdi_command", Entry, tabs_mdi + ".command"),
-       ("code_text", Text, tabs_mdi + ".gcodes"),
+       ("code_text", Text, pane_top + ".gcodes"),
 
        ("axes", Radiobutton, tabs_manual + ".axes"),
        ("axis_x", Radiobutton, tabs_manual + ".axes.axisx"),
