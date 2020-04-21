@@ -307,7 +307,7 @@ You NEED to have a fully tested and working base machine configuration without a
 
 CAUTION: DO *NOT* PROCEED UNTIL THIS HAS BEEN DONE
 
-If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
+IMPORTANT: If you are using a Mesa Electronics THCAD card for arc voltage measurement, see <<mesa-thcad, Mesa THCAD>> before proceeding
 
 [[configurator]]
 
@@ -335,51 +335,64 @@ TIP: If the Configurator does not run make sure that the file permissions for co
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_new.png[width=300]
+image::images/plasmac_configurator_home_new.png[width=30%]
 
 Select 'New' from the selection window, this shows an info dialog, select 'Continue' and the New Configuration window will display.
 
 NOTE: There will be different fields visible depending on the mode you select.
 
-image::images/plasmac_configurator_new.png[width=400]
+image::images/plasmac_configurator_new.png[width=50%]
 
 [[configurator-table]]
 
-[width="100%",cols="4,16"]
+HAL connection examples in the following table show an example for both a parallel port config and a Mesa 7i96 config. Change these pin names to suit your configuration.
+
+[width="100%",cols="4,10,6"]
 |===
-|*Field*|*Description*
-|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini
-|Ini File|this is the .ini file you created for your base machine config
-|HAL File|this is the .hal file you created for your base machine config
+|*Field*|*Description*|*Example*
+|Machine Name|the new name for your machine. This will create a ~/linuxcnc/<name> directory and your .ini file will be <name>.ini|PLASMA
+|Ini File|this is the .ini file you created for your base machine config|base.ini
+|HAL File|this is the .hal file you created for your base machine config|base.hal
 |Mode|select the mode you require +
       0 if using an arc voltage signal for Arc Voltage and Arc OK +
       1 if using external arc ok for Arc OK +
-      2 if using up/down from an external THC +
+      2 if using up/down from an external THC|1
+|Arc Voltage|Modes 0 And 1 only +
+             the HAL pin you have connected your arc voltage signal to|encoder.0.velocity +
+                                                                       hm2_7i96.0.encoder.00.velocity
+|Torch On|the HAL pin you have connected your torch on to|parport.0.pin-16-out +
+                                                          hm2_7i96.0.ssr.00.out-00
 |Arc OK|Modes 1 and 2 only +
-        the HAL pin you have connected your arc ok signal to
-|Arc Voltage|Modes 0 An 1 only +
-             the HAL pin you have connected your arc voltage signal to
+        the HAL pin you have connected your arc ok signal to|parport.0.pin-10-in-not +
+                                                             hm2_7i96.0.gpio.008.in
 |Ohmic Probe|only required if using ohmic probing +
-             the HAL pin you have connected your ohmic probe to
+             the HAL pin you have connected your ohmic probe to|parport.0.pin-11-in +
+                                                                hm2_7i96.0.gpio.007.in
 |Ohmic Probe Enable|only required if using ohmic probing +
-                    the HAL pin you have connected your ohmic probe enable to
+                    the HAL pin you have connected your ohmic probe enable to|parport.1.pin-01-out +
+                                                                              hm2_7i96.0.ssr.00.out-01
 |Float Switch|only if using a float switch +
-              the HAL pin you have connected your float switch to
+              the HAL pin you have connected your float switch to|parport.0.pin-12-in +
+                                                                  hm2_7i96.0.gpio.006.in
 |Breakaway Switch|only if using a breakaway switch +
-                  the HAL pin you have connected your breakaway switch to
-|Torch On|the HAL pin you have connected your torch on to
+                  the HAL pin you have connected your breakaway switch to|parport.0.pin-13-in +
+                                                                          hm2_7i96.0.gpio.005.in
 |Move Up|Mode 2 only +
-         the HAL pin you have connected your move up signal to
+         the HAL pin you have connected your move up signal to|parport.1.pin-10-in +
+                                                               hm2_7i96.0.gpio.004.in
 |Move Down|Mode 2 only +
-           the HAL pin you have connected your move down signal to
+           the HAL pin you have connected your move down signal to|parport.1.pin-11-in +
+                                                                   hm2_7i96.0.gpio.003.in
 |Run Panel|Run Tab = the run frame is a tab behind the preview tab +
-           Run Panel = the run frame is a panel at the side of the GUI
+           Run Panel = the run frame is a panel at the side of the GUI|Run Tab
 |Scribe Arming|only required if using a scribe +
-               the HAL pin to arm the scribe
+               the HAL pin to arm the scribe|parport.1.pin-16-out +
+                                             hm2_7i96.0.ssr.00.out-02
 |Scribe On|only required if using a scribe +
-              the HAL pin to turn the scribe on
+              the HAL pin to turn the scribe on|parport.1.pin-16-out +
+                                                hm2_7i96.0.ssr.00.out-03
 |Powermax Comms|only required if using Powermax communications +
-                the serial port used for communications
+                the serial port used for communications|/dev/ttyUSB0
 |===
 
 NOTE: If you are not sure of the full name of a HAL pin then start LinuxCNC for your base machine and run 'HalShow' for a full listing of all HAL pins.
@@ -548,7 +561,7 @@ It is possible to disable this panel so machine settings cannot be modified by u
 
 A HAL pin named 'plasmac_config.config-disable' can then be set to Zero to enable the panel. This pin could be tied to a key-switch or similar so only authorised personnel could enable the Config Panel.
 
-image::images/plasmac_config.png[width=400]
+image::images/plasmac_config.png[width=50%]
 
 [underline]*Probing*
 
@@ -650,7 +663,7 @@ This panel shows the parameters which are active for the current cut.
 
 There are two formats for this panel, a tab behind the preview tab or a panel at the side of the GUI. The formats are different but the functionality is identical.
 
-image::images/plasmac_run.png[width=600]
+image::images/plasmac_run.png[width=70%]
 
 See <<axis-display-section, Axis [DISPLAY] Section>> or <<gmoccapy-display-section, Gmoccapy [DISPLAY] section>>
 
@@ -762,7 +775,7 @@ If the deletion is confirmed it will delete the material from the material file 
 
 The Monitor Panel is used for display only, both Axis and Gmoccapy have similar Monitor Panels.
 
-image::images/plasmac_monitor.png[width=400]
+image::images/plasmac_monitor.png[width=40%]
 
 [width="100%",cols="6,2,14"]
 |===
@@ -792,11 +805,11 @@ Both GUIs have a 'Torch Enable' button which is permanent, all other buttons are
 
 Axis button layout:
 
-image::images/plasmac_buttons_a.png[width=400]
+image::images/plasmac_buttons_a.png[width=40%]
 
 Gmoccapy button layout:
 
-image::images/plasmac_buttons_g.png[width=100]
+image::images/plasmac_buttons_g.png[width=10%]
 
 The 'Torch Enable' button toggles between Enabled and Disabled.
 
@@ -812,11 +825,11 @@ These functions are enabled and disable automatically depending on the status of
 
 Axis Control Panel: 
 
-image::images/plasmac_control_a.png[width=300]
+image::images/plasmac_control_a.png[width=40%]
 
 Gmoccapy Control Panel:
 
-image::images/plasmac_control_g.png[width=300]
+image::images/plasmac_control_g.png[width=40%]
 
 [underline]*Torch Pulse*
 
@@ -846,7 +859,7 @@ Job statistics are reset when the current program is run.
 
 The total values may be reset either individually or all together.
 
-image::images/plasmac_stats.png[width=400]
+image::images/plasmac_stats.png[width=60%]
 
 === Extras Panel
 
@@ -858,7 +871,7 @@ See <<shape-library, shape library>> for shape usage.
  
 See <<custom-user-buttons, custom user buttons>> for button usage.
 
-image::images/plasmac_extras.png[width=400]
+image::images/plasmac_extras.png[width=60%]
 
 The Extras panel may be disabled by commenting out the appropriate entries in the [DISPLAY] section of the .ini file. This will have no effect on the operation of the PlasmaC configuration.
 
@@ -1984,11 +1997,11 @@ $ python linuxcnc/<your_configuration_directory>/configurator.py
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_used.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=30%]
 
 Select 'Upgrade' from the selection window, this shows an info dialog, select 'Continue' and the Upgrade window will display.
 
-image::images/plasmac_configurator_upgrade.png[width=400]
+image::images/plasmac_configurator_upgrade.png[width=40%]
 
 Select the .ini file of the PlasmaC configuration you wish to upgrade, click 'Upgrade' and your PlasmaC configuration will be upgraded.
 
@@ -2012,11 +2025,11 @@ $ python linuxcnc/<your_configuration_directory>/configurator.py
 
 The selection window is now visible:
 
-image::images/plasmac_configurator_home_used.png[width=300]
+image::images/plasmac_configurator_home_used.png[width=30%]
 
 Select 'Reconfigure' from the selection window, this shows an info dialog, select 'Continue' and the Reconfigure window will display.
 
-image::images/plasmac_configurator_reconfigure.png[width=400]
+image::images/plasmac_configurator_reconfigure.png[width=40%]
 
 Select the .ini file of the PlasmaC configuration you wish to reconfigure.
 
@@ -2048,7 +2061,7 @@ $ python ~/linuxcnc/configs/<machine-name>/materialverter.py
 
 This will bring up the materialverter dialog:
 
-image::images/plasmac_material_main.png[width=400]
+image::images/plasmac_material_main.png[width=30%]
 
 Select one of:
 
@@ -2068,7 +2081,7 @@ For a Manual creation or a Fusion360 conversion a dialog will show and any entry
 
 with any required parameters displayed for input.
 
-image::images/plasmac_material_dialogs.png[width=300]
+image::images/plasmac_material_dialogs.png[width=40%]
 
 NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this file already exists it will be overwritten.
 
@@ -2076,23 +2089,52 @@ NOTE: If you select ~/linuxcnc/configs/<machine-name>_material.cfg then if this 
 
 == Mesa THCAD
 
-The preferred jumper settings are, 'UNIPOLAR' and 'F/32'
+The Mesa THCAD is the most common way of obtaining the arc voltage from a plasma cutter.
 
-You will need to manually add a scale, filter and counter mode to your base machine .hal file before running the Configurator.
+The THCAD may be used on parallel port configs or configs using other Mesa Electronics hardware.
 
-For example, if you connected your THCAD to a mesa 7i76e then the commands required in the .hal file would be:
+=== Mesa Board Settings
 
-----
-setp  hm2_7i76e.0.encoder.00.scale -1
-setp  hm2_7i76e.0.encoder.00.filter 1
-setp  hm2_7i76e.0.encoder.00.counter-mode 1
-----
+The preferred method is to setup the required parameters for the THCAD in your <machine>.hal file.
 
-You then need to note that the 'Arc Voltage HAL Pin' entry in the PlasmaC Configurator will be:
+An example parallel port config:
 
 ----
-hm2_7i76e.0.encoder.00.velocity
+THCAD jumper settings 'UNIPOLAR' and 'F/64'
+
+loadrt encoder num_chan=1
+setp encoder.0.counter−mode 1
+setp encoder.0.position−scale -1
+addf encoder.update-counters base-thread
+addf encoder.capture-position servo-thread
+net arc-voltage-raw parport.1.pin-04-in encoder.0.phase-A
 ----
+
+An example Mesa 7i96 config:
+
+----
+THCAD jumper settings 'UNIPOLAR' and 'F/32'
+
+setp  hm2_7i96.0.encoder.00.scale -1
+setp  hm2_7i96.0.encoder.00.filter 1
+setp  hm2_7i96.0.encoder.00.counter-mode 1
+----
+
+You then need to note that the *Arc Voltage HAL Pin* entry in the PlasmaC Configurator will be:
+
+For a parallel port config:
+
+----
+encoder.0.velocity
+----
+
+For a Mesa 7i96 config:
+
+----
+hm2_7i96.0.encoder.00.velocity
+----
+
+NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
 === Obtaining The Divider Ratio
 
@@ -2132,12 +2174,12 @@ You can now calculate the values as shown below or use https://jscalc.io/calc/NT
 Use the formula:
 
 ----
-Divider_Ratio / ((Full_Scale_Frequency - 0V_Frequency) / Frequency_Divider / Full_Scale_Voltage)
+Divider_Ratio / ((THCAD_Full_Scale_Frequency - THCAD_0V_Frequency) / THCAD_Frequency_Divider / THCAD_Full_Scale_Voltage)
 ----
 
-This result will be used for setting 'Voltage Scale' in the Config Panel when setting up the configuration.
+This result will be used for setting *Voltage Scale* in the Config Panel when setting up the configuration.
 
-THCAD-10 example would be:
+THCAD-10 example with a jumper setting of F/32 would be:
 
 ----
 21 / ((925300 - 121100) / 32 / 10) = 0.00835613
@@ -2159,30 +2201,16 @@ For our calculation above, we used 1 as our divider ratio, 32 from the jumper se
 Use the formula:
 
 ----
-0V_Frequency / 32
+THCAD_0V_Frequency / THCAD_Frequency_Divider
 ----
 
-This result will be used for setting 'Voltage Offset' in the Config Panel when setting up the configuration.
+This result will be used for setting *Voltage Offset* in the Config Panel when setting up the configuration.
 
 The THCAD-10 and THCAD-300 examples above would be:
 
 ----
 121100 / 32 = 3784.375
 ----
-
-=== Mesa Board Settings
-
-When using a THCAD connected to an encoder on a Mesa Electronics board e.g. 7i96 then it is necessary to set the encoder to up/down mode in the .hal file and it is recommended to set encoder channel B (if it exists) to single ended (TTL) mode by setting jumpers on the board. See your board manual for further information.
-
-Settings in the .hal file would then be similar to:
-
-----
-setp    hm2_7i96.0.encoder.00.counter-mode  1
-setp    hm2_7i96.0.encoder.00.filter        1
-setp    hm2_7i96.0.encoder.00.scale        -1
-----
-
-NOTE: There is a <<lowpass, lowpass filter>> available which may be useful if using a THCAD.
 
 [[pm_comms]]
 
