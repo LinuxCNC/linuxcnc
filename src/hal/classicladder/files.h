@@ -18,6 +18,7 @@
 //#define E_LINE "-->"
 #define S_LINE ""
 #define E_LINE ""
+#define S_LINE_INUSE 0
 
 //#define FILE_PREFIX "cl_"
 #define FILE_PREFIX ""

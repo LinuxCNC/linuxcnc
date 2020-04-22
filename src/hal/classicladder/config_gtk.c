@@ -183,7 +183,8 @@ GtkWidget * CreateGeneralParametersPage( void )
 				break;
                         case 18:
 				snprintf(BuffLabel, sizeof(BuffLabel), _("Current path/filename") );
-                                snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
+				size_t ret = snprintf(BuffValue, sizeof(BuffValue), "%s",InfosGene->CurrentProjectFileName);
+				if (ret >= sizeof(BuffLabel)) snprintf(BuffValue, sizeof(BuffValue), "<path too long>");
                                 //snprintf(BuffValue, sizeof(BuffValue), "Not available yet" );
 				break;                                
 			default:

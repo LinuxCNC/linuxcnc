@@ -67,16 +67,17 @@ char *cl_fgets(char *s, int size, FILE *stream)
 	char * res;
 	s[0] = '\0';
 	res = fgets( s, size, stream );
-	
+
 	// While last character in string is either CR or LF, remove.
 	while (strlen(s)>=1 && ((s[strlen(s)-1]=='\r') || (s[strlen(s)-1]=='\n')))
 		s[strlen(s)-1] = '\0';
-
+#if S_LINE_INUSE
 	if ( strlen( S_LINE )>0 && strlen(s)>strlen( S_LINE )+strlen( E_LINE ) )
 	{
 		strcpy( s, s+strlen( S_LINE ) );
 		s[ strlen(s)-strlen(E_LINE) ] = '\0';
 	}
+#endif
 	return res;
 }
 
@@ -1437,8 +1438,10 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 					if ( cRemoveIt )
 					{
-						snprintf(Buff, sizeof(Buff), "%s/%s", TmpDirectory,pEnt->d_name);
-						remove(Buff);
+						size_t ret = snprintf(Buff, sizeof(Buff), "%s/%s", TmpDirectory,pEnt->d_name);
+						if (ret <= sizeof(Buff)){
+						    remove(Buff);
+						}
 					}
 				}
 			}

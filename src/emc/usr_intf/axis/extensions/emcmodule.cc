@@ -288,7 +288,7 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
     if(!check_stat(s->c)) return NULL;
     if(s->c->peek() == EMC_STAT_TYPE) {
         EMC_STAT *emcStatus = static_cast<EMC_STAT*>(s->c->get_address());
-        memcpy(&s->status, emcStatus, sizeof(EMC_STAT));
+        memcpy((char*)&s->status, emcStatus, sizeof(EMC_STAT));
     }
     Py_INCREF(Py_None);
     return Py_None;
