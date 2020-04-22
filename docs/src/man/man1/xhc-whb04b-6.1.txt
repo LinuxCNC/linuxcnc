@@ -70,7 +70,7 @@ Output is prefixed with "event".
 Enable all logging facilities without explicitly specifying each.
 
 *-c*
-Enable checksum output which is necessary for debugging the checksum generator function. 
+Enable checksum output which is necessary for debugging the checksum generator function.
 Do not rely on this feature since it will be removed once the generator is implemented.
 
 *-n*
@@ -88,7 +88,7 @@ should be created with the single line +
 
 == Standalone Usage
 The xhc-whb04b-6 program can be run from the command line without LinuxCNC to test a pendant.
-This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data. 
+This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data.
 
 === EXAMPLES
 
@@ -200,7 +200,7 @@ Signals utilized for operating a spindle.
 Signals utilized for operating spindle and feed override.
 The feed rotary button can serve in
 Continuous move x% from max velocity
-Step move x mm 
+Step move x mm
 Mpg override feed/spindle
 the special position Lead. +
 *Continuous:* In this mode jogging is performed at the selected feed rate.
@@ -208,8 +208,8 @@ As long the jogwheel turns, the selected axis moves. +
 *Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the
 current set feed rate in machine units.
 If the commanded position is not reached the machine keeps moving even the jogwheel is not turning. +
-*Lead:* Manipulates the spindle override.+  
-*Mpg:* Manipulates the feedrate override.+  
+*Lead:* Manipulates the spindle override.+
+*Mpg:* Manipulates the feedrate override.+
 
 *Note:* As a consequence of 3 modes from manufacturer, switching the feed rotary button back from Lead revert to Mpg mode,
  Mpg mode is default mode at startup.
@@ -306,7 +306,7 @@ MDI_COMMAND=(debug,macro16)
 *<M>* ... denotes an arbitrary macro number which is of {1, 2, ..., 16}
 
 *whb.button.reset* (bit,out)::
- see *whb.halui.estop.{activate, reset}* True one Reset button down, 
+ see *whb.halui.estop.{activate, reset}* True one Reset button down,
  false otherwise. For toggling E-stop use whb.halui.estop .active and .reset.
 *whb.button.stop* (bit,out)::
  see *whb.halui.program.stop* True on Stop button down, false otherwise.
@@ -348,7 +348,7 @@ MDI_COMMAND=(debug,macro16)
  True on Fn button down, false otherwise.
 *whb.button.probe-z* (bit,out)::
  connect to *halui.mdi-command-*<M> True on Probe-Z button down, false
- otherwise.Requests MDI mode before button pin is set. See also 
+ otherwise.Requests MDI mode before button pin is set. See also
  *whb.halui.mode.mdi*.
 *whb.button.macro-1* (bit,out)::
  connect to *halui.mdi-command-*<M> True on Macro-1 button (Fn + Feed+)
@@ -366,10 +366,10 @@ MDI_COMMAND=(debug,macro16)
  spindle speed. For decreasing the spindle speed use
  *whb.halui.spindle.decrease*
 *whb.button.macro-5* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-5 button down 
+ connect to *halui.mdi-command-*<M> True on Macro-5 button down
  (Fn + M-HOME), false otherwise.
 *whb.button.macro-6* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-6 button down 
+ connect to *halui.mdi-command-*<M> True on Macro-6 button down
  (Fn + Safe-Z), false otherwise.
 *whb.button.macro-7* (bit,out)::
  connect to *halui.mdi-command-*<M> True on Macro-7 button down
@@ -378,7 +378,7 @@ MDI_COMMAND=(debug,macro16)
  reserved for Spindle Direction True on Macro-8 button down
  (Fn + S-ON/OFF), false otherwise.
 *whb.button.macro-9* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-9 button down 
+ connect to *halui.mdi-command-*<M> True on Macro-9 button down
  (Fn + Probe-Z), false otherwise.
 *whb.button.macro-10* (bit,out)::
  reserved for toggle DRO Abs/rel. True on Macro-10 button down, false
@@ -392,7 +392,7 @@ MDI_COMMAND=(debug,macro16)
  connect to *halui.mdi-command-*<M> True on Macro-12 button
  (Fn + Stop) down, false otherwise.
 *whb.button.macro-13* (bit,out)::
- connect to *halui.mdi-command-*<M> rue on Macro-13 button (Fn + 
+ connect to *halui.mdi-command-*<M> rue on Macro-13 button (Fn +
  Start/Pause) down, false otherwise.
 *whb.button.macro-14* (bit,out)::
  connect to *halui.mdi-command-*<M> True on Macro-14 button
@@ -472,9 +472,9 @@ net pdnt.axis.x.jog-counts                whb.axis.x.jog-counts                 
 net pdnt.axis.y.jog-counts                whb.axis.y.jog-counts                 axis.y.jog-counts
 net pdnt.axis.z.jog-counts                whb.axis.z.jog-counts                 axis.z.jog-counts
 
-net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable          
-net pdnt.axis.y.jog-enable                whb.axis.y.jog-enable                 axis.y.jog-enable          
-net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable          
+net pdnt.axis.x.jog-enable                whb.axis.x.jog-enable                 axis.x.jog-enable
+net pdnt.axis.y.jog-enable                whb.axis.y.jog-enable                 axis.y.jog-enable
+net pdnt.axis.z.jog-enable                whb.axis.z.jog-enable                 axis.z.jog-enable
 
 net pdnt.axis.x.jog-vel-mode              whb.axis.x.jog-vel-mode               axis.x.jog-vel-mode
 net pdnt.axis.y.jog-vel-mode              whb.axis.y.jog-vel-mode               axis.y.jog-vel-mode
@@ -543,10 +543,10 @@ net pdnt.button.probe-z                   whb.button.probe-z                    
 
 # spindle related signals
 net pdnt.spindle.is-on                    whb.halui.spindle.is-on               spindle.0.on
-net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start              
-net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop             
-net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward          
-net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse          
+net pdnt.spindle.start                    whb.halui.spindle.start               halui.spindle.0.start
+net pdnt.spindle.stop                     whb.halui.spindle.stop                halui.spindle.0.stop
+net pdnt.spindle.forward                  whb.halui.spindle.forward             halui.spindle.0.forward
+net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse
 net pdnt.spindle.increase                 whb.halui.spindle.increase            halui.spindle.0.increase         # reserved whb.button.macro-3
 net pdnt.spindle.decrease                 whb.halui.spindle.decrease            halui.spindle.0.decrease         # reserved whb.button.macro-4
 net pdnt.spindle-speed-abs                whb.halui.spindle-speed-cmd           spindle.0.speed-out-abs          # speed cmd from motion in rpm absolue
@@ -584,18 +584,18 @@ net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             
 ----
 
 
-== SEE ALSO 
+== SEE ALSO
 https://github.com/linuxcnc/linuxcnc/tree/master/src/hal/user_comps/xhc-whb04b-6/[xhc-whb04b-6 developer documentation on GitHub]
 
 == NOTES
 The CRC code function is not disclosed by the manufacturer.
 Ths the CRC value transmitted with each package is not checked yet.
 Feel free to help us enhance the component.
-    
+
 == AUTHORS
 This component was started by Raoul Rubien based on predecessor device component xhc-hb04.cc.
 https://github.com/machinekit/machinekit/graphs/contributors gives you a more complete list of contributors.
-    
+
 == HISTORY
 The component was developed accidentally as leisure project.
 The development started with the xhc-whb04 (4-axis wireless pendant) implementation as reference.
