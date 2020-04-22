@@ -118,7 +118,7 @@ RIP builds are manually downloaded and compiled locally on your computer.
 
 [[buildbot-install]]
 
-==== Buildbot Installation
+=== Buildbot Installation
 
 To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
 
@@ -186,7 +186,7 @@ NOTE: For more information on the LinuxCN Buildbot, see the http://buildbot.linu
 
 [[rip-install]]
 
-==== Run In Place Installation
+=== Run In Place Installation
 
 CAUTION: ENSURE YOU ARE *NOT* THE ROOT USER +
 DO *NOT* USE SUDO EXCEPT FOR THE 'make setuid' STEP
