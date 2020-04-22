@@ -278,6 +278,8 @@ include::hal/halmodule.txt[]
 
 include::motion/kinematics.txt[]
 
+include::motion/dh-parameters.txt[]
+
 include::motion/5-axis-kinematics.txt[]
 
 include::motion/pid-theory.txt[]
