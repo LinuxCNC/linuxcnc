@@ -285,8 +285,8 @@ void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
         return NULL;
     }
 
-    snprintf(path, sizeof(path), "%s/resource%i", dev->sys_path, bar);
-
+    size_t ret = snprintf(path, sizeof(path), "%s/resource%i", dev->sys_path, bar);
+    if (ret >= sizeof(path)) return NULL;
     /* Open the resource node */
     int fd = open(path, O_RDWR | O_SYNC);
     if (fd < 0) {
@@ -357,7 +357,8 @@ int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
     fclose(stream);
 
     /* Open the resource file... */
-    snprintf(path, sizeof(path), "%s/resource", dev->sys_path);
+    size_t ret = snprintf(path, sizeof(path), "%s/resource", dev->sys_path);
+    if (ret >= sizeof(path)) return -1;
     stream = fopen(path, "r");
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
