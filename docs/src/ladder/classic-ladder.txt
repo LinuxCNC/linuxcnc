@@ -1,8 +1,6 @@
 [[cha:classicladder]]
 
-= Classicladder Programming
-
-== Ladder Concepts
+= Ladder Concepts
 
 Classic Ladder is a type of programming language originally
 implemented on industrial PLCs (it's called Ladder Programming). It is
@@ -30,20 +28,20 @@ is the "Last One Wins" rule. If you have the same output in different
 locations of your ladder the state of the last one will be what the
 output is set to.
 
-== Languages
+= Languages
 
 The most common language used when working with Classic Ladder is
 'ladder'. Classic Ladder also supports Sequential Function Chart
 (Grafcet).
 
-== Components
+= Components
 
 There are 2 components to Classic Ladder.
 
 * The real time module classicladder_rt
 * The user space module (including a GUI) classicladder
 
-=== Files
+== Files
 
 Typically classic ladder components are placed in the custom.hal file
 if your working from a Stepconf generated configuration. These must not
@@ -52,7 +50,7 @@ be grayed out.
 
 NOTE: Ladder files (.clp) must not contain any blank spaces in the name.
 
-=== Realtime Module
+== Realtime Module
 
 Loading the Classic Ladder real time module (classicladder_rt) is
 possible from a HAL file, or directly using a halcmd instruction. The
@@ -77,7 +75,7 @@ rounded to microseconds. If the scan time is longer than one
 millisecond you may want to shorten the ladder or put it in a slower
 thread.
 
-=== Variables
+== Variables
 
 It is possible to configure the number of each type of ladder object
 while loading the Classic Ladder real time module. If you do not
@@ -130,7 +128,7 @@ To load the default number of objects:
 loadrt classicladder_rt
 ----
 
-== Loading the Classic Ladder user module
+= Loading the Classic Ladder user module
 
 Classic Ladder HAL commands must executed before the GUI loads or the
 menu item Ladder Editor will not function. If you used the Stepper
@@ -176,12 +174,12 @@ will display the last loaded ladder program.
 
 In AXIS you can load the GUI from File/Ladder Editor...
 
-== Classic Ladder GUI
+= Classic Ladder GUI
 
 If you load Classic Ladder with the GUI it will display two windows:
 section display, and section manager.
 
-=== Sections Manager
+== Sections Manager
 
 When you first start up Classic Ladder you get an empty Sections
 Manager window.
@@ -194,7 +192,7 @@ This window allows you to name, create or delete sections and choose
 what language that section uses. This is also how you name a subroutine
 for call coils.
 
-=== Section Display
+== Section Display
 
 When you first start up Classic Ladder you get an empty Section
 Display window. Displayed is one empty rung.
@@ -234,7 +232,7 @@ didn't work in the older versions. This was because it looked for the
 unrecognized code. The ladder program will still work properly, to fix
 it erase the codes with the editor and save the program.
 
-=== The Variable Windows
+== The Variable Windows
 
 This are two variable windows: the Bit Status Window (boolean) and 
 the Watch Window (signed integer). The Vars 
@@ -274,7 +272,7 @@ the display symbols check box is not checked) or type the symbol name
 (if the display symbols checkbox is checked) over an existing variable
 number/name and press the Enter Key.
 
-=== Symbol Window
+== Symbol Window
 
 .Symbol Names window
 
@@ -292,7 +290,7 @@ names of %I, %Q and %W variable by clicking on them in the section
 window. Between the two, one should be able to keep track of what the
 ladder program is connected to!
 
-=== The Editor window
+== The Editor window
 
 .Editor Window
 
@@ -348,7 +346,7 @@ A short description of each of the buttons:
    variables. (eg %W2=7 or %W1=%W2) ASSIGNMENT functions can only be
    placed at the right most side of the section display.
 
-=== Config Window
+== Config Window
 
 The config window shows the current project status and has the Modbus
 setup tabs.
@@ -357,9 +355,9 @@ setup tabs.
 
 image::images/Config.png[align="center", alt="Config Window"]
 
-== Ladder objects
+= Ladder objects
 
-=== CONTACTS
+== CONTACTS
 
 Represent switches or relay contacts. They are controlled by the
 variable letter and number assigned to them.
@@ -384,7 +382,7 @@ contact would be on (and HAL pin classicladder.0.out-01 would be true.)
 * 'Falling Edge Contact' - When the variable changes from true to false,
    the switch is PULSED on.
 
-=== IEC TIMERS
+== IEC TIMERS
 
 Represent new count down timers. IEC Timers replace Timers and
 Monostables.
@@ -414,7 +412,7 @@ written to in compare or operate blocks.
 * '%TMxxx.P' - timer preset (read write)
 * '%TMxxx.V' - timer value (read write)
 
-=== TIMERS
+== TIMERS
 
 Represent count down timers. This is deprecated and replaced by IEC
 Timers.
@@ -436,7 +434,7 @@ in compare or operate blocks.
 * '%Txx.V' - Timer xx current value (integer, read only) 
 * '%Txx.P' - Timer xx preset (integer, read or write)
 
-=== MONOSTABLES
+== MONOSTABLES
 
 Represent the original one-shot timers. This is now 
 deprecated and replaced by IEC Timers.
@@ -460,7 +458,7 @@ written to in compare or operate blocks.
 * '%Mxx.V' - Monostable xx current value (integer, read only) 
 * '%Mxx.P' - Monostable xx preset (integer, read or write)
 
-=== COUNTERS
+== COUNTERS
 
 Represent up/down counters.
 
@@ -492,7 +490,7 @@ to in compare or operate blocks.
 * '%Cxx.V' - Counter xx current value (integer, read or write) 
 * '%Cxx.P' - Counter xx preset (integer, read or write)
 
-=== COMPARE
+== COMPARE
 
 For arithmetic comparison. Is variable %XXX = to this number (or
 evaluated number)
@@ -535,7 +533,7 @@ To find out if S32in bit 2 is equal to 10 the syntax would be:
 Note: Compare uses the arithmetic equals not the double equals that
 programmers are used to.
 
-=== VARIABLE ASSIGNMENT
+== VARIABLE ASSIGNMENT
 
 For variable assignment, e.g. assign this number (or evaluated number)
 to this variable %xxx, there are two math functions MINI and MAXI that
@@ -578,7 +576,7 @@ image::images/Assignment_Expression.png[align="center"]
 
 image::images/Comparison_Expression.png[align="center"]
 
-=== COILS
+== COILS
 
 Coils represent relay coils. They are controlled by the variable
 letter and number assigned to them.
@@ -645,7 +643,7 @@ placed at the rightmost position in the rung.
 
 Remember to change the label to the subroutine number you chose before.
 
-== Classic Ladder Variables
+= Classic Ladder Variables
 
 These Variables are used in COMPARE or OPERATE to get information
 about, or change specs of, ladder objects such as changing a counter
@@ -685,7 +683,7 @@ List of variables :
    variable. Some might call this vectored variables. Example: %W0[%W4] =>
    if %W4 equals 23 it corresponds to %W23 
 
-== GRAFCET (State Machine) Programming
+= GRAFCET (State Machine) Programming
 
 [WARNING]
 This is probably the least used and most poorly understood 
@@ -749,7 +747,7 @@ become active the transition variable that caused it to become active
 has no control of it anymore. The last step has to JUMP LINK back only
 to the beginning step.
 
-== Modbus
+= Modbus
 
 Things to consider:
 
@@ -885,7 +883,7 @@ The number 257 will be sent to the slave number you specified and the
 slave should send it back. you will need to have Classic Ladder running
 in a terminal to see the message. 
 
-=== MODBUS Settings 
+== MODBUS Settings 
 
 Serial:
 
@@ -898,7 +896,7 @@ Serial:
    request and before receiving an answer (this apparently helps with USB
    converters which are slow). 
 
-=== MODBUS Info
+== MODBUS Info
 
 * Classic Ladder can use distributed inputs/outputs on modules using the
    modbus protocol ("master": polling slaves).
@@ -928,14 +926,14 @@ More information on modbus protocol is available on the internet.
 
 http://www.modbus.org/[http://www.modbus.org/]
 
-=== Communication Errors
+== Communication Errors
 
 If there is a communication error, a warning window will pop up (if
 the GUI is running) and %E0 will be true. Modbus will continue to try
 to communicate. The %E0 could be used to make a decision based on the
 error. A timer could be used to stop the machine if timed out, etc.
 
-=== Debugging modbus problems
+== Debugging modbus problems
 A good reference for the protocol: +
 http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf +
 If you run linuxcnc/classocladder from a terminal, it will print 
@@ -954,7 +952,7 @@ so our returned data will be in %W2 as in the other image we mapped the data sta
  
 image::images/modbus_com_setting.png[align="center", alt="Comunication Setting"]
 
-==== Request
+=== Request
 Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex) +
 
 Looking in the Modbus protocol reference: +
@@ -984,7 +982,7 @@ meaning (Hex): +
  * Number of Registers = 1 (0x1) = return 1 2-byte register (holding and reading registers are always 2 bytes wide)
  * Checksum = high byte 0x8E lowbyte 0x36  = (0x8E36)
 
-==== Error response
+=== Error response
 If there is an error response, it sends the function code plus 0x80, an error code, and a checksum. +
 Getting an error response means the slave is seeing the request command but can not give valid data. +
 Looking in the Modbus protocol reference: +
@@ -1017,7 +1015,7 @@ meaning (Hex): +
  * Error code = 2  (0x2) = illegal data address requested
  * Checksum = (0x8E36)
 
-==== Data response
+=== Data response
 Looking in the Modbus protocol reference for Response: +
 
 .Data response for function code 3 (read holding register)
@@ -1053,7 +1051,7 @@ Write registers can be mapped from %W, %QW or %IW (internal memory, HAL out pins
 The variable number will start at the number entered in the modbus I/O registry setup page's column: 'First variable mapped' +
 If multiple registers are requested in one read/write then the variable number are sequential after the first one. +
 
-=== MODBUS Bugs
+== MODBUS Bugs
 
 * In compare blocks the function %W=ABS(%W1-%W2) is accepted but does
    not compute properly. only %W0=ABS(%W1) is currently legal. 
@@ -1066,7 +1064,7 @@ If multiple registers are requested in one read/write then the variable number a
    time or else only TCP will work.
 * reading/writing multiple registers in Modbus has checksum errors. 
 
-== Setting up Classic Ladder
+= Setting up Classic Ladder
 
 In this section we will cover the steps needed to add Classic Ladder
 to a Stepconf Wizard generated config. On the advanced Configuration
@@ -1076,7 +1074,7 @@ Options page of Stepconf Wizard check off "Include Classic Ladder PLC".
 
 image::images/stepconf_ladder.png[align="center", alt="Stepconf Classic Ladder"]
 
-=== Add the Modules
+== Add the Modules
 
 If you used the Stepconf Wizard to add Classic Ladder you can skip
 this step.
@@ -1096,7 +1094,7 @@ This line adds the Classic Ladder function to the servo thread:
 addf classicladder.0.refresh servo-thread
 ----
 
-=== Adding Ladder Logic
+== Adding Ladder Logic
 
 Now start up your config and select "File/Ladder Editor" to open up
 the Classic Ladder GUI. You should see a blank Section Display and

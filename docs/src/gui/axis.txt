@@ -1244,9 +1244,7 @@ def user_live_update():
         pass
 ----
 
-=== Add Buttons
-
-==== Add a GOTO Home button 
+=== Add a GOTO Home button 
 
 [source,python]
 ----
@@ -1269,7 +1267,7 @@ TclCommands.goto_home = goto_home
 commands = TclCommands(root_window)
 ----
 
-==== Add Button to manual frame
+=== Add Button to manual frame
 
 [source,python]
 ----

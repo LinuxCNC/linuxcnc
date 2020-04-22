@@ -1994,7 +1994,7 @@ Tooltip hovers provide a description.
 VCP Action widgets are one-shot type widgets. They implement a single action and
 are for use in simple buttons, menu entries or radio/check groups.
 
-==== VCP Action python
+=== VCP Action python
 
 This widget is used to execute small arbitrary python code. +
 The command string may use special keywords to access important functions.
