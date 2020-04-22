@@ -306,7 +306,8 @@ whereas blue ones (whb.button.macro-<M>) by combining them with Fn (press Fn fir
 
 Button macro need to add this in your ini and need to be edited for your own use :
 
-\[HALUI]
+----
+[HALUI]
 MDI_COMMAND=(debug,macro0)  # this one is for numbering but not used by pendant (need 1 to 16)
 MDI_COMMAND=(debug,macro1)
 MDI_COMMAND=(debug,macro2)
@@ -324,6 +325,7 @@ MDI_COMMAND=(debug,macro13)
 MDI_COMMAND=(debug,macro14)
 MDI_COMMAND=(debug,macro15)
 MDI_COMMAND=(debug,macro16)
+----
 
 *<M>* ... denotes an arbitrary macro number which is of {1, 2, ..., 16}
 
@@ -424,7 +426,7 @@ MDI_COMMAND=(debug,macro16)
 |====
 
 == HAL Configuration Example
-
+----
 #
 ### Hal File xhc_whb04b_6.hal Example
 #
@@ -587,7 +589,7 @@ net pdnt.axis.x.pos-relative              halui.axis.x.pos-relative             
 net pdnt.axis.y.pos-relative              halui.axis.y.pos-relative             whb.halui.axis.y.pos-relative
 net pdnt.axis.z.pos-relative              halui.axis.z.pos-relative             whb.halui.axis.z.pos-relative
 
-
+----
 
 
 == SEE ALSO 
