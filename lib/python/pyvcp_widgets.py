@@ -458,7 +458,6 @@ class pyvcp_meter(Canvas):
                     xy2 = self.p2c(0.9,alfa)
                     self.create_line(xy1, xy2)
                 value = value + self.minorscale
-
              
 # -------------------------------------------
 
@@ -467,9 +466,17 @@ class pyvcp_jogwheel(Canvas):
         reacts to both mouse-wheel and mouse dragging
         <jogwheel>
             [ <cpr>33</cpr> ]                       (counts per revolution)
-            [ <halpin>"myjogwheel"</halpin> ]
-            [ <size>300</size> ]
+            [ <bgcolor>"grey"</bgcolor> ]           (background color)
+            [ <fillcolor>"green"</fillcolor> ]      (active fill color)
+            [ <halpin>"myjogwheel"</halpin> ]       (names halpins)
+            [ <clear_pin>1</clear_pin> ]            (1 creates dro and a reset pin to reset dro)
+            [ <scale_pin>1</scale_pin> ]            (1 creates scale text and a flout in to display jog scale)
+            [ <text>"My Text"</text> ]              (displays text on the wheel) 
+            [ <size>300</size> ]                    (size of)
          </jogwheel>
+                                                    
+                key binding
+                    <Shift-1>   shift-click resets dro to zero same as clear_pin
     """
     # FIXME:
     # -jogging should be enabled only when the circle has focus
@@ -477,20 +484,24 @@ class pyvcp_jogwheel(Canvas):
     # -jogging by dragging with the mouse could work better
     # -add a scaled output, scale changes when alt/ctrl/shift is held down
     n=0
-    def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,**kw):
+    def __init__(self,root,pycomp,halpin=None,text=None,clear_pin=0,scale_pin=0,
+        fillcolor="lightgrey",bgcolor="lightgrey",size=200,cpr=40,**kw):
+
         pad=size/10
         self.count=0
+        self.counts=0       
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
         self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
         self.circle=self.create_oval(pad,pad,size-pad,size-pad)
-        self.itemconfig(self.circle,fill="lightgrey",activefill="lightgrey")
+        self.itemconfig(self.circle,fill=bgcolor,activefill=fillcolor)
         self.mid=size/2
         self.r=(size-2*pad)/2
         self.alfa=0
         self.d_alfa=2*math.pi/cpr
         self.size=size
-        
+        self.scale_pin = scale_pin 
+        self.clear_pin = clear_pin    
         
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill="black")
@@ -501,24 +512,76 @@ class pyvcp_jogwheel(Canvas):
         self.itemconfig(self.line,arrow="last",arrowshape=(10,10,10))
         self.itemconfig(self.line,width=8)
 
+        #TJP items get rendered in order of creation, so the knob will be behind these texts
+        #TJP the font can be described with pixel size by using negative value
+
+        self.txtroom=size/10
+        # a title, if the user has supplied one
+        if text!=None:
+            self.title=self.create_text([self.mid,self.mid-self.txtroom],
+                        text=text,font=('Arial',-self.txtroom))
+        # the output
+        if clear_pin!=0:
+            self.dro=self.create_text([self.mid,self.mid],
+                        text=str(self.counts),font=('Arial',-self.txtroom))
+        # the scale
+        if scale_pin!=0:
+            self.jogscale=self.create_text([self.mid,self.mid+self.txtroom], 
+                        text='x '+ str(self.scale),font=('Arial',-self.txtroom))
+
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
         self.bind('<Button1-Motion>',self.motion)
         self.bind('<ButtonPress>',self.bdown)
+        self.bind('<Shift-1>',self.resetValue)          # shift click resets value
         self.draw_ticks(cpr)
         self.dragstartx=0
         self.dragstarty=0
         self.dragstart=0
 
         # create the hal pin
+        name = ""
         if halpin == None:
-            halpin = "jogwheel."+str(pyvcp_jogwheel.n)+".count"
+            name = ".count"
+            halpin = "jogwheel."+str(pyvcp_jogwheel.n) + name
             pyvcp_jogwheel.n += 1
-        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         self.halpin=halpin
+        pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         pycomp[self.halpin] = self.count
         self.pycomp=pycomp
-                 
+
+        if name != "":
+            halpin = halpin[:-6]
+
+        if clear_pin!=0:
+            name = ".reset"
+            clear_pin = halpin + name
+            self.clear_pin = clear_pin 
+            pycomp.newpin(clear_pin, HAL_BIT, HAL_IN)
+
+        if scale_pin!=0:
+            name = ".scale"
+            scale_pin = halpin + name
+            self.scale_pin = scale_pin        
+            pycomp.newpin(scale_pin, HAL_FLOAT, HAL_IN) 
+
+    def update_jogscale(self):
+        if self.scale_pin:
+            valtext = self.pycomp[self.scale_pin]
+            valtext = 'x ' +str(valtext)
+            self.itemconfig(self.jogscale,text=valtext) 
+
+    def update_dro(self):
+        if self.clear_pin:
+            clear_pin = self.pycomp[self.clear_pin]             #reset dro to zero from pin
+            if clear_pin == 1:
+                self.counts = 0
+            valtext = str(self.counts)
+            self.itemconfig(self.dro,text=valtext) 
+
+    def resetValue(self,event):                                 # shift + click to reset dro value
+        self.counts = 0
+                            
     def dot_coords(self):
         DOTR=0.06*self.size
         DOTPOS=0.85
@@ -549,15 +612,15 @@ class pyvcp_jogwheel(Canvas):
 
     def down(self):
         self.alfa-=self.d_alfa
-        self.count-=1
+        self.count-=1; self.counts-=1
         self.pycomp[self.halpin] = self.count
-        self.update_dot()       
+        self.update_dot()
     
     def up(self):
         self.alfa+=self.d_alfa
-        self.count+=1
+        self.count+=1; self.counts+=1
         self.pycomp[self.halpin] = self.count
-        self.update_dot()  
+        self.update_dot()
 
     def update_dot(self):
         self.coords(self.dot, self.dot_coords() )  
@@ -577,6 +640,8 @@ class pyvcp_jogwheel(Canvas):
         # this is stupid, but required for updating pin
         # when first connected to a signal
         self.pycomp[self.halpin] = self.count
+        self.update_jogscale()
+        self.update_dro()
         
 # -------------------------------------------
 ## ArcEye - added - no example given and the one in docs misses out initval  ##
