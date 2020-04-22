@@ -470,6 +470,7 @@ int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args
     return str - buf;
 }
 
+#ifdef MODULE
 /**
  * strsep - Split a string into tokens
  * @s: The string to be searched
@@ -496,3 +497,4 @@ char *strsep(char **s, const char *ct)
 
     return sbegin;
 }
+#endif
