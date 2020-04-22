@@ -235,45 +235,6 @@ In MPG/CON the feed rate will change to 100%, 60%, ... and so forth. In Step mod
 
 Signals for operating program and MDI mode.
 
-<<<<<<< HEAD
-[cols="30%,5%,5%,60%",options="header"]
-|====
-| *whb.halui.program.run*               | bit   | out    | connect to halui.program.run +
-                                          Pin for running a program.
-| *whb.halui.program.is-running*        | bit   | in     | connect to halui.program.is-running +
-                                          Pin indicating a program is running.
-| *whb.halui.program.pause*             | bit   | out    | connect to halui.program.pause
-                                          Pin for pausing a program.
-| *whb.halui.program.is-paused*         | bit   | in     | connect to halui.program.is-paused +
-                                          Pin indicating a program is pausing.
-| *whb.halui.program.resume*            | bit   | out    | connect to halui.program.resume +
-                                          Pin for resuming a program.
-| *whb.halui.program.stop*              | bit   | out    | connect to program.stop +
-                                          Pin for stopping a program.
-| *whb.halui.program.is-idle*           | bit   | in     | connect to halui.program.is-idle +
-                                          Pin indicating no program is running.
-| *whb.halui.mode.auto*                 | bit   | out    | connect to halui.mode.auto +
-                                          Pin for requesting auto mode.
-| *whb.halui.mode.is-auto*              | bit   | in     | connect to halui.mode.is-auto +
-                                          Pin for indicating auto mode is on.
-| *whb.halui.mode.joint*                | bit   | out    | connect to halui.mode.joint +
-                                          Pin for requesting joint by joint mode.
-| *whb.halui.mode.is-joint*             | bit   | in     | connect to halui.mode.is-joint +
-                                          Pin indicating joint by joint mode is on.
-| *whb.halui.mode.manual*               | bit   | out    | connect to halui.mode.manual +
-                                          Pin for requesting manual mode.
-| *whb.halui.mode.is-manual*            | bit   | in     | connect to halui.mode.is-manual +
-                                          Pin indicating manual mode is on.
-| *whb.halui.mode.mdi*                  | bit   | out    | connect to halui.mode.mdi +
-                                          Pin for requesting MDI mode.
-| *whb.halui.mode.is-mdi*               | bit   | in     | connect to halui.mode.is-mdi +
-                                          Pin indicating MDI mode is on.
-| *whb.halui.mode.teleop*               | bit   | out    | connect to halui.mode.teleop +
-                                          Pin for requesting axis by axis mode.
-| *whb.halui.mode.is-teleop*            | bit   | in     | connect to halui.mode.is-teleop +
-                                          Pin indicating axis by axis mode is on.
-|====
-=======
 *whb.halui.program.run* (bit,out)::
  connect to *halui.program.run* in for running a program.
 *whb.halui.program.is-running* (bit,in)::
@@ -308,7 +269,6 @@ Signals for operating program and MDI mode.
  connect to *halui.mode.teleop* + Pin for requesting axis by axis mode.
 *whb.halui.mode.is-teleop* (bit,in)::
  connect to *halui.mode.is-teleop* Pin indicating axis by axis mode is on.
->>>>>>> 2.8
 
 ==== Buttons
 For flexibility reasons each button provides an output pin even if no
