@@ -7,6 +7,7 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * G33.1 Rigid Tapping speedup, with optional faster return move
   * Back tool lathe support in axis and gmoccapy
   * Seperate joint and axis limits for non trivial kins machines
+  * bldc_hall removed: use bldc
 
 linuxcnc (1:2.7.15) unstable; urgency=medium
 
