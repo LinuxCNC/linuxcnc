@@ -30,6 +30,7 @@ Build-Depends: debhelper (>= 6),
     psmisc,
     desktop-file-utils,
     yapps2,
+    libtirpc-dev,
 Standards-Version: 3.9.2
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
