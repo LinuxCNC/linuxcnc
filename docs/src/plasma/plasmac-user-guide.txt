@@ -2,7 +2,7 @@
 
 = PlasmaC User Guide
 :toc:
-:toclevels: 4
+:toclevels: 5
 :figure-caption!:
 
 == License
@@ -761,7 +761,7 @@ The **Reload** button will reload all the saved settings and the material file t
 
 The **New** button allows the addition of a new material in the material file.
 
-It will prompt for a material number and a material name. When these are entered it will create the new material using the Cut Parameters from the Default Material and then reload the material file with the new material displayed.
+It will prompt for a material number and a material name. When these are entered it will create the new material using the Cut Parameters from the currently active material and then reload the material file with the new material displayed.
 
 Make any required changes and then save them using the save button.
 
@@ -992,7 +992,7 @@ M3 $0 S1
 M5
 ----
 
-Material numbers do not need to be consecutive nor do they need to be in numerical order.
+Material numbers in the materials file do not need to be consecutive nor do they need to be in numerical order.
 
 When a material is changed it only changes the cut parameters in the Run Panel, LinuxCNC knows nothing of the material nor does PlasmaC know anything about LinuxCNC tools. (i.e. it does NOT do a tool change)
 
