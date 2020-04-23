@@ -119,13 +119,18 @@ class HandlerClass:
                     '\n')
             print('*** creating new material configuration file, {}'.format(self.materialFile))
 
-    def write_material(self, *items):
+    def write_materials(self, *items):
         mat = []
         for item in items[1:]:
             mat.append(item)
         self.materialFileDict[items[0]] = mat
-        iter = self.builder.get_object('materials').append()
-        self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(int(items[0]), items[1]))
+
+    def display_materials(self):
+        self.materialList = []
+        for key in sorted(self.materialFileDict):
+            iter = self.builder.get_object('materials').append()
+            self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(key, self.materialFileDict[key][0]))
+            self.materialList.append(key)
 
     def get_material(self):
         self.getMaterial = 1
@@ -146,7 +151,7 @@ class HandlerClass:
         g_press = self.builder.get_object('gas-pressure').get_value()
         c_mode = self.builder.get_object('cut-mode').get_value()
         t_item = 0
-        self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+        self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
         with open(self.materialFile, 'r') as f_in:
             firstpass = True
             required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
@@ -157,7 +162,7 @@ class HandlerClass:
                 elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                     newMaterial = True
                     if not firstpass:
-                        self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+                        self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                         for item in required:
                             if item not in received:
                                 self.dialog_error('Materials Error', '\n{} is missing from Material #{}'.format(item, t_number))
@@ -222,14 +227,12 @@ class HandlerClass:
                     if line.split('=')[1].strip():
                         c_mode = float(line.split('=')[1].strip())
             if t_number:
-                self.write_material(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+                self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                 for item in required:
                     if item not in received:
                         self.dialog_error('Materials Error', '\n{} is missing from Material #{}'.format(item, t_number))
+        self.display_materials()
         self.builder.get_object('material').set_active(0)
-        self.materialList = []
-        for material in (self.materialFileDict.keys()):
-            self.materialList.append(material)
         self.getMaterial = 0
 
     def on_save_clicked(self,widget,data=None):
@@ -267,45 +270,49 @@ class HandlerClass:
                                                 'OK',\
                                                 'Cancel')
         if not num or not nam:
-            self.dialog_error('\nNumber and Name are required')
+            self.dialog_error('New Material Error','\nNumber and Name are required')
             return
         else:
             try:
                 num = int(num)
             except:
-                self.dialog_error('\nMaterial number must be an integer')
+                self.dialog_error('New Material Error','\nMaterial number must be an integer')
                 return
             if num in self.materialNumList:
-                self.dialog_error('\nMaterial number {} is in use'.format(num))
+                self.dialog_error('New Material Error','\nMaterial number {} is in use'.format(num))
                 return
+            active = self.builder.get_object('material').get_active()
             shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
             outFile = open('{}'.format(self.materialFile), 'a')
             outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
             outFile.write('NAME               = {}\n'.format(nam))
-            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[0][1]))
+            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[active][1]))
             if self.materialFileDict[0][2] == True:
                 thc = 1
             else:
                 thc = 0
-            outFile.write('THC                = {}\n'.format(thc))
-            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[0][3]))
-            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[0][4]))
-            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[0][5]))
-            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[0][6]))
-            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[0][7]))
-            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[0][8]))
-            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[0][9]))
-            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[0][10]))
-            outFile.write('PAUSE_AT_END       = {}\n\n'.format(self.materialFileDict[0][11]))
-            outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[0][12]))
-            outFile.write('CUT_MODE           = {}\n'.format(self.materialFileDict[0][13]))
+            if self.materialFileDict[active][2]:
+                outFile.write('THC                = 1\n')
+            else:
+                outFile.write('THC                = 0\n')
+            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[active][3]))
+            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[active][4]))
+            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[active][5]))
+            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[active][6]))
+            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[active][7]))
+            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[active][8]))
+            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[active][9]))
+            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[active][10]))
+            outFile.write('PAUSE_AT_END       = {}\n'.format(self.materialFileDict[active][11]))
+            outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[active][12]))
+            outFile.write('CUT_MODE           = {}\n\n'.format(self.materialFileDict[active][13]))
             outFile.close()
             self.materialUpdate = True
             self.load_settings()
             self.materialFileDict = {}
             self.materialNumList = []
             self.get_material()
-            self.builder.get_object('material').set_active(len(self.materialNumList))
+            self.builder.get_object('material').set_active(self.materialList.index(num))
             self.materialUpdate = False
 
     def on_delete_clicked(self, widget):
@@ -315,16 +322,16 @@ class HandlerClass:
                                                 'OK',\
                                                 'Cancel')
         if not num:
-            self.dialog_error('\nNumber is required')
+            self.dialog_error('Delete Material Error','\nNumber is required')
             return
         else:
             try:
                 num = int(num)
             except:
-                self.dialog_error('\nMaterial number must be an integer')
+                self.dialog_error('Delete Material Error','\nMaterial number must be an integer')
                 return
             if not num in self.materialNumList:
-                self.dialog_error('\nMaterial number {} is not in use'.format(num))
+                self.dialog_error('Delete Material Error','\nMaterial number {} is not in use'.format(num))
                 return
             response = self.dialog_ok_cancel('Delete Material',\
                                              'Are you sure?',\
@@ -431,13 +438,9 @@ class HandlerClass:
             hal.set_p('plasmac_run.material-change-number',str(material))
         else:
             print('material not in material list')
-#            if material < self.oldMaterial:
-#                self.change_material(self.materialList[self.materialList.index(self.oldMaterial) - 1])
-#            else:
-#                self.change_material(self.materialList[self.materialList.index(self.oldMaterial) + 1])
         if material in self.materialList:
             if self.autoChange:
-                self.builder.get_object('material').set_active(self.materialFileDict[material][len(self.materialFileDict[material]) - 1])
+                self.builder.get_object('material').set_active(self.materialList.index(material))
         self.oldMaterial = material
 
     def first_material_changed(self, halpin):
@@ -484,7 +487,7 @@ class HandlerClass:
         self.builder.get_object('pause-at-end').set_digits(1)
         self.builder.get_object('pause-at-end-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('pierce-delay').set_digits(1)
-        self.builder.get_object('pierce-delay-adj').configure(0.5,0,10,0.1,0,0)
+        self.builder.get_object('pierce-delay-adj').configure(0.0,0,10,0.1,0,0)
         self.builder.get_object('puddle-jump-height').set_digits(0)
         self.builder.get_object('puddle-jump-height-adj').configure(0,0,200,1,0,0)
         self.builder.get_object('puddle-jump-delay').set_digits(2)
