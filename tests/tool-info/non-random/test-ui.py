@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import linuxcnc
 import hal
@@ -54,55 +54,55 @@ def verify_interp_vars(state, current_tool, current_pocket, selected_tool, selec
     while True:
         result = e.poll()
         if result == None:
-            print "nothing from polling error channel"
+            print("nothing from polling error channel")
             sys.exit(1)
 
         (type, msg) = result
         if type == linuxcnc.OPERATOR_DISPLAY:
             if msg == expected:
-		# success!
-		break
-	    print "state='%s', unexpected interp variables" % state
-	    print "result:", msg
-	    print "expected:", expected
-	    sys.exit(1)
+                # success!
+                break
+            print("state='%s', unexpected interp variables" % state)
+            print("result: {}".format(msg))
+            print("expected: {}".format(expected))
+            sys.exit(1)
         else:
-            print "state='%s', ignoring unexpected error type %d: %s" % (state, type, msg)
+            print("state='%s', ignoring unexpected error type %d: %s" % (state, type, msg))
 
-    print "state='%s', got expected interp variables:" % state
-    print "    current_tool=%.6f" % current_tool
-    print "    current_pocket=%.6f" % current_pocket
-    print "    selected_tool=%.6f" % selected_tool
-    print "    selected_pocket=%.6f" % selected_pocket
+    print("state='%s', got expected interp variables:" % state)
+    print("    current_tool=%.6f" % current_tool)
+    print("    current_pocket=%.6f" % current_pocket)
+    print("    selected_tool=%.6f" % selected_tool)
+    print("    selected_pocket=%.6f" % selected_pocket)
 
 
 def verify_io_pins(state, tool_number, tool_prep_number, tool_prep_pocket):
     if h['tool-number'] != tool_number:
-        print "state=%s, expected io.tool-number=%d, got %d" % (state, tool_number, h['tool-number'])
+        print("state=%s, expected io.tool-number=%d, got %d" % (state, tool_number, h['tool-number']))
         sys.exit(1)
 
     if h['tool-prep-number'] != tool_prep_number:
-        print "state=%s, expected io.tool-prep-number=%d, got %d" % (state, tool_prep_number, h['tool-prep-number'])
+        print("state=%s, expected io.tool-prep-number=%d, got %d" % (state, tool_prep_number, h['tool-prep-number']))
         sys.exit(1)
 
     if h['tool-prep-pocket'] != tool_prep_pocket:
-        print "state=%s, expected io.tool-prep-pocket=%d, got %d" % (state, tool_prep_pocket, h['tool-prep-pocket'])
+        print("state=%s, expected io.tool-prep-pocket=%d, got %d" % (state, tool_prep_pocket, h['tool-prep-pocket']))
         sys.exit(1)
 
-    print "state='%s', got expected io pins:" % state
-    print "    tool-number=%d" % tool_number
-    print "    tool-prep-number=%d" % tool_prep_number
-    print "    tool-prep-pocket=%d" % tool_prep_pocket
+    print("state='%s', got expected io pins:" % state)
+    print("    tool-number=%d" % tool_number)
+    print("    tool-prep-number=%d" % tool_prep_number)
+    print("    tool-prep-pocket=%d" % tool_prep_pocket)
 
 
 def verify_status_buffer(state, tool_in_spindle):
     s.poll()
     if s.tool_in_spindle != tool_in_spindle:
-        print "state=%s, expected status.tool_in_spindle=%d, got %d" % (state, tool_in_spindle, s.tool_in_spindle)
+        print("state=%s, expected status.tool_in_spindle=%d, got %d" % (state, tool_in_spindle, s.tool_in_spindle))
         sys.exit(1)
 
-    print "state='%s', got expected status buffer fields:" % state
-    print "    tool_in_spindle=%d" % tool_in_spindle
+    print("state='%s', got expected status buffer fields:" % state)
+    print("    tool_in_spindle=%d" % tool_in_spindle)
 
 
 def wait_for_hal_pin(pin_name, value, timeout=10):
@@ -111,7 +111,7 @@ def wait_for_hal_pin(pin_name, value, timeout=10):
         if h[pin_name] == value:
             return
         time.sleep(0.1)
-    print "timeout waiting for hal pin %s to go to %s!" % (pin_name, value)
+    print("timeout waiting for hal pin %s to go to %s!" % (pin_name, value))
     sys.exit(1)
 
 
