@@ -489,7 +489,8 @@ class pyvcp_jogwheel(Canvas):
 
         pad=size/10
         self.count=0
-        self.counts=0       
+        self.scale=0
+        self.drotxt=0.0       
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
         self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
@@ -523,7 +524,7 @@ class pyvcp_jogwheel(Canvas):
         # the output
         if clear_pin!=0:
             self.dro=self.create_text([self.mid,self.mid],
-                        text=str(self.counts),font=('Arial',-self.txtroom))
+                        text=str(self.drotxt),font=('Arial',-self.txtroom))
         # the scale
         if scale_pin!=0:
             self.jogscale=self.create_text([self.mid,self.mid+self.txtroom], 
@@ -567,20 +568,20 @@ class pyvcp_jogwheel(Canvas):
 
     def update_jogscale(self):
         if self.scale_pin:
-            valtext = self.pycomp[self.scale_pin]
-            valtext = 'x ' +str(valtext)
+            self.scale = self.pycomp[self.scale_pin]
+            valtext = 'x ' +str(self.scale)
             self.itemconfig(self.jogscale,text=valtext) 
 
     def update_dro(self):
         if self.clear_pin:
             clear_pin = self.pycomp[self.clear_pin]             #reset dro to zero from pin
             if clear_pin == 1:
-                self.counts = 0
-            valtext = str(self.counts)
+                self.drotxt = 0.0
+            valtext = str(self.drotxt)
             self.itemconfig(self.dro,text=valtext) 
 
     def resetValue(self,event):                                 # shift + click to reset dro value
-        self.counts = 0
+        self.drotxt = 0.0
                             
     def dot_coords(self):
         DOTR=0.06*self.size
@@ -612,13 +613,15 @@ class pyvcp_jogwheel(Canvas):
 
     def down(self):
         self.alfa-=self.d_alfa
-        self.count-=1; self.counts-=1
+        self.count-=1
+        self.drotxt+=self.scale*-1
         self.pycomp[self.halpin] = self.count
         self.update_dot()
     
     def up(self):
         self.alfa+=self.d_alfa
-        self.count+=1; self.counts+=1
+        self.count+=1
+        self.drotxt+=self.scale*1
         self.pycomp[self.halpin] = self.count
         self.update_dot()
 
