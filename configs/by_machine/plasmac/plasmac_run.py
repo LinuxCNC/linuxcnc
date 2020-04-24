@@ -281,7 +281,7 @@ class HandlerClass:
             if num in self.materialNumList:
                 self.dialog_error('New Material Error','\nMaterial number {} is in use'.format(num))
                 return
-            active = self.builder.get_object('material').get_active()
+            active = int(self.builder.get_object('material').get_active_text().split(': ', 1)[0].lstrip('0'))
             shutil.copy(self.materialFile,'{}.bkp'.format(self.materialFile))
             outFile = open('{}'.format(self.materialFile), 'a')
             outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
