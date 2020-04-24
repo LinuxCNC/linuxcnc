@@ -23,7 +23,7 @@ This start type is widely employed, and has been around the longest. Although it
 
 === Blowback Start
 
-This start type uses air pressure supplied to the cutter to force a small piston or cartridge inside the torch head back to create a small start between the inside surface of the consumable, ionising the air, and creating a small plasma flame. This also creates a “pilot arc” that provides a plasma flame that stays on, whether in contact with the metal or not. This is a very good start type that is now used by several manufacturers. It’s advantage is that it requires somewhat less circuitry, is a fairly reliable and generates far less electrical noise
+This start type uses air pressure supplied to the cutter to force a small piston or cartridge inside the torch head back to create a small spark between the inside surface of the consumable, ionising the air, and creating a small plasma flame. This also creates a “pilot arc” that provides a plasma flame that stays on, whether in contact with the metal or not. This is a very good start type that is now used by several manufacturers. It’s advantage is that it requires somewhat less circuitry, is a fairly reliable and generates far less electrical noise
 
 
 For entry level air plasma CNC systems, the blowback style is much preferred to minimise electrical interference with electronics and standard PCs but the High frequency start still rules supreme in larger machines from 200 amps and up. These require industrial level PC’s and electronics and even commercial manufacturers have had issues with faults because they have failed to account for electrical noise in their designs.
@@ -34,7 +34,7 @@ Plasma operations on CNC machines is quite unique in comparison to milling or tu
 
 A plasma Arc is oval in shape and the cutting height needs to be controlled to minimise bevelled edges. If the torch is too high or too low then the edges can become excessively bevelled. It is also critical that the torch is held perpendicular to the surface.
 
-*Torch to work distance can impact granularity*
+*Torch to work distance can impact edge bevel*
 
 image::images/primer_cut-angularity.png[width=50%]
 
@@ -82,7 +82,7 @@ With the release of the Mesa THCAD voltage to frequency interface, LinuxCNC was 
 
 Jim Colt of Hypertherm is on record saying that the best THC controllers were fully integrated into the CNC controller itself. Of course he was referring to high end systems manufactured by Hypertherm, Esab, Thermal Dynamics and others such as Advanced Robotic Technology in Australia, little dreaming that open source could produce systems using this approach that rival high end systems.
 
-The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:plasmac-user-guide,PlasmaC>> configuration was incorporated into LinuxCNC master branch (v2.9). This has been an extremely ambitious project and many people around the globe have been involved in testing and improving the feature set. PlasmaC is unique in that its design goal was to support all THCs including the simple bit bang ones through to sophisticated torch voltage control if the voltage is made available to LinuxCNC via a THCAD or some other voltage sensor. What’s more, PlasmaC is designed to be a stand alone system that does not need any additional G-Code subroutines and allows the user to define their own cut charts that are stored in the system and accessible by a drop down.
+The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:plasmac-user-guide,PlasmaC>> configuration was incorporated into LinuxCNC 2.8. This has been an extremely ambitious project and many people around the globe have been involved in testing and improving the feature set. PlasmaC is unique in that its design goal was to support all THCs including the simple bit bang ones through to sophisticated torch voltage control if the voltage is made available to LinuxCNC via a THCAD or some other voltage sensor. What’s more, PlasmaC is designed to be a stand alone system that does not need any additional G-Code subroutines and allows the user to define their own cut charts that are stored in the system and accessible by a drop-down.
 
 == Arc OK Signal
 
@@ -100,13 +100,13 @@ Because the cutting height is such a critical system parameter and the material 
 
 The torch is mounted on a sliding stage that can move up when the torch tip contacts the material surface and trigger a switch or sensor. Often this is achieved under G-Code control using the G38 Commands. If this is the case, then after initial probing, it is recommended to probe away from the surface until the probe signal is lost at a slower speed. Also, ensure the switch hysteresis is accounted for.
 
-Regardless what probing method is implemented, it is strongly recommended that float switch is implemented so that there is a fallback or secondary signal to avoid damage to the torch from a crash.
+Regardless of the probing method used, it is strongly recommended that float switch is implemented so that there is a fallback or secondary signal to avoid damage to the torch from a crash.
 
 [[ohmic-sensing]]
 
 === Ohmic Sensing
 
-Ohmic sensing relies on contact between the torch and the material acting as a switch to activate an electrical signal that is sensed by the CNC controller. Provided the material is clean, this can be a much more accurate method of sensing the material as a float switch which can cause deflection of the material surface. This ohmic sensing circuit is operating in an extremely hostile environment so a number of failsafes need to be implemented to ensure safety of both the CNC electronics and the operator. In plasma cutting, the earth clamp attached to the material is positive and the torch is negative. It is recommended that:
+Ohmic sensing relies on contact between the torch and the material acting as a switch to activate an electrical signal that is sensed by the CNC controller. Provided the material is clean, this can be a much more accurate method of sensing the material than a float switch which can cause deflection of the material surface. This ohmic sensing circuit is operating in an extremely hostile environment so a number of failsafes need to be implemented to ensure safety of both the CNC electronics and the operator. In plasma cutting, the earth clamp attached to the material is positive and the torch is negative. It is recommended that:
 
 . Ohmic sensing only be implemented where the torch has a shield that is isolated from the torch tip that conveys the cutting arc.
 . The ohmic circuit uses a totally separate isolated power supply that activates an opto-isolated relay to enable the probing signal to be transmitted to the CNC controller.
@@ -224,13 +224,13 @@ From the preceding discussion it is evident that the plasma controller needs to 
 . Remap the F command and save the commanded feedrate set in G-Code via an M67/M68 command
 . Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-Code program (as PlasmaC does)
 
-One experimental Linuxcnc branch that would be useful for plasma cutting would be the state tags branch. This adds a “tag” that is available to motion containing the current feed and speed rates for all active motion commands. We look forward to seeing this being implemented by the LinuxCNC developers into Version 2.9.
+One experimental Linuxcnc branch that would be useful for plasma cutting was the state tags branch. This adds a “tag” that is available to motion containing the current feed and speed rates for all active motion commands. It has been merged and will be in LinuxCNC v2.9
 
 == I/O Pins For Plasma Controllers
 
 Plasma cutters require several additional pins. In LinuxCNC, there are no hard and fast rules about which pin does what. In this discussion we will assume the plasma inverter has a CNC interface and the controller card has active high inputs are in use (Eg. Mesa 7i76e).
 
-Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint. The exception might be the Z axis lower limit. When a homing switch is triggered the joint decelerates fairly slowly for maximum accuracy. This means that if you wish to use homing velocities that are commensurate with table size, you can overshoot the initial trigger point by 50-100mm. If you use a shared home/limit switch, you have to move the sensor off the trigger point with the final HOME_OFFSET or you will trigger a limit switch fault as the machine comes out of homing. This means you could lose 50mm or more of axis travel with shard home/limit switches. This does not happen if separate home and limit switches are used.
+Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint. The exception might be the Z axis lower limit. When a homing switch is triggered the joint decelerates fairly slowly for maximum accuracy. This means that if you wish to use homing velocities that are commensurate with table size, you can overshoot the initial trigger point by 50-100mm. If you use a shared home/limit switch, you have to move the sensor off the trigger point with the final HOME_OFFSET or you will trigger a limit switch fault as the machine comes out of homing. This means you could lose 50mm or more of axis travel with shared home/limit switches. This does not happen if separate home and limit switches are used.
 
 The following pins are usually required (note that suggested connections may not be appropriate for a PlasmaC configuration):
 
@@ -250,7 +250,7 @@ The following pins are usually required (note that suggested connections may not
 * If a mechanical relay is used, connect a flyback diode (eg IN400x series) across the coil terminals with the band on the diode pointing towards the output pin
 * If a Solid State Relay is used, polarity may need to be observed on the outputs
 * In some circumstances, the onboard spindle relay on a Mesa card can be used instead of an external relay.
-* Usually connected to 'motion.spindle.0.on'
+* Usually connected to 'spindle.0.on'
 
 WARNING: It is strongly recommended that the torch cannot be enabled while this pin is false otherwise the torch will not be extinguished when estop is pressed;
 
@@ -276,7 +276,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 * Take care to observe relay polarity if opto-coupled solid State relays are used.
 * Usually connected to 'motion.probe-input' and may be or’d with the float switch.
 
-As can be seen, plasma tables are pin intensive and we have already consumed about 15 inputs before the normal estops are added. Others have other views but it is the writer's opinion that the Mesa 7i76e is preferred over the cheaper 7i96 to allow for MPG’s, scale and axis selection switch and other features you may wish to add over time. If your table uses servos, there are a number of alternatives. Whilst there are other alternatives, designing your machine around the Mesa ecosystem will simplify use of their THCAD board to read arc voltage.
+As can be seen, plasma tables are pin intensive and we have already consumed about 15 inputs before the normal estops are added. Others have other views but it is the writer's opinion that the Mesa 7i76e is preferred over the cheaper 7i96 to allow for MPG’s, scale and axis selection switch and other features you may wish to add over time. If your table uses servos, there are a number of alternatives. Whilst there are other suppliers, designing your machine around the Mesa ecosystem will simplify use of their THCAD board to read arc voltage.
 
 === Torch Breakaway
 
@@ -447,9 +447,9 @@ Some people achieve good results with Inkscape and G-Code tools but SheetCam is 
 
 Plasma cutting is inherently an extremely hostile and noisy electrical environment. If you have EMI problems things won't work correctly. You might fire the torch and the computer will reboot in a more obvious example, but you can have any number of other odd symptoms. They will pretty much all happen only when the torch is cutting - often when it is first fired.
 
-Therefore, system builder should select components carefully and design from the ground up to cope with this hostile environment to avoid the impact of Electro-Magnetic Interference (EMI). Failure to do this could result in countless hours of fruitless troubleshooting.
+Therefore, system builders should select components carefully and design from the ground up to cope with this hostile environment to avoid the impact of Electro-Magnetic Interference (EMI). Failure to do this could result in countless hours of fruitless troubleshooting.
 
-Choosing ethernet boards such as the Mesa 7i76e or the cheaper 7i96 helps by allowing the PC to be located away from the electronics and the plasma machine. This hardware also allows the use of 24 volt logic systems which are much more noise tolerant. Components should be mounted in a metal enclosure connected to the mains earth. It is strongly recommended that an EMI filter is installed on the mains power connection. The simplest way is to use a EMI filtered mains power IEC connector commonly used on PC’s and electric appliances allows this to be achieved with no extra work. Plan the layout of components in the enclosure so that mains power, high voltage motor wires and logic signals are kept as separate as possible from each other. If they do have to cross, keep them at 90 degrees.
+Choosing ethernet boards such as the Mesa 7i76e or the cheaper 7i96 helps by allowing the PC to be located away from the electronics and the plasma machine. This hardware also allows the use of 24 volt logic systems which are much more noise tolerant. Components should be mounted in a metal enclosure connected to the mains earth. It is strongly recommended that an EMI filter is installed on the mains power connection. The simplest way is to use a EMI filtered mains power IEC connector commonly used on PC’s and electric appliances which allows this to be achieved with no extra work. Plan the layout of components in the enclosure so that mains power, high voltage motor wires and logic signals are kept as separate as possible from each other. If they do have to cross, keep them at 90 degrees.
 
 Peter Wallace from Mesa Electronics suggests; “If you have a CNC compatible plasma source with a voltage divider, I would mount the THCAD inside your electronics enclosure with all the other motion hardware. If you have a manual plasma source and you are reading raw plasma voltage, I would mount the THCAD as close to the plasma source as possible (even inside the plasma source case if it fits.) In this case, make sure that all low side THCAD connections are fully isolated from the plasma source. If you use a shielded box for the THCAD, the shield should connect to your electronic enclosure ground, not the plasma source ground.”
 
@@ -463,7 +463,7 @@ Tommy Berisha, the master of building plasma machines on a budget says: “If on
 
 == Water Tables
 
-The minimum water level under the cut level of the torch should be around 40mm, having space under slats is nice so the water can level and escape during cutting, having a bit of water above the metal plate being cut is really nice as it gets rid of the little bit of dust, running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch. Adding baking soda to the water will keep the table in a nice condition for many years as it does not allow corrosion while the slats are under water and it also reduces the smell of water vapour. Some people build a water tank with a compressed air inlet so they can push the water from the tank up to the water table on demand and thus allow changes in water levels.
+The minimum water level under the cut level of the torch should be around 40mm, having space under slats is nice so the water can level and escape during cutting, having a bit of water above the metal plate being cut is really nice as it gets rid of the little bit of dust, running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch. Adding baking soda to the water will keep the table in a nice condition for many years as it does not allow corrosion while the slats are under water and it also reduces the smell of water vapour. Some people use a water reservoir with a compressed air inlet so they can push the water from the reservoir up to the water table on demand and thus allow changes in water levels.
 
 == Downdraft Tables
 
@@ -475,7 +475,7 @@ In plasma cutting, speed and acceleration are king. The higher the acceleration,
 
 == Distance Travelled Per Motor Revolution
 
-Stepper motors suffer from resonance and a direct drive pinion is likely mean the motor is operating under unfavourable conditions. Ideally, for plasma machines a distance of around 15-25mm per motor revolution is considered ideal but even around 30mm per revolutions is still acceptable. A 5mm pitch ball screw with a 3:1 or 5:1 reduction drive is ideal for the Z axis.
+Stepper motors suffer from resonance and a direct drive pinion is likely to mean that the motor is operating under unfavourable conditions. Ideally, for plasma machines a distance of around 15-25mm per motor revolution is considered ideal but even around 30mm per revolutions is still acceptable. A 5mm pitch ball screw with a 3:1 or 5:1 reduction drive is ideal for the Z axis.
 
 == PlasmaC LinuxCNC Plasma Configuration
 
