@@ -38,11 +38,11 @@ def nextPermutation(perm):
 perm=["g88.1x1", "m405","m406","m407","m408"]
 
 while perm:
-    print perm
+    print(perm)
     perm = nextPermutation(perm)
 
 perm=["g88.1x1", "m407","m408","m409","m410"]
 
 while perm:
-    print perm
+    print(perm)
     perm = nextPermutation(perm)
