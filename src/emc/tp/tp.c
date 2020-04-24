@@ -2452,6 +2452,8 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         emcmotStatus->enables_queued = emcmotStatus->enables_new;
         emcmotStatus->requested_vel = 0;
         emcmotStatus->current_vel = 0;
+        emcmotStatus->spindleSync = 0;
+        
         emcPoseZero(&emcmotStatus->dtg);
 
         tp->motionType = 0;
