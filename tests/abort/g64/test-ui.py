@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import linuxcnc
 import time, sys, os
@@ -30,11 +30,11 @@ def process_samples(z_lev, expected_max_x):
             max_y = y
         samples += 1
     f.close()
-    print "z=%.1f; max_x = %.6f; max_y = %.6f; samples = %d" % (
-        z_lev, max_x, max_y, samples)
+    print("z=%.1f; max_x = %.6f; max_y = %.6f; samples = %d" % (
+        z_lev, max_x, max_y, samples))
     if abs(max_x - expected_max_x) > 0.1:
-        print "*** ERROR max X%.3f != expected X%.3f" % (
-            max_x, expected_max_x)
+        print("*** ERROR max X%.3f != expected X%.3f" % (
+            max_x, expected_max_x))
         res += 1
     return res
 
@@ -48,24 +48,24 @@ def check_status(msg, expected_mode, expected_p, expected_q):
             control_mode = i
     if len(s.settings) == 3:
         # Pre-state-tags fix
-        print "%s:  Control mode = %d" % (msg, control_mode)
+        print("%s:  Control mode = %d" % (msg, control_mode))
         p, q = (expected_p, expected_q)  # Fake valid results
     else:
         # After state-tags fix
-        print "%s:  Control mode = %d; tolerances = P%.3f Q%.3f" % (
-            msg, control_mode, s.settings[3], s.settings[4])
+        print("%s:  Control mode = %d; tolerances = P%.3f Q%.3f" % (
+            msg, control_mode, s.settings[3], s.settings[4]))
         p, q = (s.settings[3], s.settings[4])
     if control_mode != expected_mode:
-        print "*** ERROR control mode %d != expected %d" % (
-            control_mode, expected_mode)
+        print("*** ERROR control mode %d != expected %d" % (
+            control_mode, expected_mode))
         res += 1
     if expected_p is not None and abs(p - expected_p) > 0.001:
-        print "*** ERROR blend tolerance P%.3f != expected P%.3f" % (
-            p, expected_p)
+        print("*** ERROR blend tolerance P%.3f != expected P%.3f" % (
+            p, expected_p))
         res += 1
     if expected_q is not None and abs(q - expected_q) > 0.001:
-        print "*** ERROR naive CAM tolerance Q%.3f != expected Q%.3f" % (
-            q, expected_q)
+        print("*** ERROR naive CAM tolerance Q%.3f != expected Q%.3f" % (
+            q, expected_q))
         res += 1
     return res
 
@@ -80,14 +80,14 @@ def run_and_abort(msg, z_lev, expected_max_x,
     c.mdi('F1200 G0X0Y0Z%.1f' % z_lev)
     c.wait_complete()
     for cmd in init_cmds:
-        print "Running command '%s'" % cmd
+        print("Running command '%s'" % cmd)
         c.mdi(cmd)
         c.wait_complete()
     res += check_status(
         '%s post-command' % msg, expected_mode, expected_p, expected_q)
 
     # Run program
-    print "Running program 'test.ngc'"
+    print("Running program 'test.ngc'")
     c.mode(linuxcnc.MODE_AUTO)
     c.program_open("test.ngc")
     c.auto(linuxcnc.AUTO_RUN, 1)
@@ -109,7 +109,7 @@ def run_and_abort(msg, z_lev, expected_max_x,
 
     # Print max
     res += process_samples(z_lev, expected_max_x)
-    print
+    print()
 
     return res
 
@@ -156,6 +156,6 @@ if res == 0:  # Leave samples in case of error
     os.unlink('motion-samples.log')
 os.unlink('sim.var')
 os.unlink('sim.var.bak')
-print "Exiting with %d errors" % res
+print("Exiting with %d errors" % res)
 sys.exit(res)
 
