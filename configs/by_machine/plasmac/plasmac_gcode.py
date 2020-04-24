@@ -219,6 +219,7 @@ for line in fRead:
         for mNumber in last.strip():
             if mNumber in '0123456789':
                 material += mNumber
+        material = material.lstrip('0')
         # if invalid material number
         if int(material) not in materialList:
             codeError = True
