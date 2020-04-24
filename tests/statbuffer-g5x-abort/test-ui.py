@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import linuxcnc
 import hal
@@ -50,11 +50,11 @@ s.poll()
 
 # The program was aborted in g55; check
 if not 550 in s.gcodes:
-    print "Current coordinate system is G%d, not G55" % \
-        ([i/10 for i in s.gcodes if i >= 540 and i < 600] + [None])[0]
+    print("Current coordinate system is G%d, not G55" % \
+        ([i/10 for i in s.gcodes if i >= 540 and i < 600] + [None])[0])
     retval = 1
 else:
-    print "Current coordinate system is G55"
+    print("Current coordinate system is G55")
 
 # MDI G0 takes us to the programmed location in G54
 c.mode(linuxcnc.MODE_MDI)
@@ -63,43 +63,43 @@ c.wait_complete()
 s.poll()
 
 if math.fabs(s.position[0]) > 0.000001:
-    print "'G0 X0 Y0 Z0' took us to X=%.6f, should be 0" % s.position[0]
+    print("'G0 X0 Y0 Z0' took us to X=%.6f, should be 0" % s.position[0])
     retval = 1
 
 if math.fabs(s.position[1]) > 0.000001:
-    print "'G0 X0 Y0 Z0' took us to Y=%.6f, should be 0" % s.position[1]
+    print("'G0 X0 Y0 Z0' took us to Y=%.6f, should be 0" % s.position[1])
     retval = 1
 
 if math.fabs(s.position[2] + 5) > 0.000001:
-    print "'G0 X0 Y0 Z0' took us to Z=%.6f, should be -5" % s.position[2]
+    print("'G0 X0 Y0 Z0' took us to Z=%.6f, should be -5" % s.position[2])
     retval = 1
 
 c.mdi('(debug,G53+#5220 ?= G55; Z#5422 ?= Z0.0)')
 c.wait_complete()
 err = e.poll()
-print err
+print(err)
 
 s.poll()
 if s.g5x_index != 2:
-    print "status has wrong g5x index: %d (expected 2)" % s.g5x_index
+    print("status has wrong g5x index: %d (expected 2)" % s.g5x_index)
     retval = 1
 else:
-    print "status has correct g5x index:  2"
+    print("status has correct g5x index:  2")
 
 if math.fabs(s.g5x_offset[0]) > 0.000001:
-    print "g5x_offset.x is %.6f, should be 0" % s.g5x_offset[0]
+    print("g5x_offset.x is %.6f, should be 0" % s.g5x_offset[0])
     retval = 1
 
 if math.fabs(s.g5x_offset[1]) > 0.000001:
-    print "g5x_offset.y is %.6f, should be 0" % s.g5x_offset[1]
+    print("g5x_offset.y is %.6f, should be 0" % s.g5x_offset[1])
     retval = 1
 
 if math.fabs(s.g5x_offset[2] + 5) > 0.000001:
-    print "g5x_offset.z is %.6f, should be -5" % s.g5x_offset[2]
+    print("g5x_offset.z is %.6f, should be -5" % s.g5x_offset[2])
     retval = 1
 
 if retval == 0:
-    print "Everything ok!"
+    print("Everything ok!")
 
 sys.exit(retval)
 
