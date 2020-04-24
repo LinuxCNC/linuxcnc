@@ -84,6 +84,8 @@ endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -195,6 +197,8 @@ OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall -Werror=implicit-function-declaration
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
