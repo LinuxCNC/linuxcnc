@@ -712,6 +712,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is disabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
+                                    <signal name="toggled" handler="on_thc_off_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -728,6 +729,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled/disabled from the cut parameters</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_thc_auto_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -744,6 +746,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
+                                    <signal name="toggled" handler="on_thc_on_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
