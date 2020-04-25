@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_21">
+      <widget class="QPushButton" name="pushButton_macro">
        <property name="text">
         <string>Macro</string>
        </property>
@@ -725,7 +725,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_21</sender>
+   <sender>pushButton_macro</sender>
    <signal>clicked()</signal>
    <receiver>Form</receiver>
    <slot>macroClicked()</slot>

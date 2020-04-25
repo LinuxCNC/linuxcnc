@@ -83,6 +83,7 @@ class _IStat(object):
             self.MACRO_PATH = mpath or None
         else:
             self.MACRO_PATH = None
+        self.INI_MACROS = self.inifile.findall("DISPLAY", "MACRO")
         self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
         extensions = self.inifile.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
