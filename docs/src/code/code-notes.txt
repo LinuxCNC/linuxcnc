@@ -176,7 +176,7 @@ image::hss.svg[align="center"]
 This section simply lists all of the commands that can be sent to the
 motion module, along with detailed explanations of what they do. The
 command names are defined in a large typedef enum in
-emc2/src/emc/motion/motion.h, called cmd_code_t. (Note that in the
+{linuxcnc}/src/emc/motion/motion.h, called cmd_code_t. (Note that in the
 code, each command name starts with 'EMCMOT_', which is omitted here.)
 
 The commands are implemented by a large switch statement in the

@@ -1,5 +1,5 @@
 = NML Messages
-for details see src/emc/emc.hh
+for details see src/emc/nml_intf/emc.hh
 
     OPERATOR
 ----
