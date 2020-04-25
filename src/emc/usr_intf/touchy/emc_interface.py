@@ -77,21 +77,29 @@ class emc_control:
         def home_all(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.home(-1)
 
         def unhome_all(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.unhome(-1)
 
         def home_selected(self, axis):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.home(axis)
 
         def unhome_selected(self, axis):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.unhome(axis)
 
         def jogging(self, b):
