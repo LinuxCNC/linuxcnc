@@ -93,14 +93,17 @@ class emc_control:
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.teleop_enable(0)
                 self.emccommand.wait_complete()
-                self.emccommand.home(axis)
+                joint = coordinates.index("XYZABCUVW"[axis])
+                self.emccommand.home(joint)
 
         def unhome_selected(self, axis):
+                print(axis)
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.emccommand.teleop_enable(0)
                 self.emccommand.wait_complete()
-                self.emccommand.unhome(axis)
+                joint = coordinates.index("XYZABCUVW"[axis])
+                self.emccommand.unhome(joint)
 
         def jogging(self, b):
                 if self.masked: return
@@ -383,10 +386,9 @@ class emc_status:
                         d += 1
                         
                 for i in range(1, 9):
-                        h = " "
-                        if self.emcstat.homed[i]: h = "*"
                         if am & (1<<i):
                                 letter = 'XYZABCUVW'[i]
+                                h = "*" if self.emcstat.homed[coordinates.index(letter)] else " "
                                 set_text(self.relative[d], fmt % (letter, relp[i]))
                                 set_text(self.absolute[d], h + fmt % (letter, p[i]))
                                 set_text(self.distance[d], fmt % (letter, dtg[i]))
