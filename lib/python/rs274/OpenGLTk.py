@@ -10,8 +10,8 @@
 # 
 
 from minigl import *
-from Tkinter import _default_root
-from Tkinter import *
+from tkinter import _default_root
+from tkinter import *
 import math
 import os,sys
 import _togl
@@ -161,7 +161,7 @@ http://www.yorvic.york.ac.uk/~mjh/
         it changes size."""
 
         #Widget.__init__(self, master, 'togl', cnf, kw)
-        apply(RawOpengl.__init__, (self, master, cnf), kw)
+        RawOpengl.__init__(*(self, master, cnf), **kw)
         glnav.GlNavBase.__init__(self)
 
         # Basic bindings for the virtual trackball
@@ -203,8 +203,8 @@ http://www.yorvic.york.ac.uk/~mjh/
     def help(self):
         """Help for the widget."""
 
-        import Dialog
-        d = Dialog.Dialog(None, {'title': 'Viewer help',
+        import tkinter.dialog
+        d = tkinter.dialog.Dialog(None, {'title': 'Viewer help',
                      'text': 'Button-1: Translate\n'
                          'Button-2: Rotate\n'
                          'Button-3: Zoom\n'
