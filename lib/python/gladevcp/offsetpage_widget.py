@@ -139,7 +139,7 @@ class OffsetPage(gtk.VBox):
             if units == None:
                 units = self.inifile.find("AXIS_X", "UNITS")
         except:
-            print _("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section")
+            print(_("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -285,7 +285,7 @@ class OffsetPage(gtk.VBox):
     # it just multiplies the two arrays
     def convert_units(self, v):
         c = self.conversion
-        return map(lambda x, y: x * y, v, c)
+        return list(map(lambda x, y: x * y, v, c))
 
     # make the cells editable and highlight them
     def set_editing(self, widget):
@@ -339,7 +339,7 @@ class OffsetPage(gtk.VBox):
         try:
             self.store[row][col] = locale.format("%10.4f", locale.atof(new_text))
         except:
-            print _("offsetpage widget error: unrecognized float input")
+            print(_("offsetpage widget error: unrecognized float input"))
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
             if not self.display_units_mm == self.program_units and not row == 2:
@@ -351,7 +351,7 @@ class OffsetPage(gtk.VBox):
             else:
                 qualified = float(locale.atof(new_text))
         except:
-            print 'error'
+            print('error')
         # now update linuxcnc to the change
         try:
             global lncnc_runnning
@@ -376,7 +376,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
         except:
-            print _("offsetpage widget error: MDI call error")
+            print(_("offsetpage widget error: MDI call error"))
             self.reload_offsets()
 
 
@@ -395,7 +395,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print _("MDI error in offsetpage widget -zero G92")
+                print(_("MDI error in offsetpage widget -zero G92"))
 
     # callback to zero rotational offset when button pressed
     def zero_rot(self, widget):
@@ -412,7 +412,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print _("MDI error in offsetpage widget-zero rotational offset")
+                print(_("MDI error in offsetpage widget-zero rotational offset"))
 
     # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
     # if in editing mode don't update else you can't actually edit
@@ -483,7 +483,7 @@ class OffsetPage(gtk.VBox):
             if len(pathlist) == 1:
                 self.selection.select_path(pathlist[0])
         except:
-            print _("offsetpage_widget error: cannot select coordinate system"), system
+            print(_("offsetpage_widget error: cannot select coordinate system"), system)
 
     # Get the selected row the user clicked
     def get_selected(self):
@@ -527,7 +527,7 @@ class OffsetPage(gtk.VBox):
     # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -547,7 +547,7 @@ class OffsetPage(gtk.VBox):
         if name == 'hide_rows':
             self.set_row_visible("0123456789abc", True)
             self.set_row_visible("%s" % value, False)
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
 
     # boiler code for variable access
@@ -586,9 +586,9 @@ def main(filename = None):
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
-       print "True"
+       print("True")
     else:
-       print "False"
+       print("False")
 
 if __name__ == "__main__":
     main()
