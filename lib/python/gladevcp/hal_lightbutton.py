@@ -39,7 +39,7 @@ import gtk.glade
 # button 'clicked' signal in code.  For this use you want to make sure 'button_halio_pin' is false or the button will remain 'active'
 # after the first click, and calls to get_active() will always return True.
 
-from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 clicked_signal = ('clicked', (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_OBJECT,)))
 
@@ -262,7 +262,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             image = cairo.ImageSurface.create_from_png('resources/k_green.png')
             img_w = image.get_width()
             img_h = image.get_height()
-            print float(w)/img_w, float(h)/img_h
+            print(float(w)/img_w, float(h)/img_h)
             cr.set_source_surface(image, 0, 0)
             cr.paint()
             cr.restore()
@@ -328,7 +328,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -339,7 +339,7 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             self.set_text(value)
         elif name == 'button_on_text':
             self.set_on_text(value)
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             if name in ['font_face', 'font_bold', 'font_size']:
                 self.update_font()
