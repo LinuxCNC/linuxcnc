@@ -445,7 +445,7 @@ class gmoccapy(object):
         LANGDIR = os.path.join(BASE, "share", "gtksourceview-2.0", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
-            print "**** GMOCCAPY INFO: Gcode.lang found ****"
+            print("**** GMOCCAPY INFO: Gcode.lang found ****")
             self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors and digits of the DRO
@@ -608,7 +608,7 @@ class gmoccapy(object):
         # master axis, witch should end with 0 
         if value in self.double_axis_letter:
             value = value + "0"
-        return self.joint_axis_dic.keys()[self.joint_axis_dic.values().index(value)]
+        return list(self.joint_axis_dic.keys())[list(self.joint_axis_dic.values()).index(value)]
 
     def _make_ref_axis_button(self):
         print("**** GMOCCAPY INFO ****")
@@ -1080,7 +1080,7 @@ class gmoccapy(object):
 
         JOGMODE = self._get_jog_mode()
 
-        if self.distance <> 0:  # incremental jogging
+        if self.distance != 0:  # incremental jogging
             distance = self.distance
             if self.lathe_mode and self.diameter_mode and button_name[0] == "x":
                 distance = self.distance/2
@@ -1099,7 +1099,7 @@ class gmoccapy(object):
         JOGMODE = self._get_jog_mode()
 
         # Otherwise the movement would stop before the desired distance was moved
-        if self.distance <> 0:
+        if self.distance != 0:
             pass
         else:
             self.command.jog(linuxcnc.JOG_STOP, JOGMODE, joint_no_or_axis_index)
@@ -1462,7 +1462,7 @@ class gmoccapy(object):
 
         for dro, dro_name in enumerate(dro_order):
             # as a lathe might not have all Axis, we check if the key is in directory
-            if dro_name not in self.dro_dic.keys():
+            if dro_name not in list(self.dro_dic.keys()):
                 continue
             self.dro_dic[dro_name].set_property("font_size", dro_size)
 
@@ -1483,10 +1483,10 @@ class gmoccapy(object):
         print("**** get DRO order")
         dro_order = []
         # if Combi_DRO_9 exist we have a lathe with an additional DRO for diameter mode
-        if "Combi_DRO_9" in self.dro_dic.keys():
+        if "Combi_DRO_9" in list(self.dro_dic.keys()):
             for dro_name in ["Combi_DRO_0", "Combi_DRO_9", "Combi_DRO_1", "Combi_DRO_2", "Combi_DRO_3",
                              "Combi_DRO_4", "Combi_DRO_5", "Combi_DRO_6", "Combi_DRO_7", "Combi_DRO_8"]:
-                if dro_name in self.dro_dic.keys():
+                if dro_name in list(self.dro_dic.keys()):
                     dro_order.append(dro_name)
         else:
             dro_order = sorted(self.dro_dic.keys())
@@ -1559,7 +1559,7 @@ class gmoccapy(object):
     def _arrange_jog_button_by_axis(self):
         print("**** GMOCCAPY INFO ****")
         print("**** arrange JOG button by axis")
-        print sorted(self.jog_button_dic.keys())
+        print(sorted(self.jog_button_dic.keys()))
         # check if amount of axis is an even number, adapt the needed lines
         cols = 4
         if len(self.dro_dic) % 2 == 0:
@@ -1575,7 +1575,7 @@ class gmoccapy(object):
 
         for pos, btn in enumerate("xyzabcuvw"):
             btn_name = "{0}-".format(btn)
-            if btn_name not in self.jog_button_dic.keys():
+            if btn_name not in list(self.jog_button_dic.keys()):
                 continue
 
             self.widgets.tbl_jog_btn_axes.attach(self.jog_button_dic[btn_name],
@@ -1728,7 +1728,7 @@ class gmoccapy(object):
 
     # Gotta kill the embedded processes when gmoccapy closes
     def _kill_dynamic_childs(self):
-        for child in self._dynamic_childs.values():
+        for child in list(self._dynamic_childs.values()):
             child.terminate()
 
     def set_up_user_tab_widgets(self, tab_locations):
@@ -1955,11 +1955,11 @@ class gmoccapy(object):
             sid = self.onboard_kb.stdout.readline()
             self.socket = gtk.Socket()
             self.widgets.key_box.add(self.socket)
-            self.socket.add_id(long(sid))
+            self.socket.add_id(int(sid))
             self.socket.show_all()
             self.widgets.key_box.show_all()
             self.onboard = True
-        except Exception, e:
+        except Exception as e:
             print (_("**** GMOCCAPY ERROR ****"))
             print (_("**** Error with launching virtual keyboard,"))
             print (_("**** is onboard or matchbox-keyboard installed? ****"))
@@ -2224,7 +2224,7 @@ class gmoccapy(object):
         try:
             self.stat.poll()
         except:
-            raise SystemExit, "gmoccapy can not poll linuxcnc status any more"
+            raise SystemExit("gmoccapy can not poll linuxcnc status any more")
 
         error = self.error_channel.poll()
         if error:
@@ -2754,7 +2754,7 @@ class gmoccapy(object):
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
-        print "estoping / killing gmoccapy"
+        print("estoping / killing gmoccapy")
         if self.onboard:
             self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
@@ -2823,7 +2823,7 @@ class gmoccapy(object):
 
     def _switch_to_g7(self, state):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
-        print state
+        print(state)
         if state:
             self.dro_dic["Combi_DRO_0"].set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
             self.dro_dic["Combi_DRO_0"].set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
@@ -3075,7 +3075,7 @@ class gmoccapy(object):
                 self._jog_increment_changed(self.incr_rbt_dic["rbt_{0}".format(rbt)])
         else:
             print("This key has not been implemented yet")
-            print "Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event
+            print("Key {0} ({1:d}) was pressed".format(keyname, event.keyval), signal, self.last_key_event)
         self.last_key_event = keyname, signal
         return True
 
@@ -3138,9 +3138,9 @@ class gmoccapy(object):
         for name in widgetlist:
             try:
                 self.widgets[name].set_sensitive(value)
-            except Exception, e:
+            except Exception as e:
                 print (_("**** GMOCCAPY ERROR ****"))
-                print _("**** No widget named: {0} to sensitize ****").format(name)
+                print(_("**** No widget named: {0} to sensitize ****").format(name))
                 traceback.print_exc()
 
     def _update_active_gcodes(self):
@@ -3486,7 +3486,7 @@ class gmoccapy(object):
 
     def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
         if self.widgets.tbtn_setup.get_active():
-            if page_num != 1L:  # setup page is active,
+            if page_num != 1:  # setup page is active,
                 self.widgets.tbtn_setup.set_active(False)
 
     def on_tbtn_setup_toggled(self, widget, data=None):
@@ -3640,7 +3640,7 @@ class gmoccapy(object):
         if state:
             self.widgets.box_info.hide()
             self.widgets.vbx_jog.hide()
-            dro = self.dro_dic[self.dro_dic.keys()[0]]
+            dro = self.dro_dic[list(self.dro_dic.keys())[0]]
             self.widgets.gremlin.set_property("metric_units", dro.metric_units)
             self.widgets.gremlin.set_property("enable_dro", True)
             if self.lathe_mode:
@@ -4382,7 +4382,7 @@ class gmoccapy(object):
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
-                print"toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number']
+                print("toolchange abort", self.stat.tool_in_spindle, self.halcomp['toolchange-number'])
                 self.command.abort()
                 self.halcomp['toolchange-number'] = self.stat.tool_in_spindle
                 self.halcomp['toolchange-change'] = False
@@ -5185,7 +5185,7 @@ if __name__ == "__main__":
         else:
             res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", postgui_halfile])
         if res:
-            raise SystemExit, res
+            raise SystemExit(res)
 
     gtk.main()
 
