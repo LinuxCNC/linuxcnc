@@ -223,10 +223,15 @@ class _TStat(object):
         # eg 10001 goes to tool 1, 10002 goes to tool 2 etc
         for rnum, row in enumerate(weartool):
             values = [ value for value in row ]
-            parent_tool = tool_num_list[( values[0]-10000)]
-            full_tool_list[parent_tool][4] = values[2]
-            full_tool_list[parent_tool][6] = values[3]
-            full_tool_list[parent_tool][8] = values[4]
+            try:
+                parent_tool = tool_num_list[( values[0]-10000)]
+            except KeyError:
+                LOG.error("tool wear number has no parent Tool: {}".format(values))
+                continue
+            else:
+                full_tool_list[parent_tool][4] = values[2]
+                full_tool_list[parent_tool][6] = values[3]
+                full_tool_list[parent_tool][8] = values[4]
         return full_tool_list
 
     # converts from toolwear array to linuxcnc toolfile array
