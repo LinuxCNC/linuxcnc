@@ -23,7 +23,7 @@ EFFECTOR_OFFSET = CARRIAGE_OFFSET = 30
 MIN_JOINT = -375
 MAX_JOINT = 0
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 c = hal.component("lineardelta")
 c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
@@ -167,13 +167,13 @@ class Strut:
 
     def cylinder(self, L):
         gluCylinder(self.q, 5, 5, L, 32, 1)
-	# bottom cap
-	glRotatef(180,1,0,0)
-	gluDisk(self.q, 0, 5, 32, 1)
-	glRotatef(180,1,0,0)
-	# the top cap needs flipped and translated
-	glTranslatef(0,0, L)
-	gluDisk(self.q, 0, 5, 32, 1)
+        # bottom cap
+        glRotatef(180,1,0,0)
+        gluDisk(self.q, 0, 5, 32, 1)
+        glRotatef(180,1,0,0)
+        # the top cap needs flipped and translated
+        glTranslatef(0,0, L)
+        gluDisk(self.q, 0, 5, 32, 1)
        
 tooltip = Capture()
 tool = DeltaTranslate([
