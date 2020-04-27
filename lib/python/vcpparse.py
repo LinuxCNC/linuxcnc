@@ -20,7 +20,7 @@
 """
 
 import xml.dom.minidom
-from tkinter import *
+from Tkinter import *
 import sys, os
 import linuxcnc
 import pyvcp_widgets

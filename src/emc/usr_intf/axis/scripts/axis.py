@@ -34,12 +34,18 @@ sys.excepthook = sys.__excepthook__
 import gettext;
 gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
-import array, time, atexit, tempfile, shutil, errno, _thread, select, re, getopt
+import array, time, atexit, tempfile, shutil, errno, select, re, getopt
 import traceback
 
 # Print Tk errors to stdout. python.org/sf/639266
-import tkinter
-OldTk = tkinter.Tk
+if sys.version_info[0] == 3:
+    import tkinter as Tkinter
+    import _thread
+else:
+    import Tkinter
+    import thread as _thread
+
+OldTk = Tkinter.Tk
 class Tk(OldTk):
     def __init__(self, *args, **kw):
         OldTk.__init__(self, *args, **kw)
@@ -49,9 +55,8 @@ class Tk(OldTk):
         print("TCL error in asynchronous code:")
         print(self.tk.call("set", "errorInfo"))
 
-tkinter.Tk = Tk
+Tkinter.Tk = Tk
 
-from tkinter import *
 from minigl import *
 RTLD_NOW, RTLD_GLOBAL = 0x1, 0x100  # XXX portable?
 old_flags = sys.getdlopenflags()
@@ -79,8 +84,10 @@ else:
 if hal_present == 1 :
     import hal
 
-
-import configparser
+if sys.version_info[0] == 3:
+    import configparser
+else:
+    import ConfigParser as configparser
 cp = configparser.ConfigParser
 class AxisPreferences(cp):
     types = {
@@ -119,7 +126,7 @@ inifile = linuxcnc.ini(sys.argv[2])
 ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
-root_window = tkinter.Tk(className="Axis")
+root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
 root_window.withdraw()
@@ -312,11 +319,11 @@ def masked_axes_count():
         if s.axis_mask & (1<<i): ct +=1
     return ct
 
-class Notification(tkinter.Frame):
+class Notification(Tkinter.Frame):
     def __init__(self, master):
         self.widgets = []
         self.cache = []
-        tkinter.Frame.__init__(self, master)
+        Tkinter.Frame.__init__(self, master)
 
     def clear(self,iconname=None):
         if iconname:
@@ -346,10 +353,10 @@ class Notification(tkinter.Frame):
             text.configure(text=message)
             widgets = frame, icon, text, button, iconname
         else:
-            frame = tkinter.Frame(self)
-            icon = tkinter.Label(frame, image=iconname)
-            text = tkinter.Label(frame, text=message, wraplength=300, justify="left")
-            button = tkinter.Button(frame, image=close)
+            frame = Tkinter.Frame(self)
+            icon = Tkinter.Label(frame, image=iconname)
+            text = Tkinter.Label(frame, text=message, wraplength=300, justify="left")
+            button = Tkinter.Button(frame, image=close)
             widgets = frame, icon, text, button, iconname
             text.pack(side="left")
             icon.pack(side="left")
@@ -1000,7 +1007,7 @@ class Progress:
             self.lastcount = count
             try:
                 width = int(t.tk.call("winfo", "width", ".info.progress"))
-            except tkinter.TclError as detail:
+            except Tkinter.TclError as detail:
                 print(detail)
                 return
             height = int(t.tk.call("winfo", "height", ".info.progress"))
@@ -1540,11 +1547,11 @@ class _prompt_areyousure:
         self.status=False
         m = Message(t, text=text, aspect=500, anchor="w", justify="left")
         self.w = w = StringVar(t)
-        l = tkinter.Message(t, textvariable=w, justify="left", anchor="w",
+        l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
                 aspect=500)
-        self.buttons = f = tkinter.Frame(t)
-        self.ok = tkinter.Button(f, text=_("Ok"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
-        self.cancel = tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        self.buttons = f = Tkinter.Frame(t)
+        self.ok = Tkinter.Button(f, text=_("Ok"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
+        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
         t.bind("<KP_Enter>", lambda event: (self.ok.flash(), self.ok.invoke()))
@@ -1573,7 +1580,7 @@ class _prompt_areyousure:
         self.t.wait_window()
         try:
             self.t.destroy()
-        except tkinter.TclError:
+        except Tkinter.TclError:
             pass
         return self.result()
 
@@ -1594,13 +1601,13 @@ class _prompt_float:
         self.vv = vv = DoubleVar(t)
         self.u = u = BooleanVar(t)
         self.w = w = StringVar(t)
-        l = tkinter.Message(t, textvariable=w, justify="left", anchor="w",
+        l = Tkinter.Message(t, textvariable=w, justify="left", anchor="w",
                 aspect=500)
         v.set(default)
         self.e = e = Entry(t, textvariable=v)
-        self.buttons = f = tkinter.Frame(t)
-        self.ok = tkinter.Button(f, text=_("OK"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
-        self.cancel = tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
+        self.buttons = f = Tkinter.Frame(t)
+        self.ok = Tkinter.Button(f, text=_("OK"), command=self.do_ok, width=10,height=1,padx=0,pady=.25, default="active")
+        self.cancel = Tkinter.Button(f, text=_("Cancel"), command=self.do_cancel, width=10,height=1,padx=0,pady=.25, default="normal")
         v.trace("w", self.check_valid)
         t.wm_protocol("WM_DELETE_WINDOW", self.cancel.invoke)
         t.bind("<Return>", lambda event: (self.ok.flash(), self.ok.invoke()))
@@ -1680,7 +1687,7 @@ class _prompt_float:
             self.t.after_cancel(self._after)
         try:
             self.t.destroy()
-        except tkinter.TclError:
+        except Tkinter.TclError:
             pass
         return self.result()
 
@@ -2463,7 +2470,7 @@ class TclCommands(nf.TclCommands):
                         mdi_history_index = widgets.mdi_history.index("end") - 1
             commands.mdi_history_write_to_file(mdi_history_save_filename, history_size)
             return
-        except tkinter.TclError:
+        except Tkinter.TclError:
             print("DBG: Sorry, but the clipboard is empty ...")
 
     def mdi_history_double_butt_1(event):
@@ -3781,7 +3788,7 @@ def rClicker(e):
         (' ------ ',None),   #
         (_('Run from here'), lambda e=e: select_run_from(e)),
         ]
-    rmenu = tkinter.Menu(None, tearoff=0, takefocus=0)
+    rmenu = Tkinter.Menu(None, tearoff=0, takefocus=0)
     cas = {}
     for (txt, cmd) in nclst:
         if txt == ' ------ ':
@@ -3828,7 +3835,7 @@ if hal_present == 1 :
     if vcp:
         import vcpparse
         comp.setprefix("pyvcp")
-        f = tkinter.Frame(root_window)
+        f = Tkinter.Frame(root_window)
         if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
             f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
         else:
@@ -3843,7 +3850,7 @@ if hal_present == 1 :
 
     gladevcp = inifile.find("DISPLAY", "GLADEVCP")
     if gladevcp:
-        f = tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
+        f = Tkinter.Frame(root_window, container=1, borderwidth=0, highlightthickness=0)
         f.grid(row=0, column=5, rowspan=6, sticky="nsew", padx=4, pady=4)
     else:
         f = None
@@ -3923,7 +3930,7 @@ if o.canon:
 def destroy_splash():
     try:
         root_window.send("popimage", "destroy", ".")
-    except tkinter.TclError:
+    except Tkinter.TclError:
         pass
 
 def _dynamic_tab(name, text):
@@ -3947,7 +3954,7 @@ def _dynamic_tabs(inifile):
 
     for i,t,c in zip(list(range(len(tab_cmd))), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
-        f = tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
         f.pack(fill="both", expand=1)
         xid = f.winfo_id()
         cmd = c.replace('{XID}', str(xid)).split()

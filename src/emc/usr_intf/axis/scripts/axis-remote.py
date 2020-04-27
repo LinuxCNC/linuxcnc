@@ -23,7 +23,13 @@ axis-remote: trigger commands in a running AXIS GUI
 Usage: axis-remote --clear|--ping|--reload|--quit|--mdi command|filename
        axis-remote -c|-p|-r|-q|-m command|filename"""
 
-import sys, getopt, tkinter, os
+import sys, getopt, os
+
+if sys.version_info[0] == 3:
+    import tkinter
+    import _thread
+else:
+    import Tkinter as tkinter
 
 UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = list(range(7))
 mode = UNSPECIFIED

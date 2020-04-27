@@ -47,7 +47,7 @@
 """
 
 from __future__ import print_function
-from tkinter import *
+from Tkinter import *
 from hal import *
 import math
 import bwidget

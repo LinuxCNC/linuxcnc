@@ -30,7 +30,8 @@ __all__ = """
     CASCADE CHECKBUTTON COMMAND RADIOBUTTON SEPARATOR STATUS PROGRESSION
 """.split()
 
-import tkinter, types
+import sys, types
+import Tkinter as tkinter
 
 def returnswidget(f):
     def w(self, *args, **kw):

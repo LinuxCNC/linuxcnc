@@ -57,7 +57,12 @@ h.newpin("change_button", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("changed", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 
-import tkinter, nf, rs274.options
+import nf, rs274.options
+
+if sys.version_info[0] == 3:
+    import tkinter
+else:
+    import Tkinter as tkinter
 
 app = tkinter.Tk(className="AxisToolChanger")
 app.wm_geometry("-60-60")
