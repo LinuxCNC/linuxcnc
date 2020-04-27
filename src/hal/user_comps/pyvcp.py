@@ -76,7 +76,7 @@ def main():
         sys.exit(1)
 
     if component_name is None:
-	component_name = os.path.splitext(os.path.basename(filename))[0]
+        component_name = os.path.splitext(os.path.basename(filename))[0]
 
     pyvcp0 = Tk()
     pyvcp0.title(component_name)
