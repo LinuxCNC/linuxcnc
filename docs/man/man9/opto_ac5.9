@@ -14,7 +14,7 @@ opto_ac5 \- Realtime driver for opto22 PCI-AC5 cards
 .SH DESCRIPTION
 
 These pins and parameters are created by the realtime \fBopto_ac5\fR module.
-The portconfig0 and portconfig1 variables are used to configure the two ports of each card. The first 24 bits of a 32 bit number represent the 24 i/o points of each port. The lowest (rightmost) bit would be HAL pin 0 which is  header connector pin 47. Then next bit to the left would be HAL pin 1,  header connector pin 45 and so on, untill bit 24 would be HAL pin 23 ,  header connector pin 1.
+The portconfig0 and portconfig1 variables are used to configure the two ports of each card. The first 24 bits of a 32 bit number represent the 24 i/o points of each port. The lowest (rightmost) bit would be HAL pin 0 which is  header connector pin 47. Then next bit to the left would be HAL pin 1,  header connector pin 45 and so on, until bit 24 would be HAL pin 23 ,  header connector pin 1.
 "1" bits represent output points.
 So channel 0..11 as inputs and 12..23 as outputs would be represented by (in binary) 111111111111000000000000 which is 0xfff000 in hexadecimal. 
 That is the number you would use Eg. loadrt opto_ac5 portconfig0=0xfff000

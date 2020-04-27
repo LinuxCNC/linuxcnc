@@ -45,9 +45,9 @@ def read_file():
     """
     try:
         doc = xml.dom.minidom.parse(filename) 
-    except xml.parsers.expat.ExpatError, detail:
-        print "Error: could not open",filename,"!"
-	print detail
+    except xml.parsers.expat.ExpatError as detail:
+        print("Error: could not open",filename,"!")
+        print(detail)
         sys.exit(1)
     # find the pydoc element
     for e in doc.childNodes:
@@ -55,7 +55,7 @@ def read_file():
             break
 
     if e.localName != "pyvcp":
-        print "Error: no pyvcp element in file!"
+        print("Error: no pyvcp element in file!")
         sys.exit()
     pyvcproot=e
     nodeiterator(pyvcproot,pyvcp0) 
@@ -92,23 +92,22 @@ def widget_creator(parent,widget_name,params):
   
     constructor = getattr(pyvcp_widgets, "pyvcp_" + str(widget_name))
     if hasattr(parent, "getcontainer"):
-	container = parent.getcontainer()
+        container = parent.getcontainer()
     else:
-	container = parent
+        container = parent
     positional_params = (container, pycomp)
     
     try:
-	widget = constructor(*positional_params, **params)
-    except Exception, detail:
-	raise SystemExit, "Error constructing %s(%s):\n%s" % (
-			widget_name, params, detail)
+        widget = constructor(*positional_params, **params)
+    except Exception as detail:
+        raise SystemExit("Error constructing %s(%s):\n%s" % (widget_name, params, detail))
 
     # pack the widget according to parent
     # either hbox or vbox
     if container==pyvcp0:
-	widget.pack(side='top', fill=BOTH, expand=YES)
+        widget.pack(side='top', fill=BOTH, expand=YES)
     else:
-	parent.add(container, widget)
+        parent.add(container, widget)
    
     # add the widget to a global list widgets
     # to enable calling update() later
@@ -119,30 +118,30 @@ def widget_creator(parent,widget_name,params):
 def paramiterator(node):
     """ returns a list of all parameters for a widget element """
     outparams = {}
-    for k, v in node.attributes.items():
-	if v and v[0] in "{[(\"'":
-	    v = eval(v)
-	else:
-	    try:
-		v = int(v)
-	    except ValueError:
-		try:
-		    v = float(v)
-		except ValueError:
-		    pass
-	outparams[str(k)] = v
+    for k, v in list(node.attributes.items()):
+        if v and v[0] in "{[(\"'":
+            v = eval(v)
+        else:
+            try:
+                v = int(v)
+            except ValueError:
+                try:
+                    v = float(v)
+                except ValueError:
+                    pass
+        outparams[str(k)] = v
 
     for e in node.childNodes:
-	if e.nodeType == e.ELEMENT_NODE \
-		and (e.nodeName not in pyvcp_widgets.elements):
+        if e.nodeType == e.ELEMENT_NODE \
+                and (e.nodeName not in pyvcp_widgets.elements):
             try:
                 v = eval(e.childNodes[0].nodeValue)
             except: 
                 exc_type, exc_value, exc_tb = sys.exc_info()
-                raise SystemExit, ("Error evaluating xml file:\n"
+                raise SystemExit(("Error evaluating xml file:\n"
                     "Widget %s, Property %s\n%s: %s") % (
-                        node.nodeName, e.nodeName, exc_type.__name__, exc_value)
-	    outparams[str(e.nodeName)] = v
+                        node.nodeName, e.nodeName, exc_type.__name__, exc_value))
+            outparams[str(e.nodeName)] = v
     return outparams
 
 
@@ -170,7 +169,7 @@ def create_vcp(master, comp = None, compname="pyvcp"):
         try: 
             comp = hal.component(compname)
         except:
-            print "Error: Multiple components with the same name."
+            print("Error: Multiple components with the same name.")
             sys.exit(0)
 
     pycomp = comp
@@ -179,7 +178,7 @@ def create_vcp(master, comp = None, compname="pyvcp"):
     return comp
     
 if __name__ == '__main__':
-    print "You can't run vcpparse.py by itself..."
+    print("You can't run vcpparse.py by itself...")
 
     
     

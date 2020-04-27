@@ -160,7 +160,7 @@ These buttons are used to control action of the machine controller. +
 They are built on top of indicator_buttons so can have LEDs overlaid. +
 
 [NOTE]
-If you right click on this widget you can launch a dialog +
+If you left double click on this widget you can launch a dialog +
 to set any of these action. The dialogs will help to set the +
 right related data to the selected action. +
 You can also change these properties directly in the property editor. +
@@ -241,9 +241,11 @@ Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
 Action buttons are subclasssed from indicated_PushButton +
 
 ==== LED indicator option
-Indicator_option puts a triangle or round 'LED' on the top right corner of the button. +
-It will indicated the current state of the button, a HAL pin or linuxcnc status. +
-Use the properties to customized the indicator. +
+Indicator_option puts a 'LED' on the top of the button. +
+It can be a triangle, circle, top bar or side bar. +
+The size and position can be adjusted +
+It will indicated the current state of the button, the state of a HAL pin or linuxcnc status. +
+Use properties to customized the indicator (not all are applicable to every LED shape). +
 
 ----
 on_color
@@ -251,6 +253,11 @@ off_color
 indicator_size
 circle_diameter
 shape_option
+right_edge_offset
+top_edge_offset
+height_fraction
+width_fraction
+corner_radius
 ----
 
 The LED indicator color can be defined in a stylesheet with the following code added to the .qss file. +
@@ -270,7 +277,7 @@ qproperty-off_color: yellow;
 }
 ----
 
-Indicated PushButtons have options: +
+Indicated PushButtons have exclusive options: +
 
 * indicator_HAL_pin_option
 * indicator_status_option
@@ -278,8 +285,26 @@ Indicated PushButtons have options: +
 Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
 button indicator state. +
 
-indicator_status_option will make the LED indicate the state of selectable linuxcnc status. +
-
+indicator_status_option will make the LED indicate the state of these selectable linuxcnc status: +
+----
+Is Estopped
+Is On
+All Homed
+Is Joint Homed
+Idle
+Paused
+Flood
+Mist
+Block Delete
+Optional Stop
+Manual
+MDI
+Auto
+Spindle Stopped
+Spindle Fwd
+Spindle Reverse
+On Limits
+----
 ==== Text changes on state
 
 Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
@@ -300,7 +325,8 @@ The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
 eg. 'ACTION.TOGGLE_FLOOD()' +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
 eg. 'PROGRAM_LOADER.load_halshow()' +
-
+The capitalized word 'HAL' will give access to HAL's python module. +
+eg. 'HAL.set_p('motion.probe-input','1')' +
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
 === RoundButton
@@ -385,6 +411,11 @@ overlay-dro-on
 overlay-dro-off
 overlay-offsets-on
 overlay-offsets-off
+alpha-mode-on
+alpha-mode-off
+inhibit-selection-on
+inhibit-selection-off
+grid-size
 P
 X
 Y
@@ -599,6 +630,7 @@ Here is a sample fr the forst four lines in an Oword file: +
 This is the first line in the Oword file. +
 It is a comma separated list of text to display above an entry. +
 There will be one for every variable required in the Oword function. +
+If the macro does not require variables, only add '; MACROCOMMAND='
 
 ==== MACRODEFAULT
 
@@ -657,8 +689,16 @@ A edit line is embedded for commands. +
 === MDITouchy
 
 This widget display button and entry lines for use with entering MDI commands. +
-It is based on Linuxcnc's Touchy screen's process. +
+It is based on Linuxcnc's Touchy screen's MDI entry process. +
+It's typically most useful for touch screens. +
+It requires a connection to actually run the MDI command +
+if the widget was named mditouchy in designer, this command would +
+run the displayed MDI command. +
 
+[source,python]
+----
+self.w.mditouchy.run_command()
+----
 ===  OriginOffsetView Widget
 
 This widget allows one to modify User System origin offsets directly +
@@ -699,7 +739,7 @@ It is based on pyQT's
 
 ===  FileManager
 This widget is used to select files to load. +
-It has a the ability to scroll the names with hardware such as a MIG. +
+It has a the ability to scroll the names with hardware such as a MPG. +
 You can add user selectable filters. +
 
 It is based on pyQT's

@@ -316,6 +316,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U32: return to_python(*(item->u->pin.u32));
             case HAL_S32: return to_python(*(item->u->pin.s32));
             case HAL_FLOAT: return to_python(*(item->u->pin.f));
+            case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     } else {
@@ -324,6 +325,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_U32: return to_python(item->u->param.u32);
             case HAL_S32: return to_python(item->u->param.s32);
             case HAL_FLOAT: return to_python(item->u->param.f);
+            case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
@@ -1003,6 +1005,7 @@ PyObject *get_value(PyObject *self, PyObject *args) {
             case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
             case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
@@ -1025,6 +1028,7 @@ PyObject *get_value(PyObject *self, PyObject *args) {
             case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
             case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }
@@ -1040,6 +1044,7 @@ PyObject *get_value(PyObject *self, PyObject *args) {
             case HAL_U32: return Py_BuildValue("l",  (unsigned long)*(hal_u32_t *)d_ptr);
             case HAL_S32: return Py_BuildValue("l",  (long)*(hal_s32_t *)d_ptr);
             case HAL_FLOAT: return Py_BuildValue("f",  (double)*(hal_float_t *)d_ptr);
+            case HAL_PORT: // HAL_PORT is currently not supported
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
         }
     }

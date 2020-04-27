@@ -848,6 +848,13 @@ class touchy:
 	def postgui(self):
 		postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
 		return postgui_halfile,sys.argv[2]
+ 
+	def trivkins(self):
+		kins = self.ini.find("KINS", "KINEMATICS")
+		if kins:
+			if "coordinates" in kins:
+				return kins.replace(" ","").split("coordinates=")[1].upper()
+		return "XYZABCUVW"
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
@@ -857,6 +864,9 @@ if __name__ == "__main__":
             hwg = touchy()
 	res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
 	if res: raise SystemExit, res
+	#Attempt to support trivkins with non-default axis to joint assignments
+	emc_interface.coordinates = touchy.trivkins(hwg)
+	print("COORDINATES = %s" % emc_interface.coordinates)
 	# load a postgui file if one is present in the INI file
 	postgui_halfile,inifile = touchy.postgui(hwg)
 	print "TOUCHY postgui filename:",postgui_halfile

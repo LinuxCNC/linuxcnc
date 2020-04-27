@@ -22,7 +22,7 @@ import sys
 
 # allow overriding variables here, using the command line, like:
 # loadusr rotarydelta SOMENAME=123
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 c = hal.component("rotarydelta")
 c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
@@ -60,7 +60,7 @@ class DeltaTranslate(Collection):
 
 class HexPrismZ(CoordsBase):
     def draw(self):
-	z0, z1, h = self.coords()
+        z0, z1, h = self.coords()
         h /= cos(pi/6)
 
         glBegin(GL_TRIANGLE_FAN)
@@ -100,12 +100,12 @@ class HexPrismZ(CoordsBase):
 
 def build_joint(angle, joint):
     return Rotate([
-	HalTranslate([
-	    CylinderY(-1, 1, 6, 1),
-	    HalRotate([
-		CylinderX(c, 0, .5, 'tl', .5)
-	    ], c, joint, 1, 0, 1, 0)
-	], c, "pfr", 1, 0, 0)
+        HalTranslate([
+            CylinderY(-1, 1, 6, 1),
+            HalRotate([
+                CylinderX(c, 0, .5, 'tl', .5)
+            ], c, joint, 1, 0, 1, 0)
+        ], c, "pfr", 1, 0, 0)
     ], angle, 0, 0, 1)
 
 class Strut:
@@ -130,7 +130,7 @@ class Strut:
         r2 = self.component['pfr'] + self.component['tl'] * cos(j)
         x1 = r2 * cos(self.angle)
         y1 = r2 * sin(self.angle)
-	z1 = self.component['tl'] * sin(j)
+        z1 = self.component['tl'] * sin(j)
 
         d = x1-x0, y1-y0, z1-z0
         mag = sqrt(sum(di*di for di in d))
@@ -155,13 +155,13 @@ class Strut:
 
     def cylinder(self, L):
         gluCylinder(self.q, .5, .5, L, 32, 1)
-	# bottom cap
-	glRotatef(180,1,0,0)
-	gluDisk(self.q, 0, .5, 32, 1)
-	glRotatef(180,1,0,0)
-	# the top cap needs flipped and translated
-	glTranslatef(0,0, L)
-	gluDisk(self.q, 0, .5, 32, 1)
+        # bottom cap
+        glRotatef(180,1,0,0)
+        gluDisk(self.q, 0, .5, 32, 1)
+        glRotatef(180,1,0,0)
+        # the top cap needs flipped and translated
+        glTranslatef(0,0, L)
+        gluDisk(self.q, 0, .5, 32, 1)
        
 tooltip = Capture()
     

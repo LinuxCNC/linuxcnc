@@ -37,10 +37,10 @@ if len(sys.argv) > 1:
 else:
     try:
         while 1:
-            mdi = raw_input("MDI> ")
+            mdi = eval(input("MDI> "))
             if mdi == '':
                 s.poll()
-                print s.position
+                print(s.position)
             else:
                 c.mode(linuxcnc.MODE_MDI)
                 c.mdi(mdi)

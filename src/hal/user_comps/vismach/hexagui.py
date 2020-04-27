@@ -12,7 +12,7 @@ from vismach import *
 import hal
 import sys
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 #compname must be the same as given in 'loadusr -W' or
 #else the comp will never be ready
@@ -45,7 +45,7 @@ minitetra = 1
 #stolen from genhexkins.h 
 # you must change these if you are not using minitetra
 # positions of base strut ends in base (world) coordinates	
-base_offsets = range(6)
+base_offsets = list(range(6))
 base_offsets[0] = (-22.950, 13.250, 0)
 base_offsets[1] = (22.950, 13.250, 0)
 base_offsets[2] = (22.950, 13.250, 0)
@@ -54,7 +54,7 @@ base_offsets[4] = (0, -26.5, 0)
 base_offsets[5] = (-22.950, 13.250, 0)
 
 # position of platform strut end in platform coordinate system 
-plat_offsets = range(6)
+plat_offsets = list(range(6))
 plat_offsets[0] = (-1, 11.5, 0)
 plat_offsets[1] = (1, 11.5, 0)
 plat_offsets[2] = (10.459, -4.884, 0)

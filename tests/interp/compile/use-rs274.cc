@@ -138,7 +138,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
 void CHANGE_TOOL(int slot) {}	
-void SELECT_POCKET(int pocket, int tool) {}	
+void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
 void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
@@ -197,6 +197,7 @@ CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
 
 extern void SET_PARAMETER_FILE_NAME(const char *name) {}
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
@@ -252,6 +253,7 @@ void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
 void PLUGIN_CALL(int len, const char *call) {}
 void IO_PLUGIN_CALL(int len, const char *call) {}
+void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 int GET_EXTERNAL_OFFSET_APPLIED() {};

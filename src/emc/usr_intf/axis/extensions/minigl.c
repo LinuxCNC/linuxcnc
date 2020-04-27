@@ -603,8 +603,8 @@ static PyObject *pyglSelectBuffer( PyObject *s, PyObject *o) {
     int sz;
     if(!PyArg_ParseTuple(o, "i:glSelectBuffer", &sz))
         return NULL;
-    if(select_buffer) select_buffer = realloc( select_buffer, sizeof(int) * sz);
-    else select_buffer = malloc(sizeof(int) * sz);
+    if(select_buffer) select_buffer = realloc( select_buffer, sizeof(GLuint) * sz);
+    else select_buffer = malloc(sizeof(GLuint) * sz);
 
     glSelectBuffer(sz, select_buffer);
 
@@ -621,8 +621,8 @@ static PyObject *pyglFeedbackBuffer( PyObject *s, PyObject *o) {
     if(!PyArg_ParseTuple(o, "ii:glFeedbackBuffer", &sz, &ty))
         return NULL;
     if(feedback_buffer)
-	    feedback_buffer = realloc( feedback_buffer, sizeof(int) * sz);
-    else feedback_buffer = malloc(sizeof(int) * sz);
+	    feedback_buffer = realloc( feedback_buffer, sizeof(GLfloat) * sz);
+    else feedback_buffer = malloc(sizeof(GLfloat) * sz);
 
     glFeedbackBuffer(sz, ty, feedback_buffer);
 

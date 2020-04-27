@@ -24,6 +24,7 @@
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
+#include <rtapi_string.h>
 
 extern value_inihal_data old_inihal_data;
 
@@ -272,7 +273,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             // is not all zeros
 
             // found it, now interpret it according to coordinateMark[]
-            strcpy(homes, inistring);
+            rtapi_strxcpy(homes, inistring);
             len = 0;
             for (t = 0; t < 6; t++) {
                 if (!coordinateMark[t]) {

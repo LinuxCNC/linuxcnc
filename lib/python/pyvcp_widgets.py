@@ -46,7 +46,7 @@
     of HAL pin compname.my-led 
 """
 
-
+from __future__ import print_function
 from Tkinter import *
 from hal import *
 import math
@@ -427,8 +427,9 @@ class pyvcp_meter(Canvas):
         x,y = self.p2c(0.8, self.alfa)
         self.coords(self.line,self.mid,self.mid,x,y)
 
-    def draw_region(self, (start, end, color)):
+    def draw_region(self, xxx_todo_changeme):
             #Draws a colored region on the canvas between start and end
+            (start, end, color) = xxx_todo_changeme
             start = self.value2angle(start)
             start = -self.rad2deg(start)
             end = self.value2angle(end)
@@ -638,7 +639,7 @@ class pyvcp_radiobutton(Frame):
     def changed(self):
         index=math.log(self.v.get(),2)
         index=int(index)
-        print "active:",self.halpins[index]
+        print("active:",self.halpins[index])
 
 
 
@@ -739,7 +740,7 @@ class pyvcp_multilabel(Label):
         # if several pins are set one after another, the legend for the
         # last one set will end up being displayed
         index = -1
-        for x in xrange(0, self.num_pins):
+        for x in range(0, self.num_pins):
             state = pycomp[self.halpins[x]]
             if state == 1 :
                 index = x
@@ -747,7 +748,7 @@ class pyvcp_multilabel(Label):
                     break
                 
         if index > -1 and index != self.pin_index:
-            for x in xrange(0, self.num_pins):
+            for x in range(0, self.num_pins):
                 pycomp[self.halpins[x]] = 0
 
             pycomp[self.halpins[index]] = 1
@@ -1184,7 +1185,10 @@ class pyvcp_bar(Canvas):
         else:
             self.ranges = False
         
-    def set_fill(self, (start1, end1, color1),(start2, end2, color2), (start3, end3, color3)):
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
         if self.value:
     	    if (self.value > start1) and (self.value <= end1):
     		self.itemconfig(self.bar,fill=color1)	
@@ -1577,7 +1581,7 @@ class pyvcp_table(Frame):
             self.sticky = child.sticky
             return
         r, c = self._r, self._c
-        while self.occupied.has_key((r, c)):
+        while (r, c) in self.occupied:
             c = c + 1
         rs, cs = self.span
         child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
@@ -1621,9 +1625,9 @@ class pyvcp_include(Frame):
 
         try:
             doc = xml.dom.minidom.parse(src) 
-        except xml.parsers.expat.ExpatError, detail:
-            print "Error: could not open",src,"!"
-            print detail
+        except xml.parsers.expat.ExpatError as detail:
+            print("Error: could not open",src,"!")
+            print(detail)
             sys.exit(1)
 
         # find the pydoc element
@@ -1632,7 +1636,7 @@ class pyvcp_include(Frame):
                 break
 
         if e.localName != "pyvcp":
-            print "Error: no pyvcp element in file!"
+            print("Error: no pyvcp element in file!")
             sys.exit()
         pyvcproot=e
         vcpparse.nodeiterator(pyvcproot,self)
@@ -1672,7 +1676,7 @@ class pyvcp_image(_pyvcp_dummy):
 class _pyvcp_image(Label):
     def __init__(self, master, pycomp, images, halpin=None, **kw):
         Label.__init__(self, master, **kw)
-        if isinstance(images, basestring): images = images.split()
+        if isinstance(images, str): images = images.split()
         self.images = images
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
@@ -1688,7 +1692,7 @@ class _pyvcp_image(Label):
             try:
                 self.configure(image=self.images[l])
             except (IndexError, KeyError):
-                print >>sys.stderr, "Unknown image #%d on %s" % (l, self.halpin)
+                print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
 class pyvcp_image_bit(_pyvcp_image):
@@ -1699,11 +1703,11 @@ class pyvcp_image_u32(_pyvcp_image):
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
-for _key in globals().keys():
+for _key in list(globals().keys()):
     if _key.startswith("pyvcp_"):
         elements.append(_key[6:])
         __all__.append(_key)
 
 if __name__ == '__main__':
-    print "You can't run pyvcp_widgets.py by itself..."
+    print("You can't run pyvcp_widgets.py by itself...")
 # vim:sts=4:sw=4:et:

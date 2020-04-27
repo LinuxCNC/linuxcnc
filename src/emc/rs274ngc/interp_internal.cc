@@ -203,7 +203,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1),
+         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
+         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
     if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
        block->motion_to_be = settings->motion_mode;
@@ -272,7 +273,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
-  for (n = 0; n < 16; n++) {
+  for (n = 0; n < 17; n++) {
     block->g_modes[n] = -1;
   }
   block->h_flag = false;
@@ -479,14 +480,14 @@ int Interp::call_level(void) { return _setup.call_level; }
 
 std::string toString(GCodes g)
 {
-    char buf[10]={};
+    char buf[15]={};
     int dec_value = g%10;
     if (dec_value)
     {
         // Has a decimal
-        snprintf(buf, 10, "G%d.%d", g/10, dec_value);
+        snprintf(buf, sizeof(buf), "G%d.%d", g/10, dec_value);
     } else {
-        snprintf(buf, 10, "G%d", g/10);
+        snprintf(buf, sizeof(buf), "G%d", g/10);
     }
     return buf;
 }

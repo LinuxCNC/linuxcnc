@@ -26,14 +26,14 @@
 # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
 
 import os
-import gtk, gobject
+import gtk,gobject
 
 import linuxcnc
 import gremlin
 import rs274.glcanon
 import gcode
 
-from hal_actions import _EMC_ActionBase
+from .hal_actions import _EMC_ActionBase
 from hal_glib import GStat
 
 def get_linuxcnc_ini_file():
@@ -135,16 +135,16 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         self._reload_filename=f
         try:
             self._load(f)
-        except AttributeError,detail:
+        except AttributeError as detail:
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
-            print 'hal_gremlin: continuing after',detail
+            print('hal_gremlin: continuing after',detail)
 
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name == 'view':
             return self.current_view
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -167,7 +167,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             self.enable_dro = value
         elif name == 'metric_units':
             self.metric_units = value
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)

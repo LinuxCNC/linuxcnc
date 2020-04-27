@@ -70,6 +70,7 @@
 #include "timer.hh"
 #include "rcs_print.hh"
 #include "tool_parse.h"
+#include <rtapi_string.h>
 
 static RCS_CMD_CHANNEL *emcioCommandBuffer = 0;
 static RCS_CMD_MSG *emcioCommand = 0;
@@ -310,7 +311,7 @@ static int iniLoad(const char *filename)
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -367,13 +368,13 @@ static void quit(int sig)
 
 #define BITPIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_bit_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
 #define S32PIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_s32_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
@@ -536,18 +537,18 @@ static char *str_input(int status)
     static char seen[200];
 
     seen[0] = 0;
-    if (status & TI_PREPARING) strcat(seen," TI_PREPARING");
-    if (status & TI_PREPARE_COMPLETE) strcat(seen," TI_PREPARE_COMPLETE");
-    if (status & TI_CHANGING) strcat(seen," TI_CHANGING");
-    if (status & TI_CHANGE_COMPLETE) strcat(seen," TI_CHANGE_COMPLETE");
-    if (status & TI_TC_FAULT) strcat(seen," TI_TC_FAULT");
-    if (status & TI_TC_ABORT) strcat(seen," TI_TC_ABORT");
-    if (status & TI_EMC_ABORT_SIGNALED) strcat(seen," TI_EMC_ABORT_SIGNALED");
-    if (status & TI_EMC_ABORT_ACKED) strcat(seen," TI_EMC_ABORT_ACKED");
-    if (status & TI_ESTOP_CHANGED) strcat(seen," TI_ESTOP_CHANGED");
-    if (status & TI_LUBELEVEL_CHANGED) strcat(seen," TI_LUBELEVEL_CHANGED");
-    if (status & TI_START_CHANGE) strcat(seen," TI_START_CHANGE");
-    if (status & TI_START_CHANGE_ACKED) strcat(seen," TI_START_CHANGE_ACKED");
+    if (status & TI_PREPARING) rtapi_strxcat(seen," TI_PREPARING");
+    if (status & TI_PREPARE_COMPLETE) rtapi_strxcat(seen," TI_PREPARE_COMPLETE");
+    if (status & TI_CHANGING) rtapi_strxcat(seen," TI_CHANGING");
+    if (status & TI_CHANGE_COMPLETE) rtapi_strxcat(seen," TI_CHANGE_COMPLETE");
+    if (status & TI_TC_FAULT) rtapi_strxcat(seen," TI_TC_FAULT");
+    if (status & TI_TC_ABORT) rtapi_strxcat(seen," TI_TC_ABORT");
+    if (status & TI_EMC_ABORT_SIGNALED) rtapi_strxcat(seen," TI_EMC_ABORT_SIGNALED");
+    if (status & TI_EMC_ABORT_ACKED) rtapi_strxcat(seen," TI_EMC_ABORT_ACKED");
+    if (status & TI_ESTOP_CHANGED) rtapi_strxcat(seen," TI_ESTOP_CHANGED");
+    if (status & TI_LUBELEVEL_CHANGED) rtapi_strxcat(seen," TI_LUBELEVEL_CHANGED");
+    if (status & TI_START_CHANGE) rtapi_strxcat(seen," TI_START_CHANGE");
+    if (status & TI_START_CHANGE_ACKED) rtapi_strxcat(seen," TI_START_CHANGE_ACKED");
     return seen;
 }
 /********************************************************************
@@ -763,7 +764,7 @@ int main(int argc, char *argv[])
 		    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
 		    return -1;
 		}
-		strcpy(emc_inifile, argv[t + 1]);
+		rtapi_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -954,8 +955,12 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
 	{
-	    int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+        int p = 0;
 	    int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+        for(int i = 0;i < CANON_POCKETS_MAX;i++){
+            if(emcioStatus.tool.toolTable[i].toolno == t)
+            p = i;
+		}
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
 	    // it doesn't make sense to prep the spindle pocket

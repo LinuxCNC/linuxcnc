@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <rtapi_string.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -635,10 +636,10 @@ void update_readout(void) {
         if(result > 0) { 
             snprintf(tip, sizeof(tip), TIPFORMAT, t, v, (v - p)/horiz->sample_period);
         } else { 
-	    strcpy(tip, "");
+	    rtapi_strxcpy(tip, "");
         }
     } else {
-            strcpy(tip, "");
+            rtapi_strxcpy(tip, "");
     }
 
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip);

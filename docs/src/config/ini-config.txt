@@ -168,23 +168,6 @@ G1 Z#5063
 G10 L20 P0 Z#<_ini[probe]z_offset>
 ---------------------------------------------------------------------
 
-[NOTE]
-====
-Referring to INI-file variables from G-code is currently an experimental
-feature. To enable it, specify the appropriate FEATURES bitmask value in
-the <<sec:rs274ngc-section,RS274NGC>> section of the INI file, e.g.
-
-[source,{ini}]
----------------------------------------------------------------------
-[RS274NGC]
-...
-FEATURES=4
----------------------------------------------------------------------
-
-See <<remap:ini-features,Optional Interpreter Features>> in the
-<<cha:remap,Remap Extending G-Code>> chapter for details.
-====
-
 
 === Include Files
 
@@ -545,6 +528,7 @@ if __name__ == "__main__":
 ----
 
 [[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
+[[gcode:ini-features]]
 
 === [RS274NGC] Section
 
@@ -599,11 +583,37 @@ The first executable M1xx found in the search is used for each M1xx.
 The maximum number of USER_M_PATH directories is defined at compile
 time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
-* 'FEATURES = 0' - An integer value representing the bitmask of optional
-    features to be enabled. These are typically non-backward-compatible and
-    experimental in nature. See
-    <<remap:ini-features,Optional Interpreter Features>> in the
-    <<cha:remap,Remap Extending G-Code>> chapter for details.
+* 'INI_VARS = 1' Default 1
+Allows G-code programs to read values from the INI file using the format
+#<_ini[section]name>. See <<gcode:parameters,G-code Parameters>
+
+* 'HAL_PIN_VARS = 1' Default 1
+Allows G-code programs to read the values of HAL pins using the format
+#<_hal[Hal item]> Variable access is read-only
+See <<gcode:parameters,G-code Parameters>> for more details and an
+important caveat
+
+* 'RETAIN_G43 = 0' Default 0
+When set, you can  turn on G43 after loading the first tool,
+and then not worry about it through the program.  When you
+finally unload the last tool, G43 mode is canceled.
+
+* 'OWORD_NARGS = 0' Default 0
+If this feature is enabled then a called subroutine can determine the
+number of actual positional parameters passed by inspecting the
++#<n_args>+ parameter.
+
+* 'NO_DOWNCASE_OWORD = 0' Default 0
+Preserve case in O-word names within comments if set, enables reading of
+mixed-case HAL items in structured comments like
+'(debug, #<_hal[MixedCaseItem])'.
+
+* 'OWORD_WARNONLY = 0' Default 0
+Warn rather than error in case of errors in O-word subroutines.
+
+[NOTE] The above six options were controlled by the 'FEATURES' bitmask
+in versions of LinuxCNC prior to 2.8. This INI tag will no longer
+work.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully

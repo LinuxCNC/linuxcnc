@@ -23,7 +23,7 @@ import gtk
 from gtk import gdk
 import gobject
 import math
-from hal_widgets import _HalJogWheelBase
+from .hal_widgets import _HalJogWheelBase
 
 class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
     __gsignals__ = dict(count_changed=(gobject.SIGNAL_RUN_FIRST,
@@ -242,7 +242,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
         # rim ticks
         # we color the zero tick red - which is actually the tick 3/4 the way around
         context.set_source_rgb(1, 1, 1)
-        for i in xrange(self.cpr):
+        for i in range(self.cpr):
             context.save()
             if i == self.cpr*.75:
                 context.set_source_rgb(0.9, 0.1, 0.1)
@@ -307,7 +307,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
     # Get propertys
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -316,7 +316,7 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 if name == 'show_counts':
                     self._show_counts = value
@@ -343,10 +343,10 @@ class Hal_Dial(gtk.DrawingArea, _HalJogWheelBase):
 
 # For testing directly
 def count_changed(widget, count,scale,delta_scale):
-    print 'delta scale =',delta_scale
-    print "Count changed - count %02i scale %f = %f" % (count,scale,count*scale)
+    print('delta scale =',delta_scale)
+    print("Count changed - count %02i scale %f = %f" % (count,scale,count*scale))
 def scale_changed(widget, count,scale):
-    print "Scaled changed - count %02i scale %f = %f" % (count,scale,count*scale)
+    print("Scaled changed - count %02i scale %f = %f" % (count,scale,count*scale))
 
 def main():
     window = gtk.Window()

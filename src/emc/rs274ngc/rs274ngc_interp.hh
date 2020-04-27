@@ -84,6 +84,15 @@ public:
 // copy active F, S settings into array [0]..[2]
  void active_settings(double *settings);
 
+    // Update the state vectors from a state tag
+    int active_modes(int *g_codes,
+		     int *mcodes,
+		     double *settings,
+		     StateTag const &tag);
+
+    // Print contents of state tag for debugging
+    void print_state_tag(StateTag const &tag);
+
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,
@@ -140,6 +149,7 @@ public:
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
+ int find_tool_index(setup_pointer settings, int toolno, int *pocket);
 
     // private:
     //protected:  // for boost wrapper access
@@ -315,6 +325,7 @@ public:
     int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
                            setup_pointer settings);
+ int convert_g92_is_applied(int code, block_pointer block, setup_pointer settings);
  int convert_motion(int motion, block_pointer block,
                           setup_pointer settings);
  int convert_probe(block_pointer block, int g_code, setup_pointer settings);
@@ -343,6 +354,7 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
@@ -458,9 +470,17 @@ int read_dollar(char *line, int *counter, block_pointer block,
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int gen_settings(double *current, double *saved, std::string &cmd);
- int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int restore_from_tag(StateTag const &tag);
+ int gen_settings(
+     int *int_current, int *int_saved,
+     double *float_current, double *float_saved,
+     std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
+    int gen_restore_cmd(int *current_g,
+			int *current_m,
+			double *current_settings,
+			StateTag const &saved,
+			std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);
@@ -507,6 +527,9 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ int write_state_tag(block_pointer block, setup_pointer settings,
+		     StateTag &state);
+ int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 

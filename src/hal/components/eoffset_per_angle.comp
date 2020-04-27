@@ -145,7 +145,7 @@ FUNCTION(_) {
     struct ofunc_data* dptr = &data;
 #define STATE dptr->thestate
 
-    int    kfactor;
+    int    kfactor = 1;
     ofunc* thefunc;
 
     run_ct++;

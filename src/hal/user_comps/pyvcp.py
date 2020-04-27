@@ -45,10 +45,10 @@ import getopt
 
 def usage():
     """ prints the usage message """
-    print "Usage: pyvcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.xml"
-    print "If the component name is not specified, the basename of the xml file is used."
-    print "-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen"
-    print "use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position"
+    print("Usage: pyvcp [-g WIDTHxHEIGHT+XOFFSET+YOFFSET][-c hal_component_name] myfile.xml")
+    print("If the component name is not specified, the basename of the xml file is used.")
+    print("-g options are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen")
+    print("use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position")
 
 def main():
     """ creates a HAL component.
@@ -56,8 +56,8 @@ def main():
     """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "c:g:")
-    except getopt.GetoptError, detail:
-        print detail
+    except getopt.GetoptError as detail:
+        print(detail)
         usage()
         sys.exit(1)
     window_geometry = None

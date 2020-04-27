@@ -26,7 +26,7 @@ import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
 # not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalJogWheelBase
+from .hal_widgets import _HalJogWheelBase
 
 class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
     '''

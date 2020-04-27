@@ -30,6 +30,7 @@
 #include "global.h"
 #include "editproperties_gtk.h"
 #include "edit.h"
+#include <rtapi_string.h>
 
 GtkWidget *PropertiesWindow;
 GtkWidget *PropLabelParam[NBR_PARAMS_PER_OBJ],*PropEntryParam[NBR_PARAMS_PER_OBJ];
@@ -104,13 +105,13 @@ char * GetProperty(int NumParam)
 	gtk_label_get(GTK_LABEL(PropLabelParam[NumParam]),&TxtParameter);
 	if (strcmp(TxtParameter,"Base")==0)
 	{
-		strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
+		rtapi_strxcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
 	}
 	else
 	{
 		if (strcmp(TxtParameter,"TimerMode")==0)
 		{
-			strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
+			rtapi_strxcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
 		}
 		else
 		{

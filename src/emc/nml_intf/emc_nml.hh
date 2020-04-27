@@ -19,6 +19,7 @@
 #include "cmd_msg.hh"
 #include "stat_msg.hh"
 #include "emcpos.h"
+#include "modal_state.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "rs274ngc.hh"		// ACTIVE_G_CODES, etc
 
@@ -544,9 +545,12 @@ class EMC_JOINT_STAT:public EMC_JOINT_STAT_MSG {
 // EMC_TRAJ command base class
 class EMC_TRAJ_CMD_MSG:public RCS_CMD_MSG {
   public:
-    EMC_TRAJ_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
+    EMC_TRAJ_CMD_MSG(NMLTYPE t, size_t s): RCS_CMD_MSG(t, s),tag(){
     };
 
+    //NOTE this does NOT have a corresponding CMS update. This only works
+    //because motion commands don't actually go through NML.
+    StateTag tag;
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
@@ -1071,6 +1075,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+    StateTag tag;
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes
@@ -1565,7 +1570,6 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    int pocket;
     int tool;
 };
 

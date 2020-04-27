@@ -1602,7 +1602,7 @@ fail1:
                                 case 64:
                                     shift = 0;
                                 }
-                            if (abs((p->s64_param - p->s64_written) >> shift) > 2) break;
+                            if (abs(((int)(p->s64_param) - (int)(p->s64_written)) >> shift) > 2) break;
                             *inst->state2 = 2; // increment indices
                             return *inst->state2;
                         default:

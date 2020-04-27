@@ -52,10 +52,10 @@ class mitsubishi_serial:
             self.ser.open()
             self.ser.isOpen()
         except:
-            print "ERROR : mitsub_vfd - No serial interface found at %s"% port
+            print("ERROR : mitsub_vfd - No serial interface found at %s"% port)
             raise SystemExit
-        print "Mitsubishi VFD serial computer link has loaded"
-        print "Port: %s,\nbaudrate: %d\n8 data bits, no parity, 2 stop bits\n"%(port,baudrate)
+        print("Mitsubishi VFD serial computer link has loaded")
+        print("Port: %s,\nbaudrate: %d\n8 data bits, no parity, 2 stop bits\n"%(port,baudrate))
 
         self.h=[]
         self.comp_names = vfd_names
@@ -99,7 +99,7 @@ class mitsubishi_serial:
             self['last_estop%d'%index] = c['estop']
             #add device to component reference variable
             self.h.append(c)
-            print "Mitsubishi %s VFD: slave# %s added\n"%(name[0],name[1])
+            print("Mitsubishi %s VFD: slave# %s added\n"%(name[0],name[1]))
         # only issue ready when all the components are ready
         for i in self.h:
             i.ready()
@@ -140,7 +140,7 @@ class mitsubishi_serial:
                         self.h[index]['stat-bit-6'] = int(binary,2) & 64
                         self.h[index]['stat-bit-7'] = self.h[index]['alarm'] = int(binary,2) & 128
                         if self.h[index]['debug'] and 1==2:
-                            print 'monitor operation:',binary,temp,temp[3:5],len(temp)
+                            print('monitor operation:',binary,temp,temp[3:5],len(temp))
 
                     # 6F is the address for running motor frequency status
                     # it returns 4 characters of hex
@@ -153,12 +153,12 @@ class mitsubishi_serial:
                     time.sleep(.05)
                     string,chr_list,chr_hex = self.poll_output()
                     if self.h[index]['debug']:
-                        print 'DEBUG: ',chr_list,chr_hex
+                        print('DEBUG: ',chr_list,chr_hex)
                     if chr_list != '':
                         decimal = int(string[3:7],16)
                         self.h[index]["motor-fb"] = decimal *.01 * self.h[index]["scale-fb"]
                         if self.h[index]['debug'] and 1==2:
-                            print 'monitor frequency:',decimal,string,string[3:7], len(string)
+                            print('monitor frequency:',decimal,string,string[3:7], len(string))
 
                 # amps
                     word = self.prepare_data("70",None)
@@ -168,12 +168,12 @@ class mitsubishi_serial:
                     time.sleep(.05)
                     string,chr_list,chr_hex = self.poll_output()
                     if self.h[index]['debug']:
-                        print 'DEBUG: ',chr_list,chr_hex
+                        print('DEBUG: ',chr_list,chr_hex)
                     if chr_list != '':
                         decimal = int(string[3:7],16)
                         self.h[index]["motor-amps"] = decimal *.01 * self.h[index]["scale-amps"]
                         if self.h[index]['debug'] and 1==2:
-                            print 'monitor amps:',decimal,string,string[3:7], len(string)
+                            print('monitor amps:',decimal,string,string[3:7], len(string))
 
 
                 # STOP ON ESTOP
@@ -186,9 +186,9 @@ class mitsubishi_serial:
                         self.ser.write(word)
                         time.sleep(.05)
                         self['last_estop%d'%index] = self.h[index]['estop']
-                        print "**** Mitsubishi VFD: %s stopped due to Estop Signal"% ids[0]
+                        print("**** Mitsubishi VFD: %s stopped due to Estop Signal"% ids[0])
                         continue
-                    print "**** Mitsubishi VFD: Estop cleared - Must re-issue run command to start %s." % ids[0]
+                    print("**** Mitsubishi VFD: Estop cleared - Must re-issue run command to start %s." % ids[0])
                     self['last_estop%d'%index] = self.h[index]['estop']
 
                 # SET RUN AND DIRECTION
@@ -212,7 +212,7 @@ class mitsubishi_serial:
                     self['last_fwd%d'%index] = self.h[index]['fwd']
                     if self.h[index]['debug']:
                         string,chr_list,chr_hex = self.poll_output()
-                        print 'DEBUG: ',chr_list,chr_hex
+                        print('DEBUG: ',chr_list,chr_hex)
 
                 # SET cmd
                 # address ED is for setting the running frequency
@@ -231,14 +231,14 @@ class mitsubishi_serial:
                     time.sleep(.05)
                     if self.h[index]['debug']:
                         string,chr_list,chr_hex = self.poll_output()
-                        print 'DEBUG: ',chr_list,chr_hex
+                        print('DEBUG: ',chr_list,chr_hex)
 
             except KeyboardInterrupt:
                     self.kill_output()
                     raise
             except:
-                    print "error",ids
-                    print sys.exc_info()[0]
+                    print("error",ids)
+                    print(sys.exc_info()[0])
 
     def kill_output(self):
         cmd = "FA";data ="00"
@@ -247,7 +247,7 @@ class mitsubishi_serial:
             word = self.prepare_data(cmd,data)
             self.ser.write(word)
             time.sleep(.05)
-            print 'Mitsub VFD: Kill-> ', ids[0]
+            print('Mitsub VFD: Kill-> ', ids[0])
 
     def prepare_data(self,command ='E1',data= '07AD'):
         combined = self.slave_num+command  +'1'
@@ -304,43 +304,43 @@ if __name__ == "__main__":
       elif o in ['-b','--baud']:
          baud = p
       elif o in ['-h','--help']:
-        print 'Mitsubishi VFD computer-link interface'
-        print ' User space component for controlling a misubishi inverter over the serial port using the rs485 standard'
-        print ' specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments'
-        print ''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.'''
-        print ''' 'Fr-A700 F700 E700 D700 technical manual' for the 700 series'''
-        print 
-        print ' The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modifcation )'
-        print ' You must power cycle the inverter for some of these to register eg 79'
-        print ' PR 79 - 1 or 0                          sets the inverter to respond to the PU/computer-link'
-        print ' PR 117 station number (slave) - 1       can be optionally set 0 - 31 if component is also set'
-        print ' PR 118 communication speed 96           baud rate, can be optionally set 48,96,192 if component is also set'
-        print ''' PR 119 stop bit/data length - 1         8 bits, two stop (don't change)'''
-        print ''' PR 120 parity - 0                       no parity (don't change)'''
-        print ' PR 121 COM tries - 10                   if 10 (maximuim) COM errors then inverter faults (can change)'
-        print ' PR 122 COM check time interval 9999     (never check) if communication is lost inverter will not know (can change)'
-        print ''' PR 123 wait time - 9999 -               no wait time is added to the serial data frame (don't change)'''
-        print ''' PR 124 CR selection - 0                 don't change'''
-        print '''
+        print('Mitsubishi VFD computer-link interface')
+        print(' User space component for controlling a misubishi inverter over the serial port using the rs485 standard')
+        print(' specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments')
+        print(''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.''')
+        print(''' 'Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
+        print() 
+        print(' The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modifcation )')
+        print(' You must power cycle the inverter for some of these to register eg 79')
+        print(' PR 79 - 1 or 0                          sets the inverter to respond to the PU/computer-link')
+        print(' PR 117 station number (slave) - 1       can be optionally set 0 - 31 if component is also set')
+        print(' PR 118 communication speed 96           baud rate, can be optionally set 48,96,192 if component is also set')
+        print(''' PR 119 stop bit/data length - 1         8 bits, two stop (don't change)''')
+        print(''' PR 120 parity - 0                       no parity (don't change)''')
+        print(' PR 121 COM tries - 10                   if 10 (maximuim) COM errors then inverter faults (can change)')
+        print(' PR 122 COM check time interval 9999     (never check) if communication is lost inverter will not know (can change)')
+        print(''' PR 123 wait time - 9999 -               no wait time is added to the serial data frame (don't change)''')
+        print(''' PR 124 CR selection - 0                 don't change''')
+        print('''
 This driver assumes certain other VFD settings:
 -That the  motor frequency status is set to show herts.
 -That the status bit 3 is up to speed
 -That the status bit 7 is alarm
-'''
-        print
-        print '''some models (eg E500) cannot monitor status -set the monitor pin to false
+''')
+        print()
+        print('''some models (eg E500) cannot monitor status -set the monitor pin to false
 in this case pins such as up-to-speed, amps, alarm and status bits are not useful.
-'''
-        print '''HAL command used to load: '''
-        print '''loadusr mitsub_vfd --baud 4800 --port /dev/ttyUSB0 NAME=SLAVE_NUMBER 
+''')
+        print('''HAL command used to load: ''')
+        print('''loadusr mitsub_vfd --baud 4800 --port /dev/ttyUSB0 NAME=SLAVE_NUMBER 
         -NAME is user selectable (usually a description of controlled device)
         -SLAVE_NUMBER is the slave number that was set on the VFD
         -NAME=SLAVE_NUMBER can be repeated for multiple VFD's connected together
         --baud is optional as it defaults to 9600
         all networked vfds must be set to the same baudrate
-        --port is optional as it defaults to ttyS0'''
-        print
-        print ''' Sample linuxcnc code
+        --port is optional as it defaults to ttyS0''')
+        print()
+        print(''' Sample linuxcnc code
 loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 # **************** Spindle VFD setup slave 2 *********************
 net spindle-vel-cmd               spindle.motor-cmd
@@ -366,14 +366,14 @@ setp coolant.motor-cmd 60
 #       allows us to see status
 setp coolant.monitor 1
 net estop-out                     coolant.estop
-'''
+''')
         sys.exit(0)
     if extraparam:
         for dids in extraparam:
             device_ids.append(dids.split('='))
     else:
         device_ids=[['mitsub_vfd','00']]
-    print port,baud
+    print(port,baud)
     # Info gathered now use them
     try:
         app = mitsubishi_serial(vfd_names=device_ids,baudrate=int(baud),port=port)
@@ -383,7 +383,7 @@ net estop-out                     coolant.estop
     else:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             formatted_lines = traceback.format_exc().splitlines()
-            print
-            print "**** Mitsub_vfd debugging:",formatted_lines[0]
+            print()
+            print("**** Mitsub_vfd debugging:",formatted_lines[0])
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-            print formatted_lines[-1]
+            print(formatted_lines[-1])

@@ -30,6 +30,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
 #include "nml.hh"		/* class NML */
 #include "nmlmsg.hh"		/* class NMLmsg */
 #include "cms.hh"		/* class CMS */

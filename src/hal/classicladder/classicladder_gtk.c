@@ -36,6 +36,7 @@
 #include "global.h"
 #include "classicladder_gtk.h"
 
+#include <rtapi_string.h>
 
 GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
@@ -308,8 +309,8 @@ void clear_label_comment()
 
 void save_label_comment_edited()
 {
-	strcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
-	strcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
+	rtapi_strxcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
+	rtapi_strxcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
 }
 
 void autorize_prevnext_buttons(int Yes)
@@ -369,7 +370,7 @@ char cForLoadingProject)
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
-        strcpy( InfosGene->CurrentProjectFileName, TempDir );
+        rtapi_strxcpy( InfosGene->CurrentProjectFileName, TempDir );
 }
 
 
@@ -934,7 +935,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 	{
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 		char TextBuffer[ 20 ];
-		sprintf(TextBuffer , _("%d us"), InfosGene->DurationOfLastScan/1000);
+		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d us"), InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
 		ToggleManagerWindow();
@@ -1006,7 +1007,7 @@ void UpdateWindowTitleWithProjectName( void )
 		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='\\')
 			ScanFileNameOnly--;
 	}
-	sprintf( Buff, _("Section Display of %s"), &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
+	snprintf(Buff, sizeof(Buff), _("Section Display of %s"), &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
 	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
 

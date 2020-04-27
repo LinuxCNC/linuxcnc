@@ -7,7 +7,7 @@ import gtk.glade
 
 # This creates the custom LED widget
 
-from hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
+from .hal_widgets import _HalSensitiveBase, hal_pin_changed_signal
 
 class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gtype_name__ = 'HAL_LED'
@@ -45,7 +45,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     __gproperties = __gproperties__
 
     def post_create(self, obj, reason):
-                print "\nhola\n"
+                print("\nhola\n")
 
     def __init__(self):
         super(HAL_LED, self).__init__()
@@ -341,7 +341,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         name = property.name.replace('-', '_')
         if name == 'led_size':
             return self._dia
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -355,7 +355,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             try:
                 self.set_color(mode, value)
             except:
-                print "Invalid %s color value: %s" % (mode, value)
+                print("Invalid %s color value: %s" % (mode, value))
                 return False
         elif name in ['pick_color_on', 'pick_color_off','pick_color_blink']:
             mode = name.split('_')[-1]
@@ -368,7 +368,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             self._blink_invert = value
         if name == 'led_size':
             self._dia = value
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)

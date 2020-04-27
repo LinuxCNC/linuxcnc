@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <rtapi_string.h>
 
 StandaloneInterpInternals _sai = StandaloneInterpInternals();
 
@@ -528,13 +529,13 @@ void CHANGE_TOOL(int slot)
   _sai._tools[0] = _sai._tools[slot];
 }
 
-void SELECT_POCKET(int slot, int tool)
-{PRINT("SELECT_POCKET(%d)\n", slot);}
+void SELECT_TOOL(int tool)//TODO: fix slot number
+{PRINT("SELECT_TOOL(%d)\n", tool);}
 
-void CHANGE_TOOL_NUMBER(int slot)
+void CHANGE_TOOL_NUMBER(int tool)
 {
-  PRINT("CHANGE_TOOL_NUMBER(%d)\n", slot);
-  _sai._active_slot = slot;
+  PRINT("CHANGE_TOOL_NUMBER(%d)\n", tool);
+  _sai._active_slot = tool;
 }
 
 
@@ -682,6 +683,8 @@ They should return variable values... */
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return fo_enable;}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return _sai.motion_tolerance;}
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
+                                        { return _sai.naivecam_tolerance; }
 double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
@@ -1090,7 +1093,6 @@ void IO_PLUGIN_CALL(int len, const char *call)
 {
     printf("IO_PLUGIN_CALL(%d)\n",len);
 }
-
 void reset_internals()
 {
   _sai = StandaloneInterpInternals();
@@ -1148,4 +1150,7 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _toolchanger_fault(false),
   _toolchanger_reason(0)
 {
+}
+void UPDATE_TAG(StateTag tag){
+    //Do nothing
 }

@@ -75,7 +75,7 @@ USERSRCS += $(XHC_HB04_SRC)
 $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
 ../bin/xhc-hb04: $(call TOOBJS, $(XHC_HB04_SRC)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm -lstdc++ $(LIBUSB10_LIBS)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lm $(LIBUSB10_LIBS)
 TARGETS += ../bin/xhc-hb04
 endif # HAVE_LIBUSB10
 

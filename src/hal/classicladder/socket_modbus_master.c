@@ -46,6 +46,7 @@
 #endif
 #include <errno.h>
 #include <time.h>
+#include <rtapi_string.h>
 
 #include "classicladder.h"
 #include "global.h"
@@ -186,7 +187,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 				else
 				{
 					static char Address[ 50 ];
-					strcpy( Address, SlaveAdr );
+					rtapi_strxcpy( Address, SlaveAdr );
 					Address[ PosiSep-SlaveAdr ] = '\0';
 					NumPort = atoi( PosiSep+1 );
 					io_module_addr.sin_addr.s_addr = inet_addr( Address );   /* Server IP address */

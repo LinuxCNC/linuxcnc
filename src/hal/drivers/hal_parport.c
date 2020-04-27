@@ -101,10 +101,6 @@
 
 #include "hal.h"		/* HAL public API decls */
 
-/* If FASTIO is defined, uses outb() and inb() from <asm.io>,
-   instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
-   are inlined, and save a microsecond or two (on my 233MHz box)
-*/
 #include <rtapi_io.h>
 
 #include "hal_parport.h"
@@ -594,7 +590,7 @@ static int pins_and_params(char *argv[])
 
         if(force_epp[n] && port_data_array[n].portdata.base_hi) {
             /* select EPP mode in ECR */
-            outb(0x94, port_data_array[n].portdata.base_hi + 2);
+            rtapi_outb(0x94, port_data_array[n].portdata.base_hi + 2);
         }
 
 	/* set data port (pins 2-9) direction to "in" if needed */

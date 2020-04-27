@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import hal
 import time
 c = hal.component("stream_writer")
