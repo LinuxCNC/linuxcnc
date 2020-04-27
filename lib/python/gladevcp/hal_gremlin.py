@@ -26,9 +26,7 @@
 # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
 
 import os
-import gi
-from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
+import gtk,gobject
 
 import linuxcnc
 import gremlin

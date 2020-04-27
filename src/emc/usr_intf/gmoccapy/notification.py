@@ -28,10 +28,9 @@
 #        it is caused because the height of the first message is not taken in care
 #        calculating the hight of the popup.
 
-import gi
-from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
-from gi.repository import Pango as pango
+import gtk
+import gobject
+import pango
 
 class Notification(gtk.Window):
     '''Notification(gtk.Window)

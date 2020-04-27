@@ -15,6 +15,7 @@
 # GNU General Public License for more details.
 
 from __future__ import print_function
+import sys, os, pango, linuxcnc, hashlib, glib
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
