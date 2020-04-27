@@ -2917,6 +2917,10 @@ class TclCommands(nf.TclCommands):
         items = tuple(inifile.findall(section, item))
         return root_window.tk.merge(*items)
 
+    def clear_recent_files():
+        ap.putpref('recentfiles', [], repr)
+        update_recent_menu()
+
 commands = TclCommands(root_window)
 
 vars = nf.Variables(root_window,
