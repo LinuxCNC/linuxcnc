@@ -70,13 +70,13 @@ try:
                           timeout = 0.1
                          )
 except:
-    print'\nCould not open {} for Powermax communications\n'.format(comPort)
+    print('\nCould not open {} for Powermax communications\n'.format(comPort))
     raise SystemExit
 
 # get the checksum
 def get_lrc(data):
     lrc = 0
-    for i in xrange(0, len(data), 2):
+    for i in range(0, len(data), 2):
         a, b = data[i:i+2]
         try:
             lrc = (lrc + int(a + b, 16)) & 255
