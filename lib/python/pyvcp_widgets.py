@@ -471,10 +471,10 @@ class pyvcp_jogwheel(Canvas):
             [ <halpin>"myjogwheel"</halpin> ]       (names halpins)
             [ <clear_pin>1</clear_pin> ]            (1 creates dro and a reset pin to reset dro)
             [ <scale_pin>1</scale_pin> ]            (1 creates scale text and a flout in to display jog scale)
-            [ <text>"My Text"</text> ]              (displays text on the wheel) 
+            [ <text>"My Text"</text> ]              (displays text on the wheel)
             [ <size>300</size> ]                    (size of)
          </jogwheel>
-                                                    
+
                 key binding
                     <Shift-1>   shift-click resets dro to zero same as clear_pin
     """
@@ -489,8 +489,8 @@ class pyvcp_jogwheel(Canvas):
 
         pad=size/10
         self.count=0
-        self.scale=0
-        self.drotxt=0.0       
+        self.scale=0.0
+        self.drotxt=0.0
         Canvas.__init__(self,root,width=size,height=size)
         pad2=pad-size/15
         self.circle2=self.create_oval(pad2,pad2,size-pad2,size-pad2,width=3)# edge circle
@@ -501,8 +501,9 @@ class pyvcp_jogwheel(Canvas):
         self.alfa=0
         self.d_alfa=2*math.pi/cpr
         self.size=size
-        self.scale_pin = scale_pin 
-        self.clear_pin = clear_pin    
+        self.scale_pin = scale_pin
+        self.clear_pin = clear_pin
+        self.chgscale = self.scale
         
         self.dot = self.create_oval(self.dot_coords())
         self.itemconfig(self.dot,fill="black")
@@ -527,7 +528,7 @@ class pyvcp_jogwheel(Canvas):
                         text=str(self.drotxt),font=('Arial',-self.txtroom))
         # the scale
         if scale_pin!=0:
-            self.jogscale=self.create_text([self.mid,self.mid+self.txtroom], 
+            self.jogscale=self.create_text([self.mid,self.mid+self.txtroom],
                         text='x '+ str(self.scale),font=('Arial',-self.txtroom))
 
         self.bind('<Button-4>',self.wheel_up)
@@ -557,32 +558,41 @@ class pyvcp_jogwheel(Canvas):
         if clear_pin!=0:
             name = ".reset"
             clear_pin = halpin + name
-            self.clear_pin = clear_pin 
+            self.clear_pin = clear_pin
             pycomp.newpin(clear_pin, HAL_BIT, HAL_IN)
 
         if scale_pin!=0:
             name = ".scale"
             scale_pin = halpin + name
-            self.scale_pin = scale_pin        
-            pycomp.newpin(scale_pin, HAL_FLOAT, HAL_IN) 
+            self.scale_pin = scale_pin
+            pycomp.newpin(scale_pin, HAL_FLOAT, HAL_IN)
 
     def update_jogscale(self):
         if self.scale_pin:
             self.scale = self.pycomp[self.scale_pin]
-            valtext = 'x ' +str(self.scale)
-            self.itemconfig(self.jogscale,text=valtext) 
+            if self.chgscale != self.scale:
+                valtext = 'x ' +str(self.scale)
+                self.itemconfig(self.jogscale,text=valtext)
+                self.chgscale = self.scale
 
     def update_dro(self):
+        if self.clear_pin:
+            valtext = str('{:.4f}'.format(self.drotxt))
+            self.itemconfig(self.dro,text=valtext)
+
+    def reset_dro(self):
         if self.clear_pin:
             clear_pin = self.pycomp[self.clear_pin]             #reset dro to zero from pin
             if clear_pin == 1:
                 self.drotxt = 0.0
-            valtext = str(self.drotxt)
-            self.itemconfig(self.dro,text=valtext) 
+                valtext = str(self.drotxt)
+                self.itemconfig(self.dro,text=valtext)
 
     def resetValue(self,event):                                 # shift + click to reset dro value
         self.drotxt = 0.0
-                            
+        valtext = str(self.drotxt)
+        self.itemconfig(self.dro,text=valtext)
+
     def dot_coords(self):
         DOTR=0.06*self.size
         DOTPOS=0.85
@@ -617,13 +627,15 @@ class pyvcp_jogwheel(Canvas):
         self.drotxt+=self.scale*-1
         self.pycomp[self.halpin] = self.count
         self.update_dot()
-    
+        self.update_dro()
+
     def up(self):
         self.alfa+=self.d_alfa
         self.count+=1
         self.drotxt+=self.scale*1
         self.pycomp[self.halpin] = self.count
         self.update_dot()
+        self.update_dro()
 
     def update_dot(self):
         self.coords(self.dot, self.dot_coords() )  
@@ -640,11 +652,10 @@ class pyvcp_jogwheel(Canvas):
             self.create_line([startx,starty,stopx,stopy])
 
     def update(self,pycomp):
-        # this is stupid, but required for updating pin
-        # when first connected to a signal
-        self.pycomp[self.halpin] = self.count
-        self.update_jogscale()
-        self.update_dro()
+        if self.scale_pin:
+            self.update_jogscale()
+        if self.clear_pin:
+            self.reset_dro()
         
 # -------------------------------------------
 ## ArcEye - added - no example given and the one in docs misses out initval  ##
