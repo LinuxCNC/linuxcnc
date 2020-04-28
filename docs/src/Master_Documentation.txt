@@ -201,6 +201,8 @@ include::drivers/pico-ppmc.txt[]
 
 include::drivers/pluto-p.txt[]
 
+include::drivers/pmx485.txt[]
+
 include::drivers/servo-to-go.txt[]
 
 include::drivers/shuttle.txt[]
