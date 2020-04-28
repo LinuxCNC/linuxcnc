@@ -890,7 +890,8 @@ It is based on pyQT's
 ===  FileManager
 This widget is used to select files to load. +
 It has a the ability to scroll the names with hardware such as a MPG. +
-You can add user selectable filters. +
+
+one can class patch the function 'load(self,fname):' to customize file loading. +
 
 It is based on pyQT's
 
