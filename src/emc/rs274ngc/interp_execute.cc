@@ -236,7 +236,7 @@ error message.
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
 			  setup_pointer settings) //!< pointer to machine settings
 {
-  int status;
+  int status = INTERP_EXIT;
 
   block->line_number = settings->sequence_number;
   if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
@@ -325,6 +325,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (settings->toolchange_flag)
       return (INTERP_EXECUTE_FINISH);
 
+  // All changes to settings are complete
+  write_canon_state_tag(block, settings);
   return INTERP_OK;
 }
 

@@ -98,38 +98,38 @@ class ArcsToSegmentsMixin:
 
 class PrintCanon:
     def set_g5x_offset(self, *args):
-        print "set_g5x_offset", args
+        print("set_g5x_offset", args)
 
     def set_g92_offset(self, *args):
-        print "set_g92_offset", args
+        print("set_g92_offset", args)
 
     def next_line(self, state):
-        print "next_line", state.sequence_number
+        print("next_line", state.sequence_number)
         self.state = state
 
     def set_plane(self, plane):
-        print "set plane", plane
+        print("set plane", plane)
 
     def set_feed_rate(self, arg):
-        print "set feed rate", arg
+        print("set feed rate", arg)
 
     def comment(self, arg):
-        print "#", arg
+        print("#", arg)
 
     def straight_traverse(self, *args):
-        print "straight_traverse %.4g %.4g %.4g  %.4g %.4g %.4g" % args
+        print("straight_traverse %.4g %.4g %.4g  %.4g %.4g %.4g" % args)
 
     def straight_feed(self, *args):
-        print "straight_feed %.4g %.4g %.4g  %.4g %.4g %.4g" % args
+        print("straight_feed %.4g %.4g %.4g  %.4g %.4g %.4g" % args)
 
     def dwell(self, arg):
         if arg < .1:
-            print "dwell %f ms" % (1000 * arg)
+            print("dwell %f ms" % (1000 * arg))
         else:
-            print "dwell %f seconds" % arg
+            print("dwell %f seconds" % arg)
 
     def arc_feed(self, *args):
-        print "arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args
+        print("arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args)
 
 class StatMixin:
     def __init__(self, s, r):

@@ -497,7 +497,8 @@ proc ::tp::hal_to_tcl {ifile ofile} {
   # I couldn't find any usage examples.
 
   set ::TP(conflictwords) {list gets}
-  # in a .tcl file, use "hal list" and "hal gets" instead
+  # 1) list: in the created .tcl file, use "hal list"
+  # 2) gets: is not epected in a conventional (so err exit)
 
   if [catch {set fdin  [open $ifile r]
              set fdout [open $ofile w]
@@ -539,16 +540,27 @@ proc ::tp::hal_to_tcl {ifile ofile} {
        break
     }
 
+    set conflict_tag "_LIST_TAG_"
     if {[string first # $line] == 0} continue
     foreach suspect $::TP(conflictwords) {
-      if {   ([string first "$suspect "  $line] == 0)
-          || ([string first " $suspect " $line] >= 0)
-        } {
-         puts "hal_to_tcl:NOTE: in file $ifile, line $lno: \"$suspect\"\
-         conflicts with haltcl usage,\nprepended with 'hal' for compatibility"
-         puts "$lno:<$theline>"
-         # prepend hal command to convert conflictword:
-         set line "# hal_to_tcl prepended hal:\nhal $line"
+      if { [string first "$suspect" [string trim $line]] == 0 } {
+         # use stderr to make runtests expected cleaner
+         switch $suspect {
+           list {
+             puts stderr "hal_to_tcl:NOTE: \"$suspect\> in file $ifile\
+                  conflicts with haltcl usage"
+             puts stderr "near line $lno:<$line>"
+             puts stderr "prepended with 'hal' for compatibility"
+             # tag to fix in converted file (after line extends etc)
+             set line "$conflict_tag $line"
+           }
+           default {
+             # no other conflict words are expected in a conventional halfile
+             puts stderr "hal_to_tcl:Unexpected <$suspect>: in file $ifile"
+             puts stderr "$lno:<$line>"
+             exit 1
+           }
+         }
       }
     }
     set idx 0
@@ -594,6 +606,11 @@ proc ::tp::hal_to_tcl {ifile ofile} {
       set notcomment "[string range $line 0 [expr -1 + $cidx]]"
       set    comment ";[string range $line $cidx end]"
       set line "$notcomment$comment"
+    }
+    if {[string first $conflict_tag $line] == 0} {
+      # remove tag, use puts to output result of list command
+      # like: puts [hal list ...]
+      set line "puts \[hal [string range $line [string len $conflict_tag] end] \]"
     }
     puts $fdout $line
     if {[string trim "$theline"] != [string trim "$line"]} {

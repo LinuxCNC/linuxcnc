@@ -115,6 +115,7 @@ typedef struct {
     double wDotMax;		/* rotational accelleration max */
     int nextId;
     int execId;
+    struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */

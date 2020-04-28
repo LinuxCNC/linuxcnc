@@ -85,7 +85,7 @@ class mdi:
             'G42.1' : ['Radius compensation right, immediate', 'D', 'L'],
             'G43' : ['Tool length offset', 'H'],
             'G43.1' : ['Tool length offset immediate', 'A'],
-            'G43.2' : ['Tool length offset additional', 'H'],
+            'G43.2' : ['Tool length offset additional', 'H', 'A'],
             'G53' : ['Motion in unoffset coordinates', 'G', 'A', 'F'],
             'G64' : ['Continuous mode', 'P', 'Q'],
             'G76' : ['Thread', 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
@@ -188,6 +188,11 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('general',self.return_value)
+        macros = INFO.INI_MACROS
+        if len(macros) > 0:
+            self.mdi.add_macros(macros)
+        else:
+            self.pushButton_macro.setEnabled(0)
 
     def gxClicked(self):
         self.update("G")
@@ -249,7 +254,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         self.set_origin()
 
     def macroClicked(self):
-        pass
+        self.cycle_ocodes()
 
     def calcClicked(self):
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
@@ -321,6 +326,18 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
             w.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         else:
             w.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+
+    def cycle_ocodes(self):
+        # strip off richText bold encoding
+        doc = self.label_0.text().lstrip('<b>')
+        old_code = doc.rstrip('</b>')
+        ocodes = self.mdi.ocodes
+        if old_code in ocodes:
+            j = (ocodes.index(old_code) + 1) % len(ocodes)
+        else:
+            j = 0
+        self.update(ocodes[j])
+        self.nextClicked()            
 
     def set_tool(self, tool, g10l11):
         self.update()

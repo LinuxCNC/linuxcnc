@@ -34,7 +34,6 @@
 #include "hal.h"		/* HAL public API decls */
 
 #define MAX_SUMMERS	8
-#define MAX_SUM_BITS	16
 
 /* module information */
 MODULE_AUTHOR("Stephen Wille Padnos");
@@ -89,7 +88,7 @@ int rtapi_app_main(void)
 
     /* check that there's at least one valid summer requested */
     for (n = 0; n < MAX_SUMMERS && wsum_sizes[n] != -1 ; n++) {
-	if ((wsum_sizes[n] > MAX_SUM_BITS) || (wsum_sizes[n]<1)) {
+	if (wsum_sizes[n] < 1) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "WEIGHTED_SUM: ERROR: Invalid number of bits '%i' for summer %i\n",
 			    wsum_sizes[n], n);

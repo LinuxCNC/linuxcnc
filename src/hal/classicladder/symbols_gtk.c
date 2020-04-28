@@ -32,6 +32,7 @@
 #include "classicladder_gtk.h"
 #include "vars_names.h"
 #include "symbols_gtk.h"
+#include <rtapi_string.h>
 
 GtkWidget *SymbolsWindow;
 GtkListStore *ListStore;
@@ -128,7 +129,7 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 					pSymbol->VarName[ LGT_VAR_NAME-1 ] = '\0';
 					gtk_list_store_set( ListStore, &iter, data, pSymbol->VarName, -1);
 					if ( pSymbol->Symbol[0]=='\0' )
-						strcpy( pSymbol->Symbol, "***" );
+						rtapi_strxcpy( pSymbol->Symbol, "***" );
 					InfosGene->AskConfirmationToQuit = TRUE;
 				}
 				else

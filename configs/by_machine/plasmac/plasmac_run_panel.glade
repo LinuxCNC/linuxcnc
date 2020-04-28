@@ -444,7 +444,6 @@ set to 0 to disable</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">kerf width in machine units</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -713,6 +712,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is disabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
+                                    <signal name="toggled" handler="on_thc_off_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -729,6 +729,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled/disabled from the cut parameters</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_thc_auto_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -745,6 +746,7 @@ set to 0 to disable</property>
                                     <property name="tooltip_text" translatable="yes">THC is enabled</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">thc-auto</property>
+                                    <signal name="toggled" handler="on_thc_on_toggled" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -1013,7 +1015,6 @@ turn off to use cut volts from parameters</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -1054,7 +1055,6 @@ turn off to use cut volts from parameters</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">length of X axis travel for a single cut</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>

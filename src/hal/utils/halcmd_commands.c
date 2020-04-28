@@ -43,6 +43,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
+#include <rtapi_string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1932,7 +1933,12 @@ static void print_thread_info(char **patterns)
             hal_sig_t *sig;
             void *dptr;
   
-            snprintf(name, sizeof(name), "%s.time",tptr->name);
+            size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+            if (ret >=  sizeof(name)){
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "unexpected: pin name too long for buffer %s",tptr->name);
+            } else {
+
             pin = halpr_find_pin_by_name(name);
             if (pin) {
                 if (pin->signal != 0) {
@@ -1953,6 +1959,7 @@ static void print_thread_info(char **patterns)
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      "unexpected: cannot find time pin for %s thread",tptr->name);
+            }
             }
 
 

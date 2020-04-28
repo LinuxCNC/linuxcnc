@@ -92,7 +92,7 @@ class HandlerClass:
         if not self.w.PREFS_:
             self.add_alarm("CRITICAL - no preference file found, enable preferences in screenoptions widget")
             return
-        self.last_loaded_program = self.w.PREFS_.getpref('last_file_path', None, str,'BOOK_KEEPING')
+        self.last_loaded_program = self.w.PREFS_.getpref('RecentPath_0', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
         self.w.chk_reload_program.setChecked(self.w.PREFS_.getpref('Reload program', False, bool,'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_tool.setChecked(self.w.PREFS_.getpref('Reload tool', False, bool,'CUSTOM_FORM_ENTRIES'))
@@ -264,9 +264,11 @@ class HandlerClass:
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
+                STATUS.emit('update-machine-log', 'PreLoad Tool #{}: '.format(self.reload_tool), 'TIME')
                 command = "M61 Q{}".format(self.reload_tool)
                 ACTION.CALL_MDI(command)
-            if self.last_loaded_program and self.w.chk_reload_program.isChecked():
+            if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
+                STATUS.emit('update-machine-log', 'PreLoading NGC: ' + self.last_loaded_program, 'TIME')
                 ACTION.OPEN_PROGRAM(self.last_loaded_program)
                 self.w.filemanager.updateDirectoryView(self.last_loaded_program)
         
@@ -364,7 +366,7 @@ class HandlerClass:
 
     # alarm tab
     def btn_clear_alarms_clicked(self):
-        ACTION.UPDATE_MACHINE_LOG('update-machine-log', None, 'DELETE')
+        ACTION.UPDATE_MACHINE_LOG('', 'DELETE')
 
     def btn_save_alarms_clicked(self):
         text = self.w.machinelog.toPlainText()

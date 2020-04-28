@@ -159,9 +159,7 @@ procedure:
 // . <<remap:extracting-words,extracting words from the current block>>
 . extracting words from the current block  and pass them to the
   procedure as parameters (like `X22.34` or `P47`)
-//. <<remap:referto-inifile-variables, referring to ini file
-//variables>>
-. referring to ini file variables
+. referring to <<gcode:ini-hal-params,ini file variables>>
 . referring to global variables (like `#2200 = 47.11` or
    `#<_global_param> = 315.2`
 
@@ -810,7 +808,7 @@ NGC procedure by returning INTERP_OK.
 Our first iteration of the O-word procedure is unexciting - just
 verify we got parameters right, and signal success by returning a
 positive value; steps 3-5 would eventually be covered here (see
-<<remap:referto-inifile-variables,here>> for the variables referring
+<<gcode:ini-hal-params,here>> for the variables referring
 to ini file settings):
 
 [source,{ngc}]
@@ -1107,8 +1105,8 @@ o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
-NOTE: ini and HAL variable expansion need explicit enabling with the
-<<remap:ini-features,FEATURES>> mask.
+NOTE: ini and HAL variable expansion is optional and can be disabled in
+the <<gcode:ini-features,INI file>>
 
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:
@@ -2597,144 +2595,6 @@ An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
-[[remap:ini-features]](((Enabling optional features)))
-
-== Optional Interpreter features: ini file configuration
-
-There are some interpreter features in this branch which are
-experimental, and not backwards compatible, which is why they need to
-be enabled explicitly. They are specified as follows:
-
-[source,{ini}]
----------------------------------------------------------------------
-  [RS274NGC]
-  FEATURES = <feature mask>
----------------------------------------------------------------------
-
-Mask bits are:
-
-`Retain G43: 1 (experimental)`:: 
-  When set, you can  turn on G43 after loading the first tool,
-        and then not worry about it through the program.  When you
-  finally unload the last tool, G43 mode is canceled. 
-  This is experimental as it changes the
-  operation of legal ngc program, but it could be argued that
-  those programs are buggy or likely to be not what the author
-        intended.
- 
-`add n_args parameter:  2`::
-       A called subroutine can determine the number of actual positional 
-       parameters passed by inspecting the +#<n_args>+ parameter.
-
-`enable #<_ini[section]name> read only variables:  4`:: 
-  if set, the interpreter will fetch read-only values from the
-  ini file through this special variable syntax.
-
-`enable #<_hal[Hal item]> read only variables: 8`:: 
-  if set, the interpreter will fetch read-only values from HAL 
-  file through this special variable syntax.
-
-`preserve case in O-word names within comments: 16`:: 
-    if set, enables reading of mixed-case HAL items in
-    structured comments like  '(debug, #<_hal[MixedCaseItem])'.
-    Really a kludge which should go away.
-
-[[remap:referto-inifile-variables]]
-
-== Named parameters and inifile variables
-
-To access ini file values from G-code,  use the following named
-parameter syntax:
-
-    #<_ini[section]name>
-
-For example, if the ini file looks like so:
-
-[source,{ini}]
----------------------------------------------------------------------
-[SETUP]
-XPOS = 3.145
-YPOS = 2.718
----------------------------------------------------------------------
-
-you may refer to the O-word named parameters `#<_ini[setup]xpos>` and
-`#<_ini[setup]ypos>` within G-code.
-
-`EXISTS` can be used to test for presence of a given ini file
-variable:
-
-[source,{ngc}]
----------------------------------------------------------------------
-o100 if [EXISTS[#<_ini[setup]xpos>]]
-  (debug, [setup]xpos exists: #<_ini[setup]xpos>)
-o100 else
-  (debug, [setup]xpos does not exist)
-o100 endif
----------------------------------------------------------------------
-
-The value is read from the inifile once, and cached in the
-interpreter. These parameters are read-only - assigning a value will
-cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the ini file.
-
-Permanent setup information is usually stored in the ini file. While
-ini variables can be easily accessed from the shell, Python and C code,
-so far there was no way to refer to ini file variables from G-code.
-This release enables such access. The feature was motivated by the
-need to replace ini variables which are currently used in the
-hard-coded tool change process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
-
-CAUTION: this section doesn't really belong here but since it comes with
-the same branch, here it rests for now until it's clear this will be
-merged. It should go into the gcode/overview Named Parameters section.
-
-[[remap:referto-hal-items]]
-
-== Named parameters and HAL items
-
-The variables are read during read-ahead and should not be used for run time
-evaluation of 'current position' or other execution time variables.
-
-To read arbitrary HAL pins, signals and parameters from G-code,  use the following named
-parameter syntax:
-
-    #<_hal[hal_name]>
-
-where `hal_name` may be a pin, parameter or signal name. 
-
-Example:
-
-[source,{ngc}]
----------------------------------------------------------------------
-(debug, #<_hal[motion-controller.time]>)
----------------------------------------------------------------------
-
-Access of HAL items is read-only. Currently, only all-lowercase HAL
-names can be accessed this way.
-
-`EXISTS` can be used to test for the presence of a given HAL item:
-
-[source,{ngc}]
----------------------------------------------------------------------
-o100 if [EXISTS[#<_hal[motion-controller.time]>]]
-  (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
-o100 else
-  (debug, [motion-controller.time] does not exist)
-o100 endif
----------------------------------------------------------------------
-
-This feature was motivated by the desire for stronger coupling between
-user interface components like `GladeVCP` and `PyVCP` to act as
-parameter source for driving NGC file behavior. The alternative -
-going through the M6x pins and wiring them - has a limited,
-non-mnemonic namespace and is unnecessarily cumbersome just as a
-UI/Interpreter communications mechanism.
-
-NOTE: The values are are only updated when the G code is not running.
-
-CAUTION: this section doesn't really belong here but since it comes with
-the same branch, here it rests for now until it's clear this will be
-merged. It should go into the gcode/overview Named Parameters section.
 
 ==  Status
 

@@ -11,7 +11,7 @@
 ..
 .SH NAME
 
-hal_port \- a hal pin type that acts as an asyncronous one way byte stream
+hal_port \- a hal pin type that acts as an asynchronous one way byte stream
 
 .SH SYNOPSIS
 

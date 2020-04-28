@@ -326,13 +326,13 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             switch (sec_pin) {
                 case 0x41: return "Strobe";
                 default:
-                    sprintf(unknown, "Data%02x",sec_pin - 1);
+                    snprintf(unknown, sizeof(unknown), "Data%02x",sec_pin - 1);
                     return unknown;
             }
             break;
 
         case HM2_GTAG_BINOSC: // Not Supported Currently
-             sprintf(unknown, "Out%02x",sec_pin -1);
+             snprintf(unknown, sizeof(unknown), "Out%02x",sec_pin -1);
              return unknown;
              break;
 
@@ -366,21 +366,21 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 
         case HM2_GTAG_TWIDDLER: // Not Supported Currently
              if (sec_pin < 0x20){
-                 sprintf(unknown, "In%02x", sec_pin - 1);
+                 snprintf(unknown, sizeof(unknown), "In%02x", sec_pin - 1);
              } else if (sec_pin > 0xC0){
-                 sprintf(unknown, "IO%02x", sec_pin - 1);
+                 snprintf(unknown, sizeof(unknown), "IO%02x", sec_pin - 1);
              } else {
-                 sprintf(unknown, "Out%02x", sec_pin - 1);
+                 snprintf(unknown, sizeof(unknown), "Out%02x", sec_pin - 1);
              }
              return unknown;
              break;
 
         case HM2_GTAG_SSR:
             if ((sec_pin >= 1) && (sec_pin <= 31)) {
-                sprintf(unknown, "Out-%02d",sec_pin - 1);
+                snprintf(unknown, sizeof(unknown), "Out-%02d",sec_pin - 1);
                 return unknown;
             } else if (sec_pin == 32) {
-                sprintf(unknown, "AC Ref");
+                snprintf(unknown, sizeof(unknown), "AC Ref (internal)");
                 return unknown;
             }
             break;

@@ -54,6 +54,7 @@
 
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
+#include <rtapi_string.h>
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
@@ -955,13 +956,13 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
     }
 
     if(!isprint(event->string[0])) {
-	strcpy(search_target, "");
+	rtapi_strxcpy(search_target, "");
 	search_row = clist->focus_row;
 	return 0;
     }
 
     if(event->time - search_time > SEARCH_RESET_TIME) {
-	strcpy(search_target, "");
+	rtapi_strxcpy(search_target, "");
 	search_row = clist->focus_row;
     }
 
@@ -973,7 +974,7 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
 	    search_row = 0;
 	printf(_("next search: %d\n"), search_row);
     } else {
-	strcat(search_target, event->string);
+	rtapi_strxcat(search_target, event->string);
     }
     
     for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {

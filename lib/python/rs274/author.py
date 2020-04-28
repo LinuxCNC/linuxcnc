@@ -46,7 +46,7 @@ def rad1(x1,y1,x2,y2,x3,y3):
     y31 = y3-y1
 
     den = abs(x12 * y23 - x23 * y12)
-    if abs(den) < 1e-5: return sys.maxint
+    if abs(den) < 1e-5: return sys.maxsize
 
     #print "rad1", x1, y1, x2, y2, x3, y3
     math.hypot(x12, y12) * math.hypot(x23, y23) * math.hypot(x31, y31) / 2 / den
@@ -79,7 +79,7 @@ def cent1(x1,y1,x2,y2,x3,y3):
     P3 = Point(x3,y3)
 
     den = abs((P1-P2).cross(P2-P3))
-    if abs(den) < 1e-5: return sys.maxint, sys.maxint
+    if abs(den) < 1e-5: return sys.maxsize, sys.maxsize
 
     alpha = (P2-P3).mag2() * (P1-P2).dot(P1-P3) / 2 / den / den
     beta  = (P1-P3).mag2() * (P2-P1).dot(P2-P3) / 2 / den / den
@@ -100,7 +100,7 @@ def arc_center(plane, p1, p2, p3):
     if plane == 19: return cent1(y1,z1,y2,z2,y3,z3)
     
 def arc_rad(plane, P1, P2, P3):
-    if plane is None: return sys.maxint
+    if plane is None: return sys.maxsize
 
     x1, y1, z1 = P1
     x2, y2, z2 = P2
@@ -111,7 +111,8 @@ def arc_rad(plane, P1, P2, P3):
     if plane == 19: return rad1(y1,z1,y2,z2,y3,z3)
     return None, 0
 
-def get_pts(plane, (x,y,z)):
+def get_pts(plane, xxx_todo_changeme):
+    (x,y,z) = xxx_todo_changeme
     if plane == 17: return x,y
     if plane == 18: return x,z
     if plane == 19: return y,z
@@ -195,7 +196,7 @@ be specified only when there is only movement on 2 axes
     
     worst_dist = 0
     worst = 0
-    min_rad = sys.maxint
+    min_rad = sys.maxsize
     max_arc = -1
 
     ps = st[0]
@@ -214,7 +215,7 @@ be specified only when there is only movement on 2 axes
 		min_rad = rad
 
     worst_arc_dist = 0
-    if min_rad != sys.maxint:
+    if min_rad != sys.maxsize:
 	c1, c2 = arc_center(plane, ps, st[max_arc], pe)
 	lx, ly, lz = st[0]
 	if one_quadrant(plane, (c1, c2), ps, st[max_arc], pe):
@@ -222,7 +223,7 @@ be specified only when there is only movement on 2 axes
 		if plane == 17: dist = abs(math.hypot(c1-x, c2-y) - min_rad)
 		elif plane == 18: dist = abs(math.hypot(c1-x, c2-z) - min_rad)
 		elif plane == 19: dist = abs(math.hypot(c1-y, c2-z) - min_rad)
-		else: dist = sys.maxint
+		else: dist = sys.maxsize
 		#print >>sys.stderr, "wad", dist, worst_arc_dist
 		if dist > worst_arc_dist: worst_arc_dist = dist
 
@@ -232,15 +233,15 @@ be specified only when there is only movement on 2 axes
 		if plane == 17: dist = abs(math.hypot(c1-mx, c2-my) - min_rad)
 		elif plane == 18: dist = abs(math.hypot(c1-mx, c2-mz) - min_rad)
 		elif plane == 19: dist = abs(math.hypot(c1-my, c2-mz) - min_rad)
-		else: dist = sys.maxint
+		else: dist = sys.maxsize
 		#if dist > worst_arc_dist: worst_arc_dist = dist
 
 		lx, ly, lz = x, y, z
 	else:
-	    worst_arc_dist = sys.maxint
+	    worst_arc_dist = sys.maxsize
 
     else:
-	worst_arc_dist = sys.maxint
+	worst_arc_dist = sys.maxsize
 
     #if worst_arc_dist != sys.maxint:
 	#print >>sys.stderr, "douglas", len(st), "\n\t", st[0], "\n\t", st[max_arc], "\n\t", st[-1]

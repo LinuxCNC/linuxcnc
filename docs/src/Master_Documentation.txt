@@ -201,6 +201,8 @@ include::drivers/pico-ppmc.txt[]
 
 include::drivers/pluto-p.txt[]
 
+include::drivers/pmx485.txt[]
+
 include::drivers/servo-to-go.txt[]
 
 include::drivers/shuttle.txt[]
@@ -277,6 +279,8 @@ include::hal/halmodule.txt[]
 :leveloffset: 1
 
 include::motion/kinematics.txt[]
+
+include::motion/dh-parameters.txt[]
 
 include::motion/5-axis-kinematics.txt[]
 

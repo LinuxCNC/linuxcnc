@@ -306,6 +306,7 @@
 #ifndef NO_INI
 #include "inifile.h"		/* iniFind() from libnml */
 #endif
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -468,16 +469,16 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
-   strcat(context->outBuf, "\r\n");
+   rtapi_strxcat(context->outBuf, "\r\n");
    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static void sockWriteError(const char *nakStr, connectionRecType *context)
 {
   if (context->verbose == 1)
-    sprintf(context->outBuf, "%s %s", nakStr, errorStr);
+    snprintf(context->outBuf, sizeof(context->outBuf), "%s %s", nakStr, errorStr);
   else
-    sprintf(context->outBuf, "%s", nakStr);
+    snprintf(context->outBuf, sizeof(context->outBuf), "%s", nakStr);
   if(sockWrite(context) < 0) perror("sockWrite");
 }
 
@@ -521,7 +522,7 @@ pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {
 	execvp(argv[0], argv);
 	/* should never get here */
 //	halcmd_error("execv(%s) failed\n", argv[0] );
-        sprintf(errorStr, "execv(%s) failed", argv[0]);
+        snprintf(errorStr, sizeof(errorStr), "execv(%s) failed", argv[0]);
         sockWriteError(nakStr, context);
 	exit(1);
     }
@@ -551,20 +552,20 @@ int hal_systemv(char *const argv[], connectionRecType *context) {
     /* check result of waitpid() */
     if ( retval < 0 ) {
 //	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );
-        sprintf(errorStr, "waitpid(%d) failed: %s", pid, strerror(errno));
+        snprintf(errorStr, sizeof(errorStr), "waitpid(%d) failed: %s", pid, strerror(errno));
         sockWriteError(nakStr, context);
 	return -1;
     }
     if ( WIFEXITED(status) == 0 ) {
 //	halcmd_error("child did not exit normally\n");
-        sprintf(errorStr, "child did not exit normally");
+        snprintf(errorStr, sizeof(errorStr), "child did not exit normally");
         sockWriteError(nakStr, context);
 	return -1;
     }
     retval = WEXITSTATUS(status);
     if ( retval != 0 ) {
 //	halcmd_error("exit value: %d\n", retval );
-        sprintf(errorStr, "exit value: %d", retval);
+        snprintf(errorStr, sizeof(errorStr), "exit value: %d", retval);
         sockWriteError(nakStr, context);
 	return -1;
     }
@@ -638,7 +639,7 @@ static int doLock(char *command, connectionRecType *context)
             retval = hal_set_lock(HAL_LOCK_ALL);
 
     if (retval != 0) {
-      sprintf(errorStr, "HAL:%d: Locking failed", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: Locking failed", linenumber);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -660,7 +661,7 @@ static int doUnlock(char *command, connectionRecType *context)
           retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
 
     if (retval != 0) {
-      sprintf(errorStr, "HAL:%d: Unlocking failed", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: Unlocking failed", linenumber);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -679,14 +680,14 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     if (first_pin == 0) {
 	/* first pin not found*/
       rtapi_mutex_give(&(hal_data->mutex));
-      sprintf(errorStr, "HAL:%d: ERROR: pin '%s' not found\n", linenumber, first_pin_name);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pin '%s' not found\n", linenumber, first_pin_name);
       sockWriteError(nakStr, context);
       return -EINVAL; 
       } 
     else 
       if (second_pin == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
-        sprintf(errorStr, "HAL:%d: ERROR: pin '%s' not found", linenumber, second_pin_name);
+        snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pin '%s' not found", linenumber, second_pin_name);
         sockWriteError(nakStr, context);
 	return -EINVAL; 
         }
@@ -697,7 +698,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     /* check that both pins have the same type, 
        don't want ot create a sig, which after that won't be useful */
     if (first_pin->type != second_pin->type) {
-      sprintf(errorStr, "HAL:%d: ERROR: pins '%s' and '%s' not of the same type", 
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pins '%s' and '%s' not of the same type", 
 	  linenumber, first_pin_name, second_pin_name);
       sockWriteError(nakStr, context);
       return -EINVAL; 
@@ -715,7 +716,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
         retval = hal_link(second_pin_name, first_pin_name);
       }
     if (retval < 0) {
-      sprintf(errorStr, "HAL:%d: linkpp failed", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: linkpp failed", linenumber);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -730,11 +731,11 @@ int doLinkPS(char *pin, char *sig, connectionRecType *context)
     if (retval == 0) {
 	/* print success message */
 //        halcmd_info("Pin '%s' linked to signal '%s'\n", pin, sig);
-          sprintf(errorStr, "Pin '%s' linked to signal '%s'", pin, sig);
+          snprintf(errorStr, sizeof(errorStr), "Pin '%s' linked to signal '%s'", pin, sig);
           sockWriteError(nakStr, context);
     } else {
 //        halcmd_error("link failed\n");
-          sprintf(errorStr, "link failed");
+          snprintf(errorStr, sizeof(errorStr), "link failed");
           sockWriteError(nakStr, context);
     }
     return retval;
@@ -758,7 +759,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
         pin = halpr_find_pin_by_name(pins[i]);
         if(!pin) {
 //            halcmd_error("pin '%s' does not exist\n", pins[i]);
-            sprintf(errorStr, "pin '%s' does not exist", pins[i]);
+            snprintf(errorStr, sizeof(errorStr), "pin '%s' does not exist", pins[i]);
             sockWriteError(nakStr, context);
             return -ENOENT;
         }
@@ -768,7 +769,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 	    continue;
 	} else if(pin->signal != 0) {
 //            halcmd_error("pin '%s' was already linked\n", pin->name);
-            sprintf(errorStr, "pin '%s' was already linked", pin->name);
+            snprintf(errorStr, sizeof(errorStr), "pin '%s' was already linked", pin->name);
             sockWriteError(nakStr, context);
             return -EINVAL;
 	}
@@ -778,14 +779,14 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 	}
         if(type != pin->type) {
 //            halcmd_error("Type mismatch on pin '%s'\n", pin->name);
-            sprintf(errorStr, "Type mismatch on pin '%s'", pin->name);
+            snprintf(errorStr, sizeof(errorStr), "Type mismatch on pin '%s'", pin->name);
             sockWriteError(nakStr, context);
             return -EINVAL;
         }
         if(pin->dir == HAL_OUT) {
             if(writers || bidirs) {
 //                halcmd_error("Signal '%s' can not add OUT pin '%s'\n", signal, pin->name);
-            sprintf(errorStr, "Signal '%s' can not add OUT pin '%s'", signal, pin->name);
+            snprintf(errorStr, sizeof(errorStr), "Signal '%s' can not add OUT pin '%s'", signal, pin->name);
             sockWriteError(nakStr, context);
                 return -EINVAL;
             }
@@ -794,7 +795,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
 	if(pin->dir == HAL_IO) {
             if(writers) {
 //                halcmd_error("Signal '%s' can not add I/O pin '%s'\n", signal, pin->name);
-                sprintf(errorStr, "Signal '%s' can not add I/O pin '%s'", signal, pin->name);
+                snprintf(errorStr, sizeof(errorStr), "Signal '%s' can not add I/O pin '%s'", signal, pin->name);
                 sockWriteError(nakStr, context);
                 return -EINVAL;
             }
@@ -805,7 +806,7 @@ static int preflightNet(char *signal, hal_sig_t *sig, char *pins[], connectionRe
     if(pincnt)
         return 0;
 //    halcmd_error("'net' requires at least one pin, none given\n");
-    sprintf(errorStr, "'net' requires at least one pin, none given");
+    snprintf(errorStr, sizeof(errorStr), "'net' requires at least one pin, none given");
     sockWriteError(nakStr, context);
     return -EINVAL;
 }
@@ -832,7 +833,7 @@ int doNet(char *signal, char *pins[], connectionRecType *context)
 	hal_pin_t *pin = halpr_find_pin_by_name(signal);
 	if(pin) {
 //	    halcmd_error("Signal name '%s' must not be the same as a pin.\n", signal);
-            sprintf(errorStr, "Signal name '%s' must not be the same as a pin.", signal);
+            snprintf(errorStr, sizeof(errorStr), "Signal name '%s' must not be the same as a pin.", signal);
             sockWriteError(nakStr, context);
 	    rtapi_mutex_give(&(hal_data->mutex));
 	    return -ENOENT;
@@ -873,7 +874,7 @@ static int doLink(char *pin, char *sig, connectionRecType *context)
 	retval = hal_link(pin, sig);
     }
     if (retval != 0) {
-      sprintf(errorStr, "HAL:%d: link failed", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: link failed", linenumber);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -896,13 +897,13 @@ static int doNewsig(char *name, char *type, connectionRecType *context)
           if (strcasecmp(type, "s32") == 0)
             retval = hal_signal_new(name, HAL_S32);
           else {
-            sprintf(errorStr, "HAL:%d: Unknown signal type '%s'", 
+            snprintf(errorStr, sizeof(errorStr), "HAL:%d: Unknown signal type '%s'", 
               linenumber, type);
             sockWriteError(nakStr, context);
             retval = -EINVAL;
             }
     if (retval < 0) {
-      sprintf(errorStr, "HAL:%d: newsig failed", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: newsig failed", linenumber);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -978,7 +979,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
         pin = halpr_find_pin_by_name(name);
         if(pin == 0) {
             rtapi_mutex_give(&(hal_data->mutex));
-            sprintf(errorStr,
+            snprintf(errorStr, sizeof(errorStr),
                 "HAL:%d: ERROR: parameter or pin '%s' not found\n", linenumber, name);
             sockWriteError(nakStr, context);
             return -EINVAL;
@@ -987,14 +988,14 @@ static int doSetp(char *name, char *value, connectionRecType *context)
             type = pin->type;
             if(pin->dir == HAL_OUT) {
                 rtapi_mutex_give(&(hal_data->mutex));
-                sprintf(errorStr,
+                snprintf(errorStr, sizeof(errorStr),
                     "HAL:%d: ERROR: pin '%s' is not writable\n", linenumber, name);
                 sockWriteError(nakStr, context);
                 return -EINVAL;
             }
             if(pin->signal != 0) {
                 rtapi_mutex_give(&(hal_data->mutex));
-                sprintf(errorStr,
+                snprintf(errorStr, sizeof(errorStr),
                     "HAL:%d: ERROR: pin '%s' is connected to a signal\n", linenumber, name);
                 sockWriteError(nakStr, context);
                 return -EINVAL;
@@ -1019,7 +1020,7 @@ static int doSetp(char *name, char *value, connectionRecType *context)
 
     rtapi_mutex_give(&(hal_data->mutex));
     if (retval != 0) {
-	sprintf(errorStr, "HAL:%d: setp failed\n", linenumber);
+	snprintf(errorStr, sizeof(errorStr), "HAL:%d: setp failed\n", linenumber);
         sockWriteError(nakStr, context);
     }
     return retval;
@@ -1039,7 +1040,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
     sig = halpr_find_sig_by_name(name);
     if (sig == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
-	sprintf(errorStr,
+	snprintf(errorStr, sizeof(errorStr),
 	    "HAL:%d: ERROR: signal '%s' not found\n", linenumber, name);
         sockWriteError(nakStr, context);
 	return -EINVAL;
@@ -1047,7 +1048,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
     /* found it - does it have a writer? */
     if (sig->writers > 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
-	sprintf(errorStr,
+	snprintf(errorStr, sizeof(errorStr),
 	    "HAL:%d: ERROR: signal '%s' already has writer(s)\n", linenumber, name);
         sockWriteError(nakStr, context);
 	return -EINVAL;
@@ -1058,7 +1059,7 @@ static int doSets(char *name, char *value, connectionRecType *context)
     retval = set_common(type, d_ptr, value, context);
     rtapi_mutex_give(&(hal_data->mutex));
     if (retval != 0) {
-      sprintf(errorStr, "HAL:%d: sets failed\n", linenumber);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: sets failed\n", linenumber);
       sockWriteError(nakStr, context);
     }
     return retval;
@@ -1076,7 +1077,7 @@ static int doAddf(char *name, char *thread, char *parm, connectionRecType *conte
       retval = hal_add_funct_to_thread(name, thread, atoi(parm));
     if (retval != 0) {
       /* print fail message */
-      sprintf(errorStr, "HAL:%d: Unable to add function '%s' to thread '%s'", linenumber, name, thread);
+      snprintf(errorStr, sizeof(errorStr), "HAL:%d: Unable to add function '%s' to thread '%s'", linenumber, name, thread);
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -1090,7 +1091,7 @@ static int doDelf(char *name, char *thread, connectionRecType *context)
     retval = hal_del_funct_from_thread(name, thread);
     if (retval != 0) {
       /* print success message */
-      sprintf(errorStr, "Failed to remove function '%s' from thread '%s'", name, thread);
+      snprintf(errorStr, sizeof(errorStr), "Failed to remove function '%s' from thread '%s'", name, thread);
       sockWriteError(nakStr, context);
     }
     return retval;
@@ -1104,7 +1105,7 @@ static int doStart(connectionRecType *context)
     retval = hal_start_threads();
     if (retval != 0) {
 	    /* print success message */
-      sprintf(errorStr, "Failed to start realtime threads");
+      snprintf(errorStr, sizeof(errorStr), "Failed to start realtime threads");
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -1118,7 +1119,7 @@ static int doStop(connectionRecType *context)
     retval = hal_stop_threads();
     if (retval != 0) {
 	    /* print success message */
-      sprintf(errorStr, "Unable to stop realtime threads");
+      snprintf(errorStr, sizeof(errorStr), "Unable to stop realtime threads");
       sockWriteError(nakStr, context);
       }
     return retval;
@@ -1154,25 +1155,25 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     char mod_path[MAX_CMD_LEN+1];
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
-      sprintf(errorStr,  "HAL is locked, loading of modules is not permitted");
+      snprintf(errorStr, sizeof(errorStr),  "HAL is locked, loading of modules is not permitted");
       sockWriteError(nakStr, context);
 	return -EPERM;
     }
     if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
-      sprintf(errorStr, "Module path too long");
+      snprintf(errorStr, sizeof(errorStr), "Module path too long");
       sockWriteError(nakStr, context);
 	return -1;
     }
 
     /* make full module name '<path>/<name>.o' */
-    strcpy (mod_path, rtmod_dir);
-    strcat (mod_path, "/");
-    strcat (mod_path, mod_name);
-    strcat (mod_path, MODULE_EXT);
+    rtapi_strxcpy (mod_path, rtmod_dir);
+    rtapi_strxcat (mod_path, "/");
+    rtapi_strxcat (mod_path, mod_name);
+    rtapi_strxcat (mod_path, MODULE_EXT);
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */
-      sprintf(errorStr, "Can't find module '%s' in %s", mod_name, rtmod_dir);
+      snprintf(errorStr, sizeof(errorStr), "Can't find module '%s' in %s", mod_name, rtmod_dir);
       sockWriteError(nakStr, context);
         return -1;
     }
@@ -1180,7 +1181,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     // TODO - FIXME - remove test after 2.2.x when blocks isn't functional anymore
     if (strncmp(mod_name, "blocks", 6) == 0) {
 	//usign RTAPI_MSG_ERR as that is the default warning level for halcmd
-        sprintf(errorStr, "blocks is depricated, use the subcomponents generated by 'comp' instead");
+        snprintf(errorStr, sizeof(errorStr), "blocks is depricated, use the subcomponents generated by 'comp' instead");
         sockWriteError(nakStr, context);
     }
 
@@ -1195,7 +1196,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     }
     /* add a NULL to terminate the argv array */
     argv[m] = NULL;
-/*    sprintf(context->outBuf, "Setup argv %s %s %s", argv[0], argv[1], argv[2]);
+/*    snprintf(context->outBuf, sizeof(context->outBuf), "Setup argv %s %s %s", argv[0], argv[1], argv[2]);
     sockWrite(context);
     return 0; */
 
@@ -1204,7 +1205,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 #endif
 
     if ( retval != 0 ) {
-        sprintf(errorStr, "insmod failed, returned %d", retval);
+        snprintf(errorStr, sizeof(errorStr), "insmod failed, returned %d", retval);
         sockWriteError(nakStr, context);
 	return -1;
     }
@@ -1218,7 +1219,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     /* allocate HAL shmem for the string */
     cp1 = hal_malloc(strlen(arg_string)+1);
     if ( cp1 == NULL ) {
-      sprintf(errorStr, "failed to allocate memory for module args");
+      snprintf(errorStr, sizeof(errorStr), "failed to allocate memory for module args");
       sockWriteError(nakStr, context);
 	return -1;
     }
@@ -1230,7 +1231,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     comp = halpr_find_comp_by_name(mod_name);
     if (comp == 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
-        sprintf(errorStr, "module '%s' not loaded", mod_name);
+        snprintf(errorStr, sizeof(errorStr), "module '%s' not loaded", mod_name);
         sockWriteError(nakStr, context);
 	return -EINVAL;
     }
@@ -1275,7 +1276,7 @@ static int doDelsig(char *mod_name, connectionRecType *context)
 
       if (sigs[0][0] == '\0') {
         /* desired signals not found */
-        sprintf(errorStr, "HAL:%d: ERROR: no signals found to be deleted", linenumber);
+        snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: no signals found to be deleted", linenumber);
         sockWriteError(nakStr, context);
         return -1;
         }
@@ -1334,7 +1335,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
     if ( !all && ( comps[0][0] == '\0' )) {
 	/* desired component not found */
 //	halcmd_error("component '%s' is not loaded\n", mod_name);
-        sprintf(errorStr, "component '%s' is not loaded", mod_name);
+        snprintf(errorStr, sizeof(errorStr), "component '%s' is not loaded", mod_name);
         sockWriteError(nakStr, context);
 	return -1;
     }
@@ -1353,7 +1354,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
 	}
     }
 /*    if (retval1 < 0) {
-        sprintf(errorStr, "unloadrt failed");
+        snprintf(errorStr, sizeof(errorStr), "unloadrt failed");
         sockWriteError(nakStr, context);
       } */
     return retval1;
@@ -1698,7 +1699,7 @@ static void getCompInfo(char *pattern, connectionRecType *context)
     while (next != 0) {
       comp = SHMPTR(next);
       if (strncmp(pattern, comp->name, len) == 0) {
-        sprintf(context->outBuf, "COMP %s %02d %s", comp->name, comp->comp_id, (comp->type ? "RT  " : "User"));
+        snprintf(context->outBuf, sizeof(context->outBuf), "COMP %s %02d %s", comp->name, comp->comp_id, (comp->type ? "RT  " : "User"));
 	sockWrite(context);
 	}
       next = comp->next_ptr;
@@ -1731,14 +1732,14 @@ static void getPinInfo(char *pattern, int valuesOnly, connectionRecType *context
 	  dptr = &(pin->dummysig);
 	  }
 	if (valuesOnly == 0)  
-          sprintf(context->outBuf, "PIN %s %s %02d %s %s",
+          snprintf(context->outBuf, sizeof(context->outBuf), "PIN %s %s %02d %s %s",
 	    pin->name,
 	    data_value2((int) pin->type, dptr),
 	    comp->comp_id,
 	    data_type((int) pin->type),
 	    pin_data_dir((int) pin->dir));
 	else
-	  sprintf(context->outBuf, "PINVAL %s %s",
+	  snprintf(context->outBuf, sizeof(context->outBuf), "PINVAL %s %s",
 	    pin->name,
 	    data_value2((int) pin->type, dptr));
 	sockWrite(context);
@@ -1763,12 +1764,12 @@ static void getSigInfo(char *pattern, int valuesOnly, connectionRecType *context
       if (strncmp(pattern, sig->name, len) == 0) {
         dptr = SHMPTR(sig->data_ptr);
         if (valuesOnly == 0)
-          sprintf(context->outBuf, "SIGNAL %s  %s  %s", 
+          snprintf(context->outBuf, sizeof(context->outBuf), "SIGNAL %s  %s  %s", 
             sig->name,
 	    data_value((int) sig->type, dptr),
 	    data_type((int) sig->type));
 	else
-	  sprintf(context->outBuf, "SIGNALVAL %s %s", sig->name, data_value((int) sig->type, dptr));
+	  snprintf(context->outBuf, sizeof(context->outBuf), "SIGNALVAL %s %s", sig->name, data_value((int) sig->type, dptr));
 	sockWrite(context);
         }
       next = sig->next_ptr;
@@ -1790,14 +1791,14 @@ static void getParamInfo(char *pattern, int valuesOnly, connectionRecType *conte
       if ( strncmp(pattern, param->name, len) == 0 ) {
         comp = SHMPTR(param->owner_ptr);
 	if (valuesOnly == 0)
-          sprintf(context->outBuf, "PARAM %s %s %02d %s %s",
+          snprintf(context->outBuf, sizeof(context->outBuf), "PARAM %s %s %02d %s %s",
 	    param->name,
             data_value((int) param->type, SHMPTR(param->data_ptr)),
             comp->comp_id, 
 	    data_type((int) param->type),
             param_data_dir((int) param->dir));
 	else
-	  sprintf(context->outBuf, "PARAMVAL %s %s",
+	  snprintf(context->outBuf, sizeof(context->outBuf), "PARAMVAL %s %s",
 	    param->name,
 	    data_value((int) param->type, SHMPTR(param->data_ptr)));
 	sockWrite(context);
@@ -1820,7 +1821,7 @@ static void getFunctInfo(char *pattern, connectionRecType *context)
       fptr = SHMPTR(next);
       if (strncmp(pattern, fptr->name, len) == 0) {
         comp = SHMPTR(fptr->owner_ptr);
-	sprintf(context->outBuf, "FUNCT %s %02d %08lX %08lX %s %3d", 
+	snprintf(context->outBuf, sizeof(context->outBuf), "FUNCT %s %02d %08lX %08lX %s %3d", 
 	  fptr->name, 
 	  comp->comp_id, 
 	  (unsigned long)fptr->funct,
@@ -1854,7 +1855,12 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
         void* dptr;
         unsigned int runtime_pin_value;
 
-        snprintf(name, sizeof(name), "%s.time",tptr->name);
+        size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+        if (ret >= sizeof(name)) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 "unexpected: pin name too long for %s thread",tptr->name);
+            runtime_pin_value = 0;
+        } else {
         pin = halpr_find_pin_by_name(name);
         if (pin) {
             if (pin->signal != 0) {
@@ -1870,8 +1876,9 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
             rtapi_print_msg(RTAPI_MSG_ERR,
                  "unexpected: cannot find time pin for %s thread",tptr->name);
         }
+	}
 
-        sprintf(context->outBuf, "THREAD %s %11d %s %d %d",
+        snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11d %s %d %d",
 	  tptr->name, 
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
@@ -1887,7 +1894,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
           funct = SHMPTR(fentry->funct_ptr);
           /* scriptmode only uses one line per thread, which contains: 
              thread period, FP flag, name, then all functs separated by spaces  */
-          sprintf(context->outBuf, "SUBTHREAD %s %2d", funct->name, n);
+          snprintf(context->outBuf, sizeof(context->outBuf), "SUBTHREAD %s %2d", funct->name, n);
 	  sockWrite(context);
           n++;
           list_entry = list_next(list_entry);
@@ -2089,7 +2096,7 @@ static int doSave(char *type, char *filename, connectionRecType *context)
     else {
       dst = fopen(filename, "w" );
       if (dst == NULL) {
-	sprintf(errorStr, "HAL:%d: Can't open 'save' destination '%s'", linenumber, filename);
+	snprintf(errorStr, sizeof(errorStr), "HAL:%d: Can't open 'save' destination '%s'", linenumber, filename);
 	sockWriteError(nakStr, context);
 	return -1;
 	}
@@ -2129,7 +2136,7 @@ static int doSave(char *type, char *filename, connectionRecType *context)
 		    if (strcmp(type, "thread") == 0)
 	              save_threads(dst);
                     else {
-	              sprintf(errorStr, "HAL:%d: Unknown 'save' type '%s'", linenumber, type);
+	              snprintf(errorStr, sizeof(errorStr), "HAL:%d: Unknown 'save' type '%s'", linenumber, type);
 		      sockWriteError(nakStr, context);
                       fclose(dst);
 	              return -1;
@@ -2472,11 +2479,11 @@ static halCommandType lookupHalCommand(char *s)
   if (strcmp(pch, pwd) != 0) return -1;
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
-  strcpy(context->hostName, pch);  
+  rtapi_strxcpy(context->hostName, pch);  
   pch = strtok(NULL, delims);
   if (pch == NULL) return -1;
   context->linked = 1;    
-  strcpy(context->version, pch);
+  rtapi_strxcpy(context->version, pch);
   printf("Connected to %s\n\r", context->hostName);
   return 0;
 }
@@ -2485,8 +2492,8 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
 {
   const char *pEchoStr = "ECHO %s";
   
-  if (context->echo == 1) sprintf(context->outBuf, pEchoStr, "ON");
-  else sprintf(context->outBuf, pEchoStr, "OFF");
+  if (context->echo == 1) snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "OFF");
   return rtNoError;
 }
 
@@ -2494,8 +2501,8 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
 {
   const char *pVerboseStr = "VERBOSE %s";
   
-  if (context->verbose == 1) sprintf(context->outBuf, pVerboseStr, "ON");
-  else sprintf(context->outBuf, pVerboseStr, "OFF");
+  if (context->verbose == 1) snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "OFF");
   return rtNoError;
 }
 
@@ -2503,8 +2510,8 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
 {
   const char *pEnableStr = "ENABLE %s";
   
-  if (context->cliSock == enabledConn) sprintf(context->outBuf, pEnableStr, "ON");
-  else sprintf(context->outBuf, pEnableStr, "OFF");
+  if (context->cliSock == enabledConn) snprintf(context->outBuf, sizeof(context->outBuf), pEnableStr, "ON");
+  else snprintf(context->outBuf, sizeof(context->outBuf), pEnableStr, "OFF");
   return rtNoError;
 }
 
@@ -2512,7 +2519,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
-  strcpy(context->outBuf, pConfigStr);
+  rtapi_strxcpy(context->outBuf, pConfigStr);
   return rtNoError;
 }
 
@@ -2521,8 +2528,8 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
   const char *pCommModeStr = "COMM_MODE %s";
   
   switch (context->commMode) {
-    case 0: sprintf(context->outBuf, pCommModeStr, "ASCII"); break;
-    case 1: sprintf(context->outBuf, pCommModeStr, "BINARY"); break;
+    case 0: snprintf(context->outBuf, sizeof(context->outBuf), pCommModeStr, "ASCII"); break;
+    case 1: snprintf(context->outBuf, sizeof(context->outBuf), pCommModeStr, "BINARY"); break;
     }
   return rtNoError;
 }
@@ -2531,7 +2538,7 @@ static cmdResponseType getCommProt(char *s, connectionRecType *context)
 {
   const char *pCommProtStr = "COMM_PROT %s";
   
-  sprintf(context->outBuf, pCommProtStr, context->version);
+  snprintf(context->outBuf, sizeof(context->outBuf), pCommProtStr, context->version);
   return rtNoError;
 }
 
@@ -2747,7 +2754,7 @@ int commandGet(connectionRecType *context)
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError: // Standard error response
-      sprintf(context->outBuf, setCmdNakStr, pch); 
+      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pch); 
       sockWrite(context);
       break;
     case rtCustomError: // Custom error response entered in buffer
@@ -2841,7 +2848,7 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
   
   pVersion = strtok(NULL, delims);
   if (pVersion == NULL) return rtStandardError;
-  strcpy(context->version, pVersion);
+  rtapi_strxcpy(context->version, pVersion);
   return rtNoError;
 }
 
@@ -2851,7 +2858,7 @@ static cmdResponseType setLoadRt(char *s, connectionRecType *context)
   char *args[MAX_TOK+3];
   int i;
   
-  if (s == '\0') return rtCustomHandledError;
+  if (*s == '\0') return rtCustomHandledError;
   i = 0;
   pch = strtok(NULL, delims);
   while (pch != NULL) {
@@ -3064,7 +3071,7 @@ int commandSet(connectionRecType *context)
   strupr(pcmd);
   cmd = lookupHalCommand(pcmd);
   if ((cmd >= hcCommProt) && (context->cliSock != enabledConn)) {
-    sprintf(context->outBuf, setCmdNakStr, pcmd);
+    snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pcmd);
     return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   pch = strtok(NULL, delims);
@@ -3123,14 +3130,14 @@ int commandSet(connectionRecType *context)
   switch (ret) {
     case rtNoError:  
       if (context->verbose) {
-        sprintf(context->outBuf, ackStr, pcmd);
+        snprintf(context->outBuf, sizeof(context->outBuf), ackStr, pcmd);
         retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
         }
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
       break; 
     case rtStandardError:
-      sprintf(context->outBuf, setCmdNakStr, pcmd);
+      snprintf(context->outBuf, sizeof(context->outBuf), setCmdNakStr, pcmd);
       retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
     case rtCustomError: // Custom error response entered in buffer
@@ -3162,100 +3169,100 @@ int commandShutdown(connectionRecType *context)
 
 static int helpGeneral(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Available commands:\n\r");
-  strcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
-  strcat(context->outBuf, "  Get <emc command>\n\r");
-  strcat(context->outBuf, "  Set <emc command>\n\r");
-  strcat(context->outBuf, "  Quit\n\r");
-  strcat(context->outBuf, "  Shutdown\n\r");
-  strcat(context->outBuf, "  Help <command>\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Available commands:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello <password> <client name> <protocol version>\n\r");
+  rtapi_strxcat(context->outBuf, "  Get <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Set <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Quit\n\r");
+  rtapi_strxcat(context->outBuf, "  Shutdown\n\r");
+  rtapi_strxcat(context->outBuf, "  Help <command>\n\r");
   sockWrite(context);
   return 0;
 }
 
 static int helpHello(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
-  strcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
-  strcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
-  strcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
-  strcat(context->outBuf, "  With valid password, server responds with:\n\r");
-  strcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
-  strcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
-  strcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
-  strcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
-  strcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
-  strcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
-  strcat(context->outBuf, "  Hello Nak\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello <Password> <Client Name> <Protocol Version>\n\rWhere:\n\r");
+  rtapi_strxcat(context->outBuf, "  Password is the connection password to allow communications with the CNC server.\n\r");
+  rtapi_strxcat(context->outBuf, "  Client Name is the name of client trying to connect, typically the network name of the client.\n\r");
+  rtapi_strxcat(context->outBuf, "  Protocol Version is the version of the protocol with which the client wishes to use.\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  With valid password, server responds with:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello Ack <Server Name> <Protocol Version>\n\rWhere:\n\r");
+  rtapi_strxcat(context->outBuf, "  Ack is acknowledging the connection has been made.\n\r");
+  rtapi_strxcat(context->outBuf, "  Server Name is the name of the EMC Server to which the client has connected.\n\r");
+  rtapi_strxcat(context->outBuf, "  Protocol Version is the client requested version or latest version support by server if");
+  rtapi_strxcat(context->outBuf, "  the client requests a version later than that supported by the server.\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  With invalid password, the server responds with:\n\r");
+  rtapi_strxcat(context->outBuf, "  Hello Nak\n\r");
   sockWrite(context);
   return 0;
 }
 
 static int helpGet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\rGet <emc command>\n\r");
-  strcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
-  strcat(context->outBuf, "  Emc command may be one of:\n\r");
-  strcat(context->outBuf, "    Comm_mode\n\r");
-  strcat(context->outBuf, "    Comm_prot\n\r");
-  strcat(context->outBuf, "    Comp <comp name\n\r");
-  strcat(context->outBuf, "    Comps\n\r");
-  strcat(context->outBuf, "    Echo\n\r");
-  strcat(context->outBuf, "    Enable\n\r");
-  strcat(context->outBuf, "    Funct <funct name>\n\r");
-  strcat(context->outBuf, "    Functs\n\r");
-  strcat(context->outBuf, "    Param <param name>\n\r");
-  strcat(context->outBuf, "    Params\n\r");
-  strcat(context->outBuf, "    ParamVal <param name>\n\r");
-  strcat(context->outBuf, "    ParamVals\n\r");
-  strcat(context->outBuf, "    Pin <pin name>\n\r");
-  strcat(context->outBuf, "    PinVal <pin name>\n\r");
-  strcat(context->outBuf, "    Pins\n\r");
-  strcat(context->outBuf, "    PinVals\n\r");
-  strcat(context->outBuf, "    Signal <signal name>\n\r");
-  strcat(context->outBuf, "    Signals\n\r");
-  strcat(context->outBuf, "    SigVal <signal name>\n\r");
-  strcat(context->outBuf, "    SigVals\n\r");
-  strcat(context->outBuf, "    Thread <thread name>\n\r");
-  strcat(context->outBuf, "    Threads\n\r");
-  strcat(context->outBuf, "    Verbose\n\r");
-//  strcat(outBuf, "CONFIG\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\rGet <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Get commands require that a hello has been successfully negotiated.\n\r");
+  rtapi_strxcat(context->outBuf, "  Emc command may be one of:\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_mode\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_prot\n\r");
+  rtapi_strxcat(context->outBuf, "    Comp <comp name\n\r");
+  rtapi_strxcat(context->outBuf, "    Comps\n\r");
+  rtapi_strxcat(context->outBuf, "    Echo\n\r");
+  rtapi_strxcat(context->outBuf, "    Enable\n\r");
+  rtapi_strxcat(context->outBuf, "    Funct <funct name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Functs\n\r");
+  rtapi_strxcat(context->outBuf, "    Param <param name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Params\n\r");
+  rtapi_strxcat(context->outBuf, "    ParamVal <param name>\n\r");
+  rtapi_strxcat(context->outBuf, "    ParamVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Pin <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    PinVal <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Pins\n\r");
+  rtapi_strxcat(context->outBuf, "    PinVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Signal <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Signals\n\r");
+  rtapi_strxcat(context->outBuf, "    SigVal <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    SigVals\n\r");
+  rtapi_strxcat(context->outBuf, "    Thread <thread name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Threads\n\r");
+  rtapi_strxcat(context->outBuf, "    Verbose\n\r");
+//  rtapi_strxcat(outBuf, "CONFIG\n\r");
   sockWrite(context);
   return 0;
 }
 
 static int helpSet(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r  Set <emc command>\n\r");
-  strcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
-  strcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
-  strcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    Comm_mode <mode>\n\r");
-  strcat(context->outBuf, "    Comm_prot <protocol>\n\r");
-  strcat(context->outBuf, "    Echo <On | Off>\n\r");
-  strcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
-  strcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
-  strcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
-  strcat(context->outBuf, "    Addf <function name> <threadname> [<parameters>]\n\r");
-  strcat(context->outBuf, "    Delf <function name>\n\r");
-  strcat(context->outBuf, "    DelSig <signal name>\n\r");
-  strcat(context->outBuf, "    Linkpp <pin name> <pin name>\n\r");
-  strcat(context->outBuf, "    Linkps <pin name> <signal name>\n\r");
-  strcat(context->outBuf, "    Linksp <signal name> <pin name>\n\r");
-  strcat(context->outBuf, "    Loadrt <name>\n\r");
-  strcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
-  strcat(context->outBuf, "    Lock <command>\n\r");
-  strcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
-  strcat(context->outBuf, "    NewSig <signal name> <signal type>\n\r");
-  strcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
-  strcat(context->outBuf, "    Setp <pin name> <value>\n\r");
-  strcat(context->outBuf, "    Sets <signal name> <value>\n\r");
-  strcat(context->outBuf, "    Start\n\r");
-  strcat(context->outBuf, "    Stop\n\r");
-  strcat(context->outBuf, "    Unlink <pin name>\n\r");
-  strcat(context->outBuf, "    Unload <name>\n\r");
-  strcat(context->outBuf, "    Unlock <command>\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r  Set <emc command>\n\r");
+  rtapi_strxcat(context->outBuf, "  Set commands require that a hello has been successfully negotiated,\n\r");
+  rtapi_strxcat(context->outBuf, "  in most instances requires that control be enabled by the connection.\n\r");
+  rtapi_strxcat(context->outBuf, "  The set commands not requiring control enabled are:\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_mode <mode>\n\r");
+  rtapi_strxcat(context->outBuf, "    Comm_prot <protocol>\n\r");
+  rtapi_strxcat(context->outBuf, "    Echo <On | Off>\n\r");
+  rtapi_strxcat(context->outBuf, "    Enable <Pwd | Off>\n\r");
+  rtapi_strxcat(context->outBuf, "    Verbose <On | Off>\n\r\n\r");
+  rtapi_strxcat(context->outBuf, "  The set commands requiring control enabled are:\n\r");
+  rtapi_strxcat(context->outBuf, "    Addf <function name> <threadname> [<parameters>]\n\r");
+  rtapi_strxcat(context->outBuf, "    Delf <function name>\n\r");
+  rtapi_strxcat(context->outBuf, "    DelSig <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linkpp <pin name> <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linkps <pin name> <signal name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Linksp <signal name> <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Loadrt <name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Loadusr <name> [<param 1> .. <param n>]\n\r");
+  rtapi_strxcat(context->outBuf, "    Lock <command>\n\r");
+  rtapi_strxcat(context->outBuf, "    Net <signal name> [<pin 1 name> .. <pin n name>\n\r");
+  rtapi_strxcat(context->outBuf, "    NewSig <signal name> <signal type>\n\r");
+  rtapi_strxcat(context->outBuf, "    Save [<hal type> [<file name>]]\n\r");
+  rtapi_strxcat(context->outBuf, "    Setp <pin name> <value>\n\r");
+  rtapi_strxcat(context->outBuf, "    Sets <signal name> <value>\n\r");
+  rtapi_strxcat(context->outBuf, "    Start\n\r");
+  rtapi_strxcat(context->outBuf, "    Stop\n\r");
+  rtapi_strxcat(context->outBuf, "    Unlink <pin name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Unload <name>\n\r");
+  rtapi_strxcat(context->outBuf, "    Unlock <command>\n\r");
   
   sockWrite(context);
   return 0;
@@ -3263,27 +3270,27 @@ static int helpSet(connectionRecType *context)
 
 static int helpQuit(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
-  strcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
-  strcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
-  strcat(context->outBuf, "  a hello, or be in control.");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
+  rtapi_strxcat(context->outBuf, "  The quit command has the server initiate a disconnect from the client,\n\r");
+  rtapi_strxcat(context->outBuf, "  the command has no parameters and no requirements to have negotiated\n\r");
+  rtapi_strxcat(context->outBuf, "  a hello, or be in control.");
   sockWrite(context);
   return 0;
 }
 
 static int helpShutdown(connectionRecType *context)
 {
-  sprintf(context->outBuf, "Usage:\n\r");
-  strcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
-  strcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
-  strcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "Usage:\n\r");
+  rtapi_strxcat(context->outBuf, "  The shutdown command terminates the connection with all clients,\n\r");
+  rtapi_strxcat(context->outBuf, "  and initiates a shutdown of EMC. The command has no parameters, and\n\r");
+  rtapi_strxcat(context->outBuf, "  can only be issued by the connection having control.\n\r");
   sockWrite(context);
   return 0;
 }
 
 static int helpHelp(connectionRecType *context)
 {
-  sprintf(context->outBuf, "If you need help on help, it is time to look into another line of work.\n\r");
+  snprintf(context->outBuf, sizeof(context->outBuf), "If you need help on help, it is time to look into another line of work.\n\r");
   sockWrite(context);
   return 0;
 }
@@ -3302,7 +3309,7 @@ int commandHelp(connectionRecType *context)
   if (strcmp(pch, "QUIT") == 0) return (helpQuit(context));
   if (strcmp(pch, "SHUTDOWN") == 0) return (helpShutdown(context));
   if (strcmp(pch, "HELP") == 0) return (helpHelp(context));
-  sprintf(context->outBuf, "%s is not a valid command.", pch);
+  snprintf(context->outBuf, sizeof(context->outBuf), "%s is not a valid command.", pch);
   sockWrite(context);
   return 0;
 }
@@ -3332,7 +3339,7 @@ int parseCommand(connectionRecType *context)
   static char *setNakStr = "SET NAK\r\n";
 
   pch = strtok(context->inBuf, delims);
-  sprintf(s, helloAckStr, serverName);
+  snprintf(s, sizeof(s), helloAckStr, serverName);
   if (pch != NULL) {
     strupr(pch);
     switch (lookupToken(pch)) {
@@ -3381,8 +3388,8 @@ void *readClient(void *arg)
   context->linked = 0;
   context->echo = 1;
   context->verbose = 0;
-  strcpy(context->version, "1.0");
-  strcpy(context->hostName, "Default");
+  rtapi_strxcpy(context->version, "1.0");
+  rtapi_strxcpy(context->hostName, "Default");
   connCount++;
   context->commMode = 0;
   context->commProt = 0;
@@ -3393,7 +3400,7 @@ void *readClient(void *arg)
     len = read(context->cliSock, &str, 1600);
     if (len <= 0) goto finished;
     str[len] = 0;
-    strcat(buf, str);
+    rtapi_strxcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
     if ((context->echo == 1) && (context->linked == 1)) {
       ret = write(context->cliSock, &buf, strlen(buf));

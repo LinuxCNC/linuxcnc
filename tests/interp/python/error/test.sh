@@ -1,2 +1,2 @@
 #!/bin/sh
-! python -mcanon error.ngc 2>&1
+! python2 -mcanon error.ngc 2>&1

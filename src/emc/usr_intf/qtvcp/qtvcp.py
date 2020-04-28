@@ -346,10 +346,10 @@ Pressing cancel will close linuxcnc.""" % target)
         msg.setInformativeText("QTvcp ERROR! Message # %d"%ERROR_COUNT)
         msg.setWindowTitle("Error")
         msg.setDetailedText(''.join(lines))
-        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
         msg.show()
         retval = msg.exec_()
-        if retval == 4194304: #cancel button
+        if retval == QtWidgets.QMessageBox.Abort: #cancel button
             LOG.critical("Canceled from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
             self.shutdown()
 

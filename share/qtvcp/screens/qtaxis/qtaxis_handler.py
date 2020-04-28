@@ -131,6 +131,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionCalculatorDialog, 'calculatordialog')
         TOOLBAR.configure_action(self.w.actionAlphaMode, 'alpha_mode')
         TOOLBAR.configure_action(self.w.actionInhibitSelection, 'inhibit_selection')
+        TOOLBAR.configure_action(self.w.actionShow_G53_in_DRO,'', self.g53_in_dro_changed)
         TOOLBAR.configure_statusbar(self.w.statusbar,'message_controls')
         self.w.actionQuickRef.triggered.connect(self.quick_reference)
         self.w.actionMachineLog.triggered.connect(self.launch_log_dialog)
@@ -271,6 +272,9 @@ class HandlerClass:
             self.w['dro_label_g5x_%s'%i].imperial_template = unit + i.upper() + '%9.4f'
             self.w['dro_label_g5x_%s'%i].metric_template = unit + i.upper() + '%10.3f'
             self.w['dro_label_g5x_%s'%i].update_units()
+            self.w['dro_label_g53_%s'%i].imperial_template = i.upper() + '%9.4f'
+            self.w['dro_label_g53_%s'%i].metric_template = i.upper() + '%10.3f'
+            self.w['dro_label_g53_%s'%i].update_units()
         self.w.dro_label_g5x_r.angular_template = unit + 'R      %3.2f'
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
@@ -428,6 +432,12 @@ class HandlerClass:
         self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.w.tool_stat.setFixedWidth(60)
         self.w.leftTab.setCornerWidget(self.w.tool_stat)
+
+    def g53_in_dro_changed(self, w, data):
+        if data:
+            self.w.widget_dro_g53.show()
+        else:
+            self.w.widget_dro_g53.hide()
 
     #####################
     # KEY BINDING CALLS #

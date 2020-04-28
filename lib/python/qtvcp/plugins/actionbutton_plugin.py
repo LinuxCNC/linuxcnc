@@ -534,7 +534,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
     def buildtab2(self):
         statusProperties = [['None',None], ['Is Estopped','is_estopped'],
                     ['Is On','is_on'], ['All Homed','is_homed'],
-                    ['is joint Homed','is_joint_homed'],
+                    ['Is Joint Homed','is_joint_homed'],
                     ['Idle','is_idle'], ['Paused','is_paused'],
                     ['Flood','is_flood'], ['Mist','is_mist'],
                     ['Block Delete','is_block_delete'],
@@ -637,11 +637,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.jnum = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
-        label = QtWidgets.QLabel('Shape Selection')
+        label = QtWidgets.QLabel('Joint/Spindle Selection')
         self.jnumCombo = QtWidgets.QComboBox()
         self.jnumCombo.activated.connect(self.onSetOptions)
         for i in range(0,10):
-            self.jnumCombo.addItem('Joint {}'.format(i),i)
+            self.jnumCombo.addItem('{}'.format(i),i)
         self.jnumCombo.setCurrentIndex(self.widget._joint_number)
         hbox.addWidget(label)
         hbox.addStretch(1)
@@ -837,7 +837,11 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.tab2.setLayout(layout)
 
     def statusSelectionChanged(self,index):
-        if self.statusCombo.itemData(index, QtCore.Qt.UserRole + 1) == 'is_joint_homed':
+        choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
+        if choice is None:
+            self.jnum.hide()
+            return
+        if  choice == 'is_joint_homed' or 'is_spindle' in choice:
             self.jnum.show()
         else:
             self.jnum.hide()
@@ -985,10 +989,12 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 self.hfraction.show()
                 self.wfraction.show()
 
-            if self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1) == 'is_joint_homed':
-                self.jnum.show()
-            else:
-                self.jnum.hide()
+            choice = self.statusCombo.itemData(self.statusCombo.currentIndex(), QtCore.Qt.UserRole + 1)
+            if choice is not None:
+                if  choice == 'is_joint_homed' or 'is_spindle' in choice:
+                    self.jnum.show()
+                else:
+                    self.jnum.hide()
         else:
             self.halP.hide()
             self.size.hide()

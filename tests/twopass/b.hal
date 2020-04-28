@@ -1,3 +1,6 @@
 loadrt and2 names=andZ
 net p andZ.in0
-show pin
+list pin
+list param
+list funct
+list sig

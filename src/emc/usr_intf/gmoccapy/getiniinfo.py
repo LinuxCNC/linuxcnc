@@ -166,7 +166,7 @@ class GetIniInfo:
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
                     joint_axis_dic[joint] = axisletter
-        print joint_axis_dic
+        print(joint_axis_dic)
         #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
         return joint_axis_dic, double_axis_letter
 
@@ -432,7 +432,7 @@ class GetIniInfo:
                 if " " in element:
                     print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
-            messages = zip(message_text, message_type, message_pinname)
+            messages = list(zip(message_text, message_type, message_pinname))
             return messages
 
     def get_machine_units(self):

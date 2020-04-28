@@ -478,7 +478,7 @@ class FileDialog(QFileDialog, GeometryMixin):
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('fileDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
             self.sound_type = self.PREFS_.getpref('fileDialog_sound_type', 'READY', str, 'DIALOG_OPTIONS')
-            last_path = self.PREFS_.getpref('last_file_path', self.default_path, str, 'BOOK_KEEPING')
+            last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
             self.setDirectory(last_path)
         else:
             self.play_sound = False
@@ -489,6 +489,9 @@ class FileDialog(QFileDialog, GeometryMixin):
             ext = message.get('EXTENSIONS')
             pre = message.get('FILENAME')
             dir = message.get('DIRECTORY')
+            if dir is None:
+                dir = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
+            print 'one',dir
             geo = message.get('GEONAME') or 'FileDialog-geometry'
             self.read_preference_geometry(geo)
             if name == self._load_request_name:
@@ -497,7 +500,7 @@ class FileDialog(QFileDialog, GeometryMixin):
                     message['RETURN'] = self.load_dialog(ext, pre, dir, True)
                     STATUS.emit('general', message)
                 else:
-                    self.load_dialog(extensions = ext)
+                    self.load_dialog(extensions = ext, preselect = pre, directory = dir,)
             else:
                 if message.get('ID'):
                     message['RETURN'] = self.save_dialog(ext, pre, dir)
@@ -516,6 +519,8 @@ class FileDialog(QFileDialog, GeometryMixin):
             self.selectFile('')
         if directory:
             self.setDirectory(directory)
+        else:
+            self.setDirectory(self.default_path)
         self.setWindowTitle('Open')
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
@@ -528,9 +533,10 @@ class FileDialog(QFileDialog, GeometryMixin):
             self.setDirectory(path)
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
-        if fname and not return_path: 
+        if fname and not return_path:
             if self.PREFS_:
-                self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('last_loaded_directory', path, str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         return fname
@@ -564,7 +570,8 @@ class FileDialog(QFileDialog, GeometryMixin):
         self.record_geometry()
         if fname: 
             if self.PREFS_:
-                self.PREFS_.putpref('last_file_path', path, str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('last_saved_directory', path, str, 'BOOK_KEEPING')
+                self.PREFS_.putpref('RecentSavedPath_0', fname, str, 'BOOK_KEEPING')
         return fname
 
     #**********************

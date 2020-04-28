@@ -242,7 +242,7 @@ class Notification(gtk.Window):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown notification get_property %s' % property.name)
@@ -250,7 +250,7 @@ class Notification(gtk.Window):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 self.queue_draw()
                 if name == 'icon_size':
@@ -283,7 +283,7 @@ def main():
     notification.add_message('Hallo World ', '/usr/share/gmoccapy/images/std_info.gif')
     notification.show()
     def debug(self, text):
-        print "debug", text
+        print("debug", text)
     notification.connect("message_deleted", debug)
     gtk.main()
 

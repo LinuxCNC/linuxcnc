@@ -406,8 +406,8 @@ Note: this is the height above minimum limit</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">THC reaction speed
-for modes 1&amp;2 this is the P gain for THC PID calculations
-for mode 3 this is the percentage of max velocity used for THC</property>
+for modes 0 &amp; 1 this is the P gain for THC PID calculations
+for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="primary_icon_activatable">False</property>
@@ -429,8 +429,8 @@ for mode 3 this is the percentage of max velocity used for THC</property>
                                     <property name="can_focus">False</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">THC reaction speed
-for modes 1&amp;2 this is the P gain for THC PID calculations
-for mode 3 this is the percentage of max velocity used for THC</property>
+for modes 0 &amp; 1 this is the P gain for THC PID calculations
+for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">2</property>
                                     <property name="label" translatable="yes">PID P Gain (Speed)</property>

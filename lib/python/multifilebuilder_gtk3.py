@@ -47,6 +47,6 @@ class MultiFileBuilder:
         objects = [builder.get_object(obj) for builder in self.builders]
         objects = [o for o in objects if o]
         if not objects: return None
-        if len(objects) > 1: raise ValueError, """Use of object with duplicate ID -> '%s'"""% obj
+        if len(objects) > 1: raise ValueError("""Use of object with duplicate ID -> '%s'"""% obj)
         return objects[0]
   
