@@ -235,3 +235,54 @@ Then add the code to the handler file.
         ACTION.SET_MAX_VELOCITY_RATE(INFO.MAX_TRAJ_VELOCITY * (value/100.0))
 
 ----
+== Class Patch the file manager widget
+
+[NOTE]
+Class patching is a little like black magic - so use it only if needed. +
+
+The File manager widget is designed to load a selected program in linuxcnc. +
+But maybe you want to print the file name first. +
+We can 'class patch' the library to redirect the function call. +
+
+In the 'IMPORT SECTION' add: +
+[source,python]
+----
+from qtvcp.widgets.file_manager import FileManager as FM
+----
+
+Here we are going to keep a reference to the original function, so we can still call it +
+Then we redirect the class to call our custom function in the handler file instead. +
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTVCP
+    ##########################################
+
+    # For changing functions in widgets we can 'class patch'.
+    # class patching must be done before the class is instantiated.
+    def class_patch__(self):
+        self.old_load = FM.load # keep a reference of the old function
+        FM.load = self.our_load # redirect function to our handle file function
+----
+
+Ok Now we write a custom function to replace the original. +
+This function must have the same signature as the original function. +
+In this example we are still going to call the original function by using the +
+reference to it we recorded earlier. It requires the first argument to be the widget instance +
+which in this case is self.w.filemanager (the name given in the designer editor) +
+
+[source,python]
+----
+    #####################
+    # GENERAL FUNCTIONS #
+    #####################
+
+    def our_load(self,fname):
+        print fname
+        self.old_load(self.w.filemanager,fname)
+----
+
+Now our custom function will print the file path to the terminal before loading the file. +
+Obviously boring but shows the principle. +
+
+
