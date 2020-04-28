@@ -37,7 +37,7 @@ No Z axis motion is required in G-Code, in fact the standard PlasmaC configurati
 
 For reliable use of PlasmaC you should *NOT* use any Z axis offsets other than coordinate system offsets (G54 ~ G59.3).
 
-Normally it is best to touch off your Z axis to just above the top of your slats during the initial configuration then leave it at that.
+Normally it is best to touch off your Z axis to the Z axis minimum limit during the initial configuration then leave it at that.
 
 == I/O Requirements
 
@@ -85,42 +85,34 @@ IMPORTANT: THESE PINS WILL BE ENTERED LATER INTO THE CONFIGURATOR, THEY SHOULD *
 
 == Installing LinuxCNC
 
+The preferred method of installing LinuxCNC with PlasmaC is by using an ISO image as described below.
+
 The minimum requirement for PlasmaC is LinuxCNC v2.8.
 
-=== If You Do Not Have Linux Installed
-
-Download one of the following ISO images and write it to a bootable device:
-
-* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/ +
-This is the preferred option and is the environment PlasmaC is developed on. +
-If using Mesa Electronics Ethernet hardware then it is required and may also be used for other Mesa Electronics, Pico Systems and parallel port provide the latency is acceptable.
-
-* RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso +
-Try this on a machine that has unacceptable latency when running PREEMPT_RT. +
-Not suitable if using Mesa Electronics Ethernet hardware.
-
-Then boot from the device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNC. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the menu and continue to install the system.
-
-This will give you a machine with the current stable branch (v2.7) of LinuxCNC, go to the next section and follow the type of installation you would like. A *Buildbot* installation is recommended for users that will not be doing any LinuxCNC development.
-
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
+NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions but this is beyond the scope of the Plasmac User Guide. If you wish to follow this path then you will need to install your preferred Linux distribution and then install LinuxCNC v2.8 or later along with any required dependencies, then you can open LinuxCNC and continue with <<sec:testing-linuxcnc, Testing LinuxCNC Installation>>
 
 All PlasmaC development has been done on a Stretch ISO installation.
 
+=== If You Do Not Have Linux Installed
+
+LinuxCNC requires a realtime Linux kernel and there are currently two ISO images available from LinuxCNCDown with different realtime options. One is PREEMPT_RT, this is the preferred option is your machine has acceptable latency but is required if you intend to use a Mesa Electronics ethernet card. The other is RTAI and provides better latency than PREEMPT_RT.
+
+The downloadable ISO images are:
+
+* PREEMPT_RT - http://www.linuxcnc.org/testing-stretch-rtpreempt/
+* RTAI - http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
+
+Download your chosen image and write it to a bootable device, then boot from the device and run it in Live mode to check the latency of the machine. The latency test is in the Main Menu under CNC. You really should have Max Jitter less than 50000, the lower the better. When you are happy with the performance, reboot and select install from the boot menu and continue to install the system.
+
+This will give you a machine with the current stable branch (v2.7) of LinuxCNC which will be upgraded to 2.8 in the next section.
+
+
 === If You Have LinuxCNC v2.7
 
-You can then choose between:
+The method described here is called a Buildbot Installation as it uses prebuilt packages from the LinuxCNC Buildbot to install and update LinuxCNC.
 
-* <<buildbot-install, A Buildbot installation>> +
-This is the preferred method for most users. +
-The LinuxCNC Buildbot provides pre-compiled packages which can be installed and updated by the package manager. 
-* <<rip-install, A Run In Place installation>>. +
-Use this if you wish to do any development work. +
-RIP builds are manually downloaded and compiled locally on your computer.
-
-[[buildbot-install]]
-
-=== Buildbot Installation
+NOTE: There is another method called Run In Place which requires the user to compile LinuxCNC locally. This method is normally used for development work and is beyond the scope of this manual.
+For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
 
 To use the buildbot packages on your computer, first add the buildbot archive signing key to your apt keychain by running this command from a terminal:
 
@@ -186,65 +178,6 @@ Go to <<sec:testing-linuxcnc, testing the linuxCNC installation>>
 
 NOTE: For more information on the LinuxCN Buildbot, see the http://buildbot.linuxcnc.org/[LinuxCNC Buildbot home page]
 
-[[rip-install]]
-
-=== Run In Place Installation
-
-CAUTION: ENSURE YOU ARE *NOT* THE ROOT USER +
-DO *NOT* USE SUDO EXCEPT FOR THE *make setuid* STEP
-
-Open a terminal window:
-
-----
-$ git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
-$ cd linuxcnc-dev/src
-$ ./autogen.sh
-----
-
-for PREEMPT_RT
-
-----
-$ ./configure --with-realtime=uspace
-----
-
-For RTAI
-
-----
-$ ./configure --with-realtime=/usr/realtime-$VERSION
-----
-
-You can then try to compile LinuxCNC.
-
-----
-$ make
-----
-
-If you get errors here have a look at link:../code/building-linuxcnc.html#Satisfying-Build-Dependencies[Satisfying Build Dependencies]
-
-If no errors:
-
-----
-$ sudo make setuid
-$ . ../scripts/rip-environment (that is dot space dot dot slash)
-$ linuxcnc
-----
-
-My preferred method of opening a run in place version of LinuxCNC is:
-
-----
-$ ~/linuxcnc-dev/scripts/linuxcnc
-----
-
-This script can be run from anywhere in the directory structure and will set all the required environment variables and open the LinuxCNC config picker which then allows the selection of a configuration to run from LinuxCNC.
-
-Alternatively you could point the above script directly to an .ini file and open a configuration. This command could then be put in a desktop shortcut.
-
-----
-$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/plasmac/plasmac.ini
-----
-
-NOTE: For more information on a Run In Place installation, see link:../code/building-linuxcnc.html[Building LinuxCNC]
-
 [[sec:testing-linuxcnc]]
 
 === Testing LinuxCNC Installation
@@ -271,7 +204,7 @@ IMPORTANT: DO *NOT* ADD ANY PLASMA CONNECTIONS SUCH AS TORCH_ON OR ARC_OK ETC. H
 
 Recommended settings for the Z axis are:
 
-* Z MINIMUM_LIMIT should be just below top of slats with allowances for float_switch_travel and table_discrepencies.
+* Z MINIMUM_LIMIT should be just below top of the slats with allowances for float_switch_travel and tolerance. So if your float switch took 4mm (0.0157") to activate then set your Z minimum 5mm (0.096) below the lowest slat.
 * Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel (must not be lower than Z HOME_OFFSET)
 * Z HOME should be just below the maximum limit
 
@@ -313,25 +246,13 @@ IMPORTANT: IF YOU ARE USING A *Mesa Electronics THCAD* CARD FOR ARC VOLTAGE MEAS
 
 [[configurator]]
 
-Installing a Plasmac configuration is done from the Configurator, the type of installation determines the location of the Configurator (configurator.py):
-
-=== Start A Plasmac BuildBot Configuration
+Installing a Plasmac configuration is done from the Configurator.
 
 From a terminal:
 
 ====
 $ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
 ====
-
-=== Start A PlasmaC Run In Place Configuration
-
-From a terminal:
-
-====
-$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
-====
-
-TIP: If the Configurator does not run make sure that the file permissions for configurator.py include executable.
 
 === Configure
 
@@ -403,14 +324,8 @@ Fill in the required entries to suit your machine wiring, click *Create* and you
 
 This can be run as follows:
 
-* For a buildbot installation: +
 ----
 $ linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
-----
-
-* For a run in place installation: +
-----
-$ ~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine-name>/<machine-name>.ini
 ----
 
 After creating a new configuration some initial setup is required.
@@ -423,11 +338,31 @@ Open the Config Panel and ensure every one of these settings suits your machine.
 
 See <<config-panel, Config Panel>>
 
-If you use a float switch or ohmic probe then you will need to set the offset in the Config Panel to suit your table. To do this use the Probe Test button. The machine needs to be homed before a probe test can commence. Probe Test will cause the Z axis to probe to the surface of the material then retract to the Pierce Height set in the Run Panel. It will then wait at Pierce Height for 30 seconds during which time you can measure the actual distance and adjust the offset accordingly. Continue this procedure until you are satisfied with the result.
+. axis Z MIMIMUM_LIMIT should be set below the slats by the float switch travel plus a small 'bit' for tolerance. Say your float switch moves 4mm (0.0157") before the switch activates then you should set the Z axis minimum limit to 5mm (0.096) below the lowest slat position.
 
-The next step is not necessary but it does show a more realistic position of the material if you switch the Preview to perspective.
+. axis Z MAXIMUM_LIMIT should be the highest you want the Z axis to travel, it must not be lower than Z HOME_OFFSET but does not need to be at the top of travel.
 
-Jog Z down to the height of your most commonly used material then Touchoff the Z axis with a zero offset. Rehome the Z axis. This never needs changing and is cosmetic only. You could in theory touchoff Z each time you begin a job but there is no advantage as this measurement is not used in a PlasmaC config.
+. axis Z HOME should be at or just below axis Z MAXIMUM_LIMIT.
+
+. Home the Z axis.
+
+. Ensure there is nothing below the torch then Jog Z down until it stops at axis Z MIMIMUM_LIMIT then touchoff the Z axis with the Touchoff button at zero offset. * Home the Z axis again.
+
+If you use a float switch then you will need to set the offset in the Config Panel.
+
+. Home the machine.
+
+. Place some material on the slats under the torch.
+
+. Press the Probe Test button.
+
+. The Z axis will probe down, find the material then move up to Pierce Height. It will wait there for the time set in the ini file, the default is 30 seconds (you can change this if you wish). After this it will rise to the starting height.
+
+. Measure the height above the material.
+
+. If it measures greater than Pierce Height then reduce the Float Travel by the difference, if less than Pierce Height then increase the Float Travel by the difference.
+
+. After the Z axis rises, repeat from #3 above until the Pierce Height is correct. 
 
 IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN UP UNTIL NOW THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF YOU INTEND TO USE CUT VOLTAGES FROM MANUFACTURES CUT CHARTS THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
@@ -477,19 +412,13 @@ Type=Application
 Icon=/usr/share/pixmaps/linuxcncicon.png
 ----
 
-The above Exec line would suit a Buildbot installation. For a Run In Place Installation it should be:
-
-----
-Exec=sh -c "$HOME/linuxcnc-dev/scripts/linuxcnc $HOME/linuxcnc/configs/<machine>/<machine>.ini"
-----
-
 If you would like a terminal window to open behind the GUI window then change the Terminal line to:
 
 ----
 Terminal=true
 ----
 
-Displaying a terminal is be handy for error messages and information messages.
+Displaying a terminal can be handy for error messages and information messages.
  
 == Plasmac Files
 
@@ -1180,7 +1109,7 @@ M2 (end job)
 
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62* or *M64*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.15"). This distance may be specified by adding #<oclength> = n to the gcode file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.0157"). This distance may be specified by adding #<oclength> = n to the gcode file.
 
 * *M62 P3* will turn the torch off (synchronised with motion)
 * *M63 P3* will allow the torch to be turned on (synchronised with motion)
@@ -1249,7 +1178,7 @@ M2 (end job)
 
 * #<holes> = 2 to allow velocity reduction and overcut.
 
-* #<oclength> = n to specify an overcut length different, if this parameter is not specified the default is 4mm (0.015").
+* #<oclength> = n to specify an overcut length different, if this parameter is not specified the default is 4mm (0.0157").
 
 Sample code:
 
@@ -1992,7 +1921,7 @@ If you wish to use this in your own sim configuration then you will need to crea
 
 The method of upgrading is dependent on the type of LinuxCNC installation:
 
-=== Upgrade A LinuxCNC Buildbot Installation
+=== Upgrade LinuxCNC
 
 From a terminal:
 
@@ -2001,30 +1930,11 @@ $ sudo apt-get update
 $ sudo apt-get dist-upgrade
 ----
 
-=== Upgrade A LinuxCNC Run In Place Installation
-
-From a terminal:
-
-----
-$ cd ~/linuxcnc-dev
-$ git pull
-$ cd src
-$ make
-$ sudo make setuid
-----
-
-=== Change Type Of LinuxCNC Installation
-
-It is possible to change the type of LinuxCNC installation:
-
-* If you currently have a working run in place installation and you want to switch to a buildbot installation then do a <<buildbot-install, buildbot installation>>.
-* If you currently have a working buildbot installation and you want to switch to a run in place installation then do a <<rip-install, run in place installation>>.
-
-== Upgrade An Existing PlasmaC Configuration
+== Upgrade PlasmaC
 
 === Automatic Upgrade
 
-PlasmaC will test if it needs an upgrade each time LinuxCNC is started. If it finds that it needs upgrading it will automatically proceed with the upgrade. After the upgrade is complete LinuxCNC will need to be restarted.
+After you have upgraded LinuxCNC, PlasmaC will test if it needs an upgrade when LinuxCNC is started. If it finds that it needs upgrading it will automatically proceed with the upgrade. After the upgrade is complete you may get a warning that LinuxCNC needs to be restarted. This depends on which files needed changing.
 
 === Manual Upgrade
 
@@ -2085,6 +1995,24 @@ When all entries are correct, click *Reconfigure* and your PlasmaC configuration
 Entry descriptions can be found <<configurator-table, here>>
 
 NOTE: Machine Name and .hal File can not be modified.
+
+== Change Type Of LinuxCNC Installation
+
+If you have changed the type of LinuxCNC installation from Buildbot to Run In Place or vice versa you will need to run the Configurator from the new LinuxCNC installation directory, NOT from the ~/linuxcnc/configs directory. This is required to reset the file links for the correct installation type.
+
+From a terminal do one of the following:
+
+Reset to a new Buildbot installation:
+
+====
+$ python /usr/share/doc/linuxcnc/examples/sample-configs/by_machine/plasmac/configurator.py
+====
+
+Reset to a new Run In Place installation:
+
+====
+$ python ~/linuxcnc-dev/configs/by_machine/plasmac/configurator.py
+====
 
 == Materialverter
 
