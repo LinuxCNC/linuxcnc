@@ -657,11 +657,26 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SELECTED_POCKET:
-	*value = _setup.selected_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+        *value = _setup.selected_pocket;
+    }
+    else{//non random get it from the tool table
+        if(_setup.tool_table[_setup.selected_pocket].pocketno == 0){//pocket 0 is special on non-random changers
+            *value = -1;
+        }
+        else{
+	        *value = _setup.tool_table[_setup.selected_pocket].pocketno;
+        }
+    }
 	break;
 
     case NP_CURRENT_POCKET:
-	*value = _setup.current_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+	    *value = _setup.current_pocket;
+    }
+    else{//non random get it from the tool table
+        *value = _setup.tool_table[_setup.current_pocket].pocketno;
+    }
 	break;
 
     case NP_SELECTED_TOOL:

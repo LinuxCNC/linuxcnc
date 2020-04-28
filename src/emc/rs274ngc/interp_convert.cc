@@ -1939,7 +1939,7 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[GM_CUTTER_COMP]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_pocket(settings, tool, &pocket_number)));
+          CHP((find_tool_index(settings, tool, &pocket_number)));
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].diameter) / 2.0;
       orientation = settings->tool_table[pocket_number].orientation;
@@ -3102,7 +3102,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      int pocket;
 	      
 	      // make sure selected tool exists
-	      CHP((find_tool_pocket(settings, toolno, &pocket)));
+	      CHP((find_tool_index(settings, toolno, &pocket)));
 	      settings->current_pocket = pocket;
 	      settings->toolchange_flag = true;
 	      CHANGE_TOOL_NUMBER(settings->current_pocket);
@@ -3664,7 +3664,7 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
 
     is_near_int(&toolno, block->p_number);
 
-    CHP((find_tool_pocket(settings, toolno, &pocket)));
+    CHP((find_tool_index(settings, toolno, &pocket)));
 
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
            block->a_flag || block->b_flag || block->c_flag ||
@@ -5364,7 +5364,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
       if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+        CHP((find_tool_index(settings, block->h_number, &pocket_number)));
     } else if (settings->toolchange_flag) {
         // Tool change is in progress, so the "current tool" is in its
         // original pocket still.
@@ -5400,7 +5400,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->w_flag) tool_offset.w = block->w_number;
   } else if (g_code == G_43_2) {
     CHKS((!block->h_flag), (_("G43.2: H-word missing")));
-    CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    CHP((find_tool_index(settings, block->h_number, &pocket_number)));
     tool_offset = settings->tool_offset;
     tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
     tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
@@ -5466,8 +5466,8 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
                                setup_pointer settings)  //!< pointer to machine settings             
 {
   int pocket;
-  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  SELECT_POCKET(pocket, block->t_number);
+  CHP((find_tool_index(settings, block->t_number, &pocket)));
+  SELECT_TOOL(block->t_number);
   settings->selected_pocket = pocket;
   settings->selected_tool = block->t_number;
   return INTERP_OK;

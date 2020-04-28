@@ -372,11 +372,10 @@ int emcLubeOff()
     return 0;
 }
 
-int emcToolPrepare(int p, int tool)
+int emcToolPrepare(int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
-    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 

@@ -287,7 +287,7 @@ int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
 int emcLubeOn() { return task_methods->emcLubeOn(); }
 int emcLubeOff() { return task_methods->emcLubeOff(); }
-int emcToolPrepare(int p, int tool) { return task_methods->emcToolPrepare(p, tool); }
+int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
 int emcToolUnload()  { return task_methods->emcToolUnload(); }
@@ -614,11 +614,10 @@ int Task::emcLubeOff()
     return 0;
 }
 
-int Task::emcToolPrepare(int p, int tool)
+int Task::emcToolPrepare(int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
-    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 

@@ -2105,12 +2105,11 @@ void CHANGE_TOOL(int slot)
     interp_list.append(load_tool_msg);
 }
 
-/* SELECT_POCKET results from Tn */
-void SELECT_POCKET(int slot , int tool)
+/* SELECT_TOOL results from Tn */
+void SELECT_TOOL(int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
 
-    prep_for_tool_msg.pocket = slot;
     prep_for_tool_msg.tool = tool;
 
     interp_list.append(prep_for_tool_msg);
