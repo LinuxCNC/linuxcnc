@@ -52,7 +52,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.list.setWindowTitle("Dir View")
         self.list.resize(640, 480)
         self.list.clicked[QModelIndex].connect(self.clicked)
-        self.list.activated.connect(self.load)
+        self.list.activated.connect(self._getPathActivated)
         self.list.setAlternatingRowColors(True)
 
         self.cb = QComboBox()
@@ -142,7 +142,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # get current selection and update the path
     # then if the path is good load it into linuxcnc
     # record it in the preference file if available
-    def load(self):
+    def _getPathActivated(self):
         row = self.list.selectionModel().currentIndex()
         self.clicked(row)
 
@@ -150,6 +150,10 @@ class FileManager(QWidget, _HalWidgetBase):
         if fname is None: 
             return
         if fname:
+            self.load(fname)
+
+    # this can be class patched to do somethibg else
+    def load(self, fname):
             if self.PREFS_:
                 self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
                 self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')

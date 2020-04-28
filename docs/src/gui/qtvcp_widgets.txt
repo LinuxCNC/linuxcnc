@@ -75,6 +75,95 @@ It is based on pyQT's QRadioButton
 
 This widget allows a user to set a HAL pin true or false. +
 as an option it can be a toggle button. +
+It also has other options: +
+
+==== LED indicator option
+Indicator_option puts a 'LED' on the top of the button. +
+It can be a triangle, circle, top bar or side bar. +
+The size and position can be adjusted +
+It will indicated the current state of the button, the state of a HAL pin or linuxcnc status. +
+Use properties to customized the indicator (not all are applicable to every LED shape). +
+
+----
+on_color
+off_color
+indicator_size
+circle_diameter
+shape_option
+right_edge_offset
+top_edge_offset
+height_fraction
+width_fraction
+corner_radius
+----
+
+The LED indicator color can be defined in a stylesheet with the following code added to the .qss file. +
+
+----
+Indicated_PushButton{
+qproperty-on_color: #000;
+qproperty-off_color: #444;
+}
+----
+
+or for a particular button: 
+----
+Indicated_PushButton #button_estop{
+qproperty-on_color: black;
+qproperty-off_color: yellow;
+}
+----
+
+Indicated PushButtons have exclusive options: +
+
+* indicator_HAL_pin_option
+* indicator_status_option
+
+Indicator_HAL_pin_option will add a halpin, using the button name + '-led', that controls the +
+button indicator state. +
+
+indicator_status_option will make the LED indicate the state of these selectable linuxcnc status: +
+----
+Is Estopped
+Is On
+All Homed
+Is Joint Homed
+Idle
+Paused
+Flood
+Mist
+Block Delete
+Optional Stop
+Manual
+MDI
+Auto
+Spindle Stopped
+Spindle Fwd
+Spindle Reverse
+On Limits
+----
+==== Text changes on state
+
+Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
+on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
+to specify the text for each state. +
+
+==== Call python commands on state
+
+The python_command_option allow small snippets of python code to be run from the push of a button, +
+with out having to edit the handler file. (though it can call functions in the handler file) +
+When using the command_string properties. +
+'true_python_cmd_string' - a python command that will be called when the button is toggled true +
+'false_python_cmd_string' - a python command that will be called when the button is toggled false +
+ +
+The capitalized word 'INSTANCE' will give access to the widgets instances and handler functions. +
+eg. 'INSTANCE.my_handler_function_call(True)' +
+The capitalized word 'ACTION' will give access to qtvcp's ACTION library. +
+eg. 'ACTION.TOGGLE_FLOOD()' +
+The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's PROGRAM_LOADER library. +
+eg. 'PROGRAM_LOADER.load_halshow()' +
+The capitalized word 'HAL' will give access to HAL's python module. +
+eg. 'HAL.set_p('motion.probe-input','1')' +
 
 It is based on pyQT's QpushButton
 
@@ -669,7 +758,7 @@ It is a comma separated list of keyword and data. +
 
 One can enter MDI commands here. A popup keyboard is available +
 There are also embedded commands available from this Widget. +
-Type, in all capitols, any of these commands to load the respective program: +
+Type, in all capitals, any of these commands to load the respective program: +
 
 * HALMETER +
 * HALSHOW +
@@ -677,21 +766,39 @@ Type, in all capitols, any of these commands to load the respective program: +
 * STATUS +
 * CALIBRATION +
 * CLASSICLADDER +
-* PREFERENCDE - Loads the preference file onto the gcodeEditor+
+* PREFERENCE - Loads the preference file onto the gcodeEditor +
 
 It is based on pyQT's QLineEdit +
 
 === MDIHistory
 
 Displays a scrollable list of past MDI command. +
-A edit line is embedded for commands. +
+A edit line is embedded for MDI commands. +
+There are also embedded commands available from this Widget +
+Type, in all capitals, any of these commands to load the respective program: +
+
+* HALMETER +
+* HALSHOW +
+* HALSCOPE +
+* STATUS +
+* CALIBRATION +
+* CLASSICLADDER +
+* PREFERENCE - Loads the preference file onto the gcodeEditor +
+
+The history is recorded on a file defined in the INI. +
+under the heading [DISPLAY] (this shows the default) +
+
+[source,ini]
+----
+MDI_HISTORY_FILE = '~/.axis_mdi_history'
+----
 
 === MDITouchy
 
 This widget display button and entry lines for use with entering MDI commands. +
 It is based on Linuxcnc's Touchy screen's MDI entry process. +
-It's typically most useful for touch screens. +
-It requires a connection to actually run the MDI command +
+It's large buttons are most useful for touch screens. +
+It requires a handler file connection to actually run the MDI command +
 if the widget was named mditouchy in designer, this command would +
 run the displayed MDI command. +
 
@@ -699,6 +806,49 @@ run the displayed MDI command. +
 ----
 self.w.mditouchy.run_command()
 ----
+
+The macro button will cycle though macro's defined in the INI heading [DISPLAY] +
+add one or more 'MACRO = ' lines.  Each should be of the format: +
+
+[source,ini]
+----
+MACRO = increment xinc yinc
+----
+In this example, increment is the name of the macro, and it accepts two
+parameters, named xinc and yinc.
+
+Now, place the macro in a file named 'increment.ngc', in the +
+'PROGRAM_PREFIX' directory or any directory in the 'SUBROUTINE_PATH'. +
+
+It should look like: +
+
+----
+O<increment> sub
+G91 G0 X#1 Y#2
+G90
+O<increment> endsub
+----
+
+Notice the name of the sub matches the file name and macro name exactly, +
+including case. +
+
+When you invoke the macro by pressing the Macro button +
+you can enter values for xinc and yinc.  These are +
+passed to the macro as '#1' and '#2' respectively.  Parameters you +
+leave empty are passed as value 0. +
+
+If there are several different macros, press the Macro button +
+repeatedly to cycle through them. +
+
+In this simple example, if you enter -1 for xinc and invoke the running of the +
+MDI cycle, a rapid 'G0' move will be invoked, moving one unit to +
+the left. +
+
+This macro capability is useful for edge/hole probing and other setup +
+tasks, as well as perhaps hole milling or other simple operations +
+that can be done from the panel without requiring specially-written +
+gcode programs. +
+
 ===  OriginOffsetView Widget
 
 This widget allows one to modify User System origin offsets directly +
@@ -740,7 +890,8 @@ It is based on pyQT's
 ===  FileManager
 This widget is used to select files to load. +
 It has a the ability to scroll the names with hardware such as a MPG. +
-You can add user selectable filters. +
+
+one can class patch the function 'load(self,fname):' to customize file loading. +
 
 It is based on pyQT's
 

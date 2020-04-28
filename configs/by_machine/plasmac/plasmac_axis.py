@@ -567,11 +567,19 @@ def user_button_pressed(button,commands):
         global probePressed
         global probeTimer
         global probeButton
+        global probeStart
+        global probeText
+        global probeColor
         probePressed = True
         probeButton = button
         if commands.lower().replace('probe-test','').strip():
-            probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
-        hal.set_p('plasmac.probe-test','1')
+            probeStart = time.time()
+            probeTimer = float(commands.lower().replace('probe-test','').strip())
+            hal.set_p('plasmac.probe-test','1')
+            probeText = w(fbuttons + '.button' + probeButton,'cget','-text')
+            probeColor = w(fbuttons + '.button' + probeButton,'cget','-bg')
+            w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
+            w(fbuttons + '.button' + probeButton,'configure','-bg','red')
     elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
         global cutType
         cutType ^= 1
@@ -623,12 +631,16 @@ def user_button_released(button,commands):
        not commands: return
     global probeButton
     global probePressed
+    global probeText
+    global probeColor
     probePressed = False
     if commands.lower() == 'ohmic-test':
         hal.set_p('plasmac.ohmic-test','0')
     elif commands.lower() == 'probe-test':
         if not probeTimer and button == probeButton:
             hal.set_p('plasmac.probe-test','0')
+            w(fbuttons + '.button' + probeButton,'configure','-text',probeText)
+            w(fbuttons + '.button' + probeButton,'configure','-bg',probeColor)
             probeButton = ''
 
 # this is run from axis every cycle
@@ -638,7 +650,11 @@ def user_live_update():
     stat.poll()
     global firstrundone
     global probeTimer
+    global probeStart
+    global probeButton
+    global probeText
     global probePressed
+    global probeColor
     if not firstrundone:
         spaceWidth = w('winfo','width',fmanual)
         spaceWidth -= w('winfo','width',fmonitor)
@@ -712,10 +728,15 @@ def user_live_update():
         w(foverride + '.reset','configure','-state','disabled')
     # decrement probe timer if active
     if probeTimer:
-        if time.time() >= probeTimer:
-            probeTimer = 0
-            if not probePressed:
-                hal.set_p('plasmac.probe-test','0')
+        if time.time() >= probeStart + 1:
+            probeStart += 1
+            probeTimer -= 1
+            w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
+            w(fbuttons + '.button' + probeButton,'configure','-bg','red')
+        if not probeTimer and not probePressed:
+            hal.set_p('plasmac.probe-test','0')
+            w(fbuttons + '.button' + probeButton,'configure','-text',probeText)
+            w(fbuttons + '.button' + probeButton,'configure','-bg',probeColor)
     if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
         hal.set_p('plasmac.consumable-change', '0')
     try:
@@ -724,6 +745,7 @@ def user_live_update():
             hal.set_p('plasmac_run.preview-tab', '0')
     except:
         pass
+
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)
