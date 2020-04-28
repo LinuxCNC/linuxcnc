@@ -96,7 +96,13 @@ def verify_io_pins(state, tool_number, tool_prep_number, tool_prep_pocket):
 
 
 def verify_status_buffer(state, tool_in_spindle):
-    s.poll()
+    deadline = time.time() + 1
+    while time.time() < deadline:
+        s.poll()
+        if s.tool_in_spindle == tool_in_spindle:
+            break
+        time.sleep(.05)
+
     if s.tool_in_spindle != tool_in_spindle:
         print("state=%s, expected status.tool_in_spindle=%d, got %d" % (state, tool_in_spindle, s.tool_in_spindle))
         sys.exit(1)
