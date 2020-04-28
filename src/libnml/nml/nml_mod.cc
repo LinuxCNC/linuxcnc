@@ -61,6 +61,7 @@ extern "C"
 #endif
 
 
+#include <rtapi_string.h>
 #include "nml_mod.hh"
 #include "nml_oi.hh"		// NML_ERROR, NML_TEXT, NML_DISPLAY
 #include "rcs_print.hh"
@@ -529,7 +530,7 @@ NML_MODULE::logError (const char *fmt, ...)
   memset (error_msg.error, 0, NML_ERROR_LEN);
   if (log_line > 0 && log_src != NULL)
     {
-      sprintf (error_msg.error, "%s:%d ", log_src, log_line);
+      snprintf (error_msg.error, sizeof(error_msg.error), "%s:%d ", log_src, log_line);
     }
 
   // write args to NML message
@@ -627,7 +628,7 @@ NML_MODULE::requestDisplay (const char *display)
     return -1;
 
   // write args to NML message
-  strcpy (display_msg.display, display);
+  rtapi_strxcpy (display_msg.display, display);
 
   // force a NULL at the end for safety
   display_msg.display[NML_DISPLAY_LEN - 1] = 0;

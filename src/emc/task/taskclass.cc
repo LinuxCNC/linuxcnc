@@ -35,6 +35,7 @@
 
 #include "python_plugin.hh"
 #include "taskclass.hh"
+#include <rtapi_string.h>
 
 #define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/dict.hpp>
@@ -657,7 +658,7 @@ int Task::emcToolLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE toolLoadToolTableMsg;
 
-    strcpy(toolLoadToolTableMsg.file, file);
+    rtapi_strxcpy(toolLoadToolTableMsg.file, file);
 
     sendCommand(&toolLoadToolTableMsg);
 

@@ -159,7 +159,13 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
     def _hal_init(self):
         self.runButton.setEnabled(False)
-        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False))
+        STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.runButton.setEnabled(STATUS.machine_is_on()
+                                                                and (STATUS.is_all_homed()
+                                                                or INFO.NO_HOME_REQUIRED)))
+        STATUS.connect('interp-run', lambda w: self.runButton.setEnabled(False))
+        STATUS.connect('not-all-homed', lambda w, axis: self.runButton.setEnabled(False or INFO.NO_HOME_REQUIRED))
         STATUS.connect('all-homed', lambda w: self.runButton.setEnabled(True))
         STATUS.connect('general',self.returnFromDialog)
 
@@ -384,6 +390,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         macro = name
         #print 'macro', macro
         for num, i in enumerate(self[name][0]):
+            # check for macro that needs no data
+            if i == ('', ''):break
             # Look for a radio button instance so we can convert to integers
             # other wise we assume text
             if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):

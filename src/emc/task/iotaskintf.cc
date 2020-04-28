@@ -415,7 +415,7 @@ int emcToolLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE toolLoadToolTableMsg;
 
-    strcpy(toolLoadToolTableMsg.file, file);
+    rtapi_strxcpy(toolLoadToolTableMsg.file, file);
 
     sendCommand(&toolLoadToolTableMsg);
 

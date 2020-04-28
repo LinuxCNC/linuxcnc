@@ -1080,7 +1080,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:
@@ -1542,6 +1542,7 @@ fi
 
 AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
 AC_TRY_COMPILE([
+        #include <stdio.h>
         #include <readline/readline.h>
     ],[
         #if RL_VERSION_MAJOR > 5

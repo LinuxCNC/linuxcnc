@@ -1319,7 +1319,7 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="tab">
                 <attribute name="title">
@@ -1410,13 +1410,19 @@
                     <property name="spacing">
                      <number>0</number>
                     </property>
-                    <item row="1" column="0">
+                    <item row="3" column="0">
                      <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1">
                       <property name="spacing">
                        <number>0</number>
                       </property>
                       <item>
                        <widget class="DROLabel" name="dro_label_g5x_x">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="text">
                          <string>%10.3f</string>
                         </property>
@@ -1430,22 +1436,28 @@
                          <number>1</number>
                         </property>
                         <property name="metric_template" stdset="0">
-                         <string>%10.3f</string>
+                         <string>X %10.3f</string>
                         </property>
                         <property name="imperial_template" stdset="0">
-                         <string>%9.4f</string>
+                         <string>X %9.4f</string>
                         </property>
                        </widget>
                       </item>
                      </layout>
                     </item>
-                    <item row="3" column="0">
+                    <item row="5" column="0">
                      <layout class="QHBoxLayout" name="horizontalLayout_19">
                       <property name="spacing">
                        <number>0</number>
                       </property>
                       <item>
                        <widget class="DROLabel" name="dro_label_g5x_z">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="text">
                          <string>%10.3f</string>
                         </property>
@@ -1471,13 +1483,19 @@
                       </item>
                      </layout>
                     </item>
-                    <item row="4" column="0">
+                    <item row="6" column="0">
                      <layout class="QHBoxLayout" name="horizontalLayout_20">
                       <property name="spacing">
                        <number>0</number>
                       </property>
                       <item>
                        <widget class="DROLabel" name="dro_label_g5x_r">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="text">
                          <string>%10.3f</string>
                         </property>
@@ -1506,13 +1524,19 @@
                       </item>
                      </layout>
                     </item>
-                    <item row="2" column="0">
+                    <item row="4" column="0">
                      <layout class="QHBoxLayout" name="horizontalLayout_18">
                       <property name="spacing">
                        <number>0</number>
                       </property>
                       <item>
                        <widget class="DROLabel" name="dro_label_g5x_y">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="text">
                          <string>%10.3f</string>
                         </property>
@@ -1537,6 +1561,108 @@
                        </widget>
                       </item>
                      </layout>
+                    </item>
+                    <item row="0" column="0">
+                     <widget class="QWidget" name="widget_dro_g53" native="true">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout">
+                       <property name="spacing">
+                        <number>0</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <layout class="QVBoxLayout" name="verticalLayout_6">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_g53_y">
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="DROLabel" name="dro_label_g53_y">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="Qjoint_number" stdset="0">
+                              <number>1</number>
+                             </property>
+                             <property name="metric_template" stdset="0">
+                              <string>Y %10.3f</string>
+                             </property>
+                             <property name="imperial_template" stdset="0">
+                              <string>Y %9.4f</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_g53_z">
+                           <property name="spacing">
+                            <number>0</number>
+                           </property>
+                           <item>
+                            <widget class="DROLabel" name="dro_label_g53_z">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="Qjoint_number" stdset="0">
+                              <number>2</number>
+                             </property>
+                             <property name="metric_template" stdset="0">
+                              <string>Z %10.3f</string>
+                             </property>
+                             <property name="imperial_template" stdset="0">
+                              <string>Z %9.4f</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
+                          <widget class="DROLabel" name="dro_label_g53_x">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="metric_template" stdset="0">
+                            <string>X %10.3f</string>
+                           </property>
+                           <property name="imperial_template" stdset="0">
+                            <string>X %9.4f</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                      </layout>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
@@ -1686,6 +1812,7 @@
     <addaction name="actionRotatedView"/>
     <addaction name="actionClearPlot"/>
     <addaction name="actionShowOffsets"/>
+    <addaction name="actionShow_G53_in_DRO"/>
     <addaction name="menuGridSize"/>
     <addaction name="actionAlphaMode"/>
     <addaction name="actionInhibitSelection"/>
@@ -2097,6 +2224,17 @@
    </property>
    <property name="text">
     <string>Inhibit Selection</string>
+   </property>
+  </action>
+  <action name="actionShow_G53_in_DRO">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show G53 in DRO</string>
    </property>
   </action>
  </widget>

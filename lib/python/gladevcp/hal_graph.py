@@ -21,7 +21,7 @@ import gtk.glade
 import time
 from collections import deque
 
-from hal_widgets import _HalWidgetBase, hal
+from .hal_widgets import _HalWidgetBase, hal
 
 MAX_INT = 0x7fffffff
 

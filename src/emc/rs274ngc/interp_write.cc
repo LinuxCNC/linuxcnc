@@ -114,6 +114,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
             settings->tool_offset.a || settings->tool_offset.b || settings->tool_offset.c ||
             settings->tool_offset.u || settings->tool_offset.v || settings->tool_offset.w) ? G_43 : G_49;
   gez[10] = (settings->retract_mode == OLD_Z) ? G_98 : G_99;
+  // Three modes:  G_64, G_61, G_61_1 or CANON_CONTINUOUS/EXACT_PATH/EXACT_STOP
   gez[11] =
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
@@ -122,6 +123,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
+  gez[16] = (settings->parameters[5210])? G_92_3: G_92_2;
   return INTERP_OK;
 }
 
@@ -196,11 +198,142 @@ int Interp::write_settings(setup_pointer settings)       //!< pointer to machine
   double *vals;
 
   vals = settings->active_settings;
-  vals[0] = settings->sequence_number;  /* 0 sequence number */
-  vals[1] = settings->feed_rate;        /* 1 feed rate       */
-  vals[2] = settings->speed[0];    /* 2 spindle speed   */
+  vals[0] = settings->sequence_number;    /* 0 sequence number */
+  vals[1] = settings->feed_rate;          /* 1 feed rate       */
+  vals[2] = settings->speed[0];           /* 2 spindle speed   */
+  vals[3] = settings->tolerance;          /* 3 blend tolerance */
+  vals[4] = settings->naivecam_tolerance; /* 4 naive CAM tolerance */
 
   return INTERP_OK;
 }
 
+int Interp::write_state_tag(block_pointer block,
+			    setup_pointer settings,
+			    StateTag &state)
+{
+
+    state.fields[GM_FIELD_LINE_NUMBER] = settings->sequence_number;
+    //FIXME refactor these into setup methods, and maybe put this
+    //whole method in setup struct
+    bool in_remap = (settings->remap_level > 0);
+    bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
+    bool external_sub = strcmp(settings->filename,
+			       settings->sub_context[0].filename);
+
+    state.flags[GM_FLAG_IN_REMAP] = in_remap;
+    state.flags[GM_FLAG_IN_SUB] = in_sub;
+    state.flags[GM_FLAG_EXTERNAL_FILE] = external_sub;
+    state.flags[GM_FLAG_RESTORABLE] = !in_remap && !in_sub;
+    state.fields[GM_FIELD_G_MODE_0] =
+	((block == NULL) ? -1 : block->g_modes[0]);
+    state.fields[GM_FIELD_MOTION_MODE] = settings->motion_mode;
+    switch(settings->plane) {
+    case CANON_PLANE_XY:
+	state.fields[GM_FIELD_PLANE] = G_17;
+	break;
+    case CANON_PLANE_XZ:
+	state.fields[GM_FIELD_PLANE] = G_18;
+	break;
+    case CANON_PLANE_YZ:
+	state.fields[GM_FIELD_PLANE] = G_19;
+	break;
+    case CANON_PLANE_UV:
+	state.fields[GM_FIELD_PLANE] = G_17_1;
+	break;
+    case CANON_PLANE_UW:
+	state.fields[GM_FIELD_PLANE] = G_18_1;
+	break;
+    case CANON_PLANE_VW:
+	state.fields[GM_FIELD_PLANE] = G_19_1;
+	break;
+    }
+
+    state.fields[GM_FIELD_CUTTER_COMP] =
+	(settings->cutter_comp_side == RIGHT) ? G_42 :
+	(settings->cutter_comp_side == LEFT) ? G_41 : G_40;
+
+    state.flags[GM_FLAG_UNITS] =
+	(settings->length_units == CANON_UNITS_INCHES);
+
+    state.flags[GM_FLAG_DISTANCE_MODE] =
+	(settings->distance_mode == MODE_ABSOLUTE);
+    state.flags[GM_FLAG_FEED_INVERSE_TIME] =
+	(settings->feed_mode == INVERSE_TIME);
+    state.flags[GM_FLAG_FEED_UPM] =
+	(settings->feed_mode == UNITS_PER_MINUTE);
+
+
+    state.fields[GM_FIELD_ORIGIN] =
+        ((settings->origin_index < 7) ?
+	 (530 + (10 * settings->origin_index)) :
+	 (584 + settings->origin_index));
+
+    state.flags[GM_FLAG_G92_IS_APPLIED] = settings->parameters[5210];
+
+    state.flags[GM_FLAG_TOOL_OFFSETS_ON] =
+	(settings->tool_offset.tran.x ||
+	 settings->tool_offset.tran.y ||
+	 settings->tool_offset.tran.z ||
+	 settings->tool_offset.a ||
+	 settings->tool_offset.b ||
+	 settings->tool_offset.c ||
+	 settings->tool_offset.u ||
+	 settings->tool_offset.v ||
+	 settings->tool_offset.w);
+    state.flags[GM_FLAG_RETRACT_OLDZ] =
+	(settings->retract_mode == OLD_Z);
+
+    state.flags[GM_FLAG_BLEND] =
+	(settings->control_mode == CANON_CONTINUOUS);
+    state.flags[GM_FLAG_EXACT_STOP] =
+	(settings->control_mode == CANON_EXACT_STOP);
+    state.fields_float[GM_FIELD_FLOAT_PATH_TOLERANCE] =
+	settings->tolerance;
+    state.fields_float[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE] =
+	settings->naivecam_tolerance;
+
+    state.flags[GM_FLAG_CSS_MODE] =
+	(settings->spindle_mode[0] == CONSTANT_RPM);
+    state.flags[GM_FLAG_IJK_ABS] =
+	(settings->ijk_distance_mode == MODE_ABSOLUTE);
+    state.flags[GM_FLAG_DIAMETER_MODE] =
+	(settings->lathe_diameter_mode);
+
+
+    state.fields[GM_FIELD_M_MODES_4] =
+	(block == NULL) ? -1 : block->m_modes[4];
+
+    state.flags[GM_FLAG_SPINDLE_ON] =
+	!(settings->spindle_turning[0] != CANON_STOPPED);
+    state.flags[GM_FLAG_SPINDLE_CW] =
+	(settings->spindle_turning[0] == CANON_CLOCKWISE);
+
+    state.fields[GM_FIELD_TOOLCHANGE] =
+	(block == NULL) ? -1 : block->m_modes[6];
+
+    state.flags[GM_FLAG_MIST] = (settings->mist) ;
+    state.flags[GM_FLAG_FLOOD] = (settings->flood);
+
+    state.flags[GM_FLAG_FEED_OVERRIDE] = settings->feed_override;
+    state.flags[GM_FLAG_SPEED_OVERRIDE] = settings->speed_override;
+
+    state.flags[GM_FLAG_ADAPTIVE_FEED] = (settings->adaptive_feed);
+
+    state.flags[GM_FLAG_FEED_HOLD] =  (settings->feed_hold);
+
+    state.fields_float[GM_FIELD_FLOAT_FEED] = settings->feed_rate;
+    state.fields_float[GM_FIELD_FLOAT_SPEED] = settings->speed[0];
+
+    return 0;
+}
+
+int Interp::write_canon_state_tag(block_pointer block, setup_pointer settings)
+{
+    StateTag tag;
+    write_state_tag(block, settings, tag);
+    update_tag(tag);
+    return 0;
+}
+
 /****************************************************************************/
+

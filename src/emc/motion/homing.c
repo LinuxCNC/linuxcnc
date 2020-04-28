@@ -650,7 +650,8 @@ void do_homing(void)
                     H[joint_num].home_flags &= ~HOME_IS_SHARED; // shared not applicable
                     H[joint_num].home_state = HOME_SET_SWITCH_POSITION;
                     immediate_state = 1;
-                    H[joint_num].homed = 1;
+                    // Note: H[joint_num].homed
+                    // is not set in case there is a final move requested
 		    break;
                 }
 		if (H[joint_num].home_flags & HOME_UNLOCK_FIRST) {

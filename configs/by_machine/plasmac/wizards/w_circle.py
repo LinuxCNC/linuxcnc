@@ -101,6 +101,7 @@ class circle:
         self.add.set_sensitive(False)
 
     def send_preview(self, event):
+        self.check_entries()
         self.s.poll()
         xPos = self.s.actual_position[0] - self.s.g5x_offset[0] - self.s.g92_offset[0]
         yPos = self.s.actual_position[1] - self.s.g5x_offset[1] - self.s.g92_offset[1]
@@ -111,6 +112,13 @@ class circle:
         if radius > 0:
             angle = math.radians(45)
             ijOffset = radius * math.sin(angle)
+            ijDiff = 0
+            if self.offset.get_active():
+                if self.outside.get_active():
+                    ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * math.sin(angle)
+                else:
+                    ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2 * -math.sin(angle)
+
             if self.liEntry.get_text():
                 leadInOffset = math.sin(angle) * float(self.liEntry.get_text())
             else:
@@ -139,8 +147,8 @@ class circle:
                     yC = yPos
                 else:
                     yC = yPos + radius
-            xS = xC - ijOffset
-            yS = yC - ijOffset
+            xS = xC - ijOffset - ijDiff
+            yS = yC - ijOffset - ijDiff
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
@@ -149,7 +157,7 @@ class circle:
                 dir = [left, down]
             else:
                 dir = [right, up]
-            if not self.outside.get_active() and radius < self.sRadius:
+            if radius <= self.sRadius:
                 sHole = True
                 if leadInOffset > radius:
                     leadInOffset = radius
@@ -159,6 +167,10 @@ class circle:
             self.fNgc = '{}/shape.ngc'.format(self.tmpDir)
             outTmp = open(self.fTmp, 'w')
             outNgc = open(self.fNgc, 'w')
+            if sHole:
+                speed = 0.6
+            else:
+                speed = 1.0
             if os.path.exists(self.fWizard):
                 inWiz = open(self.fWizard, 'r')
                 for line in inWiz:
@@ -166,37 +178,35 @@ class circle:
                         break
                     outNgc.write(line)
             else:
+                outNgc.write('(preamble)\n')
                 outNgc.write('{}\n'.format(self.preamble))
                 outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             outTmp.write('\n(wizard circle)\n')
+            if sHole:
+                outTmp.write('M67 E3 Q60 (reduce feed rate to 60%)\n')
             if leadInOffset > 0:
-                if sHole:
+                if sHole and not self.outside.get_active():
                     xlStart = xS + leadInOffset * math.cos(angle)
                     ylStart = yS + leadInOffset * math.sin(angle)
-                    outTmp.write('m67 E3 Q{}\n'.format(self.hSpeed))
-                    outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-                    if self.offset.get_active():
-                        outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
-                    outTmp.write('m3 $0 s1\n')
-                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 else:
                     xlCentre = xS + (leadInOffset * math.cos(angle + dir[0]))
                     ylCentre = yS + (leadInOffset * math.sin(angle + dir[0]))
                     xlStart = xlCentre + (leadInOffset * math.cos(angle + dir[1]))
                     ylStart = ylCentre + (leadInOffset * math.sin(angle + dir[1]))
-                    outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-                    if self.offset.get_active():
-                        outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
-                    outTmp.write('m3 $0 s1\n')
+                outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
+                outTmp.write('m3 $0 s1\n')
+                if sHole and not self.outside.get_active():
+                    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+                else:
                     outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
             else:
                 outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 outTmp.write('m3 $0 s1\n')
             if self.outside.get_active():
-                outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
+                outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset + ijDiff))
             else:
-                outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
-            if leadOutOffset and not sHole:
+                outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset + ijDiff))
+            if leadOutOffset and not self.overcut.get_active() and not (not self.outside.get_active() and sHole):
                     if self.outside.get_active():
                         dir = [left, up]
                     else:
@@ -206,10 +216,17 @@ class circle:
                     xlEnd = xlCentre + (leadOutOffset * math.cos(angle + dir[1]))
                     ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[1]))
                     outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd, xlCentre - xS, ylCentre - yS))
-            outTmp.write('g40\n')
-            if sHole:
-                outTmp.write('m67 E3 Q0\n')
+            torch = True
+            if self.overcut.get_active() and sHole and not self.outside.get_active():
+                Torch = False
+                outTmp.write('m62 p3 (disable torch)\n')
+                self.over_cut(xS, yS, ijOffset + ijDiff, radius, outTmp)
             outTmp.write('m5\n')
+            if sHole:
+                outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')
+            if not torch:
+                torch = True
+                outTmp.write('m65 p3 (enable torch)\n')
             outTmp.close()
             outTmp = open(self.fTmp, 'r')
             for line in outTmp:
@@ -224,6 +241,87 @@ class circle:
             hal.set_p('plasmac_run.preview-tab', '1')
         else:
             self.dialog_error('Diameter is required')
+
+    def over_cut(self, lastX, lastY, IJ, radius, outTmp):
+        scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
+        try:
+            oclength = float(self.ocEntry.get_text())
+        except:
+            oclength = 4 * scale
+        centerX = lastX + IJ
+        centerY = lastY + IJ
+        cosA = math.cos(oclength / radius)
+        sinA = math.sin(oclength / radius)
+        cosB = ((lastX - centerX) / radius)
+        sinB = ((lastY - centerY) / radius)
+        #clockwise arc
+        if self.outside.get_active():
+            endX = centerX + radius * ((cosB * cosA) + (sinB * sinA))
+            endY = centerY + radius * ((sinB * cosA) - (cosB * sinA))
+            dir = '2'
+        #counterclockwise arc
+        else:
+            endX = centerX + radius * ((cosB * cosA) - (sinB * sinA))
+            endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
+            dir = '3'
+        outTmp.write('g{0} x{1:.6f} y{2:.6f} i{3:.6f} j{3:.6f}\n'.format(dir, endX, endY, IJ))
+
+    def outside_toggled(self,widget):
+        if widget.get_active():
+            self.overcut.set_active(False)
+            self.ocEntry.set_text('')
+            self.overcut.set_sensitive(False)
+            self.ocEntry.set_sensitive(False)
+        else:
+            try:
+                rad = float(self.dEntry.get_text()) / 2
+            except:
+                rad = 0
+            if rad <= self.sRadius:
+                self.overcut.set_sensitive(True)
+                self.ocEntry.set_sensitive(True)
+
+    def overcut_toggled(self,widget):
+        if widget.get_active():
+            try:
+                lolen = float(self.loEntry.get_text())
+            except:
+                lolen = 0
+            try:
+                rad = float(self.dEntry.get_text()) / 2
+            except:
+                rad = 0
+            if (self.outside.get_active() and lolen) or not rad or rad > self.sRadius:
+                self.overcut.set_active(False)
+
+    def ocentry_changed(self,widget):
+        if self.outside.get_active():
+            self.ocEntry.set_text('')
+
+    def check_entries(self):
+        try:
+            rad = float(self.dEntry.get_text()) / 2
+        except:
+            rad = 0
+        if rad > self.sRadius:
+            self.overcut.set_active(False)
+        if rad <= self.sRadius and self.overcut.get_active():
+            self.loEntry.set_text('')
+
+    def diameter_changed(self,widget):
+        try:
+            rad = float(self.dEntry.get_text()) / 2
+        except:
+            rad = 0
+        if rad > self.sRadius:
+            self.overcut.set_active(False)
+            self.ocEntry.set_text('')
+            self.overcut.set_sensitive(False)
+            self.ocEntry.set_sensitive(False)
+        else:
+            if not self.outside.get_active():
+                self.overcut.set_sensitive(True)
+                self.ocEntry.set_sensitive(True)
 
     def do_circle(self, fWizard, tmpDir):
         self.tmpDir = tmpDir
@@ -245,6 +343,7 @@ class circle:
         cutLabel.set_width_chars(10)
         t.attach(cutLabel, 0, 1, 0, 1)
         self.outside = gtk.RadioButton(None, 'Outside')
+        self.outside.connect('toggled',self.outside_toggled)
         t.attach(self.outside, 1, 2, 0, 1)
         inside = gtk.RadioButton(self.outside, 'Inside')
         t.attach(inside, 2, 3, 0, 1)
@@ -292,7 +391,25 @@ class circle:
         t.attach(dLabel, 0, 1, 6, 7)
         self.dEntry = gtk.Entry()
         self.dEntry.set_width_chars(10)
+        self.dEntry.connect('changed', self.diameter_changed)
         t.attach(self.dEntry, 1, 2, 6, 7)
+        ocDesc = gtk.Label('Over Cut')
+        ocDesc.set_alignment(0.95, 0.5)
+        ocDesc.set_width_chars(10)
+        t.attach(ocDesc, 0, 1, 7, 8)
+        self.overcut = gtk.CheckButton('')
+        self.overcut.connect('toggled', self.overcut_toggled)
+        self.overcut.set_sensitive(False)
+        t.attach(self.overcut, 1, 2, 7, 8)
+        ocLabel = gtk.Label('OC Length')
+        ocLabel.set_alignment(0.95, 0.5)
+        ocLabel.set_width_chars(10)
+        t.attach(ocLabel, 0, 1, 8, 9)
+        self.ocEntry = gtk.Entry()
+        self.ocEntry.set_width_chars(10)
+        self.ocEntry.set_sensitive(False)
+        self.ocEntry.connect('changed', self.ocentry_changed)
+        t.attach(self.ocEntry, 1, 2, 8, 9)
         preview = gtk.Button('Preview')
         preview.connect('pressed', self.send_preview)
         t.attach(preview, 0, 1, 9, 10)

@@ -19,10 +19,10 @@ import pango
 
 import gobject, gtk
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from hal_actions import _EMC_ActionBase, ensure_mode
+from .hal_actions import _EMC_ActionBase, ensure_mode
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']

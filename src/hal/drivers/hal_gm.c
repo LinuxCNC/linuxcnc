@@ -1709,7 +1709,7 @@ stepgenControl(void *arg, long period, unsigned int channel)
     	card	*pCard = device->pCard;
 	
 	hal_s32_t stepgen_fb, stepgen_fb_int, last_count_fb_LS16_bits, last_count_fb_MS16_bits, last_count_fb;	
-	hal_float_t	ref_vel, match_acc, match_time, avg_v, est_out, est_cmd, est_err, dp;
+	hal_float_t	ref_vel = 0, match_acc, match_time, avg_v, est_out, est_cmd, est_err, dp;
 	
      //read and count feedbacks
 	stepgen_fb = pCard->StepGen_fb[channel];	//pCard->StepGen_Fb[channel] is 16.16 bit fixed point feedback in [step] unit

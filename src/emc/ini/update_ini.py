@@ -8,8 +8,8 @@ import shutil
 import linuxcnc
 import re
 import datetime
-from Tkinter import *
-import tkMessageBox
+from tkinter import *
+import tkinter.messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
@@ -44,7 +44,7 @@ for opt in sys.argv[1:]:
     elif opt == '-f':
         force = 1
     elif opt[0] == '-':
-        print "Unknown command line option to update_ini, exiting"
+        print ("Unknown command line option to update_ini, exiting")
         exit()
     elif os.path.isfile(opt):
         filename = opt
@@ -56,13 +56,13 @@ describing the purpose of this script, and giving the user the option
 to change their minds\nIf the -f flag is used then no questions will be
 asked and the conversion will proceed blindly"""
     if dialogs:
-        tkMessageBox.showerror('invalid options', str(t))
+        tkinter.messagebox.showerror('invalid options', str(t))
     elif not force:
-        print t
+        print(t)
     exit()
 
 if dialogs:
-    ret = tkMessageBox._show("Confirm automatic update",
+    ret = tkinter.messagebox._show("Confirm automatic update",
                            "This version of LinuxCNC separates the concepts of Axes and "
                            "Joints which necessitates changes to the INI and HAL files. "
                            "The changes required are described here:\n"
@@ -76,7 +76,7 @@ if dialogs:
                            "files or 'Cancel' to exit LinuxCNC.\n"
                            "The process can not be automatically reversed, though a "
                            "backup version of your entire existing config will be created.",
-                           tkMessageBox.QUESTION, tkMessageBox.YESNOCANCEL)
+                           tkinter.messagebox.QUESTION, tkinter.messagebox.YESNOCANCEL)
     if ret == 'cancel': exit(42)
     elif ret == 'no': exit(0)
 
@@ -88,9 +88,9 @@ try:
 except:
     t =  "%s is not a valid ini file" % filename
     if dialogs:
-        tkMessageBox.showerror('invalid options', t)
+        tkinter.messagebox.showerror('invalid options', t)
     elif not force:
-        print t
+        print(t)
     exit()
 
 version = ini.find('EMC', 'VERSION')
@@ -103,21 +103,21 @@ elif version >= THIS_VERSION:
     t =  """The supplied INI file is already at version %s and should not need
     updating""" % version
     if dialogs:
-        tkMessageBox.showerror('conversion not needed', t)
+        tkinter.messagebox.showerror('conversion not needed', t)
     elif not force:
-        print t
+        print(t)
     exit()
 
 if ini.find('KINS', 'JOINTS') and not force and not version == "1.0":
     if dialogs:
-        if tkMessageBox.askquestion("Already Converted",
+        if tkinter.messagebox.askquestion("Already Converted",
         "The supplied INI file already has a [KINS] section. this probably "
         "means that it was previously converted by hand. Continue conversion?"
         "(Change [EMC]VERSION to %s to suppress these messages) "
         % THIS_VERSION) != 'yes':
             exit(0)
     else:
-        if raw_input("The supplied INI file already has a [KINS] section."
+        if input("The supplied INI file already has a [KINS] section."
         "this probably means that it was previously converted by hand. "
         "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages) "
         % THIS_VERSION) != "y":
@@ -147,7 +147,7 @@ ini = linuxcnc.ini(old_ini)
 halfiles = ini.findall('HAL', 'HALFILE')
 halfiles += ini.findall('HAL', 'POSTGUI_HALFILE')
 halfiles += ['touchy.hal']
-print "halfiles = ", halfiles
+print("halfiles = ", halfiles)
 
 halpaths = []
 for halfile in halfiles:
@@ -160,9 +160,9 @@ for halfile in halfiles:
     elif halfile == "touchy.hal":
         pass
     else:
-        print "halfile %s not found\n" % halfile
+        print("halfile %s not found\n" % halfile)
 
-print "halpaths = ", halpaths
+print("halpaths = ", halpaths)
 
 if version == "1.0":
     #Just update the version in the INI
@@ -211,7 +211,24 @@ if version == "$Revision$" or version < "1.0":
     #These sections don't need any work.
     copysection("DISPLAY")
     copysection("FILTER")
-    copysection("RS274NGC")
+
+    #[RS274NGC] Section, change FEATURES to separate entries
+    all_sections.remove("RS274NGC")
+    section = re.search("\[RS274NGC\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("\n[RS274NGC]\n")
+    if section != None:
+        features = int(ini.find('RS274NGC', 'FEATURES'))
+        if features != None:
+            section = re.sub("FEATURES.*?\n", "", section)
+            section += ("RETAIN_G43 = %s\n"   % ("1" if features & 0x1 else "0"))
+            section += ("INI_VARS = %s\n"     % ("1" if features & 0x4 else "0"))
+            section += ("HAL_PIN_VARS = %s\n" % ("1" if features & 0x8 else "0"))
+            if features & 0x2: section  += ("OWORD_NARGS = 1\n" )
+            if features & 0x10: section += ("NO_DOWNCASE_OWORD = 1\n" )
+            if features & 0x20: section += ("OWORD_WARNONLY = 1\n" )
+    section += "\n"
+    newini.write(section)
 
     all_sections.remove("EMCMOT")
     section = re.search("\[EMCMOT\](.+?)\n\[", inistring, re.DOTALL)
@@ -296,7 +313,7 @@ if version == "$Revision$" or version < "1.0":
             section = re.sub("MAX_ACCELERATION", "MAX_LINEAR_ACCELERATION", section)
         if not re.search("DEFAULT_ACCELERATION", section):
             section = re.sub("DEFAULT_ACCELERATION", "DEFAULT_LINEAR_ACCELERATION", section)
-        print "COORDINATES = %s\n" % ''.join(coordinates)
+        print("COORDINATES = %s\n" % ''.join(coordinates))
         section = re.sub("COORDINATES.*", "COORDINATES = %s" % ''.join(coordinates[: joints]), section)
         section = re.sub("CYCLE_TIME.*?\n", "", section)
         section = re.sub("AXES *=.*\n", "", section)
@@ -378,7 +395,7 @@ if version == "$Revision$" or version < "1.0":
                     else:
                         subs.update({'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
                 else:
-                    print "File parsing error, found an [AXIS_%i] section, but no content" % J
+                    print("File parsing error, found an [AXIS_%i] section, but no content" % J)
                     exit()
     # We no longer need the [AXIS_N] data
     for j in range(0,8):
@@ -532,8 +549,8 @@ if version < "1.1":
         })
 
 if subs == {}:
-    print """This file does not need converting, and furthermore execution
-    should never have reached this spot"""
+    print("""This file does not need converting, and furthermore execution
+    should never have reached this spot""")
 else:
     for halfile in halpaths:
         halstring = open(halfile,'r').read()

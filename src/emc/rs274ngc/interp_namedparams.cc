@@ -238,7 +238,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     *status = 0;
     if (!comp_id) {
 	char hal_comp[LINELEN];
-	sprintf(hal_comp,"interp%d",getpid());
+	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
 	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
 	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
 	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);

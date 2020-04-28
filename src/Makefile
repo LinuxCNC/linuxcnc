@@ -97,6 +97,8 @@ endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -133,7 +135,11 @@ SUBDIRS := \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
+<<<<<<< HEAD
     hal/user_comps/xhc-whb04b-6 \
+=======
+	hal/user_comps/xhc-whb04b-6 \
+>>>>>>> 1ebe739131c278a29a5592b45c0c76cd08773482
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
@@ -205,9 +211,11 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(QUIETFLAGS) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS) $(CXXQUIETFLAGS) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+DEBUG := $(DEBUG) -g -Wall -Werror=implicit-function-declaration
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
@@ -304,6 +312,7 @@ HEADERS := \
     emc/motion/emcmotcfg.h \
     emc/motion/motion.h \
     emc/motion/simple_tp.h \
+    emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
@@ -320,6 +329,7 @@ HEADERS := \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/interp_fwd.hh \
     emc/rs274ngc/interp_base.hh \
+    emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
     emc/rs274ngc/saicanon.hh \
     hal/hal.h \
@@ -626,7 +636,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)

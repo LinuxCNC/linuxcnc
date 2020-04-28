@@ -43,7 +43,7 @@ d6 =   50.0
 j3min =  40.0
 j3max = 270.0
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 # calculate a bunch of other dimensions that are used
 # to scale the model of the machine
@@ -52,7 +52,7 @@ for setting in sys.argv[1:]: exec setting
 # for the machine you are modeling, feel free to change
 # these numbers
 
-tool_len = math.sqrt(d5*d5+d6*d6)	# don't change
+tool_len = math.sqrt(d5*d5+d6*d6)    # don't change
 tool_dia = tool_len / 6.0
 # diameters of the arms
 l1_dia = d2 / 5.0
@@ -91,12 +91,12 @@ size = max(d1+d3+l3_len,d2+d4+d6)
 # "tooltip" coordinate system
 tooltip = Capture()
 tool = Collection([
-	tooltip,
-	Sphere(0.0, 0.0, tool_len, tool_dia),
-	CylinderZ(tool_len, tool_radius, tool_dia, tool_radius),
-	CylinderZ(tool_dia, tool_radius, 0.0, 0.0)])
+    tooltip,
+    Sphere(0.0, 0.0, tool_len, tool_dia),
+    CylinderZ(tool_len, tool_radius, tool_dia, tool_radius),
+    CylinderZ(tool_dia, tool_radius, 0.0, 0.0)])
 # translate so origin is at base of tool, not the tip
-tool = Translate([tool],0.0,0.0,-tool_len)	
+tool = Translate([tool],0.0,0.0,-tool_len)    
 # the tool might not be pointing straight down
 tool = Rotate([tool],tool_angle,0.0,-1.0,0.0)
 # make joint 3 rotate
@@ -111,14 +111,14 @@ link3 = HalTranslate([link3],c,"joint2",0,0,-1)
 # outer arm
 # start with link3 and the cylinder it slides in
 link2 = Collection([
-	link3,
-	CylinderZ(-j2_hi, j2_rad, j2_hi, j2_rad)])
+    link3,
+    CylinderZ(-j2_hi, j2_rad, j2_hi, j2_rad)])
 # move to end of arm
 link2 = Translate([link2], d4, 0.0, 0.0)
 # add the arm itself
 link2 = Collection([
-	link2,
-	CylinderX(d4, l2_rad, 1.5*j1_rad, l2_rad)])
+    link2,
+    CylinderX(d4, l2_rad, 1.5*j1_rad, l2_rad)])
 # the joint gets interesting, because link2 can be above or below link1
 if d3 > 0:
     flip = 1
@@ -126,41 +126,41 @@ else:
     flip = -1
 # add the joint
 link2 = Collection([
-	link2,
-	Box(1.5*j1_rad, -0.9*j1_rad, -j1_hi2, 1.15*j1_rad, 0.9*j1_rad, j1_hi2),
-	Box(1.15*j1_rad, -0.9*j1_rad, -0.4*d3, 0.0, 0.9*j1_rad, flip*j1_hi2),
-	CylinderZ(-0.4*d3, j1_rad, flip*1.2*j1_hi2, j1_rad)])
+    link2,
+    Box(1.5*j1_rad, -0.9*j1_rad, -j1_hi2, 1.15*j1_rad, 0.9*j1_rad, j1_hi2),
+    Box(1.15*j1_rad, -0.9*j1_rad, -0.4*d3, 0.0, 0.9*j1_rad, flip*j1_hi2),
+    CylinderZ(-0.4*d3, j1_rad, flip*1.2*j1_hi2, j1_rad)])
 # make the joint work
 link2 = HalRotate([link2],c,"joint1",1,0,0,1)
 
 # inner arm
 # the outer arm and the joint
 link1 = Collection([
-	Translate([link2],0.0,0.0,d3),
-	Box(-1.5*j1_rad, -0.9*j1_rad, -j1_hi1, -1.15*j1_rad, 0.9*j1_rad, j1_hi1),
-	Box(-1.15*j1_rad, -0.9*j1_rad, 0.4*d3, 0.0, 0.9*j1_rad, -flip*j1_hi1),
-	CylinderZ(0.4*d3, j1_rad, flip*-1.2*j1_hi1, j1_rad),
-	CylinderZ(0.6*d3, 0.8*j1_rad, 0.4*d3, 0.8*j1_rad)])
+    Translate([link2],0.0,0.0,d3),
+    Box(-1.5*j1_rad, -0.9*j1_rad, -j1_hi1, -1.15*j1_rad, 0.9*j1_rad, j1_hi1),
+    Box(-1.15*j1_rad, -0.9*j1_rad, 0.4*d3, 0.0, 0.9*j1_rad, -flip*j1_hi1),
+    CylinderZ(0.4*d3, j1_rad, flip*-1.2*j1_hi1, j1_rad),
+    CylinderZ(0.6*d3, 0.8*j1_rad, 0.4*d3, 0.8*j1_rad)])
 # move to end of arm
 link1 = Translate([link1], d2, 0.0, 0.0)
 # add the arm itself, and the inner joint
 link1 = Collection([
-	link1,
-	CylinderX(d2-1.5*j1_rad, l1_rad, 1.5*j0_rad, l1_rad),
-	Box(1.5*j0_rad, -0.9*j0_rad, -j0_hi, 0.0, 0.9*j0_rad, j0_hi),
-	CylinderZ(-1.2*j0_hi, j0_rad, 1.2*j0_hi, j0_rad)])
+    link1,
+    CylinderX(d2-1.5*j1_rad, l1_rad, 1.5*j0_rad, l1_rad),
+    Box(1.5*j0_rad, -0.9*j0_rad, -j0_hi, 0.0, 0.9*j0_rad, j0_hi),
+    CylinderZ(-1.2*j0_hi, j0_rad, 1.2*j0_hi, j0_rad)])
 # make the joint work
 link1 = HalRotate([link1],c,"joint0",1,0,0,1)
 
 #stationary base
 link0 = Collection([
-	CylinderZ(d1-j0_hi, 0.8*j0_rad, d1-1.5*j0_hi, 0.8*j0_rad),
-	CylinderZ(d1-1.5*j0_hi, 0.8*j0_rad, 0.07*d1, 1.3*j0_rad),
-	CylinderZ(0.07*d1, 2.0*j0_rad, 0.0, 2.0*j0_rad)])
+    CylinderZ(d1-j0_hi, 0.8*j0_rad, d1-1.5*j0_hi, 0.8*j0_rad),
+    CylinderZ(d1-1.5*j0_hi, 0.8*j0_rad, 0.07*d1, 1.3*j0_rad),
+    CylinderZ(0.07*d1, 2.0*j0_rad, 0.0, 2.0*j0_rad)])
 # slap the arm on top
 link0 = Collection([
-	link0,
-	Translate([link1],0,0,d1)])
+    link0,
+    Translate([link1],0,0,d1)])
 
 # add a floor
 floor = Box(-0.5*size,-0.5*size,-0.02*size,0.5*size,0.5*size,0.0)
@@ -170,8 +170,8 @@ reach = d2+d4-d6
 table_height = d1+d3-j3max-d5
 work = Capture()
 table = Collection([
-	work,
-	Box(-0.35*reach,-0.5*reach, -0.1*d1, 0.35*reach, 0.5*reach, 0.0)])
+    work,
+    Box(-0.35*reach,-0.5*reach, -0.1*d1, 0.35*reach, 0.5*reach, 0.0)])
 
 # make the table moveable (tilting)
 table = HalRotate([table],c,"joint4",1,0,1,0)

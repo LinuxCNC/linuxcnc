@@ -1,0 +1,79 @@
+[[cha:pmx485-driver]]
+
+= Powermax Modbus Driver
+
+This is a userspace HAL program, written in python, to control Hypetherm
+Powermax plasma cutters  using the Modbus ASCII protocol over RS485. +
+
+NOTE: Since this is a userspace program it can be affected by computer loading 
+and latency. It is possible to lose communications which will be indicated by 
+a change in the status output. One should always have an Estop circuit that 
+kills the power to the unit in case of emergency.
+
+This component is loaded using the halcmd "loadusr" command:
+----
+loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
+----
+
+This will load the pmx485 component using the /dev/ttyUSB0 port and wait for 
+it to become ready.
+
+It is necessary to name the port to use for communications.
+
+== Pins
+
+* *pmx485.mode-set* (bit, in) #set cutting mode
+
+* *pmx485.current-set* (bit, in) #set cutting current 
+
+* *pmx485.pressure-set* (bit, in) #set gas pressure
+
+* *pmx485.enable* (bit, in) #enable the component
+
+* *pmx485.mode* (bit, out) #cut mode feedback
+
+* *pmx485.current* (bit, out) #cutting current feedback
+
+* *pmx485.pressure* (bit, out) #gas pressure feedback
+
+* *pmx485.fault* (bit, out) #powermax fault code
+
+* *pmx485.status* (bit, out) #connection status
+
+* *pmx485.current-min* (bit, out) #minimum allowed current
+
+* *pmx485.current-max* (bit, out) #maximum allowed current
+
+* *pmx485.pressure-min* (bit, out) #minimum allowed gas pressure
+
+* *pmx485.pressure-max* (bit, out) #maximum allowed gas pressure
+
+
+== Description
+
+To communicate with a Powermax, the component must first be enabled via the *enable* pin
+and it may then initiate a request to the Powermax by writing a valid string 
+to the following pins:
+
+* *mode-set*
+* *current-set*
+* *pressure-set*
+
+NOTE: A *pressure-set* value of zero is valid, the Powermax will then calculate
+the required pressure internally.
+
+Communications may be validated from the Powermax display or the *status* pin. 
+While in remote mode, the mode, current and pressure may be changed as needed.
+
+To terminate the communications, do one of the following:
+
+* Set all set pins to zero: *mode-set*, *current-set*, and *pressure-set*.
+* Disconnect the Powermax power supply from its power source for approximately 
+30 seconds. When you power the system back ON, it will no longer be in remote 
+mode.
+
+== Reference:
+
+* Hypertherm Application Note #807220 +
+"Powermax45 XP/65/85/105/125® Serial Communication Protocol"
+

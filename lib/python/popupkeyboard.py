@@ -91,11 +91,11 @@ class PopupKeyboard:
 
         try:
             import gtk.glade
-        except ImportError,detail:
-            print 'ImportError:',detail
-        except Exception,msg:
-            print 'Exception:',Exception
-            print sys.exc_info()
+        except ImportError as detail:
+            print('ImportError:',detail)
+        except Exception as msg:
+            print('Exception:',Exception)
+            print(sys.exc_info())
             sys.exit(1)
 
         self.builder = gtk.Builder()
@@ -154,7 +154,7 @@ class PopupKeyboard:
             has_x = False
             for axno in range(0,9):
                 axname = 'XYZABCUVW'[axno]
-                if self.label_to_btn.has_key(axname):
+                if axname in self.label_to_btn:
                     b = self.label_to_btn[axname]
                     if bool(self.stat.axis_mask & (1 << axno)):
                         b.show()
@@ -162,21 +162,21 @@ class PopupKeyboard:
                     else:
                         b.hide()
             bdiam = None
-            if self.label_to_btn.has_key('D'):
+            if 'D' in self.label_to_btn:
                 bdiam = self.label_to_btn['D']
             if bdiam and has_x:
                 bdiam.show()
             elif bdiam:
                 bdiam.hide()
-        except linuxcnc.error,msg:
+        except linuxcnc.error as msg:
             self.stat = None
             if self.coord_buttons is not None:
                 self.coord_buttons.hide()
-                print "linuxcnc must be running to use coordinate keys"
+                print("linuxcnc must be running to use coordinate keys")
             # continue without buttons for testing when linuxnc not running
-        except Exception, err:
-            print 'Exception:',Exception
-            print sys.exc_info()
+        except Exception as err:
+            print('Exception:',Exception)
+            print(sys.exc_info())
             sys.exit(1)
 
 
@@ -228,7 +228,7 @@ class PopupKeyboard:
         return self.do_unknown_label
 
     def do_unknown_label(self,e,l):
-        print 'PopupKeyboard:do_unknown_label: <%s>' % l
+        print('PopupKeyboard:do_unknown_label: <%s>' % l)
 
     def do_number(self,e,l):
         # not needed if INSENSITIVE:
@@ -266,7 +266,7 @@ class PopupKeyboard:
             self.stat.poll()
             e.set_text("%.6g" % self.coord_value(l))
         else:
-            print "linuxcnc must be running to use <%s> key" % l
+            print("linuxcnc must be running to use <%s> key" % l)
 
     def get_result(self):
         return(self.result)
@@ -294,14 +294,14 @@ class PopupKeyboard:
 
 if __name__ == "__main__":
     m = PopupKeyboard()
-    print "\nClear and Save to end test\n"
+    print("\nClear and Save to end test\n")
     ct = 100
     while True:
         m.run(initial_value=''
              ,title=str(ct)
              )
         result = m.get_result()
-        print 'result = <%s>' % result
+        print('result = <%s>' % result)
         if result=='':
             sys.exit(0)
         ct += 1

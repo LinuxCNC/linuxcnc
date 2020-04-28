@@ -17,9 +17,8 @@ import gtk
 import gobject
 import cairo
 import math
-import gtk.glade
 
-from hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
+from .hal_widgets import _HalWidgetBase, hal, hal_pin_changed_signal
 
 MAX_INT = 0x7fffffff
 
@@ -215,7 +214,7 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -226,14 +225,14 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         if name == 'text_template':
             try:
                 v = value % 0.0
-            except Exception, e:
-                print "Invalid format string '%s': %s" % (value, e)
+            except Exception as e:
+                print("Invalid format string '%s': %s" % (value, e))
                 return False
         if name in ['bg_color', 'z0_color', 'z1_color', 'z2_color']:
             if not value:
                 return False
 
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             self.queue_draw()
         else:

@@ -147,7 +147,7 @@ class HandlerClass:
         mess = {'NAME':'CALCULATOR','ID':'_RunFromLine_',
              'PRELOAD':self.picked_line,
                'TITLE':'Run From Line Dialog'}
-        ACTION.CALL_DIALOG{('dialog-request', mess)
+        ACTION.CALL_DIALOG('dialog-request', mess)
 
     #####################
     # general functions #

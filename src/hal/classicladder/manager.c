@@ -40,7 +40,7 @@ void InitSections( void )
 	{
 		pSection = &SectionArray[ NumSec ];
 		pSection->Used = FALSE;
-		strcpy( pSection->Name, "" );
+		rtapi_strxcpy( pSection->Name, "" );
 		pSection->Language = SECTION_IN_LADDER;
 		pSection->SubRoutineNumber = -1;
 		pSection->FirstRung = 0;
@@ -52,7 +52,7 @@ void InitSections( void )
 	// at least for compatibility with our old progs !
 	pSection = &SectionArray[ 0 ];
 	pSection->Used = TRUE;
-	strcpy( pSection->Name, "Prog1" );
+	rtapi_strxcpy( pSection->Name, "Prog1" );
 	pSection->Language = SECTION_IN_LADDER;
 	pSection->SubRoutineNumber = -1;
 	pSection->FirstRung = 0;
@@ -153,7 +153,7 @@ int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNb
 	if ( FreeFound )
 	{
 		int NumFreeRung;
-		strcpy( pSection->Name, NewSectionName );
+		rtapi_strxcpy( pSection->Name, NewSectionName );
 		pSection->Language = TypeLanguageSection;
 		pSection->FirstRung = 0;
 		pSection->LastRung = 0;

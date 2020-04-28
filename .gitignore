@@ -41,3 +41,5 @@ position.txt
 /.clang/
 /.codelite/
 /Debug/
+# Ignore test results
+*.result

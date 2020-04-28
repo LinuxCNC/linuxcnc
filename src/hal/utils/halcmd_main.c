@@ -254,12 +254,12 @@ int main(int argc, char **argv)
         }
     } else {
         int   extend_ct = 0; // extend lines with backslash (\)
+        char *elinenext = 0;
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    char *tokens[MAX_TOK+1];
             char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
             char *elineptr;
-            char *elinenext;
             int   newLinePos;
 
 	    halcmd_set_linenumber(linenumber++);

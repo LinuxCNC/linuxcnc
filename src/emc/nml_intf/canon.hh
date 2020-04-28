@@ -20,6 +20,7 @@
 #include "emctool.h"
 #include "canon_position.hh"
 #include "emcmotcfg.h" // Just for EMCMOT_NUM_SPINDLES
+#include "modal_state.hh"
 
 /*
   This is the header file that all applications that use the
@@ -793,6 +794,9 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
+// Returns the current motion naive CAM tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
 // returns the current a-axis origin offset
@@ -965,8 +969,8 @@ extern void PLUGIN_CALL(int len, const char *call);
 
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
-
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
+extern void UPDATE_TAG(StateTag tag);
 
 #endif				/* ifndef CANON_HH */
