@@ -30,7 +30,7 @@ class emc_control:
                 self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
-                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
+                    raise SystemExit("\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n")
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -279,7 +279,7 @@ class emc_status:
                 self.unit_convert = c
 
         def convert_units(self,v,c):
-                return map(lambda x,y: x*y, v, c)
+                return list(map(lambda x,y: x*y, v, c))
 
         def dro_commanded(self, b):
                 self.actual = 0
@@ -444,7 +444,7 @@ class emc_status:
 			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
 
                 tt = ""
-                for p, t in zip(range(len(self.emcstat.tool_table)), self.emcstat.tool_table):
+                for p, t in zip(list(range(len(self.emcstat.tool_table))), self.emcstat.tool_table):
                         if t.id != -1:
                                 tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
                                 if p == 0: tt += '\n'

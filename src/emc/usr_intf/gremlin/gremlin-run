@@ -2,7 +2,9 @@
 
 import sys
 import os
-import gtk
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk as gtk
 
 import linuxcnc
 from gremlin import Gremlin
@@ -22,7 +24,7 @@ class GremlinApp(gtk.Window):
 
         try:
             inifile = linuxcnc.ini(inifile)
-        except linuxcnc.error,detail:
+        except linuxcnc.error as detail:
             usage('Using filename = %s\n %s' % (inifile,detail))
 
         gtk.Window.__init__(self)
@@ -59,4 +61,4 @@ def main():
     g = GremlinApp(inifilename)
     gtk.main()
 
-if __name__ == '__main__': raise SystemExit, main()
+if __name__ == '__main__': raise SystemExit(main())

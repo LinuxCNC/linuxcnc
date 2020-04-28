@@ -1166,7 +1166,7 @@ class pyvcp_bar(Canvas):
         start=tmp[0]
         end=tmp[1]
         self.bar=self.create_rectangle(start,2,end,self.bh-1)
-	    # default fill unless overriden
+        # default fill unless overriden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text
@@ -1190,16 +1190,16 @@ class pyvcp_bar(Canvas):
         (start2, end2, color2) = xxx_todo_changeme2
         (start3, end3, color3) = xxx_todo_changeme3
         if self.value:
-    	    if (self.value > start1) and (self.value <= end1):
-    		self.itemconfig(self.bar,fill=color1)	
-    	    else:
-    		if (self.value > start2) and (self.value <= end2):
-    		    self.itemconfig(self.bar,fill=color2)	
-		else:
-		    if (self.value > start3) and (self.value <= end3):
-    			self.itemconfig(self.bar,fill=color3)	
-	
-	
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)        
+            else:
+                if (self.value > start2) and (self.value <= end2):
+                    self.itemconfig(self.bar,fill=color2)        
+                else:
+                    if (self.value > start3) and (self.value <= end3):
+                        self.itemconfig(self.bar,fill=color3)        
+        
+        
     def bar_coords(self):
         """ calculates the coordinates in pixels for the bar """
         # the bar should start at value = zero 
@@ -1218,7 +1218,7 @@ class pyvcp_bar(Canvas):
 
         return [bar_start, bar_end]
     
-			
+                        
     def update(self,pycomp):
         # update value
         newvalue=pycomp[self.halpin]
@@ -1360,34 +1360,34 @@ class pyvcp_checkbutton(Checkbutton):
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
-	self.halpin=halpin
-	pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-	changepin = halpin + ".changepin"
-	self.changepin=changepin
-	pycomp.newpin(changepin, HAL_BIT, HAL_IN)
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        changepin = halpin + ".changepin"
+        self.changepin=changepin
+        pycomp.newpin(changepin, HAL_BIT, HAL_IN)
         pycomp[self.changepin] = 0
 
-	pyvcp_checkbutton.n += 1
-		
+        pyvcp_checkbutton.n += 1
+                
         if initval >= 0.5:
             self.value=1
         else:
             self.value=0
         self.v.set(self.value)
         self.reset = 0
-		
+                
     def update(self,pycomp):
         # prevent race condition if connected to permanently on pin
-	if pycomp[self.changepin] and not(self.reset):
-	    self.v.set(not(self.v.get()))
-	    self.reset = 1
-    	    pycomp[self.changepin] = 0 # try to reset, but may not work
-	    
-	if not(pycomp[self.changepin]) and(self.reset):
-    	    self.reset = 0 
-    	    pycomp[self.changepin] = 0   # make sure is reset now
-	
-	pycomp[self.halpin]=self.v.get()
+        if pycomp[self.changepin] and not(self.reset):
+            self.v.set(not(self.v.get()))
+            self.reset = 1
+            pycomp[self.changepin] = 0 # try to reset, but may not work
+            
+        if not(pycomp[self.changepin]) and(self.reset):
+                self.reset = 0 
+                pycomp[self.changepin] = 0   # make sure is reset now
+        
+        pycomp[self.halpin]=self.v.get()
 
 
 
