@@ -166,6 +166,8 @@ variable float  height_ovr_old;             /* old height override value */
 variable bool   initialized;                /* initialization flag */
 variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
 variable float  kerf_threshold;             /* kerf crossing threshold voltage */
+variable int    kerf_errors;                /* number of times kerfcross threshold exceeded */
+//variable int    kerf_errors_max;            /* allowable kerfcross threshold exceeded */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
 variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
@@ -218,6 +220,9 @@ variable int    zero_target;                /* zero height target offset */
 /* DEBUGGING PINS */
 pin out s32     state_out                   "current state";
 pin out s32     stop_type_out               "current stop type";
+
+/* PARAMETERS */
+param r s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 
 function _;
 
@@ -977,10 +982,12 @@ FUNCTION(_) {
                             /* unlock kerfcross lock if voltage reduced to safe level  */
                             if(kerfcross_is_locked){
 //                                if(arc_voltage_out < last_arc_voltage + (kerf_threshold * 0.05)){
-                                if(arc_voltage_out < target_volts + (kerf_threshold * 0.5)){
+//                                if(arc_voltage_out < target_volts + (kerf_threshold * 0.5)){
+                                if(arc_voltage_out <= target_volts + kerf_threshold){
                                     kerfcross_is_locked = FALSE;
-                                    last_arc_voltage = arc_voltage_out;
+                                    kerf_errors = 0;
                                 }
+                                last_arc_voltage = arc_voltage_out;
                             /* set kerfcross lock if voltage change > kerfcross threshold volts */
                             }else if(kerfcross_enable){
                                 if(thc_feed_rate < current_velocity * 60){
@@ -989,12 +996,18 @@ FUNCTION(_) {
                                     kerf_ratio = 1; /* 45 degree ramp */
                                 }
                                 kerf_threshold = ((kerf_ratio * current_velocity * fperiod) / height_per_volt) * (kerfcross_override * 0.01);
-//                                if(arc_voltage_out > last_arc_voltage + kerf_threshold){
-                                if(arc_voltage_out > target_volts + kerf_threshold){
-                                    kerfcross_is_locked = TRUE;
+                                if(arc_voltage_out > last_arc_voltage + kerf_threshold){
+//                                if(arc_voltage_out > target_volts + kerf_threshold){
+                                    if(kerf_errors < kerf_errors_max){
+                                        kerf_errors += 1;
+                                    }
+                                    if(kerf_errors == kerf_errors_max){
+                                        kerfcross_is_locked = TRUE;
+                                    }
                                 }else{
-                                    last_arc_voltage = arc_voltage_out;
+                                    kerf_errors = 0;
                                 }
+                                last_arc_voltage = arc_voltage_out;
                             }
                             /* do thc if ok to go */
                             if(!cornerlock_is_locked && !kerfcross_is_locked){
