@@ -60,7 +60,7 @@ import atexit
 try:
     import vte
 except:
-    print _("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
+    print (_("**** WARNING GSCREEN: could not import vte terminal - is package installed?"))
 import time
 from time import strftime,localtime
 import hal_glib
@@ -796,6 +796,7 @@ class Gscreen:
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
         try:
+            self.widgets._terminal.feed_child('halcmd show pin gscreen\n') 
         except Exception as e:
             print("Exception feeding terminal", e)
             pass
@@ -1307,7 +1308,7 @@ class Gscreen:
             self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
             self.widgets.terminal_window.show()
         except:
-            print _("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?")
+            print (_("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?"))
 
     def init_themes(self):
         """adds theme names to comdo box
@@ -1825,7 +1826,7 @@ class Gscreen:
         self.widgets.gcode_view.redo()
 
     def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
-        print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
+        print (gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods)
         return True
 
     def on_key_event(self,widget, event,state):
@@ -2217,7 +2218,7 @@ class Gscreen:
         """
         data = calc.get_value()
         if result == gtk.RESPONSE_ACCEPT:
-            print "accept",data
+            print ("accept",data)
             if data == None:
                 data = 0
             self.widgets.statusbar1.push(1,"Last Calculation: %f"%data)
@@ -2274,10 +2275,10 @@ class Gscreen:
         """This is a callback function for override entry dialog.
         """
         data = calc.get_value()
-            print("accept",data)
-            if data == None:
-                return None
-            self.adjustment_buttons(userdata,userdata2,data)
+        print("accept",data)
+        if data == None:
+            return None
+        self.adjustment_buttons(userdata,userdata2,data)
         widget.destroy()
         self.data.entry_dialog = None
 
@@ -3843,7 +3844,7 @@ class Gscreen:
         tab_cmd   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
         if len(tab_names) != len(tab_cmd):
-            print _("Invalid embeded tab configuration") # Complain somehow
+            print (_("Invalid embeded tab configuration")) # Complain somehow
         if len(tab_location) != len(tab_names):
             for num,i in enumerate(tab_names):
                 try:
