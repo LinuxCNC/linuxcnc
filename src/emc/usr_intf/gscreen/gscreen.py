@@ -4672,6 +4672,5 @@ if __name__ == "__main__":
         else:
             res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",inifile,"-f", postgui_halfile])
         if res: raise SystemExit(res)
-        if res: raise SystemExit, res
     gtk.main()
 
