@@ -26,8 +26,8 @@ class HandlerClass:
             x, y, w, h = widget.allocation
             cr.scale(1.0 *w / self.width, 1.0*h/self.height)
 
-	cr.set_source_surface(self.img, 0, 0)
-	cr.paint()
+        cr.set_source_surface(self.img, 0, 0)
+        cr.paint()
 
 
 
