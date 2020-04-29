@@ -147,6 +147,9 @@ class INI:
         elif self.d.axes == 2: coords = "X Z"
         elif self.d.axes == 3: coords = "X Y U V"
         elif self.d.axes == 4: coords = "X Y"
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
 
         ##########################################
@@ -274,12 +277,17 @@ class INI:
             self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
             self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         if(self.d.tool_change_type == TOOL_CHANGE_MANUAL):
             # From orangecat
             print >>file, "TOOL_CHANGE_AT_G30 = 0"
 
         print >>file
+=======
+        if self.d.axes == 4: # xY
+            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+>>>>>>> upstream/master
 =======
         if self.d.axes == 4: # xY
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)

@@ -1670,6 +1670,7 @@ class StepconfApp:
 # starting with 'stepconf -d' gives debug messages
 if __name__ == "__main__":
 <<<<<<< HEAD
+<<<<<<< HEAD
 	usage = "usage: Stepconf -[options]"
 	parser = OptionParser(usage=usage)
 	parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
@@ -1688,6 +1689,8 @@ if __name__ == "__main__":
 
 	Gtk.main()
 =======
+=======
+>>>>>>> upstream/master
     def dummy():
         pass
     usage = "usage: Stepconf -[options]"

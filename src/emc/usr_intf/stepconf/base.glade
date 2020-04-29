@@ -34,6 +34,9 @@
       <row>
         <col id="0" translatable="yes">XY(special)</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">XY(special)</col>
+      </row>
     </data>
   </object>
   <object class="GtkListStore" id="base_preset_liststore">
@@ -375,6 +378,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
 <<<<<<< HEAD
+<<<<<<< HEAD
             <property name="model">units_liststore</property>
             <signal name="changed" handler="on_units_changed" swapped="no"/>
             <child>
@@ -383,6 +387,11 @@
                 <attribute name="text">0</attribute>
               </attributes>
             </child>
+=======
+            <property name="label" translatable="yes">Driver Timing Settings</property>
+            <property name="ellipsize">middle</property>
+            <property name="xalign">0</property>
+>>>>>>> upstream/master
 =======
             <property name="label" translatable="yes">Driver Timing Settings</property>
             <property name="ellipsize">middle</property>
@@ -408,8 +417,14 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <property name="margin_top">5</property>
         <property name="margin_bottom">5</property>
+=======
+        <property name="label" translatable="yes">D_river type:</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+>>>>>>> upstream/master
 =======
         <property name="label" translatable="yes">D_river type:</property>
         <property name="use_underline">True</property>
@@ -825,8 +840,13 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <property name="margin_top">5</property>
         <property name="margin_bottom">5</property>
+=======
+        <property name="label" translatable="yes">ns</property>
+        <property name="xalign">0</property>
+>>>>>>> upstream/master
 =======
         <property name="label" translatable="yes">ns</property>
         <property name="xalign">0</property>
@@ -1034,6 +1054,7 @@ Period Jitter </property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <property name="valign">center</property>
                 <child>
                   <object class="GtkLabel" id="label208">
@@ -1061,6 +1082,10 @@ Period Jitter </property>
                     <property name="position">1</property>
                   </packing>
                 </child>
+=======
+                <property name="label" translatable="yes">Max step rate:</property>
+                <property name="xalign">0</property>
+>>>>>>> upstream/master
 =======
                 <property name="label" translatable="yes">Max step rate:</property>
                 <property name="xalign">0</property>
@@ -1107,6 +1132,9 @@ Period Jitter </property>
                 <property name="can_focus">True</property>
                 <property name="selectable">True</property>
                 <property name="xalign">0</property>
+<<<<<<< HEAD
+>>>>>>> upstream/master
+=======
 >>>>>>> upstream/master
               </object>
               <packing>
