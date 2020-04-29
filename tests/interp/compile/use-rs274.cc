@@ -16,6 +16,7 @@
 
 #include <Python.h> // must be first header
 #include "rs274ngc.hh"
+#include "canon.hh"
 
 static void read_execute(InterpBase *b, const char *line) {
     fprintf(stderr, "> %s\n", line);
@@ -76,13 +77,13 @@ void STRAIGHT_TRAVERSE(int lineno,
                               double u, double v, double w) {}
 void SET_FEED_RATE(double rate) {}
 void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference) {}
-void SET_FEED_MODE(int mode) {}
+void SET_FEED_MODE(int spindle, int mode) {}
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance) {}
 void SET_NAIVECAM_TOLERANCE(double tolerance) {}
 void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION() {}
-void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode) {}
+void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode) {}
 void STOP_SPEED_FEED_SYNCH() {}
 void ARC_FEED(int lineno,
                      double first_end, double second_end,
@@ -114,22 +115,22 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
     knot_vector.clear();
 }
 void RIGID_TAP(int lineno,
-                      double x, double y, double z) {}
+                      double x, double y, double z, double scale) {}
 void STRAIGHT_PROBE(int lineno,
                            double x, double y, double z,
                            double a, double b, double c,
                            double u, double v, double w, unsigned char probe_type) {}
 void STOP() {}
 void DWELL(double seconds) {}
-void SET_SPINDLE_MODE(double) {}
+void SET_SPINDLE_MODE(int spindle, double r) {}
 void SPINDLE_RETRACT_TRAVERSE() {}
-void START_SPINDLE_CLOCKWISE(int) {}
-void START_SPINDLE_COUNTERCLOCKWISE(int) {}
-void SET_SPINDLE_SPEED(double r) {}
-void STOP_SPINDLE_TURNING() {}
+void START_SPINDLE_CLOCKWISE(int spindle, int dir) {}
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int dir) {}
+void SET_SPINDLE_SPEED(int spindle, double r) {}
+void STOP_SPINDLE_TURNING(int spindle) {}
 void SPINDLE_RETRACT() {}
-void ORIENT_SPINDLE(double orientation, int mode) {}
-void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
+void ORIENT_SPINDLE(int spindle, double orientation, int mode) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
 void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
@@ -137,7 +138,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
 void CHANGE_TOOL(int slot) {}	
-void SELECT_POCKET(int pocket, int tool) {}	
+void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
 void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
@@ -146,8 +147,8 @@ void DISABLE_ADAPTIVE_FEED() {}
 void ENABLE_ADAPTIVE_FEED() {}
 void DISABLE_FEED_OVERRIDE() {}
 void ENABLE_FEED_OVERRIDE() {}
-void DISABLE_SPEED_OVERRIDE() {}
-void ENABLE_SPEED_OVERRIDE() {}
+void DISABLE_SPEED_OVERRIDE(int spindle) {}
+void ENABLE_SPEED_OVERRIDE(int spindle) {}
 void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
 void FLOOD_OFF() {}
@@ -194,6 +195,9 @@ double GET_EXTERNAL_ANGLE_UNITS() {}
 int GET_EXTERNAL_MIST() {}
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() {}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() {}
+
+extern void SET_PARAMETER_FILE_NAME(const char *name) {}
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() {}
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
@@ -219,8 +223,8 @@ double GET_EXTERNAL_PROBE_POSITION_W() {}
 double GET_EXTERNAL_PROBE_VALUE() {}
 int GET_EXTERNAL_PROBE_TRIPPED_VALUE() {}
 int GET_EXTERNAL_QUEUE_EMPTY() {}
-double GET_EXTERNAL_SPEED() {}
-CANON_DIRECTION GET_EXTERNAL_SPINDLE() {}
+double GET_EXTERNAL_SPEED(int spindle) {}
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle) {}
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET() {}
 double GET_EXTERNAL_TOOL_LENGTH_YOFFSET() {}
 double GET_EXTERNAL_TOOL_LENGTH_ZOFFSET() {}
@@ -238,15 +242,19 @@ int GET_EXTERNAL_TC_FAULT() {}
 int GET_EXTERNAL_TC_REASON() {}
 double GET_EXTERNAL_TRAVERSE_RATE() {}
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {}
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {}
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {}
 int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) {}
 double GET_EXTERNAL_ANALOG_INPUT(int index, double def) {}
 int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
+void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
 void PLUGIN_CALL(int len, const char *call) {}
 void IO_PLUGIN_CALL(int len, const char *call) {}
+void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
+int GET_EXTERNAL_OFFSET_APPLIED() {};
+EmcPose GET_EXTERNAL_OFFSETS(){};

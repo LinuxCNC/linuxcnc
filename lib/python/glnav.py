@@ -401,7 +401,7 @@ class GlNavBase:
         if size > 1e99: size = 5. # in case there are no moves in the preview
         w = self.winfo_width()
         h = self.winfo_height()
-        fovx = self.fovy * w / h
+        fovx = self.fovy if h == 0 else self.fovy * w / h
         fov = min(fovx, self.fovy)
         self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
         self.lat = -60

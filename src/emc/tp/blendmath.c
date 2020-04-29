@@ -82,7 +82,7 @@ double fsign(double f)
 }
 
 /** negate a value (or not) based on a bool parameter */
-inline double negate(double f, int neg)
+static inline double negate(double f, int neg)
 {
     return (neg) ? -f : f;
 }
@@ -115,6 +115,21 @@ double saturate(double x, double max) {
     }
     else if ( x < (-max) ) {
         return -max;
+    }
+    else {
+        return x;
+    }
+}
+
+/**
+ * Saturate a value x to be within max and min.
+ */
+double bisaturate(double x, double max, double min) {
+    if ( x > max ) {
+        return max;
+    }
+    else if ( x < min ) {
+        return min;
     }
     else {
         return x;
@@ -301,80 +316,69 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 }
 
 
+/**
+ * Checks if two UNIT vectors are parallel to the given angle tolerance (in radians).
+ * @warning tol depends on the small angle approximation and will not be
+ * accurate for angles larger than about 10 deg. This function is meant for
+ * small tolerances!
+ */
+int pmCartCartParallel(PmCartesian const * const u1,
+                       PmCartesian const * const u2,
+                       double tol)
+{
+    double d_diff;
+    {
+        PmCartesian u_diff;
+        pmCartCartSub(u1, u2, &u_diff);
+        pmCartMagSq(&u_diff, &d_diff);
+    }
+
+    tp_debug_json_start(pmCartCartParallel);
+    tp_debug_json_double(d_diff);
+    tp_debug_json_end();
+
+    return d_diff < tol;
+}
 
 /**
- * Check if two cartesian vectors are parallel.
+ * Checks if two UNIT vectors are anti-parallel to the given angle tolerance (in radians).
+ * @warning tol depends on the small angle approximation and will not be
+ * accurate for angles larger than about 10 deg. This function is meant for
+ * small tolerances!
+ */
+int pmCartCartAntiParallel(PmCartesian const * const u1,
+                           PmCartesian const * const u2,
+                           double tol)
+{
+    double d_sum;
+    {
+        PmCartesian u_sum;
+        pmCartCartAdd(u1, u2, &u_sum);
+        pmCartMagSq(&u_sum, &d_sum);
+    }
+
+    tp_debug_json_start(pmCartCartAntiParallel);
+    tp_debug_json_double(d_sum);
+    tp_debug_json_end();
+
+    return d_sum < tol;
+}
+
+
+/**
+ * Check if two cartesian vectors are parallel or anti-parallel
  * The input tolerance specifies what the maximum angle between the
  * lines containing two vectors is. Note that vectors pointing in
  * opposite directions are still considered parallel, since their
  * containing lines are parallel.
- * @param v1 input vector 1
- * @param v2 input vector 2
- * @param tol angle tolerance for parallelism
+ * @param u1 input unit vector 1
+ * @param u2 input unit vector 2
+ * @pre BOTH u1 and u2 must be unit vectors or calculation may be skewed.
  */
-int pmCartCartParallel(PmCartesian const * const v1,
-        PmCartesian const * const v2, double tol)
+int pmUnitCartsColinear(PmCartesian const * const u1,
+        PmCartesian const * const u2)
 {
-    PmCartesian u1,u2;
-    pmCartUnit(v1, &u1);
-    pmCartUnit(v2, &u2);
-    double dot;
-    pmCartCartDot(&u1, &u2, &dot);
-    double theta = acos(fabs(dot));
-    if (theta < tol) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
-/**
- * Check if a Circle and line are coplanar.
- *
- * @param circ PmCircle input
- * @param line PmCartLine input
- * @param tol deviation tolerance (magnitude of error component)
- */
-int pmCircLineCoplanar(PmCircle const * const circ,
-        PmCartLine const * const line, double tol)
-{
-    double dot;
-    int res = pmCartCartDot(&circ->normal, &line->uVec, &dot);
-    tp_debug_print("normal = %.12g %.12g %.12g, uVec = %.12g %.12g %.12g, dot = %.12g\n",
-            circ->normal.x,
-            circ->normal.y,
-            circ->normal.z,
-            line->uVec.x,
-            line->uVec.y,
-            line->uVec.z,
-            dot);
-    if (fabs(dot) < tol && !res) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
-
-
-int blendCoplanarCheck(PmCartesian const * const normal,
-        PmCartesian const * const u1_tan,
-        PmCartesian const * const u2_tan,
-        double tol)
-{
-    if (!normal || !u1_tan  || !u2_tan) {
-        return TP_ERR_MISSING_INPUT;
-    }
-
-    double dot1, dot2;
-    int res1 = pmCartCartDot(normal, u1_tan, &dot1);
-    int res2 = pmCartCartDot(normal, u2_tan, &dot2);
-
-    if (fabs(dot1) < tol && fabs(dot2) < tol && !res1 && !res2) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return pmCartCartParallel(u1, u2, TP_ANGLE_EPSILON_SQ) || pmCartCartAntiParallel(u1, u2, TP_ANGLE_EPSILON_SQ);
 }
 
 
@@ -446,7 +450,13 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     PmCartesian planar_x,planar_y,planar_z;
 
     //Find perpendicular component of unit directions
-    // FIXME use plane project?
+    // FIXME Assumes normal is unit length
+    
+    /* This section projects the X / Y / Z unit vectors onto the plane
+     * containing the motions. The operation is done "backwards" here due to a
+     * quirk with posemath. 
+     *
+     */
     pmCartScalMult(normal, -normal->x, &planar_x);
     pmCartScalMult(normal, -normal->y, &planar_y);
     pmCartScalMult(normal, -normal->z, &planar_z);
@@ -647,12 +657,18 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
             param->a_n_max);
 
-    // Find common velocity and acceleration
-    param->v_req = fmax(prev_tc->reqvel, tc->reqvel);
-    param->v_goal = param->v_req * maxFeedScale;
+    // Find the nominal velocity for the blend segment with no overrides
+    double v_req_prev = tcGetMaxTargetVel(prev_tc, 1.0);
+    double v_req_this = tcGetMaxTargetVel(tc, 1.0);
+    tp_debug_print("vr_prev = %f, vr_this = %f\n", v_req_prev, v_req_this);
+    param->v_req = fmax(v_req_prev, v_req_this);
+
+    // Find the worst-case velocity we should reach for either segment
+    param->v_goal = fmax(tcGetMaxTargetVel(prev_tc, maxFeedScale),
+            tcGetMaxTargetVel(tc, maxFeedScale));
 
     // Calculate the maximum planar velocity
-    double v_planar_max;
+    double v_planar_max = 0;
     //FIXME sloppy handling of return value
     res_dia |= calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
@@ -693,7 +709,6 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("v_max = %f\n", v_max);
     param->v_goal = fmin(param->v_goal, v_max);
 
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
 
     return res_dia;
@@ -1616,32 +1631,48 @@ int blendPoints3Print(BlendPoints3 const * const points)
 
 }
 
-double pmCircleActualMaxVel(PmCircle * const circle,
-        double * const acc_ratio_tangential,
-        double v_max,
-        double a_max,
-        int parabolic)
+double pmCartAbsMax(PmCartesian const * const v)
 {
-    if (parabolic) {
-        a_max /= 2.0;
-    }
-    double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
+    return fmax(fmax(fabs(v->x),fabs(v->y)),fabs(v->z));
+}
+
+
+PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
+        double v_max,
+        double a_max)
+{
+    double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
+
     double eff_radius = pmCircleEffectiveMinRadius(circle);
-    double v_max_acc = pmSqrt(a_n_max * eff_radius);
-    double v_max_eff = fmin(v_max_acc, v_max);
-    if (acc_ratio_tangential) {
-        double a_normal = fmin(pmSq(v_max_eff) / eff_radius, a_n_max);
-        *acc_ratio_tangential = (pmSqrt(pmSq(a_max) - pmSq(a_normal)) / a_max);
-        tp_debug_print("acc_ratio_tan = %f\n",*acc_ratio_tangential);
+    // Find the acceleration necessary to reach the maximum velocity
+    double a_n_vmax = pmSq(v_max) / fmax(eff_radius, DOUBLE_FUZZ);
+    // Find the maximum velocity that still obeys our desired tangential / total acceleration ratio
+    double v_max_cutoff = pmSqrt(a_n_max_cutoff * eff_radius);
+
+    double v_max_actual = v_max;
+    double acc_ratio_tan = BLEND_ACC_RATIO_TANGENTIAL;
+
+    if (a_n_vmax > a_n_max_cutoff) {
+        v_max_actual = v_max_cutoff;
+    } else {
+        acc_ratio_tan = pmSqrt(1.0 - pmSq(a_n_vmax / a_max));
     }
 
-    if (v_max_acc < v_max) {
-        tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
-        return v_max_acc;
-    } else {
-        tp_debug_print("v_max %f is within limit of v_max_acc %f\n",v_max, v_max_acc);
-        return v_max;
-    }
+    tp_debug_json_start(pmCircleActualMaxVel);
+    tp_debug_json_double(eff_radius);
+    tp_debug_json_double(v_max);
+    tp_debug_json_double(v_max_cutoff);
+    tp_debug_json_double(a_n_max_cutoff);
+    tp_debug_json_double(a_n_vmax);
+    tp_debug_json_double(acc_ratio_tan);
+    tp_debug_json_end();
+
+    PmCircleLimits limits = {
+        v_max_actual,
+        acc_ratio_tan
+    };
+
+    return limits;
 }
 
 
@@ -1809,18 +1840,21 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
  * The radius of curvature of a spiral is larger than the circle of the same
  * radius.
  */
-double pmCircleEffectiveMinRadius(PmCircle const * const circle)
+double pmCircleEffectiveMinRadius(PmCircle const * circle)
 {
-    double radius0 = circle->radius;
-    double radius1 = circle->radius + circle->spiral;
-
-    double min_radius = fmin(radius0, radius1);
-
     double dr = circle->spiral / circle->angle;
-    double effective_radius = pmSqrt(pmSq(min_radius)+pmSq(dr));
+    double h2;
+    pmCartMagSq(&circle->rHelix, &h2);
 
-    tp_debug_print("min_radius = %f, effective_min_radius = %f\n",
-            min_radius,
-            effective_radius);
+    // Exact representation of spiral arc length flattened into
+    double n_inner = pmSq(dr) + pmSq(circle->radius);
+    double den = n_inner+pmSq(dr);
+    double num = pmSqrt(n_inner * n_inner * n_inner);
+    double r_spiral = num / den;
+
+    // Curvature of helix, assuming that helical motion is independent of plane motion
+    double effective_radius = h2 / r_spiral + r_spiral;
+
     return effective_radius;
 }
+

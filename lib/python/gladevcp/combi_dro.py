@@ -91,6 +91,7 @@ class Combi_DRO(gtk.VBox):
                     'clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
                     'units_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
                     'system_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+                    'axis_clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
                     'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
 
@@ -98,8 +99,13 @@ class Combi_DRO(gtk.VBox):
     def __init__(self, joint_number = 0):
         super(Combi_DRO, self).__init__()
 
+        # we have to distinguish this, as we use the joints number to check homing
+        # and we do need the axis to check for the positions
+        # this is needed if non trivial kinematics are used or just a lathe,
+        # as the lathe has only two joints, but Z will be the third value in position feedback
+        self.axis_no = self.joint_no = joint_number
+
         # get the necessary connections to linuxcnc
-        self.joint_number = self.joint = joint_number
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
         self.gstat = GStat()
@@ -132,7 +138,7 @@ class Combi_DRO(gtk.VBox):
         hbox_up = gtk.HBox(False, 0)
         vbox_main.pack_start(hbox_up)
         attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size * 1000, 0, -1), (600, 0, -1))
-        self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.joint_number])
+        self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.axis_no])
         self.lbl_axisletter.set_attributes(attr)
         hbox_up.pack_start(self.lbl_axisletter, False, False)
         vbox_ref_type = gtk.VBox(False, 0)
@@ -209,15 +215,20 @@ class Combi_DRO(gtk.VBox):
         return attr
 
     # if the eventbox has been clicked, we like to toggle the DRO's
+    # or just emit a signal to allow GUI to do what ever they want with that
+    # signal- gmoccapy uses this signal to open the touch off dialog
     def _on_eventbox_clicked(self, widget, event):
-        if not self.toggle_readout:
-            return
-        self.toogle_readout()
+        if event.x <= self.lbl_axisletter.get_allocation().width + self.lbl_sys_main.get_allocation().width:
+            self.emit('axis_clicked', self.lbl_axisletter.get_text().lower())
+        else:
+            if not self.toggle_readout:
+                return
+            self.toogle_readout()
 
     # Get propertys
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -226,14 +237,14 @@ class Combi_DRO(gtk.VBox):
     def do_set_property(self, property, value):
         try:
             name = property.name.replace('-', '_')
-            if name in self.__gproperties.keys():
+            if name in list(self.__gproperties.keys()):
                 setattr(self, name, value)
                 self.queue_draw()
                 if name in ('mm_text_template', 'imperial_text_template'):
                     try:
                         v = value % 0.0
-                    except Exception, e:
-                        print "Invalid format string '%s': %s" % (value, e)
+                    except Exception as e:
+                        print("Invalid format string '%s': %s" % (value, e))
                         return False
                 if name == "homed_color":
                     self.homed_color = value
@@ -254,8 +265,8 @@ class Combi_DRO(gtk.VBox):
                     self._auto_units = value
                     self._set_labels()
                 if name == "joint_number":
-                    self.joint_number = self.joint = value
-                    self.change_axisletter(_AXISLETTERS[self.joint_number])
+                    self.axis_no = self.joint = value
+                    self.change_axisletter(_AXISLETTERS[self.axis_no])
                 if name == "font_size":
                     self.font_size = value
                     self._set_labels()
@@ -391,31 +402,31 @@ class Combi_DRO(gtk.VBox):
             p = self.status.actual_position
         else:
             p = self.status.position
-        dtg = self.status.dtg[self.joint_number]
+        dtg = self.status.dtg[self.axis_no]
 
-        abs_pos = p[self.joint_number]
+        abs_pos = p[self.axis_no]
 
-        rel_pos = p[self.joint_number] - self.status.g5x_offset[self.joint_number] - self.status.tool_offset[self.joint_number]
+        rel_pos = p[self.axis_no] - self.status.g5x_offset[self.axis_no] - self.status.tool_offset[self.axis_no]
 
         if self.status.rotation_xy != 0:
             t = math.radians(-self.status.rotation_xy)
             x = p[0] - self.status.g5x_offset[0] - self.status.tool_offset[0]
             y = p[1] - self.status.g5x_offset[1] - self.status.tool_offset[1]
-            if self.joint_number == 0:
+            if self.axis_no == 0:
                 rel_pos = x * math.cos(t) - y * math.sin(t)
-            if self.joint_number == 1:
+            if self.axis_no == 1:
                 rel_pos = x * math.sin(t) + y * math.cos(t)
 
-        rel_pos -= self.status.g92_offset[self.joint_number]
+        rel_pos -= self.status.g92_offset[self.axis_no]
 
         if self.metric_units and self.machine_units == _INCH:
-            if self.joint_number not in (3, 4, 5):
+            if self.axis_no not in (3, 4, 5):
                 abs_pos = abs_pos * 25.4
                 rel_pos = rel_pos * 25.4
                 dtg = dtg * 25.4
 
         if not self.metric_units and self.machine_units == _MM:
-            if self.joint_number not in (3, 4, 5):
+            if self.axis_no not in (3, 4, 5):
                 abs_pos = abs_pos / 25.4
                 rel_pos = rel_pos / 25.4
                 dtg = dtg / 25.4
@@ -430,12 +441,13 @@ class Combi_DRO(gtk.VBox):
     def _not_all_homed(self, widget, data = None):
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             self.status.poll()
-            self.homed = self.status.homed[self.joint]
+            self.homed = self.status.homed[self.joint_no]
         else:
             self.homed = False
         self._set_labels()
 
     def _all_homed(self, widget, data = None):
+        print("Combi DRO all homed")
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
             return
         if not self.homed:
@@ -447,7 +459,7 @@ class Combi_DRO(gtk.VBox):
             return
         else:
             self.status.poll()
-            self.homed = self.status.homed[self.joint]
+            self.homed = self.status.homed[self.joint_no]
             self._set_labels()
 
     # sets the DRO explicity to inch or mm
@@ -519,7 +531,7 @@ class Combi_DRO(gtk.VBox):
         '''
         self.lbl_axisletter.set_text(letter)
 
-    def set_joint(self, joint):
+    def set_joint_no(self, joint):
         '''
         changes the joint, not the joint number. This is handy for special
         cases, like Gantry configs, i.e. XYYZ, where joint 0 = X, joint 1 = Y1
@@ -527,7 +539,16 @@ class Combi_DRO(gtk.VBox):
         giving the axis letter Z and joint 3 being in this case the corresponding
         joint, joint 3 instead of 2
         '''
-        self.joint = joint
+        self.joint_no = joint
+
+    def set_axis(self, axis):
+        '''
+        changes the axis, not the joint number. This is handy for special
+        cases, like Lathe configs, i.e. XZ, where joint 0 = X, joint 1 = Z
+        so the Z axis must be set to joint_number 1 for homing, but we need
+        the axis letter Z to give the correct position feedback
+        '''
+        self.axis_no = "xyzabcuvws".index(axis.lower())
 
     # returns the order of the DRO, mainly used to mantain them consistent
     # the order will also be transmitted with the clicked signal

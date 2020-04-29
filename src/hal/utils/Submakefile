@@ -99,4 +99,4 @@ endif
 TARGETS += ../bin/halcompile ../bin/elbpcom
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
-	$(Q)yapps $< $@
+	$(Q)$(YAPPS) $< $@

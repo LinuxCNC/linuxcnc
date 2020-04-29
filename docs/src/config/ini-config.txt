@@ -168,23 +168,6 @@ G1 Z#5063
 G10 L20 P0 Z#<_ini[probe]z_offset>
 ---------------------------------------------------------------------
 
-[NOTE]
-====
-Referring to INI-file variables from G-code is currently an experimental
-feature. To enable it, specify the appropriate FEATURES bitmask value in
-the <<sec:rs274ngc-section,RS274NGC>> section of the INI file, e.g.
-
-[source,{ini}]
----------------------------------------------------------------------
-[RS274NGC]
-...
-FEATURES=4
----------------------------------------------------------------------
-
-See <<remap:ini-features,Optional Interpreter Features>> in the
-<<cha:remap,Remap Extending G-Code>> chapter for details.
-====
-
 
 === Include Files
 
@@ -225,15 +208,13 @@ is .inc.  Do not use a file extension of .ini for included files.
 
 === [EMC] Section
 
-* 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd
-    because it is automatically updated when using the Revision Control
-    System. It's a good idea to change this number each time you revise
-    your file. If you want to edit this manually just change the number and
-    leave the other tags alone. 
+* 'VERSION = 1.1' - The version number for the configuration. Any value other
+    than 1.1 will cause the configuration checker to run and try to update the
+    configuration to the new style joint axes type of configuration.
 
-* 'MACHINE = My Controller' - This is the name of the controller, which is printed out at the top
-    of most graphical interfaces. You can put whatever you want here as
-    long as you make it a single line long.
+* 'MACHINE = My Controller' - This is the name of the controller, which is
+    printed out at the top of most graphical interfaces. You can put whatever
+    you want here as long as you make it a single line long.
 
 * 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is
   run from a <<faq:terminal,terminal>>. Debug flags are usually only useful to
@@ -253,8 +234,7 @@ Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen',
-   'mini', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
@@ -279,6 +259,9 @@ User Manual.
   Python practice.
   https://docs.python.org/2/library/string.html#format-specification-mini-language
   An error will be raised if the format can not accept a floating-point value.
+
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in 
+  the graphics display
 
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
@@ -349,7 +332,7 @@ Many of them are used also from gmoccapy, see the
 
 * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts. Use
    a blank string "" and no file will be loaded at start up. gmoccapy will not use this setting, as it
-   offers a coresponding entry on its settings page.
+   offers a corresponding entry on its settings page.
 
 * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
     from the AXIS menu. This must be configured for this menu item to
@@ -363,6 +346,10 @@ Many of them are used also from gmoccapy, see the
 
 * 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
     <<cha:pyvcp,PyVCP Chapter>> for more information.
+
+* 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
+    If this variable is omitted the panel will default to the right side. The only valid
+    alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
 
@@ -520,6 +507,7 @@ if __name__ == "__main__":
 ----
 
 [[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
+[[gcode:ini-features]]
 
 === [RS274NGC] Section
 
@@ -551,6 +539,10 @@ if __name__ == "__main__":
     current directory for the ini file or as absolute paths. The list must
     contain no intervening whitespace.
 
+* 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
+
+* 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
+
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories for user defined
    functions. Directories are specified relative to the current directory
@@ -570,15 +562,47 @@ The first executable M1xx found in the search is used for each M1xx.
 The maximum number of USER_M_PATH directories is defined at compile
 time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
-* 'FEATURES = 0' - An integer value representing the bitmask of optional
-    features to be enabled. These are typically non-backward-compatible and
-    experimental in nature. See
-    <<remap:ini-features,Optional Interpreter Features>> in the
-    <<cha:remap,Remap Extending G-Code>> chapter for details.
+* 'INI_VARS = 1' Default 1
+Allows G-code programs to read values from the INI file using the format
+#<_ini[section]name>. See <<gcode:parameters,G-code Parameters>
+
+* 'HAL_PIN_VARS = 1' Default 1
+Allows G-code programs to read the values of HAL pins using the format
+#<_hal[Hal item]> Variable access is read-only
+See <<gcode:parameters,G-code Parameters>> for more details and an
+important caveat
+
+* 'RETAIN_G43 = 0' Default 0
+When set, you can  turn on G43 after loading the first tool,
+and then not worry about it through the program.  When you
+finally unload the last tool, G43 mode is canceled.
+
+* 'OWORD_NARGS = 0' Default 0
+If this feature is enabled then a called subroutine can determine the
+number of actual positional parameters passed by inspecting the
++#<n_args>+ parameter.
+
+* 'NO_DOWNCASE_OWORD = 0' Default 0
+Preserve case in O-word names within comments if set, enables reading of
+mixed-case HAL items in structured comments like
+'(debug, #<_hal[MixedCaseItem])'.
+
+* 'OWORD_WARNONLY = 0' Default 0
+Warn rather than error in case of errors in O-word subroutines.
+
+[NOTE] The above six options were controlled by the 'FEATURES' bitmask
+in versions of LinuxCNC prior to 2.8. This INI tag will no longer
+work.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
+
+* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
+
+* 'ON_ABORT_COMMAND=O <on_abort> call'
+See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [[sec:emcmot-section]](((INI File, EMCMOT Section)))
 
@@ -873,6 +897,9 @@ to start.
 Finally, no amount of tweaking will speed up a toolpath with lots of 
 small, tight corners, since you're limited by cornering acceleration. 
 
+* 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
+   number matches the "num_spindles" parameter passed to the motion module.
+
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
    are accepted in g-code.  It is permitted to write an axis name twice
@@ -884,7 +911,7 @@ small, tight corners, since you're limited by cornering acceleration.
    trivkins and other kinematics modules.
 
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
-    Possible choices are (in, inch, imperial, metric, mm).
+    Possible choices are mm or inch.
     This does not affect the linear units in NC code (the G20 and G21
     words do this). 
 
@@ -913,7 +940,10 @@ small, tight corners, since you're limited by cornering acceleration.
     coordinates it had on shutdown. This assumes there was no movement of
     the machine while powered off. If unset, joint positions are not stored
     and will begin at 0 each time LinuxCNC is started. This can help on smaller
-    machines without home switches.
+    machines without home switches. If using the Mesa resolver interface
+    this file can be used to emulate absolute encoders and eliminate the
+    need for homing (with no loss of accuracy). See the hostmot2 manpage
+    for more details.
 
 * 'NO_FORCE_HOMING = 1' - The default behavior is for LinuxCNC to force the
    user to home the machine before any MDI command or a program is run.
@@ -994,6 +1024,16 @@ The <letter> specifies one of: X Y Z A B C U V W
     Example: loadrt motmod ... unlock_joints_mask=0x38
     creates  unlock  pins for joints 3,4,5
 
+* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of
+   hal input pins for external axis offsets:
+
+   'axis.<letter>.eoffset-enable'
+   'axis.<letter>.eoffset-counts'
+   'axis.<letter>.eoffset-scale'
+
+See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for
+usage information.
+
 [[sec:joint-section]](((INI File, JOINT Section)))
 
 === [JOINT_<num>] Section
@@ -1047,31 +1087,56 @@ For more information on kinematics modules see the manpage: '$ man kins'
     can be used to make up for small deficiencies in the hardware used to
     drive an joint. If backlash is added to an joint and you are using
     steppers the STEPGEN_MAXACCEL must be increased to 1.5 to 2 times the
-    MAX_ACCELERATION for the joint.
+    MAX_ACCELERATION for the joint. Excessive backlash compensation can cause an
+    axis to jerk as it changes direction. If a COMP_FILE is specificed for an
+    axis BACKLASH is not used.
+
+// add a link to machine units
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) A file holding compensation structure for the joint.
-    The file could be named joint0screw.comp (or xscrew.comp for the X axis
-    for aa config with identity kinematics). File
-    names are case sensitive and can contain letters and/or numbers. The
-    values are triplets per line separated by a space. The first value is
-    nominal (where it should be). The second and third values depend on the
-    setting of COMP_FILE_TYPE. Currently the limit inside LinuxCNC is for 256
-    triplets per joint. If COMP_FILE is specified, BACKLASH is ignored.
-    Compensation file values are in machine units.
+    (((Compensation))) The compensation file consists of map of position
+    information for the joint. Compensation file values are in machine units.
+    Each set of values are are on one line separated by a space. The first value
+    is the nominal value (the commanded position). The second and third values
+    depend on the setting of COMP_FILE_TYPE. Points in between nominal values
+    are interpolated between the two nominals. Compensation files must start
+    with the smallest nominal and be in ascending order to the largest value of
+    nominals. File names are case sensitive and can contain letters and/or
+    numbers. Currently the limit inside LinuxCNC is for 256 triplets per axis.
+    +
+    +
+    If COMP_FILE is specified for an axis, BACKLASH is not used. A 
+    'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
-* 'COMP_FILE_TYPE = 0 or 1' -
-** 'If 0:' The second and third values specify
-    the forward position (where the joint is while traveling forward) and
-    the reverse position (where the joint is while traveling reverse),
-    positions which correspond to the nominal position.'
-** 'If 1:' The second and third values specify
-    the forward trim (how far from nominal while traveling forward) and
-    the reverse trim (how far from nominal while traveling in reverse),
-    positions which correspond to the nominal position.
+* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
+   first value is the nominal (commanded) position for both types.
 
-    Example triplet with COMP_FILE_TYPE = 0: 1.00 1.01 0.99 +
-    Example triplet with COMP_FILE_TYPE = 1: 1.00 0.01 -0.01
+** 'Type 0:' The second value specifies the actual position as the axis is moving
+    in the positive direction (increasing value) and the third value specifies
+    the actual position as the axis is moving in the negative direction
+    (decreasing value).
+    +
+    +
+Type 0 Example
++
+----
+-1.000 -1.005 -0.995
+0.000 0.002 -0.003
+1.000 1.003 0.998
+----
+
+** 'Type 1:' The second value specifies positive offset from nominal while
+    traveling in the positive direction. The third value specifies the negitive
+    offset from nominal while traveling in a negitive direction.
+    +
+    +
+Type 1 Example
++
+----
+-1.000 0.005 -0.005
+0.000 0.002 -0.003
+1.000 0.003 -0.004
+----
 
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) The minimum limit for axis motion, in
     machine units. When this limit is reached, the controller aborts axis
@@ -1147,6 +1212,11 @@ These parameters are Homing related, for a better explanation read the
     home to index with steppers unless you're using stepgen in velocity mode
     and PID.
 
+* 'HOME_INDEX_NO_ENCODER_RESET = NO' -
+     Use YES if the encoder used for this joint does not reset its counter
+     when an index pulse is detected after assertion of the joint
+     index_enable hal pin. Applicable only for HOME_USE_INDEX = YES.
+
 * 'HOME_IGNORE_LIMITS = NO' -
      When you use the limit switch as a home switch and the limit switch
     this should be set to YES. When set to YES the limit switch for this
@@ -1167,12 +1237,15 @@ These parameters are Homing related, for a better explanation read the
     If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
 
 * 'HOME_SEQUENCE = <n>' -
-     Used to define the "Home All" sequence. <n> starts at 0 and no numbers
-    may be skipped. If left out the joint will not be homed by the
-    "Home All" function. More than one joint can be homed at the same
+    Used to define the "Home All" sequence. <n> must start at 0 or
+    1 or -1.  Additional sequences may be specified with numbers increasing
+    by 1 (in absolute value).  Skipping of sequence numbers is not allowed.
+    If a HOME_SEQUENCE is omitted, the joint will not be homed by the
+    "Home All" function.  More than one joint can be homed at the same
     time by specifying the same sequence number for more than one joint.
     A negative sequence number is used to defer the final move for
     all joints having that (negative or positive) sequence number.
+    For additional info, see: <<sec:homing-section,HOME SEQUENCE>>
 
 * 'VOLATILE_HOME = 0' -
      When enabled (set to 1) this joint will be unhomed if the Machine

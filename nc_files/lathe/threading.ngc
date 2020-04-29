@@ -1,0 +1,94 @@
+; MACROCOMMAND=Thread X, SFM, Tool Number, Pitch, Z, Internal, External
+; MACRODEFAULTS=1,300,1,.015,1,False,true
+; MACROSVG=LatheMacro.svg,5
+
+; O<threading>call [${thread.x-f}] [${thread.sf-f}] [${thread.tool-s}] [${thread.pitch-f}] [${thread.z-f}] [${thread.internal}] [${thread.external}]
+; #1=thread.x
+; #2=thread.sf
+; #3=thread.tool-s
+; #4=thread.pitch-f
+; #5=thread.z-f
+; #6=thread.internal
+; #7=thread.external
+
+
+O<threading> sub
+
+M73 ; save current state, restore on exit
+
+G8 ; Lathe radius Mode
+G18 ; XZ Plane
+G90 ; Absolute Distance
+
+
+M6 T#3 G43
+
+(MSG, Press Cycle Start To Start Threading Macro)
+m0
+
+#1 = [#1 / 2.0]
+
+#14 = [#<_x> * 2] (starting X)
+#13 = #<_z> (starting Z)
+
+G96 D2500 S#2 ; Constant Surface Speed Mode
+M3
+g4p1 ; Wait to reach speed
+
+	#<height> = [0.86603 * #4]
+	#<majorflat> = [#<height> * 0.125]
+	#<minorflat> = [#<height> * 0.250]
+	#<threaddepth> = [#<height> * 0.625]
+	;(debug, #40 #<majorflat> #<minorflat> #<threaddepth>)
+
+
+	O51 IF [#<_metric>]
+		#<cutdepth> = 0.2
+		#<flatfeed> = 0.1
+
+	O51 ELSE
+		#<cutdepth> = 0.007
+		#<flatfeed> = 0.004
+
+	O51 ENDIF
+
+
+	g95 F#<flatfeed> ; Feed-Per-Rev Mode
+
+
+	;Threading
+        O52 IF [#6 GT 0.5] ;internal
+		;cut the minor flat diameter
+        ;(debug, INTERNAL Threading thread dia-#1 start-#13 finish-#5 Pitch-#4 Depth-#3)
+		G0 Z #13
+		G0 X [#1 + #<minorflat> - #<height>]
+		G1 Z #5
+		G0 X [#1 - #<height>]
+		G0 Z #13
+
+		G96 D600 S#2 ; limit RPM in threading mode
+
+ 		g76 p#4 z#5 i#<minorflat> j#<cutdepth> k#<threaddepth> h3 r1.5 q29.5 e0 l0
+		
+        O52 ELSE ;external
+		; cut the major diameter
+        ;(debug, EXTERNAL Threading thread dia-#1 start-#13 finish-#5 Pitch-#4 Depth-#3 MF #<majorflat>)
+		G0 Z #13
+		G0 X #1
+		G1 X [#1 - #<majorflat>]
+		G1 Z #5
+		G0 X #1
+		G0 Z #13
+
+		G96 D600 S#2 ; limit RPM in threading mode
+
+ 		g76 p#4 z#5 i[-#<majorflat>] j#<cutdepth> k#<threaddepth> h3 r1.5 q29.5 e0 l0
+		
+        O52 ENDIF
+
+	G0 Z #13
+	m5
+
+O<threading> endsub
+M2
+

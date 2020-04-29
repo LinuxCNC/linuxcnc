@@ -20,7 +20,7 @@ import os
 import time
 import re, string
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 
@@ -66,12 +66,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_auto_mode(self):
         self.stat.poll()
-        print self.stat.task_mode, linuxcnc.MODE_AUTO
+        print(self.stat.task_mode, linuxcnc.MODE_AUTO)
         return self.stat.task_mode == linuxcnc.MODE_AUTO
 
     def is_file_loaded(self):
         self.stat.poll()
-        print "file name:",self.stat.file
+        print("file name:",self.stat.file)
         if self.stat.file:
             return True
         else:
@@ -79,13 +79,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_all_homed(self):
         self.stat.poll()
-        axis_count = homed_count = 0
+        homed_count = 0
         for i,h in enumerate(self.stat.homed):
-            if h:
-                if self.stat.axis_mask & (1<<i): homed_count +=1
-            if self.stat.axis_mask & (1<<i) == 0: continue
-            axis_count += 1
-        if homed_count == axis_count:
+            #Don't worry about joint to axis mapping
+            if h: homed_count +=1
+        print(self.stat.joints)
+        if homed_count == self.stat.joints:
             return True
         return False
 
@@ -184,7 +183,7 @@ def _action(klass, f, *a, **kw):
     class _C(_EMC_Action):
         __gtype_name__ = klass
         def on_activate(self, w):
-            print klass
+            print(klass)
             f(self, *a, **kw)
     return _C
 
@@ -205,10 +204,10 @@ class EMC_ToggleAction_ESTOP(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ESTOP'
+            print('Issuing ESTOP')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP)
         else:
-            print 'Issuing ESTOP RESET'
+            print('Issuing ESTOP RESET')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET)
 
 class EMC_ToggleAction_Power(_EMC_ToggleAction):
@@ -226,10 +225,10 @@ class EMC_ToggleAction_Power(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ON'
+            print('Issuing ON')
             self.linuxcnc.state(linuxcnc.STATE_ON)
         else:
-            print 'Issuing OFF'
+            print('Issuing OFF')
             self.linuxcnc.state(linuxcnc.STATE_OFF)
 
 class EMC_RadioAction_ESTOP(_EMC_RadioAction):
@@ -297,6 +296,49 @@ def ensure_mode(s, c, *modes):
     c.wait_complete()
     return True
 
+class EMC_Action_Python(_EMC_Action):
+    __gtype_name__ = 'EMC_Action_Python'
+    command = gobject.property(type=str, default='', nick='Python Command')
+    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+                                    blurb='Machine Must be homed for widgets to be sensitive to input')
+    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+                                    blurb='Machine Must be On for widgets to be sensitive to input')
+    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+                                    blurb='Machine Must be Idle for widgets to be sensitive to input')
+    requires_manual = gobject.property(type=bool, default=False, nick='Preset Manual Mode',
+                                    blurb='Preset Manual Mode before command')
+    requires_mdi = gobject.property(type=bool, default=False, nick='Preset MDI Mode',
+                                    blurb='Preset MDI Mode before command')
+    requires_auto = gobject.property(type=bool, default=False, nick='Preset Auto Mode',
+                                    blurb='Preset Auto Mode before command')
+
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        if self.is_on:
+            self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
+        else:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()) )
+        if self.is_idle:
+            self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
+
+    def on_activate(self, w):
+        self._globalParameter = { 'EXT':self._panel_instance.get_handler_obj(),
+                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat}
+        self._localsParameter = {'dir': dir, 'self': self,'linuxcnc':linuxcnc}
+        if self.requires_manual:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MAN)
+        elif self.requires_mdi:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        elif self.requires_auto:
+            ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
+        exec(self.command, self._globalParameter, self._localsParameter)
+
 class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
     program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
@@ -339,7 +381,7 @@ class EMC_Action_Pause(_EMC_Action):
 class EMC_Action_Resume(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Resume'
     def on_activate(self, w):
-        print "RESUME"
+        print("RESUME")
         self.stat.poll()
         if not self.stat.paused:
             return

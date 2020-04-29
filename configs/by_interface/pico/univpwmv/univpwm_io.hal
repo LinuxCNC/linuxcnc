@@ -86,9 +86,9 @@ linksp emc-estop-reset estop-latch.0.reset
 newsig SpindleFwd bit
 newsig SpindleRev bit
 linksp SpindleFwd <= ppmc.0.dout.00.out
-linksp SpindleFwd => motion.spindle-forward
+linksp SpindleFwd => spindle.0.forward
 linksp SpindleRev <= ppmc.0.dout.01.out
-linksp SpindleRev => motion.spindle-reverse
+linksp SpindleRev => spindle.0.reverse
 
 # connect spindle speed up/down to I/O controller
 newsig SpindleUp bit
@@ -101,7 +101,7 @@ newsig SpindleDown bit
 # connect spindle brake to I/O controller
 newsig SpindleBrakeOn bit
 linksp SpindleBrakeOn <= ppmc.0.dout.02.out
-linksp SpindleBrakeOn => motion.spindle-brake
+linksp SpindleBrakeOn => spindle.0.brake
 
 # connect mist/flood coolant to I/O controller
 newsig MistOn bit

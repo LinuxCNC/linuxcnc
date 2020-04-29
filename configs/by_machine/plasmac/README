@@ -1,0 +1,2 @@
+An example of how to connect a GUI with the plasmac HAL component for use in plasma cutting machines.
+If you have an existing working ini and hal file you can create a working plasmac configuration using configurator.py located in this directory.

@@ -57,6 +57,7 @@ int mot_comp_id;
 emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
 int num_joints = EMCMOT_MAX_JOINTS;
 emcmot_joint_t *joints = 0;
+int num_spindles = EMCMOT_MAX_SPINDLES;
 
 emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
 int num_axes = EMCMOT_MAX_AXIS;
@@ -114,13 +115,14 @@ static int init_comm_buffers(void) {
     emcmotError = &emcmotStruct->error;
 
     emcmotConfig->numJoints = num_joints;
+    emcmotConfig->numSpindles = num_spindles;
 
     emcmotStatus->vel = DEFAULT_VELOCITY;
     emcmotConfig->limitVel = DEFAULT_VELOCITY;
     emcmotStatus->acc = DEFAULT_ACCELERATION;
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->rapid_scale = 1.0;
-    emcmotStatus->spindle_scale = 1.0;
+    for (int n = 0; n < EMCMOT_MAX_SPINDLES; n++) emcmotStatus->spindle_status[n].scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
     /* adaptive feed is off by default, feed override, spindle 
        override, and feed hold are on */
@@ -147,8 +149,6 @@ static int init_comm_buffers(void) {
 	joint->acc_limit = 1.0;
 	joint->min_ferror = 0.01;
 	joint->max_ferror = 1.0;
-	joint->home_final_vel = -1;
-	joint->home_sequence = -1;
 
 	joint->comp.entry = &(joint->comp.array[0]);
 	/* the compensation code has -DBL_MAX at one end of the table
@@ -229,6 +229,7 @@ void update_joint_status(void) {
 	joint_status->pos_cmd = joint->pos_cmd;
 	joint_status->pos_fb = joint->pos_fb;
 	joint_status->vel_cmd = joint->vel_cmd;
+	joint_status->acc_cmd = joint->acc_cmd;
 	joint_status->ferror = joint->ferror;
 	joint_status->ferror_high_mark = joint->ferror_high_mark;
 	joint_status->backlash = joint->backlash;
@@ -236,20 +237,17 @@ void update_joint_status(void) {
 	joint_status->min_pos_limit = joint->min_pos_limit;
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
-	joint_status->home_offset = joint->home_offset;
     }
 }
 
 
 static void mark_joint_homed(int joint_num) {
-    emcmot_joint_t *joint;
+    emcmot_joint_status_t *joint_status;
 
-    joint = &joints[joint_num];
-
-    SET_JOINT_HOMING_FLAG(joint, 0);
-    SET_JOINT_HOMED_FLAG(joint, 1);
-    SET_JOINT_AT_HOME_FLAG(joint, 1);
-    joint->home_state = HOME_IDLE;
+    joint_status = &emcmotStatus->joint_status[joint_num];
+    joint_status->homing = 0;
+    joint_status->homed  = 1;
+    return;
 }
 
 void maybe_reopen_logfile() {
@@ -584,6 +582,11 @@ int main(int argc, char* argv[]) {
                 num_joints = c->joint;
                 break;
 
+            case EMCMOT_SET_NUM_SPINDLES:
+                log_print("SET_NUM_SPINDLES %d\n", c->spindle);
+                num_spindles = c->spindle;
+                break;
+
             case EMCMOT_SET_WORLD_HOME:
                 log_print(
                     "SET_WORLD_HOME x=%.6f, y=%.6f, z=%.6f, a=%.6f, b=%.6f, c=%.6f, u=%.6f, v=%.6f, w=%.6f\n",
@@ -627,12 +630,12 @@ int main(int argc, char* argv[]) {
 
             case EMCMOT_SPINDLE_ON:
                 log_print("SPINDLE_ON speed=%f, css_factor=%f, xoffset=%f\n", c->vel, c->ini_maxvel, c->acc);
-                emcmotStatus->spindle.speed = c->vel;
+                emcmotStatus->spindle_status[0].speed = c->vel;
                 break;
 
             case EMCMOT_SPINDLE_OFF:
                 log_print("SPINDLE_OFF\n");
-                emcmotStatus->spindle.speed = 0;
+                emcmotStatus->spindle_status[0].speed = 0;
                 break;
 
             case EMCMOT_SPINDLE_INCREASE:

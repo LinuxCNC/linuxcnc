@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import linuxcnc
 import linuxcnc_util
@@ -52,21 +52,21 @@ l.jog_axis('z', 0.0)
 c.mode(linuxcnc.MODE_MDI)
 
 gcode = 'g0 x2 z2'
-print "running gcode:", gcode
+print("running gcode: {}".format(gcode))
 c.mdi(gcode)
 c.wait_complete()
 l.wait_for_axis_to_stop_at('x', 2);
 l.wait_for_axis_to_stop_at('z', 2);
 
 gcode = 'g0 x-2'
-print "running gcode:", gcode
+print("running gcode: {}".format(gcode))
 c.mdi(gcode)
 c.wait_complete()
 l.wait_for_axis_to_stop_at('x', -2);
 l.wait_for_axis_to_stop_at('z', 2);
 
 gcode = 'g0 z-2'
-print "running gcode:", gcode
+print("running gcode: {}".format(gcode))
 c.mdi(gcode)
 c.wait_complete()
 l.wait_for_axis_to_stop_at('x', -2);

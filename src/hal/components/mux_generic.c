@@ -200,7 +200,9 @@ int rtapi_app_main(void){
         // if the mux size is a power of 2 then create the bit inputs
         s = inst->size;
         for(inst->num_bits = 1; (!((s >>= 1) & 1)); inst->num_bits++);
-        if (s == 1) { //make the bit pins
+        if (s !=1){
+            inst->num_bits = 0;
+        } else { //make the bit pins
             inst->sel_bit = hal_malloc(inst->num_bits * sizeof(hal_bit_t*));
             for (p = 0; p < inst->num_bits; p++) {
                 retval = hal_pin_bit_newf(HAL_IN, &inst->sel_bit[p], comp_id,
@@ -326,6 +328,8 @@ void write_fp(void *arg, long period) {
             inst->output->u = MAX_U32;
         } else if (inst->inputs[s]->f < 0) {
             inst->output->u = 0;
+        } else {
+            inst->output->u = inst->inputs[s]->f;
         }
         break;
     case 032: //HAL_S32 => HAL_FLOAT

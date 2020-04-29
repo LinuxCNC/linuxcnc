@@ -29,7 +29,7 @@ class emc_control:
                 self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
-                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
+                    raise SystemExit("\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n")
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -109,7 +109,7 @@ class emc_control:
         def spindle_forward(self, b, rpm=100):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(1,rpm);
+                self.emccommand.spindle(1,rpm,0);
 
         def spindle_off(self, b):
                 if self.masked: return
@@ -119,7 +119,7 @@ class emc_control:
         def spindle_reverse(self, b, rpm=100):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(-1,rpm);
+                self.emccommand.spindle(-1,rpm,0);
 
         def spindle_faster(self, b):
                 if self.masked: return
@@ -163,6 +163,10 @@ class emc_control:
                     self.isjogging[axis] = direction
                     self.emccommand.jog(self.emc.JOG_CONTINUOUS
                     ,0 ,axis ,direction * rate)
+
+        def stop_jog(self, axis):
+            self.isjogging[axis] = 0
+            self.emccommand.jog(self.emc.JOG_STOP, 0, axis)
 
         def incremental_jog(self, axis, direction, distance):
                 if self.masked: return
@@ -242,7 +246,7 @@ class emc_control:
                     self.emccommand.auto(self.emc.AUTO_STEP)
                     return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        print self.restart_line_number
+                        print(self.restart_line_number)
                         self.emccommand.auto(self.emc.AUTO_RUN, self.restart_line_number)
                 self.restart_line_number = self.restart_reset_line
 
@@ -304,7 +308,7 @@ class emc_status:
             return self.emcstat.feedrate
 
         def get_spindlerate(self):
-            return self.emcstat.spindlerate
+            return self.emcstat.spindle[0]['override']
 
         def get_maxvelocity(self):
             return self.emcstat.maxvelocity
@@ -323,7 +327,7 @@ class emc_status:
         # angular axes are always 1 - They are not converted.
         def convert_units_list(self,v):
                 c = self.unit_convert
-                return map(lambda x,y: x*y, v, c)
+                return list(map(lambda x,y: x*y, v, c))
 
         # This converts the given data units if the current display mode (self.mm)
         # is not the same as the machine's basic units.
@@ -438,9 +442,9 @@ class emc_status:
             # estop status
             self.data.estopped = self.emcstat.task_state == self.emc.STATE_ESTOP
             # spindle
-            self.data.spindle_dir = self.emcstat.spindle_direction
-            self.data.spindle_speed = abs(self.emcstat.spindle_speed)
-            self.data.spindle_override = self.emcstat.spindlerate
+            self.data.spindle_dir = self.emcstat.spindle[0]['direction']
+            self.data.spindle_speed = abs(self.emcstat.spindle[0]['speed'])
+            self.data.spindle_override = self.emcstat.spindle[0]['override']
             # other
             self.data.tool_in_spindle = self.emcstat.tool_in_spindle
             self.data.flood = self.emcstat.flood

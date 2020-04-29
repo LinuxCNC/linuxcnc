@@ -22,10 +22,12 @@ typedef s8 rtapi_s8;
 typedef s16 rtapi_s16;
 typedef s32 rtapi_s32;
 typedef s64 rtapi_s64;
+typedef long rtapi_intptr_t;
 typedef u8 rtapi_u8;
 typedef u16 rtapi_u16;
 typedef u32 rtapi_u32;
 typedef u64 rtapi_u64;
+typedef unsigned long rtapi_uintptr_t;
 
 #define RTAPI_INT8_MAX (127)
 #define RTAPI_INT8_MIN (-128)
@@ -44,14 +46,17 @@ typedef u64 rtapi_u64;
 #define RTAPI_UINT64_MAX (18446744073709551615ull)
 #else
 #include <inttypes.h>
+
 typedef int8_t rtapi_s8;
 typedef int16_t rtapi_s16;
 typedef int32_t rtapi_s32;
 typedef int64_t rtapi_s64;
+typedef intptr_t rtapi_intptr_t;
 typedef uint8_t rtapi_u8;
 typedef uint16_t rtapi_u16;
 typedef uint32_t rtapi_u32;
 typedef uint64_t rtapi_u64;
+typedef uintptr_t rtapi_uintptr_t;
 
 #define RTAPI_INT8_MAX INT8_MAX
 #define RTAPI_INT8_MIN INT8_MIN

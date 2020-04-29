@@ -53,7 +53,9 @@ static int endpoint_valid = 0;
 
 std::vector<queued_canon>& qc(void) {
     static std::vector<queued_canon> c;
-    if(0) printf("len %d\n", (int)c.size());
+#if 0
+    printf("len %d\n", (int)c.size());
+#endif
     return c;
 }
 
@@ -89,14 +91,15 @@ void enqueue_DWELL(double time) {
     qc().push_back(q);
 }
 
-void enqueue_SET_FEED_MODE(int mode) {
+void enqueue_SET_FEED_MODE(int spindle, int mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate set feed mode %d\n", mode);
-        SET_FEED_MODE(mode);
+        SET_FEED_MODE(spindle, mode);
         return;
     }
     queued_canon q;
     q.type = QSET_FEED_MODE;
+    q.data.set_feed_mode.spindle = spindle;
     q.data.set_feed_mode.mode = mode;
     if(debug_qc) printf("enqueue set feed mode %d\n", mode);
     qc().push_back(q);
@@ -150,90 +153,97 @@ void enqueue_FLOOD_OFF(void) {
     qc().push_back(q);
 }
 
-void enqueue_START_SPINDLE_CLOCKWISE(void) {
+void enqueue_START_SPINDLE_CLOCKWISE(int spindle) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle clockwise\n");
-        START_SPINDLE_CLOCKWISE();
+        START_SPINDLE_CLOCKWISE(spindle);
         return;
     }
     queued_canon q;
     q.type = QSTART_SPINDLE_CLOCKWISE;
+    q.data.set_spindle_speed.spindle = spindle;
     if(debug_qc) printf("enqueue spindle clockwise\n");
     qc().push_back(q);
 }
 
-void enqueue_START_SPINDLE_COUNTERCLOCKWISE(void) {
+void enqueue_START_SPINDLE_COUNTERCLOCKWISE(int spindle) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle counterclockwise\n");
-        START_SPINDLE_COUNTERCLOCKWISE();
+        START_SPINDLE_COUNTERCLOCKWISE(spindle);
         return;
     }
     queued_canon q;
     q.type = QSTART_SPINDLE_COUNTERCLOCKWISE;
+    q.data.set_spindle_speed.spindle = spindle;
     if(debug_qc) printf("enqueue spindle counterclockwise\n");
     qc().push_back(q);
 }
 
-void enqueue_STOP_SPINDLE_TURNING(void) {
+void enqueue_STOP_SPINDLE_TURNING(int spindle) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle stop\n");
-        STOP_SPINDLE_TURNING();
+        STOP_SPINDLE_TURNING(spindle);
         return;
     }
     queued_canon q;
     q.type = QSTOP_SPINDLE_TURNING;
+    q.data.set_spindle_speed.spindle = spindle;
     if(debug_qc) printf("enqueue spindle stop\n");
     qc().push_back(q);
 }
 
-void enqueue_ORIENT_SPINDLE(double orientation, int mode) {
+void enqueue_ORIENT_SPINDLE(int spindle, double orientation, int mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle orient\n");
-        ORIENT_SPINDLE(orientation,mode);
+        ORIENT_SPINDLE(spindle, orientation, mode);
         return;
     }
     queued_canon q;
     q.type = QORIENT_SPINDLE;
+    q.data.orient_spindle.spindle = spindle;
     q.data.orient_spindle.orientation = orientation;
     q.data.orient_spindle.mode = mode;
     if(debug_qc) printf("enqueue spindle orient\n");
     qc().push_back(q);
 }
 
-void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(double timeout) {
+void enqueue_WAIT_ORIENT_SPINDLE_COMPLETE(int spindle, double timeout) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate wait spindle orient complete\n");
-        WAIT_SPINDLE_ORIENT_COMPLETE(timeout);
+        WAIT_SPINDLE_ORIENT_COMPLETE(spindle, timeout);
         return;
     }
     queued_canon q;
     q.type = QWAIT_ORIENT_SPINDLE_COMPLETE;
+    q.data.wait_orient_spindle_complete.spindle = spindle;
     q.data.wait_orient_spindle_complete.timeout = timeout;
     if(debug_qc) printf("enqueue wait spindle orient complete\n");
     qc().push_back(q);
 }
 
-void enqueue_SET_SPINDLE_MODE(double mode) {
+void enqueue_SET_SPINDLE_MODE(int spindle, double mode) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate spindle mode %f\n", mode);
-        SET_SPINDLE_MODE(mode);
+        SET_SPINDLE_MODE(spindle, mode);
         return;
     }
     queued_canon q;
     q.type = QSET_SPINDLE_MODE;
+    q.data.set_spindle_mode.spindle = spindle;
     q.data.set_spindle_mode.mode = mode;
     if(debug_qc) printf("enqueue spindle mode %f\n", mode);
     qc().push_back(q);
 }
 
-void enqueue_SET_SPINDLE_SPEED(double speed) {
+void enqueue_SET_SPINDLE_SPEED(int spindle, double speed) {
     if(qc().empty()) {
         if(debug_qc) printf("immediate set spindle speed %f\n", speed);
-        SET_SPINDLE_SPEED(speed);
+        SET_SPINDLE_SPEED(spindle, speed);
         return;
     }
     queued_canon q;
     q.type = QSET_SPINDLE_SPEED;
+    q.data.set_spindle_speed.spindle = spindle;
     q.data.set_spindle_speed.speed = speed;
     if(debug_qc) printf("enqueue set spindle speed %f\n", speed);
     qc().push_back(q);
@@ -483,7 +493,8 @@ void dequeue_canons(setup_pointer settings) {
             break;
         case QSET_FEED_MODE:
             if(debug_qc) printf("issuing set feed mode\n");
-            SET_FEED_MODE(q.data.set_feed_mode.mode);
+            SET_FEED_MODE(q.data.set_feed_mode.spindle,
+            			  q.data.set_feed_mode.mode);
             break;
         case QMIST_ON:
             if(debug_qc) printf("issuing mist on\n");
@@ -503,23 +514,25 @@ void dequeue_canons(setup_pointer settings) {
             break;
         case QSTART_SPINDLE_CLOCKWISE:
             if(debug_qc) printf("issuing spindle clockwise\n");
-            START_SPINDLE_CLOCKWISE();
+            START_SPINDLE_CLOCKWISE(q.data.set_spindle_speed.spindle);
             break;
         case QSTART_SPINDLE_COUNTERCLOCKWISE:
             if(debug_qc) printf("issuing spindle counterclockwise\n");
-            START_SPINDLE_COUNTERCLOCKWISE();
+            START_SPINDLE_COUNTERCLOCKWISE(q.data.set_spindle_speed.spindle);
             break;
         case QSTOP_SPINDLE_TURNING:
             if(debug_qc) printf("issuing stop spindle\n");
-            STOP_SPINDLE_TURNING();
+            STOP_SPINDLE_TURNING(q.data.set_spindle_speed.spindle);
             break;
         case QSET_SPINDLE_MODE:
             if(debug_qc) printf("issuing set spindle mode\n");
-            SET_SPINDLE_MODE(q.data.set_spindle_mode.mode);
+            SET_SPINDLE_MODE(q.data.set_spindle_speed.spindle,
+            				 q.data.set_spindle_mode.mode);
             break;
         case QSET_SPINDLE_SPEED:
             if(debug_qc) printf("issuing set spindle speed\n");
-            SET_SPINDLE_SPEED(q.data.set_spindle_speed.speed);
+            SET_SPINDLE_SPEED(q.data.set_spindle_speed.spindle,
+            				  q.data.set_spindle_speed.speed);
             break;
         case QCOMMENT:
             if(debug_qc) printf("issuing comment\n");
@@ -541,11 +554,14 @@ void dequeue_canons(setup_pointer settings) {
             break;
         case QORIENT_SPINDLE:
             if(debug_qc) printf("issuing orient spindle\n");
-            ORIENT_SPINDLE(q.data.orient_spindle.orientation, q.data.orient_spindle.mode);
+            ORIENT_SPINDLE(q.data.set_spindle_speed.spindle,
+            			   q.data.orient_spindle.orientation,
+            			   q.data.orient_spindle.mode);
             break;
 	case QWAIT_ORIENT_SPINDLE_COMPLETE:
             if(debug_qc) printf("issuing wait orient spindle complete\n");
-            WAIT_SPINDLE_ORIENT_COMPLETE(q.data.wait_orient_spindle_complete.timeout);
+            WAIT_SPINDLE_ORIENT_COMPLETE(q.data.wait_orient_spindle_complete.spindle,
+            							 q.data.wait_orient_spindle_complete.timeout);
             break;
         }
     }
@@ -587,7 +603,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
 
             if(fabs(r1-r2) > .01) 
                 ERS(_("BUG: cutter compensation has generated an invalid arc with mismatched radii r1 %f r2 %f\n"), r1, r2);
-            if(l1 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
+            if(l1 != 0.0 && endpoint_valid && fabs(l2) > fabs(l1) + (settings->length_units == CANON_UNITS_MM? .0254 : .001)) {
                 ERS(_("Arc move in concave corner cannot be reached by the tool without gouging"));
             }
             q.data.arc_feed.end1 = x;
@@ -629,6 +645,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 q.data.straight_traverse.z = x;
                 q.data.straight_traverse.x = y;
                 break;
+            default:
+                ERS(_("BUG: Unsupported plane in cutter compensation"));
             }
             break;
         case QSTRAIGHT_FEED: 
@@ -668,6 +686,8 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 q.data.straight_feed.z = x;
                 q.data.straight_feed.x = y;
                 break;
+            default:
+                ERS(_("BUG: Unsupported plane in cutter compensation"));
             }
             break;
         default:

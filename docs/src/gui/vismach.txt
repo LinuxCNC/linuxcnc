@@ -58,8 +58,11 @@ component handle and short name when used to animate the Vismach model.
  c = hal.component("samplegui")
  c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
  c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
- 
-Will create HAL pins "samplegui.joint0" and "samplegui.joint1"
+ c.ready()
+
+Will create HAL pins 'samplegui.joint0' and 'samplegui.joint1'. When loading
+the Vismach model with 'loadusr -W samplegui' the 'c.ready()' function tells
+loadusr it's ready.
 
 == Creating Parts
 

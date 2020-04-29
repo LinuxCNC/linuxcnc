@@ -1,0 +1,14 @@
+(illegal example)
+(Define rs274-style sub before numeric O-word main program end)
+O1 (main program begin)
+G0 X1Y2
+(calling sub 2)
+O2 call
+(returned from sub 2)
+
+(Illegal:  O-sub with no M02 or M30 terminating main)
+O2 sub (subprogram begin)
+(in sub 2)
+G0 Z3
+(returning from sub 2)
+O2 endsub

@@ -15,10 +15,6 @@
 #include "emcpose.h"
 #include "posemath.h"
 #include "rtapi_math.h"
-#include "spherical_arc.h"
-#include "blendmath.h"
-
-#include "tp_debug.h"
 
 //#define EMCPOSE_PEDANTIC
 

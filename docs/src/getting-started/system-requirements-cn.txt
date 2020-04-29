@@ -1,0 +1,44 @@
+[[cha:system-requirements]]
+
+= 系统要求
+
+== 最低要求
+
+运行LinuxCNC和Ubuntu的最低系统可能会有所不同，具体取决于实际用法。
+通常而言，步进系统需要比伺服系统更快的线程来生成步进脉冲。
+使用Live-CD可以在提交计算机之前测试软件。
+请记住，延迟测试指标比处理器速度对于软件步骤生成更为重要。
+有关延迟测试的更多信息请访问<<latency-test,此处>>。
+
+其他补充信息在LinuxCNC Wiki网站：
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
+
+LinuxCNC和Ubuntu在具有以下最低硬件规格的计算机上应能很好地运行。这些数字不是绝对最小值，但是对于大多数步进系统，它们将提供合理的性能。
+
+* 700MHz x86处理器（建议使用1.2GHz x86处理器）
+* 384MB RAM（建议512MB到1GB）
+* 8GB硬盘
+* 显卡至少可以支持1024x768分辨率，未使用NVidia或ATI fglrx专有驱动程序，并且不是与CPU共享主内存的板载视频芯片组
+* 网络或Internet连接（并非严格要求，但是对于更新和与LinuxCNC社区进行交流非常有用）
+
+最低硬件要求会随着Ubuntu的发展而变化，
+因此请查看Ubuntu网站以获取有关所使用LiveCD的详细信息。
+如果可用，选择较旧版本的LiveCD可能会使较旧的硬件受益。
+
+== 存在问题的硬件
+
+=== 手提电脑
+
+笔记本电脑通常不适合实时软件步进生成。
+再次进行长时间的延迟测试将为您提供确定适合性所需的信息。
+
+=== 显卡
+
+如果您的安装配置以800x600分辨率执行，
+Ubuntu则很有可能无法识别您的显卡或显示器。
+板载显卡会多次导致严重的实时性能下降。
+
+// vim: set syntax=asciidoc:
+
+

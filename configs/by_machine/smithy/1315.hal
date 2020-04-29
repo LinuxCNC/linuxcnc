@@ -38,12 +38,12 @@ setp charge-pump.enable TRUE
 #configure the spindle encoder
 #encoder scale was 4800 on Pete's machine
 setp hm2_5i20.0.encoder.00.scale -4096
-net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
-net Svel hm2_5i20.0.encoder.00.velocity motion.spindle-speed-in
-net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
+net Spos hm2_5i20.0.encoder.00.position spindle.0.revs
+net Svel hm2_5i20.0.encoder.00.velocity spindle.0.speed-in
+net Sidx hm2_5i20.0.encoder.00.index-enable spindle.0.index-enable
 
 #configure the spindle speed PWM generator
-net Scmd motion.spindle-speed-out hm2_5i20.0.pwmgen.00.value
+net Scmd spindle.0.speed-out hm2_5i20.0.pwmgen.00.value
 setp hm2_5i20.0.pwmgen.00.scale 3000
 setp hm2_5i20.0.pwmgen.00.output-type 1
 setp hm2_5i20.0.pwmgen.pwm_frequency 100
@@ -135,11 +135,11 @@ net SS hm2_5i20.0.gpio.029.in
 #KA1
 setp hm2_5i20.0.gpio.040.is_output TRUE
 setp hm2_5i20.0.gpio.040.invert_output TRUE
-net KA1 motion.spindle-forward hm2_5i20.0.gpio.040.out
+net KA1 spindle.0.forward hm2_5i20.0.gpio.040.out
 #KA2
 setp hm2_5i20.0.gpio.042.is_output TRUE
 setp hm2_5i20.0.gpio.042.invert_output TRUE
-net KA2 motion.spindle-reverse hm2_5i20.0.gpio.042.out
+net KA2 spindle.0.reverse hm2_5i20.0.gpio.042.out
 #Tool Post Control Outputs
 net TD classicladder.0.out-00 iocontrol.0.tool-changed
 net TQ classicladder.0.out-03 iocontrol.0.tool-prepared

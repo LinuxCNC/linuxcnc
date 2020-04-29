@@ -34,6 +34,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
 #include "cms.hh"		/* class CMS */
 #include "cms_cfg.hh"
 
@@ -453,13 +454,13 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	    strncpy(buf, search.proc_line, CMS_CONFIG_LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
 		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultbuf");
 	}
     }
     if (NO_PROCESS_LINE == search.error_type) {
@@ -470,20 +471,20 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	    strncpy(buf, search.proc_line, CMS_CONFIG_LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, procname);
 		default_ptr += strlen(procname);
 		strcpy(default_ptr, buf2);
 		default_ptr = strstr(buf, "default");
 	    }
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
 		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultproc defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}
     }
     if (CONFIG_SEARCH_OK == search.error_type) {
@@ -710,19 +711,19 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 			return;
 		    }
 		    if (hostname_matches_bufferline(s->buffer_line)) {
-			strcpy(s->proc_type, "LOCAL");
+			rtapi_strxcpy(s->proc_type, "LOCAL");
 		    } else {
-			strcpy(s->proc_type, "REMOTE");
+			rtapi_strxcpy(s->proc_type, "REMOTE");
 		    }
 		}
 		break;
 
 	    case CMS_FORCE_LOCAL_CONNECTION_MODE:
-		strcpy(s->proc_type, "LOCAL");
+		rtapi_strxcpy(s->proc_type, "LOCAL");
 		break;
 
 	    case CMS_FORCE_REMOTE_CONNECTION_MODE:
-		strcpy(s->proc_type, "REMOTE");
+		rtapi_strxcpy(s->proc_type, "REMOTE");
 		break;
 	    }
 	    s->procline_found = 1;

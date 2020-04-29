@@ -1,4 +1,4 @@
-PNCCONF_MODULES = pages build_INI build_HAL private_data tests
+PNCCONF_MODULES = pages build_INI build_HAL private_data tests data
 
 PYTARGETS += ../bin/pncconf  ../lib/python/pncconf/__init__.py $(patsubst %,../lib/python/pncconf/%.py,$(PNCCONF_MODULES)) \
 	../share/linuxcnc/pncconf/main_page.glade \
@@ -26,7 +26,7 @@ PYTARGETS += ../bin/pncconf  ../lib/python/pncconf/__init__.py $(patsubst %,../l
 	../share/linuxcnc/pncconf/dialogs.glade \
 	../share/linuxcnc/pncconf/finished.glade
 
-PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py $(patsubst %,emc/usr_intf/pncconf/%.py,$(pncconf_MODULES)) \
+PYI18NSRCS += emc/usr_intf/pncconf/pncconf.py $(patsubst %,emc/usr_intf/pncconf/%.py,$(PNCCONF_MODULES)) \
 	emc/usr_intf/pncconf/main_page.glade \
 	emc/usr_intf/pncconf/help.glade \
 	emc/usr_intf/pncconf/mesa0.glade \

@@ -40,7 +40,7 @@ setp pid.0.deadband 0.01
 
 # load and configure the spindle speed limiting, filtering, and comparison blocks
 # Need this line so AXIS shows +/- buttons
-net srpm motion.spindle-speed-out
+net srpm spindle.0.speed-out
 # Limit bounds and slew rate/second
 loadrt limit2
 setp limit2.0.min -100
@@ -59,11 +59,11 @@ setp lowpass.0.gain 0.07
 loadrt near
 setp near.0.scale 1.1
 setp near.0.difference 0.1
-net srps motion.spindle-speed-out-rps limit2.0.in near.0.in1
+net srps spindle.0.speed-out-rps limit2.0.in near.0.in1
 net scmd limit2.0.out pid.0.command
-net fb hm2_5i20.0.encoder.00.velocity pid.0.feedback motion.spindle-speed-in lowpass.0.in comp.1.in1
+net fb hm2_5i20.0.encoder.00.velocity pid.0.feedback spindle.0.speed-in lowpass.0.in comp.1.in1
 net sflt lowpass.0.out near.0.in2
-net at-speed near.0.out motion.spindle-at-speed
+net at-speed near.0.out spindle.0.at-speed
 net scur-abs abs.0.out comp.0.in1
 net scmd-ok comp.0.equal and2.0.in0
 net sfb-ok comp.1.equal and2.0.in1
@@ -77,8 +77,8 @@ net tool-prepare-loopback iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 loadrt bldc cfg=qh
 setp bldc.0.rev 1
 setp hm2_5i20.0.encoder.00.scale 2880
-net Spos hm2_5i20.0.encoder.00.position motion.spindle-revs
-net Sidx hm2_5i20.0.encoder.00.index-enable motion.spindle-index-enable
+net Spos hm2_5i20.0.encoder.00.position spindle.0.revs
+net Sidx hm2_5i20.0.encoder.00.index-enable spindle.0.index-enable
 net pid-out pid.0.output bldc.0.value
 net rawcount hm2_5i20.0.encoder.00.rawcounts
 net rotor_angle hm2_5i20.0.8i20.0.0.angle bldc.0.rotor-angle
@@ -96,7 +96,7 @@ setp bldc.0.scale -2880
 net rawcount bldc.0.rawcounts
 
 ### IF cfg==*h* uncomment these lines
-net spindle-on motion.spindle-on pid.0.enable
+net spindle-on spindle.0.on pid.0.enable
 net sa bldc.0.hall1 hm2_5i20.0.gpio.005.in
 net sb bldc.0.hall2 hm2_5i20.0.gpio.007.in
 net sc bldc.0.hall3 hm2_5i20.0.gpio.009.in
@@ -232,8 +232,8 @@ net DRV3 hm2_5i20.0.gpio.038.in_not
 
 # Output Bits
 # Link Spindle Direction Signals to make AXIS Display Buttons
-net FWD motion.spindle-reverse
-net REV motion.spindle-forward
+net FWD spindle.0.reverse
+net REV spindle.0.forward
 # Flood Coolant
 setp hm2_5i20.0.gpio.043.is_output TRUE
 setp hm2_5i20.0.gpio.043.invert_output TRUE

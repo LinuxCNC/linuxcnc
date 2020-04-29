@@ -70,6 +70,7 @@
 #include "timer.hh"
 #include "rcs_print.hh"
 #include "tool_parse.h"
+#include <rtapi_string.h>
 
 static RCS_CMD_CHANNEL *emcioCommandBuffer = 0;
 static RCS_CMD_MSG *emcioCommand = 0;
@@ -78,7 +79,6 @@ static EMC_IO_STAT emcioStatus;
 static NML *emcErrorBuffer = 0;
 
 static char *ttcomments[CANON_POCKETS_MAX];
-static int fms[CANON_POCKETS_MAX];
 static int random_toolchanger = 0;
 static int support_start_change = 0;
 static const char *progname;
@@ -311,7 +311,7 @@ static int iniLoad(const char *filename)
     }
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -346,71 +346,6 @@ static int iniLoad(const char *filename)
     return 0;
 }
 
-/********************************************************************
- *
- * Description: saveToolTable(const char *filename, CANON_TOOL_TABLE toolTable[])
- *		Saves the tool table from toolTable[] array into file filename.
- *		  Array is CANON_TOOL_MAX + 1 entries, since 0 is included.
- *
- * Return Value: Zero on success or -1 if file not found.
- *
- * Side Effects: Default setting used if the parameter not found in
- *		the ini file.
- *
- * Called By: main()
- *
- ********************************************************************/
-static int saveToolTable(const char *filename,
-			 CANON_TOOL_TABLE toolTable[])
-{
-    int pocket;
-    FILE *fp;
-    const char *name;
-    int start_pocket;
-
-    // check filename
-    if (filename[0] == 0) {
-	name = tool_table_file;
-    } else {
-	// point to name provided
-	name = filename;
-    }
-
-    // open tool table file
-    if (NULL == (fp = fopen(name, "w"))) {
-	// can't open file
-	return -1;
-    }
-
-    if(random_toolchanger) {
-	start_pocket = 0;
-    } else {
-	start_pocket = 1;
-    }
-    for (pocket = start_pocket; pocket < CANON_POCKETS_MAX; pocket++) {
-	if (toolTable[pocket].toolno != -1) {
-	    fprintf(fp, "T%d P%d", toolTable[pocket].toolno, random_toolchanger? pocket: fms[pocket]);
-	    if (toolTable[pocket].diameter) fprintf(fp, " D%f", toolTable[pocket].diameter);
-	    if (toolTable[pocket].offset.tran.x) fprintf(fp, " X%+f", toolTable[pocket].offset.tran.x);
-	    if (toolTable[pocket].offset.tran.y) fprintf(fp, " Y%+f", toolTable[pocket].offset.tran.y);
-	    if (toolTable[pocket].offset.tran.z) fprintf(fp, " Z%+f", toolTable[pocket].offset.tran.z);
-	    if (toolTable[pocket].offset.a) fprintf(fp, " A%+f", toolTable[pocket].offset.a);
-	    if (toolTable[pocket].offset.b) fprintf(fp, " B%+f", toolTable[pocket].offset.b);
-	    if (toolTable[pocket].offset.c) fprintf(fp, " C%+f", toolTable[pocket].offset.c);
-	    if (toolTable[pocket].offset.u) fprintf(fp, " U%+f", toolTable[pocket].offset.u);
-	    if (toolTable[pocket].offset.v) fprintf(fp, " V%+f", toolTable[pocket].offset.v);
-	    if (toolTable[pocket].offset.w) fprintf(fp, " W%+f", toolTable[pocket].offset.w);
-	    if (toolTable[pocket].frontangle) fprintf(fp, " I%+f", toolTable[pocket].frontangle);
-	    if (toolTable[pocket].backangle) fprintf(fp, " J%+f", toolTable[pocket].backangle);
-	    if (toolTable[pocket].orientation) fprintf(fp, " Q%d", toolTable[pocket].orientation);
-	    fprintf(fp, " ;%s\n", ttcomments[pocket]);
-	}
-    }
-
-    fclose(fp);
-    return 0;
-}
-
 static int done = 0;
 
 /********************************************************************
@@ -433,13 +368,13 @@ static void quit(int sig)
 
 #define BITPIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_bit_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
 #define S32PIN(dir,fmt,ptr)						\
     if ((retval = hal_pin_s32_newf(dir,ptr,comp_id, fmt,n)) < 0) {	\
-	sprintf(buf,fmt,n);						\
+	snprintf(buf, sizeof(buf),fmt,n);				\
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: %s - export failed error=%d\n",progname,buf,retval); \
 	goto HAL_EXIT;							\
     }
@@ -571,7 +506,7 @@ void load_tool(int pocket) {
 	ttcomments[0] = ttcomments[pocket];
 	ttcomments[pocket] = comment_temp;
 
-	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
+	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable, ttcomments, random_toolchanger))
 	    emcioStatus.status = RCS_ERROR;
     } else if (pocket == 0) {
 	// magic T0 = pocket 0 = no tool
@@ -602,18 +537,18 @@ static char *str_input(int status)
     static char seen[200];
 
     seen[0] = 0;
-    if (status & TI_PREPARING) strcat(seen," TI_PREPARING");
-    if (status & TI_PREPARE_COMPLETE) strcat(seen," TI_PREPARE_COMPLETE");
-    if (status & TI_CHANGING) strcat(seen," TI_CHANGING");
-    if (status & TI_CHANGE_COMPLETE) strcat(seen," TI_CHANGE_COMPLETE");
-    if (status & TI_TC_FAULT) strcat(seen," TI_TC_FAULT");
-    if (status & TI_TC_ABORT) strcat(seen," TI_TC_ABORT");
-    if (status & TI_EMC_ABORT_SIGNALED) strcat(seen," TI_EMC_ABORT_SIGNALED");
-    if (status & TI_EMC_ABORT_ACKED) strcat(seen," TI_EMC_ABORT_ACKED");
-    if (status & TI_ESTOP_CHANGED) strcat(seen," TI_ESTOP_CHANGED");
-    if (status & TI_LUBELEVEL_CHANGED) strcat(seen," TI_LUBELEVEL_CHANGED");
-    if (status & TI_START_CHANGE) strcat(seen," TI_START_CHANGE");
-    if (status & TI_START_CHANGE_ACKED) strcat(seen," TI_START_CHANGE_ACKED");
+    if (status & TI_PREPARING) rtapi_strxcat(seen," TI_PREPARING");
+    if (status & TI_PREPARE_COMPLETE) rtapi_strxcat(seen," TI_PREPARE_COMPLETE");
+    if (status & TI_CHANGING) rtapi_strxcat(seen," TI_CHANGING");
+    if (status & TI_CHANGE_COMPLETE) rtapi_strxcat(seen," TI_CHANGE_COMPLETE");
+    if (status & TI_TC_FAULT) rtapi_strxcat(seen," TI_TC_FAULT");
+    if (status & TI_TC_ABORT) rtapi_strxcat(seen," TI_TC_ABORT");
+    if (status & TI_EMC_ABORT_SIGNALED) rtapi_strxcat(seen," TI_EMC_ABORT_SIGNALED");
+    if (status & TI_EMC_ABORT_ACKED) rtapi_strxcat(seen," TI_EMC_ABORT_ACKED");
+    if (status & TI_ESTOP_CHANGED) rtapi_strxcat(seen," TI_ESTOP_CHANGED");
+    if (status & TI_LUBELEVEL_CHANGED) rtapi_strxcat(seen," TI_LUBELEVEL_CHANGED");
+    if (status & TI_START_CHANGE) rtapi_strxcat(seen," TI_START_CHANGE");
+    if (status & TI_START_CHANGE_ACKED) rtapi_strxcat(seen," TI_START_CHANGE_ACKED");
     return seen;
 }
 /********************************************************************
@@ -829,7 +764,7 @@ int main(int argc, char *argv[])
 		    rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
 		    return -1;
 		}
-		strcpy(emc_inifile, argv[t + 1]);
+		rtapi_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -877,12 +812,11 @@ int main(int argc, char *argv[])
 	emcioStatus.tool.toolTable[0].frontangle = 0.0;
 	emcioStatus.tool.toolTable[0].backangle = 0.0;
 	emcioStatus.tool.toolTable[0].orientation = 0;
-	fms[0] = 0;
 	ttcomments[0][0] = '\0';
     }
 
     if (0 != loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
-			   fms, ttcomments, random_toolchanger)) {
+			   ttcomments, random_toolchanger)) {
 	rcs_print_error("%s: can't load tool table.\n",progname);
     }
 
@@ -985,7 +919,7 @@ int main(int argc, char *argv[])
 	case EMC_TOOL_INIT_TYPE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_INIT\n");
 	    loadToolTable(tool_table_file, emcioStatus.tool.toolTable,
-			  fms, ttcomments, random_toolchanger);
+			  ttcomments, random_toolchanger);
 	    reload_tool_number(emcioStatus.tool.toolInSpindle);
 	    break;
 
@@ -1021,8 +955,12 @@ int main(int argc, char *argv[])
 
 	case EMC_TOOL_PREPARE_TYPE:
 	{
-	    int p = ((EMC_TOOL_PREPARE*)emcioCommand)->pocket;
+        int p = 0;
 	    int t = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
+        for(int i = 0;i < CANON_POCKETS_MAX;i++){
+            if(emcioStatus.tool.toolTable[i].toolno == t)
+            p = i;
+		}
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", t, p);
 
 	    // it doesn't make sense to prep the spindle pocket
@@ -1031,9 +969,10 @@ int main(int argc, char *argv[])
 
 	    /* set tool number first */
             iocontrol_data->tool_prep_index = p;
-            *(iocontrol_data->tool_prep_pocket) = random_toolchanger? p: fms[p];
+            *(iocontrol_data->tool_prep_pocket) = random_toolchanger? p: emcioStatus.tool.toolTable[p].pocketno;
 	    if (!random_toolchanger && p == 0) {
-		*(iocontrol_data->tool_prep_number) = 0;
+			*(iocontrol_data->tool_prep_number) = 0;
+			*(iocontrol_data->tool_prep_pocket) = 0;
 	    } else {
 		*(iocontrol_data->tool_prep_number) = emcioStatus.tool.toolTable[p].toolno;
 		if (emcioStatus.tool.toolTable[p].toolno != t) // sanity check
@@ -1108,7 +1047,7 @@ int main(int argc, char *argv[])
 	    if (!strlen(filename)) filename = tool_table_file;
 	    rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_LOAD_TOOL_TABLE\n");
 	    if (0 != loadToolTable(filename, emcioStatus.tool.toolTable,
-				   fms, ttcomments, random_toolchanger))
+				   ttcomments, random_toolchanger))
 		emcioStatus.status = RCS_ERROR;
 	    else
 		reload_tool_number(emcioStatus.tool.toolInSpindle);
@@ -1145,7 +1084,7 @@ int main(int argc, char *argv[])
 		emcioStatus.tool.toolTable[0] = emcioStatus.tool.toolTable[p];
 	    }
 	}
-	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable))
+	if (0 != saveToolTable(tool_table_file, emcioStatus.tool.toolTable, ttcomments, random_toolchanger))
 	    emcioStatus.status = RCS_ERROR;
 	break;
 

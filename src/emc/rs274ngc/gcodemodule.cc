@@ -145,11 +145,10 @@ static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _p
 EmcPose tool_offset;
 
 static InterpBase *pinterp;
-#define interp_new (*pinterp)
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
-static void maybe_new_line(int sequence_number=interp_new.sequence_number());
+static void maybe_new_line(int sequence_number=pinterp->sequence_number());
 static void maybe_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
@@ -157,9 +156,9 @@ static void maybe_new_line(int sequence_number) {
         return;
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
-    interp_new.active_settings(new_line_code->settings);
-    interp_new.active_g_codes(new_line_code->gcodes);
-    interp_new.active_m_codes(new_line_code->mcodes);
+    pinterp->active_settings(new_line_code->settings);
+    pinterp->active_g_codes(new_line_code->gcodes);
+    pinterp->active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
     PyObject *result = 
@@ -305,7 +304,7 @@ void SET_TRAVERSE_RATE(double rate) {
     Py_XDECREF(result);
 }
 
-void SET_FEED_MODE(int mode) {
+void SET_FEED_MODE(int spindle, int mode) {
 #if 0
     maybe_new_line();   
     if(interp_error) return;
@@ -399,20 +398,23 @@ void SET_CUTTER_RADIUS_COMPENSATION(double radius) {}
 void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void START_SPEED_FEED_SYNCH() {}
-void START_SPEED_FEED_SYNCH(double sync, bool vel) {}
+void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel) {}
 void STOP_SPEED_FEED_SYNCH() {}
-void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_at_speed) {}
-void START_SPINDLE_CLOCKWISE(int wait_for_at_speed) {}
-void SET_SPINDLE_MODE(double) {}
-void STOP_SPINDLE_TURNING() {}
-void SET_SPINDLE_SPEED(double rpm) {}
-void ORIENT_SPINDLE(double d, int i) {}
-void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_at_speed) {}
+void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_at_speed) {}
+void SET_SPINDLE_MODE(int spindle, double) {}
+void STOP_SPINDLE_TURNING(int spindle) {}
+void SET_SPINDLE_SPEED(int spindle, double rpm) {}
+void ORIENT_SPINDLE(int spindle, double d, int i) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
+void ON_RESET() {}
 void PALLET_SHUTTLE() {}
+void SELECT_TOOL(int tool) {}
 void SELECT_POCKET(int pocket, int tool) {}
+void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
 void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
@@ -446,9 +448,9 @@ void SET_BLOCK_DELETE(bool enabled) {}
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
 void ENABLE_FEED_HOLD() {}
-void DISABLE_SPEED_OVERRIDE() {}
+void DISABLE_SPEED_OVERRIDE(int spindle) {}
 void ENABLE_FEED_OVERRIDE() {}
-void ENABLE_SPEED_OVERRIDE() {}
+void ENABLE_SPEED_OVERRIDE(int spindle) {}
 void MIST_OFF() {}
 void FLOOD_OFF() {}
 void MIST_ON() {}
@@ -485,7 +487,7 @@ void STRAIGHT_PROBE(int line_number,
 
 }
 void RIGID_TAP(int line_number,
-               double x, double y, double z) {
+               double x, double y, double z, double scale) {
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
@@ -496,6 +498,7 @@ void RIGID_TAP(int line_number,
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
+double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.1; }
 double GET_EXTERNAL_PROBE_POSITION_X() { return _pos_x; }
 double GET_EXTERNAL_PROBE_POSITION_Y() { return _pos_y; }
 double GET_EXTERNAL_PROBE_POSITION_Z() { return _pos_z; }
@@ -517,6 +520,12 @@ double GET_EXTERNAL_POSITION_U() { return _pos_u; }
 double GET_EXTERNAL_POSITION_V() { return _pos_v; }
 double GET_EXTERNAL_POSITION_W() { return _pos_w; }
 void INIT_CANON() {}
+
+void SET_PARAMETER_FILE_NAME(const char *name)
+{
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+}
+
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
     if(!result) { name[0] = 0; return; }
@@ -525,9 +534,9 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     memset(name, 0, max_size);
     strncpy(name, s, max_size - 1);
 }
-int GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
+CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
-    CANON_TOOL_TABLE t = {-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
+    CANON_TOOL_TABLE t = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return t;
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
@@ -555,25 +564,40 @@ static void user_defined_function(int num, double arg1, double arg2) {
     Py_XDECREF(result);
 }
 
-void SET_FEED_REFERENCE(int ref) {}
+void SET_FEED_REFERENCE(CANON_FEED_REFERENCE ref) {}
 int GET_EXTERNAL_QUEUE_EMPTY() { return true; }
-CANON_DIRECTION GET_EXTERNAL_SPINDLE() { return 0; }
+CANON_DIRECTION GET_EXTERNAL_SPINDLE(int) { return CANON_STOPPED; }
 int GET_EXTERNAL_TOOL_SLOT() { return 0; }
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
 double GET_EXTERNAL_FEED_RATE() { return 1; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
-CANON_PLANE GET_EXTERNAL_PLANE() { return 1; }
-double GET_EXTERNAL_SPEED() { return 0; }
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
+double GET_EXTERNAL_SPEED(int spindle) { return 0; }
 int GET_EXTERNAL_POCKETS_MAX() { return CANON_POCKETS_MAX; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 
 
 int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return 1;}
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE() {return 1;}
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {return 1;}
 int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE() {return 0;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
+
+int GET_EXTERNAL_OFFSET_APPLIED() {return 0;}
+EmcPose GET_EXTERNAL_OFFSETS() {
+    EmcPose e;
+    e.tran.x = 0;
+    e.tran.y = 0;
+    e.tran.z = 0;
+    e.a      = 0;
+    e.b      = 0;
+    e.c      = 0;
+    e.u      = 0;
+    e.v      = 0;
+    e.w      = 0;
+    return e;
+};
 
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
@@ -720,8 +744,8 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
     _pos_u = _pos_v = _pos_w = 0;
 
-    interp_new.init();
-    interp_new.open(f);
+    pinterp->init();
+    pinterp->open(f);
 
     maybe_new_line();
 
@@ -733,24 +757,24 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             if(!item) return NULL;
             char *code = PyString_AsString(item);
             if(!code) return NULL;
-            result = interp_new.read(code);
+            result = pinterp->read(code);
             if(!RESULT_OK) goto out_error;
-            result = interp_new.execute();
+            result = pinterp->execute();
         }
     }
     if(unitcode && RESULT_OK) {
-        result = interp_new.read(unitcode);
+        result = pinterp->read(unitcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     if(initcode && RESULT_OK) {
-        result = interp_new.read(initcode);
+        result = pinterp->read(initcode);
         if(!RESULT_OK) goto out_error;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
-        result = interp_new.read();
+        result = pinterp->read();
         gettimeofday(&t1, NULL);
         if(t1.tv_sec > t0.tv_sec + wait) {
             if(check_abort()) return NULL;
@@ -758,7 +782,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         }
         if(!RESULT_OK) break;
         error_line_offset = 0;
-        result = interp_new.execute();
+        result = pinterp->execute();
     }
 out_error:
     if(pinterp)
@@ -789,8 +813,8 @@ static int maxerror = -1;
 static char savedError[LINELEN+1];
 static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
-    if(!PyArg_ParseTuple(o, "i", &err)) return NULL;
-    interp_new.error_text(err, savedError, LINELEN);
+    if(!PyArg_ParseTuple(o, "i", &err)) return nullptr;
+    pinterp->error_text(err, savedError, LINELEN);
     return PyString_FromString(savedError);
 }
 
@@ -1035,5 +1059,4 @@ initgcode(void) {
     PyObject_SetAttrString(m, "MIN_ERROR",
             PyInt_FromLong(INTERP_MIN_ERROR));
 }
-
 // vim:ts=8:sts=4:sw=4:et:

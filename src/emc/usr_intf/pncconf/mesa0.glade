@@ -243,6 +243,9 @@ Click on each page tab to configure signal names for each connector port.
                       <placeholder/>
                     </child>
                     <child>
+                      <placeholder/>
+                    </child>
+                    <child>
                       <object class="GtkLabel" id="mesa0_3pwm_freq_label">
                         <property name="can_focus">True</property>
                         <property name="xalign">0</property>
@@ -904,9 +907,6 @@ Discovery</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                       </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
                     </child>
                   </object>
                 </child>
@@ -2637,7 +2637,6 @@ Discovery</property>
             <child>
               <object class="GtkButton" id="m5i20panel6">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
               </object>
@@ -3157,7 +3156,7 @@ Discovery</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label98">
+          <object class="GtkLabel" id="mesa0con1tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="label" translatable="yes">      I/O
@@ -4842,7 +4841,6 @@ Connector 1</property>
             <child>
               <object class="GtkButton" id="m5i20panel2">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
               </object>
@@ -6040,7 +6038,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel1">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_mesapanel_clicked" swapped="no"/>
@@ -8117,7 +8114,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel4">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <signal name="clicked" handler="on_mesapanel_clicked" swapped="no"/>
@@ -10261,7 +10257,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel3">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -12356,7 +12351,6 @@ Connector 2</property>
             <child>
               <object class="GtkButton" id="m5i20panel5">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -13787,7 +13781,7 @@ Connector 2</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label455">
+          <object class="GtkLabel" id="mesa0con6tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="label" translatable="yes">      I/O
@@ -15314,7 +15308,6 @@ Connector 6</property>
             <child>
               <object class="GtkButton" id="m5i20panel10">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -15881,7 +15874,7 @@ Connector 6</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label456">
+          <object class="GtkLabel" id="mesa0con7tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="label" translatable="yes">      I/O
@@ -17408,7 +17401,6 @@ Connector 7</property>
             <child>
               <object class="GtkButton" id="m5i20panel11">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -17975,7 +17967,7 @@ Connector 7</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label457">
+          <object class="GtkLabel" id="mesa0con8tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="label" translatable="yes">      I/O
@@ -19502,7 +19494,6 @@ Connector 8</property>
             <child>
               <object class="GtkButton" id="m5i20panel12">
                 <property name="label" translatable="yes">Launch test panel</property>
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -20069,7 +20060,7 @@ Connector 8</property>
           </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label458">
+          <object class="GtkLabel" id="mesa0con9tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="label" translatable="yes">      I/O
@@ -24251,6 +24242,24 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>
@@ -30100,6 +30109,24 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label51">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -35515,6 +35542,24 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>
@@ -41364,6 +41409,24 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label113">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -46996,6 +47059,24 @@ Connector 8</property>
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkLabel" id="label149">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -52411,6 +52492,24 @@ Connector 8</property>
                 <property name="can_focus">True</property>
                 <property name="n_rows">17</property>
                 <property name="n_columns">9</property>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
                 <child>
                   <placeholder/>
                 </child>

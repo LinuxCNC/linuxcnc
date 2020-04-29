@@ -83,10 +83,14 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43.1,G43.1>>              |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>              |Apply additional Tool Length Offset
 |<<gcode:g49,G49>>                  |Cancel Tool Length Offset
+|<<gcode:g52,G52>>                  |Local Coordinate System Offset
 |<<gcode:g53,G53>>                  |Move in Machine Coordinates
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
-|<<gcode:g61-g61.1,G61 G61.1>>      |Path Control Mode
+|<<gcode:g61,G61>>                  |Exact Path Mode
+|<<gcode:g61.1,G61.1>>              |Exact Stop Mode
 |<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
+|<<gcode:g70,G70>>                  |Lathe finishing cycle
+|<<gcode:g71-g72,G71-G72>>          |Lathe roughing cycle
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
 |<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
 |<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
@@ -215,14 +219,14 @@ If the arc is circular,
 it lies in a plane parallel to the selected plane.
 
 To program a helix, include the axis word perpendicular to the arc
-plane: for example, if in the 'G17' plane, include a 'Z' word. This
+plane, for example, if in the 'G17' plane, include a 'Z' word. This
 will cause the 'Z' axis to move to the programmed value during the
 circular 'XY' motion. 
 
 To program an arc that gives more than one full turn, use the 'P' word
 specifying the number of full turns plus the programmed arc. The 'P' word
 must be an integer. If 'P' is unspecified, the behavior is as if 'P1' was
-given: that is, only one full or partial turn will result. For example, if a
+given that is, only one full or partial turn will result. For example, if a
 180 degree arc is programmed with a P2, the resulting motion will be 1 1/2
 rotations. For each P increment above 1 an extra full circle is added to the
 programmed arc. Multi turn helical arcs are supported and give motion useful
@@ -359,7 +363,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2.png[align="center", alt="G2 Example"]
+image::images/g2_en.svg[align="center", alt="G2 Example"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -377,7 +381,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3.png[align="center", alt="G2-G3 Example"]
+image::images/g2-3_en.svg[align="center", alt="G2-G3 Example"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -873,7 +877,7 @@ Only use G28 when your machine is homed to a repeatable position and the
 desired G28 position has been stored with G28.1.
 
 G28 uses the values stored in <<sub:numbered-parameters,parameters>> 
-5161-5166 as the X Y Z A B C U V W final point to move to. The parameter
+5161-5169 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units' as 
 specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
@@ -907,7 +911,7 @@ Only use G30 when your machine is homed to a repeatable position and the
 desired G30 position has been stored with G30.1.
 
 G30 functions the same as G28 but uses the values stored in
-<<sub:numbered-parameters,parameters>> 5181-5186 as the X Y Z A B C U V W
+<<sub:numbered-parameters,parameters>> 5181-5189 as the X Y Z A B C U V W
 final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
@@ -919,11 +923,11 @@ G30 parameters will be used to move the tool when a M6 is programmed
 if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the ini file.
 
 * 'G30' - makes a <<gcode:g0,rapid move>> from the current
-  position to the 'absolute' position of the values in parameters 5181-5186.
+  position to the 'absolute' position of the values in parameters 5181-5189.
 
 * 'G30 axes' - makes a rapid move to the position specified
   by 'axes' including any offsets, then will make a rapid move to the
-  'absolute' position of the values in parameters 5181-5186 for all 'axes'
+  'absolute' position of the values in parameters 5181-5189 for all 'axes'
   specified. Any 'axis' not specified will not move.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
@@ -942,7 +946,7 @@ It is an error if :
 (((G33 Spindle Synchronized Motion)))
 
 ----
-G33 X- Y- Z- K-
+G33 X- Y- Z- K- $-
 ----
 * 'K' - distance per revolution
 
@@ -953,6 +957,10 @@ a 1 inch motion in Z over 16 revolutions of the spindle.
 This command might be part of a program to produce a 16TPI thread.
 Another example in metric, 'G33 Z-15 K1.5' produces
 a movement of 15mm while the spindle rotates 10 times for a thread of 1.5mm.
+
+The (optional) $ argument sets which spindle the motion is synchronised
+to (default is zero). For example G33 Z10 K1 $1 will move the spindle in
+synchrony with the spindle.N.revs HAL pin value. 
 
 Spindle-synchronized motion waits for the spindle index and spindle at speed
 pins, so multiple passes line up. 'G33' moves end at the programmed endpoint.
@@ -976,8 +984,11 @@ finishes accelerating to the proper speed, and can immediately begin
 cutting a good thread.
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
-spindle must be connected in your HAL file before G33 will work.
+The pin 'spindle.N.at-speed' must be set or driven true for the motion to
+start. Additionally spindle.N.revs must increase by 1 for each revolution
+of the spindle and the spindle.N.index-enable pin must be connected to
+an encoder (or resolver) counter which resets index-enable once per rev.
+
 See the Integrators Manual for more information on spindle synchronized motion.
 
 .G33 Example
@@ -1004,25 +1015,30 @@ It is an error if:
 (((G33.1 Rigid Tapping)))
 
 ----------------
-G33.1 X- Y- Z- K-
+G33.1 X- Y- Z- K- I- $-
 ----------------
 * 'K' - distance per revolution
+* 'I' - optional spindle speed multiplier for faster return move
+* '$' - optional spindle selector
+
+[WARNING]
+For Z only tapping preposition the XY location prior to calling G33.1 and only
+use a Z word in the G33.1. If the coordinates specified are not the current
+coordinates when calling G33.1 for tapping the move will not be along the Z axis
+but will be a coordinated, spindle-synchronized move from the current location
+to the location specified and back.
 
 For rigid tapping (spindle synchronized motion with return),
 code 'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved
 for each revolution of the spindle.
+
 A rigid tapping move consists of the following sequence:
 
-[WARNING]
-If the X Y coordinates specified are not the current coordinates when
-calling G33.1 for tapping the move will not be along the Z axis
-but will <<gcode:g0,rapid move>> from the current location to
-the X Y location specified.
-
-. A move to the specified coordinate, synchronized with the spindle at
-   the given ratio and starting with a spindle index pulse.
-. When reaching the endpoint, a command to reverse the spindle (e.g.,
-   from clockwise to counterclockwise).
+. A move from the current coordinate to the specified coordinate, synchronized
+   with the selected spindle at the given ratio and starting from the
+   current coordinate with a spindle index pulse.
+. When reaching the endpoint, a command to reverse the spindle, and speed up
+  by a factor set by the multiplier (e.g., from clockwise to counterclockwise).
 . Continued synchronized motion beyond the specified end coordinate
    until the spindle actually stops and reverses.
 . Continued synchronized motion back to the original coordinate.
@@ -1034,8 +1050,7 @@ the X Y location specified.
 . An *unsynchronized* move back to the original coordinate.
 
 Spindle-synchronized motions wait for spindle index,
-so multiple passes line up.
-'G33.1' moves end at the original coordinate.
+so multiple passes line up.'G33.1' moves end at the original coordinate.
 
 All the axis words are optional, except that at least one must be used.
 
@@ -1059,10 +1074,10 @@ It is an error if:
 
 [[gcode:g38]]
 == G38.n Straight Probe
-(((G38.x Probe)))
+(((G38.n Probe)))
 
 ----
-G38.x axes
+G38.n axes
 ----
 
 * 'G38.2' - probe toward workpiece, stop on contact, signal error if failure
@@ -1074,10 +1089,10 @@ G38.x axes
 You will not be able to use a probe move until your
 machine has been set up to provide a probe input signal.
 The probe input signal must be connected to 'motion.probe-input' in a .hal file.
-G38.x uses motion.probe-input to determine when the probe has made (or lost) contact.
+G38.n uses motion.probe-input to determine when the probe has made (or lost) contact.
 TRUE for probe contact closed (touching), FALSE for probe contact open.
 
-Program 'G38.x axes' to perform a straight probe operation.
+Program 'G38.n axes' to perform a straight probe operation.
 The axis words are optional, except that at least one of them must be used.
 The axis words together define the destination point that the probe will move towards,
 starting from the current location. If the probe is not tripped before the destination
@@ -1095,9 +1110,9 @@ when the programmed point is reached,
 or when the requested change in the probe input takes place,
 whichever occurs first.
 
-After successful probing, parameters 5061 to 5069 will be set to the
-coordinates of X, Y, Z, A, B, C, U, V, W of the location of the controlled point
-at the time the probe changed state.
+After successful probing, parameters #5061 to #5069 will be set to the
+X, Y, Z, A, B, C, U, V, W coordinates of the location of the controlled point
+at the time the probe changed state (in the current work coordinate system).
 After unsuccessful probing, they are set to the coordinates of the programmed point.
 Parameter 5070 is set to 1 if the probe succeeded and 0 if the probe failed.
 If the probing operation failed, G38.2 and G38.4 will signal an error
@@ -1263,7 +1278,7 @@ It is an error if:
 
 
 [[gcode:g43.1]]
-== G43.1: Dynamic Tool Length Offset
+== G43.1 Dynamic Tool Length Offset
 (((G43.1 Dynamic Tool Length Offset)))
 
 ----
@@ -1291,11 +1306,11 @@ It is an error if:
 NOTE: G43.1 does not write to the tool table.
 
 [[gcode:g43.2]]
-== G43.2: Apply additional Tool Length Offset
+== G43.2 Apply additional Tool Length Offset
 (((G43.2 Apply additional Tool Length Offset)))
 
 ----
-G43.2 H-
+G43.2 H- axes-
 ----
 * 'H' - tool number
 
@@ -1319,13 +1334,14 @@ compensated axis is moved, that axis's endpoint is the compensated location.
 
 It is an error if:
 
-* 'H' is unspecified, or
-* the given tool number does not exist in the tool table
+* 'H' is unspecified and no axis offsets are specified
+* 'H is specified and the given tool number does not exist in the tool table
+* 'H' is specified and axes are also specified
 
 NOTE: G43.2 does not write to the tool table.
 
 [[gcode:g49]]
-== G49: Cancel Tool Length Compensation
+== G49 Cancel Tool Length Compensation
 (((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
@@ -1333,6 +1349,20 @@ NOTE: G43.2 does not write to the tool table.
 It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
 used.
+
+
+[[gcode:g52]]
+== G52 Local Coordinate System Offset
+(((Local Offsets)))
+
+----
+G53 axes
+----
+
+G52 is used in a part program as a temporary "local coordinate system offset"
+within the workpiece coordinate system. More information on G52 is in the
+<<sec:g52, Local and Global Offsets>> section.
+
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates
@@ -1403,13 +1433,16 @@ It is an error if:
 See the <<cha:coordinate-system,Coordinate System>> Section for an overview of coordinate
 systems.
 
-[[gcode:g61-g61.1]]
-== G61, G61.1 Exact Path Mode
+[[gcode:g61]]
+== G61 Exact Path Mode
 (((G61 G61.1 G64 Path Mode)))
 
 * 'G61' - Exact path mode, movement exactly as programed. Moves will slow or
 stop as needed to reach every programed point. If two sequential moves are
 exactly co-linear movement will not stop.
+
+[[gcode:g61.1]]
+==  G61.1 Exact Stop Mode
 
 * 'G61.1' - Exact stop mode, movement will stop at the end of each programed
 segment.
@@ -1458,6 +1491,112 @@ G64 P0.015 (set path following to be within 0.015 of the actual path)
 It is a good idea to include a path control specification in the preamble
 of each G code file.
 
+[[gcode:g70]]
+== G70 Lathe finishing cycle
+(((G70 Lathe finishing cycle)))
+
+----
+G70 Q- <X-> <Z-> <D-> <E-> <P->
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position, defaults to the initial position.
+* 'Z' - The starting Z position, defaults to the initial position.
+* 'D' - The starting distance of the profile, defaults to 0.
+* 'E' - The ending distance of the profile, defaults to 0.
+* 'P' - The number of passes to use, defaults to 1.
+
+The 'G70' cycle is intended to be used after the shape of the profile given
+in the subroutine with number Q has been cut with G71 or G72.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done. This position is also used between each finishing pass.
+   ** Then a <<gcode:g0,rapid move>> to the start of the profile is
+      executed.
+   ** The path given in Q- is followed using the <<gcode:g1,G1>> and
+      <<gcode:g2-g3>> commands.
+   ** If a next pass is required there is another rapid to the intermediate
+      location, before a rapid is done to the start of the profile.
+   ** After the final pass, the tool is left at the end of the profile
+      including E-.
+ . Multiple passes.
+   The distance between the pass and the final profile is (pass-1)*(D-E)/P+E.
+   Where pass the pass number and D,E and P are the D/E/P numbers.
+ . The distance is computed using the starting position of the cycle, with
+   a positive distance towards this point.
+ . Fillet and chamfers in the profile.
+   It is possible to add fillets or chamfers in the profile, see
+   <<gcode:g71-g72>> for more details.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* <<gcode:g17-g19.1>> has not been used to select the ZX plane.
+
+[[gcode:g71-g72]]
+== G71 G72 Lathe roughing cycle
+(((G71 G72 Lathe roughing cycle)))
+
+----
+G71   Q- <X-> <Z-> <D-> <I-> <R->
+G71.1 Q- <X-> <Z-> <D-> <I-> <R->
+G71.2 Q- <X-> <Z-> <D-> <I-> <R->
+G72   Q- <X-> <Z-> <D-> <I-> <R->
+G72.1 Q- <X-> <Z-> <D-> <I-> <R->
+G72.2 Q- <X-> <Z-> <D-> <I-> <R->
+----
+* 'Q' - The subroutine number.
+* 'X' - The starting X position, defaults to the initial position.
+* 'Z' - The starting Z position, defaults to the initial position.
+* 'D' - The remaining distance to the profile, defaults to 0.
+* 'I' - The cutting increment, defaults to 1.
+* 'R' - The retracting distance, defaults to 0.5.
+
+The G71/G72 cycle is intended to rough cut a profile on a lathe. The G71
+cycles remove layers of the material while traversing in the Z direction.
+The G72 cycles remove material while traversing the X axis, the so called
+facing cycle. The direction of travel is the same as in the path given in
+the subroutine. For the G71 cycle the Z coordinate must be monotonically
+changing, for the G72 this is required for the X axis.
+
+The profile is given in a subroutine with number Q-. This subroutine
+may contain G0, G1, G2 and G3 motion commands. All other commands are
+ignored, including feed and speed settings. The <<gcode:g0>> commands are
+interpreted as <<gcode:g1,G1>> commands. Each motion command may also include
+an optional A- or C- number.  If the number A- is added a fillet with
+the radius given by A will be inserted at the endpoint of that motion, if
+this radius is too large the algorithm will fail with a non-monotonic path
+error. It is also possible to use the C- number, which allows a chamfer to
+be inserted. This chamfer has the same endpoints as a fillet of the same
+dimension would have but a straight line is inserted instead of an arc.
+
+When in absolute mode the U (for X) and W (for Z) can be used as
+incremental displacements.
+
+The G7x.1 cycles do not cut pockets. The G7x.2 cycles only cut after the
+first pocket and continue where G7x.1 stopped. It is advisible to leave
+some additional material to cut before the G7x.2 cycle, so if G7x.1 used
+a D1.0 the G7x.2 can use D0.5 and 0.5mm will be removed while moving
+from one pocket to the next.
+
+The normal G7x cycles cut the entire profile in one cycle.
+
+ . Preliminary motion.
+   ** If Z or X are used a <<gcode:g0,rapid move>> to that position
+   is done.
+   ** After the profile has been cut, the tool stops at the end of the
+   profile, including the distance specified in D.
+ . The D number is used to  keep a distance from the final profile,
+   to allow material to remain for finishing.
+
+It is an error if:
+
+* There is no subroutine defined with the number given in Q.
+* The path given in the profile is not monotonic in Z or X.
+* <<gcode:g17-g19.1>> has not been used to select the ZX plane.
+* <<gcode:g41-g42>> is active.
+
 [[gcode:g73]]
 == G73 Drilling Cycle with Chip Breaking
 (((G73 Drilling Cycle Chip Break)))
@@ -1493,7 +1632,7 @@ It is an error if:
 (((G74 Left-hand Tapping Cycle Dwell)))
 
 ----
-G74 (X- Y- Z-) or (U- V- W-) R- L- P-
+G74 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G74' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
@@ -1505,7 +1644,7 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     3. Move the Z-axis at the current feed rate to the Z position.
 
-    4. Stop Spindle.
+    4. Stop the selected spindle (chosen by the $ parameter)
 
     5. Start spindle rotation clockwise.
 
@@ -1515,7 +1654,7 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     8. Restore Feed and Speed override enables to previous state
 
-The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
+The length of the dwell is specified by a 'P-' word in the G74 block. Thread pitch is F divided by S.
 In example S100 F125 gives pitch of 1.25MM per revolution.
 
 [[gcode:g76]]
@@ -1523,12 +1662,12 @@ In example S100 F125 gives pitch of 1.25MM per revolution.
 (((G76 Threading Cycle)))
 
 ----
-G76 P- Z- I- J- R- K- Q- H- E- L-
+G76 P- Z- I- J- R- K- Q- H- E- L- $-
 ----
 
 .G76 Threading
 
-image::images/g76-threads.png[align="center", alt="G76 Threading"]
+image::images/g76-threads_en.svg[align="center", alt="G76 Threading"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1554,6 +1693,11 @@ threading cut will be 'J' beyond the 'thread peak' position.
 threading cut will be 'K' beyond the 'thread peak' position.
 
 Optional settings
+
+* '$-' - The spindle number to which the motion will be synchronised
+(default 0). For example is $1 is programmed then the motion will begin
+on the reset od spindle.1.index-enable and proceed in synchrony with the
+value of spindle.1.revs
 
 * 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive
 threading passes. 'R2.0' selects constant area. Values between 1.0 and
@@ -1618,7 +1762,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length
 
 .HAL Connections
-The pins 'motion.spindle-at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins, spindle>> pins in the Motion section for more
 information.
@@ -1710,7 +1854,7 @@ times', Omitting the L word is equivalent to specifying L=1.
 
 The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
-the retract mode: either to the original Z position (if that is above
+the retract mode, either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<gcode:g98-g99,G98 G99>> Section.
 
@@ -1786,7 +1930,7 @@ The G98 to the second line above means that the return move will be to
 the value of Z in the first line since it is higher that the R value
 specified.
 
-image::images/eight.png[align="center"]
+image::images/eight-holes_en.svg[align="center"]
 
 
 .Twelve Holes in a Square
@@ -1810,7 +1954,7 @@ N1090 Z0
 N1100 M2 (program end)
 ----
 
-image::images/twelve.png[align="center"]
+image::images/twelve-holes_en.svg[align="center"]
 
 The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control
@@ -1881,7 +2025,7 @@ being able to point a reader to a specific line of code.
 
 .G80 Cycle
     
-image::images/G81mult.png[align="center", alt="G80 Cycle"]
+image::images/g81mult_en.svg[align="center", alt="G80 Cycle"]
 
 The use of G80 in line N200 is optional because the G0 on the next
 line will turn off the G81 cycle. But using the G80 as shown in 
@@ -1940,7 +2084,7 @@ The following moves take place:
 
 . a rapid move parallel to the Z-axis to (Z3)
 
-image::images/G81ex1.png[align="center"]
+image::images/g81ex1_en.svg[align="center"]
 
 .Example 2 - Relative Position G81
 
@@ -1988,7 +2132,7 @@ The third repeat consists of 3 moves. The X position is reset to
 
 . a rapid move parallel to the Z-axis to (X13, Y17, Z4.8)
 
-image::images/G81ex2.png[align="center"]
+image::images/g81ex2_en.svg[align="center"]
 
 .Example 3 - Relative Position G81
 
@@ -2004,7 +2148,7 @@ nothing for the motion but since the initial value of Z is less than
 the value specified in R, there will be an initial Z move during the
 preliminary moves.
 
-image::images/G81.png[align="center"]
+image::images/g81_en.svg[align="center"]
 
 .Example 4 - Absolute G81 R > Z
 
@@ -2019,7 +2163,7 @@ initial Z0 and R1.8 and rapid moves to that location. After that initial Z
 move, the repeat feature works the same as it did in example 3 with the
 final Z depth being 0.6 below the R value.
 
-image::images/G81a.png[align="center"]
+image::images/g81a_en.svg[align="center"]
 
 .Example 5 - Relative position R > Z
 
@@ -2091,7 +2235,7 @@ It is an error if:
 (((G84 Right-hand Tapping Cycle Dwell)))
 
 ----
-G84 (X- Y- Z-) or (U- V- W-) R- L- P-
+G84 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G84' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
@@ -2103,7 +2247,7 @@ The 'G84' cycle is intended for tapping with floating chuck and dwell at the bot
 
     3. Move the Z-axis at the current feed rate to the Z position.
 
-    4. Stop spindle
+    4. Stop the seleted spindle (chosen by the $ parameter)
 
     5. Start spindle rotation counterclockwise.
 
@@ -2140,7 +2284,7 @@ for drilling or milling.
 (((G86 Boring, Spindle Stop, Rapid Move Out)))
 
 ----
-G86 (X- Y- Z-) or (U- V- W-) R- L- P-
+G86 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
 
 The 'G86' cycle is intended for boring. This cycle uses a P number
@@ -2151,7 +2295,7 @@ for the number of seconds to dwell.
  . Move the Z-axis only at the current <<sec:set-feed-rate,feed rate>> to the Z
    position.
  . Dwell for the P number of seconds.
- . Stop the spindle turning.
+ . Stop the selected spindle turning. (Chosen by the $ parameter)
  . The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
  . Restart the spindle in the direction it was going. 
 
@@ -2234,23 +2378,36 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 G92 axes
 ----
 
-G92 makes the current point have the coordinates you want (without
+[WARNING]
+Only use 'G92' after your machine has been positioned to the desired point. 
+
+'G92' makes the current point have the coordinates you want (without
 motion), where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the coordinate on
-that axis of the current point is not changed.
+If an axis word is not used for a given axis, the offset for that axis 
+will be zero. 
 
-When 'G92' is executed, the origins of all coordinate systems move.
-They move such that the value of the current controlled point, in the currently
-active coordinate system, becomes the specified value. All coordinate
-system's origins are offset this same distance.
+When 'G92' is executed, the <<sec.machine-corrdinate-system,origins>> 
+of all coordinate systems move. They move such that the value of the 
+current controlled point, in the currently active coordinate system, 
+becomes the specified value. All of the coordinate system's origins 
+(G53-G59.3) are offset this same distance. 
+
+'G92' uses the values stored in <<sub:numbered-parameters,parameters>> 
+5211-5219 as the X Y Z A B C U V W offset values for each axis. 
+The parameter values are 'absolute' machine coordinates 
+in the native machine 'units' as specified in the ini file.
+All axes defined in the ini file will be offset when G92 is active. 
+If an axis was not entered following the G92, that axis' offset 
+will be zero. 
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 x7' is programmed. This
+currently no 'G92' offset active. Then 'G92 X7' is programmed. This
 moves all origins -3 in X, which causes the
 current point to become X=7. This -3 is saved in parameter 5211.
 
-Being in incremental distance mode has no effect on the action of 'G92'.
+Being in incremental distance mode (G91 instead of G90) has no effect 
+on the action of 'G92'.
 
 'G92' offsets may be already be in effect when the 'G92' is called.
 If this is the case, the offset is replaced with a new
@@ -2277,9 +2434,8 @@ See the <<gcode:parameters,Parameters>> Section for more information.
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets
 
-* 'G92.1' - reset G92 offsets to zero and set <<sub:numbered-parameters,parameters>>
-  5211 - 5219 to zero.
-* 'G92.2' - reset G92 offsets to zero.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available. 
 
 [NOTE]
 G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
@@ -2300,8 +2456,8 @@ Use 'G92.3' near the beginning of the second program. That will restore
 the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
-== G93, G94, G95: Feed Rate Mode
-(((G93, G94, G95: Feed Rate Mode)))
+== G93, G94, G95 Feed Rate Mode
+(((G93, G94, G95 Feed Rate Mode)))
 
 * 'G93' - is Inverse Time Mode. In inverse time feed rate mode, an F word
   means the move should be completed in [one divided by the F number]
@@ -2325,7 +2481,8 @@ controlled point should move a certain number of inches per revolution
 of the spindle, depending on what length units are being used and which
 axis or axes are moving. G95 is not suitable for threading, for
 threading use G33 or G76.
-G95 requires that motion.spindle-speed-in to be connected.
+G95 requires that spindle.N.speed-in to be connected. The actual spindle
+to which the feed is synchronised is chosen by the $ parameter
 
 It is an error if:
 
@@ -2338,12 +2495,13 @@ It is an error if:
 (((G96, G97 Spindle Control Mode)))
 
 ----
-G96 <D-> S- (Constant Surface Speed Mode)
-G97 (RPM Mode)
+G96 <D-> S- <$-> (Constant Surface Speed Mode)
+G97 S- <$-> (RPM Mode)
 ----
 
 * 'D' - maximum spindle RPM
 * 'S' - surface speed
+* '$" - the spindle of which the speed will be varied. 
 
 * 'G96 D- S-' - selects constant surface speed of 'S' feet per minute
                 (if G20 is in effect) or meters per minute
@@ -2351,8 +2509,11 @@ G97 (RPM Mode)
 +                
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
-the center of rotation or LinuxCNC will not give the desired spindle speed.
+the center of rotation or LinuxCNC will not give the desired ssurface speed.
 G96 is not affected by radius or diameter mode.
+
+To achieve CSS mode on selected spindles programme successive G96 commands
+for each spindle prior to issuing M3.
 
 * 'G97' selects RPM mode.
 

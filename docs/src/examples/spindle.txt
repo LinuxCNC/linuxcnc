@@ -1,5 +1,11 @@
 [[cha:spindle-control]]
 
+LinuxCNC can control up to 8 spindles. The number is set in the INI file. 
+The examples below all refer to a single-spindle config with spindle
+control pins with names like spindle.0...
+In the case of a multiple spindle machine all that changes is that
+additional pins exist with names such as spindle.6...
+
 = Spindle Control
 
 (((0-10v Spindle Speed Example)))
@@ -17,14 +23,14 @@ volts.
 image::images/spindle-math.png[align="center"]
 
 We have to add a scale component to the HAL file to scale the
-motion.spindle-speed-out to the 0 to 10 needed by the VFD if your DAC
+spindle.N.speed-out to the 0 to 10 needed by the VFD if your DAC
 card does not do scaling.
 
 ----
 loadrt scale count=1
 addf scale.0 servo-thread
 setp scale.0.gain 0.002    
-net spindle-speed-scale motion.spindle-speed-out => scale.0.in
+net spindle-speed-scale spindle.0.speed-out => scale.0.in
 net spindle-speed-DAC scale.0.out => <your DAC pin name>    
 ----
 
@@ -39,8 +45,8 @@ use the pwmgen component to create the signal:
 loadrt pwmgen output_type=0 
 addf pwmgen.update servo-thread
 addf pwmgen.make-pulses base-thread    
-net spindle-speed-cmd motion.spindle-speed-out => pwmgen.0.value
-net spindle-on motion.spindle-on => pwmgen.0.enable
+net spindle-speed-cmd spindle.0.speed-out => pwmgen.0.value
+net spindle-on spindle.0.on => pwmgen.0.enable
 net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
 # Set the spindle's top speed in RPM
 setp pwmgen.0.scale 1800
@@ -56,13 +62,13 @@ nist-lathe sample configuration to use a scale component.
 == Spindle Enable
 
 If you need a spindle enable signal, 
-link your output pin to motion.spindle-on. 
+link your output pin to spindle.0.on. 
 To link these pins to a parallel port pin put something like 
 the following in your .hal file, making sure you pick the
 pin that is connected to your control device.
 
 ----
-net spindle-enable motion.spindle-on => parport.0.pin-14-out
+net spindle-enable spindle.N.on => parport.0.pin-14-out
 ----
 
 (((Spindle Direction Example)))
@@ -70,7 +76,7 @@ net spindle-enable motion.spindle-on => parport.0.pin-14-out
 == Spindle Direction
 
 If you have direction control of your spindle the HAL pins
-motion.spindle-forward and motion.spindle-reverse are controlled by M3
+spindle.N.forward and spindle.N.reverse are controlled by M3
 and M4. Spindle speed 'Sn' must be set to a positive non-zero value for
 M3/M4 to turn on spindle motion.
 
@@ -79,8 +85,8 @@ following in your .hal file making sure you pick the pin that is
 connected to your control device.
 
 ----
-net spindle-fwd motion.spindle-forward => parport.0.pin-16-out
-net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
+net spindle-fwd spindle.0.forward => parport.0.pin-16-out
+net spindle-rev spindle.0.reverse => parport.0.pin-17-out
 ----
 
 (((Spindle Soft Start Example)))
@@ -89,14 +95,14 @@ net spindle-rev motion.spindle-reverse => parport.0.pin-17-out
 
 If you need to ramp your spindle speed command and your control does
 not have that feature it can be done in HAL. Basically you need to
-hijack the output of motion.spindle-speed-out and run it through a
+hijack the output of spindle.N.speed-out and run it through a
 limit2 component with the scale set so it will ramp the rpm from
-motion.spindle-speed-out to your device that receives the rpm. The
+spindle.N.speed-out to your device that receives the rpm. The
 second part is to let LinuxCNC know when the spindle is at speed so motion
 can begin.
 
 In the 0-10 volt example the line
-    'net spindle-speed-scale motion.spindle-speed-out => scale.0.in'
+    'net spindle-speed-scale spindle.0.speed-out => scale.0.in'
 is changed as shown in the following example:
 
 .Intro to HAL components limit2 and near:
@@ -130,7 +136,7 @@ addf spindle-at-speed servo-thread
 setp spindle-ramp.maxv 60
 
 # hijack the spindle speed out and send it to spindle ramp in
-net spindle-cmd <= motion.spindle-speed-out => spindle-ramp.in
+net spindle-cmd <= spindle.0.speed-out => spindle-ramp.in
 
 # the output of spindle ramp is sent to the scale in
 net spindle-ramped <= spindle-ramp.out => scale.0.in
@@ -142,9 +148,9 @@ net spindle-ramped <= spindle-ramp.out => scale.0.in
 net spindle-cmd => spindle-at-speed.in1
 net spindle-ramped => spindle-at-speed.in2
 
-# the output from spindle-at-speed is sent to motion.spindle-at-speed
+# the output from spindle-at-speed is sent to spindle.0.at-speed
 # and when this is true motion will start
-net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
+net spindle-ready <= spindle-at-speed.out => spindle.0.at-speed
 ----
 
 == Spindle Feedback
@@ -154,9 +160,14 @@ net spindle-ready <= spindle-at-speed.out => motion.spindle-at-speed
 === Spindle Synchronized Motion
 
 Spindle feedback is needed by LinuxCNC to perform any spindle coordinated
-motions like threading and constant surface speed. The StepConf Wizard
-can perform the connections for you if you select Encoder Phase A and
-Encoder Index as inputs.
+motions like threading and constant surface speed. 
+LinuxCNC can perform synchronised motion and CSS with any of up to 8
+spindles. Which spindles are used is controlled from G-code. CSS is
+possible with several spindles simultaneously. 
+
+The StepConf Wizard can perform the connections for a single-spindle
+configuration for you if you select Encoder Phase A and Encoder Index as
+inputs.
 
 Hardware assumptions:
 
@@ -189,9 +200,9 @@ setp encoder.3.position-scale 100
 setp encoder.3.counter-mode true
 
 # connect the HAL encoder outputs to LinuxCNC.
-net spindle-position encoder.3.position => motion.spindle-revs
-net spindle-velocity encoder.3.velocity => motion.spindle-speed-in
-net spindle-index-enable encoder.3.index-enable <=> motion.spindle-index-enable
+net spindle-position encoder.3.position => spindle.0.revs
+net spindle-velocity encoder.3.velocity => spindle.0.speed-in
+net spindle-index-enable encoder.3.index-enable <=> spindle.N.index-enable
 
 # connect the HAL encoder inputs to the real encoder.
 net spindle-phase-a encoder.3.phase-A <= parport.0.pin-10-in
@@ -204,16 +215,16 @@ net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 === Spindle At Speed
 
 To enable LinuxCNC to wait for the spindle to be at speed before executing
-a series of moves you need to set motion.spindle-at-speed to true when
+a series of moves. You need to set spindle.N.at-speed to true when
 the spindle is at the commanded speed. To do this you need spindle
 feedback from an encoder. Since the feedback and the commanded speed
-are not usually 'exactly' the same you need to use the 'near'
-component to say that the two numbers are close enough. 
+are not usually 'exactly' the same you should to use the 'near'
+component to determine that the two numbers are close enough. 
 
 The connections needed are from the spindle
 velocity command signal to near.n.in1 and from the spindle velocity
 from the encoder to near.n.in2. Then the near.n.out is connected to
-motion.spindle-at-speed. The near.n.scale needs to be set to say how
+spindle.N.at-speed. The near.n.scale needs to be set to say how
 close the two numbers must be before turning on the output. Depending
 on your setup you may need to adjust the scale to work with your
 hardware. 
@@ -235,7 +246,7 @@ net spindle-cmd => near.0.in1
 net spindle-velocity => near.0.in2
 
 # connect the output to the spindle-at-speed input
-net spindle-at-speed motion.spindle-at-speed <= near.0.out
+net spindle-at-speed spindle.0.at-speed <= near.0.out
 
 # set the spindle speed inputs to agree if within 1%
 setp near.0.scale 1.01

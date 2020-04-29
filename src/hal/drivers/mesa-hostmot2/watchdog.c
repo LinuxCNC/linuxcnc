@@ -47,7 +47,7 @@ void hm2_watchdog_process_tram_read(hostmot2_t *hm2) {
     // last time we were here, everything was fine
     // see if the watchdog has bit since then
     if (hm2->watchdog.status_reg[0] & 0x1) {
-        HM2_PRINT("Watchdog has bit! (set the .has-bit pin to False to resume)\n");
+        HM2_ERR("Watchdog has bit! (set the .has-bit pin to False to resume)\n");
         *hm2->watchdog.instance[0].hal.pin.has_bit = 1;
         hm2->llio->needs_reset = 1;
     }

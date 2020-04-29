@@ -64,8 +64,9 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
-#include <asm/uaccess.h>	/* copy_from_user() */
-#include <asm/msr.h>		/* rdtscll() */
+#include <linux/uaccess.h>	/* copy_from_user() */
+#include <linux/version.h>	/* LINUX_VERSION_CODE */
+#include <asm/msr.h>		/* rdtsc_ordered() */
 
 /* get inb(), outb(), ioperm() */
 #include <asm/io.h>
@@ -536,8 +537,12 @@ long long int rtapi_get_clocks(void)
 {
     long long int retval;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
+    retval = rdtsc_ordered();
+#else
     rdtscll(retval);
-    return retval;    
+#endif
+    return retval;
 }
 
 void rtapi_delay(long int nsec)

@@ -69,7 +69,7 @@ net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00
 # Spindle Signal, forward drives Torch ON
 # Spindle reverse is not used (might be used for a Running Start later)
 net turn_torch_on parport.1.pin-01-out
-#net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
+#net spindle-reverse spindle.0.reverse  parport.0.pin-17-out 
 
 #Create a limit switch signal for each axis
 
@@ -252,7 +252,7 @@ net senseZFloatSwitch => classicladder.0.in-03
 net moveZtoFloat classicladder.0.out-03
 net moveZtoSafe classicladder.0.out-04
 net senseArcOK classicladder.0.in-04
-net spindle-forward classicladder.0.in-05 <= motion.spindle-forward 
+net spindle-forward classicladder.0.in-05 <= spindle.0.forward 
 net feed-hold classicladder.0.out-06
 net turn_torch_on classicladder.0.out-05
 net ui_mode_is_auto halui.mode.is-auto

@@ -22,6 +22,15 @@
 #include "tc_types.h"
 #include "tp_types.h"
 
+double tcGetMaxTargetVel(TC_STRUCT const * const tc,
+        double max_scale);
+
+double tcGetOverallMaxAccel(TC_STRUCT const * tc);
+double tcGetTangentialMaxAccel(TC_STRUCT const * const tc);
+
+int tcSetKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc, double kink_vel, double accel_reduction);
+int tcInitKinkProperties(TC_STRUCT *tc);
+int tcRemoveKinkProperties(TC_STRUCT *prev_tc, TC_STRUCT *tc);
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
@@ -31,12 +40,15 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
+double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction);
+double tcGetTarget(TC_STRUCT const * const tc, int direction);
+
 int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, PmCartesian * const point);
 
 int tcCanConsume(TC_STRUCT const * const tc);
 
-int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+int tcSetTermCond(TC_STRUCT * prev_tc, TC_STRUCT * tc, int term_cond);
 
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_start,
@@ -71,7 +83,8 @@ int pmCircle9Init(PmCircle9 * const circ9,
 
 int pmRigidTapInit(PmRigidTap * const tap,
         EmcPose const * const start,
-        EmcPose const * const end);
+        EmcPose const * const end,
+        double reversal_scale);
 
 double pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev);
 
@@ -90,6 +103,8 @@ int tcSetupMotion(TC_STRUCT * const tc,
         double acc);
 
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
+
+int tcUpdateCircleAccRatio(TC_STRUCT * tc);
 
 int tcFinalizeLength(TC_STRUCT * const tc);
 

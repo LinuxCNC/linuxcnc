@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.18"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkTable" id="table1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkFrame" id="frameR0">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label_xalign">0.5</property>
+            <property name="shadow_type">out</property>
+            <child>
+              <object class="GtkAlignment" id="alignmentR00">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkTable" id="table2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="n_columns">3</property>
+                    <property name="column_spacing">5</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkTable" id="table3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="n_rows">4</property>
+                        <property name="n_columns">3</property>
+                        <child>
+                          <object class="HAL_Label" id="arc-voltage">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">current arc voltage</property>
+                            <property name="xalign">1</property>
+                            <property name="label" translatable="yes">300</property>
+                            <property name="justify">right</property>
+                            <property name="label_pin_type">1</property>
+                            <property name="text_template">%03.0f</property>
+                            <attributes>
+                              <attribute name="style" value="normal"/>
+                              <attribute name="weight" value="semibold"/>
+                              <attribute name="stretch" value="semi-condensed"/>
+                              <attribute name="size" value="26000"/>
+                              <attribute name="foreground" value="#ffff00000000"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="right_attach">2</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="arc-voltage-label">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_markup">current arc voltage</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Arc Voltage</property>
+                            <property name="justify">right</property>
+                            <property name="selectable">True</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="labelR000011">
+                            <property name="width_request">80</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">torch on signal is being sent to plasma supply</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Torch On</property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="labelR000021">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">a valid arc is established</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Arc OK</property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">2</property>
+                            <property name="right_attach">3</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="torch-on">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">torch on signal is being sent to plasma supply</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FF8800</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="arc-ok">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">a valid arc is established</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#00FF00</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label5">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label6">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTable" id="table4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="n_rows">4</property>
+                        <property name="n_columns">2</property>
+                        <child>
+                          <object class="HAL_LED" id="ohmic-probe">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">the ohmic probe is sensed</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FFFF00</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="float-switch">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">the float switch is activated</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FFFF00</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="breakaway-switch">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">the breakaway switch is activated</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FF0000</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="labelR000111">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">the ohmic probe is sensed</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Ohmic Probe</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="labelR000101">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">the float switch is activated</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Float Switch</property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="labelR000121">
+                            <property name="width_request">80</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">the breakaway switch is activated</property>
+                            <property name="double_buffered">False</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Breakaway</property>
+                            <property name="justify">right</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="thc-label">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">THC is enabled</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">THC Enabled</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="x_padding">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-thc-enabled">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">THC is enabled</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#00FF00</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkTable" id="table5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="n_rows">4</property>
+                        <property name="n_columns">2</property>
+                        <child>
+                          <object class="HAL_LED" id="led-corner-lock">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to velocity constraints</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FF0000</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">THC is active</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">THC Active</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to velocity constraints</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">THC Velocity Lock</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="kerf-lock-label">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to void sensing constraints</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">THC Void Lock</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-kerf-lock">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">THC is locked due to void sensing constraints</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#FF0000</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-thc-active">
+                            <property name="width_request">40</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="has_tooltip">True</property>
+                            <property name="tooltip_text" translatable="yes">THC is active</property>
+                            <property name="is_on">True</property>
+                            <property name="led_blink_rate">0</property>
+                            <property name="led_size">8</property>
+                            <property name="off_color">grey</property>
+                            <property name="on_color">#00FF00</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="hbox1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="HAL_LED" id="led-up">
+                                <property name="width_request">40</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">THC is moving the Z axis up</property>
+                                <property name="is_on">True</property>
+                                <property name="led_blink_rate">0</property>
+                                <property name="led_size">8</property>
+                                <property name="off_color">grey</property>
+                                <property name="on_color">#FFFF00</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label7">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="tooltip_text" translatable="yes">THC is moving the Z axis up</property>
+                                <property name="label" translatable="yes">Up&gt;</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label8">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="tooltip_text" translatable="yes">THC is moving the Z axis</property>
+                                <property name="label" translatable="yes">THC</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label9">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="tooltip_text" translatable="yes">THC is moving the Z axis down</property>
+                                <property name="label" translatable="yes">&lt;Dn</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="HAL_LED" id="led-down">
+                                <property name="width_request">40</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="has_tooltip">True</property>
+                                <property name="tooltip_text" translatable="yes">THC is moving the Z axis down</property>
+                                <property name="is_on">True</property>
+                                <property name="led_blink_rate">0</property>
+                                <property name="led_size">8</property>
+                                <property name="off_color">grey</property>
+                                <property name="on_color">#FFFF00</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="left_attach">2</property>
+                        <property name="right_attach">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Monitor&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x_padding">1</property>
+            <property name="y_padding">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

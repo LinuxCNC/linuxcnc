@@ -1527,7 +1527,7 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
     cms->update(ini_maxvel);
     cms->update(acc);
     cms->update(feed_mode);
-    cms->update(indexrotary);
+    cms->update(indexer_jnum);
 }
 
 /*
@@ -1971,7 +1971,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(activeGCodes, ACTIVE_G_CODES);
     cms->update(activeMCodes, ACTIVE_M_CODES);
     cms->update(activeSettings, ACTIVE_SETTINGS);
-    cms->update(programUnits);
+    cms->update((int *) &programUnits, 1);
     cms->update(interpreter_errcode);
     cms->update(input_timeout);
     cms->update(rotation_xy);
@@ -2585,7 +2585,7 @@ void EMC_MOTION_STAT::update(CMS * cms)
 	joint[i_joint].update(cms);
     cms->update(debug);
 
-    spindle.update(cms); //FIXME - is this needed ?
+    // spindle.update(cms); //FIXME - is this needed ? Let's see. andypugh 13/6/16
 
 }
 

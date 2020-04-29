@@ -105,7 +105,7 @@ net Zdir <= stepgen.2.dir
 #############################################################################
 # Spindle Speed
 # The spindle goes forward only
-net spindle-forward <= motion.spindle-forward
+net spindle-forward <= spindle.0.forward
 net spindle-forward => pwmgen.0.enable
 
 # PID is not used to give closed-loop spindle speed control, because at the
@@ -124,7 +124,7 @@ net spindle-forward => pwmgen.0.enable
 setp scale.0.gain .00089
 setp scale.0.offset .07
 
-net spindle-speed-cmd <= motion.spindle-speed-out
+net spindle-speed-cmd <= spindle.0.speed-out
 net spindle-speed-cmd => scale.0.in
 net spindle-speed-pwm <= scale.0.out
 net spindle-speed-pwm => pwmgen.0.value
@@ -154,7 +154,7 @@ net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # create a signal for "spindle on"
-net spindle_on <= motion.spindle-on
+net spindle_on <= spindle.0.on
 
 # connect physical pins to the signals
 net Xstep => parport.0.pin-03-out
@@ -213,12 +213,12 @@ net spindle-phase-Z <= parport.0.pin-13-in
 setp counter.0.position-scale 1024
 
 # hook up motion controller's spindle indexing pin
-net spindle-index-enable <= motion.spindle-index-enable
+net spindle-index-enable <= spindle.0.index-enable
 net spindle-index-enable <=> counter.0.index-enable
 
 # report our revolution count to the motion controller
 net spindle-pos <= counter.0.position
-net spindle-pos => motion.spindle-revs
+net spindle-pos => spindle.0.revs
 
 
 #######################################################

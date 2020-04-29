@@ -26,6 +26,7 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost_pyenum_macros.hh>
 #include <map>
 
 namespace bp = boost::python;
@@ -152,9 +153,9 @@ public:
 	this->line_number = line_number;
 	this->line_text = line_text;
     }
-    const char *what() const throw() { return this->error_message.c_str();  }
+    const char *what() const noexcept { return this->error_message.c_str();  }
 
-    ~InterpreterException() throw()  {}
+    ~InterpreterException() noexcept  {}
     std::string get_error_message()  { return this->error_message;  }
     int get_line_number()    { return this->line_number;  }
     std::string get_line_text()      { return this->line_text; }
@@ -296,8 +297,8 @@ static inline void set_probe_flag(Interp &interp, bool value)  {
 static inline bool get_speed_override (Interp &interp)  {
     return interp._setup.speed_override;
 }
-static inline void set_speed_override(Interp &interp, bool value)  {
-    interp._setup.speed_override = value;
+static inline void set_speed_override(Interp &interp, int spindle, bool value)  {
+    interp._setup.speed_override[spindle] = value;
 }
 static inline bool get_toolchange_flag (Interp &interp)  {
     return interp._setup.toolchange_flag;
@@ -509,11 +510,11 @@ static inline double get_rotation_xy (Interp &interp)  {
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
 }
-static inline double get_speed (Interp &interp)  {
-    return interp._setup.speed;
+static inline double get_speed (Interp &interp, int spindle)  {
+    return interp._setup.speed[spindle];
 }
-static inline void set_speed(Interp &interp, double value)  {
-    interp._setup.speed = value;
+static inline void set_speed(Interp &interp, int spindle, double value)  {
+    interp._setup.speed[spindle] = value;
 }
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
@@ -675,7 +676,7 @@ static inline int get_length_units (Interp &interp)  {
     return interp._setup.length_units;
 }
 static inline void set_length_units(Interp &interp, int value)  {
-    interp._setup.length_units = value;
+    interp._setup.length_units = static_cast<CANON_UNITS>(value);
 }
 static inline int get_loggingLevel (Interp &interp)  {
     return interp._setup.loggingLevel;
@@ -699,7 +700,7 @@ static inline int get_plane (Interp &interp)  {
     return interp._setup.plane;
 }
 static inline void set_plane(Interp &interp, int value)  {
-    interp._setup.plane = value;
+    interp._setup.plane = static_cast<CANON_PLANE>(value);
 }
 static inline int get_pockets_max (Interp &interp)  {
     return interp._setup.pockets_max;
@@ -747,19 +748,19 @@ static inline int get_speed_feed_mode (Interp &interp)  {
     return interp._setup.speed_feed_mode;
 }
 static inline void set_speed_feed_mode(Interp &interp, int value)  {
-    interp._setup.speed_feed_mode = value;
+    interp._setup.speed_feed_mode = static_cast<CANON_SPEED_FEED_MODE>(value);
 }
-static inline int get_spindle_mode (Interp &interp)  {
-    return interp._setup.spindle_mode;
+static inline int get_spindle_mode (Interp &interp, int spindle)  {
+    return interp._setup.spindle_mode[spindle];
 }
-static inline void set_spindle_mode(Interp &interp, SPINDLE_MODE value)  {
-    interp._setup.spindle_mode = value;
+static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
+    interp._setup.spindle_mode[spindle] = value;
 }
-static inline int get_spindle_turning (Interp &interp)  {
-    return interp._setup.spindle_turning;
+static inline int get_spindle_turning (Interp &interp, int spindle)  {
+    return interp._setup.spindle_turning[spindle];
 }
-static inline void set_spindle_turning(Interp &interp, int value)  {
-    interp._setup.spindle_turning = value;
+static inline void set_spindle_turning(Interp &interp, int spindle, int value)  {
+    interp._setup.spindle_turning[spindle] = (CANON_DIRECTION)value;
 }
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;
@@ -780,7 +781,6 @@ static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
 }
 
-
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
     using namespace boost;
@@ -790,28 +790,44 @@ BOOST_PYTHON_MODULE(interpreter) {
         ;
     scope().attr("throw_exceptions") = throw_exceptions;
 
-    scope().attr("INTERP_OK") = INTERP_OK;
-    scope().attr("INTERP_EXIT") = INTERP_EXIT;
-    scope().attr("INTERP_EXECUTE_FINISH") = INTERP_EXECUTE_FINISH;
-    scope().attr("INTERP_ENDFILE") = INTERP_ENDFILE;
-    scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
-    scope().attr("INTERP_ERROR") = INTERP_ERROR;
-    scope().attr("INTERP_MIN_ERROR") = INTERP_MIN_ERROR;
+    BOOST_PYENUM_(InterpReturn)
+            .BOOST_PYENUM_VAL(INTERP_OK)
+            .BOOST_PYENUM_VAL(INTERP_EXIT)
+            .BOOST_PYENUM_VAL(INTERP_EXECUTE_FINISH)
+            .BOOST_PYENUM_VAL(INTERP_ENDFILE)
+            .BOOST_PYENUM_VAL(INTERP_FILE_NOT_OPEN)
+            .BOOST_PYENUM_VAL(INTERP_ERROR)
+            .export_values();
+
+    scope().attr("INTERP_MIN_ERROR") = (int)INTERP_MIN_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    scope().attr("MODE_ABSOLUTE") = (int) MODE_ABSOLUTE;
-    scope().attr("MODE_INCREMENTAL") = (int) MODE_INCREMENTAL;
-    scope().attr("R_PLANE") =  (int) R_PLANE;
-    scope().attr("OLD_Z") =  (int) OLD_Z;
+    BOOST_PYENUM_(DISTANCE_MODE)
+            .BOOST_PYENUM_VAL(MODE_ABSOLUTE)
+            .BOOST_PYENUM_VAL(MODE_INCREMENTAL)
+            .export_values();
 
-    scope().attr("UNITS_PER_MINUTE") =  (int) UNITS_PER_MINUTE;
-    scope().attr("INVERSE_TIME") =  (int) INVERSE_TIME;
-    scope().attr("UNITS_PER_REVOLUTION") =  (int) UNITS_PER_REVOLUTION;
+    BOOST_PYENUM_(RETRACT_MODE)
+            .BOOST_PYENUM_VAL(R_PLANE)
+            .BOOST_PYENUM_VAL(OLD_Z)
+            .export_values();
 
-    scope().attr("RIGHT") = RIGHT;
-    scope().attr("LEFT") = LEFT;
-    scope().attr("CONSTANT_RPM") =  (int) CONSTANT_RPM;
-    scope().attr("CONSTANT_SURFACE") =  (int) CONSTANT_SURFACE;
+    BOOST_PYENUM_(FEED_MODE)
+            .BOOST_PYENUM_VAL(UNITS_PER_MINUTE)
+            .BOOST_PYENUM_VAL(INVERSE_TIME)
+            .BOOST_PYENUM_VAL(UNITS_PER_REVOLUTION)
+            .export_values();
+
+    BOOST_PYENUM_(CUTTER_COMP_DIRECTION)
+            .BOOST_PYENUM_VAL(RIGHT)
+            .BOOST_PYENUM_VAL(LEFT)
+            .export_values();
+
+    BOOST_PYENUM_(SPINDLE_MODE)
+            .BOOST_PYENUM_VAL(CONSTANT_RPM)
+            .BOOST_PYENUM_VAL(CONSTANT_SURFACE)
+            .export_values();
+
 
     def("equal", &__equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int

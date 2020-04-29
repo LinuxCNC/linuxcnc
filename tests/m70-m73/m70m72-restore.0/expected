@@ -3,6 +3,7 @@
  N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
  N..... SET_XY_ROTATION(0.0000)
  N..... SET_FEED_REFERENCE(CANON_XYZ)
+ N..... ON_RESET()
  N..... COMMENT("Program to test M70 save/M72 restore context")
  N..... COMMENT("M. Haberler")
  N..... STRAIGHT_TRAVERSE(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -31,3 +32,5 @@
  N..... STRAIGHT_TRAVERSE(5.0000, 20.0000, 0.0000, 0.0000, 0.0000, 0.0000)
  N..... MESSAGE(" incremental=0.000000")
  N..... FINISH()
+ N..... ON_RESET()
+ N..... ON_RESET()

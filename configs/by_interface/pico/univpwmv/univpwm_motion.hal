@@ -65,18 +65,18 @@ newsig spindle-index-en bit
 linksp spindle-index-en => ppmc.0.encoder.03.index-enable
 
 # hook up motion controller's sync output
-linkps motion.spindle-index-enable => spindle-index-en
+linkps spindle.0.index-enable => spindle-index-en
 
 # report rev count to motion controller
 newsig spindle-pos float
 linkps ppmc.0.encoder.03.position => spindle-pos
-linksp spindle-pos => motion.spindle-revs
+linksp spindle-pos => spindle.0.revs
 
 # set up 4th PWM generator as a spindle speed control
 newsig spindle-speed float
 newsig spindle-pwm-cmd float
 newsig spindle-pwm-filt float
-linkps motion.spindle-speed-out => spindle-speed
+linkps spindle.0.speed-out => spindle-speed
 linksp spindle-speed => mult2.1.in0
 setp   mult2.1.in1 0.0009018
 linkps mult2.1.out => spindle-pwm-cmd

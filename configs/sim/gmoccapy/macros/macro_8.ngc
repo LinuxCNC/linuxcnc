@@ -1,0 +1,27 @@
+; Testfile go to position
+; will jog the machine to a position to give
+
+; the image path must be relative from your config dir or absolut, "~" is allowed
+(IMAGE, ./macros/images/macro_8.png)
+
+O<macro_8> sub
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+;#1 = <X-Pos>
+;#2 = <Y-Pos>
+;#3 = <Z-Pos>
+
+(DBG, Will now move machine to X = #1 , Y = #2 , Z = #3)
+G0 X #1 Y #2 Z #3
+
+O<macro_8> endsub
+
+M2

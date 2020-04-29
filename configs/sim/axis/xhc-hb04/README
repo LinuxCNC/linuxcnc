@@ -244,10 +244,16 @@ joint jogging will occur for that switch position when LinuxCNC is in joint
 motion mode.
 
 ----------------------------------
-Note: in earlier versions of xhc-hb04.tcl, mpg_accels used a helper
-      script (xhc-hb04-accels) to multiplex reduced accel values during
-      world mode jogging.
-      The current implementation uses pins now provided by the motion
-      module:
+Notes:
+
+ 1) In earlier versions of xhc-hb04.tcl, mpg_accels used a helper
+    script (xhc-hb04-accels) to multiplex reduced accel values during
+    world mode jogging.
+    The current implementation uses pins now provided by the motion
+    module:
          axis.L.jog-accel-fraction
          joint.N.jog-accel-fraction
+
+ 2) Support for spindle override is supported using the
+    halui pins: halui.spindle.0.override.* as applicable to
+    default single spindle usage.

@@ -43,7 +43,7 @@ variable unsigned *AD7329_read[8];
 license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
-include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
+include <hostmot2-serial.h>;
 ;;
 
 // to parse the modparam
@@ -152,7 +152,7 @@ static int read(void *subdata) {
 
     // Read ADC's into Pins
     for(i=0; i < 8; i++) {
-        analogue_in(i) = (double)((uint16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
+        analogue_in(i) = (double)((int16_t)((*AD7329_read[i] & 0x1FFF) << 3)) / 3276.8;
     }
     return 0;
 }
@@ -163,30 +163,31 @@ EXTRA_SETUP(){
 
     firstrun = true;
     // Set up channel descriptors
-    //hm2_bspi_setup_chan(name, chan, cs, bits, mhz, delay(ns), cpol, cpha, /clear, /echo)
+    //hm2_bspi_setup_chan(name, chan, cs, bits, mhz, delay(ns), cpol, cpha, /clear, /echo, samplelate)
     // CS0 loopback Echo, CS0, ~ 4 MHz, CPOL, 32 bits
-    r = hm2_bspi_setup_chan(name, 0, 0, 32, 4, 0, 1, 0, 0, 0);
+    r = hm2_bspi_setup_chan(name, 0, 0, 32, 4, 0, 1, 0, 0, 0, 0);
     // CS1 AD5754 No echo, CS1, 25 MHz, CPOL, 24 bits
-    r += hm2_bspi_setup_chan(name, 1, 1, 24, 25, 0, 1, 0, 0, 1);
+    r += hm2_bspi_setup_chan(name, 1, 1, 24, 25, 0, 1, 0, 0, 1, 0);
     // CS2 AD5754 No echo, CS2, 25 MHz, CPOL, 24 bits
-    r += hm2_bspi_setup_chan(name, 2, 2, 24, 25, 0, 1, 0, 0, 1);
+    r += hm2_bspi_setup_chan(name, 2, 2, 24, 25, 0, 1, 0, 0, 1, 0);
     // CS3 AD7329 Echo, CS3, ~6 MHz, CPOL, 16 bits
-    r += hm2_bspi_setup_chan(name, 3, 3, 16, 6, 0, 1, 0, 0, 0);
+    r += hm2_bspi_setup_chan(name, 3, 3, 16, 6, 0, 1, 0, 0, 0, 0);
     // CS4 CPLD Echo, CS4, ~6 MHz, CPOL, 12 bits
-    r += hm2_bspi_setup_chan(name, 4, 4, 12, 6, 0, 1, 0, 0, 0);
+    r += hm2_bspi_setup_chan(name, 4, 4, 12, 6, 0, 1, 0, 0, 0, 0);
     // CS5 Not Used No echo, CS5, 25 MHz, 2 bits
-    r += hm2_bspi_setup_chan(name, 5, 5, 2, 25, 0, 1, 0, 0, 1);
+    r += hm2_bspi_setup_chan(name, 5, 5, 2, 25, 0, 1, 0, 0, 1, 0);
     // CS6 Not Used No echo, CS5, 25 MHz, 2 bits
-    r += hm2_bspi_setup_chan(name, 6, 6, 2, 25, 0, 1, 0, 0, 1);
+    r += hm2_bspi_setup_chan(name, 6, 6, 2, 25, 0, 1, 0, 0, 1, 0);
     // CS7 EEPROM Echo, CS7, ~4 MHz, CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 7, 7, 8, 4, 0, 1, 1, 0, 0);
+    r += hm2_bspi_setup_chan(name, 7, 7, 8, 4, 0, 1, 1, 0, 0, 0);
     // CS7 EEPROM No Echo, CS7, ~4 MHz, CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 8, 7, 8, 4, 0, 1, 1, 0, 1);
+    r += hm2_bspi_setup_chan(name, 8, 7, 8, 4, 0, 1, 1, 0, 1, 0);
     // CS7 EEPROM No Echo, DontClearFrame, CS7, ~4 MHz,CPOL,CPHA, 8 bits
-    r += hm2_bspi_setup_chan(name, 9, 7, 8, 4, 0, 1, 1, 1, 1);
+    r += hm2_bspi_setup_chan(name, 9, 7, 8, 4, 0, 1, 1, 1, 1, 0);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during channel setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during channel setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }
@@ -200,7 +201,8 @@ EXTRA_SETUP(){
     r += hm2_bspi_write_chan(name, 3, 0x00009C18);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during ADC setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during ADC setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }
@@ -232,7 +234,8 @@ EXTRA_SETUP(){
     // r += hm2_bspi_set_write_function(name, &write, __comp_inst);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during TRAM allocation setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during TRAM allocation setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }

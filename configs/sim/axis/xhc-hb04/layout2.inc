@@ -17,7 +17,7 @@ rewind      = halui.program.step
 probe-z     = motion.probe-input
 macro-3     = halui.mdi-command-03
 
-half        = halui.spindle.stop
+half        = halui.spindle.0.stop
 # synthesized per-axis buttons for half button:
 half-x      = ""
 half-y      = ""
@@ -36,7 +36,7 @@ safe-z      = halui.mdi-command-10
 home        = halui.home-all
 macro-1     = halui.mdi-command-01
 macro-2     = halui.mdi-command-02
-spindle     = halui.spindle.start
+spindle     = halui.spindle.0.start
 step        = xhc-hb04.stepsize-up
 mode        = ""
 macro-6     = halui.mdi-command-06

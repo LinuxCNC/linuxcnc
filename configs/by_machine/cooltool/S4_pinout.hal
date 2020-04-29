@@ -30,7 +30,7 @@ net n2 iocontrol.0.tool-change iocontrol.0.tool-changed
 
 # commented out till we resolve this issue
 # connect it to the iocontroller
-net spindle_on motion.spindle-on
+net spindle_on spindle.0.on
 # connect it to a physical pin
 net spindle_on parport.0.pin-16-out
 

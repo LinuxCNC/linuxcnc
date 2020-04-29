@@ -1,4 +1,4 @@
-USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd
+USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd pmx485
 
 USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
@@ -44,6 +44,19 @@ $(call TOOBJSDEPS, $(HY_GT_SRCS)) : EXTRAFLAGS += $(HY_GT_CCFLAGS)
 USERSRCS += $(HY_GT_SRCS)
 TARGETS += ../bin/hy_gt_vfd
 
+SVD_PS_SRCS := hal/user_comps/svd-ps_vfd.c
+SVD_PS_LDFLAGS := $(LIBMODBUS_LIBS)
+SVD_PS_CCFLAGS := $(LIBMODBUS_CFLAGS)
+
+$(call TOOBJSDEPS, $(SVD_PS_SRCS)) : EXTRAFLAGS += $(SVD_PS_CCFLAGS)
+
+../bin/svd-ps_vfd: $(call TOOBJS, $(SVD_PS_SRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(SVD_PS_LDFLAGS)
+
+USERSRCS += $(SVD_PS_SRCS)
+TARGETS += ../bin/svd-ps_vfd
+
 endif # HAVE_LIBMODBUS
 
 
@@ -62,7 +75,7 @@ USERSRCS += $(XHC_HB04_SRC)
 $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
 ../bin/xhc-hb04: $(call TOOBJS, $(XHC_HB04_SRC)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm -lstdc++ $(LIBUSB10_LIBS)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ -lm $(LIBUSB10_LIBS)
 TARGETS += ../bin/xhc-hb04
 endif # HAVE_LIBUSB10
 

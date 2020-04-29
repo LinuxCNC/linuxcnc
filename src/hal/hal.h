@@ -149,7 +149,6 @@ RTAPI_BEGIN_DECLS
 
 #define HAL_LOCK_ALL      255   /* locks every action */
 
-
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
 ************************************************************************/
@@ -260,7 +259,8 @@ typedef enum {
     HAL_BIT = 1,
     HAL_FLOAT = 2,
     HAL_S32 = 3,
-    HAL_U32 = 4
+    HAL_U32 = 4,
+    HAL_PORT = 5
 } hal_type_t;
 
 /** HAL pins have a direction attribute.  A pin may be an input to 
@@ -296,10 +296,12 @@ typedef enum {
 typedef volatile bool hal_bit_t;
 typedef volatile rtapi_u32 hal_u32_t;
 typedef volatile rtapi_s32 hal_s32_t;
+typedef volatile int hal_port_t;
 typedef double real_t __attribute__((aligned(8)));
 typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
-#define hal_float_t volatile real_t
 
+#define hal_float_t volatile real_t
+       
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -360,6 +362,9 @@ extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
+    hal_port_t ** data_ptr_addr, int comp_id);
+
 
 /** The hal_pin_XXX_newf family of functions are similar to
     hal_pin_XXX_new except that they also do printf-style formatting to compute
@@ -378,6 +383,9 @@ extern int hal_pin_u32_newf(hal_pin_dir_t dir,
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_pin_port_newf(hal_pin_dir_t dir,
+    hal_port_t** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
 
@@ -725,6 +733,100 @@ typedef int(*constructor)(char *prefix, char *arg);
 /** hal_set_constructor() sets the constructor function for this component
 */
 extern int hal_set_constructor(int comp_id, constructor make);
+
+
+
+/******************************************************************************
+  A HAL port pin is an asynchronous one way byte stream
+  
+  A hal port should have only one reader and one writer. Both sides can
+  read or write respectivly at any time without interfering with the other
+ 
+  A component that exports a PORT pin does not own the port buffer.
+  The signal linking an input port to an output port owns the port buffer.
+  The buffer is allocated by issuing a 'halcmd sets port-sig size'
+  command.
+*/
+
+
+/** hal_port_read reads count bytes from the port into dest.
+    This function should only be called by the component that owns 
+    the IN PORT pin.
+    returns
+        true: count bytes were read into dest
+        false: no bytes were read into dest
+ */
+extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+
+
+/** hal_port_peek operates the same as hal_port_read but no bytes are consumed
+    from the input port. Repeated calls to hal_port_peek will return the same data.
+    This function should only be called by the component that owns the IN PORT pin.
+    returns 
+        true: count bytes were read into dest
+        false: no bytes were read into dest
+*/
+extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+
+/** hal_port_peek_commit advances the read position in the port buffer
+    by count bytes. A hal_port_peek followed by a hal_port_peek_commit
+    with the same count value would function equivalently to 
+    hal_port_read given the same count value. This function should only
+    be called by the component that owns the IN PORT pin.
+    returns:
+       true: count readable bytes were skipped and are no longer accessible
+       false: no bytes wer skipped
+*/ 
+extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
+
+/** hal_port_write writes count bytes from src into the port. 
+    This function should only be called by the component that owns
+    the OUT PORT pin.
+    returns:
+        true: count bytes were written
+        false: no bytes were written into dest
+    
+*/
+extern bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+
+/** hal_port_readable returns the number of bytes available
+    for reading from the port.
+*/
+extern unsigned hal_port_readable(hal_port_t port);
+
+/** hal_port_writable returns the number of bytes that
+    can be written into the port
+*/
+extern unsigned hal_port_writable(hal_port_t port);
+
+/** hal_port_buffer_size returns the total number of bytes
+    that a port can buffer
+*/
+extern unsigned hal_port_buffer_size(hal_port_t port);
+
+/** hal_port_clear emptys a given port of all data
+    without consuming any of it.
+    hal_port_clear should only be called by a reader
+*/
+extern void hal_port_clear(hal_port_t port);
+
+
+#ifdef ULAPI
+/** hal_port_wait_readable spin waits on a port until it has at least 
+    count bytes available for reading, or *stop > 0
+ */
+extern void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic_t* stop);
+
+/** hal_port_wait_writable spin waits on a port until it has at least
+    count bytes available for writing or *stop > 0
+ */
+extern void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop);
+#endif
+
+
+
+
+
 
 union hal_stream_data {
     real_t f;

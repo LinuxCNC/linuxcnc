@@ -1,0 +1,58 @@
+; MACROCOMMAND= Drill Diameter,Finsh Depth,SFM,FPR,Tool Number,Peck Depth,Retract Depth
+; MACRODEFAULTS=1,-1,300,.007,1,0.2,.1
+; MACROSVG=LatheMacro.svg,6
+; O<drill> call [${drill.diameter-f}] [${drill.zdepth-f}] [${drill.sf-f}] [${drill.feed-f}] [${drill.tool-s}] [${drill.peck-f}] [${drill.retract-f}]
+
+; #1 drill diameter
+; #2 zdepth
+; #3 speed
+; #4 feed/rpm
+; #5 tool number
+; #6 peck amount
+; #7 peck retract amount - not used right now
+
+O<drill> sub
+
+(MSG, Press Cycle Start To start Drilling Macro)
+m0
+
+M73 ; save state, restore on exit
+
+G7 ; diameter mode
+G17 ; XY Plane
+;G21 ; Metric Units don't change units!
+G90 ; Absolute Distance
+
+#13 = #<_z> (starting Z)
+
+M6 T#5 G43
+
+O51 IF [#<_metric>]
+	#10 = [[1000 * #3] / [3.1415 * #1]]	; metric mode RPM
+	#11 = 2	 	;retract plane
+O51 ELSE
+	#10 = [[#3 * 12 / 3.1415] / #1]		; inch mode RPM
+	#11 = 0.05	; retract plane
+O51 ENDIF
+
+G97 S#10 ; Constant RPM mode
+m3 ;Start Spindle
+g95 F#4 ; Feed-Per-Rev Mode
+
+g4p1 ; Wait to reach speed
+
+	(debug, Drilling dia #1 depth #2 startz #13 speed #3 feed/rpm #4 tool #5 peck dist #6 rpm #10)
+
+	G0 X0 ; must drill from the centerline.  Tool should be zeroed here
+	G00 Z #13
+	G98
+	G83 Z#2 R#13 Q#6
+	G80
+
+	G0 Z #13
+     M5
+	G7
+
+O<drill> endsub
+
+M2

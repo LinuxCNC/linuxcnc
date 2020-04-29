@@ -38,11 +38,11 @@ menu .menu.file \
 menu .menu.file.recent \
 	-tearoff 0
 menu .menu.machine \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.home \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.unhome \
-	-tearoff 0
+	-tearoff 1
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -379,6 +379,12 @@ setup_menu_accel .menu.view end [_ "Large coordinate fo_nt"]
 	-accelerator [_ "Ctrl-K"] \
 	-command clear_live_plot
 setup_menu_accel .menu.view end [_ "_Clear live plot"]
+
+.menu.view add checkbutton \
+	-variable show_pyvcppanel \
+	-accelerator [_ "Ctrl-E"] \
+	-command toggle_show_pyvcppanel
+setup_menu_accel .menu.view end [_ "Show pyVCP pan_el"]
 
 .menu.view add separator
 
@@ -871,7 +877,7 @@ for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
 # grid for Joint select radiobuttons
 set jno 0
 set rows [expr $::MAX_JOINTS / 3]
-for {set row 0} {$row < 3} {incr row} {
+for {set row 0} {$row < [expr 1 + $rows]} {incr row} {
   for {set col 0} {$col < 3} {incr col} {
     grid $_tabs_manual.joints.joint$jno \
          -column $col -row $row -padx 4
@@ -1271,19 +1277,6 @@ grid $_tabs_mdi.commandl \
 	-row 3 \
 	-sticky w
 
-# Grid widget $_tabs_mdi.gcodel
-grid $_tabs_mdi.gcodel \
-	-column 0 \
-	-row 6 \
-	-sticky w
-
-# Grid widget $_tabs_mdi.gcodes
-grid $_tabs_mdi.gcodes \
-	-column 0 \
-	-row 7 \
-	-columnspan 2 \
-	-sticky new
-
 # Grid widget $_tabs_mdi.go
 grid $_tabs_mdi.go \
 	-column 1 \
@@ -1406,6 +1399,17 @@ pack ${pane_bottom}.t.text \
 pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
+
+label ${pane_top}.gcodel
+setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
+
+text ${pane_top}.gcodes \
+	-height 2 \
+	-width 40 \
+	-wrap word
+
+${pane_top}.gcodes insert end {}
+${pane_top}.gcodes configure -state disabled
 
 frame ${pane_top}.ajogspeed
 label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
@@ -1677,6 +1681,9 @@ grid ${pane_top}.maxvel \
 	-column 0 \
 	-row 7 \
 	-sticky new
+
+grid ${pane_top}.gcodel -column 0 -row 8 -sticky nw
+grid ${pane_top}.gcodes -column 0 -row 9 -sticky new
 
 # Grid widget .info
 grid .info \

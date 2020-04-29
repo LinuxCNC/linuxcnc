@@ -1,0 +1,18 @@
+This is a simulation of a 2-spindle lathe to demonstrate the multispindle patch.
+
+up to 8 spindles are supported, set by [TRAJ]SPINDLES in the INI and a
+num_spindles modparam to motmod. These _must_ agree with each other.
+
+Most spindle-related commands now take an extra "$" word to say which spindle
+to apply them to.
+
+Examples
+
+S1000 $1 - set the speed of spindle 1 to 1000
+M3 S100 $0 - set the speed of spindle 0 to 100
+
+G33 X10 K1.5 $1 - make a move synchronised to spindle 1.
+G33.2 Z-1 K1 $0 - rigid tap synchronised to spindle 0.
+
+M51 P0 $6 - disable speed override on spindle 6. M48 and M49 operate on all.
+

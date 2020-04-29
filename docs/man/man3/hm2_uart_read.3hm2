@@ -6,6 +6,8 @@
 hm2_uart_read \- read data from a Hostmot2 UART buffer
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_uart_read(char *name, unsigned char *data)
 

@@ -27,7 +27,7 @@ The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 
 .Entry Page
 
-image::images/stepconf-config.png[align="center", alt="Entry Page"]
+image::images/stepconf-start_en.png[align="center", alt="Entry Page"]
 
 * 'Create New' - Creates a fresh configuration.
 
@@ -42,7 +42,7 @@ a linuxcnc config file. After the import, you will go though the pages
 of stepconf to confirm/modify the entries. The original mach xml file will
 not be changed.
 
-These next options wiil be recorded in a preference file for the next run of
+These next options will be recorded in a preference file for the next run of
 Stepconf.
 
 * 'Create Desktop Shortcut' - This will place a link on your desktop to the
@@ -58,7 +58,7 @@ even if you don't have the actual hardware.
 
 .Basic Information Page
 
-image::images/stepconf-basic.png[align="center", alt="Basic Information Page"]
+image::images/stepconf-base_en.png[align="center", alt="Basic Information Page"]
 
 * 'Machine Name' - Choose a name for your machine. Use only uppercase letters,
 lowercase letters, digits, - and _.
@@ -132,7 +132,7 @@ Do not attempt run LinuxCNC while the latency test is running.
 
 .Latency Test
 
-image::images/latency.png[align="center", alt="Latency Test"]
+image::images/latency-test_en.png[align="center", alt="Latency Test"]
 
 Latency is how long it takes the PC to stop what it is doing and
 respond to an external request. In our case, the request is the
@@ -171,7 +171,7 @@ whether you use software stepping or not.
 
 .Parallel Port Setup Page
 
-image::images/stepconf-pinout.png[align="center", alt="Parallel Port Setup Page"]
+image::images/stepconf-parallel-1_en.png[align="center", alt="Parallel Port 1 Setup Page"]
 You may specify the address as a hexidecimal (often 0x378) or as linux's default
  port number (probably 0)
 
@@ -203,7 +203,7 @@ step rate shown on the Basic Machine Configuration page.
 
 .Parallel Port 2 Setup Page
 
-image::images/stepconf-parport2.png[align="center", alt="Parallel Port 2 Setup Page"]
+image::images/stepconf-parallel-2_en.png[align="center", alt="Parallel Port 2 Setup Page"]
 
 The second Parallel port (if selected) can be configured and It's pins
 assigned on this page. +
@@ -217,7 +217,7 @@ You may specify the address as a hexidecimal (often 0x378) or as linux's default
 
 .Axis Configuration Page
 
-image::images/stepconf-axis.png[align="center", alt="Axis Configuration Page"]
+image::images/stepconf-axis-x_en.png[align="center", alt="Axis X Configuration Page"]
 
 * 'Motor Steps Per Revolution' - The number of full steps per motor revolution.
 If you know how many degrees per step the motor is (e.g., 1.8 degree), then
@@ -256,7 +256,7 @@ origin. The home location must be inside the 'Table Travel' and not equal to
 one of the Table Travel values.
 
 * 'Home Switch Location' - The location at which the home switch trips
-or releases reletive to the machine origin. This item and the two below only
+or releases relative to the machine origin. This item and the two below only
 appear when Home Switches were chosen in the Parallel Port Pinout. If
 you combine home and limit switches the home switch location can not be
 the same as the home position or you will get a joint limit error.
@@ -298,7 +298,7 @@ This can be used after filling out all the information for this axis.
 
 .Test This Axis
 
-image::images/stepconf-test.png[align="center", alt="Test This Axis"]
+image::images/stepconf-x-test_en.png[align="center", alt="Test This Axis"]
 
 Test this axis is a basic tester that only outputs step and direction signals
 to try different values for acceleration and velocity.
@@ -372,7 +372,7 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 
 .Spindle Configuration Page
 
-image::images/stepconf-spindle.png[align="center", alt="Spindle Configuration Page"]
+image::images/stepconf-spindle_en.png[align="center", alt="Spindle Configuration Page"]
 
 This page only appears when 'Spindle PWM' is chosen in the
 'Parallel Port Pinout' page for one of the outputs.
@@ -461,9 +461,9 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 
 == Options
 
-.Advanced Configuration
+.Options Configuration
 
-image::images/stepconf-advanced.png[align="center", alt="Advanced Configuration"]
+image::images/stepconf-options_en.png[align="center", alt="Options Configuration"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
 <<cha:hal-user-interface,HALUI Chapter>> for more information on.
@@ -560,13 +560,13 @@ Typically for a parallel port you might use 47k.
 
 Wiring N/C switches in series (simplified diagram)
 
-image::images/switch-nc-series.png[align="center", alt="Normally Closed Switches"]
+image::images/switch-nc-series_en.svg[align="center", alt="Normally Closed Switches"]
 
 .Normally Open Switches
 
 Wiring N/O switches in parallel (simplified diagram)
 
-image::images/switch-no-parallel.png[align="center", alt="Normally Open Switches"]
+image::images/switch-no-parallel_en.svg[align="center", alt="Normally Open Switches"]
 
 The following combinations of switches are permitted in Stepconf:
 

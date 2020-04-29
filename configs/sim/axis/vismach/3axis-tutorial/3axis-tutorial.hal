@@ -1,0 +1,71 @@
+# core HAL config file for simulation
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt [KINS]KINEMATICS
+#autoconverted  trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS 
+# load 6 differentiators (for velocity and accel signals
+loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+# load additional blocks
+loadrt hypot names=vel_xy,vel_xyz
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+# link the differentiator functions into the code
+addf ddt_x servo-thread
+addf ddt_xv servo-thread
+addf ddt_y servo-thread
+addf ddt_yv servo-thread
+addf ddt_z servo-thread
+addf ddt_zv servo-thread
+addf vel_xy servo-thread
+addf vel_xyz servo-thread
+
+# create HAL signals for position commands from motion module
+# loop position commands back to motion module feedback
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt_x.in
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt_y.in
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt_z.in
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals
+net Xvel ddt_x.out => ddt_xv.in vel_xy.in0
+net Xacc <= ddt_xv.out
+net Yvel ddt_y.out => ddt_yv.in vel_xy.in1
+net Yacc <= ddt_yv.out
+net Zvel ddt_z.out => ddt_zv.in vel_xyz.in0
+net Zacc <= ddt_zv.out
+
+# Cartesian 2- and 3-axis velocities
+net XYvel vel_xy.out => vel_xyz.in1
+net XYZvel <= vel_xyz.out
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+loadusr -W hal_manualtoolchange
+net tool-change  iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net tool-number  iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+# start 3axis-tutorial vismach addition
+loadusr -W  ./3axis-tutorial
+
+# "wire" linuxcnc pins to joints defined in vismach file
+net j0 joint.0.pos-fb => 3axis-tutorial.jointX
+net j1 joint.1.pos-fb => 3axis-tutorial.jointY
+net j2 joint.2.pos-fb => 3axis-tutorial.jointZ
+
+#tool sinput
+net tool_len 3axis-tutorial.toollength <= motion.tooloffset.z
+net tool_rad halui.tool.diameter 3axis-tutorial.tooldiameter # Only in 2.8 or later
+
+
+
+
+
+

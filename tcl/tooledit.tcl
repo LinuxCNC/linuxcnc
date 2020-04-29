@@ -882,11 +882,11 @@ proc ::tooledit::showerr {msg} {
   foreach item $msg {set text "$text\n$item"}
   $l configure -text $text
   pack $l -side top
-  set b [button $w.b -text Dismiss -command "destroy $w"]
+  set b [button $w.b -text [_ "Dismiss"] -command "destroy $w"]
   pack $b -side top
   focus $b
   wm withdraw $w
-  wm title    $w Error
+  wm title    $w [_ "Error"]
   update idletasks
   set x [expr [winfo screenwidth $w]/2 \
             - [winfo reqwidth $w]/2  - [winfo vrootx [winfo parent $w]]]
@@ -903,7 +903,7 @@ proc ::tooledit::bye {} {
               "[_ "Save Modifications to File?"]" \
               {} \
               0 \
-              Yes No]
+              [_ "Yes"] [_ "No"]]
     if {$ans == 0} {
       ::tooledit::writefile $::te(filename)
     }

@@ -19,7 +19,7 @@ $(call TOOBJSDEPS, $(RTAPI_APP_SRCS)): EXTRAFLAGS += -DSIM \
 	-UULAPI -DRTAPI -pthread $(RTAPI_APP_CFLAGS)
 ../bin/rtapi_app: $(call TOOBJS, $(RTAPI_APP_SRCS))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(LIBDL) -pthread -lrt $(LIBUDEV_LIBS)
+	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(LIBDL) -pthread -lrt $(LIBUDEV_LIBS) -ldl
 TARGETS += ../bin/rtapi_app
 endif
 

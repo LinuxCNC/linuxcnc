@@ -162,10 +162,10 @@
     <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
     <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
-    <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
-    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
-    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
     <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
+    <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
+    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
+    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
     <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
     <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
     <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
@@ -173,6 +173,7 @@
     <signal name="interp-idle" handler="on_hal_status_interp_idle" swapped="no"/>
     <signal name="state-off" handler="on_hal_status_state_off" swapped="no"/>
     <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
+    <signal name="metric-mode-changed" handler="on_hal_status_metric_mode_changed" swapped="no"/>
     <signal name="interp-run" handler="on_hal_status_interp_run" swapped="no"/>
   </object>
   <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
@@ -186,16 +187,6 @@
     <property name="can_focus">False</property>
     <property name="icon_name">edit-undo</property>
   </object>
-  <object class="GtkImage" id="img_back_ref">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">edit-undo</property>
-  </object>
-  <object class="GtkImage" id="img_back_ref1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">edit-undo</property>
-  </object>
   <object class="GtkImage" id="img_back_tool">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -204,25 +195,10 @@
   <object class="GtkImage" id="img_back_zero">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">edit-undo</property>
-  </object>
-  <object class="GtkImage" id="img_back_zero1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
     <property name="ypad">3</property>
     <property name="icon_name">edit-undo</property>
   </object>
-  <object class="GtkImage" id="img_brake_macro">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop.png</property>
-  </object>
   <object class="GtkImage" id="img_close">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/exit_application.png</property>
-  </object>
-  <object class="GtkImage" id="img_close1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/exit_application.png</property>
@@ -281,32 +257,12 @@
   <object class="GtkImage" id="img_hom_all">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/refall.png</property>
+    <property name="pixbuf">images/ref_all.png</property>
   </object>
   <object class="GtkImage" id="img_home">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-home</property>
-  </object>
-  <object class="GtkImage" id="img_home_c">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refc.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_u">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refu.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_v">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refv.png</property>
-  </object>
-  <object class="GtkImage" id="img_home_w">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/refw.png</property>
   </object>
   <object class="GtkImage" id="img_jump_to">
     <property name="visible">True</property>
@@ -343,10 +299,10 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-open</property>
   </object>
-  <object class="GtkImage" id="img_ref_al">
+  <object class="GtkImage" id="img_ref_all">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/refall.png</property>
+    <property name="pixbuf">images/ref_all.png</property>
   </object>
   <object class="GtkImage" id="img_reverse_on">
     <property name="width_request">48</property>
@@ -433,42 +389,7 @@
   <object class="GtkImage" id="img_touch_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffwz.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_a">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffa_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_b">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffb_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_c">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffc_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_u">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffu_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_v">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffv_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_w">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffw_value.png</property>
-  </object>
-  <object class="GtkImage" id="img_touch_off_z">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoffwz.png</property>
+    <property name="pixbuf">images/touchoff.png</property>
   </object>
   <object class="GtkImage" id="img_turtle_jog">
     <property name="width_request">36</property>
@@ -476,11 +397,6 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/turtle_jog.png</property>
-  </object>
-  <object class="GtkImage" id="img_unhome">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/unhome.png</property>
   </object>
   <object class="GtkImage" id="img_user_tabs">
     <property name="visible">True</property>
@@ -554,11 +470,11 @@
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <signal name="show" handler="on_window1_show" swapped="no"/>
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="vbx_main">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkHBox" id="hbox1">
+          <object class="GtkHBox" id="hbx_upper">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -1055,201 +971,42 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkHBox" id="hbox_dro">
+                              <object class="GtkTable" id="tbl_DRO">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="spacing">1</property>
+                                <property name="n_rows">5</property>
+                                <property name="n_columns">2</property>
+                                <property name="column_spacing">2</property>
+                                <property name="homogeneous">True</property>
                                 <child>
-                                  <object class="GtkTable" id="tbl_dro_button">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="n_rows">3</property>
-                                    <child>
-                                      <object class="GtkToggleButton" id="tbtn_units">
-                                        <property name="label">mm</property>
-                                        <property name="width_request">48</property>
-                                        <property name="height_request">48</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Toggle between metric and imperial units</property>
-                                        <property name="use_action_appearance">False</property>
-                                        <signal name="toggled" handler="on_tbtn_units_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="top_attach">2</property>
-                                        <property name="bottom_attach">3</property>
-                                        <property name="x_options">GTK_SHRINK</property>
-                                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkToggleButton" id="tbtn_dtg">
-                                        <property name="label">DTG</property>
-                                        <property name="width_request">48</property>
-                                        <property name="height_request">48</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Switch DRO to DTG mode</property>
-                                        <property name="use_action_appearance">False</property>
-                                        <signal name="toggled" handler="on_tbtn_dtg_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                        <property name="x_options">GTK_SHRINK</property>
-                                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkToggleButton" id="tbtn_rel">
-                                        <property name="label">Rel</property>
-                                        <property name="width_request">48</property>
-                                        <property name="height_request">48</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Toggle between machine and relative coordinates</property>
-                                        <property name="use_action_appearance">False</property>
-                                        <property name="active">True</property>
-                                        <signal name="toggled" handler="on_tbtn_rel_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="x_options">GTK_SHRINK</property>
-                                        <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
+                                  <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkVBox" id="vbox_dro">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="spacing">1</property>
-                                    <child>
-                                      <object class="Combi_DRO" id="Combi_DRO_x">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="dtg_color">#ffffffff0000</property>
-                                        <property name="font_size">28</property>
-                                        <property name="homed_color">#0000ffff0000</property>
-                                        <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <signal name="system-changed" handler="on_Combi_DRO_system_changed" swapped="no"/>
-                                        <signal name="units-changed" handler="on_Combi_DRO_units_changed" swapped="no"/>
-                                        <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="Combi_DRO" id="Combi_DRO_y">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="dtg_color">#ffffffff0000</property>
-                                        <property name="font_size">28</property>
-                                        <property name="homed_color">#0000ffff0000</property>
-                                        <property name="joint_number">1</property>
-                                        <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="Combi_DRO" id="Combi_DRO_z">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="dtg_color">#ffffffff0000</property>
-                                        <property name="font_size">28</property>
-                                        <property name="homed_color">#0000ffff0000</property>
-                                        <property name="joint_number">2</property>
-                                        <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">2</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkTable" id="tbl_DRO_45">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="n_columns">2</property>
-                                        <property name="column_spacing">2</property>
-                                        <property name="homogeneous">True</property>
-                                        <child>
-                                          <object class="Combi_DRO" id="Combi_DRO_4">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="abs_color">#00000000ffff</property>
-                                            <property name="dtg_color">#ffffffff0000</property>
-                                            <property name="font_size">28</property>
-                                            <property name="homed_color">#0000ffff0000</property>
-                                            <property name="joint_number">3</property>
-                                            <property name="rel_color">#000000000000</property>
-                                            <property name="unhomed_color">#ffff00000000</property>
-                                            <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="y_options">GTK_SHRINK | GTK_FILL</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="Combi_DRO" id="Combi_DRO_5">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="abs_color">#00000000ffff</property>
-                                            <property name="dtg_color">#ffffffff0000</property>
-                                            <property name="font_size">28</property>
-                                            <property name="homed_color">#0000ffff0000</property>
-                                            <property name="joint_number">4</property>
-                                            <property name="rel_color">#000000000000</property>
-                                            <property name="unhomed_color">#ffff00000000</property>
-                                            <signal name="clicked" handler="on_Combi_DRO_clicked" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="left_attach">1</property>
-                                            <property name="right_attach">2</property>
-                                            <property name="y_options">GTK_SHRINK | GTK_FILL</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">3</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="pack_type">end</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </object>
                               <packing>
@@ -1290,7 +1047,7 @@
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <child>
-                                                      <object class="SpeedControl" id="spc_jog_vel">
+                                                      <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="color">#ffff81811616</property>
@@ -1337,6 +1094,22 @@
                                                   </packing>
                                                 </child>
                                                 <child>
+                                                  <object class="SpeedControl" id="spc_ang_jog_vel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="max">3600</property>
+                                                    <property name="template">%.d</property>
+                                                    <property name="unit">°/min</property>
+                                                    <property name="value">360</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
                                                   <object class="GtkHBox" id="hbox_jog">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
@@ -1358,204 +1131,64 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">5</property>
-                                                            <property name="n_rows">3</property>
-                                                            <property name="n_columns">4</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">5</property>
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_y_plus">
-                                                            <property name="label">Y+</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_y_minus">
-                                                            <property name="label">Y-</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_x_minus">
-                                                            <property name="label">X-</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_x_plus">
-                                                            <property name="label">X+</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_z_plus">
-                                                            <property name="label">Z+</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_4_plus">
-                                                            <property name="label">4+</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_z_minus">
-                                                            <property name="label">Z-</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_4_minus">
-                                                            <property name="label">4-</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_5_plus">
-                                                            <property name="label">5+</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_5_minus">
-                                                            <property name="label">5-</property>
-                                                            <property name="width_request">50</property>
-                                                            <property name="height_request">50</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
                                                             <placeholder/>
@@ -1584,337 +1217,69 @@
                                                             <property name="can_focus">False</property>
                                                             <property name="border_width">5</property>
                                                             <property name="n_rows">4</property>
-                                                            <property name="n_columns">4</property>
+                                                            <property name="n_columns">5</property>
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j0_minus">
-                                                            <property name="label">0-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j1_minus">
-                                                            <property name="label">1-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j2_plus">
-                                                            <property name="label">2+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j4_plus">
-                                                            <property name="label">4+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j4_minus">
-                                                            <property name="label">4-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j1_plus">
-                                                            <property name="label">1+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j0_plus">
-                                                            <property name="label">0+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j2_minus">
-                                                            <property name="label">2-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j5_minus">
-                                                            <property name="label">5-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j5_plus">
-                                                            <property name="label">5+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">1</property>
-                                                            <property name="bottom_attach">2</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j3_minus">
-                                                            <property name="label">3-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j3_plus">
-                                                            <property name="label">3+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">1</property>
-                                                            <property name="right_attach">2</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j6_minus">
-                                                            <property name="label">6-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j6_plus">
-                                                            <property name="label">6+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">2</property>
-                                                            <property name="bottom_attach">3</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j7_minus">
-                                                            <property name="label">7-</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">2</property>
-                                                            <property name="right_attach">3</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
                                                             </child>
                                                             <child>
-                                                            <object class="GtkButton" id="btn_j7_plus">
-                                                            <property name="label">7+</property>
-                                                            <property name="width_request">36</property>
-                                                            <property name="height_request">36</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">True</property>
-                                                            <property name="receives_default">True</property>
-                                                            <property name="use_action_appearance">False</property>
-                                                            <property name="xalign">0.47999998927116394</property>
-                                                            <signal name="pressed" handler="on_btn_jog_pressed" swapped="no"/>
-                                                            <signal name="released" handler="on_btn_jog_released" swapped="no"/>
-                                                            </object>
-                                                            <packing>
-                                                            <property name="left_attach">3</property>
-                                                            <property name="right_attach">4</property>
-                                                            <property name="top_attach">3</property>
-                                                            <property name="bottom_attach">4</property>
-                                                            <property name="x_options">GTK_SHRINK</property>
-                                                            <property name="y_options">GTK_SHRINK</property>
-                                                            </packing>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
                                                             </child>
                                                             </object>
                                                             <packing>
@@ -2020,7 +1385,7 @@
                                                     <property name="expand">True</property>
                                                     <property name="fill">True</property>
                                                     <property name="padding">3</property>
-                                                    <property name="position">1</property>
+                                                    <property name="position">2</property>
                                                   </packing>
                                                 </child>
                                               </object>
@@ -3328,7 +2693,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="lbl_space">
+                              <object class="GtkLabel" id="lbl_space_edit">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                               </object>
@@ -3403,6 +2768,7 @@
                             <child>
                               <object class="GtkButton" id="btn_replace">
                                 <property name="label" translatable="yes">Replace</property>
+                                <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -3981,24 +3347,6 @@
                                 <property name="position">2</property>
                               </packing>
                             </child>
-                            <child>
-                              <object class="GtkToggleButton" id="tbtn_use_screen2">
-                                <property name="label" translatable="yes">  Display 
-Aux Screen</property>
-                                <property name="width_request">100</property>
-                                <property name="height_request">56</property>
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
-                                <signal name="toggled" handler="on_tbtn_use_screen2_toggled" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">3</property>
-                              </packing>
-                            </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -4124,47 +3472,6 @@ Aux Screen</property>
                                             <property name="bottom_attach">3</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="y_padding">2</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_auto_units">
-                                            <property name="label" translatable="yes">Use Auto Units</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="xalign">1</property>
-                                            <property name="active">True</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_auto_units_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">7</property>
-                                            <property name="bottom_attach">8</property>
-                                            <property name="x_options">GTK_SHRINK | GTK_FILL</property>
-                                            <property name="y_options">GTK_SHRINK</property>
-                                            <property name="x_padding">5</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkCheckButton" id="chk_show_dro_btn">
-                                            <property name="label" translatable="yes">Show the DRO Button</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">False</property>
-                                            <property name="use_action_appearance">False</property>
-                                            <property name="xalign">1</property>
-                                            <property name="draw_indicator">True</property>
-                                            <signal name="toggled" handler="on_chk_show_dro_btn_toggled" swapped="no"/>
-                                          </object>
-                                          <packing>
-                                            <property name="right_attach">2</property>
-                                            <property name="top_attach">6</property>
-                                            <property name="bottom_attach">7</property>
-                                            <property name="x_options">GTK_SHRINK | GTK_FILL</property>
-                                            <property name="y_options">GTK_SHRINK</property>
-                                            <property name="x_padding">5</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -4371,6 +3678,18 @@ clicking on the DRO</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                             <property name="x_padding">5</property>
                                           </packing>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                        <child>
+                                          <placeholder/>
                                         </child>
                                       </object>
                                     </child>
@@ -5974,6 +5293,88 @@ is not possible.</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
+                                  <object class="GtkFrame" id="frm_run_from_line">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label_xalign">0.5</property>
+                                    <child>
+                                      <object class="GtkAlignment" id="ali_run_from_line">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="top_padding">5</property>
+                                        <property name="bottom_padding">5</property>
+                                        <property name="left_padding">5</property>
+                                        <property name="right_padding">5</property>
+                                        <child>
+                                          <object class="GtkVBox" id="vbox_run_from_line">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkRadioButton" id="rbtn_no_run_from_line">
+                                                <property name="label" translatable="yes">Do not use run from line</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <property name="active">True</property>
+                                                <property name="draw_indicator">True</property>
+                                                <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioButton" id="rbtn_run_from_line">
+                                                <property name="label" translatable="yes">Use run from line</property>
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="receives_default">False</property>
+                                                <property name="use_action_appearance">False</property>
+                                                <property name="draw_indicator">True</property>
+                                                <property name="group">rbtn_no_run_from_line</property>
+                                                <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="lbl_frm_run_from_line">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">&lt;b&gt;Run from line&lt;/b&gt;</property>
+                                        <property name="use_markup">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="padding">5</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHSeparator" id="hseparator5">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <object class="GtkFrame" id="frm_message_position">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -5987,7 +5388,7 @@ is not possible.</property>
                                         <property name="left_padding">5</property>
                                         <property name="right_padding">5</property>
                                         <child>
-                                          <object class="GtkTable" id="table2">
+                                          <object class="GtkTable" id="lbl_messages_style">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
                                             <property name="n_rows">7</property>
@@ -6232,7 +5633,7 @@ to test your settings.</property>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
-                                    <property name="position">0</property>
+                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
@@ -6241,94 +5642,6 @@ to test your settings.</property>
                                 <property name="fill">False</property>
                                 <property name="padding">5</property>
                                 <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkVBox" id="vbox_run_from_lin">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkFrame" id="frm_run_from_line">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="tooltip_text" translatable="yes">It is not recommended to use run from line
-as LinuxCNC is handling this without 
-checking the code previous to the selected line.
-So you must take care for tool changes, speeds
-feeds and cooling, etc.</property>
-                                    <property name="label_xalign">0.5</property>
-                                    <child>
-                                      <object class="GtkAlignment" id="ali_run_from_line">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">5</property>
-                                        <property name="right_padding">5</property>
-                                        <child>
-                                          <object class="GtkVBox" id="vbox_run_from_line">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <child>
-                                              <object class="GtkRadioButton" id="rbtn_no_run_from_line">
-                                                <property name="label" translatable="yes">Do not use run from line</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="active">True</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkRadioButton" id="rbtn_run_from_line">
-                                                <property name="label" translatable="yes">Use run from line</property>
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="use_action_appearance">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <property name="group">rbtn_no_run_from_line</property>
-                                                <signal name="toggled" handler="on_rbtn_run_from_line_toggled" swapped="no"/>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl_frm_run_from_line">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Run from line&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="padding">5</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="padding">5</property>
-                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -6641,7 +5954,7 @@ Date</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open homing button list</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="image">img_ref_al</property>
+                    <property name="image">img_ref_all</property>
                     <signal name="clicked" handler="on_btn_homing_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -6669,7 +5982,7 @@ Date</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_2">
+                  <object class="GtkLabel" id="lbl_space_0">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6707,7 +6020,7 @@ Date</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_21">
+                  <object class="GtkLabel" id="lbl_space_1">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6720,7 +6033,7 @@ Date</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_7">
+                  <object class="GtkLabel" id="lbl_space_2">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6779,7 +6092,7 @@ F12 or $ key does the same</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="tbtn_fullsize_preview">
+                  <object class="GtkToggleButton" id="tbtn_fullsize_preview0">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -6862,30 +6175,7 @@ F12 or $ key does the same</property>
                   <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_show_kbd">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">This button will show or hide the Keyboard</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_keyboard">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/keyboard.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">9</property>
-                    <property name="secondary">True</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -6927,6 +6217,27 @@ F12 or $ key does the same</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="btn_reload">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="related_action">hal_action_reload</property>
+                    <property name="use_underline">True</property>
+                    <child>
+                      <object class="GtkImage" id="img_reload1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="icon_name">view-refresh</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="btn_run">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
@@ -6941,7 +6252,7 @@ F12 or $ key does the same</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -6959,7 +6270,7 @@ F12 or $ key does the same</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -6986,7 +6297,7 @@ F12 or $ key does the same</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -7003,7 +6314,7 @@ F12 or $ key does the same</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -7021,7 +6332,7 @@ F12 or $ key does the same</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -7043,24 +6354,6 @@ F12 or $ key does the same</property>
                         <property name="pixbuf">images/tool_blockdelete.gif</property>
                       </object>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleButton" id="tbtn_optional_stops">
-                    <property name="label">M1</property>
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Make optional stops or not. if an M1 is programed and the button is pressed (is active) the programm will pause if it found a M1</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="toggled" handler="on_tbtn_optional_stops_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7120,267 +6413,48 @@ F12 or $ key does the same</property>
               </packing>
             </child>
             <child>
-              <object class="GtkHButtonBox" id="hbtb_ref_axes">
+              <object class="GtkHButtonBox" id="hbtb_ref">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_8">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_all">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">home all axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_all_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_all">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refall.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_x">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">home x axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_x">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refx.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_y">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">home y axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_y">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refy.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_y">
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">5</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_z">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">home z axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_z">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refz.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_a">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refa.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">7</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">8</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_b">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refb.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">9</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">10</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_unhome_all">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Unhome all axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_unhome_all_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_unhome_all">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/unhome.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">11</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_back_ref">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">go back to main button list</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="image">img_back_ref</property>
-                    <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">12</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -7403,271 +6477,34 @@ F12 or $ key does the same</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkToggleButton" id="tbtn_edit_offsets">
-                    <property name="label" translatable="yes">  edit
-offsets</property>
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Edit offsets</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="toggled" handler="on_tbtn_edit_offsets_toggled" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_value_x">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off X / set X to an desired value</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_value_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_set_value_x">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/touchoffx_value.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_value_y">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off Y / set Y to an desired value</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_value_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_set_value_y">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/touchoffy_value.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_set_value_y">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_value_z">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">touch off Z / set Z to an desired value</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_value_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_set_value_z">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/touchoffz_value.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_value_4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_value_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_set_value_4">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/touchoffa_value.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">5</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_set_value_4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_value_5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_value_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_set_value_5">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/touchoffb_value.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">7</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_replace_set_value_5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">8</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_zero_g92">
-                    <property name="label" translatable="yes">zero
-G92</property>
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Zero all G92 offsets</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_zero_g92_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">9</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_block_height">
-                    <property name="label" translatable="yes"> Block
-Height</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_block_height_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">10</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_replace_block_height">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">11</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_set_selected">
-                    <property name="label" translatable="yes">    set
-selected</property>
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">set the selected coordinate system to be the active one</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_set_selected_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_back_zero">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Go back to main view</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="image">img_back_zero</property>
-                    <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">13</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -7709,7 +6546,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_17">
+                  <object class="GtkLabel" id="lbl_space_4">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7738,7 +6575,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_15">
+                  <object class="GtkLabel" id="lbl_space_5">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7881,7 +6718,20 @@ selected</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkButton" id="btn_reload">
+                  <object class="GtkLabel" id="lbl_space_6">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_reload_edit">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -7894,19 +6744,6 @@ selected</property>
                         <property name="icon_name">view-refresh</property>
                       </object>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_10">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7959,7 +6796,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_1">
+                  <object class="GtkLabel" id="lbl_space_7">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7972,7 +6809,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_23">
+                  <object class="GtkLabel" id="lbl_space_8">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8011,7 +6848,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_11">
+                  <object class="GtkLabel" id="lbl_space_9">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8058,7 +6895,7 @@ selected</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="image">img_back_zero1</property>
+                    <property name="image">img_back_zero</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -8354,7 +7191,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_5">
+                  <object class="GtkLabel" id="lbl_space_10">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8424,7 +7261,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_12">
+                  <object class="GtkLabel" id="lbl_space_11">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8456,7 +7293,7 @@ selected</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_13">
+                  <object class="GtkLabel" id="lbl_space_12">
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8508,454 +7345,43 @@ selected</property>
                 <property name="can_focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_jall">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j_all">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">home all joints</property>
-                    <property name="tooltip_text" translatable="yes">home all joints</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_all_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j_all">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/refall.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_sel_prev_joints">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_sel_prev_joints">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">Select the previos file</property>
-                    <property name="tooltip_text" translatable="yes">Select the previos file</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="image">img_sel_prev1</property>
-                    <property name="image_position">top</property>
-                    <signal name="clicked" handler="on_btn_sel_prev_joints_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j0">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">home joint 0</property>
-                    <property name="tooltip_text" translatable="yes">home joint 0</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j0">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_0.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_j1">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">5</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j1">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">home joint 1</property>
-                    <property name="tooltip_text" translatable="yes">home joint 1</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j1">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_1.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_j2">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">7</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j2">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">home joint 2</property>
-                    <property name="tooltip_text" translatable="yes">home joint 2</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j2">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_2.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">8</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_j3">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">9</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j3">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">home joint 3</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j3">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_3.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">10</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_j4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">11</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_home_j4">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">home joint 4</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j4">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_4.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">12</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_j5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">13</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_home_j5">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">home joint 5</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j5">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_5.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">14</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_j6">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">15</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_home_j6">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">home joint 6</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j6">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_6.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">16</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_j7">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">17</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_home_j7">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="tooltip_markup">home joint 7</property>
-                    <property name="use_action_appearance">False</property>
-                    <signal name="clicked" handler="on_btn_home_selected_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_home_j7">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/ref_7.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">18</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbl_space_sel_next_joints">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">19</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_sel_next_joints">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">Select the next file</property>
-                    <property name="tooltip_text" translatable="yes">Select the next file</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="image">img_sel_next1</property>
-                    <property name="image_position">top</property>
-                    <signal name="clicked" handler="on_btn_sel_next_joints_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">20</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_unhome_j_all">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">Unhome all axis</property>
-                    <property name="tooltip_text" translatable="yes">Unhome all axis</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="focus_on_click">False</property>
-                    <signal name="clicked" handler="on_btn_unhome_all_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_unhome_j_all">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/unhome.png</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">21</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_back_joints">
-                    <property name="width_request">85</property>
-                    <property name="height_request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="has_tooltip">True</property>
-                    <property name="tooltip_markup">go back to main button list</property>
-                    <property name="tooltip_text" translatable="yes">go back to main button list</property>
-                    <property name="use_action_appearance">False</property>
-                    <property name="image">img_back_ref1</property>
-                    <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">22</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>

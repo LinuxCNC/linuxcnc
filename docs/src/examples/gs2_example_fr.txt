@@ -23,16 +23,16 @@ GS2 et avoir le contrôle de celui-ci depuis l'interface utilisateur.
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 
 # connecter la pin de direction au variateur 
-net gs2-fwd spindle-vfd.spindle-fwd <= motion.spindle-forward
+net gs2-fwd spindle-vfd.spindle-fwd <= spindle.0.forward
 
 # connecter la pin de Marche/Arrêt au variateur 
-net gs2-run spindle-vfd.spindle-on <= motion.spindle-on
+net gs2-run spindle-vfd.spindle-on <= spindle.0.on
 
 # connecter la pin indiquant que la consigne vitesse est atteinte 
-net gs2-at-speed motion.spindle-at-speed <= spindle-vfd.at-speed
+net gs2-at-speed spindle.N.at-speed <= spindle-vfd.at-speed
 
 # connecter la commande de vitesse au variateur 
-net gs2-RPM spindle-vfd.speed-command <= motion.spindle-speed-out
+net gs2-RPM spindle-vfd.speed-command <= spindle.0.speed-out
 ----
 
 Sur le variateur de fréquence lui même, il est nécessaire de fixer quelques

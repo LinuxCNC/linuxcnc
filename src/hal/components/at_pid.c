@@ -263,7 +263,13 @@ rtapi_app_main(void)
     if(num_chan) {
         howmany = num_chan;
     } else {
-        for(i=0; names[i]; i++) {howmany = i+1;}
+        howmany = 0;
+        for (i = 0; i < MAX_CHAN; i++) {
+            if ( (names[i] == NULL) || (*names[i] == 0) ){
+                break;
+            }
+            howmany = i + 1;
+        }
     }
 
     // Check number of channels.

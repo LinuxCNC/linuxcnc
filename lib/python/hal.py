@@ -34,7 +34,7 @@ class _ItemWrap(object):
     def __new__(cls, item):
         if not isinstance(item, _hal.item):
             raise TypeError("Constructor argument must be _hal.item: %s" % type(item))
-        self = object.__new__(cls)
+        self = super(_ItemWrap, cls).__new__(cls)
         return self._item_wrap(item)
 
     def _item_wrap(self, item):

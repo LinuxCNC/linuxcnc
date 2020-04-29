@@ -1,0 +1,10 @@
+%
+( Fanuc-style subs may follow main program )
+
+M98 P1
+M30
+
+O1
+(PRINT,X IN O1)
+M99
+%

@@ -24,6 +24,9 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 // Chris Morley July 08 (EMC)
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,6 +46,7 @@
 #endif
 #include <errno.h>
 #include <time.h>
+#include <rtapi_string.h>
 
 #include "classicladder.h"
 #include "global.h"
@@ -104,7 +108,7 @@ void InitSocketModbusMaster( )
 	if (Error)
 #endif
 	{
-		printf("ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n");
+		printf(_("ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"));
 		CloseSocketModbusMaster( );
 	}
 	else
@@ -114,10 +118,10 @@ void InitSocketModbusMaster( )
 		{
 			if ( !SerialOpen( ModbusSerialPortNameUsed, ModbusSerialSpeed ) )
 				Error = -1;
-                        printf("INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n",ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
+                        printf(_("INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusSerialDataBits,ModbusSerialStopBits,ModbusSerialParity);
 		}
 		if ( Error!=-1 )
-		printf("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n", ModbusSerialPortNameUsed[ 0 ]!='\0'?"Serial":"Ethernet");
+		printf(_("INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"), ModbusSerialPortNameUsed[ 0 ]!='\0'?_("Serial"):_("Ethernet"));
 	}
 }
 
@@ -161,11 +165,11 @@ char VerifyTcpConnection( char * SlaveAdr )
 			struct sockaddr_in io_module_addr;          // Server Internet address
 
 			if( ModbusDebugLevel>=2 )
-				printf("Init socket for I/O module (%d)...\n", ScanClientSock);	
+				printf(_("Init socket for I/O module (%d)...\n"), ScanClientSock);	
 			client_s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 			if ( client_s==SOCK_INVALID )
 			{
-				printf("Failed to open I/O socket master...\n");
+				printf(_("Failed to open I/O socket master...\n"));
 			}
 			else
 			{
@@ -183,7 +187,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 				else
 				{
 					static char Address[ 50 ];
-					strcpy( Address, SlaveAdr );
+					rtapi_strxcpy( Address, SlaveAdr );
 					Address[ PosiSep-SlaveAdr ] = '\0';
 					NumPort = atoi( PosiSep+1 );
 					io_module_addr.sin_addr.s_addr = inet_addr( Address );   /* Server IP address */
@@ -191,7 +195,7 @@ char VerifyTcpConnection( char * SlaveAdr )
 				io_module_addr.sin_port = htons( NumPort ); /* Server port */
 
 				if( ModbusDebugLevel>=2 )
-					printf("Connecting I/O module...\n");
+					printf(_("Connecting I/O module...\n"));
 				/* Establish the connection with the I/O module */
 				if (connect(client_s, (struct sockaddr *) &io_module_addr, sizeof(io_module_addr)) >= 0)
 				{
@@ -213,18 +217,18 @@ char VerifyTcpConnection( char * SlaveAdr )
 					}
 					else
 					{
-						printf("Not able to retrieve IP address in modbus table, huhh?!!!\n");
+						printf(_("Not able to retrieve IP address in modbus table, huhh?!!!\n"));
 					}
 				}
 				else
 				{
-					printf("Failed  to connect to I/O module\n"); 
+					printf(_("Failed  to connect to I/O module\n")); 
 				}
 			}
 		}
 		else
 		{
-			printf("Too much IP connections under run...\n");
+			printf(_("Too much IP connections under run...\n"));
 		}
 	}
 	else
@@ -241,13 +245,13 @@ int SendSocketModbusMaster( char * SlaveAdr, int NumPort, char * Frame, int LgtF
 	if ( VerifyTcpConnection( SlaveAdr ) )
 	{
 		if( ModbusDebugLevel>=2 )
-			printf("INFO CLASSICLADDER-   Sending frame to I/O module...\n");
+			printf(_("INFO CLASSICLADDER-   Sending frame to I/O module...\n"));
 		/* Send the modbus frame */
 		LgtSend = send(client_s, Frame, LgtFrame, 0);
 		if ( LgtSend==LgtFrame )
 			Status = 0;
 		else
-		printf("ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n",LgtSend);
+		printf(_("ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"),LgtSend);
 	}
 	return Status;
 }
@@ -268,7 +272,7 @@ int WaitRespSocketModbusMaster( char * Buff, int BuffSize, int TimeOutResponseMi
 		if ( recep_descrip>0 )
 		{
 		int bytesRcvd;
-		if( ModbusDebugLevel>=2 )   {printf("INFO CLASSICLADDER-   waiting for slave response...\n");}
+		if( ModbusDebugLevel>=2 )   {printf(_("INFO CLASSICLADDER-   waiting for slave response...\n"));}
 		if ((bytesRcvd = recv(client_s, Buff, BuffSize, 0)) > 0)    {ResponseSize = bytesRcvd;}
 		}
 	
@@ -300,7 +304,7 @@ void CloseSocketModbusMaster( void )
 	}
 	if ( ModbusSerialPortNameUsed[ 0 ]!='\0' )
 		SerialClose( );
-	printf("INFO CLASSICLADDER---I/O modbus master closed!\n");
+	printf(_("INFO CLASSICLADDER---I/O modbus master closed!\n"));
 }
 
 void SocketModbusMasterLoop( void )
@@ -349,7 +353,7 @@ void SocketModbusMasterLoop( void )
 				    {
 				    	// useful for USB-RS485 dongle...
 				    	if( ModbusDebugLevel>=3 )
-						printf("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n",ModbusTimeAfterTransmit);
+						printf(_("INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"),ModbusTimeAfterTransmit);
 					DoPauseMilliSecs( ModbusTimeAfterTransmit );
 			    	    }
 				
@@ -359,7 +363,7 @@ void SocketModbusMasterLoop( void )
 					ResponseSize = SerialReceive( ResponseFrame, 800, ModbusTimeOutReceipt );
 				    NbrFrames++;
 				    if ( ResponseSize==0 )
-					printf("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n", ++CptErrors, NbrFrames);
+					printf(_("ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"), ++CptErrors, NbrFrames);
 				    if ( !TreatModbusMasterResponse( (unsigned char *)ResponseFrame, ResponseSize ) )
 				    {
 					// trouble? => flush all (perhaps we can receive now responses for old asks

@@ -535,7 +535,7 @@ d'exécution, le contrôle manuel n'est pas disponible.
 Certains des éléments décrits plus bas ne sont pas disponibles sur toutes
 les machines. Quand AXIS détecte qu'une pin particulière n'est pas connectée
 dans le fichier HAL, l'élément correspondant de l'onglet 'Contrôle manuel' est
-supprimé. Par exemple, si la pin HAL 'motion.spindle-brake' n'est pas connectée,
+supprimé. Par exemple, si la pin HAL 'spindle.0.brake' n'est pas connectée,
 alors le bouton 'Frein de broche' n'apparaîtra pas sur l'écran.
 Si la variable d'environnement AXIS_NO_AUTOCONFIGURE est mise à 1,
 ce comportement est désactivé et tous les boutons sont visibles.
@@ -665,7 +665,7 @@ En déplaçant ce curseur, la vitesse programmée de la broche peut être
 modifiée. Par exemple, si un programme requiert une vitesse à F8000 et
 que le curseur est placé sur 80%, alors la fréquence de rotation
 résultante sera de *F6400*. Cet élément n'apparaît que si la 'HAL pin'
-'motion.spindle-speed-out' est connectée dans le fichier .hal.
+'spindle.0.speed-out' est connectée dans le fichier .hal.
 
 === Vitesse de Jog
 (((Vitesse de jog))) 

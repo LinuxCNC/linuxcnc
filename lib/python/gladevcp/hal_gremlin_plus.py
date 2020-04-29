@@ -38,7 +38,7 @@ if 'glade' in sys.argv[0] and 'gladevcp' not in sys.argv[0]:
             break
 g_alive = not g_is_glade
 #-----------------------------------------------------------------------------
-import hal_actions
+from . import hal_actions
 class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
     """HAL_GremlinPlus: gladevcp widget for gremlin_view.GremlinView
        Provides hal_gremlin with some buttons

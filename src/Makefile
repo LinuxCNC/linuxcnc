@@ -1,3 +1,16 @@
+# buster gcc (Debian 8.3.0-6) emits many warnings
+# use at your own risk
+ifeq ($(origin SUPPRESS_WARNINGS), undefined)
+else
+  QUIETFLAGS    ?=
+  QUIETFLAGS    += -Wno-unused-label
+  QUIETFLAGS    += -Wno-format-overflow
+  QUIETFLAGS    += -Wno-format-truncation
+  QUIETFLAGS    += -Wno-stringop-truncation
+  CXXQUIETFLAGS := $(QUIETFLAGS)
+  CXXQUIETFLAGS += -Wno-catch-value
+endif
+
 ifeq ($(origin KERNELRELEASE), undefined)
 MAKEFLAGS += --warn-undefined-variables
 endif
@@ -84,6 +97,8 @@ endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
+            > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -115,13 +130,15 @@ SUBDIRS := \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
     \
-    hal/components hal/drivers hal/user_comps/devices hal/user_comps/mb2hal \
+    hal/components hal/drivers hal/drivers/mesa-hostmot2 \
+    hal/user_comps/devices hal/user_comps/mb2hal \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
     hal/user_comps/vfdb_vfd hal/user_comps/wj200_vfd \
     hal/user_comps/huanyang-vfd \
+	hal/user_comps/xhc-whb04b-6 \
     \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui \
+    emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
@@ -185,18 +202,21 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
 INCLUDE += -I$(INCLUDEPY)
+INCLUDE += $(LIBTIRPC_CFLAGS)
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
+DEBUG := $(DEBUG) -g -Wall -Werror=implicit-function-declaration
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual
+CXXFLAGS += $(call cxx-option, -Wno-psabi)
+CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
 
 ifeq ($(RUN_IN_PLACE),yes)
-LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
+LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR) $(LIBTIRPC_LIBS)
 else
-LDFLAGS := -Wl,-rpath-link,../lib
+LDFLAGS := -Wl,-rpath-link,../lib $(LIBTIRPC_LIBS)
 endif
 
 # Rules to make .o (object) files
@@ -276,6 +296,7 @@ HEADERS := \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
     emc/kinematics/genserkins.h \
+    emc/kinematics/pentakins.h \
     emc/kinematics/pumakins.h \
     emc/tp/tc.h \
     emc/tp/tc_types.h \
@@ -287,6 +308,7 @@ HEADERS := \
     emc/motion/emcmotcfg.h \
     emc/motion/motion.h \
     emc/motion/simple_tp.h \
+    emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
@@ -301,10 +323,14 @@ HEADERS := \
     emc/nml_intf/motion_types.h \
     emc/nml_intf/debugflags.h \
     emc/rs274ngc/interp_internal.hh \
+    emc/rs274ngc/interp_fwd.hh \
     emc/rs274ngc/interp_base.hh \
+    emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
+    emc/rs274ngc/saicanon.hh \
     hal/hal.h \
     hal/hal_parport.h \
+    hal/drivers/mesa-hostmot2/hostmot2-serial.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -526,7 +552,7 @@ install-menus install-menu: $(MENUS)
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=NEWS README AUTHORS
+DOCS=README AUTHORS
 
 DOCS_HELP=$(call GLOB,../docs/help/*)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
@@ -560,6 +586,10 @@ install-dirs:
 		$(DESTDIR)$(datadir)/axis/tcl \
 		$(DESTDIR)$(datadir)/gscreen/images \
 		$(DESTDIR)$(datadir)/gscreen/skins \
+		$(DESTDIR)$(datadir)/qtvcp/images \
+		$(DESTDIR)$(datadir)/qtvcp/screens \
+		$(DESTDIR)$(datadir)/qtvcp/panels \
+		$(DESTDIR)$(datadir)/qtvcp/widgets_ui \
 		$(DESTDIR)$(datadir)/gmoccapy/images \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
@@ -581,7 +611,6 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
-	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 	$(FILE) ../lib/hallib/*   $(DESTDIR)$(datadir)/linuxcnc/hallib
 
@@ -603,7 +632,8 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/update_ini $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/halreport $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
@@ -644,6 +674,14 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.5
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.7
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.9
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/lib
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/plugins
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/widgets
+	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp/widgets/widget_icons
 	$(DIR) $(DESTDIR)$(SITEPY)/gmoccapy
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(DIR) $(DESTDIR)$(SITEPY)/stepconf
@@ -653,6 +691,15 @@ install-python: install-dirs
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
+	$(FILE) ../lib/python/qtvcp/*.py ../lib/python/qtvcp/*.ui ../lib/python/qtvcp/*.txt $(DESTDIR)$(SITEPY)/qtvcp
+	$(FILE) ../lib/python/qtvcp/designer/*.txt $(DESTDIR)$(SITEPY)/qtvcp/designer
+	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.5/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.5
+	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.7/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.7
+	$(FILE) ../lib/python/qtvcp/designer/x86_64/qt5.9/*.gz $(DESTDIR)$(SITEPY)/qtvcp/designer/x86_64/qt5.9
+	$(FILE) ../lib/python/qtvcp/widgets/*.py $(DESTDIR)$(SITEPY)/qtvcp/widgets
+	$(FILE) ../lib/python/qtvcp/widgets/widget_icons/*.png ../lib/python/qtvcp/widgets/widget_icons/*.gif $(DESTDIR)$(SITEPY)/qtvcp/widgets/widget_icons
+	$(FILE) ../lib/python/qtvcp/plugins/*.py $(DESTDIR)$(SITEPY)/qtvcp/plugins
+	$(FILE) ../lib/python/qtvcp/lib/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib
 	$(FILE) ../lib/python/gmoccapy/*.py $(DESTDIR)$(SITEPY)/gmoccapy
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
@@ -675,6 +722,7 @@ install-python: install-dirs
 	$(EXE) ../bin/image-to-gcode $(DESTDIR)$(bindir)
 	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
@@ -686,6 +734,10 @@ install-python: install-dirs
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
+	$(TREE) ../share/qtvcp/images/* $(DESTDIR)$(datadir)/qtvcp/images
+	$(TREE) ../share/qtvcp/screens/* $(DESTDIR)$(datadir)/qtvcp/screens
+	$(TREE) ../share/qtvcp/panels/* $(DESTDIR)$(datadir)/qtvcp/panels
+	$(TREE) ../share/qtvcp/widgets_ui/* $(DESTDIR)$(datadir)/qtvcp/widgets_ui
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 
 install-kernel-dep:
@@ -719,7 +771,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/../include -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
@@ -731,6 +783,7 @@ EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -
 ifneq ($(KERNELRELEASE),)
 ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
 EXTRA_CFLAGS += -msse
+EXTRA_CFLAGS += -g
 endif
 endif
 
@@ -830,31 +883,47 @@ hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 
+#Don't attempt to build Pi / Beaglebone GPIO for RTAI
+ifeq ($(BUILD_SYS),uspace)
+obj-$(CONFIG_HAL_BB_GPIO) += hal_bb_gpio.o
+hal_bb_gpio-objs  :=			\
+    hal/drivers/hal_bb_gpio.o	\
+    $(MATHSTUB)
+obj-$(CONFIG_HAL_PI_GPIO) += hal_pi_gpio.o
+hal_pi_gpio-objs := 				\
+    hal/drivers/hal_pi_gpio.o 		\
+    hal/drivers/cpuinfo.o 		\
+    $(MATHSTUB)
+endif
+
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
 ifeq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o hal_bb_gpio.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
-    hal/drivers/mesa-hostmot2/ioport.o	  \
-    hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/abs_encoder.o\
-	hal/drivers/mesa-hostmot2/resolver.o  \
-    hal/drivers/mesa-hostmot2/pwmgen.o	  \
-    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
-	hal/drivers/mesa-hostmot2/sserial.o   \
-    hal/drivers/mesa-hostmot2/stepgen.o   \
-	hal/drivers/mesa-hostmot2/bspi.o	  \
-	hal/drivers/mesa-hostmot2/uart.o	  \
-    hal/drivers/mesa-hostmot2/pktuart.o   \
-    hal/drivers/mesa-hostmot2/watchdog.o  \
-    hal/drivers/mesa-hostmot2/pins.o	  \
-    hal/drivers/mesa-hostmot2/dpll.o  \
-    hal/drivers/mesa-hostmot2/led.o	  \
-    hal/drivers/mesa-hostmot2/ssr.o       \
-    hal/drivers/mesa-hostmot2/tram.o	  \
-    hal/drivers/mesa-hostmot2/raw.o	  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    hal/drivers/mesa-hostmot2/bspi.o	  \
+    hal/drivers/mesa-hostmot2/dpll.o	  \
+    hal/drivers/mesa-hostmot2/encoder.o   \
+    hal/drivers/mesa-hostmot2/inm.o	  \
+    hal/drivers/mesa-hostmot2/inmux.o	  \
+    hal/drivers/mesa-hostmot2/ioport.o	  \
+    hal/drivers/mesa-hostmot2/led.o	  \
+    hal/drivers/mesa-hostmot2/pins.o	  \
+    hal/drivers/mesa-hostmot2/pktuart.o   \
+    hal/drivers/mesa-hostmot2/pwmgen.o	  \
+    hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/resolver.o  \
+    hal/drivers/mesa-hostmot2/sserial.o   \
+    hal/drivers/mesa-hostmot2/ssr.o       \
+    hal/drivers/mesa-hostmot2/stepgen.o   \
+    hal/drivers/mesa-hostmot2/tp_pwmgen.o \
+    hal/drivers/mesa-hostmot2/tram.o	  \
+    hal/drivers/mesa-hostmot2/uart.o	  \
+    hal/drivers/mesa-hostmot2/watchdog.o  \
+    hal/drivers/mesa-hostmot2/xy2mod.o    \
     $(MATHSTUB)
 hm2_7i90-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i90.o  \
@@ -876,9 +945,6 @@ hm2_spi-objs  :=			  \
     $(MATHSTUB)
 hm2_rpspi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_rpspi.o   \
-    $(MATHSTUB)
-hal_bb_gpio-objs  :=			  \
-    hal/drivers/hal_bb_gpio.o		  \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -910,6 +976,7 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
+trivkins-objs += emc/kinematics/kins_util.o
 
 obj-m += 5axiskins.o
 5axiskins-objs := emc/kinematics/5axiskins.o
@@ -939,6 +1006,11 @@ genserkins-objs := emc/kinematics/genserkins.o
 genserkins-objs += libnml/posemath/gomath.o
 genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
+obj-m += pentakins.o
+pentakins-objs := emc/kinematics/pentakins.o
+pentakins-objs += libnml/posemath/_posemath.o
+pentakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+
 obj-m += pumakins.o
 pumakins-objs := emc/kinematics/pumakins.o
 pumakins-objs += libnml/posemath/_posemath.o
@@ -956,8 +1028,12 @@ rotarydeltakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-m += xyzac-trt-kins.o
 xyzac-trt-kins-objs := emc/kinematics/xyzac-trt-kins.o
+xyzac-trt-kins-objs += emc/kinematics/kins_util.o
+
 obj-m += xyzbc-trt-kins.o
 xyzbc-trt-kins-objs := emc/kinematics/xyzbc-trt-kins.o
+xyzbc-trt-kins-objs += emc/kinematics/kins_util.o
+
 obj-m += rosekins.o
 rosekins-objs := emc/kinematics/rosekins.o
 
@@ -1005,7 +1081,8 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI $(EXTRA_CFLAGS) \
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI -I../include \
+		$(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 endif
@@ -1076,6 +1153,7 @@ endif
 ../rtlib/lineardeltakins$(MODULE_EXT): $(addprefix objects/rt,$(lineardeltakins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
 ../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
+../rtlib/pentakins$(MODULE_EXT): $(addprefix objects/rt,$(pentakins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/rotarydeltakins$(MODULE_EXT): $(addprefix objects/rt,$(rotarydeltakins-objs))
@@ -1096,6 +1174,7 @@ endif
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
+../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

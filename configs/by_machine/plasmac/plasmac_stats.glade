@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.18"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkTable" id="stats-box">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="border_width">4</property>
+        <property name="n_rows">11</property>
+        <property name="n_columns">10</property>
+        <property name="homogeneous">True</property>
+        <signal name="destroy" handler="on_stats_box_destroy" swapped="no"/>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">ITEM</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">JOB</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">TOTAL</property>
+            <attributes>
+              <attribute name="weight" value="bold"/>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="pierce-count-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Pierce Count</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="pierce-count">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">000</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="pierce-countT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">000</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="pierce-count-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-length-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Cut Distance</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-length">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">000</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-lengthT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">000</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="cut-length-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-time-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Cut Time</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-time">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="cut-timeT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="cut-time-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="torch-on-time-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Torch On Time</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="torch-time">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="torch-timeT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="torch-time-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="run-time-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Program Run Time</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="run-time">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="run-timeT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="run-time-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="rapid-time-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Rapid Time</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="rapid-time">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="rapid-timeT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="rapid-time-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="probe-time-label">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">Probe Time</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="probe-time">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">4</property>
+            <property name="right_attach">7</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="probe-time-reset">
+            <property name="label" translatable="yes">Reset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="probe-timeT">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">1</property>
+            <property name="label" translatable="yes">00:00:00</property>
+            <attributes>
+              <attribute name="size" value="14000"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="left_attach">7</property>
+            <property name="right_attach">10</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="HAL_Button" id="all-reset">
+            <property name="label" translatable="yes">Reset All</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="right_attach">2</property>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+            <property name="y_options">GTK_EXPAND</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

@@ -3,6 +3,7 @@
  N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
  N..... SET_XY_ROTATION(0.0000)
  N..... SET_FEED_REFERENCE(CANON_XYZ)
+ N..... ON_RESET()
  N..... COMMENT("test.ngc: running m405")
  N..... COMMENT("body_M405 begin")
  N..... STRAIGHT_TRAVERSE(0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -32,3 +33,4 @@
  N..... COMMENT("epilog_M406 end")
  N..... COMMENT("test.ngc: finished")
  N..... FINISH()
+ N..... ON_RESET()

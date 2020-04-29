@@ -21,7 +21,7 @@ addf stepgen.capture-position servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
 addf stepgen.update-freq servo-thread
-net spindle-cmd <= motion.spindle-speed-out
+net spindle-cmd <= spindle.0.speed-out
 
 net xstep => parport.0.pin-02-out
 setp parport.0.pin-02-out-reset 1

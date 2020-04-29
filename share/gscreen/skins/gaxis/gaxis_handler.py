@@ -143,7 +143,9 @@ class HandlerClass:
         self.gscreen.init_show_windows()
         self.gscreen.init_dynamic_tabs()
         self.gscreen.init_embeded_terminal()
-        self.gscreen.change_theme(self.data.theme_name)
+        #self.gscreen.change_theme(self.data.theme_name)
+        settings = gtk.settings_get_default()
+        settings.set_string_property("gtk-theme-name", 'Link to gaxis_theme', "")
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
         for num,i in enumerate(self.data.jog_increments):

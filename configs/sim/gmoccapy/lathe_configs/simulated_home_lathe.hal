@@ -1,0 +1,21 @@
+loadrt comp names=comp_x,comp_z
+
+addf comp_x servo-thread
+addf comp_z servo-thread
+
+net Xhomeswpos => comp_x.in0
+net Zhomeswpos => comp_z.in0
+
+sets Xhomeswpos 1
+sets Zhomeswpos 2
+
+net Xpos => comp_x.in1
+net Zpos => comp_z.in1
+
+setp comp_x.hyst .02
+setp comp_z.hyst .02
+
+net Xhomesw <= comp_x.out => joint.0.home-sw-in
+net Zhomesw <= comp_z.out => joint.1.home-sw-in
+
+

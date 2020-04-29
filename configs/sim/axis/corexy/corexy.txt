@@ -1,3 +1,0 @@
-corexy.ini -- CoreXY simulation
-
-$ man kins for more info

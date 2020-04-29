@@ -127,7 +127,15 @@ typedef union {
     hal_s32_t s;
     hal_u32_t u;
     hal_float_t f;
+    hal_port_t p;
 } hal_data_u;
+
+typedef struct {
+    volatile unsigned int read;  //offset into buff that outgoing data gets read from
+    volatile unsigned int write; //offset into buff that incoming data gets written to
+    unsigned int size;           //size of allocated buffer
+    char buff[];                 
+} hal_port_shm_t;
 
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
@@ -141,8 +149,8 @@ typedef union {
     inside a larger structure.
 */
 typedef struct {
-    int next;			/* next element in list */
-    int prev;			/* previous element in list */
+    rtapi_intptr_t next;			/* next element in list */
+    rtapi_intptr_t prev;			/* previous element in list */
 } hal_list_t;
 
 /** HAL "oldname" data structure.
@@ -150,7 +158,7 @@ typedef struct {
     store the original name.
 */
 typedef struct {
-    int next_ptr;		/* next struct (used for free list only) */
+    rtapi_intptr_t next_ptr;		/* next struct (used for free list only) */
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
 
@@ -172,24 +180,24 @@ typedef struct {
 			        /* prefix of name for new instance */
     char constructor_arg[HAL_NAME_LEN+1];
 			        /* prefix of name for new instance */
-    int shmem_bot;		/* bottom of free shmem (first free byte) */
-    int shmem_top;		/* top of free shmem (1 past last free) */
-    int comp_list_ptr;		/* root of linked list of components */
-    int pin_list_ptr;		/* root of linked list of pins */
-    int sig_list_ptr;		/* root of linked list of signals */
-    int param_list_ptr;		/* root of linked list of parameters */
-    int funct_list_ptr;		/* root of linked list of functions */
-    int thread_list_ptr;	/* root of linked list of threads */
+    rtapi_intptr_t shmem_bot;		/* bottom of free shmem (first free byte) */
+    rtapi_intptr_t shmem_top;		/* top of free shmem (1 past last free) */
+    rtapi_intptr_t comp_list_ptr;		/* root of linked list of components */
+    rtapi_intptr_t pin_list_ptr;		/* root of linked list of pins */
+    rtapi_intptr_t sig_list_ptr;		/* root of linked list of signals */
+    rtapi_intptr_t param_list_ptr;		/* root of linked list of parameters */
+    rtapi_intptr_t funct_list_ptr;		/* root of linked list of functions */
+    rtapi_intptr_t thread_list_ptr;	/* root of linked list of threads */
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
-    int oldname_free_ptr;	/* list of free oldname structs */
-    int comp_free_ptr;		/* list of free component structs */
-    int pin_free_ptr;		/* list of free pin structs */
-    int sig_free_ptr;		/* list of free signal structs */
-    int param_free_ptr;		/* list of free parameter structs */
-    int funct_free_ptr;		/* list of free function structs */
+    rtapi_intptr_t oldname_free_ptr;	/* list of free oldname structs */
+    rtapi_intptr_t comp_free_ptr;		/* list of free component structs */
+    rtapi_intptr_t pin_free_ptr;		/* list of free pin structs */
+    rtapi_intptr_t sig_free_ptr;		/* list of free signal structs */
+    rtapi_intptr_t param_free_ptr;		/* list of free parameter structs */
+    rtapi_intptr_t funct_free_ptr;		/* list of free function structs */
     hal_list_t funct_entry_free;	/* list of free funct entry structs */
-    int thread_free_ptr;	/* list of free thread structs */
+    rtapi_intptr_t thread_free_ptr;	/* list of free thread structs */
     int exact_base_period;      /* if set, pretend that rtapi satisfied our
 				   period request exactly */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
@@ -201,7 +209,7 @@ typedef struct {
     component calls hal_init().
 */
 typedef struct {
-    int next_ptr;		/* next component in the list */
+    rtapi_intptr_t next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     int type;			/* 1 if realtime, 0 if not */
@@ -217,7 +225,7 @@ typedef struct {
     This structure contains information about a 'pin' object.
 */
 typedef struct {
-    int next_ptr;		/* next pin in linked list */
+    rtapi_intptr_t next_ptr;		/* next pin in linked list */
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
@@ -232,7 +240,7 @@ typedef struct {
     This structure contains information about a 'signal' object.
 */
 typedef struct {
-    int next_ptr;		/* next signal in linked list */
+    rtapi_intptr_t next_ptr;		/* next signal in linked list */
     int data_ptr;		/* offset of signal value */
     hal_type_t type;		/* data type */
     int readers;		/* number of input pins linked */
@@ -245,7 +253,7 @@ typedef struct {
     This structure contains information about a 'parameter' object.
 */
 typedef struct {
-    int next_ptr;		/* next parameter in linked list */
+    rtapi_intptr_t next_ptr;		/* next parameter in linked list */
     int data_ptr;		/* offset of parameter value */
     int owner_ptr;		/* component that owns this signal */
     int oldname;		/* old name if aliased, else zero */
@@ -271,7 +279,7 @@ typedef struct {
 */
 
 typedef struct {
-    int next_ptr;		/* next function in linked list */
+    rtapi_intptr_t next_ptr;		/* next function in linked list */
     int uses_fp;		/* floating point flag */
     int owner_ptr;		/* component that added this funct */
     int reentrant;		/* non-zero if function is re-entrant */
@@ -294,7 +302,7 @@ typedef struct {
 #define HAL_STACKSIZE 16384	/* realtime task stacksize */
 
 typedef struct {
-    int next_ptr;		/* next thread in linked list */
+    rtapi_intptr_t next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
     long int period;		/* period of the thread, in nsec */
     int priority;		/* priority of the thread */
@@ -329,8 +337,8 @@ typedef struct {
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x0000000D	/* version code */
-#define HAL_SIZE  (75*4096)
+#define HAL_VER   0x0000000F	/* version code */
+#define HAL_SIZE  (85*4096)
 #define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
@@ -426,6 +434,15 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+
+/** hal_port_alloc allocates a new empty hal_port having a buffer of size bytes. 
+    returns a negative value on failure or a hal_port_t which can be used with
+    all other hal_port functions.
+*/
+extern hal_port_t hal_port_alloc(unsigned size);
+
+
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
 struct hal_stream_shm {

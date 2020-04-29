@@ -1,0 +1,56 @@
+; set offsets for current coordinate system (p0)
+; pumakins JOINT HOME positions:
+;          [JOINT_0]HOME=0
+;          [JOINT_1]HOME=0
+;          [JOINT_2]HOME=0
+;          [JOINT_3]HOME=0
+;          [JOINT_4]HOME=0
+;          [JOINT_5]HOME=0
+; pumakins hal settings:
+;          400  pumakins.A2
+;           50  pumakins.A3
+;          100  pumakins.D3
+;          400  pumakins.D4
+;           95  pumakins.D6
+;
+; The following g10l2 commands set offsets for the
+; above HOME positions and hal settings to establish
+; (x,y,z,a,b,c)=(0,0,0,0,0,0) for the current system (p0):
+
+g10l2p0 x   450
+g10l2p0 y   100
+g10l2p0 z  -495
+g10l2p0 a   180
+g10l2p0 b     0
+g10l2p0 c     0
+
+    #<xmin> = -100
+    #<xmax> =  100
+    #<ymin> = -100
+    #<ymax> =  100
+    #<zmin> = -100 
+    #<zmax> =  100
+#<feedrate> = 1000
+
+f #<feedrate>
+g0 x#<xmin> y#<ymin> z#<zmin>
+
+g1 x#<xmax> 
+g1          y#<ymax>
+g1 x#<xmin> 
+g1          y#<ymin>
+g1                   z#<zmax>
+g1 x#<xmax> 
+g1          y#<ymax>
+g1 x#<xmin> 
+g1          y#<ymin>
+
+g0 x#<xmax> y#<ymax>
+g1                   z#<zmin>
+g0 x#<xmin>
+g1                   z#<zmax>
+g0 x#<xmax> y#<ymin>
+g1                   z#<zmin>
+g0 x#<xmin> y#<ymin> z#<zmin>
+ 
+m2

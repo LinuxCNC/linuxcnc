@@ -1,0 +1,15 @@
+; opa_demo.ngc:
+; invoke subroutine circles.ngc for multiple circles (#<revs>)
+; with:
+;      x = #<radius>
+;      z = #<_z>
+
+   #<radius> =     1
+        #<z> = #<_z> ; current value
+   #<aspeed> =     8 ; angular speed (RPM)
+   #<lspeed> =    10 ; linear speed  (units/minute)
+     #<revs> =   100
+
+g0 x#<radius> z#<z>
+o<circles> call [#<radius>][#<aspeed>][#<lspeed>][#<revs>]
+m2

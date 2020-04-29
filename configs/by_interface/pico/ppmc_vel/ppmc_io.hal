@@ -63,13 +63,13 @@ net emc-estop-reset estop-latch.0.reset
 
 # connect spindle fwd/rev to I/O controller
 net SpindleFwd <= ppmc.0.dout.00.out
-net SpindleFwd => motion.spindle-forward
+net SpindleFwd => spindle.0.forward
 net SpindleRev <= ppmc.0.dout.01.out
-net SpindleRev => motion.spindle-reverse
+net SpindleRev => spindle.0.reverse
 
 # connect spindle brake to I/O controller
 net SpindleBrakeOn <= ppmc.0.dout.02.out
-net SpindleBrakeOn => motion.spindle-brake
+net SpindleBrakeOn => spindle.0.brake
 
 # connect mist/flood coolant to I/O controller
 net MistOn <= ppmc.0.dout.03.out

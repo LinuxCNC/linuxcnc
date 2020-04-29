@@ -217,7 +217,7 @@ static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
     return 1;  // success
 }
 
-static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     hm2_pci_t *board = this->private;
     void *dest = board->base + addr;
 

@@ -75,8 +75,8 @@ net mist  iocontrol.0.coolant-mist  parport.0.pin-09-out
 # spindle signals
 # spindle status has not been resolved
 # a simple loop through is set here
-net spindle-forward motion.spindle-forward  parport.0.pin-16-out 
-net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
+net spindle-forward spindle.0.forward  parport.0.pin-16-out 
+net spindle-reverse spindle.0.reverse  parport.0.pin-17-out 
 
 # we will let loopbacks handle tool prepare and change commands 
 # though we could  index an external changer

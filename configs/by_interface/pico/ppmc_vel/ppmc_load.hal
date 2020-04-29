@@ -26,6 +26,10 @@ loadrt pid num_chan=4
 # add port_addr="0x1234" to the following command line
 # timestamp="0x00" turns on timestamp encoder velocity estimation on the
 # first encoder board of the PPMC system.
+# on LinuxCNC versions 2.7.9 and above, a parameter allows you to change the
+#    way the EPP port is controlled.  For PCIe cards using the NetMos 990x
+#    chips, append epp_dir=1 to the end of the following line
+
 loadrt hal_ppmc timestamp="0x00"
 
 # make some signals for the scope for tuning.

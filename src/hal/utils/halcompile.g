@@ -17,10 +17,6 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import print_function
 
-import os, sys, tempfile, shutil, getopt, time
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-sys.path.insert(0, os.path.join(BASE, "lib", "python"))
-
 %%
 parser Hal:
     ignore: "//.*"
@@ -101,6 +97,20 @@ parser Hal:
     rule OptSValue: SValue {{ return SValue }}
                 | {{ return 1 }}
 %%
+
+import os, sys, tempfile, shutil, getopt, time
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+sys.path.insert(0, os.path.join(BASE, "lib", "python"))
+
+MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
+# NOTE: names are assigned dynamically for realtime components (loadrt)
+
+# Components that use 'personality' features statically allocate
+# memory based on MAX_PERSONALITIES (RTAPI_MP_ARRAY_INT)
+# The number can be set with the cmdline option -P|--personalities
+# Smaller values may be useful since the index of the personality
+# exported is computed modulo MAX_PERSONALITIES
+MAX_PERSONALITIES = 64
 
 mp_decl_map = {'int': 'RTAPI_MP_INT', 'dummy': None}
 
@@ -307,7 +317,7 @@ static int comp_id;
     for type, name, default, doc in modparams:
         decl = mp_decl_map[type]
         if decl:
-            print("%s %s" % (type, name), file=f)
+            print("%s %s" % (type, name), end=' ', file=f)
             if default: print("= %s;" % default, file=f)
             else: print(";", file=f)
             print("%s(%s, %s);" % (decl, name, q(doc)), file=f)
@@ -399,8 +409,16 @@ static int comp_id;
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
-            if isinstance(array, tuple): array = array[1]
-            print("    for(j=0; j < (%s); j++) {" % array, file=f)
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("    if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('        rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                '"Pin %s: Requested size %%d exceeds max size %%d\\n",'
+                                '(int)%s, (int)%s);' % (name, cnt, lim), file=f)
+                print("        return -ENOSPC;", file=f)
+                print("    }", file=f)
+            else: cnt = array
+            print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
@@ -422,8 +440,16 @@ static int comp_id;
         if personality:
             print("if(%s) {" % personality, file=f)
         if array:
-            if isinstance(array, tuple): array = array[1]
-            print("    for(j=0; j < %s; j++) {" % array, file=f)
+            if isinstance(array, tuple):
+                lim, cnt = array
+                print("    if((%s) > (%s)) {" % (cnt, lim), file=f)
+                print('        rtapi_print_msg(RTAPI_MSG_ERR,' \
+                                '"Parameter %s: Requested size %%d exceeds max size %%d\\n",'
+                                '(int)%s, (int)%s);' % (name, cnt, lim), file=f)
+                print("        return -ENOSPC;", file=f)
+                print("    }", file=f)
+            else: cnt = array
+            print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
@@ -474,16 +500,38 @@ static int comp_id;
         if not options.get("singleton") and not options.get("count_function") :
             print("static int default_count=%s, count=0;" \
                 % options.get("default_count", 1), file=f)
-            print("char *names[16] = {0,};", file=f)
-            if not options.get("userspace"):
+            if options.get("userspace"):
+                print("char *names[%d] = {0,};"%(MAX_USERSPACE_NAMES), file=f)
+            else:
                 print("RTAPI_MP_INT(count, \"number of %s\");" % comp_name, file=f)
-                print("RTAPI_MP_ARRAY_STRING(names, 16, \"names of %s\");" % comp_name, file=f)
-
+                print("char *names = \"\"; // comma separated names", file=f)
+                print("RTAPI_MP_STRING(names, \"names of %s\");" % comp_name, file=f)
         if has_personality:
             init1 = str(int(options.get('default_personality', 0)))
-            init = ",".join([init1] * 16)
-            print("static int personality[16] = {%s};" % init, file=f)
-            print("RTAPI_MP_ARRAY_INT(personality, 16, \"personality of each %s\");" % comp_name, file=f)
+            init = ",".join([init1] * MAX_PERSONALITIES)
+            print("static int personality[%d] = {%s};" %(MAX_PERSONALITIES,init), file=f)
+            print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
+
+            # Return personality value.
+            # If requested index excedes MAX_PERSONALITIES, use modulo indexing and give message
+            print("""
+            static int p_value(char* cname, char *name, int idx) {
+                int ans = personality[idx%%%d];
+                if (idx >= %d) {
+            """%(MAX_PERSONALITIES,MAX_PERSONALITIES), file=f)
+            print("""
+                    if (name==NULL) {
+                        rtapi_print_msg(RTAPI_MSG_ERR,"%s: instance %d assigned personality=%d(=%#0x)\\n",
+                                        cname, idx, ans, ans);
+                    } else {
+                        rtapi_print_msg(RTAPI_MSG_ERR,"%s: name %s assigned personality=%d(=%#0x)\\n",
+                                        cname, name, ans, ans);
+                    }
+                }
+                return ans;
+            }
+            """, file=f)
+
         print("int rtapi_app_main(void) {", file=f)
         print("    int r = 0;", file=f)
         if not options.get("singleton"):
@@ -508,7 +556,7 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("        r = export(buf, i, personality[i%16]);", file=f)
+                print("        r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
             else:
                 print("        r = export(buf, i);", file=f)
             print("    }", file=f)
@@ -526,26 +574,50 @@ static int comp_id;
                                         "\"%s.%%d\", i);" % \
                     to_hal(removeprefix(comp_name, "hal_")), file=f)
             if has_personality:
-                print("            r = export(buf, i, personality[i%16]);", file=f)
+                print("            r = export(buf, i, p_value(\"%s\", buf, i) );"%comp_name, file=f)
             else:
                 print("            r = export(buf, i);", file=f)
             print("            if(r != 0) break;", file=f)
             print("       }", file=f)
             print("    } else {", file=f)
-            print("        int max_names = sizeof(names)/sizeof(names[0]);", file=f)
-            print("        for(i=0; (i < max_names) && names[i]; i++) {", file=f)
-            print("            if (strlen(names[i]) < 1) {", file=f)
-            print("                rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", i);", file=f)
-            print("                r = -EINVAL;", file=f)
-            print("                break;", file=f)
-            print("            }", file=f)
-            if has_personality:
-                print("            r = export(names[i], i, personality[i%16]);", file=f)
+            if options.get("userspace"):
+                print("        int max_names = sizeof(names)/sizeof(names[0]);", file=f)
+                print("        for(i=0; (i < max_names) && names[i]; i++) {", file=f)
+                print("            if (strlen(names[i]) < 1) {", file=f)
+                print("                rtapi_print_msg(RTAPI_MSG_ERR, \"names[%d] is invalid (empty string)\\n\", i);", file=f)
+                print("                r = -EINVAL;", file=f)
+                print("                break;", file=f)
+                print("            }", file=f)
+                if has_personality:
+                    print("            r = export(names[i], i, p_value(\"%s\", names[i], i) );"%comp_name, file=f)
+                else:
+                    print("            r = export(names[i], i);", file=f)
+                print("            if(r != 0) break;", file=f)
+                print("       }", file=f)
+                print("    }", file=f)
             else:
-                print("            r = export(names[i], i);", file=f)
-            print("            if(r != 0) break;", file=f)
-            print("       }", file=f)
-            print("    }", file=f)
+                print("        int j,idx;", file=f)
+                print("        char *ptr;", file=f)
+                print("        char buf[HAL_NAME_LEN+1];", file=f)
+                print("        ptr = names;", file=f)
+                print("        idx = 0;", file=f)
+                print("        for (i=0,j=0; i <= strlen(names); i++) {", file=f)
+                print("            buf[j] = *(ptr+i);", file=f)
+                print("            if ( (*(ptr+i) == ',') || (*(ptr+i) == 0) ) {", file=f)
+                print("                buf[j] = 0;", file=f)
+                if has_personality:
+                    print("                r = export(buf, idx, p_value(\"%s\", buf, idx) );"%comp_name, file=f)
+                else:
+                    print("                r = export(buf, idx);", file=f)
+                print("                if (*(ptr+i+1) == 0) {break;}", file=f)
+                print("                idx++;", file=f)
+                print("                if(r != 0) {break;}", file=f)
+                print("                j=0;", file=f)
+                print("            } else {", file=f)
+                print("                j++;", file=f)
+                print("            }", file=f)
+                print("        }", file=f)
+                print("    }", file=f)
 
         if options.get("constructable") and not options.get("singleton"):
             print("    hal_set_constructor(comp_id, export_1);", file=f)
@@ -571,7 +643,8 @@ static int comp_id;
         if options.get("userinit"):
             print("static void userinit(int argc, char **argv);", file=f)
 
-        print("""
+        if not options.get("singleton"):
+            print("""
 int __comp_parse_count(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -591,7 +664,7 @@ int __comp_parse_count(int *argc, char **argv) {
     return 0;
 }
 """, file=f)
-        print("""
+            print("""
 int __comp_parse_names(int *argc, char **argv) {
     int i;
     for (i = 0; i < *argc; i ++) {
@@ -603,7 +676,7 @@ int __comp_parse_names(int *argc, char **argv) {
             }
             argv[i] = NULL;
             (*argc)--;
-            for (j = 0; j < 16; j ++) {
+            for (j = 0; j < %d; j ++) {
                 names[j] = strtok(p, ",");
                 p = NULL;
                 if (names[j] == NULL) {
@@ -615,17 +688,18 @@ int __comp_parse_names(int *argc, char **argv) {
     }
     return 0;
 }
-""", file=f)
+"""%MAX_USERSPACE_NAMES, file=f)
         print("int argc=0; char **argv=0;", file=f)
         print("int main(int argc_, char **argv_) {"    , file=f)
         print("    argc = argc_; argv = argv_;", file=f)
-        print("    int found_count, found_names;", file=f)
-        print("    found_count = __comp_parse_count(&argc, argv);", file=f)
-        print("    found_names = __comp_parse_names(&argc, argv);", file=f)
-        print("    if (found_count && found_names) {", file=f)
-        print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
-        print("        return 1;", file=f)
-        print("    }", file=f)
+        if not options.get("singleton"):
+            print("    int found_count, found_names;", file=f)
+            print("    found_count = __comp_parse_count(&argc, argv);", file=f)
+            print("    found_names = __comp_parse_names(&argc, argv);", file=f)
+            print("    if (found_count && found_names) {", file=f)
+            print("        rtapi_print_msg(RTAPI_MSG_ERR, \"count= and names= are mutually exclusive\\n\");", file=f)
+            print("        return 1;", file=f)
+            print("    }", file=f)
         if options.get("userinit", 0):
             print("    userinit(argc, argv);", file=f)
         print("", file=f)
@@ -678,7 +752,11 @@ int __comp_parse_names(int *argc, char **argv) {
 
         if options.get("userspace"):
             print("#undef FOR_ALL_INSTS", file=f)
-            print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
+            if options.get("singleton"):
+                print("#define __comp_inst __comp_first_inst", file=f)
+                print("#define FOR_ALL_INSTS()", file=f)
+            else:
+                print("#define FOR_ALL_INSTS() struct __comp_state *__comp_inst; for(__comp_inst = __comp_first_inst; __comp_inst; __comp_inst = __comp_inst->_next)", file=f)
     print("", file=f)
     print("", file=f)
 
@@ -711,7 +789,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", "")), file=f)
     print("include %s" % find_modinc(), file=f)
@@ -827,16 +905,16 @@ def document(filename, outfilename):
             print(".HP", file=f)
             if options.get("singleton") or options.get("count_function"):
                 if has_personality:
-                    print(".B loadrt %s personality=\\fIP\\fB" % comp_name, file=f)
+                    print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s" % comp_name, file=f)
+                    print(".B loadrt %s" % comp_name, end='', file=f)
             else:
                 if has_personality:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, end='', file=f)
                 else:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:
-                print("[%s=\\fIN\\fB]" % name, file=f)
+                print(" [%s=\\fIN\\fB]" % name, end='', file=f)
             print("", file=f)
 
             hasparamdoc = False
@@ -847,9 +925,9 @@ def document(filename, outfilename):
                 print(".RS 4", file=f)
                 for type, name, default, doc in modparams:
                     print(".TP", file=f)
-                    print("\\fB%s\\fR" % name, file=f)
+                    print("\\fB%s\\fR" % name, end='', file=f)
                     if default:
-                        print("[default: %s]" % default, file=f)
+                        print(" [default: %s]" % default, file=f)
                     else:
                         print("", file=f)
                     print(doc, file=f)
@@ -867,9 +945,9 @@ def document(filename, outfilename):
         print(".SH FUNCTIONS", file=f)
         for _, name, fp, doc in finddocs('funct'):
             print(".TP", file=f)
-            print("\\fB%s\\fR" % to_hal_man(name), file=f)
+            print("\\fB%s\\fR" % to_hal_man(name), end='', file=f)
             if fp:
-                print("(requires a floating-point thread)", file=f)
+                print(" (requires a floating-point thread)", file=f)
             else:
                 print("", file=f)
             print(doc, file=f)
@@ -878,16 +956,16 @@ def document(filename, outfilename):
     print(".SH PINS", file=f)
     for _, name, type, array, dir, doc, value, personality in finddocs('pin'):
         print(lead, file=f)
-        print(".B %s\\fR" % to_hal_man(name), file=f)
-        print(type, dir, file=f)
+        print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+        print(type, dir, end=' ', file=f)
         if array:
             sz = name.count("#")
             if isinstance(array, tuple):
-                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), file=f)
+                print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
             else:
-                print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), file=f)
+                print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
         if personality:
-            print(" [if %s]" % personality, file=f)
+            print(" [if %s]" % personality, end=' ', file=f)
         if value:
             print("\\fR(default: \\fI%s\\fR)" % value, file=f)
         else:
@@ -903,16 +981,16 @@ def document(filename, outfilename):
         print(".SH PARAMETERS", file=f)
         for _, name, type, array, dir, doc, value, personality in finddocs('param'):
             print(lead, file=f)
-            print(".B %s\\fR" % to_hal_man(name), file=f)
-            print(type, dir, file=f)
+            print(".B %s\\fR" % to_hal_man(name), end=' ', file=f)
+            print(type, dir, end=' ', file=f)
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), file=f)
+                    print(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]), end=' ', file=f)
                 else:
-                    print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), file=f)
+                    print(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1), end=' ', file=f)
             if personality:
-                print(" [if %s]" % personality, file=f)
+                print(" [if %s]" % personality, end=' ', file=f)
             if value:
                 print("\\fR(default: \\fI%s\\fR)" % value, file=f)
             else:
@@ -1009,11 +1087,16 @@ Usage:
     [sudo] %(name)s --install --userspace cfile...
     [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
-""" % {'name': os.path.basename(sys.argv[0])})
+
+Option to set maximum 'personalities' items:
+    --personalities=integer_value   (default is %(dflt)d)
+""" % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)
 
 def main():
     global require_license
+    global MAX_USERSPACE_NAMES
+    global MAX_PERSONALITIES
     require_license = True
     global require_unix_line_endings
     require_unix_line_endings = False
@@ -1021,10 +1104,11 @@ def main():
     outfile = None
     userspace = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?P:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc', 'require-license', 'print-modinc'])
+                            'view-doc', 'require-license', 'print-modinc',
+                            'personalities='])
     except getopt.GetoptError:
         usage(1)
 
@@ -1053,6 +1137,12 @@ def main():
             if len(args) != 1:
                 raise SystemExit("Cannot specify -o with multiple input files")
             outfile = v 
+        if k in ("-P", "--personalities"):
+            try:
+                MAX_PERSONALITIES = int(v)
+                print("MAX_PERSONALITIES=%d"%(MAX_PERSONALITIES))
+            except Exception as detail:
+                raise SystemExit("Bad value for -P (--personalities)=",v,"\n",detail)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
@@ -1110,9 +1200,9 @@ def main():
                     shutil.rmtree(tempdir) 
             else:
                 raise SystemExit("Unrecognized file type for mode %s: %r" % (modename[mode], f))
-        except:
+        except Exception as e:
             try:
-                os.unlink(outfile)
+                if outfile is not None: os.unlink(outfile)
             except: # os.error:
                 pass
             raise

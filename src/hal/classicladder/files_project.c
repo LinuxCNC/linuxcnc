@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -39,6 +42,7 @@
 #include "files.h"
 #include "files_sequential.h"
 #include "files_project.h"
+#include <rtapi_string.h>
 
 
 //#ifdef GTK_INTERFACE
@@ -55,7 +59,7 @@
 #endif
 void VerifyDirectorySelected( char * NewDir )
 {
-	strcpy( InfosGene->CurrentProjectFileName, NewDir );
+	rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewDir );
 	if (strlen(InfosGene->CurrentProjectFileName)>1)
 	{
 		if ( strcmp( &NewDir[ strlen( NewDir ) -4 ], ".clp" )!=0 )
@@ -79,7 +83,7 @@ void VerifyDirectorySelected( char * NewDir )
 				}
 				else
 				{
-					printf("ERROR with path directory given for project !!!\n");
+					printf(_("ERROR with path directory given for project !!!\n"));
 					InfosGene->CurrentProjectFileName[ 0 ] = '\0';
 				}
 			}
@@ -90,7 +94,7 @@ void VerifyDirectorySelected( char * NewDir )
 					closedir(pDir);
 				}
 				if (InfosGene->CurrentProjectFileName[strlen(InfosGene->CurrentProjectFileName)-1]!=CAR_SEP)
-					strcat( InfosGene->CurrentProjectFileName, "/" );
+					rtapi_strxcat( InfosGene->CurrentProjectFileName, "/" );
 			}
 			//printf("DIRECTORY PROJECT = %s\n",CurrentProjectFileName);
 		}
@@ -106,14 +110,14 @@ void InitTempDir( void )
 		TmpEnv = "/tmp";
 
 	// get a single name directory
-	sprintf( TmpDirectory, "%s/classicladder_tmp_XXXXXX", TmpEnv );
+	snprintf(TmpDirectory, sizeof(TmpDirectory), "%s/classicladder_tmp_XXXXXX", TmpEnv );
 #ifndef __WIN32__
 	if ( mkdtemp( TmpDirectory )==NULL )
 #else
 	if ( mktemp( TmpDirectory )==NULL )
 #endif
 	{
-		sprintf( TmpDirectory, "%s/classicladder_tmp", TmpEnv );
+		snprintf(TmpDirectory, sizeof(TmpDirectory), "%s/classicladder_tmp", TmpEnv );
 #ifndef __WIN32__
 		mkdir( TmpDirectory, S_IRWXU );
 #else
@@ -167,7 +171,7 @@ char LoadGeneralParamsOnlyFromProject( char * FileProject )
 	{
 		// split files of the project in the temp directory
 		Result = SplitFiles( FileProject, TmpDirectory );
-		sprintf(FileName,"%s/general.txt",TmpDirectory);
+		snprintf(FileName, sizeof(FileName),"%s/general.txt",TmpDirectory);
 		LoadGeneralParameters( FileName );
 	}
 	return Result;
@@ -177,7 +181,7 @@ char SaveProjectFiles( char * FileProject )
 {
 	if ( TmpDirectory[ 0 ]=='\0' )
 		InitTempDir( );
-printf("Save project '%s' from tmp dir=%s\n", FileProject, TmpDirectory);
+printf(_("Save project '%s' from tmp dir=%s\n"), FileProject, TmpDirectory);
 	SaveAllLadderDatas( TmpDirectory );
 	if ( strcmp( &FileProject[ strlen( FileProject ) -4 ], ".clp" )!=0 )
 		strcat( FileProject, ".clp" );
@@ -215,11 +219,11 @@ char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 				{
 					FILE * pParametersFile;
 ////WIN32PORT added /
-					sprintf(Buff, "%s/%s", TmpDirectoryFiles,pEnt->d_name);
+					snprintf(Buff, sizeof(Buff), "%s/%s", TmpDirectoryFiles,pEnt->d_name);
 					pParametersFile = fopen( Buff, "rt" );
 					if (pParametersFile)
 					{
-						sprintf( BuffTemp, FILE_HEAD "%s\n", pEnt->d_name );
+						snprintf(BuffTemp, sizeof(BuffTemp), FILE_HEAD "%s\n", pEnt->d_name );
 						fputs( BuffTemp, pProjectFile );
 						while( !feof( pParametersFile ) )
 						{
@@ -230,7 +234,7 @@ char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 							}
 						}
 						fclose( pParametersFile );
-						sprintf( BuffTemp, "_/FILE-%s\n", pEnt->d_name );
+						snprintf(BuffTemp, sizeof(BuffTemp), "_/FILE-%s\n", pEnt->d_name );
 						fputs( BuffTemp, pProjectFile );
 					}
 				}
@@ -257,7 +261,7 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 	FILE * pProjectFile;
 	FILE * pParametersFile;
 	char ParametersFile[300];
-	strcpy(ParametersFile,"");
+	rtapi_strxcpy(ParametersFile,"");
 
 	pProjectFile = fopen( DirAndNameOfProject, "rb" );
 	if ( pProjectFile )
@@ -275,7 +279,8 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 					if (strncmp(Buff,FILE_HEAD,STR_LEN_FILE_HEAD) ==0)
 					{
 ////WIN32PORT added /
-						sprintf(ParametersFile, "%s/%s", TmpDirectoryFiles, &Buff[STR_LEN_FILE_HEAD]);
+						size_t ret = snprintf(ParametersFile, sizeof(ParametersFile), "%s/%s", TmpDirectoryFiles, &Buff[STR_LEN_FILE_HEAD]);
+						if (ret >= sizeof(ParametersFile)) ProjectFileOk = FALSE;
 						ParametersFile[ strlen( ParametersFile )-1 ] = '\0';
 //WIN32PORT
 if ( ParametersFile[ strlen(ParametersFile)-1 ]=='\r' )

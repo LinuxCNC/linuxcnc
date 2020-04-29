@@ -23,11 +23,18 @@
 from xml.dom.minidom import parseString
 import sys
 import os
+<<<<<<< HEAD
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
 
 
+=======
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+>>>>>>> upstream/master
 filter = Gtk.FileFilter()
 filter.add_pattern("*.xml")
 filter.set_name(_("Mach configuration files"))

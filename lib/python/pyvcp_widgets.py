@@ -46,7 +46,7 @@
     of HAL pin compname.my-led 
 """
 
-
+from __future__ import print_function
 from Tkinter import *
 from hal import *
 import math
@@ -427,8 +427,9 @@ class pyvcp_meter(Canvas):
         x,y = self.p2c(0.8, self.alfa)
         self.coords(self.line,self.mid,self.mid,x,y)
 
-    def draw_region(self, (start, end, color)):
+    def draw_region(self, xxx_todo_changeme):
             #Draws a colored region on the canvas between start and end
+            (start, end, color) = xxx_todo_changeme
             start = self.value2angle(start)
             start = -self.rad2deg(start)
             end = self.value2angle(end)
@@ -638,7 +639,7 @@ class pyvcp_radiobutton(Frame):
     def changed(self):
         index=math.log(self.v.get(),2)
         index=int(index)
-        print "active:",self.halpins[index]
+        print("active:",self.halpins[index])
 
 
 
@@ -739,7 +740,7 @@ class pyvcp_multilabel(Label):
         # if several pins are set one after another, the legend for the
         # last one set will end up being displayed
         index = -1
-        for x in xrange(0, self.num_pins):
+        for x in range(0, self.num_pins):
             state = pycomp[self.halpins[x]]
             if state == 1 :
                 index = x
@@ -747,7 +748,7 @@ class pyvcp_multilabel(Label):
                     break
                 
         if index > -1 and index != self.pin_index:
-            for x in xrange(0, self.num_pins):
+            for x in range(0, self.num_pins):
                 pycomp[self.halpins[x]] = 0
 
             pycomp[self.halpins[index]] = 1
@@ -1112,23 +1113,34 @@ class pyvcp_bar(Canvas):
         <min_>0</min_>
         <max_>150</max_>
         <bgcolor>"grey"</bgcolor>
- 	    <range1>(0,100,"green")</range1>
+        <range1>(0,100,"green")</range1>
         <range2>(101,129,"orange")</range2>
         <range3>(130,150,"red")</range3>
         <fillcolor>"green"</fillcolor>
+        <canvas_width>200</canvas_width>
+        <canvas_height>50</canvas_height>
+        <bar_height>30</bar_height>
+        <bar_width>150</bar_width>
+        <format>"3.1f"</format>
     </bar>
     """
     n=0
 
     def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
-               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,range3=None,**kw):
-    
-        self.cw=200    # canvas width
-        self.ch=50     # canvas height
-        self.bh=30     # bar height
-        self.bw=150    # bar width
+               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
+               range3=None,format='3.1f', canvas_width=200,
+               canvas_height=50, bar_height=30, bar_width=150,**kw):
+
+        self.cw=canvas_width
+        self.ch=canvas_height
+        self.bh=bar_height
+        self.bw=bar_width
+        #self.cw=200    # canvas width
+        #self.ch=50     # canvas height
+        #self.bh=30     # bar height
+        #self.bw=150    # bar width
         self.pad=((self.cw-self.bw)/2)
-		
+
         Canvas.__init__(self,master,width=self.cw,height=self.ch)
 
         if halpin == None:
@@ -1137,7 +1149,7 @@ class pyvcp_bar(Canvas):
         self.halpin=halpin
         self.endval=max_
         self.startval=min_
-
+        self.format = "%" + format
 
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
         
@@ -1154,7 +1166,7 @@ class pyvcp_bar(Canvas):
         start=tmp[0]
         end=tmp[1]
         self.bar=self.create_rectangle(start,2,end,self.bh-1)
-	    # default fill unless overriden
+        # default fill unless overriden
         self.itemconfig(self.bar,fill=fillcolor)
 
         # start text
@@ -1173,18 +1185,21 @@ class pyvcp_bar(Canvas):
         else:
             self.ranges = False
         
-    def set_fill(self, (start1, end1, color1),(start2, end2, color2), (start3, end3, color3)):
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
         if self.value:
-    	    if (self.value > start1) and (self.value <= end1):
-    		self.itemconfig(self.bar,fill=color1)	
-    	    else:
-    		if (self.value > start2) and (self.value <= end2):
-    		    self.itemconfig(self.bar,fill=color2)	
-		else:
-		    if (self.value > start3) and (self.value <= end3):
-    			self.itemconfig(self.bar,fill=color3)	
-	
-	
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)        
+            else:
+                if (self.value > start2) and (self.value <= end2):
+                    self.itemconfig(self.bar,fill=color2)        
+                else:
+                    if (self.value > start3) and (self.value <= end3):
+                        self.itemconfig(self.bar,fill=color3)        
+        
+        
     def bar_coords(self):
         """ calculates the coordinates in pixels for the bar """
         # the bar should start at value = zero 
@@ -1203,13 +1218,13 @@ class pyvcp_bar(Canvas):
 
         return [bar_start, bar_end]
     
-			
+                        
     def update(self,pycomp):
         # update value
         newvalue=pycomp[self.halpin]
         if newvalue != self.value:
             self.value = newvalue
-            valtext = str( "%(b)3.1f" % {'b':self.value} )
+            valtext = str(self.format % self.value)
             self.itemconfig(self.val_text,text=valtext)
             # set bar colour
             if self.ranges:
@@ -1345,34 +1360,34 @@ class pyvcp_checkbutton(Checkbutton):
         Checkbutton.__init__(self,master,variable=self.v,onvalue=1, offvalue=0,**kw)
         if halpin == None:
             halpin = "checkbutton."+str(pyvcp_checkbutton.n)
-	self.halpin=halpin
-	pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
-	changepin = halpin + ".changepin"
-	self.changepin=changepin
-	pycomp.newpin(changepin, HAL_BIT, HAL_IN)
+        self.halpin=halpin
+        pycomp.newpin(halpin, HAL_BIT, HAL_OUT)
+        changepin = halpin + ".changepin"
+        self.changepin=changepin
+        pycomp.newpin(changepin, HAL_BIT, HAL_IN)
         pycomp[self.changepin] = 0
 
-	pyvcp_checkbutton.n += 1
-		
+        pyvcp_checkbutton.n += 1
+                
         if initval >= 0.5:
             self.value=1
         else:
             self.value=0
         self.v.set(self.value)
         self.reset = 0
-		
+                
     def update(self,pycomp):
         # prevent race condition if connected to permanently on pin
-	if pycomp[self.changepin] and not(self.reset):
-	    self.v.set(not(self.v.get()))
-	    self.reset = 1
-    	    pycomp[self.changepin] = 0 # try to reset, but may not work
-	    
-	if not(pycomp[self.changepin]) and(self.reset):
-    	    self.reset = 0 
-    	    pycomp[self.changepin] = 0   # make sure is reset now
-	
-	pycomp[self.halpin]=self.v.get()
+        if pycomp[self.changepin] and not(self.reset):
+            self.v.set(not(self.v.get()))
+            self.reset = 1
+            pycomp[self.changepin] = 0 # try to reset, but may not work
+            
+        if not(pycomp[self.changepin]) and(self.reset):
+                self.reset = 0 
+                pycomp[self.changepin] = 0   # make sure is reset now
+        
+        pycomp[self.halpin]=self.v.get()
 
 
 
@@ -1513,8 +1528,33 @@ class pyvcp_scale(Scale):
 
 
 class pyvcp_table(Frame):
-    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows=""):
-        Frame.__init__(self, master)
+    """ Grid layout widget with rows and columns.
+        * flexible_columns - list of column indexes that should be flexible width
+        * flexible_rows - list of row indexes that should be flexible width
+        * uniform_columns - string of characters for each column, in order. Columns with the same character will be the same width.
+        * uniform_rows - string of characters for each row, in order. Rows with the same character will be the same height.
+        * (also accepts Tk options for Frame)
+
+        <table flexible_rows="[3]" flexible_columns="[3]" uniform_columns="aab" uniform_rows="aab" highlightthickness="10" highlightbackground="#CCCCCC">
+            <tablesticky sticky="nwes"/>
+            <!-- row 1 -->
+            <tablerow/>
+            <label text="AAAAAAAAA" />
+            <label text="BBBBBBBBB" />
+            <label text="CCCCCCCCC" />
+            <!-- row 2 -->
+            <tablerow/>
+            <label text="A" />
+            <label text="B" />
+            <label text="C" />
+            <!-- row 3 -->
+            <tablerow/>
+            <tablespan columns="3"/>
+            <label text="Merged columns" />
+        </table>
+    """
+    def __init__(self, master, pycomp, flexible_rows=[], flexible_columns=[], uniform_columns="", uniform_rows="", **kw):
+        Frame.__init__(self, master, **kw)
         for r in flexible_rows:
             self.grid_rowconfigure(r, weight=1)
         for c in flexible_columns:
@@ -1541,7 +1581,7 @@ class pyvcp_table(Frame):
             self.sticky = child.sticky
             return
         r, c = self._r, self._c
-        while self.occupied.has_key((r, c)):
+        while (r, c) in self.occupied:
             c = c + 1
         rs, cs = self.span
         child.grid(row=r, column=c, rowspan=rs, columnspan=cs,
@@ -1585,9 +1625,9 @@ class pyvcp_include(Frame):
 
         try:
             doc = xml.dom.minidom.parse(src) 
-        except xml.parsers.expat.ExpatError, detail:
-            print "Error: could not open",src,"!"
-            print detail
+        except xml.parsers.expat.ExpatError as detail:
+            print("Error: could not open",src,"!")
+            print(detail)
             sys.exit(1)
 
         # find the pydoc element
@@ -1596,7 +1636,7 @@ class pyvcp_include(Frame):
                 break
 
         if e.localName != "pyvcp":
-            print "Error: no pyvcp element in file!"
+            print("Error: no pyvcp element in file!")
             sys.exit()
         pyvcproot=e
         vcpparse.nodeiterator(pyvcproot,self)
@@ -1636,7 +1676,7 @@ class pyvcp_image(_pyvcp_dummy):
 class _pyvcp_image(Label):
     def __init__(self, master, pycomp, images, halpin=None, **kw):
         Label.__init__(self, master, **kw)
-        if isinstance(images, basestring): images = images.split()
+        if isinstance(images, str): images = images.split()
         self.images = images
         if halpin == None:
             halpin = "number."+str(pyvcp_number.n)
@@ -1652,7 +1692,7 @@ class _pyvcp_image(Label):
             try:
                 self.configure(image=self.images[l])
             except (IndexError, KeyError):
-                print >>sys.stderr, "Unknown image #%d on %s" % (l, self.halpin)
+                print("Unknown image #%d on %s" % (l, self.halpin), file=sys.stderr)
         self.last = l
 
 class pyvcp_image_bit(_pyvcp_image):
@@ -1663,11 +1703,11 @@ class pyvcp_image_u32(_pyvcp_image):
 # This must come after all the pyvcp_xxx classes
 elements = []
 __all__ = []
-for _key in globals().keys():
+for _key in list(globals().keys()):
     if _key.startswith("pyvcp_"):
         elements.append(_key[6:])
         __all__.append(_key)
 
 if __name__ == '__main__':
-    print "You can't run pyvcp_widgets.py by itself..."
+    print("You can't run pyvcp_widgets.py by itself...")
 # vim:sts=4:sw=4:et:

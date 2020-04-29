@@ -2,429 +2,299 @@
 
 = Best Wiring Practices
 
-The following information was provided by a machine builder to aid other machine
-builders when planing the electrical part of their machine build.
-
 == Electrical Noise
 
-Electrical noise comes from a couple of things. First is EMI which stands for
-Electromagnetic Interference. EMI is caused by current flowing through wires.
-The second is electrical mechanical noise cause by physical switches bouncing
-when they open or close. Both of these conditions can cause you problems with
-the daily operation of your CNC machine. The mechanical noise can be dealt with
-pretty easily, but the EMI noise on the other hand requires a little work to
-help reduce and prevent it. The guidelines that follow are some things that you
-can do to reduce this problem. Before we get to the list of things to do, let's
-first discuss a little more what EMI is.
+Electrical noise in a system is caused by Electromagnetic Interference (EMI), where signals appearing in one
+electrical circuit interfere with an adjacent circuit, either through electromagnetic induction, electrostatic
+coupling or conduction. EMI can cause problems with the daily operation of a CNC machine, and can manifest itself in
+various ways such as false triggering of limit switches, prematurely interrupted tool probing operations, corruption
+of a serial data link to a VFD or erratic behaviour of the CNC control systems and software.
 
-EMI as I stated above is caused by current running through a wire, but there is
-a little more to it. When current runs through a wire a magnetic field is
-created. As the current builds the magnetic field gets stronger. Then when the
-current ceases to flow through the wire the magnetic field collapses. This in
-itself isn't too bad, but if this magnetic field happens to cross another wire
-it will induce a voltage across it. This is how a transformer works. It uses a
-magnetic field in one coil of wire to induce a voltage in another coil of wire.
-If a wire is able to induce a voltage across another wire that we are using for
-a signal at logic level voltages, it may drive the voltage level in that wire to
-some state that the logic circuits reading it cannot understand. To be clear, 5V
-TTL work on distinctive voltage ranges. An input voltage of 0V to .8V is
-considered a false or low logic level. A voltage level of about 2V to 5V is read
-as a true or high level input. If however a voltage somewhere in between the .8V
-and 2V is on the input then we do not know what the output will be. When an
-input in this range is given the output could be either a high or a low level
-and this has to be avoided for a reliable circuit. Knowing the above information
-we know that a magnetic field crossing our signal wires could drive the input
-voltage to a TTL circuit into this band resulting in unexpected operation. But
-this is only half the story.
+When current passes through a conductor a magnetic field is created. As the current increases the magnetic field gets
+stronger, and then collapses again when current ceases to flow. If this alternating magnetic field happens to cross
+another conductor it can induce an unwanted voltage into it, which presents itself as noise.
 
-When current is switched on and off in a circuit we know that it creates a
-magnetic field but when current is switched on and off repeatedly it is possible
-to create another kind of noise. If the rate the current is being switched on
-and off is fast enough, it can generate radio frequencies that can interfere
-with other equipment nearby. The strength of these radio frequencies again
-depends on the amount of current that flows through the wire.
+There are several methods that can be employed to minimise the effects of EMI in any electrical system. The most
+effective of these is obviously to prevent the noise from occurring in the first place. In reality the method of
+controlling the effects of EMI is usually by applying measures to prevent noise from contaminating wanted signals in
+the CNC system.
 
-Now that we know what EMI is and the effects that it can have let's discuss what
-we can do about it by giving some general wiring tips.
+== Ground, Earth and Common
 
-== AC Line Voltage
-
-The AC that you use can inject noise into your power supplies and other
-equipment. If you have motors running on the same circuit for example, can
-create noise on the line if it is running on the same circuit as your CNC
-components. RF signals can also be superimposed onto AC line voltage. Years ago,
-this fact was exploited in some home entertainment systems to provide music to a
-remote speaker over the AC line. In-line filters are made to attenuate (reduce
-or block) this type of noise from the AC line voltage before it is run into your
-equipment. AC Line Filters can be found at electronic supply houses. LinuxCNC
-forum user “lead_injection” recommends Medical Grade filters as they have the
-lowest leakage current.
-
-== PSU's (Power Supply Units)
-
-=== AC Grounds
-
-A typical CNC machine may have a few different power supplies installed and in
-use on the system. Make sure the AC inputs to your power supplies are properly
-grounded. Tie them all to the same ground. Many power supplies have a metal case
-and the case is usually tied to the AC ground as well so keep this in mind when
-you are fastening them down. In my case I have a metal drawer that I am using,
-so when I fasten down the power supplies, I need to keep in mind that the AC
-ground will be attached to this drawer as well.
-
-=== DC Grounds
-
-There are two trains of thought when it comes to the DC ground. Some folks say
-that you should ground it to the AC ground and others suggest that you should
-create a separate isolated ground plane for the DC power. I don't know if one
-style is better than another but if you are interested a Google search you can
-find folks that will defend either side of the argument.
-
-Additionally, many suggest that you keep the ground for any supply providing
-logic level voltages segregated from any other DC supply to prevent ground loops
-which could create new additional problems. A ground loop exists when the
-grounds of two different devices are at different potentials. For example, if
-the PSU for your drivers were at a different potential than your supply for your
-logic and you tied them together, you could corrupt your logic signals by a
-small voltage change. If this difference in voltage is enough to push your
-signal into the unknown state we discussed above, then your equipment will be
-unreliable or possibly erratic.
-
-In my controller drawer I have three PSU's. Two of them are 36VDC and one is a
-5VDC. The 36V supplies are meant to run my stepper controllers while the 5V
-supply will provide power to my BOB (Break Out Board) and TTL signal level
-voltages. My intention is to give the 36V their own ground plane and to isolate
-the 5V supply for the logic.
-
-== Stepper Motor Controllers
-
-When wiring the controllers up, the following list should be helpful.
-
-The metal housing of the controller should be grounded. You can verify this with
-a multimeter set to check continuity. Best practice is to mount your controllers
-directly to your ground plane. The ground plane as you recall from above is an
-isolated piece of metal that you will attach the ground from your PSU that
-supplies your controllers. A simple way of doing this is to use a piece of
-aluminum plate for the ground plane and mount it to your enclosure using
-insulated standoffs. Mounting your controllers to this plane allows any noise
-the controller might generate to be diverted to ground rather than emitted
-through the air and possibly affecting surrounding equipment.
-
-The controllers that I have experience with have two sets of connectors. They
-are divided into two groups. The first group is power supply and motor leads.
-The second group are control signals. When wiring your controllers keep these
-two groups separated. Run your power and motor leads to one side of the
-controller and the signal wires to the other if at all possible. Again, using
-shielded wire will take you a long way in avoiding extraneous noise.
-
-== DC Supply wires
-
-When running power to various pieces of equipment in your electronics box, using
-twisted pairs will aid in negating noise from neighboring wires. The twist in
-the wire creates a canceling effect on any magnetic field that passes across
-them. For additional protection use twisted wire that is housed in a shielded
-jacket. This type of wire typically has a metal foil or braid wrapped around the
-wire along with a stranded wire that runs beside it. The foil or braid will
-absorb the magnetic field that a neighboring wire produces as current runs
-through it. For best results, attach the stranded wire to the DC ground. Doing
-this will prevent the field from passing beyond the shielding to affect the
-wires contained in the cable. When grounding the shield wire, only ground at one
-end. Grounding the shield wire at both ends can create a loop that can
-effectively negate the ground allowing noise to be injected back into the wire.
-
-When making power connections to the controller use a twisted pair of wires. You
-can twist them yourself, but make sure you have at least one twist per inch of
-wire. For best protection use a shielded twisted pair and attach one end of the
-shield wire to your grounding plane. The piece of aluminum plate your
-controllers are mounted to.
-
-When making connections to the motors, use shielded cable. These wires carry the
-most current and will emit a lot of magnetic radiation. Be sure to ground the
-shield wire to the ground plane.
-
-When making signal connections to the controller (The step and direction pins)
-use a twisted pair to make the connection. Category 5 Ethernet cable is cheap
-and contains four twisted pairs. This makes excellent signal wire. You can strip
-the housing back enough that you can run two pair to one controller and another
-two pair to a second controller. You can also buy Ethernet cable with a shield.
-If you ground this shield, be sure to ground it to the PSU that supplies your
-logic signals and not to the power plane for your stepper controller and its PSU.
-
-== Variable Frequency Drives (VFDs)
-
-VFDs are used to drive spindles and work by varying the frequency of the AC
-going to the spindle. VFDs are great noise producers. If at all possible locate
-your VFD in a separate enclosure or cabinet to reduce the risk of it injecting
-noise into your other wiring. Recommended wiring for the VFD is foil braid or
-copper tape shielded wire and observing good grounding practices. A PDF document
-from Belden on the topic can be found at the following URL.
-
-http://www.mc-mc.com/Portals/1/articles/WP-VFDCablingPractices.pdf 
+Confusion can arise when using terms such as earth, ground and common. In some cases they may be used to describe the
+same thing; that being the point in an electrical system to which all voltages are referenced to. For the purpose of
+this article, the terms 'earth' and 'ground' refer to the point at which the incoming mains supply is earthed to,
+whereas 'common' is the return or negative terminal on a DC supply.  In some cases it is permissible to ground the
+common on a DC supply, thereby making the negative terminal on that supply the same potential as the incoming AC
+earth, but for the purposes of this discussion the terms 'earth' and 'common' must be made distinct from each other
+to avoid confusion.
 
 == Wire Selection and Use
 
-Wire comes in many types, sizes and configurations. Wading through all the wire
-available is a monumental task of its own, but for our purposes we only have a
-look at the types of wires suitable for wiring a CNC controller. Additionally,
-how the wire is to be used can have some affect on the overall system. What
+Wire comes in many types, sizes and configurations. Wading through all the wire available is a monumental task of its
+own, but for the purposes of this article it is only necessary to consider the types of wires typically used when
+wiring a CNC controller. Additionally, how the wire is to be used can have some effect on the overall system. What
 follows are some tips that may prove helpful.
 
-. Shielded Wire.
+=== Single Conductor Wire
 
-There are basically three types of shielded wire. One has a bare wire braid that
-surrounds the wire inside, and the other has metal foil that surrounds the wire
-inside. And lastly, there is both a braid and metal foil. All of these are
-designed to prevent noise from being injected into the wire enclosed. The type
-of shielded wire you will select will depend on the amount of noise you are
-trying to combat. A brief discussion of each follows.
+Wire comes in two forms: solid conductor and stranded. Solid core wire is generally cheaper than stranded, but more
+likely to break if used in applications where repeated bending is expected. Fortunately, the prevalence of stranded
+wire on the market means that its use should be encouraged wherever possible.
 
-.. Foil Shielded Wire
+Wires should be terminated such that all strands in the conductor are neatly and securely located into the mating
+receptacle. This may be accomplished by either twisting the strands together before inserting in the termination,
+or using a compression crimp such as a spade or bootlace terminal. Care should be made to ensure that no strands of
+wire end up outside the termination to prevent accidental shorting with adjacent terminations. 
 
-Foil shielded wire has a thin metal aluminum foil that is usually bonded to a
-film of plastic that surrounds the wire. The enclosed wire is usually 100%
-covered and that is good. Foil shielded wire can be difficult to use, especially
-when trying to attach a connector to the shielding in order to ground it. For
-this reason, you will usually find a bare metal stranded wire enclosed that you
-can make a connection to. Of the three types of shielded wire, this is the least
-effective.
+If using a compression crimp on the bare wire, avoid soldering the strands together before crimping. Crimping the
+lug onto a soldered wire can result in the lug working loose over time as the soldered strands lose their
+compressibility once the crimp has been applied. For this same reason, soldered wire should not be installed in a
+terminal block where the screw stud bites directly onto the wire when tightened.
 
-.. Braided Shielded Wire
+When stripping the wire ready for a termination, only remove the minimum amount required to keep the termination
+covered when complete. Stripping too much insulation off will expose some of the wire that something can short
+against.
 
-Braided Shielded Wire has a metal braid that surrounds the wire. It is more
-bulky than the foil shielded wire and does not provide 100% coverage. It
-typically covers 70 to 95% covering depending on how tight the braid is made.
-The braid is typically made of tinned copper wire. Because copper is a better
-conductor than aluminum and it's bulky size it works better to shield the wire
-than the foil shielded wire. It should be noted that this type of shielded wire
-will cost more than the foil shielded wire above. Of the three types this one is
-more effective than foil shielded wire, but less effective than the next one
-discussed.
+The circuit that the wire is intended for should also be considered; the voltage the circuit operates at and the
+amount of current it carries have a bearing on the choice of wire to be used. The thin insulation on a piece of
+recycled CAT5 ethernet cable is insufficient to withstand the voltages that can appear at the output terminals of a
+Variable Frequency Drive, nor is the cross sectional area of the conductor sufficient to carry several amps of
+current without overheating and potentially causing a fire. Conversely, while it is perfectly permissible to wire a
+limit switch circuit using 2.5 sqmm cable, it creates needless bulk in the wiring loom. Consult any manufacturer’s
+documentation and your local country’s electrical wiring codes for minimum suggested wire gauges for power and
+control requirements.
 
-.. Multi Shielded Wire
+=== Shielded Wire
 
-For very noisy environments a wire that contains both foil wrapped wire and a
-braid will provide the most protection. As you can guess, of the three types
-this is the most expensive.
+There are two types of shielded wire. One has a bare wire braid that surrounds the wire inside, and the other has
+metal foil that surrounds the wire inside. The type of shielded wire selected will depend on the amount of noise you
+are trying to combat.
 
-== Routing Wire
+.Foil Shielded Wire
 
-There are two types of routed wire. Wire that is stationary and wire that gets
-moved as the machine runs. Along with this, we must consider the effects of
-neighboring wires to the wire being routed may have. The following
-recommendations were given by forum member lead_injection.
+Foil shielded wire has a thin aluminium or copper foil that is usually bonded to a film of plastic that surrounds
+the wire. The enclosed wire is usually 100% covered. Attaching the foil to earth can be difficult, especially if
+the foil is constructed from aluminium or laminated to a plastic backing material. For this reason, it is
+usual to find a bare metal stranded wire enclosed inside the cable which is in contact with the foil for the
+full length of the cable. This is called the drain wire and is used to make the connection to earth with.
+
+.Braided Shielded Wire
+
+Braided shielded wire has a woven copper braid that surrounds the wire. It is more bulky than foil and does not
+provide 100% coverage, but is more flexible than foil shielded types. Coverage is typically 70% to 95% depending on
+how tight the braid has been constructed. Despite the lower coverage of braided shield, the effectiveness is
+greater than foil shielding due to the increased bulk of the braid, and copper being a better conductor than
+aluminium.
+
+For very noisy environments, a further subset of the above two shielding methodologies may be employed, whereby both
+braid and foil shielding is used simultaneously. Individual wires in a multi-conductor cable may also be shielded
+along with an overall shield being applied to the entire cable jacket.
+
+== AC Line Voltage
+
+The incoming mains AC that powers the CNC system can pick up and carry noise into the power supplies and other
+equipment. For example, if the incoming supply is also used to feed large motors, electrical noise may be
+generated on the line feeding the CNC components. Although most modern electronic devices feature built-in mains
+filtering to help minimise the susceptibility to mains-borne interference, the custom and modularised nature of a
+CNC system can mean that components used come from a wide variety of sources with differing degrees of inherent
+noise immunity. 
+
+Inline filters may be installed on the incoming mains supply feeding the CNC control system to help reduce any
+induced noise. Running the CNC system from a different mains circuit to any large electrical sources of noise may
+also help minimise any potential sources of mains-borne interference.
+
+[NOTE]
+Be aware that in many countries, the installation and alteration of mains circuits can only be carried out by
+licenced electricians.
+
+== Power Supply Units
+
+=== AC Ground
+
+A typical CNC machine may have several different Power Supply Units (PSUs) installed in the system. Any device
+powered from the incoming mains designed to be earthed must be properly and permanently terminated to mains earth.
+Ideally this should be made to the same point in the system, which may be a threaded post or bolt, a copper/brass
+termination strip or a large metallic mounting plate within the control enclosure.
+
+The prevalence of high-frequency switchmode PSUs used in CNC systems increase the likelihood of RF noise
+being coupled from them to adjacent circuitry. Many of these PSUs have a metal case which, if connected
+to mains earth, will help screen the coupling of high frequency EMI into other electrical components.
+
+From a safety standpoint, it is important that these mains earth connections also be mechanically strong and
+unlikely to break free, and the wire used has a cross-sectional area sufficient to carry the anticipated fault
+current should a short to earth occur. It is also imperative that mains earth is never used as a current-carrying
+conductor for other components in the system. Earth shall be used for one purpose only: safety earthing.
+
+Note also that the colour of the jacket used to make a termination to earth may be prescribed by the wiring code
+for your country, and the conduction of other unrelated signals in that same wire colour may be prohibited.
+
+=== DC Common
+
+Commoning of a DC PSU is somewhat dependent on the electrical operating requirements of the CNC system. For example,
+a stepper motor driver operating with a 24VDC motor supply and a 5V logic supply may have optically-isolated signal
+input lines which provide complete electrical separation of the driver’s input and output circuitry for safety and
+noise immunity purposes. Tying the stepper motor and logic control supply commons together in this case may have a
+detrimental impact on the operation of the system.
+
+In general it makes most sense to keep the commons of the various DC PSUs used in the CNC system separate from each
+other, and separate from the AC mains earth unless there is a specific requirement to tie them together. In most
+cases the common points of the heavy-duty power sections of the CNC system (eg, stepper motor or servo motor
+drivers, spindle motors etc) will be segregated from common points of the electrically-sensitive sections of the
+CNC (control interface boards, limit switches, tool probe circuitry etc) to prevent cross-contamination of the two
+systems.
+
+Should it be necessary to connect several common points of different PSUs together, or to connect a common of a
+PSU to AC main earth, it should be done at a single point only and as close to the common terminal of the PSUs as
+possible.
+
+In CNC machines where the hardware drivers and interfacing circuitry are pre-assembled, the decision as to which
+DC commons are tied where is usually taken out of the hands of the end user.
+
+== DC Supply Feeds
+
+In situations where a DC circuit is run with the common point disconnected from the mains earth (ie, the supply is
+‘floating’), it can be helpful to run DC supplies using twisted pairs of wires, whereby each pair of wires in the
+circuit (eg, the positive and negative leads) is physically twisted together in a helix pattern. The twist in the
+wire allows both conductors to share the same ‘real estate’ as closely as possible. Any EMI that passes across
+them will therefore be largely cancelled as both conductors will receive the same degree of EMI. For additional
+protection use twisted wire that is housed in a shielded jacket with the shield terminated to mains earth. 
+
+Note however that twisted pairs of wires are less effective at combatting the effects of EMI if one of the two
+wires is referenced to mains earth, as the conductor at earth potential is less able to be influenced by EMI than
+the un-earthed conductor. In these instances the twisting of the wires has less of an impact on the overall noise
+immunity, and shielded cable will be intrinsically more effective at reducing noise pickup.
+
+== Signal Wires and Control Lines
+
+The wires that are used to transmit logic signals to and from various peripherals in the CNC (eg, stepper motor
+controller inputs, axis limit switches etc) are the most susceptible to noise interference. The reason for this is
+the low level voltages that are used to convey the information. When a limit or home switch is engaged, or a tool
+probe has made or broken contact, this signal is used to signify the event has taken place. Typically this is done
+by using input pins on the computer interface card or parallel port which, dependent on the application, may be
+signalled using as little as 3.3V. Evidently a 2V noise spike has the potential to corrupt the validity of a
+signal if the useful range is only 0-3.3V.
+
+If possible, isolate the common point of the PSU supplying the logic peripherals from the rest of the system.
+For example, keeping the common of the low voltage power supply isolated from the common of the stepper motor
+supply will reduce the chances of large currents flowing in the stepper motor return line contaminating the common
+of the low voltage supply.
+
+If the controller uses differential signalling, use twisted pairs to carry the signal. Shielded cable is preferred
+when the control lines are single-ended, or if the distances traversed are long or through electrically hostile
+environments. When grounding the shield in the cable, terminate to the mains earth.
+
+If the controller and interfacing devices can withstand higher control signals, consider altering the wiring and
+power supply requirements to use a bigger voltage for signalling (eg, 12V or 24V). The same 2V EMI noise spike
+that could corrupt a 3.3V limit switch signal will be far less likely to cause issues with a limit switch
+operating with a 24V signal.
+
+== Stepper or Servo Motor Drivers
+
+The metal housing of the driver should be connected to the local mains earth in the CNC system. Some driver
+enclosures will indicate a specific terminal as being the earthing point, in which case this point must be
+connected to earth via a dedicated wire.
+
+Control and power wiring should be segregated as much as possible. Route signal input wires well away from power
+supply and motor drive output lines. 
+
+It is recommended to run both driver input and motor output wiring in shielded cable with the shield terminated to
+mains earth. The shield on the input lines helps reduce the amount of interference they can receive, while the
+shield on the output lines reduces the amount of noise they can radiate. 
+
+== Variable Frequency Drives
+
+If at all possible the Variable Frequency Drive (VFD) should be mounted in a separate enclosure or cabinet to reduce
+the risk of it radiating noise into adjacent wiring. If the VFD enclosure is metallic it must be earthed as per any
+recommendations in the manufacturer’s documentation.
+
+Because the VFD is a high power, high frequency electronic switching device, the output is notoriously prone to
+EMI radiation, and it is advisable to run the VFD output to the connected motor in a shielded cable, with the
+shield terminated to mains earth.
+
+== Routing Conductors
 
 === Routing Movable Wires
 
-Any wire that will be moved about in normal operation of the CNC falls into this
-category. For example, the wires that run from your controllers through cable
-management and then to your motors.
+Any wire that will be moved about during normal operation of the CNC falls into this category. For example, wires
+running from stepper drivers through a cable management system (drag chains) and then to the stepper motors
+mounted on a moveable gantry.  Cables and wires operating in these circumstances should be rated for extra
+flexibility. This precludes the use of solid-core wires and cables, as the constant flexing will lead to fatigue
+and eventual failure of the conductors.
 
-If you are flexing your cables, use high flex rated cable (IGUS). This may get
-pricey for 4pair STP (Shielded Twisted Pair) type cables.
+If running cables in a cable track/carrier, tie them down at both ends of the cable track. If not, ratcheting can
+occur and fatigue the cable prematurely. Care should also be taken to ensure that mechanical rubbing of conductors
+against other parts of the machine is prevented.
 
-If running cables in a cable track/carrier tie them down at both ends of the
-cable track. If not, ratcheting can occur and fatigue the cable prematurely.
-
-In a cable track/carrier observe the neutral axis idea. Have the wire run as
-close to the neutral axis as possible. Make sure the wire is not in tension in
-the longest neutral axis situation. 
+In a cable track/carrier observe the neutral axis idea. Have the wire run as close to the neutral axis as
+possible. Make sure the wire is not in tension in the longest neutral axis situation.
 
 === Routing Stationary Wires
 
-Running different signal classes (high voltage and low voltage) in metal conduit
-may make the noise worse. Separate by as much distance as possible and if they
-have to cross, cross them at 90 degree angles.
+As discussed earlier, running different signal classes (high voltage and low voltage) in proximity to each other
+has the tendency to exacerbate EMI interference. Separate conductors by as much distance as possible. If two
+conductors must cross over each other make the crossing as close to a 90 degree angle as possible.
 
-Avoid wiring loops coming off of devices - they are great antennas for receiving
-noise, or great antennas for transmitting noise. Run wires along the ground
-plane.
-
-== Signal Wires
-
-The wires that are used to transmit logic signals are the most susceptible to
-noise interference. The reason for this is the low level voltages that are used
-to convey the information. The following will prove helpful in keeping your
-signal wires clean.
-
-Isolate the PSU for your signal wires from the rest of the system. Keeping the
-power supply isolated will prevent your other supplies from interfering with it.
-
-Use twisted pairs to carry your signals. For best results use both wires and do
-not share a common ground for two or more signals. Use a pair of wires for each
-signal. Using shielded wire is best. When grounding the shield wire, ground to
-the logic PSU. 
-
-Shielded Twisted Pairs (STP) are most beneficial to differential signals. If you
-add the noise to both signals, the common point is not affected - the magnitude
-of the difference is maintained.
-
-== Stranded Wire
-
-Wire comes in two forms, solid conductor and stranded. Both have their ups and
-downs. Stranded wire is pretty common in cables because it is more flexible.
-When using any stranded wire keep the following things in mind.
-
-. Terminate the ends
-
-Little wires hanging off the end of your cable can create problems. They can
-cause shorts when wired next to other wires in close proximity or to the boards
-they are connected to. They can also act like a little antenna that will help
-them emit any noise they may be trying to generate. There are several ways that
-you can terminate them.
-
-Twist and solder the ends. Tinning the wires in this manner makes then easier to
-insert in the set screw connectors and binds all the little wires together
-preventing them from fraying apart.
-
-Use crimp on ends. Crimp on ends like spade connectors or bootlace ferrules also
-work very well. It is best to not to tin the end before crimping them. Tinning
-the wires could allow them to loosen over time. Attention to detail and the
-proper selection of the crimped end will form a quality mechanical connection.
-
-Be careful of the amount of insulation you strip from the wire. Stripping too
-much insulation off will lead to exposed wire that something can short against.
-If you do simply trim off the extra wire.
-
-== Control Signals
-
-When a limit or home switch is engaged, or a probe has made or broken contact,
-we use this signal to signify the event has taken place. Typically this is done
-by using input pins on the parallel port. The signal voltages used on the port
-are in the 3 to 5 volt range depending on the type of port you have. It only
-takes a small noise injected onto the signal wires to put it in that unknown
-voltage area we discussed above, resulting in an unknown TTL state. If after
-careful wiring and planning you are still having these kind of issues, there are
-a couple of things you can do to fix the problem.
-
-Higher control voltages. If instead of using the logic PSU to supply the voltage
-for the detection circuit you used a larger PSU, for example a 12 or 24V supply
-to the input side of a mechanical relay or SSR (solid state relay), the control
-circuit would be less affected by noise. In turn, the mechanical relay or SSR
-would turn on or off the control signal to your parallel port or breakout board
-allowing you to keep these small control voltages in short runs and contained in
-your wiring cabinet. In addition you may be able to find opto-isolators or opto
-couplers that will work on higher input voltages that will switch the lower TTL
-voltages to the port. A search on Jameco, Mouser or other electronics supplier
-should turn something up.
-
-Higher control current. If you are using pull up resistors on your inputs, you
-can use a smaller valued resistor to increase the current draw and reduce the
-chance of a false signal. Keep in mind the additional current load on your PSU.
-You can calculate the current load with a judicious application of Ohm's Law.
+Avoid long loops of excess wire at any peripheral devices - they are great antennas for receiving or transmitting
+noise. Where possible, run wires in close proximity to large earthed structures. If the controller enclosure
+features a large metallic back plate that is earthed, secure all control wiring against this surface as much as
+possible while wiring between two points.
 
 == Mechanical Noise
 
-Mechanical Noise happens when mechanical contacts open and close, as in a switch
-or relay contacts. As they open or close they will bounce against each other
-creating a rapid state change in the circuit. The electronics monitoring the
-change in state, the opening and closing of the contacts, can detect these quick
-changes. Sometimes it doesn't matter, but more often than not, you don't want
-this condition to interfere with the operation of your machine. For example, it
-will generate errors when probing. However, like I mentioned above, this
-situation is pretty easy to remedy.
+Very few mechanical switches (eg, an axis limit switch or tool probe input) will close or open perfectly when
+operated. More often than not the switch contacts will physically bounce against each other several times within a
+very short space of time when operated. This may be interpreted by the machine controller as multiple operations
+of the same signal when in reality only one clean state change was expected. Sometimes it doesn’t matter, but in
+many circumstances it is desirable to ensure that any state change is as ‘clean’ as possible and does not
+interfere with the operation of the machine. This is accomplished by debouncing.
 
-. Debouncing a switch with hardware.
+Debouncing is achieved by permitting a state change on a mechanical switch to only register with the controller
+after a fixed period of time to allow any bouncing in the switch contacts to settle. Time delays of 5-15
+milliseconds are usually sufficient. This can be done with the addition of some hardware to the signal circuit or
+in software within LinuxCNC.
 
-Debouncing a switch can be done with the addition of some hardware to the signal
-circuit. There are ICs (Integrated Circuits) like Motorola's MC14490 that are
-designed to do just this thing, but they can be difficult to find. A simple
-method of debouncing a SPST switch uses an RC network (sometimes coupled with a
-diode to increase the speed) as a delay into a Schmitt triggered inverter
-allowing it to compensate for the time it takes the switch to settle down. If
-you are interested in this method, you can find more information on the subject
-by visiting the following URL:
+=== Hardware Debouncing
+
+Several schemes exist to implement debouncing of switches and relay contacts with hardware, ranging from the
+addition of a single capacitor across the signal and common lines, to dedicated debouncing integrated circuits
+such as the MC14490 or MAX6818. Several hardware debouncing schemes can be found via the link below:
 
 https://electrosome.com/switch-debouncing/
 
-Additionally a great video on debouncing a SPST switch can be found here:
+=== Software Debouncing
 
-https://www.youtube.com/watch?v=tmjuLtiAsc0 
+The Hardware Abstraction Layer (HAL) of LinuxCNC includes a debounce component. This component has a single input
+pin and a single output pin. Its job is to monitor the input and to send an output after the input has activated
+for a programmed delay period. More information can be found for the debounce component by visiting the following
+page:
 
-== Debouncing a switch with HAL
-
-The hardware abstraction layer (HAL) of LinuxCNC has a debounce component. The
-debounce component has a single input pin and a single output pin. Its job is to
-look at the input and to send the output after a programmed delay time. The
-debounce HAL component will be covered in a separate tutorial when we create a
-touchoff plate for the CNC machine. More information can be found for the
-debounce component by visiting the following URLs:
-
-http://linuxcnc.org/docs/html/hal/rtcomps.html#sec:Debounce
 http://linuxcnc.org/docs/html/man/man9/debounce.9.html
 
 == Documentation
 
-Documenting your wiring cannot be over stressed. With power feeds, motor leads,
-signal wire and everything else you stuffed into your your wiring compartment,
-you will be grateful that you documented your wiring. A year after you completed
-your CNC wiring and you want to add something, or some trouble arises, you will
-have your documentation to fall back on.
+The importance of documenting the installed wiring and components cannot be over-emphasised. Should the user want
+to modify the CNC system further down the track, or if trouble should arise that needs correcting, then complete
+and concise documentation of the wiring and equipment can save many hours of head scratching and frustration.
 
-So, what should you document? The list that follows probably should be the
-minimum you hang onto and if you think you should note or save something else,
-you probably should.
+=== Hardware Documentation
 
-=== Hardware Documentation.
-
-At a minimum, make sure you save any documentation you have for your hardware in
-a safe place. Stepper controllers, Break out Boards, Power Supplies, PID
-controllers, individual components if they apply, Servo Controllers, etc.
-Although it takes a little more room, I print all the electronic documentation
-for the stuff I have and keep them in a binder in plastic sheet protectors. This
-binder is divided into sections based on the type of hardware or documentation I
-am keeping.
+At a minimum, make sure to save any documentation associated with the installed hardware in a safe place. Stepper
+controllers, break out boards, power supplies, VFDs, interfaces and controllers, servo and stepper drivers and any
+associated device settings are all critical components of the system and their documentation should be kept at
+hand for easy reference.
 
 === Wiring Schematics
 
-As you wire your CNC, make sure to draw up a schematic that you can reference
-later. The schematic does not have to be all that neat, but you must be able to
-pick it up a year later and understand what you have done. Be sure to annotate
-your schematic with any additional information that will help remind you of what
-you made. Keep a copy of your schematics in your documentation folder so it does
-not get lost. If you keep things electronically, scan your schematics and save
-it with the rest of your documents. If you don't have a scanner, you can take a
-digital picture and save it to your computer.
+As the CNC machine is wired, make sure to draw up a schematic that can be referenced to later. The schematic does
+not have to be all that neat, but it should be understandable in such a way that it could be easily interpreted at
+a later date, ideally by anyone who may need to service the equipment. Include details such as wire colours used,
+pin numbers, part numbers and any other notes that will help explain particular details not immediately apparent
+from first glance at the schematic.
 
-=== Label your wires
+=== Wiring Identification
 
-Take the time to label your wires. When you start bundling wires, it is hard to
-look at them and know for sure what is what when you go back to modify or change
-something a year later. Label your motor wires with the joint or axis they run,
-label your signal wires so you know what they do. The idea here is to make it
-easy to identify a specific wire or set of wires you have in your controller.
-
-== Additional Information
-
-=== LinuxCNC and Machine Related Questions
-
-Additional Information and help can be found by using the LinuxCNC forums. If
-you are not a member of these forums, I encourage you to join. Please visit:
-
-http://linuxcnc.org/index.php/english/forum/index
-
-The folks there are very helpful, have loads of experience and are willing to
-share some insights.
-
-=== Cable and Wire Harness Assemblies
-
-Publication IPC/WHMA-A-620 covers the Requirements and Acceptance for Cable and
-Wire Harness Assemblies. This publication describes acceptability criteria for
-producing crimped, mechanically secured, or soldered interconnections and the
-associated lacing/restraining criteria associated with cable and harness
-assemblies. It is not the intent of this document to exclude any acceptable
-procedure used to make the electrical connection. A 2002 version of this
-document can be downloaded from the following URL.
-
-http://www.gartechenterprises.com/downloads/IPC-A-620.pdf
-
-=== Understanding EMC (Electromagnetic Compatibility) Phenomena
-
-A publication from Groupe Schneider goes into depth about what Electromagnetic
-interference is and how to design your system with it in mind. This is a great
-document is you want to know the what and why of electromagnetic interference.
-It discusses in detail, cables, grounds, types of interference, chassis
-connections, filters and more. A very good source of information to those who
-want to know more on the topic. You can download a copy of the 200+ page PDF
-from the following URL:
-
-http://www.engineering.schneider-electric.dk/Attachments/ia/instal/electromagnetic_compatibility_install_guide.pdf 
+Take the time to identify each wire in the system. When a bundle of wires has been cable-tied in place it can be
+very difficult to look at them and know for sure which wire goes where. Label the motor wires with the joint or
+axis they are associated with, or identify each signal wire so that it is easy to identify what that signal does.
+It will also help if this information is transferred to the wiring schematics.

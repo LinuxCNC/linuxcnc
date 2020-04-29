@@ -59,7 +59,7 @@
 #include <libintl.h>
 #include <locale.h>
 #include "usrmotintf.h"
-
+#include <rtapi_string.h>
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -393,6 +393,12 @@ static EMC_SPINDLE_SPEED *spindle_speed_msg;
 static EMC_SPINDLE_ORIENT *spindle_orient_msg;
 static EMC_SPINDLE_WAIT_ORIENT_COMPLETE *wait_spindle_orient_complete_msg;
 static EMC_SPINDLE_ON *spindle_on_msg;
+static EMC_SPINDLE_OFF *spindle_off_msg;
+static EMC_SPINDLE_BRAKE_ENGAGE *spindle_brake_engage_msg;
+static EMC_SPINDLE_BRAKE_RELEASE *spindle_brake_release_msg;
+static EMC_SPINDLE_INCREASE *spindle_increase_msg;
+static EMC_SPINDLE_DECREASE *spindle_decrease_msg;
+static EMC_SPINDLE_CONSTANT *spindle_constant_msg;
 static EMC_TOOL_PREPARE *tool_prepare_msg;
 static EMC_TOOL_LOAD_TOOL_TABLE *load_tool_table_msg;
 static EMC_TOOL_SET_OFFSET *emc_tool_set_offset_msg;
@@ -564,9 +570,10 @@ interpret_again:
 			    // throw the results away if we're supposed to
 			    // read
 			    // through it
-			    if ((programStartLine < 0 ||
-				 emcStatus->task.readLine < programStartLine) &&
-				emcTaskPlanLevel() == 0) {
+			    if ( programStartLine != 0 &&
+				 emcTaskPlanLevel() == 0 &&
+				 ( programStartLine < 0 ||
+				   emcTaskPlanLine() <= programStartLine )) {
 				// we're stepping over lines, so check them
 				// for
 				// limits, etc. and clear then out
@@ -924,6 +931,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
 	    case EMC_TASK_PLAN_INIT_TYPE:
 	    case EMC_TASK_PLAN_SYNCH_TYPE:
@@ -969,8 +978,14 @@ static int emcTaskPlan(void)
 		emcTaskQueueCommand(&taskPlanSynchCmd);
 		break;
 
-		// otherwise we can't handle it
+	    case EMC_TASK_PLAN_RUN_TYPE:
+                if (GET_EXTERNAL_OFFSET_APPLIED()) {
+                    // err here, fewer err reports
+		    retval = -1;
+		}
+		break;
 
+		// otherwise we can't handle it
 	    default:
 		emcOperatorError(0, _("can't do that (%s:%d) in manual mode"),
 				 emc_symbol_lookup(type),(int) type);
@@ -1005,7 +1020,7 @@ static int emcTaskPlan(void)
 		case EMC_TRAJ_SET_MAX_VELOCITY_TYPE:
 		case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 		case EMC_TRAJ_SET_FO_ENABLE_TYPE:
-	        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
+        case EMC_TRAJ_SET_FH_ENABLE_TYPE:
 		case EMC_TRAJ_SET_SO_ENABLE_TYPE:
 		case EMC_SPINDLE_SPEED_TYPE:
 		case EMC_SPINDLE_ORIENT_TYPE:
@@ -1032,6 +1047,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_PLAN_RUN_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1114,6 +1131,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_DECREASE_TYPE:
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1201,6 +1220,8 @@ static int emcTaskPlan(void)
 		case EMC_TASK_ABORT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1269,6 +1290,8 @@ static int emcTaskPlan(void)
 		case EMC_SPINDLE_CONSTANT_TYPE:
 		case EMC_TASK_PLAN_EXECUTE_TYPE:
 		case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 		case EMC_TASK_PLAN_RESUME_TYPE:
 		case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 		case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
@@ -1363,6 +1386,8 @@ static int emcTaskPlan(void)
 	    case EMC_TASK_PLAN_OPEN_TYPE:
 	    case EMC_TASK_PLAN_CLOSE_TYPE:
 	    case EMC_TASK_PLAN_PAUSE_TYPE:
+		case EMC_TASK_PLAN_REVERSE_TYPE:
+		case EMC_TASK_PLAN_FORWARD_TYPE:
 	    case EMC_TASK_PLAN_SET_OPTIONAL_STOP_TYPE:
 	    case EMC_TASK_PLAN_SET_BLOCK_DELETE_TYPE:
 	    case EMC_TASK_PLAN_RESUME_TYPE:
@@ -1698,12 +1723,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,
+					set_homing_params_msg->encoder_does_not_reset,
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer,
-                                        set_homing_params_msg->absolute_encoder);
+					set_homing_params_msg->locking_indexer,
+					set_homing_params_msg->absolute_encoder);
 	break;
 
     case EMC_JOINT_SET_FERROR_TYPE:
@@ -1766,7 +1792,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_SPINDLE_SCALE_TYPE:
 	emcTrajSetSpindleScaleMsg = (EMC_TRAJ_SET_SPINDLE_SCALE *) cmd;
-	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->scale);
+	retval = emcTrajSetSpindleScale(emcTrajSetSpindleScaleMsg->spindle,
+                                    emcTrajSetSpindleScaleMsg->scale);
 	break;
 
     case EMC_TRAJ_SET_FO_ENABLE_TYPE:
@@ -1793,14 +1820,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
-                                   emcTrajLinearMoveMsg->indexrotary);
+                                   emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	emcTrajCircularMoveMsg = (EMC_TRAJ_CIRCULAR_MOVE *) cmd;
         retval = emcTrajCircularMove(emcTrajCircularMoveMsg->end,
                 emcTrajCircularMoveMsg->center, emcTrajCircularMoveMsg->normal,
@@ -1838,7 +1867,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TRAJ_SET_SPINDLESYNC_TYPE:
         emcTrajSetSpindlesyncMsg = (EMC_TRAJ_SET_SPINDLESYNC *) cmd;
-        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode);
+        retval = emcTrajSetSpindleSync(emcTrajSetSpindlesyncMsg->spindle, emcTrajSetSpindlesyncMsg->feed_per_revolution, emcTrajSetSpindlesyncMsg->velocity_mode);
         break;
 
     case EMC_TRAJ_SET_OFFSET_TYPE:
@@ -1898,10 +1927,12 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_RIGID_TAP_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
         	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
-		((EMC_TRAJ_RIGID_TAP *) cmd)->acc);
+		((EMC_TRAJ_RIGID_TAP *) cmd)->acc,
+		((EMC_TRAJ_RIGID_TAP *) cmd)->scale);
 	break;
 
     case EMC_TRAJ_SET_TELEOP_ENABLE_TYPE:
@@ -1946,42 +1977,50 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_SPINDLE_SPEED_TYPE:
 	spindle_speed_msg = (EMC_SPINDLE_SPEED *) cmd;
-	retval = emcSpindleSpeed(spindle_speed_msg->speed, spindle_speed_msg->factor, spindle_speed_msg->xoffset);
+	retval = emcSpindleSpeed(spindle_speed_msg->spindle, spindle_speed_msg->speed,
+			spindle_speed_msg->factor, spindle_speed_msg->xoffset);
 	break;
 
     case EMC_SPINDLE_ORIENT_TYPE:
 	spindle_orient_msg = (EMC_SPINDLE_ORIENT *) cmd;
-	retval = emcSpindleOrient(spindle_orient_msg->orientation, spindle_orient_msg->mode);
+	retval = emcSpindleOrient(spindle_orient_msg->spindle, spindle_orient_msg->orientation,
+			spindle_orient_msg->mode);
 	break;
 
-   case EMC_SPINDLE_ON_TYPE:
+    case EMC_SPINDLE_ON_TYPE:
 	spindle_on_msg = (EMC_SPINDLE_ON *) cmd;
-	retval = emcSpindleOn(spindle_on_msg->speed, spindle_on_msg->factor, spindle_on_msg->xoffset,
-                             spindle_on_msg->wait_for_spindle_at_speed);
+	retval = emcSpindleOn(spindle_on_msg->spindle, spindle_on_msg->speed,
+			spindle_on_msg->factor, spindle_on_msg->xoffset, spindle_on_msg->wait_for_spindle_at_speed);
 	break;
 
     case EMC_SPINDLE_OFF_TYPE:
-	retval = emcSpindleOff();
+    spindle_off_msg = (EMC_SPINDLE_OFF *) cmd;
+	retval = emcSpindleOff(spindle_off_msg->spindle);
 	break;
 
     case EMC_SPINDLE_BRAKE_RELEASE_TYPE:
-	retval = emcSpindleBrakeRelease();
+    spindle_brake_release_msg = (EMC_SPINDLE_BRAKE_RELEASE *) cmd;
+	retval = emcSpindleBrakeRelease(spindle_brake_release_msg->spindle);
 	break;
 
     case EMC_SPINDLE_INCREASE_TYPE:
-	retval = emcSpindleIncrease();
+    spindle_increase_msg = (EMC_SPINDLE_INCREASE *) cmd;
+	retval = emcSpindleIncrease(spindle_increase_msg->spindle);
 	break;
 
     case EMC_SPINDLE_DECREASE_TYPE:
-	retval = emcSpindleDecrease();
+    spindle_decrease_msg = (EMC_SPINDLE_DECREASE *) cmd;
+    retval = emcSpindleDecrease(spindle_decrease_msg->spindle);
 	break;
 
     case EMC_SPINDLE_CONSTANT_TYPE:
-	retval = emcSpindleConstant();
+    spindle_constant_msg = (EMC_SPINDLE_CONSTANT *) cmd;
+    retval = emcSpindleConstant(spindle_constant_msg->spindle);
 	break;
 
     case EMC_SPINDLE_BRAKE_ENGAGE_TYPE:
-	retval = emcSpindleBrakeEngage();
+    spindle_brake_engage_msg = (EMC_SPINDLE_BRAKE_ENGAGE *) cmd;
+    retval = emcSpindleBrakeEngage(spindle_brake_engage_msg->spindle);
 	break;
 
     case EMC_COOLANT_MIST_ON_TYPE:
@@ -2010,7 +2049,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     case EMC_TOOL_PREPARE_TYPE:
 	tool_prepare_msg = (EMC_TOOL_PREPARE *) cmd;
-	retval = emcToolPrepare(tool_prepare_msg->pocket,tool_prepare_msg->tool);
+	retval = emcToolPrepare(tool_prepare_msg->tool);
 	break;
 
     case EMC_TOOL_START_CHANGE_TYPE:
@@ -2055,8 +2094,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
 	emcTaskAbort();
+	// KLUDGE call motion abort before state restore to make absolutely sure no
+	// stray restore commands make it down to motion
+	emcMotionAbort();
+	// Then call state restore to update the interpreter
+	emcTaskStateRestore();
         emcIoAbort(EMC_ABORT_TASK_ABORT);
-        emcSpindleAbort();
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
 	emcAbortCleanup(EMC_ABORT_TASK_ABORT);
 	retval = 0;
@@ -2138,7 +2182,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	if (-1 == retval) {
 	    emcOperatorError(0, _("can't open %s"), open_msg->file);
 	} else {
-	    strcpy(emcStatus->task.file, open_msg->file);
+	    rtapi_strxcpy(emcStatus->task.file, open_msg->file);
 	    retval = 0;
 	}
 	break;
@@ -2167,7 +2211,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		command = NULL;
 	    } else {
 		// record initial MDI command
-		strcpy(emcStatus->task.command, execute_msg->command);
+		rtapi_strxcpy(emcStatus->task.command, execute_msg->command);
 	    }
 
 	    int level = emcTaskPlanLevel();
@@ -2213,7 +2257,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// abort everything
 		emcTaskAbort();
 		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
-		emcSpindleAbort(); 
+	    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP_IDLE
 		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
@@ -2270,6 +2314,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    emcStatus->task.interpState = EMC_TASK_INTERP_PAUSED;
 	    emcStatus->task.task_paused = 1;
 	}
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_REVERSE_TYPE:
+	emcTrajReverse();
+	retval = 0;
+	break;
+
+    case EMC_TASK_PLAN_FORWARD_TYPE:
+	emcTrajForward();
 	retval = 0;
 	break;
 
@@ -2500,7 +2554,7 @@ static int emcTaskExecute(void)
 	// abort everything
 	emcTaskAbort();
         emcIoAbort(EMC_ABORT_TASK_EXEC_ERROR);
-        emcSpindleAbort();
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
 
 	// without emcTaskPlanClose(), a new run command resumes at
@@ -2625,32 +2679,41 @@ static int emcTaskExecute(void)
 
     case EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED:
 	STEPPING_CHECK(); // not sure
-	switch (emcStatus->motion.spindle.orient_state) {
-	case EMCMOT_ORIENT_NONE:
-	case EMCMOT_ORIENT_COMPLETE:
-	    emcStatus->task.execState = EMC_TASK_EXEC_DONE;
-	    emcStatus->task.delayLeft = 0;
-	    emcTaskEager = 1;
-	    rcs_print("wait for orient complete: nothing to do\n");
-	    break;
+	{int state = 0;
+		for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+			if (emcStatus->motion.spindle[n].orient_state > state)
+				state = emcStatus->motion.spindle[n].orient_state;
+		}
+	switch (state) {
+		case EMCMOT_ORIENT_NONE:
+		case EMCMOT_ORIENT_COMPLETE:
+			emcStatus->task.execState = EMC_TASK_EXEC_DONE;
+			emcStatus->task.delayLeft = 0;
+			emcTaskEager = 1;
+			rcs_print("wait for orient complete: nothing to do\n");
+			break;
 
-	case EMCMOT_ORIENT_IN_PROGRESS:
-	    emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
-	    if (etime() >= taskExecDelayTimeout) {
-		emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-		emcStatus->task.delayLeft = 0;
-		emcTaskEager = 1;
-		emcOperatorError(0, "wait for orient complete: TIMED OUT");
-	    }
-	    break;
+		case EMCMOT_ORIENT_IN_PROGRESS:
+			emcStatus->task.delayLeft = taskExecDelayTimeout - etime();
+			if (etime() >= taskExecDelayTimeout) {
+			emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+			emcStatus->task.delayLeft = 0;
+			emcTaskEager = 1;
+			emcOperatorError(0, "wait for orient complete: TIMED OUT");
+			}
+			break;
 
-	case EMCMOT_ORIENT_FAULTED:
-	    // actually the code in main() should trap this before we get here
-	    emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
-	    emcStatus->task.delayLeft = 0;
-	    emcTaskEager = 1;
-	    emcOperatorError(0, "wait for orient complete: FAULTED code=%d", 
-			     emcStatus->motion.spindle.orient_fault);
+		case EMCMOT_ORIENT_FAULTED:
+			// actually the code in main() should trap this before we get here
+			emcStatus->task.execState = EMC_TASK_EXEC_ERROR;
+			emcStatus->task.delayLeft = 0;
+			emcTaskEager = 1;
+			for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+				if (emcStatus->motion.spindle[n].orient_fault)
+						emcOperatorError(0, "wait for orient complete: FAULTED code=%d",
+						emcStatus->motion.spindle[n].orient_fault);
+			}
+		}
 	}
 	break;
 
@@ -2977,6 +3040,11 @@ static int emctask_startup()
 	return -1;
     }
 
+    if (setup_inihal() != 0) {
+	rcs_print_error("%s: failed to setup inihal\n", __FUNCTION__);
+	return -1;
+    }
+
     end = RETRY_TIME;
     good = 0;
     do {
@@ -3104,7 +3172,7 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
@@ -3122,13 +3190,13 @@ static int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "RS274NGC"))) {
 	// copy to global
-	strcpy(rs274ngc_startup_code, inistring);
+	rtapi_strxcpy(rs274ngc_startup_code, inistring);
     } else {
 	//FIXME-AJ: this is the old (unpreferred) location. just for compatibility purposes
 	//it will be dropped in v2.4
 	if (NULL != (inistring = inifile.Find("RS274NGC_STARTUP_CODE", "EMC"))) {
 	    // copy to global
-	    strcpy(rs274ngc_startup_code, inistring);
+	    rtapi_strxcpy(rs274ngc_startup_code, inistring);
 	} else {
 	// not found, use default
 	}
@@ -3274,7 +3342,7 @@ int main(int argc, char *argv[])
     }
     // set the default startup modes
     emcMotionAbort();
-    emcSpindleAbort();
+    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
     for (int t = 0; t < emcStatus->motion.traj.joints; t++) {
         emcJointDisable(t);
@@ -3324,9 +3392,9 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
-                emcIoAbort(EMC_ABORT_AUX_ESTOP);
-                emcSpindleAbort();
-                emcJointUnhome(-2); // only those joints which are volatile_home
+        emcIoAbort(EMC_ABORT_AUX_ESTOP);
+        for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
+        emcJointUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
 		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
 		emcTaskPlanSynch();
@@ -3340,8 +3408,10 @@ int main(int argc, char *argv[])
 	    if (emcStatus->io.lube.on) {
 		emcLubeOff();
 	    }
-	    if (emcStatus->motion.spindle.enabled) {
-		emcSpindleOff();
+	    for (int n = 0; n < emcStatus->motion.traj.spindles; n++){
+	    	if (emcStatus->motion.spindle[n].enabled) {
+	    		emcSpindleOff(n);
+	    	}
 	    }
 	}
 
@@ -3406,7 +3476,7 @@ int main(int argc, char *argv[])
             // abort everything
             emcTaskAbort();
             emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
-            emcSpindleAbort();
+        for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);;
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
 	    // aborted line-- feature that may be considered later

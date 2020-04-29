@@ -1,0 +1,99 @@
+########################################################################
+# Menubar
+########################################################################
+
+style "menubar"
+{
+### Menubar ###
+	engine "pixmap"
+	{
+		image
+		{
+			function = BOX
+			file = "menubar/menubar.png"
+			border = {7, 7, 4, 4}
+			stretch = TRUE
+		}
+	}
+}
+
+class "GtkMenuBar*" style "menubar"
+
+style "menuitem"
+{
+### Menu item ###
+	engine "pixmap"
+	{
+		image
+		{
+			function = BOX
+			file = "menubar/menuitem.png"
+			border = {7, 7, 4, 4}
+			stretch	= TRUE
+		}
+		
+### H line ###
+		image 
+		{
+			function = HLINE
+	 		file = "menubar/line-h.png"
+			border = {0, 0, 0, 0}
+			stretch = TRUE
+		}
+		
+### V line ###	
+		image 
+		{
+			function = VLINE
+	 		file = "menubar/line-v.png"
+			border = {0, 0, 0, 0}
+			stretch = TRUE
+		}
+		
+### Arrow UP ###
+		image
+		{
+			function = ARROW
+			overlay_file = "/arrow/arrow-up.png"
+			overlay_border = {3,3,3,3}
+			overlay_stretch = FALSE
+			arrow_direction	= UP
+		}
+
+### Arrow DOWN ###
+		image
+		{
+			function = ARROW
+			overlay_file = "/arrow/arrow-down.png"
+			overlay_border = {3,3,3,3}
+			overlay_stretch	= FALSE
+			arrow_direction	= DOWN
+		}
+
+### Arrow LEFT ###
+		image
+		{
+			function = ARROW
+			overlay_file = "/arrow/arrow-left.png"
+			overlay_border = {3,3,3,3}
+			overlay_stretch	= FALSE
+			arrow_direction	= LEFT
+		}
+
+### Arrow RIGHT ###
+		image
+		{
+			function = ARROW
+			overlay_file = "/arrow/arrow-right.png"
+			overlay_border = {3,3,3,3}
+			overlay_stretch	= FALSE
+			arrow_direction	= RIGHT
+		}
+	}
+}
+
+class "GtkMenuItem*" style "menuitem"
+class "GtkImageMenuItem*" style "menuitem"
+class "GtkTearoffMenuItem*" style "menuitem"
+class "GtkItem*" style "menuitem"
+

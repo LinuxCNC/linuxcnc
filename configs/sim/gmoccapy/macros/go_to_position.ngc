@@ -1,6 +1,9 @@
 ; Testfile go to position
 ; will jog the machine to a position to give
 
+; the image path must be relative from your config dir or absolut, "~" is allowed
+(IMAGE, ./macros/images/goto_x_y_z.png)
+
 O<go_to_position> sub
 
 G17

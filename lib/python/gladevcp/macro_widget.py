@@ -19,10 +19,10 @@ import os, time, string
 
 import gobject, gtk
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from hal_actions import _EMC_ActionBase, ensure_mode
+from .hal_actions import _EMC_ActionBase, ensure_mode
 # path to TCL for external programs eg. halshow
 try:
     TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -100,12 +100,12 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
                 if f.endswith('.ngc'):
                     with open(os.path.join(self.foldername, f), 'r') as temp:
                         first_line = temp.readline().strip()
-                        print first_line
+                        print(first_line)
                         if 'MACROCOMMAND' in first_line:
                             files.append(first_line.strip('; MACROCOMMAND='))
         except:
             pass
-        lines = filter(bool, files)
+        lines = list(filter(bool, files))
         for l in lines:
             self.model.append((l,))
         path = (len(lines)-1,)
@@ -168,7 +168,7 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
 # Must linuxcnc running to see anything
 def main(filename = None):
     def macro_callback(widget,path,cmd):
-        print cmd,path
+        print(cmd,path)
 
     window = gtk.Dialog("Macro Test dialog",
                    None,
@@ -182,9 +182,9 @@ def main(filename = None):
     window.show_all()
     response = window.run()
     if response == gtk.RESPONSE_ACCEPT:
-       print "True"
+       print("True")
     else:
-       print "False"
+       print("False")
 
 if __name__ == "__main__":
     main()

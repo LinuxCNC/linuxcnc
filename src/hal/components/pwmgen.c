@@ -444,7 +444,7 @@ static void update(void *arg, long period)
 	    /* round to nearest pure PWM duty cycle */
 	    high_periods = (pwmgen->periods * outdc) + 0.5;
 	    pwmgen->high_time = high_periods * periodns;
-	    /* save rounded value to curr_dc param */
+	    /* save rounded value to curr_dc pin */
 	    if ( tmpdc >= 0 ) {
 		*(pwmgen->curr_dc) = high_periods * pwmgen->periods_recip;
 	    } else {
@@ -452,7 +452,7 @@ static void update(void *arg, long period)
 	    }
 	} else {
 	    pwmgen->high_time = ( pwmgen->period * outdc ) + 0.5;
-	    /* save duty cycle to curr_dc param */
+	    /* save duty cycle to curr_dc pin */
 	    *(pwmgen->curr_dc) = tmpdc;
 	}
 	/* if using PWM/DIR outputs, set DIR pin */
@@ -484,7 +484,7 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
-    /* export paramameters */
+    /* export pins */
     retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
 	    "pwmgen.%d.scale", num);
     if (retval != 0) {
@@ -520,7 +520,6 @@ static int export_pwmgen(int num, pwmgen_t * addr, int output_type)
     if (retval != 0) {
 	return retval;
     }
-    /* export pins */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
 	    "pwmgen.%d.enable", num);
     if (retval != 0) {

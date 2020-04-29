@@ -203,11 +203,11 @@ class CNC_COMMANDS():
 
         def spindle_faster(self, wname, b):
             self.emccommand.mode(self.emc.MODE_MANUAL)
-            self.emccommand.spindle(self.emc.SPINDLE_INCREASE)
+            self.emccommand.spindle(0,self.emc.SPINDLE_INCREASE)
 
         def spindle_slower(self, wname, b):
             self.emccommand.mode(self.emc.MODE_MANUAL)
-            self.emccommand.spindle(self.emc.SPINDLE_DECREASE)
+            self.emccommand.spindle(0,self.emc.SPINDLE_DECREASE)
 
         def set_linear_jog_velocity(self, wname, cmd):
             velocity = float(cmd)
@@ -270,7 +270,7 @@ class CNC_COMMANDS():
             self.emccommand.rapidrate(f)
 
         def spindle_override(self, wname, s):
-            self.emccommand.spindleoverride(s)
+            self.emccommand.spindleoverride(0,s)
 
         def max_velocity(self, wname, m):
             self.emccommand.maxvel(m)
@@ -393,8 +393,8 @@ class CNC_COMMANDS():
         def is_spindle_running(self):
             self.emcstat.poll()
             s = self.emcstat
-            if s.spindle_enabled:
-                return s.spindle_speed
+            if s.spindle[0]['enabled']:
+                return s.spindle[0]['speed']
             else:
                 return 0
 

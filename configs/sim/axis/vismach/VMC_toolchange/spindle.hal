@@ -23,19 +23,19 @@ addf mux2.0 servo-thread # chooses which pid output goes to the spindle speed co
 net spindle-pos pid.1.feedback orient.0.position
 
 net spindle-vel 	pid.0.feedback # & encoder.3.velocity for a real machine
-net spindle-vel-cmd 	motion.spindle-speed-out pid.0.command
+net spindle-vel-cmd 	spindle.0.speed-out pid.0.command
 net spindle-vel-pid 	pid.0.output mux2.0.in0
 
 net spindle-pos 	pid.1.feedback orient.0.position near.0.in1 # & encoder.3.position for a real machine
 net spindle-pos-cmd 	orient.0.command pid.1.command near.0.in2
-net spindle-angle 	motion.spindle-orient-angle orient.0.angle
+net spindle-angle 	spindle.0.orient-angle orient.0.angle
 net spindle-pos-pid 	pid.1.output mux2.0.in1
-net spindle-in-pos 	orient.0.is-oriented  motion.spindle-is-oriented
+net spindle-in-pos 	orient.0.is-oriented  spindle.0.is-oriented
 
 # this switches modes
-net orient-mode 	motion.spindle-orient orient.0.enable pid.1.enable mux2.0.sel
-net velocity-mode	motion.spindle-on pid.0.enable #pwmgen.0.enable 
-net orient-dir		motion.spindle-orient-mode orient.0.mode
+net orient-mode 	spindle.0.orient orient.0.enable pid.1.enable mux2.0.sel
+net velocity-mode	spindle.0.on pid.0.enable #pwmgen.0.enable 
+net orient-dir		spindle.0.orient-mode orient.0.mode
 
 # this is simple for the simulated spindle.
 net spindle-cmd 	mux2.0.out

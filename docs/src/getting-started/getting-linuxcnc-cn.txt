@@ -1,0 +1,289 @@
+[[cha:getting-linuxcnc]]
+
+= 获取LinuxCNC
+
+本节介绍下载和全新安装LinuxCNC的推荐方法。也有其他适合高级用户的<<_alternate_install_methods,
+备选安装方法>>。如果您需要升级现有安装，请转至<<cha:updating-linuxcnc,更新LinuxCNC>>部分。
+
+使用Live/安装镜像是最容易获取全新安装LinuxCNC的方式。
+这是一个Hybrid ISO文件系统镜像，可以将其写入USB存储设备或DVD光盘，并用于引导计算机。
+在启动时，您可以选择启动"Live"系统（运行LinuxCNC，且不会对计算机进行任何永久性更改）
+或启动安装程序（将LinuxCNC及其操作系统安装到计算机的硬盘驱动器上）。
+
+该过程的概要如下所示：
+
+. 下载Live/安装镜像。
+. 将镜像写入USB存储设备或DVD光盘。
+. 引导Live系统以测试LinuxCNC。
+. 引导安装程序以安装LinuxCNC。
+
+== 下载镜像
+
+本节介绍了一些下载Live/安装镜像的方法。
+
+=== 普通下载
+
+通过单击此处下载Live/安装CD：
+
+http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso
+
+
+=== 使用zsync下载
+
+zsync是一个下载应用程序，它可以有效支持断点续传，
+并使用小的变更文件有效地传输大文件（前提是您有较旧的本地副本）。
+如果在使用<<_normal_download,普通下载>>方法下载镜像时遇到问题，
+请使用zsync试试。
+
+.Linux中的zsync
+
+. 使用Synaptic或在<<faq:terminal,终端>>中运行以下命令来安装zsync
++
+----
+sudo apt-get install zsync
+----
+. 然后运行此命令将iso镜像下载到您的计算机上
++
+----
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.7.14-wheezy.iso.zsync
+----
+
+.Windows中的zsync
+
+Windows中的zsync。它以控制台应用程序运行。可以从以下位置下载：
+
+https://www.assembla.com/spaces/zsync-windows/documents
+
+=== 校验镜像
+
+（如果使用zsync，则此步骤是不必要的）
+
+. 下载后，请验证镜像的校验和以确保完整性。
++
+----
+md5sum linuxcnc-2.7.14-wheezy.iso
+----
++
+或者
++
+----
+sha256sum linuxcnc-2.7.14-wheezy.iso
+----
+. 然后比较这些校验和
++
+-----
+md5sum: bdd85ad00f05d7c67e5037a72bae4934
+sha256sum: 079ba1fae48861b0814187b8048d6f2f299f943427d8c4806b65519f3a560d48
+-----
+
+.在Windows或Mac上验证md5sum
+
+Windows和Mac OS X不附带md5sum程序，但是有替代方法。
+可以在以下位置找到更多信息：
+https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
+
+== 将镜像写入可启动设备
+
+LinuxCNC Live/安装镜像是一个Hybrid ISO镜像，可以将其直接写入USB存储设备（闪存驱动器）或DVD光盘中，
+并用于引导计算机。由于镜像太大，无法放入CD光盘。
+
+.将镜像写入Linux中的USB存储设备
+
+. 连接USB存储设备（例如U盘）。
+. 确定与USB闪存驱动器相对应的设备文件。连接设备后，可以在dmesg的输出中找到此信息。`/proc/partitions`也可能会有所帮助。
+. 使用`dd`命令将镜像写入USB存储设备。例如，如果您的存储设备显示为`/dev/sde`，则使用以下命令：
++
+-----
+dd if=linuxcnc-2.7.14-wheezy.iso of=/dev/sde
+-----
+
+.在Linux中将镜像写入DVD
+
+. 将空白DVD插入刻录机。将弹出'CD/DVD Creator'或'选择光盘类型'窗口。直接关闭它，因为我们不使用它。
+. 在文件浏览器中浏览到下载的镜像。
+. 右键单击ISO镜像文件，然后选择“写入光盘”。
+. 选择写入速度。建议您以最低的速度写入。
+. 开始刻录过程。
+. 如果弹出光盘映像窗口的选择文件名，只需选择确定。
+
+.在Windows中将镜像写入DVD
+
+. 下载并安装Infra Recorder，这是一个免费的开源镜像刻录程序：http://infrarecorder.org/
+. 将空白CD插入驱动器中，然后选择不执行任何操作，或者在弹出自动运行对话框时选择取消。
+. 打开Infra Recorder，然后选择“操作”菜单，然后选择“刻录镜像”。
+
+== 测试LinuxCNC
+
+插入USB存储设备或DVD驱动器中的DVD之后，关闭计算机，然后重新启动计算机。
+这将从“Live/安装镜像”启动计算机，然后选择“Live启动”选项。计算机启动后，您可以尝试LinuxCNC而无需安装它。
+除非安装LinuxCNC，否则无法创建自定义配置或修改大多数系统设置（例如屏幕分辨率）。
+
+从应用程序/CNC菜单中选择试用LinuxCNC，请选择LinuxCNC。然后选择一个模拟配置进行试用。
+
+要查看您的计算机是否适合软件步进脉冲生成，请运行“延迟测试”，<<latency-test,如下>>所示。
+
+== 安装LinuxCNC
+
+要从LiveCD安装LinuxCNC，请在启动时选择'Install (Graphical)'(图形化界面安装)。
+
+== LinuxCNC更新 (((Updates to LinuxCNC)))
+
+通过常规安装，更新管理器将在您上线时通知您有关LinuxCNC的更新，并允许您轻松升级而无需Linux知识。可以要求升级除操作系统以外的所有内容。
+
+[注意]
+如果出现提示，也请不要升级操作系统。
+
+== 安装问题
+
+在极少数情况下，如果在Live CD安装过程中，
+无法在启动过程中识别出硬盘驱动器，
+则可能必须将BIOS重置为默认设置。
+
+== 备用安装方法
+
+安装LinuxCNC的最简单的首选方法是使用Live/Install镜像，如上所述。该方法既简单又可靠，非常适合新手用户和有经验的用户。
+
+此外，对于熟悉Debian系统管理（查找安装镜像，管理apt源，更改内核版本等）有经验的用户，LinuxCNC在以下平台上支持新安装：
+
+[options="header"]
+|===================================================================
+| 发行版   | 架构 | 内核     | 典型用途
+| Debian Jessie  | amd64 & i386 | Stock      | 仅仿真
+| Debian Wheezy  | i386         | RTAI       | 机器控制与仿真
+| Debian Wheezy  | amd64 & i386 | Preempt-RT | 机器控制与仿真
+| Debian Wheezy  | amd64 & i386 | Stock      | 仅仿真
+| Ubuntu Precise | i386         | RTAI       | 机器控制与仿真
+| Ubuntu Precise | amd64 & i386 | Stock      | 仅仿真
+| Ubuntu Lucid   | i386         | RTAI       | 机器控制与仿真
+| Ubuntu Lucid   | amd64 & i386 | Stock      | 仅仿真
+|===================================================================
+
+可从linuxcnc.org debian归档文件中下载RTAI内核。合适的APT来源是：
+
+* Debian Wheezy: `deb http://linuxcnc.org wheezy base`
+* Ubuntu Precise: `deb http://linuxcnc.org precise base`
+* Ubuntu Lucid: `deb http://linuxcnc.org lucid base`
+
+Preempt-RT内核可用于Debian Wheezy，在常规的debian.org归档文件中提供。
+这些软件包称为`linux-image-rt-amd64`和`linux-image-rt-686-pae`。
+
+=== 在Debian Wheezy上安装（带有Preempt-RT内核）
+
+. 安装i386或amd64的Debian Wheezy（Debian7）。
+  您可以在以下链接下载安装程序：https://www.debian.org/releases/。
+  经过测试的一个版本是网络安装版'debian-7.9.0-i386-netinst.iso'。
+  请注意，不要下载Debian8。
+
+. 刻录完iso并启动后，如果不想使用Gnome桌面，
+  请选择'Advanced Options' > 'Alternative desktop environments'，
+  然后选择所需的桌面环境。然后选择安装或图形安装。
++
+注意: 不要输入root密码，如果您禁用sudo，则将无法完成以下步骤。
+
+. 在<<faq:terminal,终端>>中运行以下命令，更新系统到最新软件包版本。
++
+----
+sudo apt-get update
+sudo apt-get dist-upgrade
+----
+
+. 安装Preempt-RT内核和模块
++
+----
+sudo apt-get install linux-image-rt-amd64
+or
+sudo apt-get install linux-image-rt-686-pae
+----
+
+. 重新启动，然后选择Linux 3.2.0-4-rt-686-pae内核。
+  登录时，请验证以下命令是否报告了`PREEMPT RT`。
++
+----
+uname -v
+----
+
+. 打开 应用程序菜单 > 系统 > Synaptic软件包管理器，搜索'linux-image'，
+  然后右键单击'linux-image-3.2.0-4-686-pae'并选择'标记为完全删除'。
+  对linux-image-686-pae执行相同的操作。重启。
+
+. 通过运行以下命令将LinuxCNC包签名密钥添加到APT密钥环
++
+----
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+----
+
+. 添加APT仓库：
++
+----
+sudo add-apt-repository "deb http://linuxcnc.org/ wheezy base 2.7-uspace"
+----
+
+. 从linuxcnc.org更新软件包列表
++
+----
+sudo apt-get update
+----
+
+. 安装uspace（在安装uspace之前可能需要重新启动）
++
+----
+sudo apt-get install linuxcnc-uspace
+----
+
+
+=== 在Ubuntu Precise上安装
+
+. 安装Ubuntu Precise 12.04 x86（32位）。
+  任何分支都应该都可以运行（常规Ubuntu，Xubuntu，Lubuntu等）。
+  当前不支持64位（AMD64）。
+  您可以在此处下载安装程序：
+  http://releases.ubuntu.com/precise/
+
+. 运行以下命令，以使与Ubuntu Precise中的最新软件包保持最新。
++
+----
+sudo apt-get update
+sudo apt-get dist-upgrade
+----
+
+. 通过运行以下命令将LinuxCNC包签名密钥添加到APT密钥环
++
+----
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+----
+
+. 添加新的APT源
++
+----
+sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.7-rtai"
+----
+
+. 从linuxcnc.org获取软件包列表。
++
+----
+sudo apt-get update
+----
+
+. 通过运行以下命令安装RTAI内核和模块
++
+----
+sudo apt-get install linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae
+----
+
+. 如果您希望能够使用git仓库从源代码构建LinuxCNC，请运行
++
+----
+sudo apt-get install linux-headers-3.4-9-rtai-686-pae
+----
+
+. 重新启动，并确保您使用rtai内核启动。登录时，请验证内核名称为3.4-9-rtai-686-pae。
++
+----
+uname -r
+----
+
+. 运行
++
+----
+sudo apt-get install linuxcnc
+----

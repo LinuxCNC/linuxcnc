@@ -2,10 +2,11 @@
 
 = Updating LinuxCNC
 
-Updating LinuxCNC for example from 2.7.0 to 2.7.1 and your PC is connected to
-the internet is an automatic process. You will see an update prompt after a
-minor release along with other software updates. If you don't have an internet
-connection to your PC see
+Updating LinuxCNC to a new minor release (ie to a new version in
+the same stable series, for example from 2.7.0 to 2.7.1) is an
+automatic process if your PC is connected to the internet. You will
+see an update prompt after a minor release along with other software
+updates. If you don't have an internet connection to your PC see
 <<getting-started:update-no-network,Updating without Network>>.
 
 == Upgrade to the new version
@@ -166,7 +167,7 @@ package manager with this command 'sudo dpkg -i linuxcnc_2.7.4.deb'
 sudo dpkg -i linuxcnc_2.7.4.deb
 ----
 
-== Updating Configuration Files
+== Updating Configuration Files (for 2.8.x)
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
 may require changes to your machine configuration.
@@ -214,6 +215,29 @@ configurations include:
 
 The following subsections and the section for 'Hal Changes' list items that
 may require additional user edits to ini or hal files.
+
+=== Multiple Spindle Support
+
+LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
+Existing G-code will run without modification and most configurations
+will default to single spindles. To specify more than one spindle
+set the [TRAJ]SPINDLES= entry in the INI file *and* include the num_spindles=
+parameter for the motion module (set with either [EMCMOT]EMCMOT = motmod num_spindles=
+or included in a halfile loadrt entry for motmod).
+
+The motion module num_spindles= parameter and the [TRAJ]SPINDLES= settings
+*must* match.
+
+The spindle control pin names have been changed to make spindles look
+more like axes and joints. motion.spindle-speed-out is now spindle.0.speed-out
+for example. The automatic update script will take care of these changes.
+To control extra spindles the G and M-codes which control spindle speed
+now accept an additional "$" argument, for example M3 $2 to start the
+third spindle. "$" was chosen to avoid clashes with any existing code
+letters. It should be possible to create custom G-codes to match any
+other multi-spindle controller. 
+See the G-code and M-code manuals for code changes, and man motion for
+the HAL pin changes. 
 
 === TRAJ velocities, accelerations names
  
@@ -487,7 +511,42 @@ They could be transformed into pairs of lines like this:
 MAX_VELOCITY = 7.5
 -----
 
-== Hal Changes (updates for joints_axes)
+=== [TRAJ] settings
+
+In 2.7.x versions, trajectory planning ([TRAJ]) settings included:
+
+----
+[TRAJ]
+DEFAULT_ACCELERATION
+MAX_ACCELERATION
+----
+
+Interim work prepared for distinct linear and angular items by
+renaming these items as:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCEL
+MAX_LINEAR_ACCEL
+----
+
+As these abbreviated names were inconsistent with other name
+conventions and the implementation of the update_ini script,
+the interim naming has been corrected to use:
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCELERATION
+MAX_LINEAR_ACCELERATION
+----
+
+[NOTE]
+
+Support for specifying trajectory planning angular default and maximum
+accelerations has not been implemented.
+
+
+== Hal Changes (updates for joints_axes 2.8.x)
 
 === Wheel or MPG (manual pulse generator) jogging
 
@@ -570,7 +629,17 @@ Note: In prior versions of LinuxCNC (before joints_axes updates), the
       (pins were created for all 9 axes)
       See the man page ('$ man milltask') for more information
 
-== Hal Changes (Other)
+== Hal Changes (Other 2.8.x)
+
+=== halcompile
+
+The number of names= instances was formerly limited to 16.  Now,
+for realtime components (loadrt) the instances are assigned
+dynamically with no built-in limit.  The limit of 16 still
+applies to names= items for userspace (loadusr) components.
+
+For components using 'personality', the maximum number is now
+settable by a command line option -P|--personalities.
 
 === Parameter to Pin changes
 
@@ -582,7 +651,7 @@ so that they can be connected to signals:
    motion.servo.last-period_ns (kernel-dependent availability)
 ----
 
-== Interface changes for joints_axes
+== Interface changes for joints_axes 2.8.x
 
 === python linuxcnc module
 
@@ -597,7 +666,7 @@ jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
 jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
 ----
 
-== GUIs (updates for joints_axes)
+== GUIs (updates for joints_axes 2.8.x)
 
 === Notes on joint/axis jogging, homing, and kinematics
 
@@ -896,19 +965,42 @@ This command now attemps to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
 must be teleop and the corresponding command is: 'set jog x 1.234'
 
-== Obsolete Guis
+== Tools
+
+=== Calibration (emccalib.tcl)
+
+The calibration/tuning tool now supports stanzas:
+
+  [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
+
+where N is a joint number (0 .. ([KINS]JOINTS-1) ),
+L is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
+and S is a spindle number (0 .. 9)
+
+[NOTE]
+
+The number of allowed spindles is 8 but legacy configurations
+may include a stanza [SPINDLE_9] unrelated to an actual spindle
+number.
+
+[NOTE]
+
+The [TUNE] stanza may be used for specifying tunable items
+not relevant to the other supported stanzas.
+
+== Obsolete Guis (removed for 2.8.x)
 
 The guis 'mini', 'keystick', and 'xlinuxcnc' have been removed in
 conjunction with updates for joints_axes.  All related source code,
 examples, and documentation are available in the git repository.
 
-== Deprecated Guis
+== Deprecated Guis (marked at 2.8.x)
 
 The 'linuxcnclcd' gui is a candidate for removal.
 Should this component be removed, all related source code, examples,
 and documentation will be available in the git repository.
 
-== Simulator configurations (updates for joints axes)
+== Simulator configurations (updates for joints axes 2.8.x)
 
 === Pre-joints_axes
 
@@ -932,7 +1024,7 @@ purpose.
 
 === Post-joints_axes
 
-With the incorporation of joints_axes functionality, may sims provided
+With the incorporation of joints_axes functionality, many sims provided
 in the distribution now take advantage of a general purpose halfile that
 supports numerous configurations automatically.  A typical sim config
 HALFILE specification is:
@@ -1040,7 +1132,7 @@ The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
 demonstrates a working xyz configuration that uses LIB:basic_sim.tcl
 with a minimal number of ini file settings.
 
-== Ongoing updates to development branch
+== Miscellaneous updates for 2.8.x
 
 Commits to unreleased branches may make changes that affect testers
 and early-adopters of the unreleased software.
@@ -1095,6 +1187,15 @@ The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
 Reduced accels are applied for wheel jogging only (not for nml commands
 issued by guis).
 
+=== XHC-WHB04B-6 pendant support
+
+See the documentation for the xhc-whb04b-6 component.
+
+=== bldc3_hall
+
+The bldc_hall3 component has been removed. The *bldc* component is more
+flexible and better tested.
+
 === [JOINT_n]HOME_SEQUENCE Starting values
 
 Starting sequence values may be 0, 1 (or -1) only.  See the
@@ -1115,5 +1216,68 @@ settings separated by blanks and enclosed with quotes.  Example:
 ----
 loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
 ----
+
+== Changes beyond 2.8.x (master branch development)
+
+The master branch is version-tagged with prerelease notation, typically
+2.9~pre*
+
+=== G-code changes
+G43.2 (additional offsets) now accepts transient offsets to be added by
+axis words as well as from the tool table.
+
+=== Configuration Updates
+
+==== Inifile Settings
+
+New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
+index that does not reset upon receipt of index pulse following
+assertion of index_enable.
+
+=== Code Updates
+
+==== Reverse Run
+
+Support added for reverse run in the trajectory planner, the task, and
+motion modules, the python interface, the axis gui, and the test suite.
+
+==== Number of Joints
+
+The maximum number of joints (EMCMOT_MAX_JOINTS) increased from 9
+to 16.  The axis gui now supports display of up to 16 joints.
+
+==== Extra Joints
+
+A new motmod parameter (num_extrajoints) specifies joints that are
+homed by conventional joint homing methods but controlled by new hal
+pins (joint.N.posthome-cmd) after homing.  Such joints may be
+managed by independent motion planner/controllers in hal and manipulated
+from gcode using custom M-codes.  See the motion man page for
+more info.
+
+==== Homing
+
+A homing api is provided by src/emc/motion/homing.h to support users'
+custom homing code that replaces src/emc/motion/homing.c with
+a user-customized homing.c file.
+
+==== Other
+
+lib/hallib/sim_lib.tcL: simulate encoder index if [JOINT_n]HOME_USE_INDEX
+is specified.
+
+lib/python/vismach.py: new hal pin vismach.plotclear
+
+=== Hal
+
+==== Components
+
+sim_home_switch: added I/O pin for index-enable
+
+=== Configs
+
+==== Simulation Configs
+
+sim/configs/axis/axis_9axis: demonstrate simulated encoder index
 
 // vim: set syntax=asciidoc:

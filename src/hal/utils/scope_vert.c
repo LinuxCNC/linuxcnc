@@ -54,6 +54,7 @@
 
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
+#include <rtapi_string.h>
 
 #define BUFLEN 80		/* length for sprintf buffers */
 
@@ -955,13 +956,13 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
     }
 
     if(!isprint(event->string[0])) {
-	strcpy(search_target, "");
+	rtapi_strxcpy(search_target, "");
 	search_row = clist->focus_row;
 	return 0;
     }
 
     if(event->time - search_time > SEARCH_RESET_TIME) {
-	strcpy(search_target, "");
+	rtapi_strxcpy(search_target, "");
 	search_row = clist->focus_row;
     }
 
@@ -971,15 +972,15 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
 	search_row = search_row + 1;
 	if(!gtk_clist_get_text(clist, search_row, 0, &text))
 	    search_row = 0;
-	printf("next search: %d\n", search_row);
+	printf(_("next search: %d\n"), search_row);
     } else {
-	strcat(search_target, event->string);
+	rtapi_strxcat(search_target, event->string);
     }
     
     for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
 	char *text;
 
-	printf("search: %d (wrapped=%d)\n", z, wrapped);
+	printf(_("search: %d (wrapped=%d)\n"), z, wrapped);
 	if(!gtk_clist_get_text(clist, z, 0, &text)) {
 	    if(wrapped) break; // wrapped second time (why?)
 	    z = 0;

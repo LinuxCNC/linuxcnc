@@ -1,0 +1,254 @@
+/* #########################################################*/
+/* Specific widget styling */
+/* #########################################################*/
+
+#MainWindow {background: black;
+    margin: 0px;
+    border-width: 0px;
+}
+
+#rightside_frame {
+    background: grey;
+    margin-top: 26px;
+}
+
+#dro_x, #dro_y, #dro_z, #dro_a {
+    border: 1px solid blue;
+    border-radius: 10px;
+    padding: 2px;
+    background: black;
+    font: 75 24pt "Noto Sans";
+    color: orange;
+}
+#tool_description_label, #program_name_label, #at_speed_label, #spindle_speed_label,
+#tool_number_label, #blank_label_2, #blank_label_4,
+#blank_label_6, #blank_label_8, #blank_label_9,
+#machine_state_label, #spindle_override_label, #mdiline, #jog_inc_label,
+#jog_angular_inc_label, #feedrate_label, #user_system_label, #feed_override_label,
+#gcode_label, #mcode_label, #tool_diameter_label {
+    border: 1px solid blue;
+    border-radius: 10px;
+    padding: 2px;
+    background: black;
+    font: 75 12pt "Noto Sans";
+    color: orange;
+}
+
+#mdiline:disabled {
+    background: gray
+}
+
+/* #########################################################*/
+/* General widget styling */
+/* #########################################################*/
+
+QStatusBar {
+    background: qradialgradient(cx: 0.3, cy: -0.4,
+    fx: 0.3, fy: -0.4,
+    radius: 1.35, stop: 0 #fff, stop: 1 #888);
+    padding: 1px;
+    border-style: solid;
+    border: 2px solid gray;
+    border-radius: 8px;
+    font: 95 18pt "Noto Sans";
+}
+
+QToolButton {
+    color: #333;
+    border: 2px solid #555;
+    border-radius: 11px;
+    padding: px;
+    background: qradialgradient(cx: 0.3, cy: -0.4, fx: 0.3, fy: -0.4,
+        radius: 1.35, stop: 0 #fff, stop: 1 #888);
+        min-width: 30px;
+}
+
+AxisToolButton, SystemToolButton {
+    font: 95 18pt "Noto Sans";
+    border-color: black;
+    border-style: solid;
+    border-radius: 4px;
+    border-width: 2px;
+    min-width: 40px;
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #b6b6b6, stop: 1.0 #626262);
+}
+AxisToolButton:enabled, SystemToolButton:enabled{
+    color: #000;
+}
+
+AxisToolButton:disabled, SystemToolButton:disabled{
+    color: darkgray;
+}
+
+AxisToolButton:hover, SystemToolButton:hover {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #A19E9E, stop: 1.0 #5C5959);
+}
+
+AxisToolButton:pressed, SystemToolButton:pressed {
+    background:  qlineargradient(x1: 0, y1: 0,
+        stop: 0 #5C5959, stop: 1.0 #A19E9E)
+}
+
+AxisToolButton:checked {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #4a6aa7, stop: 1.0 #6f96cd)
+}
+
+QPushButton {
+    font: 95 18pt "Noto Sans";
+    color: #000;
+    border-color: black;
+    border-style: solid;
+    border-radius: 4px;
+    border-width: 2px;
+    min-width: 40px;
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #b6b6b6, stop: 1.0 #626262);
+}
+
+QPushButton:disabled{
+    color: darkgray;
+}
+
+QPushButton:hover {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #A19E9E, stop: 1.0 #5C5959);
+}
+
+QPushButton:pressed {
+    background:  qlineargradient(x1: 0, y1: 0,
+        stop: 0 #5C5959, stop: 1.0 #A19E9E)
+}
+
+QPushButton:checked {
+    background:  qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #4a6aa7, stop: 1.0 #6f96cd)
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid #bbb;
+    background: white;
+    height: 5px;
+    border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+        stop: 0 #66e, stop: 1 #bbf);
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+        stop: 0 #bbf, stop: 1 #55f);
+    border: 1px solid #777;
+    height: 10px;
+    border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+    background: #fff;
+    border: 1px solid #777;
+    height: 10px;
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #eee, stop:1 #ccc);
+    border: 1px solid #777;
+    width: 20px;
+    margin-top: -7px;
+    margin-bottom: -7px;
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #fff, stop:1 #ddd);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled {
+    background: #bbb;
+    border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled {
+    background: #eee;
+    border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled {
+    background: #eee;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+QProgressBar {
+    border: 1px solid gray;
+    text-align: top;
+    color:yellow;
+    padding: 1px;
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border-bottom-left-radius: 7px;
+    background: QLinearGradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #38395a, stop: 1 #141529);
+
+
+}
+QProgressBar::chunk {
+    background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #78d,
+
+stop: 1 #238 );
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+    border-bottom-left-radius: 7px;
+    border: 1px solid black;
+}
+
+
+
+
+QTabWidget::pane { /* The tab widget frame */
+    border-top: 2px solid #C2C7CB;
+    background: solid #707070;
+    margin-right: 0px;
+    border-right-width: 0px;
+    padding-right: 0px;
+}
+
+QTabWidget::tab-bar {
+    left: 5px; /* move to the right by 5px */
+}
+
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E1E1E1, stop: 0.4 #DDDDDD, stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+    border: 2px solid #C4C4C3;
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    border-top-left-radius: 4px;
+b   order-top-right-radius: 4px;
+    min-width: 8ex;
+    padding: 2px;
+}
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+        stop: 0 #fafafa, stop: 0.4 #f4f4f4, stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+}
+QTabBar::tab:selected {
+    border-color: #9B9B9B;
+    border-bottom-color: #C2C7CB; /* same as pane color */
+}
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}
+
+QLabel {
+    color: black;
+    font: 75 12pt "Noto Sans";
+}
+

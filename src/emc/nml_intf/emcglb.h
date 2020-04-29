@@ -82,6 +82,7 @@ typedef struct AxisConfig_t {
 typedef struct TrajConfig_t {
     int Inited;	// non-zero means traj called init
     int Joints;
+    int Spindles;
     double MaxAccel;
     double MaxVel;
     int DeprecatedAxes;

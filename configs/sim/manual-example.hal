@@ -20,7 +20,7 @@ net machine-on halui.machine.is-on => gladevcp.commands
 
 
 # show the current spindle speed in the top hoizontal bar
-net spindle-speed-cmd motion.spindle-speed-out => gladevcp.spindle-rpm-hbar
+net spindle-speed-cmd spindle.0.speed-out => gladevcp.spindle-rpm-hbar
 
 # the first and second labels show prepared and current tool
 unlinkp iocontrol.0.tool-prep-number

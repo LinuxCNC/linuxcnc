@@ -30,7 +30,7 @@ class emc_control:
                 self.emccommand.wait_complete()
                 self.emcstat.poll()
                 if self.emcstat.kinematics_type != emc.KINEMATICS_IDENTITY:
-                    raise SystemExit, "\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n"
+                    raise SystemExit("\n*** emc_control: Only KINEMATICS_IDENTITY is supported\n")
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -77,22 +77,33 @@ class emc_control:
         def home_all(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.home(-1)
 
         def unhome_all(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
                 self.emccommand.unhome(-1)
 
         def home_selected(self, axis):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.home(axis)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
+                joint = coordinates.index("XYZABCUVW"[axis])
+                self.emccommand.home(joint)
 
         def unhome_selected(self, axis):
+                print(axis)
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.unhome(axis)
+                self.emccommand.teleop_enable(0)
+                self.emccommand.wait_complete()
+                joint = coordinates.index("XYZABCUVW"[axis])
+                self.emccommand.unhome(joint)
 
         def jogging(self, b):
                 if self.masked: return
@@ -106,7 +117,7 @@ class emc_control:
         def spindle_forward(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(1);
+                self.emccommand.spindle(1, 1, 0);
 
         def spindle_off(self, b):
                 if self.masked: return
@@ -116,7 +127,7 @@ class emc_control:
         def spindle_reverse(self, b):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
-                self.emccommand.spindle(-1);
+                self.emccommand.spindle(-1, 1, 0);
 
         def spindle_faster(self, b):
                 if self.masked: return
@@ -268,7 +279,7 @@ class emc_status:
                 self.unit_convert = c
 
         def convert_units(self,v,c):
-                return map(lambda x,y: x*y, v, c)
+                return list(map(lambda x,y: x*y, v, c))
 
         def dro_commanded(self, b):
                 self.actual = 0
@@ -375,10 +386,9 @@ class emc_status:
                         d += 1
                         
                 for i in range(1, 9):
-                        h = " "
-                        if self.emcstat.homed[i]: h = "*"
                         if am & (1<<i):
                                 letter = 'XYZABCUVW'[i]
+                                h = "*" if self.emcstat.homed[coordinates.index(letter)] else " "
                                 set_text(self.relative[d], fmt % (letter, relp[i]))
                                 set_text(self.absolute[d], h + fmt % (letter, p[i]))
                                 set_text(self.distance[d], fmt % (letter, dtg[i]))
@@ -411,7 +421,7 @@ class emc_status:
                 set_active(self.mists['on'], mist)
                 set_active(self.mists['off'], not mist)
 
-                spin = self.emcstat.spindle_direction
+                spin = self.emcstat.spindle[0]['direction']
                 set_active(self.spindles['forward'], spin == 1)
                 set_active(self.spindles['off'], spin == 0)
                 set_active(self.spindles['reverse'], spin == -1)
@@ -423,10 +433,10 @@ class emc_status:
                 set_text(self.status['onlimit'], ol)
 
                 sd = (_("CCW"), _("Stopped"), _("CW"))
-                set_text(self.status['spindledir'], sd[self.emcstat.spindle_direction+1])
+                set_text(self.status['spindledir'], sd[self.emcstat.spindle[0]['direction']+1])
 
-                set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle_speed)
-                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle_speed)
+                set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle[0]['speed'])
+                set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle[0]['speed'])
                 set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
 		if self.emcstat.pocket_prepped == -1:
 			set_text(self.status['preppedtool'], _("None"))
@@ -434,7 +444,7 @@ class emc_status:
 			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
 
                 tt = ""
-                for p, t in zip(range(len(self.emcstat.tool_table)), self.emcstat.tool_table):
+                for p, t in zip(list(range(len(self.emcstat.tool_table))), self.emcstat.tool_table):
                         if t.id != -1:
                                 tt += "<b>P%02d:</b>T%02d\t" % (p, t.id)
                                 if p == 0: tt += '\n'

@@ -70,7 +70,7 @@ struct hm2_lowlevel_io_struct {
     // on success these two return TRUE (not zero)
     // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
     int (*read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
-    int (*write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
 
     // these two are optional
     int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
@@ -100,7 +100,7 @@ struct hm2_lowlevel_io_struct {
     //   * actually performing the writes
     // these routines are optional; the llio may either provide both of them, or neither
     // (in which case a dummy implementation of ->queue_write delegates to ->write)
-    int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
     int (*send_queued_writes)(hm2_lowlevel_io_t *self);
     // 
     // This is a HAL parameter allocated and added to HAL by hostmot2.

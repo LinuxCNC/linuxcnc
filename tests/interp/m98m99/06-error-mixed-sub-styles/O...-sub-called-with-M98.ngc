@@ -1,0 +1,9 @@
+%
+( RS274NGC 'O...' sub must not be called with M98 )
+
+M98 P1
+
+O1 sub
+(PRINT,X FANUC)
+O1 endsub
+%

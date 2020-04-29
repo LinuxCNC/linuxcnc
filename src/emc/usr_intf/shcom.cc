@@ -38,6 +38,7 @@
 #include "rcs_print.hh"
 #include "timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
+#include <rtapi_string.h>
 
 LINEAR_UNIT_CONVERSION linearUnitConversion;
 ANGULAR_UNIT_CONVERSION angularUnitConversion;
@@ -271,7 +272,7 @@ int updateError()
 
     default:
 	// if not recognized, set the error string
-	sprintf(error_string, "unrecognized error %" PRId32, type);
+	snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
 	return -1;
 	break;
     }
@@ -723,9 +724,10 @@ int sendLubeOff()
     return 0;
 }
 
-int sendSpindleForward()
+int sendSpindleForward(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+    emc_spindle_on_msg.spindle = spindle;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed = fabs(emcStatus->task.activeSettings[2]);
     } else {
@@ -741,9 +743,10 @@ int sendSpindleForward()
     return 0;
 }
 
-int sendSpindleReverse()
+int sendSpindleReverse(int spindle)
 {
     EMC_SPINDLE_ON emc_spindle_on_msg;
+    emc_spindle_on_msg.spindle = spindle;
     if (emcStatus->task.activeSettings[2] != 0) {
 	emc_spindle_on_msg.speed =
 	    -1 * fabs(emcStatus->task.activeSettings[2]);
@@ -760,10 +763,10 @@ int sendSpindleReverse()
     return 0;
 }
 
-int sendSpindleOff()
+int sendSpindleOff(int spindle)
 {
     EMC_SPINDLE_OFF emc_spindle_off_msg;
-
+    emc_spindle_off_msg.spindle = spindle;
     emcCommandSend(emc_spindle_off_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -774,10 +777,10 @@ int sendSpindleOff()
     return 0;
 }
 
-int sendSpindleIncrease()
+int sendSpindleIncrease(int spindle)
 {
     EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
-
+    emc_spindle_increase_msg.spindle = spindle;
     emcCommandSend(emc_spindle_increase_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -788,10 +791,10 @@ int sendSpindleIncrease()
     return 0;
 }
 
-int sendSpindleDecrease()
+int sendSpindleDecrease(int spindle)
 {
     EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
-
+    emc_spindle_decrease_msg.spindle = spindle;
     emcCommandSend(emc_spindle_decrease_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -802,10 +805,10 @@ int sendSpindleDecrease()
     return 0;
 }
 
-int sendSpindleConstant()
+int sendSpindleConstant(int spindle)
 {
     EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
-
+    emc_spindle_constant_msg.spindle = spindle;
     emcCommandSend(emc_spindle_constant_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -816,10 +819,11 @@ int sendSpindleConstant()
     return 0;
 }
 
-int sendBrakeEngage()
+int sendBrakeEngage(int spindle)
 {
     EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
 
+    emc_spindle_brake_engage_msg.spindle = spindle;
     emcCommandSend(emc_spindle_brake_engage_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -830,10 +834,11 @@ int sendBrakeEngage()
     return 0;
 }
 
-int sendBrakeRelease()
+int sendBrakeRelease(int spindle)
 {
     EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
 
+    emc_spindle_brake_release_msg.spindle = spindle;
     emcCommandSend(emc_spindle_brake_release_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -931,7 +936,7 @@ int sendRapidOverride(double override)
 }
 
 
-int sendSpindleOverride(double override)
+int sendSpindleOverride(int spindle, double override)
 {
     EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
 
@@ -939,6 +944,7 @@ int sendSpindleOverride(double override)
 	override = 0.0;
     }
 
+    emc_traj_set_spindle_scale_msg.spindle = spindle;
     emc_traj_set_spindle_scale_msg.scale = override;
     emcCommandSend(emc_traj_set_spindle_scale_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
@@ -972,9 +978,9 @@ int sendProgramOpen(char *program)
     EMC_TASK_PLAN_OPEN emc_task_plan_open_msg;
 
     // save this to run again
-    strcpy(lastProgramFile, program);
+    rtapi_strxcpy(lastProgramFile, program);
 
-    strcpy(emc_task_plan_open_msg.file, program);
+    rtapi_strxcpy(emc_task_plan_open_msg.file, program);
     emcCommandSend(emc_task_plan_open_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -1076,7 +1082,7 @@ int sendMdiCmd(const char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
-    strcpy(emc_task_plan_execute_msg.command, mdi);
+    rtapi_strxcpy(emc_task_plan_execute_msg.command, mdi);
     emcCommandSend(emc_task_plan_execute_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -1091,7 +1097,7 @@ int sendLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
-    strcpy(emc_tool_load_tool_table_msg.file, file);
+    rtapi_strxcpy(emc_tool_load_tool_table_msg.file, file);
     emcCommandSend(emc_tool_load_tool_table_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -1186,7 +1192,7 @@ int sendJointLoadComp(int joint, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
-    strcpy(emc_joint_load_comp_msg.file, file);
+    rtapi_strxcpy(emc_joint_load_comp_msg.file, file);
     emc_joint_load_comp_msg.type = type;
     emcCommandSend(emc_joint_load_comp_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
@@ -1271,14 +1277,14 @@ int iniLoad(const char *filename)
 
     if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	strcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, inistring);
     } else {
 	// not found, use default
     }
 
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
-	sprintf(displayString, "JOINT_%d", t);
+	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
 	if (NULL != (inistring =
 		     inifile.Find("JOGGING_POLARITY", displayString)) &&
 	    1 == sscanf(inistring, "%d", &i) && i == 0) {

@@ -18,6 +18,8 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_read.cc \
 	interp_write.cc \
 	interp_o_word.cc \
+	interp_g7x.cc \
+	modal_state.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \
@@ -30,10 +32,11 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	pyblock.cc \
 	pyarrays.cc \
 	interpmodule.cc \
-	rs274ngc_pre.cc)
+	rs274ngc_pre.cc \
+	interp_inspection.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS) 
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS)
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 

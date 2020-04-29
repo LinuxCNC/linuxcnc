@@ -32,19 +32,10 @@
  * - http://elinux.org/BCM2835_datasheet_errata
  */
 
-#define BCM2835_PERI_BASE	0x20000000
 #define BCM2835_GPIO_OFFSET	0x200000
 #define BCM2835_SPI_OFFSET	0x204000
 #define BCM2835_AUX_OFFSET	0x215000
 
-#define BCM2835_GPIO_BASE	(BCM2835_PERI_BASE + BCM2835_GPIO_OFFSET)	/* GPIO controller */
-#define BCM2835_SPI_BASE	(BCM2835_PERI_BASE + BCM2835_SPI_OFFSET)	/* SPI controller */
-#define BCM2835_AUX_BASE	(BCM2835_PERI_BASE + BCM2835_AUX_OFFSET)	/* AUX controller */
-#define BCM2835_GPIO_END	(BCM2835_GPIO_BASE + sizeof(bcm2835_gpio_t))
-#define BCM2835_SPI_END		(BCM2835_SPI_BASE + sizeof(bcm2835_spi_t))
-#define BCM2835_AUX_END		(BCM2835_AUX_BASE + sizeof(bcm2835_aux_t))
-
-#define BCM2709_OFFSET		0x1F000000	// For RPI 2 and 3
 
 #if !defined(__I) && !defined(__O) && !defined(__IO)
 #ifdef __cplusplus

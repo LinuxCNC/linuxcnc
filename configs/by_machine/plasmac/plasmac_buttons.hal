@@ -1,0 +1,3 @@
+net plasmac:torch-enable  plasmac_buttons.torch-enable-button => plasmac.torch-enable  plasmac_buttons.torch-enable-light
+
+# all other hal connections to buttons are done in plasmac_buttons.py

@@ -24,6 +24,7 @@
 #include <boost/python/implicit.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/overloads.hpp>
+#include <boost_pyenum_macros.hh>
 #include <boost/python/scope.hpp>
 #include "python_plugin.hh"
 #include "rs274ngc.hh"
@@ -66,7 +67,7 @@ static int handle_exception(const char *name)
 	    try {						\
 		return f();					\
 	    }							\
-	    catch( bp::error_already_set ) {			\
+	    catch( const bp::error_already_set& ) {			\
 		return handle_exception(#method);		\
 	    }							\
 	}							\
@@ -81,7 +82,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name);						\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch( const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -95,7 +96,7 @@ static int handle_exception(const char *name)
 	    try {							\
 		return f(name,name2);					\
 	    }								\
-	    catch( bp::error_already_set ) {				\
+	    catch(const bp::error_already_set& ) {				\
 		return handle_exception(#method);			\
 	    }								\
 	} else								\
@@ -121,7 +122,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
     EXPAND(emcLubeOff)
     EXPAND1(emcIoSetDebug,int,debug)
 
-    EXPAND2(emcToolPrepare,int, p, int, tool)
+    EXPAND1(emcToolPrepare, int, tool)
     EXPAND(emcToolLoad)
     EXPAND1(emcToolLoadToolTable, const char *, file)
     EXPAND(emcToolUnload)
@@ -134,7 +135,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 		std::string buffer(msg,len);
 		return f(len,buffer);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoPluginCall");
 	    }
 	} else
@@ -147,7 +148,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(pocket,toolno,offset,diameter,frontangle,backangle,orientation);
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcToolSetOffset");
 	    }
 	else
@@ -159,7 +160,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 	    try {
 		return f(); /// bug in Boost.Python, fixed in 1.44 I guess: return_int("foo",f());
 	    }
-	    catch( bp::error_already_set ) {
+	    catch( const bp::error_already_set& ) {
 		return handle_exception("emcIoUpdate");
 	    }
 	else
@@ -169,6 +170,7 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 };
 
 typedef pp::array_1_t< EMC_AXIS_STAT, EMCMOT_MAX_AXIS> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
+typedef pp::array_1_t< EMC_SPINDLE_STAT, EMCMOT_MAX_SPINDLES> spindle_array, (*spindle_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< int, EMCMOT_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< double, EMCMOT_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
 
@@ -184,6 +186,10 @@ static  tool_array tool_wrapper ( EMC_TOOL_STAT & t) {
 
 static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
     return axis_array(m.axis);
+}
+
+static  spindle_array spindle_wrapper ( EMC_MOTION_STAT & m) {
+    return spindle_array(m.spindle);
 }
 
 static  synch_dio_array synch_di_wrapper ( EMC_MOTION_STAT & m) {
@@ -265,58 +271,55 @@ BOOST_PYTHON_MODULE(emctask) {
 	operator_display_overloads ( args("id"),
 				   "send a message to the operator display"  ));
 
+    BOOST_PYENUM_(RCS_STATUS)
+            .BOOST_PYENUM_VAL(RCS_EXEC)
+            .BOOST_PYENUM_VAL(RCS_DONE)
+            .BOOST_PYENUM_VAL(RCS_ERROR)
+            ;
 
-#define VAL(X)  .value(#X, X)
+    BOOST_PYENUM_(EMC_TASK_MODE_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_MANUAL)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_AUTO)
+            .BOOST_PYENUM_VAL(EMC_TASK_MODE_MDI)
+            ;
 
-    enum_<RCS_STATUS>("RCS_STATUS")
-	VAL(RCS_EXEC)
-	VAL(RCS_DONE)
-	VAL(RCS_ERROR)
-	;
+    BOOST_PYENUM_(EMC_TASK_STATE_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ESTOP_RESET)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_OFF)
+            .BOOST_PYENUM_VAL(EMC_TASK_STATE_ON)
+            ;
 
-    enum_<EMC_TASK_MODE_ENUM>("EMC_TASK_MODE")
-	VAL(EMC_TASK_MODE_MANUAL)
-	VAL(EMC_TASK_MODE_AUTO)
-	VAL(EMC_TASK_MODE_MDI)
-	;
+    BOOST_PYENUM_(EMC_TASK_EXEC_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_ERROR)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_DONE)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
+            .BOOST_PYENUM_VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
+            ;
 
-    enum_<EMC_TASK_STATE_ENUM>("EMC_TASK_STATE")
-	VAL(EMC_TASK_STATE_ESTOP)
-	VAL(EMC_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_TASK_STATE_OFF)
-	VAL(EMC_TASK_STATE_ON)
-	;
-
-    enum_<EMC_TASK_EXEC_ENUM>("EMC_TASK_EXEC")
-	VAL(EMC_TASK_EXEC_ERROR)
-	VAL(EMC_TASK_EXEC_DONE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_DELAY)
-	VAL(EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD)
-	;
-
-    enum_<EMC_TASK_INTERP_ENUM>("EMC_TASK_INTERP")
-	VAL(EMC_TASK_INTERP_IDLE)
-	VAL(EMC_TASK_INTERP_READING)
-	VAL(EMC_TASK_INTERP_PAUSED)
-	VAL(EMC_TASK_INTERP_WAITING)
-	;
+    BOOST_PYENUM_(EMC_TASK_INTERP_ENUM)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_IDLE)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_READING)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_PAUSED)
+            .BOOST_PYENUM_VAL(EMC_TASK_INTERP_WAITING)
+            ;
 
 
-    enum_<EMC_IO_ABORT_REASON_ENUM>("EMC_IO_ABORT_REASON")
-	VAL(EMC_ABORT_TASK_EXEC_ERROR)
-	VAL(EMC_ABORT_AUX_ESTOP)
-	VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
-	VAL(EMC_ABORT_TASK_STATE_OFF)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
-	VAL(EMC_ABORT_TASK_STATE_ESTOP)
-	VAL(EMC_ABORT_TASK_STATE_NOT_ON)
-	VAL(EMC_ABORT_TASK_ABORT)
-	VAL(EMC_ABORT_USER)
-	;
+    BOOST_PYENUM_(EMC_IO_ABORT_REASON_ENUM)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_EXEC_ERROR)
+            .BOOST_PYENUM_VAL(EMC_ABORT_AUX_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_OFF)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_ESTOP_RESET)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_ESTOP)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_STATE_NOT_ON)
+            .BOOST_PYENUM_VAL(EMC_ABORT_TASK_ABORT)
+            .BOOST_PYENUM_VAL(EMC_ABORT_USER)
+            ;
 
     class_<TaskWrap, shared_ptr<TaskWrap>, noncopyable >("Task")
 
@@ -342,7 +345,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("id", &EMC_TRAJ_STAT::id )
 	.def_readwrite("paused", &EMC_TRAJ_STAT::paused )
 	.def_readwrite("scale", &EMC_TRAJ_STAT::scale )
-	.def_readwrite("spindle_scale", &EMC_TRAJ_STAT::spindle_scale )
 	.def_readwrite("position", &EMC_TRAJ_STAT::position )
 	.def_readwrite("actualPosition", &EMC_TRAJ_STAT::actualPosition )
 	.def_readwrite("velocity", &EMC_TRAJ_STAT::velocity )
@@ -359,7 +361,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("dtg", &EMC_TRAJ_STAT::dtg )
 	.def_readwrite("current_vel", &EMC_TRAJ_STAT::current_vel )
 	.def_readwrite("feed_override_enabled", &EMC_TRAJ_STAT::feed_override_enabled )
-	.def_readwrite("spindle_override_enabled", &EMC_TRAJ_STAT::spindle_override_enabled )
 	.def_readwrite("adaptive_feed_enabled", &EMC_TRAJ_STAT::adaptive_feed_enabled )
 	.def_readwrite("feed_hold_enabled", &EMC_TRAJ_STAT::feed_hold_enabled )
 	;
@@ -394,6 +395,10 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("brake", &EMC_SPINDLE_STAT::brake )
 	.def_readwrite("increasing", &EMC_SPINDLE_STAT::increasing )
 	.def_readwrite("enabled", &EMC_SPINDLE_STAT::enabled )
+	.def_readwrite("spindle_override_enabled", &EMC_SPINDLE_STAT::spindle_override_enabled )
+	.def_readwrite("spindle_scale", &EMC_SPINDLE_STAT::spindle_scale )
+	.def_readwrite("spindle_orient_state", &EMC_SPINDLE_STAT::orient_state )
+	.def_readwrite("spindle_orient_fault", &EMC_SPINDLE_STAT::orient_fault )
 	;
 
     class_ <EMC_COOLANT_STAT , noncopyable>("EMC_COOLANT_STAT ",no_init)
@@ -411,9 +416,9 @@ BOOST_PYTHON_MODULE(emctask) {
 	.add_property( "axis",
 		       bp::make_function( axis_w(&axis_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
-
-
-	.def_readwrite("spindle", &emcStatus->motion.spindle)
+	.add_property( "spindle",
+			   bp::make_function( spindle_w(&spindle_wrapper),
+					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "synch_di",
 		       bp::make_function( synch_dio_w(&synch_di_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))

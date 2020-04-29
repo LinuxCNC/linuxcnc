@@ -1,0 +1,27 @@
+%
+( A simple O sub example )
+
+F40
+; Test with 10 loops
+#1 = 0
+G90 G0 X0 Y0 Z0.25
+M98 P1 L10
+(PRINT,X MAIN 10LOOP PARAM1 = #1)
+; Test with 0 loops
+#1 = 0
+G90 G0 X0 Y0 Z0.25
+M98 P1 L0
+(PRINT,X MAIN 0LOOP PARAM1 = #1)
+; Test with 2 loops
+#1 = 0
+G90 G0 X0 Y0 Z0.25
+M98 P1 L2
+(PRINT,X MAIN 2LOOP PARAM1 = #1)
+M30
+
+O1
+G91 G99 G81 X1 Z-1.0 R0.25  ; Drill to Z-1.0
+#1 = [#1 + 1]
+(PRINT,X SUB O1 PARAM1 = #1)
+M99
+%

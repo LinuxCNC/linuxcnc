@@ -186,6 +186,14 @@ proc add_number_item_to_gui {f id enable_plusminus} {
        -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
+  if {$::SP($id,itemtype) == "u32"} {
+    pack [label $f.hexl -bg $color -fg black \
+         -anchor w \
+         -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
+                 $::SP(prefix)[format %#X $value]"] \
+         -fill x -expand 1
+    set ::SP($id,hexlabel) $f.hexl
+  }
   pack $f -side top -fill x -expand 0
 } ;# add_number_item_to_gui
 
@@ -390,6 +398,11 @@ proc item_show {id} {
     float {$::SP($id,label) configure -bg $color -fg black \
        -text "$::SP(iprefix)$::SP($id,ivalue) $::SP(prefix)$value"
     }
+  }
+  if {$::SP($id,itemtype) == "u32"} {
+    $::SP($id,hexlabel) configure -bg $color -fg black \
+       -text "$::SP(iprefix)[format %#X $::SP($id,ivalue)] \
+               $::SP(prefix)[format %#X $value]"
   }
 } ;# item_show
 

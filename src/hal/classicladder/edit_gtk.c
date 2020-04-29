@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include "classicladder.h"
@@ -122,7 +125,7 @@ void ButtonsForStart()
 		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] ]), TRUE );
 		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], TRUE );
 	}
-	MessageInStatusBar( iCurrentLanguage==SECTION_IN_LADDER?"Current rung in edit mode...":"Edit mode..." );
+	MessageInStatusBar( iCurrentLanguage==SECTION_IN_LADDER?_("Current rung in edit mode..."):_("Edit mode...") );
 }
 void ButtonsForEnd( char ForRung )
 {
@@ -180,7 +183,7 @@ void ButtonInsertRung()
 }
 void ButtonDeleteCurrentRung()
 {
-	ShowConfirmationBox("Delete","Do you really want to delete the current rung ?",DeleteCurrentRung);
+	ShowConfirmationBox(_("Delete"),_("Do you really want to delete the current rung ?"),DeleteCurrentRung);
 }
 void ButtonModifyCurrentRung()
 {
@@ -338,37 +341,37 @@ void EditorInitGtk()
 	GtkWidget *vbox;
 
 	EditWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ( GTK_WINDOW( EditWindow ), "Editor");
+	gtk_window_set_title ( GTK_WINDOW( EditWindow ), _("Editor"));
 
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (EditWindow), vbox);
 	gtk_widget_show (vbox);
 
-	EditorButtonAdd = gtk_button_new_with_label ("Add");
+	EditorButtonAdd = gtk_button_new_with_label (_("Add"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonAdd, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonAdd), "clicked",
 						(GtkSignalFunc) ButtonAddRung, 0);
 	gtk_widget_show (EditorButtonAdd);
-	EditorButtonIns = gtk_button_new_with_label ("Insert");
+	EditorButtonIns = gtk_button_new_with_label (_("Insert"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonIns, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonIns), "clicked",
 						(GtkSignalFunc) ButtonInsertRung, 0);
 	gtk_widget_show (EditorButtonIns);
-	EditorButtonDel = gtk_button_new_with_label ("Delete");
+	EditorButtonDel = gtk_button_new_with_label (_("Delete"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonDel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonDel), "clicked",
 						(GtkSignalFunc) ButtonDeleteCurrentRung, 0);
 	gtk_widget_show (EditorButtonDel);
-	EditorButtonModify = gtk_button_new_with_label ("Modify");
+	EditorButtonModify = gtk_button_new_with_label (_("Modify"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonModify, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonModify), "clicked",
 						(GtkSignalFunc) ButtonModifyCurrentRung, 0);
 	gtk_widget_show (EditorButtonModify);
-	EditorButtonOk = gtk_button_new_with_label ("Ok");
+	EditorButtonOk = gtk_button_new_with_label (_("Ok"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonOk, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonOk), "clicked",
 						(GtkSignalFunc) ButtonOkCurrentRung, 0);
-	EditorButtonCancel = gtk_button_new_with_label ("Cancel");
+	EditorButtonCancel = gtk_button_new_with_label (_("Cancel"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonCancel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonCancel), "clicked",
 						(GtkSignalFunc) ButtonCancelCurrentRung, 0);

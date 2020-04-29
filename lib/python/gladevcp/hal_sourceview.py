@@ -18,11 +18,11 @@ import os, time
 
 import gobject, gtk
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from hal_actions import _EMC_ActionBase, _EMC_Action
-from hal_filechooser import _EMC_FileChooser
+from .hal_actions import _EMC_ActionBase, _EMC_Action
+from .hal_filechooser import _EMC_FileChooser
 
 import gtksourceview2 as gtksourceview
 
@@ -64,10 +64,10 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.found_text_tag = self.buf.create_tag(background = selected_color)
         self.update_iter()
         self.connect('button-release-event', self.button_pressed)
-        self.connect('realize', self.change_style)
 
-    def change_style(self, *a):
-        # This gets us the 'selected text' color after the theme is selected
+    def change_style(self):
+        # This gets us the 'base selected' color after the theme is selected
+        # often looks like this in gkrc file:    base[SELECTED]    = "#FF0000"
         style= self.get_style()
         selected_color = style.base[gtk.STATE_SELECTED].to_string()
         #print "- text",style.base[gtk.STATE_SELECTED].to_string()
@@ -137,6 +137,11 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         p = f.readlines()
         f.close()
         self.program_length = len(p)
+
+        # update highlight color of theme changed since last load
+        # since there seems to be no 'theme has changed' signal we
+        # can tap into, we just check each time we load.
+        self.change_style()
 
     # This moves the highlight line to a lower numbered line.
     # useful for run-at-line selection
@@ -266,7 +271,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         if self.buf.can_redo():
             self.buf.redo()
 
-def safe_write(filename, data, mode=0644):
+def safe_write(filename, data, mode=0o644):
     import os, tempfile
     fd, fn = tempfile.mkstemp(dir=os.path.dirname(filename), prefix=os.path.basename(filename))
     try:

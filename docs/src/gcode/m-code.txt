@@ -32,6 +32,7 @@
 |<<mcode:m71,M71>>                   | Invalidate Stored Modal State
 |<<mcode:m72,M72>>                   | Restore Modal State
 |<<mcode:m73,M73>>                   | Save Autorestore Modal State
+|<<mcode:m98-m99,M98 M99>>           | Call and Return From Subprogram
 |<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes 
 |========================================
 
@@ -40,16 +41,14 @@
 == M0, M1 Program Pause
 (((M0, M1 Program Pause)))
 
-* 'M0' - pause a running program temporarily. LinuxCNC remains
-         in the Auto Mode so MDI and other manual actions
-         are not enabled. Pressing the cycle start button
-         will restart the program at the following line.
+* 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
+         so MDI and other manual actions are not enabled. Pressing the resume
+         button will restart the program at the following line.
 
-* 'M1' - pause a running program temporarily if the optional
-         stop switch is on. LinuxCNC remains in the Auto Mode
-         so MDI and other manual actions are not enabled.
-         Pressing the cycle start button
-         will restart the program at the following line.
+* 'M1' - pause a running program temporarily if the optional stop switch is on.
+         LinuxCNC remains in the Auto Mode so MDI and other manual actions are
+         not enabled. Pressing the resume button will restart the program at the
+         following line.
 
 [NOTE]
 It is OK to program 'M0' and 'M1' in MDI mode,
@@ -61,11 +60,11 @@ to stop after each line of input anyway.
 == M2, M30 Program End
 (((M2, M30 Program End)))
 
-* 'M2' - end the program. Pressing cycle start will
-         start the program at the beginning of the file.
-         
+* 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
+         will restart the program at the beginning of the file.
+
 * 'M30' - exchange pallet shuttles and end the program.
-          Pressing cycle start will start the program
+          Pressing `Cycle Start` will start the program
           at the beginning of the file.
 
 Both of these commands have the following effects:
@@ -82,8 +81,8 @@ Both of these commands have the following effects:
 . Coolant is turned off (like 'M9').
 
 [NOTE]
-Lines of code after M2/M30 will not be executed. Pressing cycle start will
-start the program at the beginning of the file.
+Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
+will start the program at the beginning of the file.
 
 [WARNING]
 Using % to wrap the G code does not do the same thing as a 'Program End'. See
@@ -103,9 +102,39 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 == M3, M4, M5 Spindle Control
 (((M3, M4, M5 Spindle Control)))
 
-* 'M3' - start the spindle clockwise at the 'S' speed.
-* 'M4' - start the spindle counterclockwise at the 'S' speed.
-* 'M5' - stop the spindle.
+* 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
+* 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
+* 'M5 [$n]' - stop the selected spindle.
+
+Use $ to operate on specific spindles. If $ is omitted then the commands
+default to operating on spindle.0
+Use $-1 to operate on all active spindles. 
+
+This example will start spindles 0, 1, and 2 simultaneously at different
+speeds:
+[source,{ngc}]
+----
+S100 $0
+S200 $1
+S300 $2 
+M3 $-1
+----
+
+This example will then reverse spindle 1 but leave the other spindles
+rotating forwards:
+[source,{ngc}]
+----
+M4 $1
+----
+
+And this will stop spindle 2 and leave the other spindles rotating:
+[source,{ngc}]
+----
+M5 $2
+----
+
+If the $ is omitted then behaviour is exactly as normal for a single
+spindle machine
 
 It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
@@ -149,7 +178,7 @@ When the tool change is complete:
    flow during the tool change unless it has been turned off by an 'M9'.
 
 [WARNING]
-The tool length offset is not changed by 'M6', use 'G43' after the
+The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
 The tool change may include axis motion. 
@@ -165,9 +194,12 @@ classicladder.
 == M7, M8, M9 Coolant Control
 (((M7, M8, M9 Coolant Control)))
 
-* 'M7' - turn mist coolant on.
-* 'M8' - turn flood coolant on.
-* 'M9' - turn all coolant off.
+* 'M7' - turn mist coolant on. M7 controls iocontrol.0.coolant-mist pin.
+* 'M8' - turn flood coolant on. M8 controls iocontrol.0.coolant-flood pin.
+* 'M9' - turn both M7 and M8 off.
+
+Connect one or both of the coolant control pins in HAL before M7 or M8 will
+control an output. M7 and M8 can be used to turn on any output via G code.
 
 It is OK to use any of these commands, regardless of the current coolant
 state.
@@ -176,12 +208,12 @@ state.
 == M19 Orient Spindle
 (((M19 Orient Spindle)))
 
-* 'M19 R- Q- [P-]'
+* 'M19 R- Q- [P-] [$-]'
 
 * 'R' Position to rotate to from 0, valid range is 0-360 degrees
 
 * 'Q' Number of seconds to wait until orient completes. If
-      motion.spindle.is_oriented does not become true within Q timeout
+      spindle.N.is-oriented does not become true within Q timeout
       an error occurs.
 
 * 'P' Direction to rotate to position.
@@ -189,6 +221,8 @@ state.
 ** '1' always rotate clockwise (same as M3 direction)
 ** '2' always rotate counterclockwise (same as M4 direction)
 
+* '$' The spindle to orient (actually only determines which HAL pins
+carry the spindle position commands)
 
 M19 is cleared by any of M3,M4,M5.
 
@@ -201,30 +235,30 @@ ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)
 
 HAL Pins
 
-* 'motion.spindle-orient-angle' (out float)
+* 'spindle.N.orient-angle' (out float)
 Desired spindle orientation for M19. Value of the M19 R word parameter 
 plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
-* 'motion.spindle-orient-mode' (out s32)
+* 'spindle.N.orient-mode' (out s32)
 Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
 
-* 'motion.spindle-orient' (out bit)
+* 'spindle.N.orient' (out bit)
 Indicates start of spindle orient cycle. Set by M19. Cleared by any of 
 M3,M4,M5.
   If spindle-orient-fault is not zero during spindle-orient true, the 
 M19 command fails with an error message.
 
-* 'motion.spindle-is-oriented' (in bit)
+* 'spindle.N.is-oriented' (in bit)
 Acknowledge pin for spindle-orient. Completes orient cycle. If 
 spindle-orient was true when spindle-is-oriented
   was asserted, the spindle-orient pin is cleared and the spindle-locked 
 pin is asserted. Also, the spindle-brake pin is asserted.
 
-* 'motion.spindle-orient-fault' (in s32)
+* 'spindle.N.orient-fault' (in s32)
   Fault code input for orient cycle. Any value other than zero will 
 cause the orient cycle to abort.
 
-* 'motion.spindle-locked' (out bit)
+* 'spindle.N.locked' (out bit)
 Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 [[mcode:m48-m49]]
@@ -233,6 +267,9 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 * 'M48' - enable the spindle speed and feed rate override controls.
 * 'M49' - disable both controls.
+
+These commands also take an optional $ parameter to determine which
+spindle they operate on. 
 
 It is OK to enable or disable the controls when 
 they are already enabled or disabled. 
@@ -254,13 +291,13 @@ and the motion will be executed at programmed feed rate.
 == M51 Spindle Speed Override Control
 (((M51 Spindle Speed Override)))
 
-* 'M51 <P1>' - enable the spindle speed override control. The P1
-               is optional. 
-* 'M51 P0' - disable the spindle speed override control program.
-             While disabled the spindle speed override will have
-             no influence, and the spindle speed will have the
-             exact program specified value of the S-word
-             (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
+* 'M51 <P1> <$->'- enable the spindle speed override control for the
+                   selected spindle. The  P1 is optional. 
+* 'M51 P0 <$->'  - disable the spindle speed override control program.
+                   While disabled the spindle speed override will have
+                   no influence, and the spindle speed will have the
+                   exact program specified value of the S-word
+                   (described in <<sec:set-spindle-speed,Spindle Speed>> Section).
 
 [[mcode:m52]]
 == M52 Adaptive Feed Control
@@ -273,7 +310,12 @@ When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
 to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
 is used for this purpose. Values on 'motion.adaptive-feed' should range
-from 0 (feed hold) to 1 (full speed).
+from -1 (programmed speed in reverse) to 1 (full speed). 0 is equivalent
+to feed-hold.
+[NOTE]
+The use of negative adaptive-feed for reverse run is a new
+feature and is not very well tested as yet. The intended use is for plasma
+cutters and wire spark eroders but it is not limited to such applications.
 
 [[mcode:m53]]
 == M53 Feed Stop Control
@@ -292,9 +334,15 @@ from 0 (feed hold) to 1 (full speed).
 == M61 Set Current Tool
 (((M61 Set Current Tool)))
 
-* 'M61 Q-' - change the current tool number while in MDI or Manual mode.
-             One use is when you power up LinuxCNC with a tool currently in
-             the spindle you can set that tool number without doing a tool change.
+* 'M61 Q-' - change the current tool number while in MDI or Manual mode without
+             a tool change. One use is when you power up LinuxCNC with a tool
+             currently in the spindle you can set that tool number without
+             doing a tool change.
+
+[WARNING]
+The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' after
+the 'M61' to change the tool length offset.
+
 
 It is an error if:
 
@@ -607,6 +655,13 @@ o<imperialsub> call
 o<showstate> call
 m2
 ----
+
+[[mcode:m98-m99]]
+== M98 and M99 ==
+
+The interpreter supports Fanuc-style main- and sub-programs with the
+'M98' and 'M99' M-codes.  See <<ocode:fanuc-style-programs,Fanuc-Style
+Programs>>.
 
 === Selectively Restoring Modal State
 

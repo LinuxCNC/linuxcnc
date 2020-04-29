@@ -77,7 +77,7 @@ net Zenable joint.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # spindle SSR
-# net spindle-fwd motion.spindle-forward pluto-servo.dout.00
+# net spindle-fwd spindle.0.forward pluto-servo.dout.00
 
 setp debounce.0.delay 3
 net Xswitch pluto-servo.din.00-not => debounce.0.0.in
@@ -91,17 +91,17 @@ net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 setp pluto-servo.pwm.3.enable 1
 
 # this needs scale/offset to give the right speeds, but 0 should be 0
-net spindle-speed-cmd motion.spindle-speed-out => limit1.0.in
+net spindle-speed-cmd spindle.0.speed-out => limit1.0.in
 net spindle-speed-cmd-limited limit1.0.out => scale.0.in
 setp scale.0.gain 0.00026315789 # 1/3800
 setp scale.0.offset 0.105
 setp mux2.0.in0 0
 setp limit1.0.max 1300
 net spindle-speed-scaled scale.0.out => mux2.0.in1
-net spindle-fwd motion.spindle-forward => mux2.0.sel pluto-servo.dout.00
+net spindle-fwd spindle.0.forward => mux2.0.sel pluto-servo.dout.00
 net spindle-pwm mux2.0.out => pluto-servo.pwm.3.value
 
 # spindle position, for threading
-net spindle-index motion.spindle-index-enable <=> pluto-servo.encoder.2.index-enable
-net spindle-pos pluto-servo.encoder.2.position => motion.spindle-revs
-net spindle-speed-fb pluto-servo.encoder.2.velocity => motion.spindle-speed-in
+net spindle-index spindle.0.index-enable <=> pluto-servo.encoder.2.index-enable
+net spindle-pos pluto-servo.encoder.2.position => spindle.0.revs
+net spindle-speed-fb pluto-servo.encoder.2.velocity => spindle.0.speed-in

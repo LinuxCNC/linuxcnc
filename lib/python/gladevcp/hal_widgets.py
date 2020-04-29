@@ -22,8 +22,9 @@ hal_pin_changed_signal = ('hal-pin-changed', (gobject.SIGNAL_RUN_FIRST, gobject.
 
 """ Set of base classes """
 class _HalWidgetBase:
-    def hal_init(self, comp, name):
+    def hal_init(self, comp, name, panel_instance):
         self.hal, self.hal_name = comp, name
+        self._panel_instance = panel_instance
         self._hal_init()
 
     def _hal_init(self):
@@ -49,12 +50,12 @@ class _HalToggleBase(_HalWidgetBase):
 class _HalScaleBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_s = self.hal.newpin(self.hal_name+"-s", hal.HAL_S32, hal.HAL_OUT)
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
-        
         self.hal_pin.set(self.get_value())
-
+        self.hal_pin_s.set(int(self.get_value()))
 
 class _HalIOScaleBase(_HalWidgetBase):
     def _hal_init(self):
@@ -277,8 +278,8 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
         if self.yellow_limit or self.red_limit:
-            bar.set_fraction(0)
-            bar.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
+            self.set_fraction(0)
+            self.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
         if self.text_template:
             self.set_text(self.text_template % {'value':0})
 

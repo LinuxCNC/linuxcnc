@@ -23,6 +23,7 @@
 #include "rs274ngc_return.hh"
 #include "interp_internal.hh"	// interpreter private definitions
 #include "rs274ngc_interp.hh"
+#include <string.h>
 
 /****************************************************************************/
 
@@ -169,8 +170,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   polar_flag = (block->radius_flag) || (block->theta_flag);
   ijk_flag = ((block->i_flag) || (block->j_flag) ||
               (block->k_flag));
-  mode0 = block->g_modes[0];
-  mode1 = block->g_modes[1];
+  mode0 = block->g_modes[GM_MODAL_0];
+  mode1 = block->g_modes[GM_MOTION];
   mode_zero_covets_axes =
     ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
      || (mode0 == G_52) || (mode0 == G_92));
@@ -188,6 +189,9 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((!axis_flag && !polar_flag) && 
             mode1 != G_0 && mode1 != G_1 && 
             mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
+            mode1 != G_70 &&
+            mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
+            mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
 	    ! IS_USER_GCODE(mode1)),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
@@ -195,13 +199,14 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
     CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
     CHKS(((!axis_flag) &&
-	  (block->g_modes[0] == G_52 || block->g_modes[0] == G_92)),
+	  (block->g_modes[GM_MODAL_0] == G_52 || block->g_modes[GM_MODAL_0] == G_92)),
 	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
   } else if (axis_flag || polar_flag) {
     CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[8] != G_43_1),
+         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
+         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
         NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[8] != G_43_1) {
+    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
        block->motion_to_be = settings->motion_mode;
     }
   } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
@@ -265,9 +270,10 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->c_flag = false;
   block->comment[0] = 0;
   block->d_flag = false;
+  block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
-  for (n = 0; n < 16; n++) {
+  for (n = 0; n < 17; n++) {
     block->g_modes[n] = -1;
   }
   block->h_flag = false;
@@ -471,3 +477,17 @@ int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine
 }
 
 int Interp::call_level(void) { return _setup.call_level; }
+
+std::string toString(GCodes g)
+{
+    char buf[15]={};
+    int dec_value = g%10;
+    if (dec_value)
+    {
+        // Has a decimal
+        snprintf(buf, sizeof(buf), "G%d.%d", g/10, dec_value);
+    } else {
+        snprintf(buf, sizeof(buf), "G%d", g/10);
+    }
+    return buf;
+}

@@ -238,3 +238,102 @@ Notes:
 ----
 image::images/hal-histogram.png[alt="hal-histogram is a command line utility to display histograms for hal pins"]
 
+== Halreport
+
+halreport is a command-line utility that generates a report about hal
+connections for a running LinuxCNC (or other hal) application.  The
+report shows all signal connections and flags potential problems.
+Information included:
+
+. System description and kernel version.
+. Signals and all connected output, io, and input pins.
+. Each pin's component_function, thread, and addf-order.
+. Userspace component pins having non-ordered functions.
+. Identification of unknown functions for unhandled components.
+. Signals   with no output.
+. Signals   with no inputs.
+. Functions with no addf.
+. Warning tags for components marked as deprecated/obsolete in docs.
+. Real names for pins that use alias names.
+
+The report can be generated from the command line and directed to
+an output file (or stdout if no outfilename is specified):
+
+----
+Usage:
+  halreport -h | --help (this help)
+or
+  halreport [outfilename]
+----
+
+To generate the report for every LinuxCNC startup, include halreport
+and an output filename as an [APPLICATIONS]APP entry in the ini file.
+Example:
+
+----
+[APPLICATIONS]
+APP = halreport /tmp/halreport.txt
+----
+
+The function addf-ordering can be important for servo loops where
+the sequence of the functions computed at each servo period is
+important.  Typically, the order is: read input pins, do the
+motion command-handler and motion-controller functions, perform
+pid calculations, and finally write output pins.
+
+For each signal in a critical path, the addf-order of the output
+pin should be numerically lower than the addf-order of the
+critical input pins that it connects to.
+
+For routine signal paths that handle switch inputs, user-space
+pins, etc., the addf-ordering is often not critical.  Moreover,
+the timing of user-space pin value changes cannot be controlled
+or guaranteed at the intervals typically employed for hal threads.
+
+Example report file excerpts showing a pid loop for a hostmot2
+stepgen operated in velocity mode on a trivkins machine with
+joint.0 corresponding to the X axis coordinate:
+
+----
+SIG:    pos-fb-0
+  OUT:    h.00.position-fb                     hm2_7i92.0.read        servo-thread 001
+          (=hm2_7i92.0.stepgen.00.position-fb)
+    IN:     X_pid.feedback                     X_pid.do-pid-calcs     servo-thread 004
+    IN:     joint.0.motor-pos-fb               motion-command-handler servo-thread 002
+            ....................               motion-controller      servo-thread 003
+...
+SIG:    pos-cmd-0
+  OUT:    joint.0.motor-pos-cmd                motion-command-handler servo-thread 002
+          .....................                motion-controller      servo-thread 003
+    IN:     X_pid.command                      X_pid.do-pid-calcs     servo-thread 004
+...
+SIG:    motor-cmd-0
+  OUT:    X_pid.output                         X_pid.do-pid-calcs     servo-thread 004
+    IN:     h.00.velocity-cmd                  hm2_7i92.0.write       servo-thread 008
+            (=hm2_7i92.0.stepgen.00.velocity-cmd)
+----
+
+In the example above, the HALFILE uses halcmd aliases to simplify pin names
+for an hostmot2 fpga board with commands like:
+----
+alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
+----
+
+[NOTE]
+Questionable component function detection may occur for 1)
+unsupported (deprecated) components, 2) user-created components
+that use multiple functions or unconventional function naming, or
+3) gui-created userspace components that lack distinguishing
+characteristics such as a prefix based on the gui program name.
+Questionable functions are tagged with a question mark "?".
+
+[NOTE]
+Component pins that cannot be associated with a known thread
+function report the function as "Unknown".
+
+[NOTE]
+halreport generates a connections report for a running hal
+application to aid in designing and verifying connections.  Pin
+types and current values are not shown.  For this information use
+applications like halshow, halmeter, halscope or the 'show'
+command available with comand-line halcmd program.

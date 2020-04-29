@@ -44,12 +44,12 @@ void export_Arrays()
     pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
     pp::register_array_1< block, MAX_NESTED_REMAPS,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("BlocksArray");
-    pp::register_array_1< double, RS274NGC_MAX_PARAMETERS > ("ParametersArray");
+    pp::register_array_1< double, interp_param_global::RS274NGC_MAX_PARAMETERS > ("ParametersArray");
     pp::register_array_1< CANON_TOOL_TABLE, CANON_POCKETS_MAX,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
     pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
-    pp::register_array_1< int, 16> ("GmodesArray");
+    pp::register_array_1< int, 17> ("GmodesArray");
     pp::register_array_1< int, 11> ("MmodesArray");
     pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
 }

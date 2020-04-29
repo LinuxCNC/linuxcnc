@@ -19,6 +19,8 @@
 #include "emcpos.h"
 #include "emctool.h"
 #include "canon_position.hh"
+#include "emcmotcfg.h" // Just for EMCMOT_NUM_SPINDLES
+#include "modal_state.hh"
 
 /*
   This is the header file that all applications that use the
@@ -40,81 +42,83 @@
   ZX-plane of the machine.
 */
 
-#define OFF 0
-#define ON 1
+enum CanonBool {
+    OFF,
+    ON
+};
 
-typedef struct {          /* type for NURBS control points */
-      double X,                     
-             Y,
-             W;
-      } CONTROL_POINT;
+struct CONTROL_POINT {          /* type for NURBS control points */
+    double X,
+    Y,
+    W;
+};
 
-typedef struct {
-      double X,
-	     Y;
-      } PLANE_POINT;		
+struct PLANE_POINT
+{
+    double X,
+    Y;
+};
 
 
-typedef int CANON_PLANE;
-#define CANON_PLANE_XY 1
-#define CANON_PLANE_YZ 2
-#define CANON_PLANE_XZ 3
-#define CANON_PLANE_UV 4
-#define CANON_PLANE_VW 5
-#define CANON_PLANE_UW 6
+enum CANON_PLANE
+{
+    CANON_PLANE_XY = 1,
+    CANON_PLANE_YZ,
+    CANON_PLANE_XZ,
+    CANON_PLANE_UV,
+    CANON_PLANE_VW,
+    CANON_PLANE_UW,
+};
 
-typedef int CANON_UNITS;
-#define CANON_UNITS_INCHES 1
-#define CANON_UNITS_MM 2
-#define CANON_UNITS_CM 3
+enum CANON_UNITS
+{
+    CANON_UNITS_INCHES = 1,
+    CANON_UNITS_MM,
+    CANON_UNITS_CM,
+};
 
-typedef int CANON_MOTION_MODE;
-#define CANON_EXACT_STOP 1
-#define CANON_EXACT_PATH 2
-#define CANON_CONTINUOUS 3
+enum CANON_MOTION_MODE
+{
+    CANON_EXACT_STOP = 1,
+    CANON_EXACT_PATH,
+    CANON_CONTINUOUS,
+};
 
-typedef int CANON_SPEED_FEED_MODE;
-#define CANON_SYNCHED 1
-#define CANON_INDEPENDENT 2
+enum CANON_SPEED_FEED_MODE {
+    CANON_SYNCHED = 1,
+    CANON_INDEPENDENT,
+};
 
-typedef int CANON_DIRECTION;
-#define CANON_STOPPED 1
-#define CANON_CLOCKWISE 2
-#define CANON_COUNTERCLOCKWISE 3
+enum CANON_DIRECTION {
+    CANON_STOPPED = 1,
+    CANON_CLOCKWISE,
+    CANON_COUNTERCLOCKWISE,
+};
 
-typedef int CANON_FEED_REFERENCE;
-#define CANON_WORKPIECE 1
-#define CANON_XYZ 2
+enum CANON_FEED_REFERENCE {
+    CANON_WORKPIECE = 1,
+    CANON_XYZ,
+};
 
-typedef int CANON_SIDE;
-#define CANON_SIDE_RIGHT 1
-#define CANON_SIDE_LEFT 2
-#define CANON_SIDE_OFF 3
+enum CANON_SIDE
+{
+    CANON_SIDE_RIGHT = 1,
+    CANON_SIDE_LEFT,
+    CANON_SIDE_OFF,
+};
 
-typedef int CANON_AXIS;
-#define CANON_AXIS_X 1
-#define CANON_AXIS_Y 2
-#define CANON_AXIS_Z 3
-#define CANON_AXIS_A 4
-#define CANON_AXIS_B 5
-#define CANON_AXIS_C 6
-#define CANON_AXIS_U 7
-#define CANON_AXIS_V 8
-#define CANON_AXIS_W 9
-
-/* Currently using the typedefs above rather than the enums below
-typedef enum {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ} CANON_PLANE;
-typedef enum {CANON_UNITS_INCHES, CANON_UNITS_MM, CANON_UNITS_CM} CANON_UNITS;
-typedef enum {CANON_EXACT_STOP, CANON_EXACT_PATH, CANON_CONTINUOUS}
-             CANON_MOTION_MODE;
-typedef enum {CANON_SYNCHED, CANON_INDEPENDENT} CANON_SPEED_FEED_MODE;
-typedef enum {CANON_STOPPED, CANON_CLOCKWISE, CANON_COUNTERCLOCKWISE}
-             CANON_DIRECTION;
-typedef enum {CANON_WORKPIECE, CANON_XYZ} CANON_FEED_REFERENCE;
-typedef enum {CANON_SIDE_RIGHT, CANON_SIDE_LEFT, CANON_SIDE_OFF} CANON_SIDE;
-typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
-              CANON_AXIS_B, CANON_AXIS_C} CANON_AXIS;
-*/
+enum CANON_AXIS
+{
+    CANON_AXIS_X = 1,
+    CANON_AXIS_Y,
+    CANON_AXIS_Z,
+    CANON_AXIS_A,
+    CANON_AXIS_B,
+    CANON_AXIS_C,
+    CANON_AXIS_U,
+    CANON_AXIS_V,
+    CANON_AXIS_W,
+};
 
 struct CANON_VECTOR {
     CANON_VECTOR() {
@@ -126,18 +130,21 @@ struct CANON_VECTOR {
     double x, y, z;
 };
 
+typedef struct {
+    int feed_mode;
+    int synched;
+    double speed;
+    int dir;
+    double css_maximum;
+    double css_factor;
+} CanonSpindle_t;
+
 typedef struct CanonConfig_t {
     CanonConfig_t() : rotary_unlock_for_traverse(-1) {}
 
     double xy_rotation;
     int rotary_unlock_for_traverse; // jointnumber or -1
 
-    // these are both always positive
-    double css_maximum;
-    double css_numerator;
-
-    int feed_mode;
-    int synched;
     CANON_POSITION g5xOffset;
     CANON_POSITION g92Offset;
 /*
@@ -163,9 +170,10 @@ typedef struct CanonConfig_t {
    almost any deviation trying to keep speed up. */
    double motionTolerance;
    double naivecamTolerance;
-/* Spindle speed is saved here */
-   double spindleSpeed;
-   int spindle_dir;
+   int feed_mode;
+   int spindle_num; //current spindle for spindle-synch motion
+   CanonSpindle_t spindle[EMCMOT_MAX_SPINDLES];
+
 /* Prepped tool is saved here */
 //   int preppedTool;
 /*
@@ -236,7 +244,7 @@ made. */
 
 extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
-			      double a, double b, double c,
+                              double a, double b, double c,
                               double u, double v, double w);
 /*
 
@@ -344,11 +352,12 @@ for the same motions.
 
 */
 
-extern void SET_FEED_MODE(int mode);
+extern void SET_FEED_MODE(int spindle, int mode);
 
 /* This sets the feed mode: 0 for feed in units per minute, and 1 for feed in
  * units per revolution.  In units per revolution mode, the values are in
- * inches per revolution (G20 in effect) or mm per minute (G21 in effect) */
+ * inches per revolution (G20 in effect) or mm per minute (G21 in effect)
+ * The spindle number indicates which spindle the movement is synchronised to */
 
 extern void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance);
 
@@ -379,7 +388,7 @@ extern void STOP_CUTTER_RADIUS_COMPENSATION();
 translation commands. */
 
 /* used for threading */
-extern void START_SPEED_FEED_SYNCH(double feed_per_revolution, bool velocity_mode);
+extern void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode);
 extern void STOP_SPEED_FEED_SYNCH();
 
 
@@ -476,7 +485,7 @@ all axes have covered the same proportion of their required motion.
 The meanings of the parameters is the same as for STRAIGHT_TRAVERSE.*/
 
 extern void RIGID_TAP(int lineno,
-                      double x, double y, double z);
+                      double x, double y, double z, double scale);
 
 /* Move linear and synced with the previously set pitch.
 Only linear moves are allowed, axes A,B,C are not allowed to move.*/
@@ -502,36 +511,36 @@ extern void DWELL(double seconds);
 
 /* Spindle Functions */
 
-extern void SET_SPINDLE_MODE(double);
+extern void SET_SPINDLE_MODE(int spindle, double mode);
 extern void SPINDLE_RETRACT_TRAVERSE();
 
 /* Retract the spindle at traverse rate to the fully retracted position. */
 
-extern void START_SPINDLE_CLOCKWISE(int wait_for_atspeed = 1);
+extern void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed = 1);
 
 /* Turn the spindle clockwise at the currently set speed rate. If the
 spindle is already turning that way, this command has no effect. */
 
-extern void START_SPINDLE_COUNTERCLOCKWISE(int wait_for_atspeed = 1);
+extern void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed = 1);
 
 /* Turn the spindle counterclockwise at the currently set speed rate. If
 the spindle is already turning that way, this command has no effect. */
 
-extern void SET_SPINDLE_SPEED(double r);
+extern void SET_SPINDLE_SPEED(int spindle, double r);
 
 /* Set the spindle speed that will be used when the spindle is turning.
 This is usually given in rpm and refers to the rate of spindle
 rotation. If the spindle is already turning and is at a different
 speed, change to the speed given with this command. */
 
-extern void STOP_SPINDLE_TURNING();
+extern void STOP_SPINDLE_TURNING(int spindle);
 
 /* Stop the spindle from turning. If the spindle is already stopped, this
 command may be given, but it will have no effect. */
 
 extern void SPINDLE_RETRACT();
-extern void ORIENT_SPINDLE(double orientation, int mode);
-extern void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout);
+extern void ORIENT_SPINDLE(int spindle, double orientation, int mode);
+extern void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout);
 extern void LOCK_SPINDLE_Z();
 extern void USE_SPINDLE_FORCE();
 extern void USE_NO_SPINDLE_FORCE();
@@ -574,7 +583,7 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_POCKET(int pocket, int tool);	/* pocket is pocket number, tool is tool number */
+extern void SELECT_TOOL(int tool);
 
 extern void CHANGE_TOOL_NUMBER(int number);
 
@@ -617,8 +626,8 @@ extern void DISABLE_FEED_OVERRIDE();
 extern void ENABLE_FEED_OVERRIDE();
 
 /* used to deactivate user control of spindle speed override */
-extern void DISABLE_SPEED_OVERRIDE();
-extern void ENABLE_SPEED_OVERRIDE();
+extern void DISABLE_SPEED_OVERRIDE(int spindle);
+extern void ENABLE_SPEED_OVERRIDE(int spindle);
 
 /* used to deactivate user control of feed hold */
 extern void DISABLE_FEED_HOLD();
@@ -785,6 +794,9 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
+// Returns the current motion naive CAM tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
 // returns the current a-axis origin offset
@@ -811,6 +823,8 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // the filename array, stopping at max_size if the name is longer
 // An empty string may be placed in filename.
 extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
+
+extern void SET_PARAMETER_FILE_NAME(const char *name);
 
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
@@ -842,31 +856,17 @@ extern double GET_EXTERNAL_POSITION_V();
 // returns the current w-axis position
 extern double GET_EXTERNAL_POSITION_W();
 
-// Returns the machine A-axis position at the last probe trip.
+
+// Returns the position of the specified axis at the last probe trip,
+// in the current work coordinate system.
 extern double GET_EXTERNAL_PROBE_POSITION_A();
-
-// Returns the machine B-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_B();
-
-// Returns the machine C-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_C();
-
-// Returns the machine X-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_X();
-
-// Returns the machine Y-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_Y();
-
-// Returns the machine Z-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_Z();
-
-// Returns the machine U-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_U();
-
-// Returns the machine V-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_V();
-
-// Returns the machine W-axis position at the last probe trip.
 extern double GET_EXTERNAL_PROBE_POSITION_W();
 
 // Returns the value for any analog non-contact probing.
@@ -880,10 +880,10 @@ extern int GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 extern int GET_EXTERNAL_QUEUE_EMPTY();
 
 // Returns the system value for spindle speed in rpm
-extern double GET_EXTERNAL_SPEED();
+extern double GET_EXTERNAL_SPEED(int spindle);
 
 // Returns the system value for direction of spindle turning
-extern CANON_DIRECTION GET_EXTERNAL_SPINDLE();
+extern CANON_DIRECTION GET_EXTERNAL_SPINDLE(int spindle);
 
 // returns current tool length offset
 extern double GET_EXTERNAL_TOOL_LENGTH_XOFFSET();
@@ -925,7 +925,7 @@ extern double GET_EXTERNAL_TRAVERSE_RATE();
 // Returns the enabled/disabled status for feed override, spindle
 // override, adaptive feed, and feed hold
 extern int GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
-extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE();
+extern int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle);
 extern int GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
 extern int GET_EXTERNAL_FEED_HOLD_ENABLE();
 
@@ -941,10 +941,7 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 // Returns the mask of axes present in the system
 extern int GET_EXTERNAL_AXIS_MASK();
 
-extern FILE *_outfile;		/* where to print, set in main */
-extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
-extern int _pockets_max;		/* in canon.cc */
-extern char _parameter_file_name[];	/* in canon.cc */
+
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
@@ -959,6 +956,10 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
+// to be called when there is an abort, to dump the last segment instead of adding
+// it to the interp list in certain cases
+extern void ON_RESET(void);
+
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
@@ -968,5 +969,8 @@ extern void PLUGIN_CALL(int len, const char *call);
 
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
+extern int     GET_EXTERNAL_OFFSET_APPLIED();
+extern EmcPose GET_EXTERNAL_OFFSETS();
+extern void UPDATE_TAG(StateTag tag);
 
 #endif				/* ifndef CANON_HH */

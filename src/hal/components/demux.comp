@@ -1,0 +1,37 @@
+component demux """Select one of several output pins selected either by
+an integer input or individual bits. Or even both""";
+
+description """This component creates a number of output bits defined
+by the "personality" command-line parameter. One of these bits will be
+set based on interpreting the bit-inputs as a binary number and then
+adding on the integer input. Most uses will use only one
+or the other, but it is possible to use the bits as a ""shift"" if
+required.
+An optional operating mode is enabled by setting the "bargraph"
+parameter to true, in this case all bits up to the selected bit will be
+set, as might be required for an LED bargraph display""";
+
+pin in bit sel-bit-## [5] "Binary-number bit selectors";
+pin in unsigned sel-u32 "Integer selection input";
+pin out bit out-## [32:personality] "The set of output bits";
+
+option default_personality 32;
+param rw bit bargraph = 0;
+
+license "GPL 2+";
+author "andypugh";
+
+function _;
+
+;;
+
+FUNCTION(_){
+    int i, bit;
+
+    bit = sel_u32 + sel_bit(0) + (sel_bit(1) << 1) + (sel_bit(2) << 2)
+          + (sel_bit(3) << 3) + (sel_bit(4) << 4);
+    if (bit >= personality) bit = personality - 1;
+    for (i = 0; i < personality ; i++) {
+        out(i) = (bargraph) ? (bit > i) : (bit == i);
+    }
+}

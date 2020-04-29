@@ -56,7 +56,10 @@ from gladevcp.gladebuilder import GladeBuilder
 import pango
 import traceback
 import atexit
-import vte
+try:
+    import vte
+except:
+    print _("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
 import time
 from time import strftime,localtime
 import hal_glib
@@ -598,6 +601,10 @@ class Gscreen:
             temp = []
         dbg("**** GSCREEN INFO: handler file path: %s"%temp)
         handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
+
+        # so widgets can call handler functions - give them refeence to the handler object
+        panel.set_handler(self.handler_instance)
+
         self.xml.connect_signals(handlers)
 
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
@@ -775,14 +782,14 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
+        # see if there are user messages in the ini file 
+        self.message_setup()
+
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
-
-        # see if there are user messages in the ini file 
-        self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
@@ -1289,13 +1296,16 @@ class Gscreen:
            widget usually is a scrolled window widget
         """
         # add terminal window
-        self.widgets._terminal = vte.Terminal ()
-        self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
-        self.widgets._terminal.fork_command()
-        self.widgets._terminal.show()
-        window = self.widgets.terminal_window.add(self.widgets._terminal)
-        self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
-        self.widgets.terminal_window.show()
+        try:
+            self.widgets._terminal = vte.Terminal ()
+            self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
+            self.widgets._terminal.fork_command()
+            self.widgets._terminal.show()
+            window = self.widgets.terminal_window.add(self.widgets._terminal)
+            self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+            self.widgets.terminal_window.show()
+        except:
+            print _("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?")
 
     def init_themes(self):
         """adds theme names to comdo box
@@ -1318,9 +1328,6 @@ class Gscreen:
             names = os.listdir(userthemedir)
             names.sort()
             for dirs in names:
-                # don't add local custom themes
-                if 'Link' in dirs:
-                    continue
                 try:
                     sbdirs = os.listdir(os.path.join(userthemedir, dirs))
                     if 'gtk-2.0' in sbdirs:
@@ -1716,8 +1723,15 @@ class Gscreen:
            if in manual mode, it will increase or decrease jog increments
            by calling set_jog_increments(index_dir = )
            It will ether increase or decrease the increments based on 'SHIFT'
+           Any jogging will be cancelled to avoid a runaway.
         """
+
         if state and self.data._MAN in self.check_mode(): # manual mode required
+            # stop any jogging if increments are changed
+            if self.data.machine_on:
+                for jnum in range(self.emcstat.joints):
+                    self.emc.stop_jog(jnum)
+
             if SHIFT:
                 self.set_jog_increments(index_dir = -1)
             else:
@@ -3658,8 +3672,8 @@ class Gscreen:
             self.widgets.mode4.show()
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
-            self.widgets.button_zero_origin.set_label("Zero\n ")
-            self.widgets.button_offset_origin.set_label("Set At\n ")
+            self.widgets.button_zero_origin.set_label(_("Zero\n "))
+            self.widgets.button_offset_origin.set_label(_("Set At\n "))
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
@@ -3691,8 +3705,8 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                self.data[name] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data[name].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
@@ -3791,7 +3805,7 @@ class Gscreen:
     def restart_dialog_return(self,widget,result,calc):
         value = 0
         if not result == gtk.RESPONSE_REJECT:
-            value = calc.get_value()
+            value = int(calc.get_value())
             if value == None:value = 0
         self.widgets.gcode_view.set_line_number(value)
         self.add_alarm_entry(_("Ready to Restart program from line %d"%value))

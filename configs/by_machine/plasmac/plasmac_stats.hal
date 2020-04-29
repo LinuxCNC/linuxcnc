@@ -1,0 +1,9 @@
+# outputs
+net plasmac:cut-length          plasmac.cut-length      =>  plasmac_stats.cut-length
+net plasmac:cut-time            plasmac.cut-time        =>  plasmac_stats.cut-time
+net plasmac:state               plasmac.state-out       =>  plasmac_stats.state
+net plasmac:pierce-count        plasmac.pierce-count    =>  plasmac_stats.pierce-count
+net plasmac:motion-type         motion.motion-type      =>  plasmac_stats.motion-type
+net plasmac:program-is-idle                             =>  plasmac_stats.program-is-idle
+net plasmac:program-is-running                          =>  plasmac_stats.program-is-running
+net plasmac:torch-on                                    =>  plasmac_stats.torch-on

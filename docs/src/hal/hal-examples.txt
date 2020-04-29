@@ -166,7 +166,7 @@ In this example we have a servo motor driving a lathe spindle. If we
 just used the commanded spindle speeds on the servo it will try to go
 from present speed to commanded speed as fast as it can. This could
 cause a problem or damage the drive. To slow the rate of change we can
-send the motion.spindle-speed-out through a limiter before the PID, so
+send the spindle.N.speed-out through a limiter before the PID, so
 that the PID command value changes to new settings more slowly.
 
 Three built-in components that limit a signal are:

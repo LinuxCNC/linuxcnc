@@ -223,6 +223,7 @@ class Pages:
         self.page_set_state(['options','external','realtime'],state)
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
+        self.d.useinisubstitution = self.w.useinisubstitution.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
         self.a.add_external_folder_boardnames()
         # here we initialise the mesa configure page data
@@ -239,6 +240,7 @@ class Pages:
         self.d.help = "help-basic.txt"
         self.w.machinename.set_text(self.d.machinename)
         self.w.axes.set_active(self.d.axes)
+        self.w.include_spindle_checkbutton.set_active(self.d.include_spindle)
         self.w.units.set_active(self.d.units)
         self.w.servoperiod.set_value(self.d.servoperiod)
         self.w.machinename.grab_focus()
@@ -276,6 +278,7 @@ class Pages:
         if self.d.axes == 0: self.d.available_axes = ['x','y','z','s']
         elif self.d.axes == 1: self.d.available_axes = ['x','y','z','a','s']
         elif self.d.axes == 2: self.d.available_axes = ['x','z','s']
+        self.d.include_spindle = self.w.include_spindle_checkbutton.get_active()
         self.d.units = self.w.units.get_active()
         self.d.servoperiod = self.w.servoperiod.get_value()
         self.page_set_state('mesa1',self.w.mesa1_checkbutton.get_active())
@@ -286,6 +289,8 @@ class Pages:
                 state = True
             self.page_set_state('%s_axis'%let,state)
             self.page_set_state('%s_motor'%let,state)
+            self.page_set_state('s_axis',self.d.include_spindle)
+            self.page_set_state('s_motor',self.d.include_spindle)
         i = self.w.mesa0_checkbutton.get_active()
         j = self.w.mesa1_checkbutton.get_active()
         self.d.number_mesa = int(i)+int(j)
@@ -422,6 +427,7 @@ class Pages:
         self.w.position_feedback.set_active(self.d.position_feedback)
         self.w.geometry.set_text(self.d.geometry)
         self.a.read_touchy_preferences()
+        self.w.axisforcemax.set_active(self.d.axisforcemax)
 
         for i in ("touchy","axis"):
             self.w[i+"size"].set_active(self.d[i+"size"][0])
@@ -457,6 +463,7 @@ class Pages:
 
         self.d.touchytheme = self.w.touchytheme.get_active_text()
         self.d.touchyforcemax = self.w.touchyforcemax.get_active()
+        self.d.axisforcemax = self.w.axisforcemax.get_active()
 
         for i in ("touchy","axis"):
             self.d[i+"size"][0] = self.w[i+"size"].get_active()
@@ -568,7 +575,7 @@ class Pages:
         self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
         for i in ("gladevcp","gladesample","gladeexists","spindlespeedbar","spindleatspeed","gladevcpforcemax",
                 "zerox","zeroy","zeroz","zeroa","autotouchz","centerembededgvcp","sideembededgvcp","standalonegvcp",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax"):
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize"):
             self.w[i].set_active(self.d[i])
         for i in ("maxspeeddisplay","gladevcpwidth","gladevcpheight","gladevcpxpos","gladevcpypos",
                     "pyvcpwidth","pyvcpheight","pyvcpxpos","pyvcpypos"):
@@ -597,14 +604,9 @@ class Pages:
               self.d.pyvcphaltype = 1
            if self.w.pyvcpexist.get_active() == True:
               self.d.pyvcpname = "pyvcp-panel.xml"
-        for i in ("touchyabscolor","touchyrelcolor","touchydtgcolor","touchyerrcolor"):
-            if not self.w[i].get_active():
-                self.d[i] = "default"
-            else:
-                self.d[i] = str(self.w[i+"button"].get_color())
         for i in ("gladevcp","gladesample","spindlespeedbar","spindleatspeed","gladevcpforcemax",
                 "centerembededgvcp","sideembededgvcp","standalonegvcp","gladeexists",
-                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","axisforcemax","autotouchz"):
+                "gladevcpposition","gladevcpsize","pyvcpposition","pyvcpsize","autotouchz"):
             self.d[i] = self.w[i].get_active()
         # set HALUI commands ( on advanced page) based on the user requested glade buttons
         i =  self.d.gladevcphaluicmds = 0
@@ -1027,15 +1029,17 @@ class Pages:
             self.d[p] = signal
             self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
+        print '** pport** ',self.d.pp1_direction
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport1 callbacks:
+    # adjust available pins based on pp1_direction (1 is output 0 input)
     def on_pp1_direction_changed(self,widget):
         state = widget.get_active()
         for i in (2,3,4,5,6,7,8,9):
-            self.w['pp1_Ipin%s_in_box'%i].set_visible(state)
-            self.w['pp1_Opin%s_out_box'%i].set_visible(not state)
+            self.w['pp1_Ipin%s_in_box'%i].set_visible(not state)
+            self.w['pp1_Opin%s_out_box'%i].set_visible(state)
 
     def on_pport_panel_clicked(self, *args):self.t.parporttest(self)
 
@@ -1117,11 +1121,12 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport2 callbacks:
+    # adjust available pins based on pp2_direction (1 is output 0 input)
     def on_pp2_direction_changed(self,widget):
         state = widget.get_active()
         for i in (2,3,4,5,6,7,8,9):
-            self.w['pp2_Ipin%s_in_box'%i].set_visible(state)
-            self.w['pp2_Opin%s_out_box'%i].set_visible(not state)
+            self.w['pp2_Ipin%s_in_box'%i].set_visible(not state)
+            self.w['pp2_Opin%s_out_box'%i].set_visible(state)
 
     def on_parportpanel_clicked(self, *args):self.t.parporttest(self)
 #************
@@ -1287,7 +1292,7 @@ class Pages:
                     self.d.ladderhaltype = 0
             if self.w.ladder1.get_active() == True:
                 self.d.laddername = 'estop.clp'
-                has_estop = self.d.findsignal("estop-ext")
+                has_estop = self.a.findsignal("estop-ext")
                 if not has_estop:
                     self.a.warning_dialog(_("You need to designate an E-stop input pin for this ladder program."),True)
                     return True
@@ -1298,7 +1303,7 @@ class Pages:
                 self.w.modbus.set_active(self.d.modbus) 
                 self.d.ladderhaltype = 0
             if self.w.laddertouchz.get_active() == True:
-                has_probe = self.d.findsignal("probe-in")
+                has_probe = self.a.findsignal("probe-in")
                 if not has_probe:
                     self.a.warning_dialog(_("You need to designate a probe input pin for this ladder program."),True)
                     return True
@@ -1425,7 +1430,11 @@ different program to copy to your configuration file.\nThe edited program will b
         self.t.oloop_resetencoder(1)
     def on_resetbutton_released(self, w):
         self.t.oloop_resetencoder(0)
-
+######################
+# mesa_discovery interface dialog
+######################
+    def on_discovery_interface_combobox_changed(self,w):
+        self.a.discovery_interface_combobox_changed(w)
 # BOILER CODE
     def __getitem__(self, item):
         return getattr(self, item)

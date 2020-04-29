@@ -115,7 +115,7 @@ int rtapi_app_main(void)
     samplers = hal_malloc(MAX_SAMPLERS * sizeof(sampler_t));
     /* validate config info */
     for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
-	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
+	if (( cfg[n] == NULL ) || ( *(cfg[n]) == '\0' ) || ( depth[n] <= 0 )) {
 	    break;
 	}
 	retval = hal_stream_create(&samplers[n].fifo, comp_id, SAMPLER_SHMEM_KEY+n, depth[n], cfg[n]);

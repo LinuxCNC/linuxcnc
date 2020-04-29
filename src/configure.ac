@@ -151,6 +151,34 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
 
+#
+# check for rpc/rpc.h
+#
+AC_CHECK_HEADER([rpc/rpc.h],[], [
+  if ! test -z "$PKG_CONFIG libtirpc"; then
+
+    LIBTIRPC_CFLAGS=`pkg-config libtirpc --cflags`
+    AC_SUBST([LIBTIRPC_CFLAGS])
+
+    LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
+    AC_SUBST([LIBTIRPC_LIBS])
+
+    CFLAGS+=" `pkg-config libtirpc --cflags` "
+  fi
+
+  # Update path
+  AC_CHECK_LIB([tirpc], [get_myaddress], [], [
+    AC_MSG_ERROR([Didn't find tirpc])
+  ])
+
+  # Clear the cached check
+  $as_unset ac_cv_header_rpc_rpc_h
+  AC_CHECK_HEADER([rpc/rpc.h],[],[
+    AC_MSG_ERROR([glibc rpc.h missing, please install libtirpc])
+  ])
+])
+
+
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking (either RTAI, or RT-Linux)                               #
@@ -448,6 +476,27 @@ long hidiocgrawinfo = HIDIOCGRAWINFO;
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
+#
+# Check for rpc/rpc.h
+#
+
+AC_MSG_CHECKING([for usability of rpc/rpc.h])
+AC_TRY_LINK(
+    [
+#include <rpc/rpc.h>
+    ],
+    [
+struct sockaddr_in *foo;
+get_myaddress(foo);
+    ],
+    [
+        AC_MSG_RESULT(yes)
+    ],
+    [
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR([Unable to use rpc.h])
+    ]
+)
 
 #
 # check for libmodbus3
@@ -552,7 +601,7 @@ elif test -e $KERNELDIR/include/generated/utsrelease.h; then
 else
     VERSION_FILE=$KERNELDIR/include/linux/version.h
 fi
-KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -s -d '"' -f 2`
 
 if test -z "$KERNEL_VERS"; then 
     AC_MSG_ERROR(Kernel version string not found)
@@ -702,7 +751,7 @@ else
     EMC2_ICON=linuxcncicon
     EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
+    EMC2_LANG_DIR=${prefix}/lib/tcltk/linuxcnc/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     case $MODULE_DIR in
@@ -889,8 +938,21 @@ then
     AC_MSG_ERROR([fuser not found])
 fi
 
+AC_PATH_PROGS(YAPPS, yapps yapps2, "none", $SPATH)
+if test $YAPPS = "none"
+then
+    AC_MSG_ERROR([yapps/yapps2 and not found])
+fi
+AC_SUBST(YAPPS)
+
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
+
+AC_PATH_PROG(INTLTOOL_EXTRACT, intltool-extract, "none", $SPATH)
+if test $INTLTOOL_EXTRACT = "none"
+then
+    AC_MSG_ERROR([intltool-extract not found])
+fi
 
 AC_ARG_WITH(rmmod,
     AS_HELP_STRING(
@@ -934,6 +996,13 @@ AC_ARG_WITH(insmod,
             INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
 
+AC_PATH_PROGS(YAPPS, [yapps yapps2])
+if test -z "$YAPPS"; then
+  AC_MSG_ERROR([yapps is required to build LinuxCNC
+install with "sudo apt-get install yapps2"])
+fi
+AC_SUBST(YAPPS)
+
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
@@ -949,7 +1018,7 @@ AC_ARG_WITH(python,
     [
         PYTHON=$withval
     ],[
-        PYTHON=python
+        PYTHON=python2
     ])
 AC_PATH_PROG(PYTHON,$PYTHON,"none")
 if test $PYTHON = "none"
@@ -1011,7 +1080,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:
@@ -1131,7 +1200,7 @@ fi
 # Checks for header files.
 
 ##############################################################################
-# Section 4.1 - Important headers, functions and gloabl defines.             #
+# Section 4.1 - Important headers, functions and global defines.             #
 #                                                                            #
 ##############################################################################
 
@@ -1387,13 +1456,25 @@ install with "sudo apt-get install tclx"])
 fi
 
 AC_MSG_CHECKING([for python pango and cairo modules])
-if $PYTHON -c 'import pango,cairo'; then
-    AC_MSG_RESULT([found])
+if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
+then
+
+	if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
+	    AC_MSG_RESULT([found])
+	else
+	    AC_MSG_RESULT(no)
+	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
+	fi
+
 else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([Python pango and cairo modules not found!
-install with "sudo apt-get install python-gtk2"])
-fi
+
+	if $PYTHON -c 'import pango,cairo'; then
+	    AC_MSG_RESULT([found])
+	else
+	    AC_MSG_RESULT(no)
+	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python-gtk2"])
+	fi
+	fi
 fi
 
 AC_SUBST([TCL_DBGX])
@@ -1461,6 +1542,7 @@ fi
 
 AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
 AC_TRY_COMPILE([
+        #include <stdio.h>
         #include <readline/readline.h>
     ],[
         #if RL_VERSION_MAJOR > 5
@@ -1562,20 +1644,29 @@ if test "$PYTHON" = "none"; then
 fi
 
 AC_MSG_CHECKING([python version])
-if ! $PYTHON -c 'import sys;raise SystemExit,sys.hexversion<0x2070000'
+if ! $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x2070000)'
 then
     AC_MSG_ERROR(Python version too old (2.7 or newer required))
 fi
 AC_MSG_RESULT(OK)
 
 AC_MSG_CHECKING([version of python libraries])
-LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print("python" + (distutils.sysconfig.get_config_vars().get("LDVERSION") or distutils.sysconfig.get_config_vars().get("VERSION")))'`
 AC_MSG_RESULT($LIBPYTHON)
 
 AC_MSG_CHECKING([match between tk and Tkinter versions])
-    
-PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+if $PYTHON -c 'import sys;raise SystemExit(sys.hexversion<0x3040000)'
+then
+
+	PYTHON_TK_VERSION="`$PYTHON -c 'import tkinter; print(tkinter.TkVersion)'`"
+	PYTHON_TCL_VERSION="`$PYTHON -c 'import tkinter; print(tkinter.TclVersion)'`"
+
+else
+
+	PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TK_VERSION)'`"
+	PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print(_tkinter.TCL_VERSION)'`"
+
+fi
 
 if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
     AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
@@ -1588,8 +1679,10 @@ if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
 fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
+############################
+
 AC_MSG_CHECKING(location of Python header files)
-INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
+INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_vars().get("INCLUDEPY"))'`
 AC_MSG_RESULT($INCLUDEPY)
 
 AC_MSG_CHECKING([for Python headers])
@@ -1619,7 +1712,7 @@ AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
     [AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
 AC_MSG_RESULT($SITEPY)
 
 AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])

@@ -1,0 +1,41 @@
+;Facing
+O<facing> sub
+
+G7 ; Lathe Diameter Mode
+G18 ; XZ Plane
+G21 ; Metric Units
+G90 ; Absolute Distance
+
+M6 T#7 G43
+
+O10 IF [#6 NE 0]
+   (MSG, Angled facing isn't supported yet)
+O10 ENDIF
+
+#14 = [#<_x> * 2] (starting X)
+#13 = #<_z> (starting Z)
+
+G96 D2400 S#2 ; Constant Surface Speed Mode
+M3
+g95 F#4 ; Feed-Per-Rev Mode
+
+g4p1 ; Wait to reach speed
+
+	O200 WHILE [#13 GT #5 + #3]
+	
+	#13=[#13-#3]
+	G1 Z#13
+	G1 X#1
+	G0 Z[#13+#3]
+	G0 X#14
+	G0 Z#13
+	O200 ENDWHILE
+	
+	G1 Z#5
+	G1 X#1
+	G0 Z[#13+#3]
+	G0 X[#14+#3]
+	G0 Z#5 ; For touch-off
+    M5
+O<facing> endsub
+M2

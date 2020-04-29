@@ -288,7 +288,7 @@ net aFault boss_plc.0.a-amp-fault-out => joint.3.amp-fault-in
 # Spindle.
 #
 # Connect spindle speed to PLC and spindle fwd/rev/stat to I/O.
-net spindleSpeed motion.spindle-speed-out => boss_plc.0.spindle-speed-in
+net spindleSpeed spindle.0.speed-out => boss_plc.0.spindle-speed-in
 net spindleFwd boss_plc.0.spindle-fwd-out => motenc.0.out-11
 net spindleRev boss_plc.0.spindle-rev-out => motenc.0.out-12
 net spindleIsOnSw motenc.0.in-29-not => debounce.0.5.in
@@ -297,7 +297,7 @@ net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
 # Connect spindle brake to PLC and PLC brake to I/O.
 setp boss_plc.0.brake-on-delay 500
 setp boss_plc.0.brake-off-delay 800
-net spindleBrakeOnMot motion.spindle-brake => boss_plc.0.brake-en-in
+net spindleBrakeOnMot spindle.0.brake => boss_plc.0.brake-en-in
 net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
 
 # Tool change.
@@ -319,7 +319,7 @@ net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
 #
 # Connect lube motor run to I/O.
 net lubeOn iocontrol.0.lube => motenc.0.out-13
-#net lubeOn motion.spindle-on => motenc.0.out-13
+#net lubeOn spindle.0.on => motenc.0.out-13
 
 # Connect lube level to I/O.
 net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level

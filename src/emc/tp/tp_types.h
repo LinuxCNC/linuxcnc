@@ -41,6 +41,7 @@
 #define TP_POS_EPSILON   1e-12
 #define TP_TIME_EPSILON  1e-12
 #define TP_ANGLE_EPSILON 1e-6
+#define TP_ANGLE_EPSILON_SQ (TP_ANGLE_EPSILON * TP_ANGLE_EPSILON)
 #define TP_MIN_ARC_ANGLE 1e-3
 #define TP_MIN_ARC_LENGTH 1e-6
 #define TP_BIG_NUM 1e10
@@ -67,6 +68,7 @@ typedef enum {
     TP_ERR_STOPPED,
     TP_ERR_WAITING,
     TP_ERR_ZERO_LENGTH,
+    TP_ERR_REVERSE_EMPTY,
     TP_ERR_LAST
 } tp_err_t;
 
@@ -76,6 +78,7 @@ typedef enum {
  * synchronized motion code.
  */
 typedef struct {
+	 int spindle_num;
      double offset;
      double revs;
      int waiting_for_index;
@@ -112,12 +115,14 @@ typedef struct {
     double wDotMax;		/* rotational accelleration max */
     int nextId;
     int execId;
+    struct state_tag_t execTag; /* state tag corresponding to running motion */
     int termCond;
     int done;
     int depth;			/* number of total queued motions */
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int reverse_run;      /* Indicates that TP is running in reverse */
     int motionType;
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during
@@ -131,5 +136,18 @@ typedef struct {
     syncdio_t syncdio; //record tpSetDout's here
 
 } TP_STRUCT;
+
+
+/**
+ * Describes blend modes used in the trajectory planner.
+ * @note these values are used as array indices, so make sure valid options
+ * start at 0 and increase by one.
+ */
+typedef enum {
+    NO_BLEND = -1,
+    PARABOLIC_BLEND,
+    TANGENT_SEGMENTS_BLEND,
+    ARC_BLEND
+} tc_blend_type_t;
 
 #endif				/* TP_TYPES_H */

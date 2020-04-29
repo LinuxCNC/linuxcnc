@@ -186,7 +186,6 @@ int kinematicsInverse(const EmcPose * world,
    PmHomogeneous hom;
    PmPose worldPose;
    PmRpy rpy;
-   int singular;
 
    double t1, t2, t3;
    double k;
@@ -281,12 +280,10 @@ int kinematicsInverse(const EmcPose * world,
    t1 = -hom.rot.z.x * s1 + hom.rot.z.y * c1;
    t2 = -hom.rot.z.x * c1 * c23 - hom.rot.z.y * s1 * c23 + hom.rot.z.z * s23;
    if (fabs(t1) < SINGULAR_FUZZ && fabs(t2) < SINGULAR_FUZZ){
-     singular = 1;
      *fflags |= PUMA_REACH;
      th4 = joint[3]*PM_PI/180;            /* use current value */
    }
    else{
-     singular = 0;
      th4 = atan2(t1, t2);
    }
 
@@ -329,7 +326,7 @@ int kinematicsInverse(const EmcPose * world,
    joint[4] = th5*180/PM_PI;
    joint[5] = th6*180/PM_PI;
 
-   return singular == 0 ? 0 : -1;
+   return 0;
 }
 
 int kinematicsHome(EmcPose * world,
@@ -351,6 +348,7 @@ KINEMATICS_TYPE kinematicsType()
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);
+MODULE_LICENSE("GPL");
 
 int comp_id;
 

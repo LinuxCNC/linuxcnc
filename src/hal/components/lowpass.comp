@@ -14,19 +14,21 @@ lowpass filter LaPlace transfer function is:
 For a sampling period \\fBT\\fR (seconds), the gain for this
 Hal lowpass component is:
 
-\\fBgain = 1 - e**(-a * T)\\fR
+\\fBgain = 1 - e^(-a * T)\\fR
+
+e = 2.71828 https://en.wikipedia.org/wiki/E_(mathematical_constant)
 
 \\fBExamples:\\fR
      T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*100)    (\\fB100Hz\\fR bandwith single pole)
+     a = (2*pi*100)    (\\fB100Hz\\fR bandwidth single pole)
   gain = \\fB0.466\\fR
 
      T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*10)     ( \\fB10Hz\\fR bandwith single pole)
+     a = (2*pi*10)     ( \\fB10Hz\\fR bandwidth single pole)
   gain = \\fB0.0609\\fR
 
      T = 0.001 seconds (typical servo thread period)
-     a = (2*pi*1)      ( \\fB1Hz\\fR bandwith single pole)
+     a = (2*pi*1)      ( \\fB1Hz\\fR bandwidth single pole)
   gain = \\fB0.0063\\fR
 """;
 pin in float in;

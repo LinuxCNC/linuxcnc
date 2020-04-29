@@ -7,6 +7,8 @@
 hm2_bspi_set_write_function \- Register a function to handle the tram write phase
 of a hostmot2 buffered SPI driver. 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_bspi_set_write_function(char *name, void *func, void *subdata)
 
@@ -34,12 +36,16 @@ driver written in comp this will always be "inst" in the function call.
 If using comp then the call to this function should be anywhere in the
 EXTRA_SETUP code. 
 
+.SH REALTIME CONSIDERATIONS
+Call only from realtime init code, not from user space or realtime code.
+
 .SH RETURN VALUE
 Returns 0 on success and \-1 on failure.
 
 .SH SEE ALSO
-\fBhm2_bspi_setup_chan(3hm2)\fR,
-\fBhm2_bspi_read_chan(3hm2)\fR,
-\fBhm2_tram_add_bspi_frame(3hm2)\fR,
 \fBhm2_allocate_bspi_tram(3hm2)\fR,
+\fBhm2_bspi_set_read_function(3hm2)\fR,
+\fBhm2_bspi_setup_chan(3hm2)\fR,
+\fBhm2_bspi_write_chan(3hm2)\fR,
+\fBhm2_tram_add_bspi_frame(3hm2)\fR,
 src/hal/drivers mesa_7i65.comp in the LinuxCNC source distribution.

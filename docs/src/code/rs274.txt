@@ -1,8 +1,8 @@
 [[cha:rs274]]
 
-= Stand Alone Interperter
+= Stand Alone Interpreter
 
-The rs274 stand alone interperter is available for use via the command line.
+The rs274 stand alone interpreter is available for use via the command line.
 
 == Usage
 

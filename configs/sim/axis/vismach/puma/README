@@ -1,17 +1,5 @@
-The puma configuration is a set of files that makes up a very basic LinuxCNC puma simulation using ini, tbl, var. It is very similar to the sim config template, yet with 6 joints defined.
+puma_cube.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins.  This configuration provides a startup gcode file ([DISPLAY]OPEN)FILE) that sets usable coordinate offsets to trace a cube outline.  Velocity, acceleration and positional limits are set large for convenience and are not representative of a real machine.
 
-puma.ini
--------------
-Config file for a PUMA type robot.
+puma.ini -- Config file for a PUMA type robot using the puma-specific kinematics module pumakins ($ man pumakins).   Positional limits are not enforced.  System coordinate offsets need to be set by user.
 
-You need to specify what kinematics should get used (loadrt pumakins in your hal file)
-
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).
-
-puma560.ini
--------------
-Config file for a PUMA 560 type robot.
-
-You need to specify what kinematics should get used (loadrt genserkins in your hal file)
-
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES aswell, and make sure the position match (when run through the kinematics).
+puma560.ini -- Config file for a PUMA 560 type robot using the generalized serial kinematics of the genserkins module ($ man genserkins).  Genserkins uses an interative solution for inverse kinematics and may require that [JOINT_n]HOME locations are consistent with [TRAJ]HOME settings.

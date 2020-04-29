@@ -15,6 +15,10 @@ loadrt pid num_chan=4
 # port_addr is the address of the parallel port data register
 # timestamp="0x00" turns on the timestamped encoder velocity feature
 # on the first PWM controller board
+# on LinuxCNC versions 2.7.9 and above, a parameter allows you to change the
+#    way the EPP port is controlled.  For PCIe cards using the NetMos 990x
+#    chips, append epp_dir=1 to the end of the following line
+
 loadrt hal_ppmc port_addr="0x378" timestamp="0x00"
 
 # load realtime portion of scope, just to have it handy

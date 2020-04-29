@@ -128,6 +128,7 @@ typedef struct {
     hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *pos_latch;     /* c:w scaled latched position (floating point) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
+    hal_float_t *vel_rpm;   /* rps * 60 for convenience */
     hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
     hal_bit_t old_latch;        /* value of latch on previous cycle */
     double old_scale;		/* c:rw stored scale value */
@@ -206,7 +207,7 @@ int rtapi_app_main(void)
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if (names[i] == NULL) {
+            if ( (names[i] == NULL) || (*names[i] == 0) ){
                 break;
             }
             howmany = i + 1;
@@ -277,6 +278,7 @@ int rtapi_app_main(void)
 	*(cntr->pos) = 0.0;
 	*(cntr->pos_latch) = 0.0;
 	*(cntr->vel) = 0.0;
+	*(cntr->vel_rpm) = 0.0;
 	*(cntr->pos_scale) = 1.0;
 	cntr->old_scale = 1.0;
 	cntr->scale = 1.0;
@@ -498,6 +500,7 @@ static void capture(void *arg, long period)
 		*(cntr->vel) = 0;
 	    }
 	}
+	*(cntr->vel_rpm) = *(cntr->vel) * 60.0;
 	/* compute net counts */
 	*(cntr->count) = cntr->raw_count - cntr->index_count;
         *(cntr->count_latch) = cntr->latch_count - cntr->index_count;
@@ -620,6 +623,12 @@ static int export_encoder(counter_t * addr,char * prefix)
     /* export pin for scaled velocity captured by capture() */
     retval = hal_pin_float_newf(HAL_OUT, &(addr->vel), comp_id,
             "%s.velocity", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for scaled velocity captured by capture() */
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->vel_rpm), comp_id,
+            "%s.velocity-rpm", prefix);
     if (retval != 0) {
 	return retval;
     }

@@ -1,0 +1,33 @@
+# in case they were linked already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+
+# Need a qt tool change dialog added to screen for this to work
+# though it uses the same pin names as the AXIS version
+# the Qt version intergrates better.
+
+net tool-change hal_manualtoolchange.change iocontrol.0.tool-change
+net tool-changed hal_manualtoolchange.changed iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number iocontrol.0.tool-prep-number
+
+loadusr -Wn sim_panel qtvcp -a -d sim_panel.ui
+show pin sim_panel
+
+net cs-sig      sim_panel.cyclestart     qtlathe.cycle-start-in
+net mpg-sig     axis.x.jog-counts        axis.z.jog-counts     sim_panel.MPG-s
+net mpg-sig     qtlathe.mpg-in
+net feedhold          sim_panel.feedhold       motion.feed-hold
+net abort             sim_panel.abort          qtlathe.abort
+
+net jogSelectx        axis.x.jog-enable      sim_panel.selectx
+net jogSelectz        axis.z.jog-enable      sim_panel.selectz
+net scrollSelect      qtlathe.select-scroll        sim_panel.selectscroll
+net feedOverSelect    qtlathe.select-feedoverride   sim_panel.selectf
+net rapidOverSelect   qtlathe.select-rapidoverride   sim_panel.selectr
+net spindleOverSelect qtlathe.select-spindleoverride   sim_panel.selects
+
+setp axis.x.jog-scale .001
+setp axis.z.jog-scale .001
+
+
+

@@ -298,7 +298,7 @@ typedef struct {
   hal_float_t scale;          /* parameter: scale factor */
   hal_bit_t *index;           /* output: index flag */
   hal_bit_t *index_enable;    /* enable index pulse to reset encoder count */
-  signed long oldreading;     /* used to detect overflow / underflow of the counter */
+  hal_s32_t oldreading;     /* used to detect overflow / underflow of the counter JE001 */
   unsigned int indres;        /* copy of reset-on-index register bits (only valid on 1st encoder of board)*/
   unsigned int indrescnt;    /* counts servo cycles since index reset was turned on */
   hal_float_t *vel;             /* output: scaled velocity */
@@ -374,7 +374,8 @@ typedef struct {
 static bus_data_t *bus_array[MAX_BUS];
 static int comp_id;		/* component ID */
 static long read_period;        /* makes real time period available to called functions */
-static int slotnum;             /* made global so SelRead can see which parport is being handled */
+static int slotnum;             
+static int currentbus;             /* made global so SelRead can see which parport is being handled */
                                 /* to deal with epp_dir option  */
 
 /***********************************************************************
@@ -434,7 +435,7 @@ void rtapi_app_exit(void);
 
 int rtapi_app_main(void)
 {
-    int msg, rv, rv1, busnum, slotnum, n, boards;
+  int msg, rv, rv1, busnum, slotnum, n, boards;
     int bus_slot_code, need_extra_dac, need_extra_dout, need_timestamp;
     int idcode, id, ver;
     bus_data_t *bus;
@@ -465,6 +466,8 @@ int rtapi_app_main(void)
        might have been allocated before we return. */
     rv = 0;
     for ( busnum = 0 ; busnum < MAX_BUS ; busnum++ ) {
+      rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: bus %d epp_dir = %d\n",busnum, epp_dir[busnum]);
+
 	/* init pointer to bus data */
 	bus_array[busnum] = NULL;
 	/* check to see if a port address was specified */
@@ -838,6 +841,7 @@ static void read_all(void *arg, long period)
     }
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
+      currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	/* check for anthing in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
@@ -905,6 +909,7 @@ static void write_all(void *arg, long period)
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
 	/* check for anthing in slot */
 	if ( bus->slot_valid[slotnum] ) {
+	  currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
 	    /* loop thru all functions associated with slot */
@@ -1073,7 +1078,7 @@ static void read_encoders(slot_data_t *slot)
   int i, byteindex, byteindx2;
   double vel;                    // local temporary velocity
     union pos_tag {
-        signed long l;
+      hal_s32_t l;              // JE001
         struct byte_tag {
             signed char b0;
             signed char b1;
@@ -2399,7 +2404,7 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
     rtapi_outb(0x04,CONTROLPORT(port_addr));
     /* write epp address to port */
     rtapi_outb(epp_addr,ADDRPORT(port_addr));
-    if (epp_dir[slotnum] == 1) {
+    if (epp_dir[currentbus] == 1) {
       /* set port direction to input */
       rtapi_outb(0x24,CONTROLPORT(port_addr));
     }

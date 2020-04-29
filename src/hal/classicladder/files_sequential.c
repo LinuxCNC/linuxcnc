@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,6 +31,7 @@
 #include "global.h"
 #include "files.h"
 #include "files_sequential.h"
+#include <rtapi_string.h>
 
 
 
@@ -90,7 +94,7 @@ char LoadSequential(char * FileName)
 						{
 							if (atoi(&Line[5])>1)
 							{
-								printf("Sequential version not supported...\n");
+								printf(_("Sequential version not supported...\n"));
 								LineOk = FALSE;
 							}
 						}
@@ -144,9 +148,9 @@ char LoadSequential(char * FileName)
 						pSeqComment->NumPage = StepData[ ScanData++ ];
 						pSeqComment->PosiX = StepData[ ScanData++ ];
 						pSeqComment->PosiY = StepData[ ScanData++ ];
-						if ( pCommentString!='\0' )
+						if ( pCommentString!= NULL && *pCommentString != '\0' )
 						{
-							strcpy( pSeqComment->Comment, pCommentString );
+							rtapi_strxcpy( pSeqComment->Comment, pCommentString );
 //							RemoveEndLine( pSeqComment->Comment );
 						}
 						break;

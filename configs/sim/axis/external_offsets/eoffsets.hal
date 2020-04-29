@@ -1,0 +1,16 @@
+#---------------------------------------------------------------
+# note: axis.L.eoffset-enables are controlled by pyvcp panel
+# external offset input scale:
+setp axis.x.eoffset-scale 0.1
+setp axis.y.eoffset-scale 0.1
+setp axis.z.eoffset-scale 0.1
+
+#---------------------------------------------------------------
+# convenience signals for use with eoffsets_monitor.tcl:
+net e:xcounts => axis.x.eoffset-counts
+net e:ycounts => axis.y.eoffset-counts
+net e:zcounts => axis.z.eoffset-counts
+
+#---------------------------------------------------------------
+# for pyvcp panel
+net e:limited <= motion.eoffset-limited

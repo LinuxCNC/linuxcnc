@@ -23,7 +23,12 @@ extern "C"  {
 
 int loadToolTable(const char *filename,
 	struct CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX],
-	int fms[CANON_POCKETS_MAX],
+	char *ttcomments[CANON_POCKETS_MAX],
+	int random_toolchanger
+	);
+
+int saveToolTable(const char *filename,
+	CANON_TOOL_TABLE toolTable[],
 	char *ttcomments[CANON_POCKETS_MAX],
 	int random_toolchanger
 	);

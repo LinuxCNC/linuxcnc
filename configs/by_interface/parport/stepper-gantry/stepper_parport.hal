@@ -31,4 +31,4 @@ net LimitY parport.0.pin-12-in-not => joint.1.neg-lim-sw-in joint.1.pos-lim-sw-i
 net LimitA parport.0.pin-15-in-not => joint.3.neg-lim-sw-in joint.3.pos-lim-sw-in joint.3.home-sw-in
 
 # Hook up the spindle signal
-net SpindleOn motion.spindle-forward => parport.1.pin-01-out
+net SpindleOn spindle.0.forward => parport.1.pin-01-out

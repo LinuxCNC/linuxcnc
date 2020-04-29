@@ -20,11 +20,15 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "classicladder.h"
 #include "global.h"
+#include <rtapi_string.h>
 
 #include "symbols.h"
 #include "vars_names.h"
@@ -43,77 +47,77 @@ char * CreateVarName(int Type, int Offset)
 	switch(Type)
 	{
 		case VAR_MEM_BIT:
-			sprintf(Buffer,"%cB%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cB%d",'%',Offset);
 			break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_DONE:
-			sprintf(Buffer,"%cT%d.D",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.D",'%',Offset);
 			break;
 		case VAR_TIMER_RUNNING:
-			sprintf(Buffer,"%cT%d.R",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.R",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_RUNNING:
-			sprintf(Buffer,"%cM%d.R",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.R",'%',Offset);
 			break;
 #endif
 		case VAR_TIMER_IEC_DONE:
-			sprintf(Buffer,"%cTM%d.Q",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.Q",'%',Offset);
 			break;
 		case VAR_COUNTER_DONE:
-			sprintf(Buffer,"%cC%d.D",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.D",'%',Offset);
 			break;
 		case VAR_COUNTER_EMPTY:
-			sprintf(Buffer,"%cC%d.E",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.E",'%',Offset);
 			break;
 		case VAR_COUNTER_FULL:
-			sprintf(Buffer,"%cC%d.F",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.F",'%',Offset);
 			break;
 		case VAR_STEP_ACTIVITY:
-			sprintf(Buffer,"%cX%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cX%d",'%',Offset);
 			break;
 		case VAR_PHYS_INPUT:
-			sprintf(Buffer,"%cI%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cI%d",'%',Offset);
 			break;
 		case VAR_PHYS_OUTPUT:
-			sprintf(Buffer,"%cQ%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cQ%d",'%',Offset);
 			break;
 		case VAR_MEM_WORD:
-			sprintf(Buffer,"%cW%d",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cW%d",'%',Offset);
 			break;
 		case VAR_STEP_TIME:
-			sprintf(Buffer,"%cX%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cX%d.V",'%',Offset);
 			break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_PRESET:
-			sprintf(Buffer,"%cT%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.P",'%',Offset);
 			break;
 		case VAR_TIMER_VALUE:
-			sprintf(Buffer,"%cT%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cT%d.V",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_PRESET:
-			sprintf(Buffer,"%cM%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.P",'%',Offset);
 			break;
 		case VAR_MONOSTABLE_VALUE:
-			sprintf(Buffer,"%cM%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cM%d.V",'%',Offset);
 			break;
 #endif
 		case VAR_TIMER_IEC_PRESET:
-			sprintf(Buffer,"%cTM%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.P",'%',Offset);
 			break;
 		case VAR_TIMER_IEC_VALUE:
-			sprintf(Buffer,"%cTM%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cTM%d.V",'%',Offset);
 			break;
 		case VAR_COUNTER_PRESET:
-			sprintf(Buffer,"%cC%d.P",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.P",'%',Offset);
 			break;
 		case VAR_COUNTER_VALUE:
-			sprintf(Buffer,"%cC%d.V",'%',Offset);
+			snprintf(Buffer, sizeof(Buffer),"%cC%d.V",'%',Offset);
 			break;
 		default:
-			sprintf(Buffer,"???");
+			snprintf(Buffer, sizeof(Buffer),"???");
 			break;
 	}
-printf("infogene display symbols=&i\n",InfosGene->DisplaySymbols);
+printf(_("infogene display symbols=&i\n"),InfosGene->DisplaySymbols);
 	if ( InfosGene->DisplaySymbols )
 	{ 
 		// verify if a symbol has been defined for the variable...
@@ -171,7 +175,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 		if ( VarNameFromSymbol==NULL )
 		{
 			IsOk = FALSE;
-			ErrorMessageVarParser = "Unknown symbol for variable name";
+			ErrorMessageVarParser = _("Unknown symbol for variable name");
 		}
 		else
 		{
@@ -191,7 +195,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_BITS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -213,7 +217,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,MaxNbr,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -222,7 +226,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -237,7 +241,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'Q':
@@ -248,7 +252,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'R':
@@ -259,7 +263,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									else
 									{
 										IsOk = FALSE;
-										ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+										ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									}
 									break;
 								case 'P':
@@ -270,7 +274,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -285,7 +289,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_MONOSTABLES-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -294,7 +298,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -312,7 +316,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -327,7 +331,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_COUNTERS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -336,7 +340,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						if ( **pPtrScanPos!=VAR_ATTRIBUTE_SEP )
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (missing '.' character before attribute)";
+							ErrorMessageVarParser = _("Unknown variable (missing '.' character before attribute)");
 						}
 						else
 						{
@@ -360,7 +364,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 									break;
 								default:
 									IsOk = FALSE;
-									ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+									ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 									break;
 							}
 							(*pPtrScanPos)++;
@@ -375,7 +379,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_INPUTS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -385,7 +389,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_PHYS_OUTPUTS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -395,7 +399,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_WORDS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				break;
 	
@@ -406,7 +410,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 				if (!TextToNumberAndAdvance(pPtrScanPos,0,NBR_STEPS-1,&OffsetFound))
 				{
 					IsOk = FALSE;
-					ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+					ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 				}
 				else
 				{
@@ -422,7 +426,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 						else
 						{
 							IsOk = FALSE;
-							ErrorMessageVarParser = "Unknown variable (unknown attribute)";
+							ErrorMessageVarParser = _("Unknown variable (unknown attribute)");
 						}
 					}
 				}
@@ -431,7 +435,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 	
 			default:
 				IsOk = FALSE;
-				ErrorMessageVarParser = "Unknown variable (on first character following %)";
+				ErrorMessageVarParser = _("Unknown variable (on first character following %)");
 		}
 		if (IsOk)
 		{
@@ -445,7 +449,7 @@ char TextParserForAVar( char * text,int * VarTypeFound,int * VarOffsetFound, int
 		else
 		{
 			if ( ErrorMessageVarParser==NULL )
-				ErrorMessageVarParser = "Unknown variable (global error)";
+				ErrorMessageVarParser = _("Unknown variable (global error)");
 		}
 	}
 	return IsOk;
@@ -614,7 +618,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 				bVerifCoherenceOk = FALSE;
 		}
 		if ( bVerifCoherenceOk==FALSE )
-			ErrorMessageVarParser = "Unknown variable (number value out of bound)";
+			ErrorMessageVarParser = _("Unknown variable (number value out of bound)");
 
 		if (bVerifCoherenceOk)
 		{
@@ -705,22 +709,22 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 	pConv = ConvIdVarEnPtrSurEleConv( TypeVarSearched, OffsetVarSearched );
 	if (pConv)
 	{
-		strcpy(tcBuffer,"%");
+		rtapi_strxcpy(tcBuffer,"%");
 		iIdFound = pConv->iIdVar;
 		if (pConv->iSize2<=0 && pConv->iSize3<=0)
 		{
-			sprintf(tcBuffer2, pConv->StringBaseVarName, OffsetVarSearched-iIdFound +pConv->iFirstVal1 );
+			snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, OffsetVarSearched-iIdFound +pConv->iFirstVal1 );
 		}
 		else
 		{
 			if (pConv->iSize3<=0)
-				sprintf(tcBuffer2, pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/pConv->iSize2 +pConv->iFirstVal1,
+				snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/pConv->iSize2 +pConv->iFirstVal1,
 					(OffsetVarSearched-iIdFound)%pConv->iSize2 +pConv->iFirstVal2 );
 			else
-				sprintf(tcBuffer2, pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/(pConv->iSize2*pConv->iSize3) +pConv->iFirstVal1,
+				snprintf(tcBuffer2, sizeof(tcBuffer2), pConv->StringBaseVarName, (OffsetVarSearched-iIdFound)/(pConv->iSize2*pConv->iSize3) +pConv->iFirstVal1,
 					((OffsetVarSearched-iIdFound)/pConv->iSize3)%pConv->iSize2 +pConv->iFirstVal2, (OffsetVarSearched-iIdFound)%pConv->iSize3 +pConv->iFirstVal3 );
 		}
-		strcat(tcBuffer,tcBuffer2);
+		rtapi_strxcat(tcBuffer,tcBuffer2);
 
 		if ( InfosGene->DisplaySymbols )
 		{

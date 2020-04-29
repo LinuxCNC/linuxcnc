@@ -110,19 +110,23 @@ The valid entries in the format string are:
 
 .B
  [firmware=\fIF\fB]
- \fB[num_encoders=\fIN\fB]
+ [num_dplls=\fIN\fB]
+ [num_encoders=\fIN\fB]
  [ssi_chan_\fIN\fB=\fIabc%nq\fB]
  [biss_chan_\fIN\fB=\fIabc%nq\fB]
  [fanuc_chan_\fIN\fB=\fIabc%nq\fB]
+ [num_inmuxs=\fIN\fB]
+ [num_inms=\fIN\fB]
  [num_resolvers=\fIN\fB]
  [num_pwmgens=\fIN\fB]
  [num_3pwmgens=\fIN\fB]
  [num_stepgens=\fIN\fB]
  [stepgen_width=\fIN\fB]
- [num_sserials=\fIN\fB]
  [sserial_port_\fI0\fB=\fI00000000\fB]
+ [num_bspis=\fIN\fB]
  [num_leds=\fIN\fB]
  [num_ssrs=\fIN\fB]
+ [num_xy2mods=\fIN\fB]
  [enable_raw]
 
 .TP
@@ -199,11 +203,6 @@ only two pins (step and dir) but the Hostmot2 stepgen can drive up to 8 output
 pins for specialised applications (depending on firmware). This parameter
 applies to all stepgen instances. Unused, masked pins will be available as GPIO.
 .TP
-\fBnum_sserials\fR [optional, default: -1]
-Only enable the first N of the Smart Serial modules on the FPGA board. If
-N is \-1, then all Smart Serial modules will be enabled. If N=0 then no
-Smart Serial modules will be enabled.
-.TP
 \fBsserial_port_N (N = 0 .. 3)\fR [optional, default: 00000000 for all ports]
 Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
 depending on the firmware used and the number of physical connections on the
@@ -279,7 +278,7 @@ be set to the nominal frequency of the thread in which the PLL is running and
 wil not normally need to be changed. 
 .TP
 (float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.phase\-error\-us
-Indicates the phase eror of the DPLL. If the number cycles by a large amount 
+Indicates the phase error of the DPLL. If the number cycles by a large amount 
 it is likely that the PLL has failed to achieve lock and adjustments will need
 to be made. 
 .TP
@@ -337,6 +336,11 @@ Encoder position in position units (count / scale).
 (float out) velocity
 Estimated encoder velocity in position units
 per second.
+
+.TP
+(float out) velocity-rpm
+Estimated encoder velocity in position units
+per minute.
 
 .TP
 (bit in) reset
@@ -406,7 +410,7 @@ guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
 
 .TP
-(s32 r/w) hm2_XiXX.N.encoder.MM.timer\-num (default: \-1)
+(s32 r/w) hm2_XiXX.N.encoder.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch encoder counts.  A setting
 of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
 as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
@@ -463,7 +467,7 @@ are non-zero then the HAL pin will be "true".
 HAL pin will be "true" if all bits in the field are zero. 
 .TP
 u: (Unsigned)
-  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpeted as an
+  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpreted as an
 unsigned integer then scaled such that the pin value will equal the scalemax 
 parameter value when all bits are high. (for example if the field is 8 bits 
 wide and the scalmax parameter was 20 then a value of 255 would return 20, and
@@ -529,7 +533,7 @@ This parameter sets the SSI clock frequency. The units are kHz, so 500 will give
 a clock frequency of 500,000 Hz. 
 
 .TP 
-(s32 r/w) hm2_XiXX.N.ssi.MM.timer\-num
+(s32 r/w) hm2_XiXX.N.ssi.timer-number\-num
 This parameter allocates the SSI module to a specific hm2dpll timer instance.
 This pin is only of use in firmwares which contain a hm2dpll function and will
 default to 1 in cases where there is such a function, and 0 if there is not. 
@@ -632,6 +636,11 @@ Calculated from the rotational velocity and the
 velocity\-scale parameter. The default scale is electrical rotations per second. 
 
 .TP
+(float, out) velocity-rpm
+Simply velocity scaled by a factor of 60 for convenience. 
+
+
+.TP
 (s32, out) count
 This pins outputs a simulated encoder count at 2^24
 counts per rev (16777216 counts).
@@ -645,6 +654,21 @@ the bldc HAL component if the resolver was being used to commutate a motor.
 .TP
 (bit, in) reset
 Resets the position and counts pins to zero immediately.
+
+.TP
+(bit, in)  joint-pos-fb
+The Mesa resolver driver has the capability of emulating an absolute
+encoder using a position file (see the INI-config section of the manual)
+and the single-turn absolute operation of resolvers.
+At startup, and only if the \fBuse-position-file\fR parameter is set to "true"
+the resolver driver will wait for a value to be written by the system to
+the axis.N.joint-pos-fb pin (which must be netted to this resolver pin)
+and will calculate the number of full turns that best matches the
+current reolver position. It will then pre-load the driver output with this
+offset. This should only be used on systems where axis movement in the
+unpowered state is unlikely. This feature will only work properly if the
+machine is initially homed to "index" and if the axis home positions are
+exactly zero.
 
 .TP
 (bit, in/out) index\-enable
@@ -692,6 +716,11 @@ CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively.
 The parameter will be set to the closest available of the three frequencies.
  A value of \-1 (the default) indicates that the current setting should be
 retained. 
+
+.TP
+(bit, read/write) use-position-file
+In conjunction with \fBjoint-pos-fb\fR (qv) emulate absolute encoders.
+
 
 
 .SH pwmgen
@@ -829,7 +858,7 @@ settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
 times of 23 uS (25 \- (2X 1 uS), 1 uS per edge).
 The value is specified in nS and defaults to a rather conservative 5000nS. Setting
 this parameter to too low a value could be both expensive and dangerous as if both
-gates are open at the same time there is effectively a short circuit accross the
+gates are open at the same time there is effectively a short circuit across the
 supply.
 
 .TP
@@ -990,7 +1019,7 @@ the dmesg output) on the first phase of the step sequence, and table\-data\-4 =
 stage of the step sequence. 
 
 .TP
-(s32 r/w) hm2_XiXX.N.stepgen.MM.timer\-num (default: \-1)
+(s32 r/w) hm2_XiXX.N.stepgen.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch stepgen counts.  A setting
 of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
 as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
@@ -1021,8 +1050,9 @@ For full details of the smart-serial devices see \fBman sserial\fR.
 The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
 pins. Instead the driver exports a set of functions that can be used by a sub-driver
 for the attached hardware. Typically these would be written in the "comp"
-pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
-comp for further details. See man mesa_7i65 and the source of mesa_7i65.comp for
+
+pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
+halcompile for further details. See man mesa_7i65 and the source of mesa_7i65.comp for
 details of a typical sub-driver.
 See man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame,
 man hm2_allocate_bspi_tram, man hm2_bspi_set_read_funtion and
@@ -1036,8 +1066,8 @@ hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
 The UART driver also does not create any HAL pins, instead it declares two 
 simple read/write functions and a setup function to be utilised by user-written
 code.  Typically this would be written in the "comp"
-pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
-comp for further details. See man mesa_uart and the source of mesa_uart.comp for
+pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
+halcompile for further details. See man mesa_uart and the source of mesa_uart.comp for
 details of a typical sub-driver.
 See man hm2_uart_setup_chan, man hm2_uart_send, man hm2_uart_read and man 
 hm2_uart_setup.

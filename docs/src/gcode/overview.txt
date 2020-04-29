@@ -162,10 +162,10 @@ if the extra zeros were not there.
 Numbers used for specific purposes in RS274/NGC are often restricted
 to some finite set of values or some to some range of values. In many
 uses, decimal numbers must be close to integers; this includes the
-values of indexes (for parameters and carousel slot numbers, for
+values of indices (for parameters and carousel slot numbers, for
 example), M codes, and G codes multiplied by ten. A decimal number
-which is supposed be close to an integer is considered close enough if
-it is within 0.0001 of an integer.
+which is intended to represent an integer is considered close enough if
+it is within 0.0001 of an integer value.
 
 
 [[gcode:parameters]](((Parameters)))
@@ -200,9 +200,9 @@ global variables are visible. The local variables of a
 calling procedure are not visible in a called procedure.
 
 Behavior of uninitialized parameters::
-* Unitialized global parameters, and unused subroutine parameters
+* Uninitialized global parameters, and unused subroutine parameters
    return the value zero when used in an expression.
-* Unitialized named parameters signal an error when used in an expression.
+* Uninitialized named parameters signal an error when used in an expression.
 
 Mode:: Most parameters are read/write and may be assigned to
 within an assignment statement. However, for many predefined
@@ -274,11 +274,12 @@ example '##2'  means the value of the parameter whose index is the
 * '31-5000' - G code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 
-* '5061-5069' - Coordinates of a "G38.2" Probe result of
-  X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
+  Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
+  which the G38 took place.  Volatile.
 
-* '5070' - "G38" probe result - 1 if success, 0 if probe failed to close.
-  Used with G38.3 and G38.5. Volatile.
+* '5070' - <<gcode:g38,G38>> probe result: 1 if success, 0 if probe
+  failed to close.  Used with G38.3 and G38.5. Volatile.
 
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 
@@ -554,15 +555,15 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Mode | return value
-|G54| 0
-|G55| 1
-|G56| 2
-|G57| 3
-|G58| 4
-|G59| 5
-|G59.1|6
-|G59.2|7
-|G59.3|8
+|G54| 540
+|G55| 550
+|G56| 560
+|G57| 570
+|G58| 580
+|G59| 590
+|G59.1|591
+|G59.2|592
+|G59.3|593
 |====
 
 * '#<_tool_offset>' -
@@ -676,7 +677,7 @@ can be added easily without changes to the source code.
     1.0 if the executing interpreter instance is part of milltask, 0.0
     otherwise. Sometimes it is necessary to treat this case specially
     to retain proper preview, for instance when testing the success of 
-    a probe (G38.x) by inspecting #5070, which will always fail in the
+    a probe (G38.n) by inspecting #5070, which will always fail in the
     preview interpreter (e.g. Axis).
 
 * '#<_call_level>' -
@@ -685,6 +686,80 @@ can be added easily without changes to the source code.
 * '#<_remap_level>' -
     current level of the remap stack. Each remap in a block adds one
     to the remap level. For debugging.
+
+[[gcode:ini-hal-params]]
+
+== HAL pins and INI values
+If enabled in the <<gcode:ini-features, INI file>> G-code has access
+to the values of INI file entries and HAL pins.
+
+* '#<_ini[section]name>' Returns the value of the corresponding item in
+the INI file.
+For example, if the ini file looks like so:
+
+[source,{ini}]
+---------------------------------------------------------------------
+[SETUP]
+XPOS = 3.145
+YPOS = 2.718
+---------------------------------------------------------------------
+
+you may refer to the named parameters `#<_ini[setup]xpos>` and
+`#<_ini[setup]ypos>` within G-code.
+
+`EXISTS` can be used to test for presence of a given ini file
+variable:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_ini[setup]xpos>]]
+  (debug, [setup]xpos exists: #<_ini[setup]xpos>)
+o100 else
+  (debug, [setup]xpos does not exist)
+o100 endif
+---------------------------------------------------------------------
+
+The value is read from the inifile once, and cached in the
+interpreter. These parameters are read-only - assigning a value will
+cause a runtime error. The names are not case sensitive - they are
+converted to uppercase before consulting the ini file.
+
+* '#<_hal[Hal item]>'
+Allows G-code programs to read the values of HAL pins Variable access is
+read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
+M67, M68 and custom M100-M199 codes.
+Note that the value read will not update in real-time, typically the
+value that was on the pin when the G-code program was started will be
+returned. It is possible to work round this by forcing a state synch.
+One way to do this is with a dummy M66 command: M66E0L0
+
+Example:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+(debug, #<_hal[motion-controller.time]>)
+---------------------------------------------------------------------
+
+Access of HAL items is read-only. Currently, only all-lowercase HAL
+names can be accessed this way.
+
+`EXISTS` can be used to test for the presence of a given HAL item:
+
+[source,{ngc}]
+---------------------------------------------------------------------
+o100 if [EXISTS[#<_hal[motion-controller.time]>]]
+  (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
+o100 else
+  (debug, [motion-controller.time] does not exist)
+o100 endif
+---------------------------------------------------------------------
+
+This feature was motivated by the desire for stronger coupling between
+user interface components like `GladeVCP` and `PyVCP` to act as
+parameter source for driving NGC file behavior. The alternative -
+going through the M6x pins and wiring them - has a limited,
+non-mnemonic namespace and is unnecessarily cumbersome just as a
+UI/Interpreter communications mechanism.
 
 [[gcode:expressions]]
 
@@ -952,7 +1027,7 @@ being in effect. The modal groups are shown in the following Table.
 |====
 |Modal Group Meaning                   | Member Words
 |Non-modal codes (Group 0)             | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3, 
-.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.x, G73, G76, G80, G81
+.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
                                        | G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)               | G90, G91
@@ -1030,6 +1105,9 @@ comment will in effect disable the active comment. For example, '(foo)
 
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
+
+NOTE: Inline comments on O words should not be used see the O Code
+<<ocode:comments, comments>> section for more information.
 
 [[gcode:messages]]
 == Messages
@@ -1177,7 +1255,7 @@ position of each item on the line, but by the following list:
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system 
   data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94). 
-* Perform motion (G0 to G3, G33, G38.x, G73, G76, G80 to G89), as modified
+* Perform motion (G0 to G3, G33, G38.n, G73, G76, G80 to G89), as modified
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
 

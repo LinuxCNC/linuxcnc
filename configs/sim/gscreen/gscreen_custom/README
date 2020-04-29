@@ -13,7 +13,6 @@ gscreen_gaxis.ini
   -A similar-to-AXIS demo
 
 industrial.ini
-industrial_lathe.ini
   -Design influenced by
    Industrial CNC controls.
    (System page unlock code is '123')
@@ -28,7 +27,7 @@ tester.ini
    more sophisticated customizations.
    If you run this without adding a GLADE
    file to the folder, it will load a default
-   gscreen file.
+   file with a message.
    This is for imperial based machines
 
 tester_metric.ini

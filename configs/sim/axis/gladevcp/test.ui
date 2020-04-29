@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="EMC_Action_Python" id="vcp_action_python1">
+    <property name="command">import math;print 'Button pressed';print math</property>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkButton" id="button1">
+        <property name="label" translatable="yes">button</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+        <property name="related_action">vcp_action_python1</property>
+        <property name="use_action_appearance">False</property>
+      </object>
+    </child>
+  </object>
+</interface>

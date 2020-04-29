@@ -1,0 +1,3075 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1027</width>
+    <height>790</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1027</width>
+    <height>790</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1027</width>
+    <height>790</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="DROLabel" name="drolabel_y">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>520</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 255, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
+    </property>
+    <property name="Qjoint_number" stdset="0">
+     <number>1</number>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="DROLabel" name="drolabel_z">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>550</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 255, 255);
+font: 18pt &quot;Courier 10 Pitch&quot;;</string>
+    </property>
+    <property name="text">
+     <string>   0.5217</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::PlainText</enum>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="Qjoint_number" stdset="0">
+     <number>2</number>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="DROLabel" name="drolabel_x">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>490</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 255, 255);
+font: 75 18pt &quot;Courier 10 Pitch&quot;;</string>
+    </property>
+    <property name="text">
+     <string>  -1.6994</string>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>811</width>
+      <height>231</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#frame{
+border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_blue.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="DROLabel" name="drolabel">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>10</y>
+       <width>291</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
+     </property>
+     <property name="axis">
+      <enum>DROLabel::X</enum>
+     </property>
+     <property name="Qreference_type" stdset="0">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="DROLabel" name="drolabel_2">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>70</y>
+       <width>291</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
+     </property>
+     <property name="Qjoint_number" stdset="0">
+      <number>1</number>
+     </property>
+     <property name="Qreference_type" stdset="0">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="DROLabel" name="drolabel_3">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>130</y>
+       <width>291</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 48pt &quot;Noto Sans&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="reference_type" stdset="0">
+      <enum>DROLabel::Relative</enum>
+     </property>
+     <property name="axis">
+      <enum>DROLabel::Z</enum>
+     </property>
+     <property name="Qjoint_number" stdset="0">
+      <number>2</number>
+     </property>
+     <property name="Qreference_type" stdset="0">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>11</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>X</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Y</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_20">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Z</string>
+     </property>
+    </widget>
+    <widget class="StatusLabel" name="state_label_7">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>190</y>
+       <width>131</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="spindle_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="current_feedrate_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLabel" name="StateLabel">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>40</y>
+       <width>41</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string/>
+     </property>
+    </widget>
+    <widget class="GCodeGraphics" name="Graphics">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>0</y>
+       <width>400</width>
+       <height>231</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="StateLabel" name="StateLabel_2">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>10</y>
+       <width>51</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="metric_mode_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="diameter_mode_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;DIAM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string/>
+     </property>
+    </widget>
+    <widget class="StatusLabel" name="state_label_9">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>190</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="spindle_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="current_feedrate_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="current_FPU_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StatusLabel" name="state_label_8">
+     <property name="geometry">
+      <rect>
+       <x>370</x>
+       <y>70</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="user_system_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_22">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>190</y>
+       <width>101</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 18pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Velocity:</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
+    <widget class="StateLabel" name="statelabel_3">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>191</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="true_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;mmPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="false_textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#fffffd;&quot;&gt;IPR:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="GcodeEditor" name="gcodeeditor">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>250</y>
+      <width>811</width>
+      <height>201</height>
+     </rect>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOff</enum>
+    </property>
+    <widget class="CamViewDialog" name="camviewdialog">
+     <property name="geometry">
+      <rect>
+       <x>418</x>
+       <y>171</y>
+       <width>700</width>
+       <height>400</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="ToolOffsetDialog" name="tooloffsetdialog">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>30</y>
+       <width>800</width>
+       <height>247</height>
+      </rect>
+     </property>
+     <property name="state">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>490</y>
+      <width>61</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="is_on_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_idle_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <widget class="ActionButton" name="actionbutton">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>60</y>
+       <width>61</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zero Z</string>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="zero_axis_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="joint_number" stdset="0">
+      <number>2</number>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>30</y>
+       <width>61</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zero Y</string>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="zero_axis_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="joint_number" stdset="0">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_3">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>61</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zero X</string>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="zero_axis_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="joint_number" stdset="0">
+      <number>0</number>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>650</y>
+      <width>72</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;;&quot;&gt;Jog Rate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>650</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Jog Inc&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>500</y>
+      <width>71</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Number&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>700</x>
+      <y>530</y>
+      <width>72</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;Diameter&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>580</y>
+      <width>301</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>685</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;RO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_override_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>685</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;FO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_3">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>685</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#d0d0d0;&quot;&gt;SO:&lt;/span&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_4">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>490</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_5">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>640</y>
+      <width>61</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%2.f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="jograte_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_6">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>610</y>
+      <width>251</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#d1d1d1;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="requested_spindle_speed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="actual_spindle_speed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="ToolDialog" name="tooldialog">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>760</y>
+      <width>316</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="FocusOverlay" name="focusoverlay">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1027</width>
+      <height>847</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+    <property name="show_image_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="image_path" stdset="0">
+     <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
+    </property>
+   </widget>
+   <widget class="LcncDialog" name="lcncdialog">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>770</y>
+      <width>336</width>
+      <height>104</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="FileDialog" name="filedialog">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>240</y>
+      <width>635</width>
+      <height>448</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+    <property name="color" stdset="0">
+     <color alpha="150">
+      <red>0</red>
+      <green>0</green>
+      <blue>255</blue>
+     </color>
+    </property>
+   </widget>
+   <widget class="StateLED" name="led_home_x">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>490</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>10</number>
+    </property>
+    <property name="color">
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="flashRate">
+     <number>600</number>
+    </property>
+    <property name="invert_state_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_joint_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StateLED" name="led_home_y">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>520</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>10</number>
+    </property>
+    <property name="color">
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="flashRate">
+     <number>600</number>
+    </property>
+    <property name="invert_state_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_joint_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="joint_number_status" stdset="0">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="StateLED" name="led_home_z">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>550</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>10</number>
+    </property>
+    <property name="color">
+     <color alpha="214">
+      <red>255</red>
+      <green>255</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="flashRate">
+     <number>600</number>
+    </property>
+    <property name="invert_state_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_joint_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="joint_number_status" stdset="0">
+     <number>2</number>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_9">
+    <property name="geometry">
+     <rect>
+      <x>360</x>
+      <y>685</y>
+      <width>56</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MAN</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="manual_action" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_10">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>685</y>
+      <width>56</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MDI</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="mdi_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_11">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>685</y>
+      <width>56</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>AUTO</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="autoExclusive">
+     <bool>true</bool>
+    </property>
+    <property name="indicator_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="HAL_pin_option" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="auto_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="manual_action" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="ScreenOptions" name="ScreenOptions">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>820</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_2">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>640</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="jogincr_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="MacroTabDialog" name="macrotabdialog">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>230</y>
+      <width>600</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="OriginOffsetDialog" name="originoffsetdialog">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>40</y>
+      <width>800</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="state">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="StatusStacked" name="StatusStacked">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>191</width>
+      <height>441</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="page_man">
+     <widget class="QFrame" name="frame_man">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>191</width>
+        <height>441</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="StateEnableGridLayout" name="state_enable_gridLayout_5">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>260</y>
+         <width>191</width>
+         <height>181</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="is_on_status" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="is_idle_status" stdset="0">
+        <bool>true</bool>
+       </property>
+       <widget class="QFrame" name="frame_3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>9</y>
+          <width>191</width>
+          <height>171</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <widget class="ActionButton" name="jog_pos_x">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>70</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>X+</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_pos_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="ActionButton" name="jog_neg_x">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>X-</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_neg_action" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="ActionButton" name="jog_pos_z">
+         <property name="geometry">
+          <rect>
+           <x>130</x>
+           <y>0</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Z+</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_pos_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>2</number>
+         </property>
+         <property name="jog_joint_number" stdset="0">
+          <number>2</number>
+         </property>
+        </widget>
+        <widget class="ActionButton" name="jog_neg_z">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>140</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Z-</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_pos_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_neg_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>2</number>
+         </property>
+         <property name="jog_joint_number" stdset="0">
+          <number>2</number>
+         </property>
+        </widget>
+        <widget class="ActionButton" name="jog_neg_y">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>110</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Y-</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_pos_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_neg_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="jog_joint_number" stdset="0">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="ActionButton" name="jog_pos_y">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>30</y>
+           <width>56</width>
+           <height>32</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Y+</string>
+         </property>
+         <property name="estop_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="jog_joint_pos_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="jog_joint_number" stdset="0">
+          <number>1</number>
+         </property>
+        </widget>
+        <widget class="JogIncrements" name="JogIncrements">
+         <property name="geometry">
+          <rect>
+           <x>80</x>
+           <y>150</y>
+           <width>101</width>
+           <height>21</height>
+          </rect>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="ActionButton" name="button_home">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>10</y>
+         <width>131</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+       </property>
+       <property name="text">
+        <string>Home</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="estop_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="home_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="joint_number" stdset="0">
+        <number>-1</number>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_25">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>150</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Fwd</string>
+       </property>
+       <property name="spindle_fwd_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="spindle_rev_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="spindle_stop_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="spindle_up_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="spindle_down_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_26">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>150</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Rev</string>
+       </property>
+       <property name="spindle_rev_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="spindle_down_action" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_27">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>190</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>+</string>
+       </property>
+       <property name="spindle_up_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_28">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>190</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>-</string>
+       </property>
+       <property name="spindle_down_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_29">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>161</y>
+         <width>55</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Stop</string>
+       </property>
+       <property name="spindle_stop_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_14">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>offsets</string>
+       </property>
+       <property name="origin_offset_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="macro_dialog_action" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_13">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>70</y>
+         <width>81</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cam View</string>
+       </property>
+       <property name="camview_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="macro_dialog_action" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="StateLED" name="StateLED_3">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>10</y>
+         <width>20</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="diameter">
+        <number>10</number>
+       </property>
+       <property name="color">
+        <color alpha="214">
+         <red>255</red>
+         <green>255</green>
+         <blue>0</blue>
+        </color>
+       </property>
+       <property name="flashing" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="invert_state_status" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="is_homed_status" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_mdi">
+     <widget class="QFrame" name="frame_mdi">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>191</width>
+        <height>441</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="ActionButton" name="actionbutton_12">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>80</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Macro</string>
+       </property>
+       <property name="macro_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_32">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>180</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Go to
+Origion Zero</string>
+       </property>
+       <property name="mdi_command_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="command_text_string" stdset="0">
+        <string>MDI_COMMAND_LIST = 0</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_33">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>230</y>
+         <width>91</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Go to
+ Machine Zero</string>
+       </property>
+       <property name="mdi_command_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="command_text_string" stdset="0">
+        <string>G53 G0 X0Y0Z0</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_auto">
+     <widget class="QFrame" name="frame_auto">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>191</width>
+        <height>441</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="ActionButton" name="actionbutton_load">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>61</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>load
+file</string>
+       </property>
+       <property name="estop_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="load_dialog_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_4">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>60</y>
+         <width>61</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Run</string>
+       </property>
+       <property name="estop_action" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="run_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_19">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>190</y>
+         <width>61</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View P</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_20">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>190</y>
+         <width>61</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Z</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>z</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_21">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>240</y>
+         <width>61</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Y</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>y</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_22">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>240</y>
+         <width>61</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View X</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>x</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_23">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>290</y>
+         <width>71</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Y2</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>y2</string>
+       </property>
+      </widget>
+      <widget class="ActionButton" name="actionbutton_24">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>290</y>
+         <width>71</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>View Z2</string>
+       </property>
+       <property name="view_change_action" stdset="0">
+        <bool>true</bool>
+       </property>
+       <property name="view_type_string" stdset="0">
+        <string>z2</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="StatusSlider" name="StatusSlider">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>550</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::NoTicks</enum>
+    </property>
+    <property name="tickInterval">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="StatusSlider" name="StatusSlider_2">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>580</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>200</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::NoTicks</enum>
+    </property>
+    <property name="tickInterval">
+     <number>10</number>
+    </property>
+    <property name="rapid_rate" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="feed_rate" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusSlider" name="StatusSlider_6">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>610</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>50</number>
+    </property>
+    <property name="maximum">
+     <number>150</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::NoTicks</enum>
+    </property>
+    <property name="tickInterval">
+     <number>10</number>
+    </property>
+    <property name="rapid_rate" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_rate" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusSlider" name="StatusSlider_5">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>640</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::NoTicks</enum>
+    </property>
+    <property name="tickInterval">
+     <number>10</number>
+    </property>
+    <property name="rapid_rate" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="jograte_rate" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="mcodes_label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>725</y>
+      <width>311</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Mcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="gcodes_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="mcodes_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_15">
+    <property name="geometry">
+     <rect>
+      <x>955</x>
+      <y>580</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>75.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_16">
+    <property name="geometry">
+     <rect>
+      <x>955</x>
+      <y>550</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>RO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>25.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_17">
+    <property name="geometry">
+     <rect>
+      <x>955</x>
+      <y>610</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SO</string>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_over_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>90.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="ActionButton" name="actionbutton_18">
+    <property name="geometry">
+     <rect>
+      <x>955</x>
+      <y>640</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Jog</string>
+    </property>
+    <property name="jog_rate_action" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="feed_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_over_action" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="toggle_float_option" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="float_num" stdset="0">
+     <double>60.000000000000000</double>
+    </property>
+    <property name="float_alt_num" stdset="0">
+     <double>15.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>460</y>
+      <width>341</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="ActionButton" name="actionbutton_override_limits">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>10</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Override Limits </string>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_9">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>0</y>
+       <width>31</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_flood_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_block_delete_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_limits_overridden_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_limits_overriden_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="button_estop">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Estop  </string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="button_machineon">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>101</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 italic 20pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Power </string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="machine_on_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_flood">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>100</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Flood</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="flood_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_mist">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>130</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Mist</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="mist_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_block_delete">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>40</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Block Delete</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="block_delete_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_optional_stop">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>70</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Optional Stop</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="limits_override_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="block_delete_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="optional_stop_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_8">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>30</y>
+       <width>31</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="color">
+      <color>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_flood_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_block_delete_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_7">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>60</y>
+       <width>31</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="color">
+      <color>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </property>
+     <property name="state">
+      <bool>false</bool>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="invert_state_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_flood_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_optional_stop_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_5">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>100</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="color">
+      <color>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_flood_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_6">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>130</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="color">
+      <color>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_mist_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="led_machine_on">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>60</y>
+       <width>31</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>15</number>
+     </property>
+     <property name="color">
+      <color>
+       <red>85</red>
+       <green>255</green>
+       <blue>0</blue>
+      </color>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="is_on_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_idle_status" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED">
+     <property name="geometry">
+      <rect>
+       <x>90</x>
+       <y>10</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>20</number>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_estopped_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_6">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>101</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Abort</string>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="abort_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="pause_action" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_5">
+     <property name="geometry">
+      <rect>
+       <x>260</x>
+       <y>10</y>
+       <width>61</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Pause</string>
+     </property>
+     <property name="estop_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="abort_action" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="pause_action" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateLED" name="StateLED_4">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>10</y>
+       <width>31</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="diameter">
+      <number>10</number>
+     </property>
+     <property name="flashing" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_paused_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame_auto_3">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>460</y>
+      <width>331</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_4">
+    <property name="geometry">
+     <rect>
+      <x>850</x>
+      <y>460</y>
+      <width>171</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="ActionButton" name="actionbutton_7">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Fine</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.001000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.010000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_8">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>10</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Med</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_30">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>10</y>
+       <width>45</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Large</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.100000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>1.000000000000000</double>
+     </property>
+    </widget>
+    <widget class="ActionButton" name="actionbutton_31">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Continous</string>
+     </property>
+     <property name="indicator_option" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="HAL_pin_option" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="jog_incr_action" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="incr_imperial_number" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="incr_mm_number" stdset="0">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame_auto_6">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>680</y>
+      <width>341</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_7">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>680</y>
+      <width>331</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_9">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>720</y>
+      <width>341</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_10">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>720</y>
+      <width>671</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_8">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>680</y>
+      <width>341</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="MDILine" name="mdi_line">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>-4</y>
+       <width>271</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>15</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="soft_keyboard_option" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>61</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;MDI:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="StatusLabel" name="gcodes_label">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>725</y>
+      <width>651</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; color:#ffff00;&quot;&gt;Gcodes: &lt;/span&gt;&lt;span style=&quot; color:#ffff00;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="gcodes_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="mcodes_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_auto_5">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>460</y>
+      <width>171</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="StatusLabel" name="statuslabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>110</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#d1d1d1;&quot;&gt;%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="gcodes_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="tool_comment_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>530</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;100.000&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="tool_diameter_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="state_label_10">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>590</y>
+      <width>251</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;200.00&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SFPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alt_textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%.2f&lt;/span&gt;&lt;span style=&quot; font-size:18pt; color:#d1d1d1;&quot;&gt; SMPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="requested_spindle_speed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="actual_spindle_speed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="actual_surface_speed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <zorder>lcncdialog</zorder>
+   <zorder>frame_auto_5</zorder>
+   <zorder>state_label_4</zorder>
+   <zorder>StatusLabel</zorder>
+   <zorder>frame_auto_10</zorder>
+   <zorder>frame_auto_9</zorder>
+   <zorder>frame_auto_6</zorder>
+   <zorder>frame_auto_7</zorder>
+   <zorder>frame_auto_4</zorder>
+   <zorder>frame_auto_3</zorder>
+   <zorder>frame_auto_2</zorder>
+   <zorder>drolabel_y</zorder>
+   <zorder>drolabel_z</zorder>
+   <zorder>drolabel_x</zorder>
+   <zorder>frame</zorder>
+   <zorder>gcodeeditor</zorder>
+   <zorder>state_enable_gridLayout</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_14</zorder>
+   <zorder>label_15</zorder>
+   <zorder>label_16</zorder>
+   <zorder>line</zorder>
+   <zorder>state_label</zorder>
+   <zorder>state_label_2</zorder>
+   <zorder>state_label_3</zorder>
+   <zorder>state_label_5</zorder>
+   <zorder>state_label_6</zorder>
+   <zorder>tooldialog</zorder>
+   <zorder>filedialog</zorder>
+   <zorder>led_home_x</zorder>
+   <zorder>led_home_y</zorder>
+   <zorder>led_home_z</zorder>
+   <zorder>actionbutton_9</zorder>
+   <zorder>actionbutton_10</zorder>
+   <zorder>actionbutton_11</zorder>
+   <zorder>ScreenOptions</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>macrotabdialog</zorder>
+   <zorder>originoffsetdialog</zorder>
+   <zorder>StatusStacked</zorder>
+   <zorder>StatusSlider</zorder>
+   <zorder>StatusSlider_2</zorder>
+   <zorder>StatusSlider_6</zorder>
+   <zorder>StatusSlider_5</zorder>
+   <zorder>mcodes_label</zorder>
+   <zorder>actionbutton_15</zorder>
+   <zorder>actionbutton_16</zorder>
+   <zorder>actionbutton_17</zorder>
+   <zorder>actionbutton_18</zorder>
+   <zorder>frame_auto_8</zorder>
+   <zorder>gcodes_label</zorder>
+   <zorder>state_label_10</zorder>
+   <zorder>focusoverlay</zorder>
+  </widget>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CamViewDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>LcncDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>MacroTabDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusStacked</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.status_stacked</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QFrame</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>halbuttonclicked()</slot>
+  <slot>estop_toggled()</slot>
+  <slot>machineon_toggled()</slot>
+  <slot>home_clicked()</slot>
+  <slot>jog_pressed()</slot>
+  <slot>jog_released()</slot>
+  <slot>change_jograte()</slot>
+  <slot>loadfile_clicked()</slot>
+  <slot>runfile_clicked()</slot>
+  <slot>launch_status()</slot>
+  <slot>zero_axis()</slot>
+  <slot>launch_halmeter()</slot>
+  <slot>stopfile_clicked()</slot>
+  <slot>change_feedrate()</slot>
+  <slot>change_rapidrate()</slot>
+  <slot>pausefile_clicked()</slot>
+ </slots>
+</ui>

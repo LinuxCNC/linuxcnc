@@ -1,0 +1,13 @@
+This is a simulation of an XYZ plasma cutter (with metric units).
+
+The main purpose of this is to show the posibilities offered by gscreen / gmoccapy to design custom screens.
+
+This special layout has been made to control plasma cutters, many work has be done by Marius.
+
+The original coolant and spindle frames are hidden, also the tool info frame and the spindle speed label in active gcode frame is hidden.
+
+Feel free to send any comment to:
+
+gmoccapy@web.de
+
+

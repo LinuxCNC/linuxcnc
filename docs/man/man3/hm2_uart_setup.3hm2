@@ -5,6 +5,8 @@
 
 hm2_uart_setup \- setup a Hostmot2 UART
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
 

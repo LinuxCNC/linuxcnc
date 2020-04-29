@@ -18,6 +18,9 @@ hal_pin_new \- Create a HAL pin
  int hal_pin_s32_new(const char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_s32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
 .HP
+ int hal_pin_port_new(const char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_port_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
+
+.HP
  int hal_pin_bit_newf(hal_pin_dir_t \fIdir\fR, hal_bit_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
@@ -28,6 +31,9 @@ hal_pin_new \- Create a HAL pin
 
 .HP
  int hal_pin_s32_newf(hal_pin_dir_t \fIdir\fR, hal_s32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
+ int hal_pin_port_newf(hal_pin_dir_t \fIdir\fR, hal_port_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
  int hal_pin_new(const char *\fIname\fR, hal_type_t \fItype\fR, hal_pin_dir_t \fIdir\fR, void **\fIdata_ptr_addr\fR, int \fIcomp_id\fR)

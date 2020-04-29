@@ -20,10 +20,29 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-ofile=/tmp/linuxcnc.info
-# all output
-exec 1>$ofile
-exec 2>&1
+ofile=/tmp/linuxcnc_info.txt
+PROG=$(basename $0)
+
+usage () {
+  cat <<EOF
+$PROG creates file $ofile
+USAGE:
+  $PROG [options]
+  options:
+    -s  silent (suppress automatic opening of file)
+    -h  help
+EOF
+exit 1
+}
+
+git_commit () {
+  dir=$(dirname $0)
+  if [ "${dir}" = "/usr/bin" ] ; then
+    echo NA
+  else
+    echo $(cd $dir; git rev-parse --short HEAD 2>/dev/null)
+  fi
+}
 
 # try to find a visual editor to show created file
 # use list with existing preference first, then other common editors
@@ -34,6 +53,18 @@ for e in $editors ; do
     break #use first editor found
   fi
 done
+
+while getopts hs OPT; do
+  case $OPT in
+    s) VIEWER="";;
+    h) usage;;
+    *) usage;;
+  esac
+done
+
+# all subsequent output:
+exec 1>$ofile
+exec 2>&1
 
 function show () {
   if [ -z "$1" ] ; then
@@ -69,14 +100,15 @@ function tryversion () {
 }
 
 cat <<EOF
-This file can be posted to a web site like:
+The file:    $ofile
+can be posted to a forum or a web site like:
      http://pastebin.com
 in order to provide information about the linuxcnc
 system and configuration.
 
 EOF
 
-echo VIEWER=$VIEWER
+[ -n "$VIEWER" ] && echo VIEWER=$VIEWER
 
 show "            Date" $(date)
 show "        UTC Date" $(date -u)
@@ -94,13 +126,15 @@ show "        LANGUAGE" $LANGUAGE
 show "            TERM" $TERM
 show "       COLORTERM" $COLORTERM
 show "         DISPLAY" $DISPLAY
+show "         DESKTOP" $DESKTOP_SESSION
 show "    display size" $(parse_after_colon $(xdpyinfo|grep dimensions))
+show "            PATH" $PATH
 echo
 echo "uname items:"
 show "     nodename -n" $(uname -n)
 show "  kernel-name -s" $(uname -s)
 show "  kernel-vers -v" $(uname -v)
-show "      machine -k" $(uname -n)
+show "      machine -m" $(uname -m)
 show "    processor -p" $(uname -p)
 show "     platform -i" $(uname -i)
 show "  oper system -o" $(uname -o)
@@ -116,7 +150,8 @@ echo
 echo "Versions:"
 show "             gcc" $(gcc --version|head -1)
 show "          python" $(python --version 2>&1)
-show "             git" $(git --version)
+show "             git" $(tryversion git)
+show "      git commit" $(git_commit)
 show "             tcl" $(echo "puts $::tcl_version"|tclsh)
 show "              tk" $(echo "puts $::tk_version;destroy ."|wish)
 show "           glade" $(tryversion glade)
@@ -128,4 +163,10 @@ for n in $(linuxcnc_var all) ; do
    show "${n%%=*}" ${n##*=}
 done
 
-[ -n $VIEWER ] && $VIEWER "$ofile"
+echo
+echo "dpkg -l '*linuxcnc*':"
+dpkg -l '*linuxcnc*'
+echo
+
+[ -n "$VIEWER" ] && $VIEWER "$ofile"
+exit 0

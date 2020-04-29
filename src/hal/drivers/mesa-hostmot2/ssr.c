@@ -229,7 +229,7 @@ static void hm2_ssr_compute_rate_regs(hostmot2_t *hm2) {
             // the enable bit.
             reg = 0;
         } else {
-            float rate = *hm2->ssr.instance[i].hal.pin.rate;
+            double rate = *hm2->ssr.instance[i].hal.pin.rate;
 
             if (*hm2->ssr.instance[i].hal.pin.rate < 25000) {
                 rate = 25000;
@@ -333,8 +333,8 @@ void hm2_ssr_prepare_tram_write(hostmot2_t *hm2) {
 
 void hm2_ssr_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("SSRs: %d\n", hm2->ssr.num_instances);
     if (hm2->ssr.num_instances <= 0) return;
+    HM2_PRINT("SSRs: %d\n", hm2->ssr.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->ssr.clock_freq, hm2_hz_to_mhz(hm2->ssr.clock_freq));
     HM2_PRINT("    version: %d\n", hm2->ssr.version);
     HM2_PRINT("    data_addr: 0x%04X\n", hm2->ssr.data_addr);

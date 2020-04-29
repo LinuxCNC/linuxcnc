@@ -15,7 +15,7 @@ things.
 * Add the links to HAL pins for your panel in the postgui.hal file to
    'connect' your PyVCP panel to LinuxCNC.
 
-== Floating
+== Floating Panels
 
 To create floating PyVCP panels that can be used with any interface
 you need to do the following basic things.
@@ -174,20 +174,20 @@ To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
 ----
-# connect the X PyVCP buttons 
-net my-jogxminus halui.jog.0.minus <= pyvcp.x-minus 
-net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
+# connect the X PyVCP buttons
+net my-jogxminus halui.axis.x.minus <= pyvcp.x-minus
+net my-jogxplus halui.axis.x.plus <= pyvcp.x-plus
 
-# connect the Y PyVCP buttons 
-net my-jogyminus halui.jog.1.minus <= pyvcp.y-minus 
-net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
+# connect the Y PyVCP buttons
+net my-jogyminus halui.axis.y.minus <= pyvcp.y-minus
+net my-jogyplus halui.axis.y.plus <= pyvcp.y-plus
 
-# connect the Z PyVCP buttons 
-net my-jogzminus halui.jog.2.minus <= pyvcp.z-minus 
-net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
+# connect the Z PyVCP buttons
+net my-jogzminus halui.axis.z.minus <= pyvcp.z-minus
+net my-jogzplus halui.axis.z.plus <= pyvcp.z-plus
 
-# connect the PyVCP jog speed slider  
-  net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
+# connect the PyVCP jog speed slider
+net my-jogspeed halui.axis.jog-speed <= pyvcp.jog-speed-f
 ----
 
 After resetting the E-Stop and putting it into jog mode and moving the
@@ -477,4 +477,56 @@ use the spindle-rev bit. You can't link the spindle-fwd bit twice so
 you use the signal that it was linked to.
 
 
+== Rapid to Home Button
 
+This example creates a button on the PyVCP side panel when pressed will send
+all the axis back to the home position. This example assumes you don't have a
+PyVCP panel.
+
+image::images/pyvcp-rth.png[align="center"]
+
+In your configuration directory create the .xml file. In this example it's named
+'rth.xml'. In the 'rth.xml' file add the following code to create the button.
+
+----
+<pyvcp>
+<!-- rapid to home button example -->
+<button>
+<halpin>"rth-button"</halpin>
+<text>"Rapid to Home"</text>
+</button>
+</pyvcp>
+----
+
+Open your .ini file with a text editor and in the [DISPLAY] section add the
+following line. This is what loads the PyVCP panel.
+
+----
+PYVCP = rth.xml
+----
+
+If you don't have a [HALUI] section in the ini file create it and add the
+following MDI command.
+
+----
+MDI_COMMAND = G53 G0 X0 Y0 Z0
+----
+
+[NOTE]
+Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G codes
+
+In the [HAL] section if you don't have a post gui file add the following and
+create a file called 'postgui.hal'.
+
+----
+POSTGUI_HALFILE = postgui.hal
+----
+
+In the 'postgui.hal' file add the following code to link the PyVCP button to the
+MDI command.
+
+----
+net rth halui.mdi-command-00 <= pyvcp.rth-button
+----
+
+NOTE: Information about the <<sub:net, net>> command

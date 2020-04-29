@@ -39,9 +39,11 @@ class INI:
         
     def write_inifile(self, base):
         if self.d.axes == 2:
-            maxvel = max(self.d.xmaxvel, self.d.zmaxvel)        
+            maxvel = max(self.d.xmaxvel, self.d.zmaxvel)
+        elif self.d.axes == 4:
+            maxvel = max(self.d.xmaxvel, self.d.ymaxvel)
         else:
-            maxvel = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)        
+            maxvel = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)
         hypotvel = (self.d.xmaxvel**2 + self.d.ymaxvel**2 + self.d.zmaxvel**2) **.5
         defvel = min(maxvel, max(.1, maxvel/10.))
 
@@ -60,7 +62,7 @@ class INI:
 
         # the joints_axes conversion script named 'update_ini'
         # will try to update for joints_axes if no VERSION is set
-        print >>file, "VERSION = 1.0"
+        print >>file, "VERSION = 1.1"
 
         print >>file
 
@@ -119,6 +121,7 @@ class INI:
         #                      1: X Y Z A
         #                      2: X Z
         #                      3: X Y U V
+<<<<<<< HEAD
         if   self.d.axes == XYZ: num_joints = 3 # X Y Z
         elif self.d.axes == XYZA: num_joints = 4 # X Y Z A
         elif self.d.axes == XZ: num_joints = 2 # X Z
@@ -130,6 +133,21 @@ class INI:
         elif self.d.axes == XYZ: coords = "X Y Z"
         elif self.d.axes == XZ: coords = "X Z"
         elif self.d.axes == XYUV: coords = "X Y U V"
+=======
+        if   self.d.axes == 0: num_joints = 3 # X Y Z
+        elif self.d.axes == 1: num_joints = 4 # X Y Z A
+        elif self.d.axes == 2: num_joints = 2 # X Z
+        elif self.d.axes == 3: num_joints = 4 # X Y U V
+        elif self.d.axes == 4: num_joints = 2 # X Y
+        else:
+            print "___________________unknown self.d.axes",self.d.axes
+
+        if   self.d.axes == 1: coords = "X Y Z A"
+        elif self.d.axes == 0: coords = "X Y Z"
+        elif self.d.axes == 2: coords = "X Z"
+        elif self.d.axes == 3: coords = "X Y U V"
+        elif self.d.axes == 4: coords = "X Y"
+>>>>>>> upstream/master
 
         ##########################################
         ################## KINS ##################
@@ -255,12 +273,17 @@ class INI:
             self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
             self.write_one_axis(file, 2, "u", "LINEAR", all_homes)
             self.write_one_axis(file, 3, "v", "LINEAR", all_homes)
+<<<<<<< HEAD
 
         if(self.d.tool_change_type == TOOL_CHANGE_MANUAL):
             # From orangecat
             print >>file, "TOOL_CHANGE_AT_G30 = 0"
 
         print >>file
+=======
+        if self.d.axes == 4: # xY
+            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
+>>>>>>> upstream/master
         file.close()
         self.p.add_md5sum(filename)
         #print self.d.md5sums
