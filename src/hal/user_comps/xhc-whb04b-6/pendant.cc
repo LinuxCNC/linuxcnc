@@ -1422,7 +1422,7 @@ void Pendant::dispatchFeedValueToHal()
             mHal.setMpgMode(false);
             mHal.setConMode(true);
             mHal.setFeedOverrideScale(0);
-            axisJogStepSize = feedButton.stepSize() * 0.001 * mHal.getFeedOverrideMaxVel();
+            axisJogStepSize = feedButton.stepSize() * 0.0001 * mHal.getFeedOverrideMaxVel();
         }
         else
         {
