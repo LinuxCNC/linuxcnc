@@ -15,7 +15,11 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os
-import Tkinter
+import sys
+if sys.version_info[0] == 3:
+    import tkinter as Tkinter
+else:
+    import Tkinter
 
 __all__ = 'makecommand makevar makebool makewidget start'.split()
 
@@ -34,7 +38,7 @@ Tkinter.Menu.delete = delete
 
 class TclCommands:
     def __init__(self, master):
-        for k, v in self.__class__.__dict__.items():
+        for k, v in list(self.__class__.__dict__.items()):
             if k.startswith("__") and k.endswith("__"): continue
             makecommand(master, v.__name__, v)
             setattr(self, k, v)
@@ -100,7 +104,7 @@ def makewidget(master, klass, path):
 def find_prefix(f):
     s = os.path.join(f, "share")
     if os.path.exists(s): return f
-    if f == "/" or f == '': raise RuntimeError, "Share directory not found"
+    if f == "/" or f == '': raise RuntimeError("Share directory not found")
     return find_prefix(os.path.dirname(f))
 
 PREFIX = "@prefix@"
