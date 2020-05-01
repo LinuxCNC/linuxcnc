@@ -280,6 +280,7 @@ class array:
         t.attach(xCLabel, 0, 1, 0, 1)
         self.xCEntry = gtk.Entry()
         self.xCEntry.set_width_chars(10)
+        self.xCEntry.set_text('1')
         self.xCEntry.connect('changed', self.data_change)
         t.attach(self.xCEntry, 1, 2, 0, 1)
         xOLabel = gtk.Label('Column\nOffset')
