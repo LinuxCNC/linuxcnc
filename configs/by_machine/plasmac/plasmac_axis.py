@@ -630,14 +630,14 @@ def user_button_pressed(button,commands):
 def user_button_released(button,commands):
     if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
        not commands: return
-    global probeButton
-    global probePressed
-    global probeText
-    global probeColor
-    probePressed = False
-    if commands.lower() == 'ohmic-test':
+    if 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','0')
-    elif commands.lower() == 'probe-test':
+    elif 'probe-test' in commands.lower():
+        global probeButton
+        global probePressed
+        global probeText
+        global probeColor
+        probePressed = False
         if not probeTimer and button == probeButton:
             hal.set_p('plasmac.probe-test','0')
             w(fbuttons + '.button' + probeButton,'configure','-text',probeText)
@@ -729,9 +729,9 @@ def user_live_update():
         w(foverride + '.reset','configure','-state','disabled')
     # decrement probe timer if active
     if probeTimer:
-        if hal.get_value('plasmac.probe-test-error'):
+        if hal.get_value('plasmac.probe-test-error') and not probePressed:
             probeTimer = 0
-        if time.time() >= probeStart + 1:
+        elif time.time() >= probeStart + 1:
             probeStart += 1
             probeTimer -= 1
             w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))

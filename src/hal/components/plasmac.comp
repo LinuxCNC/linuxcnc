@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.119 - 2020 May 01
+0.120 - 2020 May 01
 
 .I SUMMARY:
 .br
@@ -191,6 +191,7 @@ variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
 variable int    probe_offset;               /* offset for active probe */
 variable bool   probe_required = 1;         /* a probe sequence is required */
+variable bool   probe_retry;                /* probe will retry after contact befor probe height */
 variable int    probe_start_target;         /* probe start height target */
 variable bool   probe_testing;              /* probe test active */
 variable int    probe_velocity;             /* probe down velocity */
@@ -549,31 +550,37 @@ FUNCTION(_) {
                             ohmic_enable = FALSE;
                             probe_inhibit = TRUE;
                             if(probe_testing){
-                                rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before moving to probe height.");
+                                rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.");
+                                state = PROBE_TEST;
+                                probe_test_error = TRUE;
                             }else{
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before moving to probe height.\n"
+                                rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected before probing.\n"
                                                               "program is paused.\n");
                             }
                         }else if(float_switch && !probe_inhibit){
                             probe_inhibit = TRUE;
                             if(probe_testing){
-                                rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before moving to probe height.");
+                                rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before probing.");
+                                state = PROBE_TEST;
+                                probe_test_error = TRUE;
                             }else{
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before moving to probe height.\n"
+                                rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected before probing.\n"
                                                               "program is paused.\n");
                             }
                         }else if(breakaway && !probe_inhibit){
                             probe_inhibit = TRUE;
                             if(probe_testing){
-                                rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before moving to probe height.");
+                                rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.");
+                                state = PROBE_TEST;
+                                probe_test_error = TRUE;
                             }else{
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before moving to probe height.\n"
+                                rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected before probing.\n"
                                                               "program is paused.\n");
                             }
                         }else if (!program_is_paused){
@@ -620,28 +627,9 @@ FUNCTION(_) {
                 state = PROBE_TEST;
                 break;
             }
-            if(float_switch && !float_detected){
-                if(probe_testing){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected while moving to probe height.");
-                    state = PROBE_TEST;
-                }else{
-                    stop_type = PAUSE;
-                    program_pause = TRUE;
-                    state = MAX_HEIGHT;
-                    rtapi_print_msg(RTAPI_MSG_ERR,"float switch detected while moving to probe height.\n"
-                                                  "program is paused.\n");
-                }
-            }else if(ohmic_detected){
-                if(probe_testing){
-                    rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected while moving to probe height.");
-                    state = PROBE_TEST;
-                }else{
-                    stop_type = PAUSE;
-                    program_pause = TRUE;
-                    state = MAX_HEIGHT;
-                    rtapi_print_msg(RTAPI_MSG_ERR,"ohmic probe detected while moving to probe height.\n"
-                                                  "program is paused.\n");
-                }
+            if((float_switch && !float_detected) || ohmic_detected){
+                probe_retry = TRUE;
+                state = PROBE_UP;
             }else if(offset_counts - setup_velocity > probe_start_target){
                 offset_counts -= setup_velocity;
             }else if(offset_counts + setup_velocity < probe_start_target){
@@ -725,8 +713,17 @@ FUNCTION(_) {
                 break;
             }
             if(float_switch || ohmic_detected){
-                offset_counts += 1;
+                if(probe_retry){
+                    offset_counts += 10;
+                }else{
+                    offset_counts += 1;
+                }
             }else{
+                if(probe_retry){
+                    probe_retry = FALSE;
+                    state = PROBE_DOWN;
+                    break;
+                }
                 if(probe_type == OHMIC){
                     probe_offset = ohmic_probe_offset / offset_scale;
                 }else{
@@ -1277,6 +1274,7 @@ FUNCTION(_) {
                     offset_counts += setup_velocity;
                 }else{
                     offset_counts = 0;
+                    probe_inhibit = FALSE;
                     state = FINISH;
                 }
             }

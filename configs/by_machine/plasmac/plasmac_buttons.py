@@ -145,11 +145,11 @@ class HandlerClass:
                         self.c.wait_complete()
 
     def user_button_released(self, button, commands):
-        self.probePressed = False
         if not commands: return
-        if commands.lower() == 'ohmic-test':
+        if 'ohmic-test' in commands.lower():
             hal.set_p('plasmac.ohmic-test','0')
         elif 'probe-test' in commands.lower():
+            self.probePressed = False
             if not self.probeTimer and button == self.probeButton:
                 hal.set_p('plasmac.probe-test','0')
                 self.probeButton.set_label(self.probeText)
@@ -208,9 +208,9 @@ class HandlerClass:
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)
         if self.probeTimer:
-            if hal.get_value('plasmac.probe-test-error'):
+            if hal.get_value('plasmac.probe-test-error') and not self.probePressed:
                 self.probeTimer = 0
-            if time.time() >= self.probeStart + 1:
+            elif time.time() >= self.probeStart + 1:
                 self.probeStart += 1
                 self.probeTimer -= 1
                 self.probeButton.set_label(str(int(self.probeTimer)))

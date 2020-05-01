@@ -350,6 +350,8 @@ See <<config-panel, Config Panel>>
 
 If you use a float switch then you will need to set the offset in the Config Panel.
 
+. Check that the Probe Speed and the Probe Height in the Config Panel are correct. PlasmaC can probe at the full Z axis velocity so long as your machine has enough movement in the float switch to absorb any overrun. If your machine is suitable you could set Probe Height to near the Z axis minimum and do all probing at full speed.
+
 . Home the machine.
 
 . Place some material on the slats under the torch.
@@ -362,7 +364,7 @@ If you use a float switch then you will need to set the offset in the Config Pan
 
 . If it measures greater than Pierce Height then reduce the Float Travel by the difference, if less than Pierce Height then increase the Float Travel by the difference.
 
-. After the Z axis rises, repeat from #3 above until the Pierce Height is correct. 
+. After the Z axis rises, repeat from #4 above until the Pierce Height is correct. 
 
 IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN UP UNTIL NOW THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF YOU INTEND TO USE CUT VOLTAGES FROM MANUFACTURES CUT CHARTS THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
@@ -501,13 +503,13 @@ image::images/plasmac_config.png[width=50%]
 |*Name*|*Description*
 |Float Travel|This is the amount of travel in the float switch mechanism. This can be tested with a Probe Test button, see <<custom-user-buttons, Custom User Buttons>>.
 |Probe Speed|This is the speed the Z axis will probe down at after it moves to Probe Height.
-|Probe Height|This is the height above the Z axis bottom limit that probing begins from.
+|Probe Height|This is the height above the Z axis bottom limit that Probe Speed begins.
 |Ohmic Probe Offset|The Z axis offset of the ohmic probe.
 |Ohmic Retries|This is the number of times to retry an ohmic probe if it fails before fallback to the float switch.
 |Skip IHS|The distance used to see if IHS can be skipped, see <<ihs-skip, IHS Skip>>.
 |===
 
-WARNING: Probe Height is the height above the minimum Z axis limit.
+NOTE: Probe Height is the height above the minimum Z axis limit.
 
 [underline]*THC*
 
@@ -1014,7 +1016,9 @@ If your torch does not support ohmic probing you could have a separate probe nex
 
 Probing setup is done in the Motion frame of the Config Panel.
 
-WARNING: Probe Height is the height above the minimum Z axis limit.
+PlasmaC can probe at the full Z axis velocity so long as your machine has enough movement in the float switch to absorb any overrun. If your machine is suitable you could set Probe Height to near the Z axis minimum and do all probing at full speed.
+
+NOTE: Probe Height is the height above the minimum Z axis limit.
 
 [[cut-types]]
 
@@ -1451,13 +1455,6 @@ These errors indicate the corresponding sensor was activated before probing comm
 * *float switch detected before moving to probe height program is paused*
 * *breakaway switch detected before moving to probe height program is paused*
 
-These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height.
-
-WARNING: Probe height is the height above the Z axis minimum limit.
-
-* *float switch detected while moving to probe height program is paused*
-* *ohmic probe detected while moving to probe height program is paused*
-
 The Z axis reached the bottom limit before the workpiece was detected.
 
 * *bottom limit reached while probing down program is paused*
@@ -1492,11 +1489,6 @@ These errors indicate the corresponding sensor was activated before a probe test
 * *ohmic probe detected before moving to probe height*
 * *float switch detected before moving to probe height*
 * *breakaway switch detected before moving to probe height*
-
-These errors indicate the corresponding sensor was activated while the Z axis is moving from the top down to the probe height during a probe test.
-
-* *float switch detected while moving to probe height*
-* *ohmic probe detected while moving to probe height*
 
 This indicates that probe contact was lost before probing up to the zero point.
 
