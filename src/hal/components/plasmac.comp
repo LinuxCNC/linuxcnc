@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.118 - 2020 May 01
+0.119 - 2020 May 01
 
 .I SUMMARY:
 .br
@@ -125,6 +125,7 @@ pin out bit     offset_enable               "enable offsets, connect to axis.z.e
 pin out float   offset_scale                "offset scale, connect to axis.z.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
 pin out s32     pierce_count                "number of pierce attempts";
+pin out bit     probe_test_error            "minimum limit reached while pobe testing";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
 pin out bit     program_resume              "resume the currently paused program, connect to halui.program.resume";
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
@@ -184,6 +185,7 @@ variable float  pid_error_old;              /* old error for pid calcs */
 variable float  pid_output;                 /* calculated pid output value */
 variable float  pierce_timer;               /* pierce delay timer */
 variable int    pierce_target;              /* pierce height target offset */
+variable float  probe_at_bottom;            /* probe is at bottom limit */
 variable int    probe_force;                /* extra movement of probe after first contact */
 variable int    probe_force_val;            /* distance for probe_force */
 variable bool   probe_inhibit;              /* inhibit probing */
@@ -293,7 +295,7 @@ FUNCTION(_) {
         offset_enable = TRUE;
         adaptive_feed = 1;
         initialized = TRUE;
-        probe_force_val = 0.125 * units_per_mm / offset_scale;
+        probe_force_val = 5;
     }
 
     /* set the active tool */
@@ -665,8 +667,8 @@ FUNCTION(_) {
             }
             if(target_sensed){
                 if(probe_force > 0){
-                    probe_force -= 21;
-                    offset_counts -= probe_velocity;
+                    probe_force -= 1;
+                    offset_counts -= 1;
                 }else{
                     target_sensed = FALSE;
                     if(float_switch || ohmic_detected){
@@ -675,20 +677,6 @@ FUNCTION(_) {
                         rtapi_print_msg(RTAPI_MSG_ERR,"probe trip error while probing.");
                         state = IDLE;
                     }
-                }
-            }else if(!float_switch && !ohmic_detected){
-                if(axis_z_position - (probe_velocity * offset_scale) <= axis_z_min_limit){
-                    if(!probe_test){
-                        rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probing down.\n"
-                                                      "program is paused.\n");
-                        stop_type = PAUSE;
-                        program_pause = TRUE;
-                    }else{
-                        rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probe testing.\n");
-                    }
-                    state = MAX_HEIGHT;
-                }else{
-                    offset_counts -= probe_velocity;
                 }
             }else if(float_switch && !float_detected){
                 if(ohmic_attempts == ohmic_max_attempts){
@@ -707,6 +695,27 @@ FUNCTION(_) {
                 target_sensed = TRUE;
                 probe_force = probe_force_val;
                 ohmic_attempts = 0;
+            }else if(!float_switch && !ohmic_detected){
+                if(axis_z_position - (probe_velocity * offset_scale) <= axis_z_min_limit + (0.25 * units_per_mm )){
+                    if(probe_at_bottom - offset_current < 0.0001){
+                        probe_at_bottom = 0;
+                        if(!probe_test){
+                            rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probing down.\n"
+                                                          "program is paused.\n");
+                            stop_type = PAUSE;
+                            program_pause = TRUE;
+                            state = MAX_HEIGHT;
+                        }else{
+                            rtapi_print_msg(RTAPI_MSG_ERR,"bottom limit reached while probe testing.\n");
+                            state = PROBE_TEST;
+                            probe_test_error = TRUE;
+                        }
+                    }else{
+                        probe_at_bottom = offset_current;
+                    }
+                }else{
+                    offset_counts -= probe_velocity;
+                }
             }
             break;
         case PROBE_UP:
@@ -1130,7 +1139,7 @@ FUNCTION(_) {
             feed_hold = TRUE;
             if(!torch_off_timer || !torch_on){
                 cornerlock_is_locked = FALSE;
-                if(!probe_test){
+                if(!probe_test || probe_test_error){
                     if(offset_counts - setup_velocity > safe_target){
                         offset_counts -= setup_velocity;
                     }else if(offset_counts + setup_velocity < safe_target){
@@ -1152,7 +1161,7 @@ FUNCTION(_) {
             /* move to maximum height */
             feed_hold = TRUE;
             cornerlock_is_locked = FALSE;
-            if(!probe_test){
+            if(!probe_test || probe_test_error){
                 if(offset_counts - setup_velocity > offset_max){
                     offset_counts -= setup_velocity;
                 }else if(offset_counts + setup_velocity < offset_max){
@@ -1178,6 +1187,7 @@ FUNCTION(_) {
             ohmic_enable = FALSE;
             cut_length = 0;
             cut_time = 0;
+            probe_test_error = FALSE;
             if(stop_type == STOP){
                 auto_cut = FALSE;
                 manual_cut = FALSE;
