@@ -570,16 +570,17 @@ def user_button_pressed(button,commands):
         global probeStart
         global probeText
         global probeColor
-        probePressed = True
-        probeButton = button
-        if commands.lower().replace('probe-test','').strip():
-            probeStart = time.time()
-            probeTimer = float(commands.lower().replace('probe-test','').strip())
-            hal.set_p('plasmac.probe-test','1')
-            probeText = w(fbuttons + '.button' + probeButton,'cget','-text')
-            probeColor = w(fbuttons + '.button' + probeButton,'cget','-bg')
-            w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
-            w(fbuttons + '.button' + probeButton,'configure','-bg','red')
+        if not probeTimer:
+            probePressed = True
+            probeButton = button
+            if commands.lower().replace('probe-test','').strip():
+                probeStart = time.time()
+                probeTimer = float(commands.lower().replace('probe-test','').strip())
+                hal.set_p('plasmac.probe-test','1')
+                probeText = w(fbuttons + '.button' + probeButton,'cget','-text')
+                probeColor = w(fbuttons + '.button' + probeButton,'cget','-bg')
+                w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
+                w(fbuttons + '.button' + probeButton,'configure','-bg','red')
     elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
         global cutType
         cutType ^= 1
@@ -728,6 +729,8 @@ def user_live_update():
         w(foverride + '.reset','configure','-state','disabled')
     # decrement probe timer if active
     if probeTimer:
+        if hal.get_value('plasmac.probe-test-error'):
+            probeTimer = 0
         if time.time() >= probeStart + 1:
             probeStart += 1
             probeTimer -= 1
