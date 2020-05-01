@@ -96,7 +96,7 @@ $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+	     > /dev/null 2>&1; then echo "$(1)"; fi ;)
 cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null \
             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
