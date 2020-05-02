@@ -62,39 +62,30 @@ PyObject *to_python(double d) {
 bool from_python(PyObject *o, double *d) {
     if(PyFloat_Check(o)) {
         *d = PyFloat_AsDouble(o);
-        return true;
-    } else if(PyInt_Check(o)) {
-        #if PYTHON_MAJOR_VERSION >= 3 
-        *d = PyLong_AsDouble(o);
-        if (PyErr_Occurred()){
-            if(*d < 0 || d != (double *)d) {
-              PyErr_Format(PyExc_OverflowError, "Value %lld out of range", *d);
-              goto fail;
-            }
-            PyErr_Print();
-            return false;
-        }
-        #else
-        *d = PyInt_AsLong(o);
-        #endif
-        return true;
+        return !PyErr_Occurred();
     } else if(PyLong_Check(o)) {
         *d = PyLong_AsDouble(o);
+        return !PyErr_Occurred();
+    } else if(PyInt_Check(o)) {
+        *d = PyInt_AsLong(o);
         return !PyErr_Occurred();
     }
 
     PyObject *tmp = PyNumber_Float(o);
-    if(!tmp) {
-        PyErr_Format(PyExc_TypeError, "Number expected, not %s", Py_TYPE(o)->tp_name);
-        return false;
-    }
+    auto rv = false;
 
-    *d = PyFloat_AsDouble(tmp);
+    do {
+        if(!tmp) {
+            PyErr_Format(PyExc_TypeError, "Number expected, not %s", Py_TYPE(o)->tp_name);
+            break;
+        }
+
+        *d = PyFloat_AsDouble(tmp);
+        rv = !PyErr_Occurred();
+    } while (0);
+
     if(tmp != o) Py_XDECREF(tmp);
-    return true;
-fail:
-    if(tmp != o) Py_XDECREF(tmp);
-    return false;
+    return rv;
 }
 
 bool from_python(PyObject *o, uint32_t *u) {

@@ -1,0 +1,10 @@
+#!/bin/bash
+cd $(dirname $1)
+RETVAL=0
+EXPECTED=$(basename expected-py$(/usr/bin/env linuxcnc-python -c 'import sys; print(sys.version_info[0])'))
+
+diff -u $EXPECTED result
+if [ $? -ne 0 ]; then
+    RETVAL=1
+fi
+exit $RETVAL
