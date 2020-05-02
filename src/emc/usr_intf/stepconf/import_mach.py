@@ -43,8 +43,8 @@ if response == Gtk.ResponseType.OK:
 fcd.destroy()
 if response == Gtk.ResponseType.CANCEL:
   quit(1)
-print file_name
-print machinename
+print(file_name)
+print(machinename)
 file = open(file_name,'r')
 #convert to string:
 data = file.read()
@@ -445,7 +445,7 @@ rm = open("README", "wb")
 if len(errors) > 0:
   rm.write("The following errors were found during processing.\n")
   rm.write(errors+"\n")
-  print errors
+  print(errors)
 rm.write("This file can be deleted after running the Stepconf Wizard once.\n")
 rm.write("Copy the generated .stepconf file to the linuxcnc/configs directory.\n")
 rm.write("Run the Stepconf Wizard from the CNC menu.\n")
@@ -457,4 +457,4 @@ rm.write("Allow the test to run for at least a hour then enter the largest Max J
 rm.write("Go through each screen and check for correctness then save when done.")
 rm.close()
 
-print 'Mach import/conversion done'
+print('Mach import/conversion done')

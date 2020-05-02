@@ -27,6 +27,7 @@
 
 #import gtk
 #import gtk.glade
+from __future__ import print_function
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -90,7 +91,7 @@ wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
+    print("cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir))
     sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
@@ -481,7 +482,7 @@ class Data:
         elif self.axes == 4:
             pps = max(xhz, yhz)
         else:
-            print 'error in ideal period calculation - number of axes unrecognized'
+            print('error in ideal period calculation - number of axes unrecognized')
             return
         if self.doublestep():
             base_period = 1e9 / pps
@@ -527,7 +528,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print filename
+        print(filename)
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -601,12 +602,12 @@ class Data:
                 dialog.destroy()
             else:
                 for para in warnings:
-                    for line in textwrap.wrap(para, 78): print line
-                    print
-                print
+                    for line in textwrap.wrap(para, 78): print(line)
+                    print()
+                print()
                 if force: return
-                response = raw_input(_("Continue? "))
-                if response[0] not in _("yY"): raise SystemExit, 1
+                response = input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit(1)
 
         for p in (10,11,12,13,15):
             pin = "pin%d" % p
@@ -625,28 +626,28 @@ class Data:
                 original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
                 if os.path.exists(filename):     
                   if os.path.exists(original):
-                     print "custom file already exists"
+                     print("custom file already exists")
                      shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
-                     print "made backup of existing custom"
+                     print("made backup of existing custom")
                   shutil.copy( filename,original)
-                  print "copied ladder program to usr directory"
-                  print"%s" % filename
+                  print("copied ladder program to usr directory")
+                  print("%s" % filename)
                 else:
-                     print "Master or temp ladder files missing from configurable_options dir"
+                     print("Master or temp ladder files missing from configurable_options dir")
 
         if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
            originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
-                     print "custom PYVCP file already exists"
+                     print("custom PYVCP file already exists")
                      shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print "made backup of existing custom"
+                     print("made backup of existing custom")
                   shutil.copy( panelname,originalname)
-                  print "copied PYVCP program to usr directory"
-                  print"%s" % panelname
+                  print("copied PYVCP program to usr directory")
+                  print("%s" % panelname)
            else:
-                  print "Master PYVCP files missing from configurable_options dir"
+                  print("Master PYVCP files missing from configurable_options dir")
 
         filename = "%s.stepconf" % base
 
@@ -654,7 +655,7 @@ class Data:
                             None, "stepconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.iteritems()):
+        for k, v in sorted(self.__dict__.items()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -688,18 +689,18 @@ class Data:
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print >>file,"[Desktop Entry]"
-            print >>file,"Version=1.0"
-            print >>file,"Terminal=false"
-            print >>file,"Name=" + _("launch %s") % self.machinename
-            print >>file,"Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename )
-            print >>file,"Type=Application"
-            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
-            print >>file,"Icon=%s"% linuxcncicon
+            print("[Desktop Entry]", file=file)
+            print("Version=1.0", file=file)
+            print("Terminal=false", file=file)
+            print("Name=" + _("launch %s") % self.machinename, file=file)
+            print("Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename ), file=file)
+            print("Type=Application", file=file)
+            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf"), file=file)
+            print("Icon=%s"% linuxcncicon, file=file)
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0775)
+            os.chmod(filename,0o775)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -715,11 +716,11 @@ class Widgets:
         self._xml = xml
     def __getattr__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise AttributeError, "No widget %r" % attr
+        if r is None: raise AttributeError("No widget %r" % attr)
         return r
     def __getitem__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise IndexError, "No widget %r" % attr
+        if r is None: raise IndexError("No widget %r" % attr)
         return r
 
 class StepconfApp:
@@ -800,7 +801,7 @@ class StepconfApp:
     def dbg(self,str):
         global debug
         if not debug: return
-        print "DEBUG: %s"%str
+        print("DEBUG: %s"%str)
 
     # Check for realtime-capable LinuxCNC.
     # Returns True if the running version of LinuxCNC is realtime-capable
@@ -820,8 +821,8 @@ class StepconfApp:
                 else:
                     is_realtime_capable = True
         except:
-            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
-            print sys.exc_info()
+            print('STEPCONF WARNING: check-for-realtime function failed - continuing anyways.')
+            print(sys.exc_info())
             return True
 
         if is_realtime_capable or debug:
@@ -1179,7 +1180,7 @@ class StepconfApp:
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
         if self.w.radiobutton5.get_active() == True:
-            print 'no sample requested'
+            print('no sample requested')
             return True
         if self.w.radiobutton6.get_active() == True:
             panel = "spindle.xml"
