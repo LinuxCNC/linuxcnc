@@ -121,7 +121,7 @@ debug = False
 def makedirs(d):
     try:
         os.makedirs(d)
-    except os.error, detail:
+    except os.error as detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
