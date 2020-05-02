@@ -1,6 +1,4 @@
 executing
-Fanuc 'O....' subroutine must be called with 'M98'
-O1
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -8,6 +6,8 @@ O1
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... ON_RESET()
     7 N..... COMMENT("Fanuc 'O...' sub must be called with M98 ")
+Fanuc 'O....' subroutine must be called with 'M98'
+O1
     8 N..... ON_RESET()
     9 N..... ON_RESET()
 executing
@@ -24,8 +24,6 @@ O1 endsub
     8 N..... ON_RESET()
     9 N..... ON_RESET()
 executing
-'O.... sub' subroutine must be called with 'O.... call'
-O1 sub
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -33,6 +31,8 @@ O1 sub
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... ON_RESET()
     7 N..... COMMENT("RS274NGC 'O...' sub must not be called with M98 ")
+'O.... sub' subroutine must be called with 'O.... call'
+O1 sub
     8 N..... ON_RESET()
     9 N..... ON_RESET()
 executing

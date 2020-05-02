@@ -551,6 +551,9 @@ int main (int argc, char ** argv)
   int log_level = -1;
   std::string interp;
 
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
+
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
   print_stack = OFF;
