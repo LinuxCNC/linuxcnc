@@ -45,6 +45,20 @@ int main() {
 // (and it needs Python.h for the definition of struct inttab)
 int _task = 0;
 char _parameter_file_name[LINELEN];
+#if PY_MAJOR_VERSION >=3
+
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+extern "C" struct _inittab builtin_modules[];
+struct _inittab builtin_modules[] = {
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { NULL, NULL }
+};
+
+#else
+
 extern "C" void initinterpreter();
 extern "C" void initemccanon();
 extern "C" struct _inittab builtin_modules[];
@@ -53,6 +67,7 @@ struct _inittab builtin_modules[] = {
     { (char *) "emccanon", initemccanon },
     { NULL, NULL }
 };
+#endif
 
 // everything below here is stuff that needs a real implementation, not a dummy
 // one
