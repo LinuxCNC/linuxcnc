@@ -589,7 +589,7 @@ https://github.com/linuxcnc/linuxcnc/tree/master/src/hal/user_comps/xhc-whb04b-6
 
 == NOTES
 The CRC code function is not disclosed by the manufacturer.
-Ths the CRC value transmitted with each package is not checked yet.
+Thus the CRC value transmitted with each package is not checked yet.
 Feel free to help us enhance the component.
 
 == AUTHORS
