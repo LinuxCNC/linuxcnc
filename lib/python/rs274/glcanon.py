@@ -25,6 +25,7 @@ import array
 import gcode
 import os
 import re
+from functools import reduce
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -271,13 +272,13 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
     def user_defined_function(self, i, p, q):
         if self.suppress > 0: return
         color = self.colors['m1xx']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
+        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
     def dwell(self, arg):
         if self.suppress > 0: return
         self.dwell_time += arg
         color = self.colors['dwell']
-        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], self.state.plane/10-17))
+        self.dwells_append((self.lineno, color, self.lo[0], self.lo[1], self.lo[2], int(self.state.plane/10-17)))
 
 
     def highlight(self, lineno, geometry):
@@ -333,7 +334,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
             self.colored_lines('arc_feed', self.arcfeed, for_selection, len(self.traverse) + len(self.feed))
 
             glLineWidth(2)
-            self.draw_dwells(self.dwells, self.colors.get('dwell_alpha', 1/3.), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
+            self.draw_dwells(self.dwells, int(self.colors.get('dwell_alpha', 1/3.)), for_selection, len(self.traverse) + len(self.feed) + len(self.arcfeed))
             glLineWidth(1)
 
 def with_context(f):
@@ -434,7 +435,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file"
+                        print ("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
                     else:
                         self.dro_in = temp
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
@@ -442,7 +443,7 @@ class GlCanonDraw:
                     try:
                         test = temp % 1.234
                     except:
-                        print "Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file"
+                        print ("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
@@ -463,8 +464,8 @@ class GlCanonDraw:
         self.kinsmodule = kinsmodule
         self.no_joint_display = self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY
         if (msg != ""):
-            print "init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
-                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display)
+            print("init_glcanondraw %s coords=%s kinsmodule=%s no_joint_display=%d"%(
+                   msg,self.trajcoordinates,self.kinsmodule,self.no_joint_display))
 
     def realize(self):
         self.hershey = hershey.Hershey()
@@ -539,7 +540,7 @@ class GlCanonDraw:
         glDeleteLists(base, count)
 
     def __del__(self):
-        for base, count in self._dlists.values():
+        for base, count in list(self._dlists.values()):
             glDeleteLists(base, count)
 
     def update_highlight_variable(self,line):
@@ -879,20 +880,28 @@ class GlCanonDraw:
         if self.canon and self.canon.grid: return self.canon.grid
         return 5./25.4
 
-    def comp(self, (sx, sy), (cx, cy)):
+    def comp(self, sx_sy, cx_cy):
+        (sx, sy) = sx_sy
+        (cx, cy) = cx_cy
         return -(sx*cx + sy*cy) / (sx*sx + sy*sy)
 
-    def param(self, (x1, y1), (dx1, dy1), (x3, y3), (dx3, dy3)):
+    def param(self, x1_y1, dx1_dy1, x3_y3, dx3_dy3):
+        (x1, y1) = x1_y1
+        (dx1, dy1) = dx1_dy1
+        (x3, y3) = x3_y3
+        (dx3, dy3) = dx3_dy3
         den = (dy3)*(dx1) - (dx3)*(dy1)
         if den == 0: return 0
         num = (dx3)*(y1-y3) - (dy3)*(x1-x3)
         return num * 1. / den
 
-    def draw_grid_lines(self, space, (ox, oy), (dx, dy), lim_min, lim_max,
+    def draw_grid_lines(self, space, ox_oy, dx_dy, lim_min, lim_max,
             inverse_permutation):
         # draw a series of line segments of the form
         #   dx(x-ox) + dy(y-oy) + k*space = 0
         # for integers k that intersect the AABB [lim_min, lim_max]
+        (ox, oy) = ox_oy
+        (dx, dy) = dx_dy
         lim_pts = [
                 (lim_min[0], lim_min[1]),
                 (lim_max[0], lim_min[1]),
@@ -993,14 +1002,14 @@ class GlCanonDraw:
         rotation = math.radians(self.stat.rotation_xy % 90)
         if rotation != 0 and view != z and self.get_show_relative(): return
         permutations = [
-                lambda (x, y, z): (z, y, x),  # YZ X
-                lambda (x, y, z): (z, x, y),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
+                lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
+                lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
         ]
         inverse_permutations = [
-                lambda (z, y, x): (x, y, z),  # YZ X
-                lambda (z, x, y): (x, y, z),  # ZX Y
-                lambda (x, y, z): (x, y, z),  # XY Z
+                lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
+                lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
+                lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
         ]
         self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
@@ -1049,8 +1058,8 @@ class GlCanonDraw:
         if (      aletter in ["X","Y","Z","A","B","C","U","V","W","Rad","Dia"]
               and self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY
             ):
-            if self.all_joints_homed():     ans = ans -2 # allhomeicon   on all letters
-            if self.one_or_more_on_limit(): ans = ans -4 # somelimiticon on all letters
+            if self.all_joints_homed():     ans = ans -2 # allhomeicon on all letters
+            if self.one_or_more_on_limit(): ans = ans -4 # limitedicon on all letters
         if (ans < 0):
             return ans # -2,-4,-6
 
@@ -1085,7 +1094,7 @@ class GlCanonDraw:
         if icon is limiticon:
             if idx in self.show_icon_limit_list: return
             self.show_icon_limit_list.append(idx)
-        glBitmap(13, 16, 0, 3, 17, 0, icon)
+        glBitmap(13, 16, 0, 3, 17, 0, icon.tostring())
 
     def redraw(self):
         s = self.stat
@@ -1527,8 +1536,8 @@ class GlCanonDraw:
         else:
             # N.B. no conversion here because joint positions are unitless
             #      joint_mode and display_joint
-            posstrs = [" %2s:% 9.4f" % i for i in
-                zip(range(self.get_num_joints()), s.joint_actual_position)]
+            posstrs = ["  %s:% 9.4f" % i for i in
+                zip(list(range(self.get_num_joints())), s.joint_actual_position)]
             droposstrs = posstrs
         return limit, homed, posstrs, droposstrs
 
