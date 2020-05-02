@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env linuxcnc-python
 import tempfile
 import gcode
 import sys

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc_util
 import hal
@@ -12,7 +12,7 @@ timeout = 5.0
 
 
 # unbuffer stdout
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
 
 
 def wait_for_pin_value(pin_name, value, timeout=5.0):
