@@ -164,7 +164,7 @@ class emc_control:
                         self.emccommand.jog(self.emc.JOG_CONTINUOUS
                         ,0 ,axis ,direction * self.jog_velocity)
                 
-	def quill_up(self):
+        def quill_up(self):
                 if self.masked: return
                 self.emccommand.mode(self.emc.MODE_MANUAL)
                 self.set_motion_mode()
@@ -172,7 +172,7 @@ class emc_control:
                 self.emccommand.jog(self.emc.JOG_CONTINUOUS, 0, 2, 100)
 
         def feed_override(self, f):
-		if self.masked: return
+                if self.masked: return
                 self.emccommand.feedrate(f/100.0)
 
         def spindle_override(self, s):
@@ -438,10 +438,10 @@ class emc_status:
                 set_text(self.status['spindlespeed'], "%d" % self.emcstat.spindle[0]['speed'])
                 set_text(self.status['spindlespeed2'], "%d" % self.emcstat.spindle[0]['speed'])
                 set_text(self.status['loadedtool'], "%d" % self.emcstat.tool_in_spindle)
-		if self.emcstat.pocket_prepped == -1:
-			set_text(self.status['preppedtool'], _("None"))
-		else:
-			set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
+                if self.emcstat.pocket_prepped == -1:
+                        set_text(self.status['preppedtool'], _("None"))
+                else:
+                        set_text(self.status['preppedtool'], "%d" % self.emcstat.tool_table[self.emcstat.pocket_prepped].id)
 
                 tt = ""
                 for p, t in zip(list(range(len(self.emcstat.tool_table))), self.emcstat.tool_table):

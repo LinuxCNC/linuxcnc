@@ -80,8 +80,6 @@ N..... PROGRAM_END()
 N..... ON_RESET()
 program: fanuc; ini: NO fanuc
 executing
-DISABLE_FANUC_STYLE_SUB set in .ini file, but found m98
-M98 P1 L3
 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -91,6 +89,8 @@ N..... ON_RESET()
 N..... COMMENT("A simple O sub example ")
 N..... SET_FEED_RATE(40.0000)
 N..... STRAIGHT_TRAVERSE(0.0000, 0.0000, 0.2500, 0.0000, 0.0000, 0.0000)
+DISABLE_FANUC_STYLE_SUB set in .ini file, but found m98
+M98 P1 L3
 N..... ON_RESET()
 program: rs274ngc; ini: NO fanuc
 executing

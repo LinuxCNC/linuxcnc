@@ -33,6 +33,7 @@
 
 #include "initool.hh"
 
+#include "py3c/py3c.h"
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include <rtapi_string.h>
@@ -269,7 +270,7 @@ int emcIoInit() { return task_methods->emcIoInit(); }
 int emcIoHalt() {
     try {
 	return task_methods->emcIoHalt();
-    } catch( const bp::error_already_set& ) {
+    } catch( bp::error_already_set &) {
 	std::string msg = handle_pyerror();
 	rcs_print("emcIoHalt(): %s\n", msg.c_str());
 	PyErr_Clear();
@@ -305,10 +306,6 @@ static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename)
 {
-    bp::object retval;
-    bp::tuple arg;
-    bp::dict kwarg;
-
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
     // both Task and Interp use it - first to call configure() instantiates the Python part
@@ -338,7 +335,7 @@ int emcTaskOnce(const char *filename)
 		rcs_print("cant extract a Task instance out of '%s'\n", instance_name);
 		task_methods = NULL;
 	    }
-	} catch( const bp::error_already_set& ) {
+	} catch(bp::error_already_set &) {
 	    std::string msg = handle_pyerror();
 	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
 		// this really just means the task python backend wasnt configured.
@@ -401,13 +398,22 @@ int return_int(const char *funcname, PyObject *retval)
 	return -1;
     }
     if ((retval != Py_None) &&
+#if PY_MAJOR_VERSION >=3
+    (PyLong_Check(retval))) {
+    return PyLong_AsLong(retval);
+#else
 	(PyInt_Check(retval))) {
 	return PyInt_AS_LONG(retval);
+#endif
     } else {
 	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
-			 PyString_AsString(retval),
-			 retval->ob_type->tp_name);
+#if PY_MAJOR_VERSION >=3
+            PyBytes_AsString(retval),
+#else
+			PyString_AsString(retval),
+#endif
+            Py_TYPE(retval)->tp_name);
 	Py_XDECREF(retval);
 	return -1;
     }
@@ -436,7 +442,20 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
 // 	print_interp_error(status);
 //     return status;
 // }
+#if PY_MAJOR_VERSION >=3
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+extern "C" struct _inittab builtin_modules[];
 
+struct _inittab builtin_modules[] = {
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { "emctask", PyInit_emctask },
+    // any others...
+    { NULL, NULL }
+};
+#else
 extern "C" void initemctask();
 extern "C" void initinterpreter();
 extern "C" void initemccanon();
@@ -447,7 +466,7 @@ struct _inittab builtin_modules[] = {
     // any others...
     { NULL, NULL }
 };
-
+#endif
 
 
 Task::Task() : use_iocontrol(0), random_toolchanger(0) {

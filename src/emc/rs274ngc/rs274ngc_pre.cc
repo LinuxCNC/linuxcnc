@@ -1254,9 +1254,9 @@ int Interp::init()
       try {
 	  bp::object npmod =  python_plugin->main_namespace[NAMEDPARAMS_MODULE];
 	  bp::dict predef_dict = bp::extract<bp::dict>(npmod.attr("__dict__"));
-	  bp::list iterkeys = (bp::list) predef_dict.iterkeys();
-	  for (int i = 0; i < bp::len(iterkeys); i++)  {
-	      std::string key = bp::extract<std::string>(iterkeys[i]);
+	  bp::list keys = (bp::list) predef_dict.keys();
+	  for (int i = 0; i < bp::len(keys); i++)  {
+	      std::string key = bp::extract<std::string>(keys[i]);
 	      bp::object value = predef_dict[key];
 	      if (PyCallable_Check(value.ptr())) {
 		  CHP(init_python_predef_parameter(key.c_str()));

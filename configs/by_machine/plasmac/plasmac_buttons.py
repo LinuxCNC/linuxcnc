@@ -72,15 +72,16 @@ class HandlerClass:
         elif commands.lower() == 'ohmic-test':
             hal.set_p('plasmac.ohmic-test','1')
         elif 'probe-test' in commands.lower():
-            self.probePressed = True
-            self.probeButton = button
-            if commands.lower().replace('probe-test','').strip():
-                self.probeStart = time.time()
-                self.probeTimer = float(commands.lower().replace('probe-test','').strip())
-                hal.set_p('plasmac.probe-test','1')
-                self.probeText = self.probeButton.get_label()
-                self.probeButton.set_label(str(int(self.probeTimer)))
-                self.probeButton.set_style(self.buttonRed)
+            if not self.probeTimer:
+                self.probePressed = True
+                self.probeButton = button
+                if commands.lower().replace('probe-test','').strip():
+                    self.probeStart = time.time()
+                    self.probeTimer = float(commands.lower().replace('probe-test','').strip())
+                    hal.set_p('plasmac.probe-test','1')
+                    self.probeText = self.probeButton.get_label()
+                    self.probeButton.set_label(str(int(self.probeTimer)))
+                    self.probeButton.set_style(self.buttonRed)
         elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running') and self.s.file:
             self.cutType ^= 1
             if not 'PlaSmaC' in self.s.file:
@@ -144,11 +145,11 @@ class HandlerClass:
                         self.c.wait_complete()
 
     def user_button_released(self, button, commands):
-        self.probePressed = False
         if not commands: return
-        if commands.lower() == 'ohmic-test':
+        if 'ohmic-test' in commands.lower():
             hal.set_p('plasmac.ohmic-test','0')
         elif 'probe-test' in commands.lower():
+            self.probePressed = False
             if not self.probeTimer and button == self.probeButton:
                 hal.set_p('plasmac.probe-test','0')
                 self.probeButton.set_label(self.probeText)
@@ -207,7 +208,9 @@ class HandlerClass:
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)
         if self.probeTimer:
-            if time.time() >= self.probeStart + 1:
+            if hal.get_value('plasmac.probe-test-error') and not self.probePressed:
+                self.probeTimer = 0
+            elif time.time() >= self.probeStart + 1:
                 self.probeStart += 1
                 self.probeTimer -= 1
                 self.probeButton.set_label(str(int(self.probeTimer)))

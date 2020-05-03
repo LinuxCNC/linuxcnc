@@ -18,7 +18,7 @@
 // Interpreter internals - Python bindings
 // Michael Haberler 7/2011
 //
-
+#include "py3c/py3c.h"
 #define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/extract.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
@@ -40,8 +40,8 @@ extern int _task;  // zero in gcodemodule, 1 in milltask
 #include <interp_parameter_def.hh>
 using namespace interp_param_global;
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+#define IS_STRING(x) (PyStr_Check(x.ptr()))
+#define IS_INT(x) (PyInt_Check(x.ptr()))
 
 // access to named and numbered parameters via a pseudo-dictionary
 // either params["paramname"] or params[5400] is valid

@@ -1,13 +1,13 @@
-from hal_pythonplugin import *
+from .hal_pythonplugin import *
 
 try:
     import importlib
     support_aux_apps = True
 except:
     support_aux_apps = False
-    print "\n"
-    print "Gladevcp: Cannot import importlib"
-    print "          Auxiliary Gladevcp apps not available\n"
+    print("\n")
+    print("Gladevcp: Cannot import importlib")
+    print("          Auxiliary Gladevcp apps not available\n")
 
 #----------------------------------------------------------------------
 # Support auxiliary gladevcp apps
@@ -26,20 +26,20 @@ if support_aux_apps:
     # Auxiliary gladevcp apps specified by environmental variable
     gladevcp_user_extras = os.getenv('GLADEVCP_EXTRAS')
     if gladevcp_user_extras is not None:
-        print "gladevcp: GLADEVCP_EXTRAS:",gladevcp_user_extras
+        print("gladevcp: GLADEVCP_EXTRAS:",gladevcp_user_extras)
         for extradir in gladevcp_user_extras.split(":"):
             for fname in glob.glob(extradir + "/*.py"):
                 if excluded_filename(fname):
-                    print "gladevcp: excluded filename:",fname
+                    print("gladevcp: excluded filename:",fname)
                     continue
                 modname = os.path.basename(fname).split(".")[0]
                 if modname in modnames:
-                    print "gladevcp: rejecting duplicate:",fname
+                    print("gladevcp: rejecting duplicate:",fname)
                     continue
                 modnames.append(modname)
                 sys.path.insert(0,extradir) # prepend
                 importlib.import_module(modname)
-                print "gladevcp: importing:",fname
+                print("gladevcp: importing:",fname)
     #----------------------------------------------------------------------
     # Auxiliary gladevcp apps may be installed in a known location
     # location defined by the substitution item LINUXCNC_AUX_GLADEVCP.
@@ -53,18 +53,18 @@ if support_aux_apps:
     p,e = s.communicate()
     gladevcp_aux_apps_dir = p.strip() # remove trailing \n
     for auxdir in glob.glob(gladevcp_aux_apps_dir + "/*"):
-        print "gladevcp: auxiliary dir:",auxdir
+        print("gladevcp: auxiliary dir:",auxdir)
         for fname in glob.glob(auxdir + "/*.py"):
             if excluded_filename(fname):
-                print "gladevcp: excluded filename:",fname
+                print("gladevcp: excluded filename:",fname)
                 continue
             modname = os.path.basename(fname).split(".")[0]
             if modname in modnames:
-                print "gladevcp: rejecting duplicate:",fname
+                print("gladevcp: rejecting duplicate:",fname)
                 continue
             modnames.append(modname)
             sys.path.insert(0,auxdir) # prepend
             importlib.import_module(modname)
-            print "gladevcp: importing:",fname
+            print("gladevcp: importing:",fname)
     
     #----------------------------------------------------------------------

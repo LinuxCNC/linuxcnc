@@ -17,14 +17,15 @@
  */
 #include "python_plugin.hh"
 
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
+extern "C" struct _inittab builtin_modules[];
 
-extern "C" void initemctask();
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
 struct _inittab builtin_modules[] = {
-    { (char *) "interpreter", initinterpreter },
-    { (char *) "emccanon", initemccanon },
-    { (char *) "emctask", initemctask },
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { "emctask", PyInit_emctask },
     // any others...
     { NULL, NULL }
 };

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env linuxcnc-python
 
 #
 # Here's the kind of output we're looking for:

@@ -18,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from __future__ import print_function
 import os
 import gtk
 import time
@@ -170,7 +171,7 @@ But there is not one in the machine-named folder.."""),True)
             size = "%dx%d"% (width,height)
         if not self.w.gladevcptheme.get_active_text() == "Follow System Theme":
             options ="-t %s"% (self.w.gladevcptheme.get_active_text())
-            print options
+            print(options)
         halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
         if debug:
             halrun.write("echo\n")
@@ -199,7 +200,7 @@ But there is not one in the machine-named folder.."""),True)
         directory = "/tmp/"
         filename = os.path.join(directory, "gvcp-panel.ui")
         file = open(filename, "w")
-        print >>file, ("""<?xml version="1.0"?>
+        print(("""<?xml version="1.0"?>
 <interface>
   <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.16"/>
@@ -208,15 +209,15 @@ But there is not one in the machine-named folder.."""),True)
     <property name="width_request">100</property>
     <child>
       <object class="GtkVBox" id="vbox1">
-        <property name="visible">True</property>""")
+        <property name="visible">True</property>"""), file=file)
         if self.w.spindlespeedbar.get_active():
-            print >>file, ("""
+            print(("""
         <child>
           <object class="HAL_HBar" id="spindle-speed">
             <property name="visible">True</property>
-            <property name="force_height">36</property>""")
-            print >>file, ("""<property name="max">%(maxrpm)d</property>"""%{'maxrpm':self.w.maxspeeddisplay.get_value() })
-            print >>file, ("""
+            <property name="force_height">36</property>"""), file=file)
+            print(("""<property name="max">%(maxrpm)d</property>"""%{'maxrpm':self.w.maxspeeddisplay.get_value() }), file=file)
+            print(("""
             <property name="z0_color">#0000ffff0000</property>
             <property name="value">44.25</property>
             <property name="z1_color">#ffffffff0000</property>
@@ -230,9 +231,9 @@ But there is not one in the machine-named folder.."""),True)
             <property name="expand">False</property>
             <property name="position">0</property>
           </packing>
-        </child>""" )
+        </child>""" ), file=file)
         if self.w.spindleatspeed.get_active():
-            print >>file, ("""
+            print(("""
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
@@ -267,15 +268,15 @@ But there is not one in the machine-named folder.."""),True)
             <property name="expand">False</property>
             <property name="position">1</property>
           </packing>
-        </child>""")
-        print >>file, ("""
+        </child>"""), file=file)
+        print(("""
         <child>
           <object class="HAL_Table" id="button-box-active">
             <property name="visible">True</property>
             <property name="n_rows">5</property>
-            <property name="homogeneous">False</property>""")
+            <property name="homogeneous">False</property>"""), file=file)
         if self.w.autotouchz.get_active():
-            print >>file, ("""
+            print(("""
             <child>
               <object class="HAL_HBox" id="auto-touch-z-active">
                 <property name="visible">True</property>
@@ -296,9 +297,9 @@ But there is not one in the machine-named folder.."""),True)
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
-            </child>""")
+            </child>"""), file=file)
         if self.w.zeroa.get_active():
-            print >>file, ("""
+            print(("""
             <child>
               <object class="HAL_HBox" id="zero-a-active">
                 <property name="visible">True</property>
@@ -318,9 +319,9 @@ But there is not one in the machine-named folder.."""),True)
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
-            </child>""")
+            </child>"""), file=file)
         if self.w.zeroz.get_active():
-            print >>file, ("""
+            print(("""
             <child>
               <object class="HAL_HBox" id="zero-z-active">
                 <property name="visible">True</property>
@@ -340,9 +341,9 @@ But there is not one in the machine-named folder.."""),True)
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
-            </child>""")
+            </child>"""), file=file)
         if self.w.zeroy.get_active():
-            print >>file, ("""
+            print(("""
             <child>
               <object class="HAL_HBox" id="zero-y-active">
                 <property name="visible">True</property>
@@ -362,9 +363,9 @@ But there is not one in the machine-named folder.."""),True)
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
               </packing>
-            </child>""")
+            </child>"""), file=file)
         if self.w.zerox.get_active():
-            print >>file, ("""
+            print(("""
             <child>
               <object class="HAL_HBox" id="zero-x-active">
                 <property name="visible">True</property>
@@ -380,8 +381,8 @@ But there is not one in the machine-named folder.."""),True)
                   </packing>
                 </child>
               </object>
-            </child>""")
-        print >>file, ("""
+            </child>"""), file=file)
+        print(("""
           </object>
           <packing>
             <property name="expand">False</property>
@@ -392,7 +393,7 @@ But there is not one in the machine-named folder.."""),True)
       </object>
     </child>
   </object>
-</interface>""")
+</interface>"""), file=file)
         file.close()
 
     # for classicladder test  
@@ -637,14 +638,14 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("net pos-fb  <=  %s.position \n"% (self.enc_signalname))
         # setup pwm generator
         if self.pwm:
-            print self.pwm
+            print(self.pwm)
             if "pwm" in self.pwm: # mainboard PWM
                 pwmtype = self.d[pwm_sig+"type"]
                 if  pwmtype == _PD.PWMP: pulsetype = 1
                 elif pwmtype == _PD.PDMP: pulsetype = 3
                 elif pwmtype == _PD.UDMU: pulsetype = 2
                 else: 
-                    print "**** ERROR PNCCONF- PWM type not recognized in tune test"
+                    print("**** ERROR PNCCONF- PWM type not recognized in tune test")
                     return
                 halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
                 halrun.write("net enable %s \n"%  (self.pwm +".enable"))
@@ -678,9 +679,9 @@ But there is not one in the machine-named folder.."""),True)
             # invert step pins if requested
             stepinvertlist = self.a.stepgen_invert_pins(step_sig)
             for i in stepinvertlist[0]:
-                   print >>file, "setp   " + self.step_signalname + ".step.invert_output   true"
+                   print("setp   " + self.step_signalname + ".step.invert_output   true", file=file)
             for i in stepinvertlist[1]:
-                   print >>file, "setp   " + self.step_signalname + ".direction.invert_output   true"
+                   print("setp   " + self.step_signalname + ".direction.invert_output   true", file=file)
             halrun.write("setp %s.step_type 0 \n"% (self.step_signalname))
             halrun.write("setp %s.control-type 1 \n"% (self.step_signalname))
             halrun.write("setp %s.position-scale %f \n"% (self.step_signalname,self.scale))
@@ -937,7 +938,7 @@ But there is not one in the machine-named folder.."""),True)
             pwmmaxoutput = get_value(widgets[axis+"outputscale"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.a.findsignal("charge-pump")
-        print 'fast %d,max %d, ss max %d, dac_scale %d'%(fastdac,max_dac,pwmmaxoutput,dac_scale)
+        print('fast %d,max %d, ss max %d, dac_scale %d'%(fastdac,max_dac,pwmmaxoutput,dac_scale))
         halrun.write("loadrt threads period1=%d name1=base-thread fp1=0 period2=%d name2=servo-thread \n" % (100000, self.d.servoperiod  ))
         load,read,write = self.a.hostmot2_command_string()
         for i in load:
@@ -982,7 +983,7 @@ But there is not one in the machine-named folder.."""),True)
                 elif pwmtype == _PD.PDMP: pulsetype = 3
                 elif pwmtype == _PD.UDMU: pulsetype = 2
                 else: 
-                    print "**** ERROR PNCCONF- PWM type not recognized in open loop test"
+                    print("**** ERROR PNCCONF- PWM type not recognized in open loop test")
                     return
                 halrun.write("setp %s %d \n"%  (self.pwm +".output-type", pulsetype))
                 halrun.write("net enable %s \n"%  (self.pwm +".enable"))
@@ -1010,7 +1011,7 @@ But there is not one in the machine-named folder.."""),True)
 
         # set up encoder     
         if self.enc:
-            print self.enc
+            print(self.enc)
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
             halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
             halrun.write("setp %s \n"%  (self.enc +".filter true"))
@@ -1137,7 +1138,7 @@ But there is not one in the machine-named folder.."""),True)
                     elif p == "spindle-ccw": signal = "dir-not"
                     elif p == "spindle-brake": signal = "enable-not"
                     else: signal = "enable"
-                    print pinname, p
+                    print(pinname, p)
                     if "parport" in pinname:
                         if p == "force-pin-true":
                             halrun.write("setp %s true\n"% (pinname))
@@ -1248,7 +1249,7 @@ class hal_interface:
         try: 
             self.c = hal.component("testpanel")      
         except:
-            print"problem in HAL routine"
+            print("problem in HAL routine")
 class Data2:
     def __init__(self):
         self.inv = []
@@ -1335,7 +1336,7 @@ class LED(gtk.DrawingArea):
 class PyApp(gtk.Window): 
 
     def switch_callback(self, widget, component , boardnum,number, data=None):   
-        print component,boardnum,number,data
+        print(component,boardnum,number,data)
         if component == "switch":
             invrt = self.data2["brd%dinv%d" % (boardnum,number)].get_active()
             if (data and not invrt ) or (not data and invrt):
@@ -1404,14 +1405,14 @@ class PyApp(gtk.Window):
     # This creates widgets and HAL pins for encoder controls
     def make_enc(self,container,boardnum,number):
         encname = "brd.%d.enc.%d.reset" % (boardnum,number)   
-        print"making HAL pin enc bit Brd %d,num %d"%(boardnum,number)   
+        print("making HAL pin enc bit Brd %d,num %d"%(boardnum,number))   
         self.hal.c.newpin(encname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(encname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+encname,encname+"-signal")
         self.data2["brd%denc%dreset" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
         container.pack_start(self.data2["brd%denc%dreset" % (boardnum,number)], False, False, 10)
         encname = "brd.%d.enc.%d.count" % (boardnum,number)
-        print"making HAL pin enc s32 brd %d num %d"%(boardnum,number)      
+        print("making HAL pin enc s32 brd %d num %d"%(boardnum,number))      
         self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
         hal.new_sig(encname+"-signal",hal.HAL_S32)
         hal.connect("testpanel."+encname,encname+"-signal")
@@ -1442,12 +1443,12 @@ class PyApp(gtk.Window):
     # It creates two HAL pins
     def make_pwm(self,container,boardnum,number):
         pwmname = "brd.%d.pwm.%d.value" % (boardnum,number)
-        print"making HAL pin pwm float brd%d num %d"%(boardnum,number)
+        print("making HAL pin pwm float brd%d num %d"%(boardnum,number))
         self.hal.c.newpin(pwmname, hal.HAL_FLOAT, hal.HAL_OUT)
         hal.new_sig(pwmname+"-signal",hal.HAL_FLOAT)
         hal.connect("testpanel."+pwmname,pwmname+"-signal")
         pwmname = "brd.%d.pwm.%d.enable" % (boardnum,number)
-        print"making HAL pin pwm bit brd %d num %d"%(boardnum,number)
+        print("making HAL pin pwm bit brd %d num %d"%(boardnum,number))
         self.hal.c.newpin(pwmname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(pwmname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+pwmname,pwmname+"-signal")
@@ -1466,7 +1467,7 @@ class PyApp(gtk.Window):
     # and creates a HAL pin
     def make_led(self,container,boardnum,number):
         ledname = "brd.%d.led.%d" % (boardnum,number)
-        print"making HAL pin led bit brd %d num %d"%(boardnum,number)
+        print("making HAL pin led bit brd %d num %d"%(boardnum,number))
         self.hal.c.newpin(ledname, hal.HAL_BIT, hal.HAL_IN)
         hal.new_sig(ledname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+ledname,ledname+"-signal")
@@ -1483,7 +1484,7 @@ class PyApp(gtk.Window):
     def make_switch(self,container,boardnum,number):
         # make a HAL pin
         switchname = "brd.%d.switch.%d" % (boardnum,number)
-        print"making HAL pin switch bit brd %d num %d"%(boardnum,number)
+        print("making HAL pin switch bit brd %d num %d"%(boardnum,number))
         self.hal.c.newpin(switchname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(switchname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+switchname,switchname+"-signal")
@@ -1597,7 +1598,7 @@ class PyApp(gtk.Window):
                             self.make_blank(h,boardnum,compnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                     else:
-                        print "pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin)
+                        print("pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin))
                 label = gtk.Label("Mesa %d-Connector %d"% (boardnum,connector))      
                 self.data2["notebook%d"%boardnum].append_page(table, label)
            

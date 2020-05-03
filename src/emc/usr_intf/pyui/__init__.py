@@ -1,3 +1,3 @@
 
-from pyui import master
+from .pyui import master
 

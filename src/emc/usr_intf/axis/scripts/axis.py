@@ -32,19 +32,20 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 sys.excepthook = sys.__excepthook__
 
 import gettext;
-gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import array, time, atexit, tempfile, shutil, errno, select, re, getopt
 import traceback
 
-# Print Tk errors to stdout. python.org/sf/639266
 if sys.version_info[0] == 3:
     import tkinter as Tkinter
     import _thread
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 else:
     import Tkinter
     import thread as _thread
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
+# Print Tk errors to stdout. python.org/sf/639266
 OldTk = Tkinter.Tk
 class Tk(OldTk):
     def __init__(self, *args, **kw):
@@ -2264,7 +2265,7 @@ class TclCommands(nf.TclCommands):
                 return
             elif omode == 2: return
 
-            e = string.split(editor)
+            e = str.split(editor)
             e.append(loaded_file)
             e.append("&")
             root_window.tk.call("exec", *e)
@@ -2273,7 +2274,7 @@ class TclCommands(nf.TclCommands):
         if tooltable is None:
             pass
         else:
-            e = string.split(tooleditor)
+            e = str.split(tooleditor)
             e.append(tooltable)
             e.append("&")
             root_window.tk.call("exec", *e)
@@ -3610,8 +3611,9 @@ for a in range(linuxcnc.MAX_AXIS):
     else:
         if f != 0:
             step_size_tmp = min(step_size, 1. / f)
-            if a < 3: step_size = astep_size = step_size_tmp
-            else: astep_size = step_size_tmp
+            #TODO: not working, see https://github.com/LinuxCNC/linuxcnc/issues/812
+            #if a < 3: step_size = astep_size = step_size_tmp
+            #else: astep_size = step_size_tmp
 
 if inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"):
     root_window.tk.call("set_slider_min", float(inifile.find("DISPLAY", "MIN_LINEAR_VELOCITY"))*60)

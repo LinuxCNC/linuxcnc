@@ -15,8 +15,13 @@ import os,sys
 import _togl
 import glnav
 
-from Tkinter import _default_root
-from Tkinter import *
+import sys
+if sys.version_info[0] == 3:
+    from tkinter import _default_root
+    from tkinter import *
+else:
+    from Tkinter import _default_root
+    from Tkinter import *
 # Keith Junius <junius@chem.rug.nl> provided many changes to Togl
 TOGL_NORMAL = 1
 TOGL_OVERLAY = 2

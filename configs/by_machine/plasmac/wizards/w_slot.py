@@ -92,6 +92,7 @@ class slot:
         else:
             inTmp = open(self.fTmp, 'r')
             outWiz = open(self.fWizard, 'w')
+            outWiz.write('(preamble)\n')
             outWiz.write('{}\n'.format(self.preamble))
             outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             for line in inTmp:
@@ -163,6 +164,7 @@ class slot:
                         break
                     outNgc.write(line)
             else:
+                outNgc.write('(preamble)\n')
                 outNgc.write('{}\n'.format(self.preamble))
                 outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             outTmp.write('\n(wizard rectangle)\n')

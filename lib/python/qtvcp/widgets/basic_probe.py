@@ -106,7 +106,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(self.probe_enable))
-        STATUS.connect('error', self.send_error)
         # create HAL pins
         self.HAL_GCOMP_.newpin("x_width", hal.HAL_FLOAT, hal.HAL_IN)
         self.HAL_GCOMP_.newpin("y_width", hal.HAL_FLOAT, hal.HAL_IN)
@@ -137,6 +136,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.error("No path to BasicProbe Macros Found in INI's [RS274] SUBROUTINE_PATH entry")
             STATUS.emit('update-machine-log', 'WARNING -Basic_Probe macro files not found -Probing disabled', 'TIME')
         else:
+            STATUS.connect('error', self.send_error)
             self.start_process()
     # when qtvcp closes, this gets called
     def closing_cleanup__(self):
@@ -170,6 +170,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.writeData('PID {}\n'.format(os.getpid()))
 
     def start_probe(self, cmd):
+        if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
+            LOG.error("Probe tool not mounted in spindle")
+            return
         if self.process_busy is True:
             LOG.error("Probing processor is busy")
             return

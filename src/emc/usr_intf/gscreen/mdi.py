@@ -102,7 +102,7 @@ class mdi:
         self.gcode = gcode
         if gcode[0] == 'M' and gcode.find(".") == -1 and int(gcode[1:]) >= 100 and int(gcode[1:]) <= 199:
             return ['P', 'Q']
-        if not self.codes.has_key(gcode):
+        if gcode not in self.codes:
             return []
         # strip description
         words = self.codes[gcode][1:]
@@ -252,14 +252,14 @@ class mdi_control:
         self.mdi.go_to_position(axis,position,feedrate)
 
     def set_user_system(self,system):
-        print "set user system to :G",system
+        print("set user system to :G",system)
         premode = self.mdi.emcstat.task_mode
         self.mdi.set_user_system(system)
         self.mdi.emccommand.mode(premode)
         self.mdi.emccommand.wait_complete()
 
     def index_tool(self,toolnumber):
-        print "set tool number to :T",toolnumber
+        print("set tool number to :T",toolnumber)
         premode = self.mdi.emcstat.task_mode
         self.mdi.index_tool(toolnumber)
         #self.mdi.emccommand.mode(premode)

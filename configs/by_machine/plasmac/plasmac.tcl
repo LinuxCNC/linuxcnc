@@ -45,4 +45,4 @@ if [info exists ::TRAJ(SPINDLES)] {
 }
 
 # powermax serial communications
-if [info exists ::PLASMAC(PM_PORT)] {loadusr -Wn pmx485 pmx485.py [lindex $::PLASMAC(PM_PORT) 0]}
+if [info exists ::PLASMAC(PM_PORT)] {loadusr -Wn pmx485 pmx485 [lindex $::PLASMAC(PM_PORT) 0]}
