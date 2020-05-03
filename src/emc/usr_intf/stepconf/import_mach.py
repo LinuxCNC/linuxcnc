@@ -17,31 +17,17 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
 from xml.dom.minidom import parseString
 import sys
 import os
-<<<<<<< HEAD
-<<<<<<< HEAD
 from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Gdk
 
 
-=======
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
->>>>>>> upstream/master
-=======
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
-
->>>>>>> upstream/master
 filter = Gtk.FileFilter()
 filter.add_pattern("*.xml")
 filter.set_name(_("Mach configuration files"))
@@ -58,8 +44,8 @@ if response == Gtk.ResponseType.OK:
 fcd.destroy()
 if response == Gtk.ResponseType.CANCEL:
   quit(1)
-print(file_name)
-print(machinename)
+print file_name
+print machinename
 file = open(file_name,'r')
 #convert to string:
 data = file.read()
@@ -460,7 +446,7 @@ rm = open("README", "wb")
 if len(errors) > 0:
   rm.write("The following errors were found during processing.\n")
   rm.write(errors+"\n")
-  print(errors)
+  print errors
 rm.write("This file can be deleted after running the Stepconf Wizard once.\n")
 rm.write("Copy the generated .stepconf file to the linuxcnc/configs directory.\n")
 rm.write("Run the Stepconf Wizard from the CNC menu.\n")
@@ -472,4 +458,4 @@ rm.write("Allow the test to run for at least a hour then enter the largest Max J
 rm.write("Go through each screen and check for correctness then save when done.")
 rm.close()
 
-print('Mach import/conversion done')
+print 'Mach import/conversion done'

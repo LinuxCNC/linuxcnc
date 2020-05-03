@@ -1,6 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.4 -->
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-go-back</property>
+  </object>
+  <object class="GtkAdjustment" id="test_acc_adjust">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkListStore" id="test_dir_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">±</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">+</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">-</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="test_dist_adjust">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">0.5</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="test_vel_adjust">
+    <property name="lower">1</property>
+    <property name="upper">100</property>
+    <property name="value">1</property>
+    <property name="step_increment">1</property>
+  </object>
   <object class="GtkDialog" id="dlgTestAxis">
     <property name="can_focus">False</property>
     <property name="title">dlgTestAxis</property>
@@ -76,7 +116,7 @@
                     <property name="adjustment">test_vel_adjust</property>
                     <property name="climb_rate">1</property>
                     <property name="digits">1</property>
-                    <signal name="value-changed" handler="on_update_axis_params" swapped="no"/>
+                    <signal name="value-changed" handler="update_axis_params" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -174,7 +214,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="model">test_dir_liststore</property>
-                    <signal name="changed" handler="on_update_axis_params" swapped="no"/>
+                    <signal name="changed" handler="update_axis_params" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext1"/>
                       <attributes>
@@ -196,7 +236,7 @@
                     <property name="adjustment">test_dist_adjust</property>
                     <property name="climb_rate">1</property>
                     <property name="digits">1</property>
-                    <signal name="value-changed" handler="on_update_axis_params" swapped="no"/>
+                    <signal name="value-changed" handler="update_axis_params" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -234,7 +274,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
-                    <signal name="toggled" handler="on_update_axis_params" swapped="no"/>
+                    <signal name="toggled" handler="update_axis_params" swapped="no"/>
                     <child>
                       <object class="GtkAlignment" id="alignment4">
                         <property name="visible">True</property>
@@ -346,7 +386,7 @@
                     <property name="adjustment">test_acc_adjust</property>
                     <property name="climb_rate">1</property>
                     <property name="digits">1</property>
-                    <signal name="value-changed" handler="on_update_axis_params" swapped="no"/>
+                    <signal name="value-changed" handler="update_axis_params" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -403,46 +443,6 @@
       <action-widget response="-6">cancelbutton1</action-widget>
       <action-widget response="-5">okbutton1</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkImage" id="image3">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
-  </object>
-  <object class="GtkAdjustment" id="test_acc_adjust">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">1</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkListStore" id="test_dir_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">±</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">+</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">-</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkAdjustment" id="test_dist_adjust">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">0.5</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="test_vel_adjust">
-    <property name="lower">1</property>
-    <property name="upper">100</property>
-    <property name="value">1</property>
-    <property name="step_increment">1</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="visible">True</property>

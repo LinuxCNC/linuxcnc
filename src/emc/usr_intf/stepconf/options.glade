@@ -42,265 +42,60 @@
     <property name="can_focus">False</property>
     <property name="orientation">vertical</property>
     <child>
-      <object class="GtkBox" id="box2">
+      <object class="GtkCheckButton" id="manualtoolchange">
+        <property name="label" translatable="yes">_Onscreen prompt for manual tool change</property>
+        <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <child>
-          <object class="GtkBox" id="box3">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkCheckButton" id="manualtoolchange">
-                <property name="label" translatable="yes">_Onscreen prompt for manual tool change</property>
-                <property name="use_action_appearance">False</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_underline">True</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="halui">
-                <property name="label" translatable="yes">Include Halui user interface component</property>
-                <property name="use_action_appearance">False</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="relief">none</property>
-                <property name="use_underline">True</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_halui_toggled" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="classicladder">
-                <property name="label" translatable="yes">Include _Classicladder PLC</property>
-                <property name="use_action_appearance">False</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_underline">True</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkExpander" id="option_probe_expander">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <child>
-              <object class="GtkBox" id="box4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkBox" id="box5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkBox" id="box6">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">6</property>
-                        <child>
-                          <object class="GtkLabel" id="label5">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Probe X pos:</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label4">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Probe Y pos:</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label3">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Probe Z pos:</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label102">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Sensor height:</property>
-                            <property name="use_underline">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="box7">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">2</property>
-                        <child>
-                          <object class="GtkEntry" id="probe_x_pos">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
-                            <property name="invisible_char_set">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <signal name="changed" handler="on_probe_x_pos_changed" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="probe_y_pos">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
-                            <property name="invisible_char_set">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <signal name="changed" handler="on_probe_y_pos_changed" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="probe_z_pos">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
-                            <property name="invisible_char_set">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <signal name="changed" handler="on_probe_z_pos_changed" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="probe_sensor_height">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">●</property>
-                            <property name="invisible_char_set">True</property>
-                            <property name="primary_icon_activatable">False</property>
-                            <property name="secondary_icon_activatable">False</property>
-                            <signal name="changed" handler="on_probe_sensor_height_changed" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-            </child>
-            <child type="label">
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Probe position</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
       </object>
       <packing>
         <property name="expand">False</property>
         <property name="fill">True</property>
-        <property name="position">0</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="halui">
+        <property name="label" translatable="yes">Include Halui user interface component</property>
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="relief">none</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_halui_toggled" swapped="no"/>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkCheckButton" id="classicladder">
+        <property name="label" translatable="yes">Include _Classicladder PLC</property>
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">False</property>
+        <property name="use_action_appearance">False</property>
+        <property name="use_underline">True</property>
+        <property name="xalign">0</property>
+        <property name="draw_indicator">True</property>
+        <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">7</property>
       </packing>
     </child>
     <child>

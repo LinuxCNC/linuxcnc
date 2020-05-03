@@ -20,57 +20,65 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
-#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+#import pygtk
+#pygtk.require("2.0")
 
-<<<<<<< HEAD
-import sys
-import os
-import locale, gettext
-=======
 #import gtk
 #import gtk.glade
-from __future__ import print_function
->>>>>>> upstream/master
-import gi
-gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+#import gobject
 from gi.repository import GObject
 from gi.repository import Gdk
-<<<<<<< HEAD
-=======
 
-import signal
 import sys
 import os
->>>>>>> upstream/master
 from optparse import Option, OptionParser
+import hal
 import xml.dom.minidom
+import hashlib
 import math
+import errno
 import textwrap
 import commands
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
 
-reload(sys)
-sys.setdefaultencoding('utf8')
-
 import traceback
+# otherwise, on hardy the user is shown spurious "[application] closed
+# unexpectedly" messages but denied the ability to actually "report [the]
+# problem"
+def excepthook(exc_type, exc_obj, exc_tb):
+    try:
+        w = app.w.window1
+    except NameError:
+        w = None
+    lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
+    m = Gtk.MessageDialog(w,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
+                _("Stepconf encountered an error.  The following "
+                "information may be useful in troubleshooting:\n\n")
+                + "".join(lines))
+    m.show()
+    m.run()
+    m.destroy()
+sys.excepthook = excepthook
 
-#**********************************
-# translations,locale
-DOMAIN = "linuxcnc"
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+
+# translations,locale
+import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-gettext.install(DOMAIN, localedir=LOCALEDIR, unicode=True)
+domain = "linuxcnc"
+gettext.install(domain, localedir=LOCALEDIR, unicode=True)
 locale.setlocale(locale.LC_ALL, '')
-<<<<<<< HEAD
-locale.bindtextdomain(DOMAIN, LOCALEDIR)
-gettext.bindtextdomain(DOMAIN, LOCALEDIR)
-=======
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
+# Due to traslation put here module with locale
+from stepconf.definitions import *
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc","stepconf")
 main_datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
@@ -78,7 +86,7 @@ wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    print("cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir))
+    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
     sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
@@ -98,44 +106,38 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
->>>>>>> upstream/master
 
-#**********************************
-# Due to traslation put here module with locale
-from stepconf.definitions import *
+style = """
+GtkEntry.invalid {
+	color:  black;
+	background-color: red;
+	background: red;
+}
+
+GtkEntry.valid {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+
+GtkEntry.selected {
+	color:  @fg_color;
+	background-color: @bg_color;
+	background: @bg_color;
+}
+"""
+
+from stepconf import pages
+from stepconf import preset
 from stepconf import build_INI
 from stepconf import build_HAL
-from stepconf import data
-from stepconf import pages
 
-<<<<<<< HEAD
-#**********************************
-# otherwise, on hardy the user is shown spurious "[application] closed
-# unexpectedly" messages but denied the ability to actually "report [the]
-# problem"
-def excepthook(exc_type, exc_obj, exc_tb):
-	try:
-		w = app.w.window1
-	except NameError:
-		w = None
-	lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-	m = Gtk.MessageDialog(w,
-			Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-			Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
-			_("Stepconf encountered an error.  The following "
- 			"information may be useful in troubleshooting:\n\n")
-			+ "".join(lines))
-	m.show()
-	m.run()
-	m.destroy()
-sys.excepthook = excepthook
-=======
 debug = False
 
 def makedirs(d):
     try:
         os.makedirs(d)
-    except os.error as detail:
+    except os.error, detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
@@ -153,14 +155,25 @@ class Private_Data:
         self.distdir = distdir
         self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
                                 ['base',_('Base Information'),True],
-                                ['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
-                                ['options',_('Options'), True],['halui_page', _('HALUI'), True],
+                                ['pport1', _('Parallel Port 1'),True],
+                                ['pport2', _('Parallel Port 2'),True],
                                 ['axisx', _('Axis X'), True],
-                                ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],
-                                ['axisu', _('Axis U'), True],['axisv', _('Axis V'), True],
+                                ['axisy', _('Axis Y'), True],
+                                ['axisz', _('Axis Z'), True],
+                                ['axisu', _('Axis U'), True],
+                                ['axisv', _('Axis V'), True],
                                 ['axisa', _('Axis A'), True],
-                                ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
+                                ['spindle',_('Spindle'), True],
+                                ['options',_('Options'), True],
+                                ['halui_page', _('HALUI'), True],
+                                ['gui_page',_('User Interface'), True],
+                                ['finished',_('Almost Done'),True]
                              ]
+ 
+        self.available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page',
+                                'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished'
+                                ]
+        
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
         self.alldrivertypes = [
                             ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -169,7 +182,7 @@ class Private_Data:
                             ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
                             ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
                             ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-                            ["gecko540", _("Gecko 540"),  5000, 5000, 10000, 10000],
+                            ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
                             ["l297", _("L297"), 500,  4000, 4000, 1000],
                             ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
                             ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
@@ -178,79 +191,80 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
-                            ]
-
+        ]
+        """
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
-            self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
-            self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
-            self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
-            self.MIST, self.FLOOD, self.ESTOP, self.AMP,
-            self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
-            self.UNUSED_OUTPUT 
+        self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
+        self.USTEP, self.UDIR, self.VSTEP, self.VDIR,
+        self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
+        self.MIST, self.FLOOD, self.ESTOP, self.AMP,
+        self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
+        self.UNUSED_OUTPUT 
         ) = self.hal_output_names = [
-            "xstep", "xdir", "ystep", "ydir",
-            "zstep", "zdir", "astep", "adir",
-            "ustep", "udir", "vstep", "vdir",
-            "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
-            "coolant-mist", "coolant-flood", "estop-out", "xenable",
-            "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
-            "unused-output"]
-
+        "xstep", "xdir", "ystep", "ydir",
+        "zstep", "zdir", "astep", "adir",
+        "ustep", "udir", "vstep", "vdir",
+        "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
+        "coolant-mist", "coolant-flood", "estop-out", "xenable",
+        "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+        "unused-output"]
+        
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
-            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
-            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
-            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
-            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
-            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
-            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
-            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
-            self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
-            self.UNUSED_INPUT
+        self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A, self.HOME_U, self.HOME_V,
+        self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A, self.MIN_HOME_U, self.MIN_HOME_V,
+        self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A, self.MAX_HOME_U, self.MAX_HOME_V,
+        self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A, self.BOTH_HOME_U, self.BOTH_HOME_V,
+        self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A, self.MIN_U, self.MIN_V,
+        self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V,
+        self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V,
+        self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
+        self.UNUSED_INPUT
         ) = self.hal_input_names = [
-            "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-            "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
-            "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
-            "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
-            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
-            "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
-            "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
-            "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
-            "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
-            "unused-input"]
-
+        "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
+        "home-x", "home-y", "home-z", "home-a","home-u", "home-v",
+        "min-home-x", "min-home-y", "min-home-z", "min-home-a","min-home-u", "min-home-v",
+        "max-home-x", "max-home-y", "max-home-z", "max-home-a","max-home-u", "max-home-v",
+        "both-home-x", "both-home-y", "both-home-z", "both-home-a", "both-home-u", "both-home-v",
+        "min-x", "min-y", "min-z", "min-a","min-u", "min-v",
+        "max-x", "max-y", "max-z", "max-a", "max-u", "max-v",
+        "both-x", "both-y", "both-z", "both-a", "both-u", "both-v",
+        "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
+        "unused-input"]
+        
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
-            _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-            _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
-            _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
-            _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
-            _("Charge Pump"),
-            _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
-            _("Unused"))
-
+        _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+        _("U Step"), _("U Direction"), _("V Step"), _("V Direction"),
+        _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
+        _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
+        _("Charge Pump"),
+        _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
+        _("Unused"))
+        
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
-            _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
-            _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
-            _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-            _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
-            _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
-            _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-            _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
-            _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
-            _("Both Limit + Home X"), _("Both Limit + Home Y"),
-            _("Both Limit + Home Z"), _("Both Limit + Home A"),
-            _("Both Limit + Home U"), _("Both Limit + Home V"),
-            _("Minimum Limit X"), _("Minimum Limit Y"),
-            _("Minimum Limit Z"), _("Minimum Limit A"),
-            _("Minimum Limit U"), _("Minimum Limit V"),
-            _("Maximum Limit X"), _("Maximum Limit Y"),
-            _("Maximum Limit Z"), _("Maximum Limit A"),
-            _("Maximum Limit U"), _("Maximum Limit V"),
-            _("Both Limit X"), _("Both Limit Y"),
-            _("Both Limit Z"), _("Both Limit A"),
-            _("Both Limit U"), _("Both Limit V"),
-            _("All limits"), _("All home"), _("All limits + homes"),
-            _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-            _("Unused"))
+        _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
+        _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
+        _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
+        _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
+        _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
+        _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
+        _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
+        _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
+        _("Both Limit + Home X"), _("Both Limit + Home Y"),
+        _("Both Limit + Home Z"), _("Both Limit + Home A"),
+        _("Both Limit + Home U"), _("Both Limit + Home V"),
+        _("Minimum Limit X"), _("Minimum Limit Y"),
+        _("Minimum Limit Z"), _("Minimum Limit A"),
+        _("Minimum Limit U"), _("Minimum Limit V"),
+        _("Maximum Limit X"), _("Maximum Limit Y"),
+        _("Maximum Limit Z"), _("Maximum Limit A"),
+        _("Maximum Limit U"), _("Maximum Limit V"),
+        _("Both Limit X"), _("Both Limit Y"),
+        _("Both Limit Z"), _("Both Limit A"),
+        _("Both Limit U"), _("Both Limit V"),
+        _("All limits"), _("All home"), _("All limits + homes"),
+        _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
+        _("Unused"))
+        """
 
         self.MESS_START = _('Start')
         self.MESS_FWD = _('Forward')
@@ -259,6 +273,7 @@ class Private_Data:
         self.MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
         self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
         self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
+        self.MESS_GLADEVCP_REWRITE =_("OK to replace existing custom gladevcp panel file ?\nExisting glade_custom.ui will be renamed glade_custom_backup.ui.\nAny existing file named glade_custom_backup.ui will be lost. ")
         self.MESS_ABORT = _("Quit Stepconf and discard changes?")
         self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
@@ -284,7 +299,7 @@ class Data:
 
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
-        self.units = 0 # inch
+        self.units = 1 # mm
         self.drivertype = "Other"
         self.steptime = 5000
         self.stepspace = 5000
@@ -293,6 +308,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
+        self.lparport = self.find_parport()
         self.ioaddr = "0"
         self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
@@ -303,9 +319,35 @@ class Data:
         self.manualtoolchange = 1
         self.customhal = 1 # include custom hal file
         self.pyvcp = 0 # not included
-        self.pyvcpname = "custom.xml"
+        self.pyvcpname = "blank.xml"
         self.pyvcphaltype = 0 # no HAL connections specified
         self.pyvcpconnect = 1 # HAL connections allowed
+
+        # gladevcp data
+        self.gladevcp = False # not included
+        self.gladesample = True
+        self.gladeexists = False
+        self.spindlespeedbar = True
+        self.spindleatspeed = True
+        self.maxspeeddisplay = 1000
+        self.zerox = False
+        self.zeroy = False
+        self.zeroz = False
+        self.zeroa = False
+        self.autotouchz = False
+        self.gladevcphaluicmds = 0 # not used
+        self.centerembededgvcp = True
+        self.sideembededgvcp = False
+        self.standalonegvcp = False
+        self.gladevcpposition = False
+        self.gladevcpsize = False
+        self.gladevcpforcemax = False
+        self.gladevcpwidth = 200
+        self.gladevcpheight = 200
+        self.gladevcpxpos = 0
+        self.gladevcpypos = 0
+        self.gladevcptheme = "Follow System Theme"
+        self.gladevcpname = "blank.ui"
 
         self.classicladder = 0 # not included
         self.tempexists = 0 # not present
@@ -317,52 +359,52 @@ class Data:
         self.select_axis = True
         self.select_gmoccapy = False
 
-        self.pin1inv = 0
-        self.pin2inv = 0
-        self.pin3inv = 0
-        self.pin4inv = 0
-        self.pin5inv = 0
-        self.pin6inv = 0
-        self.pin7inv = 0
-        self.pin8inv = 0
-        self.pin9inv = 0
-        self.pin10inv = 0
-        self.pin11inv = 0
-        self.pin12inv = 0
-        self.pin13inv = 0
-        self.pin14inv = 0
-        self.pin15inv = 0
-        self.pin16inv = 0
-        self.pin17inv = 0
+        self.pin1inv = False
+        self.pin2inv = False
+        self.pin3inv = False
+        self.pin4inv = False
+        self.pin5inv = False
+        self.pin6inv = False
+        self.pin7inv = False
+        self.pin8inv = False
+        self.pin9inv = False
+        self.pin10inv = False
+        self.pin11inv = False
+        self.pin12inv = False
+        self.pin13inv = False
+        self.pin14inv = False
+        self.pin15inv = False
+        self.pin16inv = False
+        self.pin17inv = False
 
-        self.pin1 = SIG.ESTOP
-        self.pin2 = SIG.XSTEP
-        self.pin3 = SIG.XDIR
-        self.pin4 = SIG.YSTEP
-        self.pin5 = SIG.YDIR
-        self.pin6 = SIG.ZSTEP
-        self.pin7 = SIG.ZDIR
-        self.pin8 = SIG.ASTEP
-        self.pin9 = SIG.ADIR
-        self.pin14 = SIG.CW
-        self.pin16 = SIG.PWM
-        self.pin17 = SIG.AMP
+        self.pin1 = d_hal_output[ESTOP]
+        self.pin2 = d_hal_output[XSTEP]
+        self.pin3 = d_hal_output[XDIR]
+        self.pin4 = d_hal_output[YSTEP]
+        self.pin5 = d_hal_output[YDIR]
+        self.pin6 = d_hal_output[ZSTEP]
+        self.pin7 = d_hal_output[ZDIR]
+        self.pin8 = d_hal_output[ASTEP]
+        self.pin9 = d_hal_output[ADIR]
+        self.pin14 = d_hal_output[CW]
+        self.pin16 = d_hal_output[PWM]
+        self.pin17 = d_hal_output[AMP]
 
-        self.pin10 = SIG.UNUSED_INPUT
-        self.pin11 = SIG.UNUSED_INPUT
-        self.pin12 = SIG.UNUSED_INPUT
-        self.pin13 = SIG.UNUSED_INPUT
-        self.pin15 = SIG.UNUSED_INPUT
+        self.pin10 = d_hal_input[UNUSED_INPUT]
+        self.pin11 = d_hal_input[UNUSED_INPUT]
+        self.pin12 = d_hal_input[UNUSED_INPUT]
+        self.pin13 = d_hal_input[UNUSED_INPUT]
+        self.pin15 = d_hal_input[UNUSED_INPUT]
 
         #   port 2
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            self[p] = SIG.UNUSED_OUTPUT
+            self[p] = d_hal_output[UNUSED_OUTPUT]
             p = 'pp2_pin%dinv' % pin
             self[p] = 0
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            self[p] = SIG.UNUSED_INPUT
+            self[p] = d_hal_input[UNUSED_INPUT]
             p = 'pp2_pin%d_in_inv' % pin
             self[p] = 0
 
@@ -383,8 +425,12 @@ class Data:
              self[i+'latchdir'] = 0
              self[i+'scale'] = 0
 
+             # Varibles for test axis
+             self[i+'testmaxvel'] = None
+             self[i+'testmaxacc'] = None
+
         # set xyzuv axes defaults depending on units true = imperial
-        self.set_axis_unit_defaults(True)
+        self.set_axis_unit_defaults(False)
 
         self.asteprev = 200
         self.amicrostep = 2
@@ -420,12 +466,66 @@ class Data:
         self.floatsout = 10
         self.halui = 0
         self.halui_list = []
+        self.halui_custom = 0
+        self.halui_list_custom = []
         self.createsymlink = 1
         self.createshortcut = 1
 
+    def get_machine_preset(self, combo):
+        tree_iter = combo.get_active_iter()
+        if tree_iter != None:
+            model = combo.get_model()
+            name, row_id = model[tree_iter][:2]
+            
+            lcurrent_machine = filter(lambda element: element['index'] == row_id, preset.preset_machines)
+            if(lcurrent_machine != []):
+                # Just first element
+                current_machine = lcurrent_machine[0]
+                return(current_machine)
+        else:
+            # Other selected
+            return(None)
+
+    def select_combo_machine(self, combo, index):
+        liststore = combo.get_model ()
+        treeiter = liststore.get_iter_first()
+        while treeiter != None:
+            name, row_id = liststore[treeiter][:2]
+            if(row_id == index):
+                combo.set_active_iter(treeiter)
+                return
+            treeiter = liststore.iter_next(treeiter)
+
+    def find_parport(self):
+        # Try to find parallel port
+        lparport=[]
+        # open file.
+        try:
+            in_file = open("/proc/ioports","r")
+        except:
+            print "Unable to open /proc/ioports"
+            return([])
+
+        try:
+            for line in in_file:
+                if "parport" in line:
+                    tmprow = line.strip()
+                    lrow = tmprow.split(":")
+                    address_range = lrow[0].strip()
+                    init_address = address_range.split("-")[0].strip()
+                    lparport.append("0x" + init_address)
+        except:
+            print "Error find parport"
+            in_file.close()
+            return([])
+        in_file.close()
+        if lparport == []:
+            return([])
+        return(lparport)
+                    
     # change the XYZ axis defaults to metric or imperial
     # This only sets data that makes sense to change eg gear ratio don't change
-    def set_axis_unit_defaults(self, units=True):
+    def set_axis_unit_defaults(self, units=False):
         if units: # imperial
             for i in ('x','y','z','u','v'):
                 self[i+'maxvel'] = 1
@@ -493,10 +593,8 @@ class Data:
             pps = max(xhz, zhz)
         elif self.axes == 3:
             pps = max(xhz, yhz, uhz, vhz)
-        elif self.axes == 4:
-            pps = max(xhz, yhz)
         else:
-            print('error in ideal period calculation - number of axes unrecognized')
+            print 'error in ideal period calculation - number of axes unrecognized'
             return
         if self.doublestep():
             base_period = 1e9 / pps
@@ -542,7 +640,7 @@ class Data:
     # write stepconf's hidden preference file
     def save_preferences(self):
         filename = os.path.expanduser("~/.stepconf-preferences")
-        print(filename)
+        #print filename
         d2 = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "int-pncconf", None)
         e2 = d2.documentElement
@@ -616,12 +714,12 @@ class Data:
                 dialog.destroy()
             else:
                 for para in warnings:
-                    for line in textwrap.wrap(para, 78): print(line)
-                    print()
-                print()
+                    for line in textwrap.wrap(para, 78): print line
+                    print
+                print
                 if force: return
-                response = input(_("Continue? "))
-                if response[0] not in _("yY"): raise SystemExit(1)
+                response = raw_input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit, 1
 
         for p in (10,11,12,13,15):
             pin = "pin%d" % p
@@ -640,36 +738,50 @@ class Data:
                 original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
                 if os.path.exists(filename):     
                   if os.path.exists(original):
-                     print("custom file already exists")
+                     print "custom file already exists"
                      shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
-                     print("made backup of existing custom")
+                     print "made backup of existing custom"
                   shutil.copy( filename,original)
-                  print("copied ladder program to usr directory")
-                  print("%s" % filename)
+                  print "copied ladder program to usr directory"
+                  print"%s" % filename
                 else:
-                     print("Master or temp ladder files missing from configurable_options dir")
+                     print "Master or temp ladder files missing from configurable_options dir"
 
         if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
            panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
            originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
            if os.path.exists(panelname):     
                   if os.path.exists(originalname):
-                     print("custom PYVCP file already exists")
+                     print "custom PYVCP file already exists"
                      shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
-                     print("made backup of existing custom")
+                     print "made backup of existing custom"
                   shutil.copy( panelname,originalname)
-                  print("copied PYVCP program to usr directory")
-                  print("%s" % panelname)
+                  print "copied PYVCP program to usr directory"
+                  print"%s" % panelname
            else:
-                  print("Master PYVCP files missing from configurable_options dir")
+                  print "Master PYVCP files missing from configurable_options dir"
 
+        if self.gladevcp and not self.gladevcpname == "glade_custom.ui":                
+           panelname = os.path.join(distdir, "configurable_options/gladevcp/%s" % self.gladevcpname)
+           originalname = os.path.expanduser("~/linuxcnc/configs/%s/glade_custom.ui" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     print "custom GLADEVCP file already exists"
+                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  print "copied GLADEVCP program to usr directory"
+                  print"%s" % panelname
+           else:
+                  print "Master GLADEVCP files missing from configurable_options dir"
+                  
         filename = "%s.stepconf" % base
 
         d = xml.dom.minidom.getDOMImplementation().createDocument(
                             None, "stepconf", None)
         e = d.documentElement
 
-        for k, v in sorted(self.__dict__.items()):
+        for k, v in sorted(self.__dict__.iteritems()):
             if k.startswith("_"): continue
             n = d.createElement('property')
             e.appendChild(n)
@@ -687,7 +799,7 @@ class Data:
         print("%s" % base)
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = subprocess.getoutput("""
+        desktop = commands.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
@@ -703,18 +815,18 @@ class Data:
 
             filename = os.path.join(desktop, "%s.desktop" % self.machinename)
             file = open(filename, "w")
-            print("[Desktop Entry]", file=file)
-            print("Version=1.0", file=file)
-            print("Terminal=false", file=file)
-            print("Name=" + _("launch %s") % self.machinename, file=file)
-            print("Exec=%s %s/%s.ini" \
-                         % ( scriptspath, base, self.machinename ), file=file)
-            print("Type=Application", file=file)
-            print("Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf"), file=file)
-            print("Icon=%s"% linuxcncicon, file=file)
+            print >>file,"[Desktop Entry]"
+            print >>file,"Version=1.0"
+            print >>file,"Terminal=false"
+            print >>file,"Name=" + _("launch %s") % self.machinename
+            print >>file,"Exec=%s %s/%s.ini" \
+                         % ( scriptspath, base, self.machinename )
+            print >>file,"Type=Application"
+            print >>file,"Comment=" + _("Desktop Launcher for LinuxCNC config made by Stepconf")
+            print >>file,"Icon=%s"% linuxcncicon
             file.close()
             # Ubuntu 10.04 require launcher to have execute permissions
-            os.chmod(filename,0o775)
+            os.chmod(filename,0775)
 
     def add_md5sum(self, filename, mode="r"):
         self.md5sums.append((filename, md5sum(filename)))
@@ -723,36 +835,18 @@ class Data:
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
->>>>>>> upstream/master
 
-#**********************************
-# Widgets class
-#**********************************
 # a class for holding the glade widgets rather then searching for them each time
 class Widgets:
-<<<<<<< HEAD
-	def __init__(self, xml):
-		self._xml = xml
-	def __getattr__(self, attr):
-		r = self._xml.get_object(attr)
-		if r is None:
-			raise AttributeError, "No widget %r" % attr
-		return r
-	def __getitem__(self, attr):
-		r = self._xml.get_object(attr)
-		if r is None:
-			raise IndexError, "No widget %r" % attr
-		return r
-=======
     def __init__(self, xml):
         self._xml = xml
     def __getattr__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise AttributeError("No widget %r" % attr)
+        if r is None: raise AttributeError, "No widget %r" % attr
         return r
     def __getitem__(self, attr):
         r = self._xml.get_object(attr)
-        if r is None: raise IndexError("No widget %r" % attr)
+        if r is None: raise IndexError, "No widget %r" % attr
         return r
 
 class StepconfApp:
@@ -761,6 +855,7 @@ class StepconfApp:
         debug = self.debug = dbgstate
         global dbg
         dbg = self.dbg
+        self.distdir = distdir
         self.recursive_block = False
         self.axis_under_test = None
         # Private data holds the array of pages to load, signals, and messages
@@ -768,16 +863,15 @@ class StepconfApp:
         self.d = Data(self._p)
         # build the glade files
         self.builder = MultiFileBuilder()
-        self.builder.set_translation_domain(domain)
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")
-        for x,y,z in (self._p.available_page):
-            if x == 'intro':continue
-            dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
-            self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
-            page = self.builder.get_object(x)
-            notebook1.append_page(page, Gtk.Label(x))
+        for reference,title,state in (self._p.available_page):
+            if reference == 'intro':continue
+            dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (reference,title,state))
+            self.builder.add_from_file(os.path.join(datadir, '%s.glade'%reference))
+            page = self.builder.get_object(reference)
+            notebook1.append_page(page, Gtk.Label(reference))
         notebook1.set_show_tabs(False)
 
         self.w = Widgets(self.builder)
@@ -796,44 +890,15 @@ class StepconfApp:
         window.show()
         #self.w.xencoderscale.realize()
 
-    def build_base(self):
-        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
-        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
-        if not os.path.exists(ncfiles):
-            makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
-            if not os.path.exists(examples):
-                examples = os.path.join(BASE, "nc_files")
-            if os.path.exists(examples):
-                os.symlink(examples, os.path.join(ncfiles, "examples"))
-        makedirs(base)
-        return base
-
-    def copy(self, base, filename):
-        dest = os.path.join(base, filename)
-        if not os.path.exists(dest):
-            shutil.copy(os.path.join(distdir, filename), dest)
-
-    def buid_config(self):
-        base = self.build_base()
-        self.d.save(base)
-        self.d.save_preferences()
-        #self.write_readme(base)
-        self.INI.write_inifile(base)
-        self.HAL.write_halfile(base)
-        self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
-            Gtk.main_quit()
 
 #*******************
 # GUI Helper functions
 #*******************
-
     # print debug strings
     def dbg(self,str):
         global debug
         if not debug: return
-        print("DEBUG: %s"%str)
+        print "DEBUG: %s"%str
 
     # Check for realtime-capable LinuxCNC.
     # Returns True if the running version of LinuxCNC is realtime-capable
@@ -853,8 +918,8 @@ class StepconfApp:
                 else:
                     is_realtime_capable = True
         except:
-            print('STEPCONF WARNING: check-for-realtime function failed - continuing anyways.')
-            print(sys.exc_info())
+            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
+            print sys.exc_info()
             return True
 
         if is_realtime_capable or debug:
@@ -884,7 +949,7 @@ class StepconfApp:
             else:
                 return False
 
-# Driver functions
+    # Driver functions
     def drivertype_fromid(self):
         for d in self._p.alldrivertypes:
             if d[0] == self.d.drivertype: return d[1]
@@ -935,71 +1000,13 @@ class StepconfApp:
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
 
-    # preset out pins
-    def preset_sherline_outputs(self):
-        self.w.pin2.set_active(1)
-        self.w.pin3.set_active(0)
-        self.w.pin4.set_active(3)
-        self.w.pin5.set_active(2)
-        self.w.pin6.set_active(5)
-        self.w.pin7.set_active(4)
-        self.w.pin8.set_active(7)
-        self.w.pin9.set_active(6)
-
-    def preset_xylotex_outputs(self):
-        self.w.pin2.set_active(0)
-        self.w.pin3.set_active(1)
-        self.w.pin4.set_active(2)
-        self.w.pin5.set_active(3)
-        self.w.pin6.set_active(4)
-        self.w.pin7.set_active(5)
-        self.w.pin8.set_active(6)
-        self.w.pin9.set_active(7)
-
-    def preset_tb6560_3axes_outputs(self):
-        SIG = self._p
-        def index(signal):
-            return self._p.hal_output_names.index(signal)
-        # x axis
-        self.w.pin1.set_active(index(SIG.XSTEP))
-        self.w.pin16.set_active(index(SIG.XDIR))
-        self.w.pin4.set_active(index(SIG.AMP))
-        # Y axis
-        self.w.pin14.set_active(index(SIG.YSTEP))
-        self.w.pin7.set_active(index(SIG.YDIR))
-        self.w.pin17.set_active(index(SIG.AMP))
-        # Z axis
-        self.w.pin3.set_active(index(SIG.ZSTEP))
-        self.w.pin6.set_active(index(SIG.ZDIR))
-        self.w.pin5.set_active(index(SIG.AMP))
-        # spindle
-        self.w.pin2.set_active(index(SIG.ON))
-
-    def preset_tb6560_4axes_outputs(self):
-        SIG = self._p
-        def index(signal):
-            return self._p.hal_output_names.index(signal)
-        # x axis
-        self.w.pin2.set_active(index(SIG.XSTEP))
-        self.w.pin3.set_active(index(SIG.XDIR))
-        self.w.pin1.set_active(index(SIG.AMP))
-        # Y axis
-        self.w.pin4.set_active(index(SIG.YSTEP))
-        self.w.pin5.set_active(index(SIG.YDIR))
-        # Z axis
-        self.w.pin6.set_active(index(SIG.ZSTEP))
-        self.w.pin7.set_active(index(SIG.ZDIR))
-        # A axis
-        self.w.pin8.set_active(index(SIG.ASTEP))
-        self.w.pin9.set_active(index(SIG.ADIR))
-
     # check for spindle output signals
     def has_spindle_speed_control(self):
         d = self.d
         SIG = self._p
 
         # Check pp1 for output signals
-        pp1_check = SIG.PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
+        pp1_check =  d_hal_output[PWM] in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6,
             d.pin7, d.pin8, d.pin9, d.pin14, d.pin16, d.pin17)
         if pp1_check is True: return True
 
@@ -1008,7 +1015,7 @@ class StepconfApp:
         # output pins:
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp2_pin%d' % pin
-            if d[p] == SIG.PWM: return True
+            if d[p] == d_hal_output[PWM]: return True
 
         # if we get to here - there are no spindle control signals
         return False
@@ -1018,13 +1025,13 @@ class StepconfApp:
         d = self.d
 
         # pp1 input pins
-        if SIG.PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
-        if SIG.PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if d_hal_input[PPR] in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
+        if d_hal_input[PHA] in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15): return True
 
         # pp2 input pins
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
-            if d[p] in (SIG.PPR, SIG.PHA): return True
+            if d[p] in (d_hal_input[PPR], d_hal_input[PHA]): return True
 
         # if we get to here - there are no spindle encoder signals
         return False
@@ -1077,23 +1084,16 @@ class StepconfApp:
         for i in datalist:
             # Damn! this is a bug. GTKBuilder sets the widget name to be the builder ID.
             widget_name = Gtk.Buildable.get_name(self.w[axis+i])
+	    ctx = self.w[axis+i].get_style_context()
+
             try:
                 a=get(i)
                 if a <= 0:raise ValueError
             except:
-                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(90deg,yellow,red);}' + os.linesep
+	        ctx.add_class('invalid')
             else:
-                mystyle = mystyle + '#' + widget_name + ' { background-image: linear-gradient(@bg_color,@bg_color); }' + os.linesep
-
-        # Really I have not found a better way to change the background color
-        # I hate the person who removed the get_background_color function in GTK3...
-        provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-
+		ctx.remove_class('invalid')
+	
     # pport functions
     # disallow some signal combinations
     def do_exclusive_inputs(self, pin,port):
@@ -1102,93 +1102,47 @@ class StepconfApp:
         # GTK supports signal blocking but then you can't assign signal names in GLADE -slaps head
         if self._p.in_pport_prepare or self.recursive_block: return
         self.recursive_block = True
-        SIG = self._p
-        exclusive = {
-            SIG.HOME_X: (SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_Y: (SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_Z: (SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.HOME_A: (SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MAX_HOME_X: (SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_Y: (SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_Z: (SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_HOME_A: (SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MIN_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.BOTH_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
-
-            SIG.MIN_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MIN_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.MAX_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.MAX_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.BOTH_X: (SIG.MIN_X, SIG.MAX_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_Y: (SIG.MIN_Y, SIG.MAX_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_Z: (SIG.MIN_Z, SIG.MAX_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-            SIG.BOTH_A: (SIG.MIN_A, SIG.MAX_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
-
-            SIG.ALL_LIMIT: (
-                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT_HOME),
-            SIG.ALL_HOME: (
-                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT_HOME),
-            SIG.ALL_LIMIT_HOME: (
-                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
-                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
-                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
-                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
-                SIG.ALL_LIMIT, SIG.ALL_HOME),
-        }
         v = pin.get_active()
-        name = self._p.hal_input_names[v]
-        ex = exclusive.get(name, ())
+        ex = exclusive_input.get(v, ())
+        
+        # This part is probably useless. It is just an exercise with the GTK3 combobox.
+        tree_iter = pin.get_active_iter()
+        if tree_iter != None:
+            model = pin.get_model()
+            current_text = model[tree_iter][0]
+        # Find function with current selected index
+        lcurrent_function = filter(lambda element: element['index'] == v, hal_input)
+        current_function = lcurrent_function[0]
+        name = current_function["name"]
+        index = current_function["index"]
+
         # search pport1 for the illegal signals and change them to unused.
         dbg( 'looking for %s in pport1'%name)
         for pin1 in (10,11,12,13,15):
             p = 'pin%d' % pin1
             if self.w[p] == pin: continue
-            v1 = self._p.hal_input_names[self.w[p].get_active()]
-            if v1 in ex or v1 == name:
+            v1 = hal_input[self.w[p].get_active()]
+            if v1["index"] in ex or v1["name"] == name:
                 dbg( 'found %s, at %s'%(name,p))
-                self.w[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                #self.w[p].set_active(self._p.hal_input_names.index(UNUSED_INPUT))
+                self.w[p].set_active(UNUSED_INPUT)
                 if not port ==1: # if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p] = SIG.UNUSED_INPUT
+                    self.d[p] = d_hal_input[UNUSED_INPUT]
         # search pport2 for the illegal signals and change them to unused.
         dbg( 'looking for %s in pport2'%name)
         for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p2 = 'pp2_pin%d_in' % pin1
             if self.w[p2] == pin: continue
-            v2 = self._p.hal_input_names[self.w[p2].get_active()]
-            if v2 in ex or v2 == name:
+            #v2 = self._p.hal_input_names[self.w[p2].get_active()]
+            v2 = hal_input[self.w[p2].get_active()]
+            if v2["index"] in ex or v2["name"] == name:
                 dbg( 'found %s, at %s'%(name,p2))
-                self.w[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                #self.w[p2].set_active(self._p.hal_input_names.index(UNUSED_INPUT))
+                self.w[p2].set_active(UNUSED_INPUT)
                 if not port ==2:# if on the other page must change the data model too
                     dbg( 'found on other pport page')
-                    self.d[p2] = SIG.UNUSED_INPUT
+                    self.d[p2] = d_hal_input[UNUSED_INPUT]
         self.recursive_block = False
 #**************
 # Latency test
@@ -1204,288 +1158,235 @@ class StepconfApp:
         if pid:
             self.w['window1'].set_sensitive(1)
             return False
-        return True
-
-#***************
-# PYVCP TEST
-#***************
-    def testpanel(self,w):
-        panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        if self.w.radiobutton5.get_active() == True:
-            print('no sample requested')
-            return True
-        if self.w.radiobutton6.get_active() == True:
-            panel = "spindle.xml"
-        if self.w.radiobutton8.get_active() == True:
-            panel = "custompanel.xml"
-            panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
-        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
-        halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
-        if self.w.radiobutton6.get_active() == True:
-            halrun.write("setp displaytest.spindle-speed 1000\n")
-        halrun.write("waitusr displaytest\n")
-        halrun.flush()
-        halrun.close()   
-
-#**************
-# LADDER TEST
-#**************
-    def load_ladder(self,w):         
-        newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
-        self.d.modbus = self.w.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -Is", "w")
-        halrun.write(""" 
-              loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
-              loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
-                     numFloatIn=%(fin)d numFloatOut=%(fout)d\n
-              addf classicladder.0.refresh slow\n
-              start\n
-                      """ % {
-                      'period': 50000,
-                      'din': self.w.digitsin.get_value(),
-                      'dout': self.w.digitsout.get_value(),
-                      'sin': self.w.s32in.get_value(),
-                      'sout': self.w.s32out.get_value(), 
-                      'fin':self.w.floatsin.get_value(),
-                      'fout':self.w.floatsout.get_value(),
-                 })
-        if self.w.radiobutton1.get_active() == True:
-            if self.d.tempexists:
-               self.d.laddername='TEMP.clp'
-            else:
-               self.d.laddername= 'blank.clp'
-        if self.w.radiobutton2.get_active() == True:
-            self.d.laddername= 'estop.clp'
-        if self.w.radiobutton3.get_active() == True:
-            self.d.laddername = 'serialmodbus.clp'
-            self.d.modbus = True
-            self.w.modbus.set_active(self.d.modbus)
-        if self.w.radiobutton4.get_active() == True:
-            self.d.laddername='custom.clp'
-            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
-        else:
-            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.d.laddername)        
-        if self.d.modbus == True: 
-            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\
-                \n" %          { 'newfilename':newfilename ,'filename':filename })
-        else:
-            halrun.write("loadusr -w classicladder --newpath=%(newfilename)s %(filename)s\n" % { 'newfilename':newfilename ,'filename':filename })
-        halrun.flush()
-        halrun.close()
-        if os.path.exists(newfilename):
-            self.d.tempexists = True
-            self.w.newladder.set_text('Edited ladder program')
-            self.w.radiobutton1.set_active(True)
-        else:
-            self.d.tempexists = 0
+        return True  
 
 #**********
 # Axis Test
 #***********
     def test_axis(self, axis):
-        if not self.check_for_rt(): return
-        SIG = self._p
+		if not self.check_for_rt(): return
+		SIG = self._p
 
-        vel = float(self.w[axis + "maxvel"].get_text())
-        acc = float(self.w[axis + "maxacc"].get_text())
+		# Retrive user setting for maxvel and maxacc on current axis tab
+		# Test if there is some data saved
+		testvel = self.d[axis + "testmaxvel"]
+		testacc = self.d[axis + "testmaxacc"]
+		# Check if not null and not empty and not string "None"
+		if(testvel != None and testvel != "" and testvel != "None"):
+			vel = float(testvel)
+		else:
+	        	vel = float(self.w[axis + "maxvel"].get_text())
+	
+		# Check if not null and not empty and not string "None"
+		if(testacc != None and testacc != "" and testacc != "None"):
+			acc = float(testacc)
+		else:
+			acc = float(self.w[axis + "maxacc"].get_text())
+	
+		scale = self.d[axis + "scale"]
+		maxvel = float(self.w[axis + "maxvel"].get_text()) * 1.5
+		#maxvel = 1.5 * vel
+		if self.d.doublestep():
+				period = int(1e9 / maxvel / scale)
+		else:
+				period = int(.5e9 / maxvel / scale)
+		
+		steptime = self.w.steptime.get_value()
+		stepspace = self.w.stepspace.get_value()
+		latency = self.w.latency.get_value()
+		minperiod = self.d.minperiod()
+		
+		if period < minperiod:
+			period = minperiod
+			if self.d.doublestep():
+				maxvel = 1e9 / minperiod / abs(scale)
+			else:
+				maxvel = 1e9 / minperiod / abs(scale)
+		if period > 100000:
+			period = 100000
 
-        scale = self.d[axis + "scale"]
-        maxvel = 1.5 * vel
-        if self.d.doublestep():
-                period = int(1e9 / maxvel / scale)
-        else:
-                period = int(.5e9 / maxvel / scale)
+		# halrun print a point "." on console, but I have not found out why.
+		self.halrun = halrun = os.popen("halrun -Is", "w")
+		if debug:
+			halrun.write("echo\n")
+		axnum = "xyza".index(axis)
+		step = axis + "step"
+		dir = axis + "dir"
+		
+		halrun.write("""
+			loadrt steptest
+			loadrt stepgen step_type=0
+			""")
 
-        steptime = self.w.steptime.get_value()
-        stepspace = self.w.stepspace.get_value()
-        latency = self.w.latency.get_value()
-        minperiod = self.d.minperiod()
+		port3name=port2name=port2dir=port3dir=""
+		if self.d.number_pports>2:
+			 port3name = ' '+self.d.ioaddr3
+			 if self.d.pp3_direction: # Input option
+				port3dir =" in"
+			 else: 
+				port3dir =" out"
+		if self.d.number_pports>1:
+			 port2name = ' '+self.d.ioaddr2
+			 if self.d.pp2_direction: # Input option
+				port2dir =" in"
+			 else: 
+				port2dir =" out"
+		halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
+		halrun.write("""
+			loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
+			addf stepgen.make-pulses fast
+			addf parport.0.write fast
+			"""%{'period': period})
+		
+		if self.d.number_pports>1:
+			halrun.write( "addf parport.0.write fast\n")
+		if self.d.number_pports>2:
+			halrun.write( "addf parport.0.write fast\n")
+		temp = self.find_output(axis +'step')
+		step_pin = temp[0][0]
+		temp = self.find_output(axis +'dir')
+		dir_pin = temp[0][0]
+		halrun.write("""
+			addf stepgen.capture-position slow
+			addf steptest.0 slow
+			addf stepgen.update-freq slow
 
-        if period < minperiod:
-            period = minperiod
-            if self.d.doublestep():
-                maxvel = 1e9 / minperiod / abs(scale)
-            else:
-                maxvel = 1e9 / minperiod / abs(scale)
-        if period > 100000:
-            period = 100000
+			net step stepgen.0.step => parport.0.pin-%(steppin)02d-out
+			net dir stepgen.0.dir => parport.0.pin-%(dirpin)02d-out
+			net cmd steptest.0.position-cmd => stepgen.0.position-cmd
+			net fb stepgen.0.position-fb => steptest.0.position-fb
 
-        self.halrun = halrun = os.popen("halrun -Is", "w")
-        if debug:
-            halrun.write("echo\n")
-        axnum = "xyza".index(axis)
-        step = axis + "step"
-        dir = axis + "dir"
+			setp parport.0.pin-%(steppin)02d-out-reset 1
+			setp stepgen.0.steplen 1
+			setp stepgen.0.dirhold %(dirhold)d
+			setp stepgen.0.dirsetup %(dirsetup)d
+			setp stepgen.0.position-scale %(scale)f
+			setp steptest.0.epsilon %(onestep)f
 
-        halrun.write("""
-            loadrt steptest
-            loadrt stepgen step_type=0
-            """)
+			setp stepgen.0.enable 1
+		""" % {
+			'steppin': step_pin,
+			'dirpin': dir_pin,
+			'dirhold': self.d.dirhold + self.d.latency,
+			'dirsetup': self.d.dirsetup + self.d.latency,
+			'onestep': abs(1. / self.d[axis + "scale"]),
+			'scale': self.d[axis + "scale"],
+		})
+		
+		if self.doublestep():
+			halrun.write("""
+				setp parport.0.reset-time %(resettime)d
+				setp stepgen.0.stepspace 0
+				addf parport.0.reset fast
+			""" % {
+				'resettime': self.d['steptime']
+			})
+		amp_signals = self.find_output(d_hal_output[AMP])
+		for pin in amp_signals:
+			amp,amp_port = pin
+			halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
+				% {'enablepin': amp,'portnum': amp_port})
+		
+		estop_signals = self.find_output(d_hal_output[ESTOP])
+		for pin in estop_signals:
+			estop,e_port = pin
+			halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
+				% {'estoppin': estop,'portnum': e_port})
+		
+		for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
+			inv = getattr(self.d, "pin%dinv" % pin)
+			if inv:
+				halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
+					% {'pin': pin})
+		if self.d.number_pports > 1:
+			if self.d.pp2_direction:# Input option
+				out_list =(1,14,16,17)
+			else:
+				out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+			for pin in (out_list):
+				inv = getattr(self.d, "pp2_pin%dinv" % pin)
+				if inv:
+					halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
+					% {'pin': pin})
+		if debug:
+			halrun.write("loadusr halmeter sig cmd -g 275 415\n")
+		
+		if axis == "a":
+			self.w.testvelunit.set_text(_("deg / s"))
+			self.w.testaccunit.set_text(_(u"deg / s²"))
+			self.w.testampunit.set_text(_("deg"))
+			self.w.testvel.set_increments(1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 360000)
+			self.w.testamplitude.set_range(0, 1440)
+			self.w.testvel.set_digits(1)
+			self.w.testacc.set_digits(1)
+			self.w.testamplitude.set_digits(1)
+			self.w.testamplitude.set_value(10)
+		elif self.d.units:
+			self.w.testvelunit.set_text(_("mm / s"))
+			self.w.testaccunit.set_text(_(u"mm / s²"))
+			self.w.testampunit.set_text(_("mm"))
+			self.w.testvel.set_increments(1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 100000)
+			self.w.testamplitude.set_range(0, 1000)
+			self.w.testvel.set_digits(2)
+			self.w.testacc.set_digits(2)
+			self.w.testamplitude.set_digits(2)
+			self.w.testamplitude.set_value(15)
+		else:
+			self.w.testvelunit.set_text(_("in / s"))
+			self.w.testaccunit.set_text(_(u"in / s²"))
+			self.w.testampunit.set_text(_("in"))
+			self.w.testvel.set_increments(.1,5)
+			self.w.testacc.set_increments(1,5)
+			self.w.testamplitude.set_increments(.1,5)
+			self.w.testvel.set_range(0, maxvel)
+			self.w.testacc.set_range(1, 3600)
+			self.w.testamplitude.set_range(0, 36)
+			self.w.testvel.set_digits(1)
+			self.w.testacc.set_digits(1)
+			self.w.testamplitude.set_digits(1)
+			self.w.testamplitude.set_value(.5)
+		
+		self.jogplus = self.jogminus = 0
+		self.w.testdir.set_active(0)
+		self.w.run.set_active(0)
+		self.w.testacc.set_value(acc)
+		self.w.testvel.set_value(vel)
+		self.axis_under_test = axis
+		self.update_axis_test()
 
-        port3name=port2name=port2dir=port3dir=""
-        if self.d.number_pports>2:
-             port3name = ' '+self.d.ioaddr3
-             if self.d.pp3_direction: # Input option
-                port3dir =" in"
-             else: 
-                port3dir =" out"
-        if self.d.number_pports>1:
-             port2name = ' '+self.d.ioaddr2
-             if self.d.pp2_direction: # Input option
-                port2dir =" in"
-             else: 
-                port2dir =" out"
-        halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
-        halrun.write("""
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
-            addf stepgen.make-pulses fast
-            addf parport.0.write fast
-            """%{'period': period})
+		halrun.write("start\n")
+		halrun.flush()
 
-        if self.d.number_pports>1:
-            halrun.write( "addf parport.0.write fast\n")
-        if self.d.number_pports>2:
-            halrun.write( "addf parport.0.write fast\n")
-        temp = self.find_output(axis +'step')
-        step_pin = temp[0][0]
-        temp = self.find_output(axis +'dir')
-        dir_pin = temp[0][0] 
-        halrun.write("""
-            addf stepgen.capture-position slow
-            addf steptest.0 slow
-            addf stepgen.update-freq slow
+		self.w.dlgTestAxis.set_title(_("%s Axis Test") % axis.upper())
+		self.w.dlgTestAxis.show_all()
+		result = self.w.dlgTestAxis.run()
+		if result == Gtk.ResponseType.OK:
+			# Save test parameters
+			self.d[axis + "testmaxvel"] = self.w.testvel.get_value()
+			self.d[axis + "testmaxacc"] = self.w.testacc.get_value()
+		self.w.dlgTestAxis.hide()
+		
+		if amp_signals:
+			for pin in amp_signals:
+				amp,amp_port = pin
+				halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
+				% {'enablepin': amp,'portnum': amp_port})
+		if estop_signals:
+			for pin in estop_signals:
+				estop,e_port = pin
+				halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
+				% {'estoppin': estop,'portnum': e_port})
 
-            net step stepgen.0.step => parport.0.pin-%(steppin)02d-out
-            net dir stepgen.0.dir => parport.0.pin-%(dirpin)02d-out
-            net cmd steptest.0.position-cmd => stepgen.0.position-cmd
-            net fb stepgen.0.position-fb => steptest.0.position-fb
-
-            setp parport.0.pin-%(steppin)02d-out-reset 1
-            setp stepgen.0.steplen 1
-            setp stepgen.0.dirhold %(dirhold)d
-            setp stepgen.0.dirsetup %(dirsetup)d
-            setp stepgen.0.position-scale %(scale)f
-            setp steptest.0.epsilon %(onestep)f
-
-            setp stepgen.0.enable 1
-        """ % {
-            'steppin': step_pin,
-            'dirpin': dir_pin,
-            'dirhold': self.d.dirhold + self.d.latency,
-            'dirsetup': self.d.dirsetup + self.d.latency,
-            'onestep': abs(1. / self.d[axis + "scale"]),
-            'scale': self.d[axis + "scale"],
-        })
-
-        if self.doublestep():
-            halrun.write("""
-                setp parport.0.reset-time %(resettime)d
-                setp stepgen.0.stepspace 0
-                addf parport.0.reset fast
-            """ % {
-                'resettime': self.d['steptime']
-            })
-        amp_signals = self.find_output(SIG.AMP)
-        for pin in amp_signals:
-            amp,amp_port = pin
-            halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
-                % {'enablepin': amp,'portnum': amp_port})
-
-        estop_signals = self.find_output(SIG.ESTOP)
-        for pin in estop_signals:
-            estop,e_port = pin
-            halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
-                % {'estoppin': estop,'portnum': e_port})
-
-        for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-            inv = getattr(self.d, "pin%dinv" % pin)
-            if inv:
-                halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin})
-        if self.d.number_pports > 1:
-            if self.d.pp2_direction:# Input option
-                out_list =(1,14,16,17)
-            else:
-                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
-            for pin in (out_list):
-                inv = getattr(self.d, "pp2_pin%dinv" % pin)
-                if inv:
-                    halrun.write("setp parport.1.pin-%(pin)02d-out-invert 1\n"
-                    % {'pin': pin})
-        if debug:
-            halrun.write("loadusr halmeter sig cmd -g 275 415\n")
-
-        self.w.dialog1.set_title(_("%s Axis Test") % axis.upper())
-
-        if axis == "a":
-            self.w.testvelunit.set_text(_("deg / s"))
-            self.w.testaccunit.set_text(_(u"deg / s²"))
-            self.w.testampunit.set_text(_("deg"))
-            self.w.testvel.set_increments(1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 360000)
-            self.w.testamplitude.set_range(0, 1440)
-            self.w.testvel.set_digits(1)
-            self.w.testacc.set_digits(1)
-            self.w.testamplitude.set_digits(1)
-            self.w.testamplitude.set_value(10)
-        elif self.d.units:
-            self.w.testvelunit.set_text(_("mm / s"))
-            self.w.testaccunit.set_text(_(u"mm / s²"))
-            self.w.testampunit.set_text(_("mm"))
-            self.w.testvel.set_increments(1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 100000)
-            self.w.testamplitude.set_range(0, 1000)
-            self.w.testvel.set_digits(2)
-            self.w.testacc.set_digits(2)
-            self.w.testamplitude.set_digits(2)
-            self.w.testamplitude.set_value(15)
-        else:
-            self.w.testvelunit.set_text(_("in / s"))
-            self.w.testaccunit.set_text(_(u"in / s²"))
-            self.w.testampunit.set_text(_("in"))
-            self.w.testvel.set_increments(.1,5)
-            self.w.testacc.set_increments(1,5)
-            self.w.testamplitude.set_increments(.1,5)
-            self.w.testvel.set_range(0, maxvel)
-            self.w.testacc.set_range(1, 3600)
-            self.w.testamplitude.set_range(0, 36)
-            self.w.testvel.set_digits(1)
-            self.w.testacc.set_digits(1)
-            self.w.testamplitude.set_digits(1)
-            self.w.testamplitude.set_value(.5)
-
-        self.jogplus = self.jogminus = 0
-        self.w.testdir.set_active(0)
-        self.w.run.set_active(0)
-        self.w.testacc.set_value(acc)
-        self.w.testvel.set_value(vel)
-        self.axis_under_test = axis
-        self.update_axis_test()
-
-        halrun.write("start\n"); halrun.flush()
-        self.w.dialog1.show_all()
-        result = self.w.dialog1.run()
-        self.w.dialog1.hide()
-        
-        if amp_signals:
-            for pin in amp_signals:
-                amp,amp_port = pin
-                halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 0\n"
-                % {'enablepin': amp,'portnum': amp_port})
-        if estop_signals:
-            for pin in estop_signals:
-                estop,e_port = pin
-                halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 0\n"
-                % {'estoppin': estop,'portnum': e_port})
-
-        time.sleep(.001)
-        halrun.close()
+		time.sleep(.001)
+		halrun.close()
 
     def update_axis_test(self, *args):
         axis = self.axis_under_test
@@ -1510,227 +1411,83 @@ class StepconfApp:
             'dir': self.w.testdir.get_active(),
         })
         halrun.flush()
->>>>>>> upstream/master
 
 #**********************************
-# Main class
+# Common helper functions
 #**********************************
-class StepconfApp:
-	def __init__(self, dbgstate):
-		self.debug = dbgstate
 
-		######################################
-		#######  INIT private data ###########
-		######################################
-		# Private data holds and init paths and general variables.
-		self._p = data.Private_Data()
-		self._p.debug = self.debug
+    def build_input_set(self):
+        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
+            else:
+                in_list =(10,11,12,13,15)
+            for pin in (in_list):
+                p = 'pp2_pin%d_in' % pin
+                input_set +=(self.d[p],)
+        return set(input_set)
 
-		######################################
-		#########  INIT data #################
-		######################################
-		self.d = data.Data()
-		# Try find parport
-		self.d.lparport = self.find_parport()
-		# Set xyzuv axes defaults depending on units (MM or INCH)
-		self.set_axis_unit_defaults(MM)
+    def build_output_set(self):
+        output_set =(self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
+            self.d.pin6, self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16,
+            self.d.pin17)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                output_set += (self.d[p],)
+        return set(output_set)
 
-		# build the glade files
-		self.builder = MultiFileBuilder()
-		self.builder.set_translation_domain(DOMAIN)
-		self.builder.add_from_file(os.path.join(self._p.datadir,'main_page.glade'))
-		window = self.builder.get_object("window1")
-		notebook1 = self.builder.get_object("notebook1")
-		for reference,title,state in (available_page):
-			if reference == 'intro':
-				continue
-			#dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (reference,title,state))
-			self.builder.add_from_file(os.path.join(self._p.datadir, '%s.glade'%reference))
-			page = self.builder.get_object(reference)
-			notebook1.append_page(page, Gtk.Label(reference))
-		notebook1.set_show_tabs(False)
+    def find_input(self, input):
+        inputs = set((10, 11, 12, 13, 15))
+        for i in inputs:
+            pin = getattr(self.d, "pin%d" % i)
+            inv = getattr(self.d, "pin%dinv" % i)
+            if pin == input: return i
+        return None
 
-		self.w = Widgets(self.builder)
-		self.p = pages.Pages(self)
-		self.INI = build_INI.INI(self)
-		self.HAL = build_HAL.HAL(self)
-		self.builder.set_translation_domain(DOMAIN) # for locale translations
-		self.builder.connect_signals( self.p ) # register callbacks from Pages class
-		#wiz_pic = Gdk.pixbuf_new_from_file(wizard)
+    def find_output(self, output):
+        found_list = []
+        out_list = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
+        port = 0
+        for i in out_list:
+            pin = self.d["pin%d" % i]
+            inv = self.d["pin%dinv" % i]
+            if pin == output: found_list.append((i,port))
+        if self.d.number_pports > 1:
+            port = 1
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for i in (out_list):
+                pin = self.d['pp2_pin%d' % i]
+                if pin == output: found_list.append((i,port))
+        return found_list
 
-		image = Gtk.Image()
-		image.set_from_file(self._p.wizard)
-		wiz_pic = image.get_pixbuf()
-		self.w.wizard_image.set_from_pixbuf(wiz_pic)
-		self.load_preferences()
-		self.p.initialize()
-		window.show()
-		#self.w.xencoderscale.realize()
+    def doublestep(self, steptime=None):
+        if steptime is None: steptime = self.d.steptime
+        return steptime <= 5000
 
-	def find_parport(self):
-		# Try to find parallel port
-		lparport=[]
-		# open file.
-		try:
-			in_file = open("/proc/ioports","r")
-		except:
-			print "Unable to open /proc/ioports"
-			return([])
-	
-		try:
-			for line in in_file:
-				if "parport" in line:
-					tmprow = line.strip()
-					lrow = tmprow.split(":")
-					address_range = lrow[0].strip()
-					init_address = address_range.split("-")[0].strip()
-					lparport.append("0x" + init_address)
-		except:
-			print "Error find parport"
-			in_file.close()
-			return([])
-		in_file.close()
-		if lparport == []:
-			return([])
-		return(lparport)
+    def home_sig(self, axis):
+        inputs = self.build_input_set()
+        thisaxishome = set((d_hal_input[ALL_HOME], d_hal_input[ALL_LIMIT_HOME], "home-" + axis, "min-home-" + axis,
+                            "max-home-" + axis, "both-home-" + axis))
+        for i in inputs:
+            if i in thisaxishome: return i
 
-	# change the XYZ axis defaults to metric or imperial
-	# This only sets data that makes sense to change eg gear ratio don't change
-	def set_axis_unit_defaults(self, units=MM):
-		if units == INCH: # imperial
-			for i in ('x','y','z','a','u','v'):
-				self.d[i+'maxvel'] = 1
-				self.d[i+'maxacc'] = 30
-				self.d[i+'homevel'] = .05
-				self.d[i+'leadscrew'] = 20
-				if not i == 'z':
-					self.d[i+'minlim'] = 0
-					self.d[i+'maxlim'] = 8
-				else:
-					self.d.zminlim = -4
-					self.d.zmaxlim = 0
-		else: # metric
-			for i in ('x','y','z','a','u','v'):
-				self.d[i+'maxvel'] = 25
-				self.d[i+'maxacc'] = 750
-				self.d[i+'homevel'] = 1.5
-				self.d[i+'leadscrew'] = 5
-				if not i =='z':
-					self.d[i+'minlim'] = 0
-					self.d[i+'maxlim'] = 200
-				else:
-					self.d.zminlim = -100
-					self.d.zmaxlim = 0
+# Boiler code
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
-	def load_preferences(self):
-		# set preferences if they exist
-		link = short = advanced = show_pages = False
-		filename = os.path.expanduser("~/.stepconf-preferences")
-		if os.path.exists(filename):
-			version = 0.0
-			d = xml.dom.minidom.parse(open(filename, "r"))
-			for n in d.getElementsByTagName("property"):
-				name = n.getAttribute("name")
-				text = n.getAttribute('value')
-				if name == "version":
-					version = eval(text)
-				if name == "always_shortcut":
-					short = eval(text)
-				if name == "always_link":
-					link = eval(text)
-				if name == "sim_hardware":
-					sim_hardware = eval(text)
-				if name == "machinename":
-					self.d._lastconfigname = text
-				if name == "chooselastconfig":
-					self._chooselastconfig = eval(text)
-			# these are set from the hidden preference file
-			self.d.createsymlink = link
-			self.d.createshortcut = short
-			self.d.sim_hardware = sim_hardware
-	
-	# write stepconf's hidden preference file
-	def save_preferences(self):
-		filename = os.path.expanduser("~/.stepconf-preferences")
-		d2 = xml.dom.minidom.getDOMImplementation().createDocument(
-							None, "int-pncconf", None)
-		e2 = d2.documentElement
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'float')
-		n2.setAttribute('name', "version")
-		n2.setAttribute('value', str("%f"%self.d._preference_version))
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'bool')
-		n2.setAttribute('name', "always_shortcut")
-		n2.setAttribute('value', str("%s"% self.d.createshortcut))
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'bool')
-		n2.setAttribute('name', "always_link")
-		n2.setAttribute('value', str("%s"% self.d.createsymlink))
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'bool')
-		n2.setAttribute('name', "sim_hardware")
-		n2.setAttribute('value', str("%s"% self.d.sim_hardware))
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'bool')
-		n2.setAttribute('name', "chooselastconfig")
-		n2.setAttribute('value', str("%s"% self.d._chooselastconfig))
-	
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'string')
-		n2.setAttribute('name', "machinename")
-		n2.setAttribute('value', str("%s"%self.d.machinename))
-
-		"""
-		n2 = d2.createElement('property')
-		e2.appendChild(n2)
-		n2.setAttribute('type', 'string')
-		n2.setAttribute('name', "units")
-		n2.setAttribute('value', str("%s"%self.d.units))
-		"""
-
-		d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
-
-
-
-###############################################################################
 # starting with 'stepconf -d' gives debug messages
 if __name__ == "__main__":
-<<<<<<< HEAD
-<<<<<<< HEAD
-	usage = "usage: Stepconf -[options]"
-	parser = OptionParser(usage=usage)
-	parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
-	(options, args) = parser.parse_args()
-	if options.debug:
-		app = StepconfApp(dbgstate=True)
-	else:
-		app = StepconfApp(False)
-
-	# Prepare Style
-	cssProvider = Gtk.CssProvider()
-	cssProvider.load_from_data(style)
-	screen = Gdk.Screen.get_default()
-	styleContext = Gtk.StyleContext()
-	styleContext.add_provider_for_screen(screen, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
-
-	Gtk.main()
-=======
-=======
->>>>>>> upstream/master
-    def dummy():
-        pass
     usage = "usage: Stepconf -[options]"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
@@ -1739,7 +1496,13 @@ if __name__ == "__main__":
         app = StepconfApp(dbgstate=True)
     else:
         app = StepconfApp(False)
-    signal.signal(signal.SIGINT, lambda *args: dummy())
+
+    # Prepare Style
+    cssProvider = Gtk.CssProvider()
+    cssProvider.load_from_data(style)
+    screen = Gdk.Screen.get_default()
+    styleContext = Gtk.StyleContext()
+    styleContext.add_provider_for_screen(screen, cssProvider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
     Gtk.main()
->>>>>>> upstream/master
 

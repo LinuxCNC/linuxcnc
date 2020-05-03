@@ -1,4 +1,4 @@
-STEPCONF_MODULES = axis_helper_functions gui_pyvcp gui_gladevcp tool_change build_INI build_HAL import_mach definitions preset general_helper_functions data pages
+STEPCONF_MODULES = pages build_INI build_HAL import_mach definitions preset
 
 STEPCONF_GLADEFILES := \
 	main_page \
@@ -27,8 +27,8 @@ STEPCONF_PYFILES = $(STEPCONF_GLADEFILES)
 PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py \
 	../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
 	$(patsubst %, ../share/linuxcnc/stepconf/%.glade, $(STEPCONF_GLADEFILES)) \
-	$(patsubst %, ../lib/python/stepconf/%.py, $(STEPCONF_PYFILES))
-	#$(patsubst %, python_libs_for_glade_files/%.py, $(STEPCONF_PYFILES))
+	$(patsubst %, python_libs_for_galde_files/%.py, $(STEPCONF_PYFILES))
+	#$(patsubst %, emc/usr_intf/stepconf/%.py, $(STEPCONF_PYFILES))
 
 PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepconf/%.py,$(STEPCONF_MODULES)) \
 	$(patsubst %, emc/usr_intf/stepconf/%.glade, $(STEPCONF_GLADEFILES))
@@ -50,18 +50,12 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-#python_libs_for_glade_files/%.py:
-#	$(ECHO) Stepconf: syntax checking gui python libs emc/usr_intf/stepconf/$(notdir $@)
-#	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' emc/usr_intf/stepconf/$(notdir $@)
-#	$(ECHO) Stepconf: copying python gui libs emc/usr_intf/stepconf/$(notdir $@)
-#	$(Q)mkdir -p ../lib/python/stepconf
-#	$(Q)cp emc/usr_intf/stepconf/$(notdir $@) ../lib/python/stepconf/$(notdir $@)
-$(patsubst %, ../lib/python/stepconf/%.py, $(STEPCONF_PYFILES)): ../lib/python/stepconf/%.py: emc/usr_intf/stepconf/%.py
-	$(ECHO) Stepconf: syntax checking gui python libs $*
-	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
-	$(ECHO) Stepconf: copying python gui libs $*
+python_libs_for_galde_files/%.py:
+	$(ECHO) Stepconf: syntax checking gui python libs emc/usr_intf/stepconf/$(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' emc/usr_intf/stepconf/$(notdir $@)
+	$(ECHO) Stepconf: copying python gui libs emc/usr_intf/stepconf/$(notdir $@)
 	$(Q)mkdir -p ../lib/python/stepconf
-	$(Q)cp -f $< $@
+	$(Q)cp emc/usr_intf/stepconf/$(notdir $@) ../lib/python/stepconf/$(notdir $@)
 
 ../share/linuxcnc/linuxcnc-wizard.gif: ../linuxcnc-wizard.gif
 	$(ECHO) Stepconf: copying $(notdir $@)

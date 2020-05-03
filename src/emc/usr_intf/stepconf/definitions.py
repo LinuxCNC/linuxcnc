@@ -18,165 +18,7 @@
 #************
 import os
 
-STEPCONF_VERSION="2.0"
-
-style = """
-GtkEntry.invalid {
-	color:  black;
-	background-color: red;
-	background: red;
-}
-
-GtkEntry.valid {
-	color:  @fg_color;
-	background-color: @bg_color;
-	background: @bg_color;
-}
-
-GtkEntry.selected {
-	color:  @fg_color;
-	background-color: @bg_color;
-	background: @bg_color;
-}
-
-#base_preselect_button {
-	color:  black;
-	background-color: gray;
-	background: gray;
-}
-
-#base_preselect_button1:active {
-	background-color: #0274d9;
-}
-
-#base_preselect_button.normal {
-	color: black;
-	background-color: gray;
-	background: gray;
-}
-
-#base_preselect_button.selected {
-	color: black;
-	background-color: #0274d9;
-	background: #0274d9;
-}
-
-"""
-
-DOMAIN = "linuxcnc"
-
-INCH = 0
-MM = 1
-
-XYZ = 0
-XYZA = 1
-XZ = 2
-XYUV = 3
-
-GUI_IS_NONE = 0
-GUI_IS_GLADEVCP = 1
-GUI_IS_PYVCP = 2
-GUI_IS_GMOCCAPY = 3
-PYVCP_DEFAULT = 1
-PYVCP_CUSTOM = 2
-PYVCP_NONE = 3
-GLADEVCP_DEFAULT = 1
-GLADEVCP_CUSTOM = 2
-GLADEVCP_NONE = 3
-
-# TOOL CHANGE
-FILE_TOOL_CHANGE = 'tool_change'
-FILE_TOOL_JOB_BEGIN = 'tool_job_begin'
-TOOL_CHANGE_MANUAL = 1
-TOOL_CHANGE_AUTO = 2
-TOOL_CHANGE_OLD = 3
-
-# Debounce timing ms
-DEBOUNCE_INPUT_TIME = 10
-
-FILE_CUSTOM_HALFILE = 'custom.hal'
-FILE_GUIMERGE = 'gui_merge.hal'
-# Pyvcp
-FILE_POSTGUI_CALL_LIST = 'postgui_call_list.hal'
-FILE_PYVCP_POSTGUI = 'pyvcp_postgui.hal'
-FILE_PYVCP_CUSTOM_HAL = 'pyvcp_custom.hal'
-FILE_PYVCP_DEFAULT_GUI = 'pyvcp_default.xml'
-FILE_PYVCP_CUSTOM_GUI = 'pyvcp_custom.xml'
-# Gladevcp
-FILE_GLADEVCP_CALL_LIST = 'gladevcp_call_list.hal'
-FILE_GLADEVCP_DEFAULT_HAL = 'gladevcp_default.hal'
-FILE_GLADEVCP_CUSTOM_HAL = 'gladevcp_custom.hal'
-FILE_GLADEVCP_DEFAULT_GUI = 'gladevcp_default.glade'
-FILE_GLADEVCP_CUSTOM_GUI = 'gladevcp_custom.glade'
-FILE_GLADEVCP_HANDLER = 'gladevcp_handler.py'
-
-# HALUI MDI
-
-MDI_G54X0 ='G10 L20 P1 x0 M100'
-MDI_G54Y0 ='G10 L20 P1 y0 M100'
-MDI_G54Z0 ='G10 L20 P1 z0 M100'
-MDI_G54A0 ='G10 L20 P1 a0 M100'
-MDI_G54U0 ='G10 L20 P1 u0 M100'
-MDI_G54V0 ='G10 L20 P1 v0 M100'
-"""
-MDI_G54X0 ='G10 L2 P1 x0 M100'
-MDI_G54Y0 ='G10 L2 P1 y0 M100'
-MDI_G54Z0 ='G10 L2 P1 z0 M100'
-MDI_G54A0 ='G10 L2 P1 a0 M100'
-MDI_G54U0 ='G10 L2 P1 u0 M100'
-MDI_G54V0 ='G10 L2 P1 v0 M100'
-"""
-MDI_G54TOX0 ='G0 X0'
-MDI_G54TOY0 ='G0 Y0'
-MDI_G54TOZ0 ='G0 Z0'
-MDI_G54TOA0 ='G0 A0'
-MDI_G54TOU0 ='G0 U0'
-MDI_G54TOV0 ='G0 V0'
-
-
 THEMEDIR = "/usr/share/themes"
-
-MESS_START = _('Start')
-MESS_FWD = _('Forward')
-MESS_DONE = _('Done')
-MESS_CL_REWRITE =_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. ")
-MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
-MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
-MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel file ?\nExisting custompanel.xml will be renamed custompanel_backup.xml.\nAny existing file named custompanel_backup.xml will be lost. ")
-MESS_GLADEVCP_REWRITE =_("OK to replace existing custom gladevcp panel file ?\nExisting glade_custom.ui will be renamed glade_custom_backup.ui.\nAny existing file named glade_custom_backup.ui will be lost. ")
-MESS_ABORT = _("Quit Stepconf and discard changes?")
-MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
-MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
-MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
-    unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-    "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
-
-available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
-				['base',_('Base Information'),True],
-				['pport1', _('Parallel Port 1'),True],
-				['pport2', _('Parallel Port 2'),True],
-				['axisx', _('Axis X'), True],
-				['axisy', _('Axis Y'), True],
-				['axisz', _('Axis Z'), True],
-				['axisu', _('Axis U'), True],
-				['axisv', _('Axis V'), True],
-				['axisa', _('Axis A'), True],
-				['spindle',_('Spindle'), True],
-				['options',_('Options'), True],
-				['halui_page', _('HALUI'), True],
-				['gui_page',_('User Interface'), True],
-				['finished',_('Almost Done'),True]
-]
-
-"""
-available_page_lib =['start', 'base', 'pport1','pport2','options','halui_page','gui_page', 'gui_pyvcp', 'gui_gladevcp',
-					'tool_change', 'axis_helper_functions', 'axisx','axisy','axisz','axisu','axisv','axisa','spindle','finished', 'general_helper_functions',
-]
-"""
-
-available_page_lib =['gui_pyvcp', 'gui_gladevcp',
-					'tool_change', 'axis_helper_functions', 'general_helper_functions',
-]
 
 # OUTPUT
 XSTEP=0
@@ -206,7 +48,6 @@ DOUT1=23
 DOUT2=24
 DOUT3=25
 UNUSED_OUTPUT=26
-TOOL_CHANGE=27
 
 # INPUT
 ESTOP_IN=0
@@ -293,8 +134,7 @@ d_hal_output = {
 	DOUT1:"dout-01",
 	DOUT2:"dout-02",
 	DOUT3:"dout-03",
-	UNUSED_OUTPUT:"unused-output",
-	TOOL_CHANGE:"tool-change"
+	UNUSED_OUTPUT:"unused-output"
 }
 
 hal_output = [
@@ -324,8 +164,7 @@ hal_output = [
 	{"name":d_hal_output[DOUT1], "human":_("Digital out 1"), 'index':DOUT1},
 	{"name":d_hal_output[DOUT2], "human":_("Digital out 2"), 'index':DOUT2},
 	{"name":d_hal_output[DOUT3], "human":_("Digital out 3"), 'index':DOUT3},
-	{"name":d_hal_output[UNUSED_OUTPUT], "human":_("Unused"), 'index':UNUSED_OUTPUT},
-	{"name":d_hal_output[TOOL_CHANGE], "human":_("Tool change"), 'index':TOOL_CHANGE}
+	{"name":d_hal_output[UNUSED_OUTPUT], "human":_("Unused"), 'index':UNUSED_OUTPUT}
 	]
 	
 d_hal_input = {
@@ -445,62 +284,61 @@ hal_input = [
 	]
 
 exclusive_input = {
-	HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME, ALL_LIMIT_HOME),
-	HOME_Y: (MAX_HOME_Y, MIN_HOME_Y, BOTH_HOME_Y, ALL_HOME, ALL_LIMIT_HOME),
-	HOME_Z: (MAX_HOME_Z, MIN_HOME_Z, BOTH_HOME_Z, ALL_HOME, ALL_LIMIT_HOME),
-	HOME_A: (MAX_HOME_A, MIN_HOME_A, BOTH_HOME_A, ALL_HOME, ALL_LIMIT_HOME),
-	
-	MAX_HOME_X: (HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MAX_HOME_Y: (HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MAX_HOME_Z: (HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MAX_HOME_A: (HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	
-	MIN_HOME_X:  (HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MIN_HOME_Y:  (HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MIN_HOME_Z:  (HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	MIN_HOME_A:  (HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	
-	BOTH_HOME_X:  (HOME_X, MAX_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	BOTH_HOME_Y:  (HOME_Y, MAX_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	BOTH_HOME_Z:  (HOME_Z, MAX_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	BOTH_HOME_A:  (HOME_A, MAX_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-	
-	MIN_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-	MIN_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-	MIN_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-	MIN_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-	
-	MAX_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-	MAX_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-	MAX_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-	MAX_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-	
-	BOTH_X: (MIN_X, MAX_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-	BOTH_Y: (MIN_Y, MAX_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-	BOTH_Z: (MIN_Z, MAX_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-	BOTH_A: (MIN_A, MAX_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-	
-	ALL_LIMIT: (
-		MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-		MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-		MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-		MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-		ALL_LIMIT_HOME),
-	ALL_HOME: (
-		HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-		HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-		HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-		HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-		ALL_LIMIT_HOME),
-	ALL_LIMIT_HOME: (
-		HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-		HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-		HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-		HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-		MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-		MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-		MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-		MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-		ALL_LIMIT, ALL_HOME),
-}
+    HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME, ALL_LIMIT_HOME),
+    HOME_Y: (MAX_HOME_Y, MIN_HOME_Y, BOTH_HOME_Y, ALL_HOME, ALL_LIMIT_HOME),
+    HOME_Z: (MAX_HOME_Z, MIN_HOME_Z, BOTH_HOME_Z, ALL_HOME, ALL_LIMIT_HOME),
+    HOME_A: (MAX_HOME_A, MIN_HOME_A, BOTH_HOME_A, ALL_HOME, ALL_LIMIT_HOME),
 
+    MAX_HOME_X: (HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MAX_HOME_Y: (HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MAX_HOME_Z: (HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MAX_HOME_A: (HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+
+    MIN_HOME_X:  (HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MIN_HOME_Y:  (HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MIN_HOME_Z:  (HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    MIN_HOME_A:  (HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+
+    BOTH_HOME_X:  (HOME_X, MAX_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    BOTH_HOME_Y:  (HOME_Y, MAX_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    BOTH_HOME_Z:  (HOME_Z, MAX_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+    BOTH_HOME_A:  (HOME_A, MAX_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
+
+    MIN_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+    MIN_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+    MIN_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+    MIN_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
+
+    MAX_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+    MAX_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+    MAX_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+    MAX_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
+
+    BOTH_X: (MIN_X, MAX_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
+    BOTH_Y: (MIN_Y, MAX_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
+    BOTH_Z: (MIN_Z, MAX_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
+    BOTH_A: (MIN_A, MAX_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
+
+    ALL_LIMIT: (
+        MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+        MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+        MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+        MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+        ALL_LIMIT_HOME),
+    ALL_HOME: (
+        HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+        HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+        HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+        HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+        ALL_LIMIT_HOME),
+    ALL_LIMIT_HOME: (
+        HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+        HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+        HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+        HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+        MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
+        MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
+        MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
+        MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
+        ALL_LIMIT, ALL_HOME),
+}

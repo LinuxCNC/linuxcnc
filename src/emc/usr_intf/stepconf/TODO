@@ -4,11 +4,3 @@
 * last page information
 * run latency test concurrently with configurator (or not)
 * flesh out "test an axis" dialog
-
-* add	import gi
-	gi.require_version("Gdk", "3.0")
-on files with Gtk.
-* Move pages.py into stepconf.py
-* Change axis.py name in axis_helper_functions.py
-* Move variables from stepconf.py to data.py
-

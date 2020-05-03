@@ -11,31 +11,19 @@
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
-      <!-- column-name index -->
-      <column type="gint"/>
     </columns>
     <data>
       <row>
         <col id="0" translatable="yes">XYZ</col>
-        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XYZA</col>
-        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XZ (Lathe)</col>
-        <col id="1">0</col>
       </row>
       <row>
         <col id="0" translatable="yes">XYUV (Foam)</col>
-        <col id="1">0</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">XY(special)</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">XY(special)</col>
       </row>
     </data>
   </object>
@@ -61,24 +49,6 @@
       </row>
     </data>
   </object>
-  <object class="GtkAdjustment" id="dir_h_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="dir_s_adjustment">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkListStore" id="driver_liststore">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name index -->
-      <column type="gint"/>
-    </columns>
-  </object>
   <object class="GtkBox" id="base">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -87,6 +57,18 @@
       <object class="GtkGrid" id="grid1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
@@ -185,185 +167,10 @@
             <property name="can_focus">False</property>
             <property name="model">axis_liststore</property>
             <child>
-<<<<<<< HEAD
               <object class="GtkCellRendererText" id="cellrenderertext1"/>
               <attributes>
                 <attribute name="text">0</attribute>
               </attributes>
-=======
-              <object class="GtkGrid" id="table5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkSpinButton" id="steptime">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">●</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="adjustment">step_t_adjustment</property>
-                    <property name="climb_rate">100</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label85">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">ns</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="stepspace">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">●</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="adjustment">step_s_adjustment</property>
-                    <property name="climb_rate">100</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label86">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">ns</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="dirhold">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">●</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="adjustment">dir_h_adjustment</property>
-                    <property name="climb_rate">100</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label87">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">ns</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkSpinButton" id="dirsetup">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">●</property>
-                    <property name="primary_icon_activatable">False</property>
-                    <property name="secondary_icon_activatable">False</property>
-                    <property name="adjustment">dir_s_adjustment</property>
-                    <property name="climb_rate">100</property>
-                    <property name="numeric">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label88">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">ns</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Step _Time:</property>
-                    <property name="use_underline">True</property>
-                    <property name="mnemonic_widget">steptime</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Step _Space:</property>
-                    <property name="use_underline">True</property>
-                    <property name="mnemonic_widget">stepspace</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Direction _Hold:</property>
-                    <property name="use_underline">True</property>
-                    <property name="mnemonic_widget">dirhold</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label8">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">_Direction Setup:</property>
-                    <property name="use_underline">True</property>
-                    <property name="mnemonic_widget">dirsetup</property>
-                    <property name="xalign">0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">0</property>
-                    <property name="top_attach">3</property>
-                  </packing>
-                </child>
-              </object>
->>>>>>> upstream/master
             </child>
           </object>
           <packing>
@@ -377,8 +184,6 @@
           <object class="GtkComboBox" id="units">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-<<<<<<< HEAD
-<<<<<<< HEAD
             <property name="model">units_liststore</property>
             <signal name="changed" handler="on_units_changed" swapped="no"/>
             <child>
@@ -387,16 +192,6 @@
                 <attribute name="text">0</attribute>
               </attributes>
             </child>
-=======
-            <property name="label" translatable="yes">Driver Timing Settings</property>
-            <property name="ellipsize">middle</property>
-            <property name="xalign">0</property>
->>>>>>> upstream/master
-=======
-            <property name="label" translatable="yes">Driver Timing Settings</property>
-            <property name="ellipsize">middle</property>
-            <property name="xalign">0</property>
->>>>>>> upstream/master
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -416,20 +211,8 @@
       <object class="GtkSeparator" id="separator1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-<<<<<<< HEAD
-<<<<<<< HEAD
         <property name="margin_top">5</property>
         <property name="margin_bottom">5</property>
-=======
-        <property name="label" translatable="yes">D_river type:</property>
-        <property name="use_underline">True</property>
-        <property name="xalign">0</property>
->>>>>>> upstream/master
-=======
-        <property name="label" translatable="yes">D_river type:</property>
-        <property name="use_underline">True</property>
-        <property name="xalign">0</property>
->>>>>>> upstream/master
       </object>
       <packing>
         <property name="expand">False</property>
@@ -483,8 +266,6 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_action_appearance">False</property>
-            <property name="xalign">0</property>
-            <property name="yalign">0</property>
             <signal name="clicked" handler="on_base_preselect_button_clicked" swapped="no"/>
           </object>
           <packing>
@@ -503,30 +284,9 @@
     <child>
       <object class="GtkSeparator" id="separator4">
         <property name="visible">True</property>
-<<<<<<< HEAD
         <property name="can_focus">False</property>
         <property name="margin_top">5</property>
         <property name="margin_bottom">5</property>
-=======
-        <property name="can_focus">True</property>
-        <property name="label">confdir</property>
-        <property name="selectable">True</property>
-        <property name="xalign">1</property>
-      </object>
-      <packing>
-        <property name="left_attach">1</property>
-        <property name="top_attach">1</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkEntry" id="machinename">
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="invisible_char">●</property>
-        <property name="primary_icon_activatable">False</property>
-        <property name="secondary_icon_activatable">False</property>
-        <signal name="changed" handler="on_machinename_changed" swapped="no"/>
->>>>>>> upstream/master
       </object>
       <packing>
         <property name="expand">False</property>
@@ -587,6 +347,15 @@
             <property name="width">1</property>
             <property name="height">1</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <object class="GtkExpander" id="drivetime_expander">
@@ -819,15 +588,6 @@
             <property name="height">1</property>
           </packing>
         </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -839,18 +599,8 @@
       <object class="GtkSeparator" id="separator2">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-<<<<<<< HEAD
-<<<<<<< HEAD
         <property name="margin_top">5</property>
         <property name="margin_bottom">5</property>
-=======
-        <property name="label" translatable="yes">ns</property>
-        <property name="xalign">0</property>
->>>>>>> upstream/master
-=======
-        <property name="label" translatable="yes">ns</property>
-        <property name="xalign">0</property>
->>>>>>> upstream/master
       </object>
       <packing>
         <property name="expand">False</property>
@@ -1002,40 +752,11 @@ Period Jitter </property>
             <property name="receives_default">True</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
-<<<<<<< HEAD
             <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="xalign">0</property>
             <property name="yalign">0</property>
             <signal name="clicked" handler="on_latency_test_clicked" swapped="no"/>
-=======
-            <child>
-              <object class="GtkLabel" id="label208">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Min Base Period:</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="baseperiod">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="selectable">True</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
->>>>>>> upstream/master
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -1053,8 +774,6 @@ Period Jitter </property>
               <object class="GtkBox" id="hbox3">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-<<<<<<< HEAD
-<<<<<<< HEAD
                 <property name="valign">center</property>
                 <child>
                   <object class="GtkLabel" id="label208">
@@ -1082,14 +801,6 @@ Period Jitter </property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-=======
-                <property name="label" translatable="yes">Max step rate:</property>
-                <property name="xalign">0</property>
->>>>>>> upstream/master
-=======
-                <property name="label" translatable="yes">Max step rate:</property>
-                <property name="xalign">0</property>
->>>>>>> upstream/master
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1100,7 +811,6 @@ Period Jitter </property>
             <child>
               <object class="GtkBox" id="hbox2">
                 <property name="visible">True</property>
-<<<<<<< HEAD
                 <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label209">
@@ -1128,14 +838,6 @@ Period Jitter </property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-=======
-                <property name="can_focus">True</property>
-                <property name="selectable">True</property>
-                <property name="xalign">0</property>
-<<<<<<< HEAD
->>>>>>> upstream/master
-=======
->>>>>>> upstream/master
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1156,133 +858,27 @@ Period Jitter </property>
         </child>
       </object>
       <packing>
-<<<<<<< HEAD
         <property name="expand">False</property>
         <property name="fill">True</property>
         <property name="position">8</property>
-=======
-        <property name="left_attach">1</property>
-        <property name="top_attach">12</property>
-        <property name="width">2</property>
       </packing>
     </child>
-    <child>
-      <object class="GtkLabel" id="label1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Machine _Name:</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">machinename</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">0</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label169">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Configuration directory:</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">1</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label2">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">_Axis configuration:</property>
-        <property name="use_underline">True</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">2</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label3">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Reset Default machine _units:</property>
-        <property name="use_underline">True</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">3</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="hseparator1">
-        <property name="height_request">17</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">4</property>
-        <property name="width">3</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label5">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Driver characteristics: (Multiply by 1000 for times specified in µs or microseconds)</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">5</property>
-        <property name="width">3</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkLabel" id="label204">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Base Period Maximum _Jitter:</property>
-        <property name="use_markup">True</property>
-        <property name="use_underline">True</property>
-        <property name="mnemonic_widget">latency</property>
-        <property name="xalign">0</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">11</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="hseparator21">
-        <property name="height_request">17</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">8</property>
-        <property name="width">2</property>
-      </packing>
-    </child>
-    <child>
-      <object class="GtkSeparator" id="hseparator2">
-        <property name="height_request">17</property>
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-      <packing>
-        <property name="left_attach">0</property>
-        <property name="top_attach">10</property>
-        <property name="width">3</property>
->>>>>>> upstream/master
-      </packing>
-    </child>
+  </object>
+  <object class="GtkAdjustment" id="dir_h_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="dir_s_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkListStore" id="driver_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
   </object>
   <object class="GtkTextBuffer" id="name_textbuffer"/>
   <object class="GtkAdjustment" id="step_s_adjustment">
