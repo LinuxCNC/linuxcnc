@@ -238,7 +238,7 @@ Then add the code to the handler file.
 == Class Patch the file manager widget
 
 [NOTE]
-Class patching is a little like black magic - so use it only if needed. +
+Class patching (monkey patching) is a little like black magic - so use it only if needed. +
 
 The File manager widget is designed to load a selected program in linuxcnc. +
 But maybe you want to print the file name first. +

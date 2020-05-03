@@ -53,6 +53,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.list.resize(640, 480)
         self.list.clicked[QModelIndex].connect(self.clicked)
         self.list.activated.connect(self._getPathActivated)
+        #self.list.currentChanged = self.currentChanged
         self.list.setAlternatingRowColors(True)
 
         self.cb = QComboBox()
@@ -82,6 +83,13 @@ class FileManager(QWidget, _HalWidgetBase):
         windowLayout.addLayout(hbox)
         self.setLayout(windowLayout)
         self.show()
+
+    # this could return the current/previous selected as it's selected.
+    # need to uncomment monkey patch of self.list.currentChanged above
+    # so far this is not needed
+    def currentChanged(self,c,p):
+        dir_path = self.model.filePath(c)
+        print '-> ',dir_path
 
     def updateDirectoryView(self, path):
         self.list.setRootIndex(self.model.setRootPath(path))
@@ -130,6 +138,17 @@ class FileManager(QWidget, _HalWidgetBase):
         selectionModel.clearSelection()
         selectionModel.select(selection, QItemSelectionModel.Select)
 
+    # returns the current highlighted (selected) path as well as
+    # whether it's a file or not.
+    def getCurrentSelected(self):
+        selectionModel = self.list.selectionModel()
+        index = selectionModel.currentIndex()
+        dir_path = self.model.filePath(index)
+        if self.model.fileInfo(index).isFile():
+            return (dir_path, True)
+        else:
+            return (dir_path, False)
+
     def _hal_init(self):
         if self.PREFS_:
             last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
@@ -160,9 +179,13 @@ class FileManager(QWidget, _HalWidgetBase):
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
 
+    # moves the selection up
+    # used with MPG scrolling
     def up(self):
         self.select_row('up')
 
+    # moves the selection down
+    # used with MPG scrolling
     def down(self):
         self.select_row('down')
 
