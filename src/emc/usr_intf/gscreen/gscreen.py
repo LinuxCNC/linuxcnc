@@ -2362,7 +2362,7 @@ class Gscreen:
         self.emc.machine_off(1)
         self.emc.estop(1)
         time.sleep(2)
-    	gtk.main_quit()
+        gtk.main_quit()
 
     def on_axis_selection_clicked(self,widget):
         """This is a callback to update the axis selection data.
