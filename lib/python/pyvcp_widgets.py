@@ -162,7 +162,7 @@ class pyvcp_dial(Canvas):
 
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
-        self.txtroom=size/6
+        self.txtroom=int(size/6)
 
         # a title, if the user has supplied one
         if text!=None:
