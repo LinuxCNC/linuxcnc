@@ -551,7 +551,8 @@ Class patching allow you to override function calls in an imported module. +
 Class patching must be done before the module is instantiated and it modifies +
 all instances made after that. +
 An example might be patching button calls from the gcode editor to call functions +
-in the handler file instead.
+in the handler file instead. +
+Class patching is also known as monkey patching.
 
 ==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
 This function is called to facilitate keyboard jogging etc. +

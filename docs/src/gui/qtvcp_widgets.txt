@@ -893,6 +893,17 @@ It has a the ability to scroll the names with hardware such as a MPG. +
 
 one can class patch the function 'load(self,fname):' to customize file loading. +
 
+the function 'getCurrentSelected()' will return a python touple, containing +
+the file path and whether it's a file. +
+
+[source,python]
+----
+temp = FILEMANAGER.getCurrentSelected()
+print 'filepath={}'.fomat(temp[0])
+if temp[1]:
+    print 'Is a file'
+----
+
 It is based on pyQT's
 
 === RadioAxisSelector
