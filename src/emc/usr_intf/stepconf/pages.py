@@ -28,6 +28,7 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
+from __future__ import print_function
 #import gtk
 import os
 from gi.repository import Gtk
@@ -203,7 +204,7 @@ class Pages:
 
     def start_finish(self):
         if self.w.importmach.get_active():
-            print 'Import Mach config'
+            print('Import Mach config')
             from stepconf import import_mach
             self.d.load('/tmp/temp.stepconf', self)
             if not debug:
@@ -566,7 +567,7 @@ class Pages:
 
     def on_preselect_button_clicked(self, widget):
         state = self.w.preset_combo.get_active()
-        print state
+        print(state)
         if state == 0:
             self.a.preset_sherline_outputs()
         elif state ==1:
