@@ -500,8 +500,11 @@ class ArcEntryCut:
             conv.g.set_feed(conv.feed)
 
 def ui(im, nim, im_name):
-    import tkinter
-    
+    if sys.version_info[0] == 3:
+        import tkinter
+    else:
+        import Tkinter as tkinter
+
     try:
         from PIL import ImageTk
     except ImportError:    
@@ -758,8 +761,14 @@ def main():
     if len(sys.argv) > 1:
         im_name = sys.argv[1]
     else:
-        import tkinter.filedialog, tkinter
-        im_name = tkinter.filedialog.askopenfilename(defaultextension=".png",
+        if sys.version_info[0] == 3:
+            import tkinter
+            import tkinter.filedialog as tkFileDialog
+        else:
+            import Tkinter as tkinter
+            import tkFileDialog
+
+        im_name = tkFileDialog.askopenfilename(defaultextension=".png",
             filetypes = (
                 (_("Depth images"), ".gif .png .jpg"),
                 (_("All files"), "*")))
