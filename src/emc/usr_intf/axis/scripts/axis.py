@@ -2915,8 +2915,12 @@ class TclCommands(nf.TclCommands):
         return _dynamic_tab(name,text) # caller: make a frame and pack
 
     def inifindall(section, item):
-        items = tuple(inifile.findall(section, item))
-        return root_window.tk.merge(*items)
+        # used by TKPKG=Ngcgui
+        if sys.version_info[0] == 3:
+            return inifile.findall(section,item) # list
+        else:
+            items = tuple(inifile.findall(section, item))
+            return root_window.tk.merge(*items)  # str
 
 commands = TclCommands(root_window)
 
