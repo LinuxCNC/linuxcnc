@@ -79,12 +79,12 @@ c.wait_complete()
 start_time = time.time()
 s.poll()
 all_homed = s.homed[0]+s.homed[1]+s.homed[2]
-while (all_homed is not 3) and (time.time() - start_time < 5):
+while (all_homed != 3) and (time.time() - start_time < 5):
     time.sleep(0.100)
     s.poll()
     all_homed = s.homed[0]+s.homed[1]+s.homed[2]
 
-if all_homed is not 3:
+if all_homed != 3:
     print("failed to home")
     print("s.homed: {}".format(s.homed))
     sys.exit(1)
