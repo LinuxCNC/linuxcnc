@@ -25,6 +25,7 @@ import sys
 import linuxcnc
 import math
 import gtk
+import shutil
 from subprocess import Popen, PIPE
 
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -36,8 +37,9 @@ holeEnable = False
 imperial = [25.4, 6]
 lastX = 0
 lastY = 0
-infile = sys.argv[1]
+inCode = sys.argv[1]
 materialFile = ini.find('EMC', 'MACHINE').lower() + '_material.cfg'
+runFile = materialFile.replace('material','run')
 metric = [1, 4]
 minDiameter = 32
 scale, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -46,14 +48,15 @@ velocity = 60
 pierceOnly = False
 scribing = False
 rapidLine = ''
+thisMaterial = 0
+offsetG41 = False
 cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = True).communicate()[0])
 #pauseAtEnd = 2
-
 # error dialog
-def dialog_error(title, error):
+def dialog_error(mode, title, error):
     md = gtk.MessageDialog(None,
                            gtk.DIALOG_DESTROY_WITH_PARENT,
-                           gtk.MESSAGE_ERROR,
+                           mode,
                            gtk.BUTTONS_CLOSE,
                            error)
     md.set_position(gtk.WIN_POS_CENTER_ALWAYS)
@@ -84,15 +87,23 @@ def check_if_hole():
 
 # turn torch off and move 4mm (0.157) past hole end
 def negative_cutoff(I, J, radius):
-    global lastX, lastY, torchEnable
+    global lastX, lastY, torchEnable, lineNum
     centerX = lastX + I
     centerY = lastY + J
     cosA = math.cos(oclength / radius)
     sinA = math.sin(oclength / radius)
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
-    print('m62 p3 (disable torch)')
-    torchEnable = False
+    lineNum += 1
+    if offsetG41:
+        print(';;; m62 p3 (((inactive due to g41)))')
+        wng  = 'Cannot enable/disable torch\n'
+        wng += 'With cutter compensation active\n'
+        wng += '\nWarning for line #{}\n'.format(lineNum)
+        dialog_error(gtk.MESSAGE_WARNING,'WARNING', wng)
+    else:
+        print('m62 p3 (disable torch)')
+        torchEnable = False
     #clockwise arc
     if line.startswith('g2'):
         endX = centerX + radius * ((cosB * cosA) + (sinB * sinA))
@@ -103,18 +114,36 @@ def negative_cutoff(I, J, radius):
         endX = centerX + radius * ((cosB * cosA) - (sinB * sinA))
         endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
         dir = '3'
+    lineNum += 1
     print('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
     lastX = endX
     lastY = endY
 
 # get hole radius and set velocity percentage
 def get_hole_radius(I, J):
-    global holeActive
-    radius = math.sqrt((I ** 2) + (J ** 2))
+    global holeActive, lineNum
+    if offsetG41:
+        radius = math.sqrt((I ** 2) + (J ** 2))
+    else:
+        radius = math.sqrt((I ** 2) + (J ** 2)) + (materialDict[thisMaterial] / 2)
     # velocity reduction required
     if radius < (minDiameter / 2 / scale):
-        print('m67 e3 q{0} (radius: {1:0.3f}, velocity: {0}%)'.format(velocity, radius))
-        holeActive = True
+        if offsetG41:
+            print(';;; m67 e3 q0 (((inactive due to g41)))')
+            lineNum += 1
+            wng  = 'Cannot reduce velocity\n'
+            wng += 'With cutter compensation active\n'
+            wng += '\nWarning for line #{}\n'.format(lineNum)
+            dialog_error(gtk.MESSAGE_WARNING,'WARNING', wng)
+        else:
+            print('m67 e3 q{0} (diameter:{1:0.3f}, velocity:{0}%)'.format(velocity, radius * 2))
+            lineNum += 1
+            if line.startswith('g2'):
+                wng = 'This cut appears to be a hole\n'
+                wng += 'Did you mean to cut clockwise?\n'
+                wng += '\nWarning for line {}\n'.format(lineNum)
+                dialog_error(gtk.MESSAGE_WARNING,'WARNING', wng)
+            holeActive = True
     # no velocity reduction required
     else:
         if holeActive:
@@ -196,92 +225,134 @@ def check_math(axis):
         wng += '\nError near line #{}\n'.format(lineNum)
         wng += '\nDisable hole sensing\n'
         wng += 'or edit GCode file to suit\n'
-        dialog_error('GCODE ERROR', wng)
+        dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
 
-# get a list of known materials
-with open(materialFile, 'r') as f_in:
-    materialList = [0]
-    for line in f_in:
-        if not line.startswith('#'):
-            if line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                materialList.append(t_number)
+#get the default kerf width
+with open(runFile, 'r') as rFile:
+    kWidth = 0.0
+    for line in rFile:
+        if line.startswith('kerf-width'):
+                kWidth = float(line.split('=')[1])
 
-# open the file
-fRead = open(infile, 'r')
+# create a dict of material numbers and kerf widths
+mNumber = 0
+with open(materialFile, 'r') as mFile:
+    materialDict = {mNumber: kWidth}
+    while 1:
+        line = mFile.readline()
+        if not line:
+            if mNumber:
+                materialDict[mNumber] = kWidth
+            break
+        elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
+            mNumber = int(line.rsplit('_', 1)[1].strip().strip(']'))
+            while 1:
+                line = mFile.readline()
+                if not line:
+                    materialDict[mNumber] = 0.0
+                    break
+                if line.startswith('KERF_WIDTH'):
+                    kWidth = float(line.split('=')[1].strip())
+                    materialDict[mNumber] = kWidth
+                    break
+
 
 # first pass, check for valid material numbers and distance modes
-lineNum = 0
-firstMaterial = 0
-oclength = 4
-for line in fRead:
-    lineNum += 1
-    # convert to lower case and remove whitespace and spaces
-    line = line.lower().strip().replace(' ','')
-    # if line is a comment get next line
-    if line.startswith(';') or line.startswith('('):
-        continue
-    # if material change
-    if 'm190' in line:
-        if '(' in line:
-            line = line.split('(', 1)[0]
-        elif ';' in line:
-            line = line.split(';', 1)[0]
-        first, last = line.split('p', 1)
-        material = ''
-        # get the material number
-        for mNumber in last.strip():
-            if mNumber in '0123456789':
-                material += mNumber
-        material = material.lstrip('0')
-        # if invalid material number
-        if int(material) not in materialList:
+with open(inCode, 'r')as fRead:
+    lineNum = 0
+    firstMaterial = 0
+    oclength = 4
+    for line in fRead:
+        lineNum += 1
+        # convert to lower case and remove whitespace and spaces
+        line = line.lower().strip().replace(' ','')
+        # if line is a comment get next line
+        if line.startswith(';') or line.startswith('('):
+            continue
+        # get overcut length
+        if line.startswith('#<oclength>'):
+            oclength = float(line.split('=')[1])
+        # get cut type
+        elif (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or cutType == 1:
+            pierceOnly = True
+        # are we scribing
+        elif line.startswith('m3$1s'):
+            scribing = True
+        # cannot scribe and pierce together
+        elif pierceOnly and scribing:
             codeError = True
-            wng  = 'Material {} is missing from:\n'.format(material)
-            wng += '{}\n'.format(materialFile)
+            wng  = 'scribe is invalid for pierce only mode\n'
             wng += '\nError near line #{}\n'.format(lineNum)
-            wng += '\nAdd a new material\n'
-            wng += 'or edit GCode file to suit'
-            dialog_error('GCODE ERROR', wng)
-        if firstMaterial == 0:
-            firstMaterial = material
-            Popen('halcmd setp plasmac_run.first-material {}'.format(material), stdout = PIPE, shell = True)
-    # set units
-    if 'g21' in line:
-        scale, precision = metric
-    elif 'g20' in line:
-        scale, precision = imperial
-    # if hole sensing code
-    if line.startswith('#<holes>'):
-        if line.split('=')[1][0] == '1':
-            holeEnable = True
-        elif line.split('=')[1][0] == '2':
-            holeEnable = overCut = True
-        else:
-            holeEnable = overCut = False
-    # if hole sensing enabled
-    if holeEnable:
+            wng += '\nEdit GCode file to suit'
+            dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
+            scribing = False
+        # if material change
+        elif line.startswith('m190'):
+            if '(' in line:
+                c = line.split('(', 1)[0]
+            elif ';' in line:
+                c = line.split(';', 1)[0]
+            else:
+                c = line
+            a, b = c.split('p', 1)
+            material = ''
+            # get the material number
+            for mNum in b.strip():
+                if mNum in '0123456789':
+                    material += mNum
+            material = material.lstrip('0') if material.lstrip('0') else '0'
+            # if invalid material number
+            if int(material) not in materialDict:
+                codeError = True
+                wng  = 'Material {} is missing from:\n'.format(material)
+                wng += '{}\n'.format(materialFile)
+                wng += '\nError near line #{}\n'.format(lineNum)
+                wng += '\nAdd a new material\n'
+                wng += 'or edit GCode file to suit'
+                dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
+            if firstMaterial == 0:
+                firstMaterial = material
+                Popen('halcmd setp plasmac_run.first-material {}'.format(material), stdout = PIPE, shell = True)
+        # set units
+        elif 'g21' in line:
+            scale, precision = metric
+        elif 'g20' in line:
+            scale, precision = imperial
+        # check for g41 offset set
+        elif 'g41' in line:
+            offsetG41 = True
+        # check for g41 offset cleared
+        elif 'g40' in line:
+            offsetG41 = False
+        # if hole sensing code
+        elif line.startswith('#<holes>'):
+            if line.split('=')[1][0] == '1':
+                holeEnable = True
+            elif line.split('=')[1][0] == '2':
+                holeEnable = overCut = True
+            else:
+                holeEnable = overCut = False
         # if unsupported distance mode
-        if 'g91' in line and not 'g91.1' in line:
-            codeError = True
-            wng  = 'PlasmaC GCode parser only\n'
-            wng += 'supports Distance Mode G90\n'
-            wng += '\nError near line #{}\n'.format(lineNum)
-            wng += '\nEdit GCode file to suit'
-            dialog_error('GCODE ERROR', wng)
+        elif holeEnable and 'g91' in line and not 'g91.1' in line:
+                codeError = True
+                wng  = 'PlasmaC GCode parser only\n'
+                wng += 'supports Distance Mode G90\n'
+                wng += '\nError near line #{}\n'.format(lineNum)
+                wng += '\nEdit GCode file to suit'
+                dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
         # if unsupported arc distance mode
-        if 'g90.1' in line:
-            codeError = True
-            wng  = 'PlasmaC GCode parser only\n'
-            wng += 'supports Arc Distance Mode G91.1\n'
-            wng += '\nError near line #{}\n'.format(lineNum)
-            wng += '\nEdit GCode file to suit'
-            dialog_error('GCODE ERROR', wng)
-        if 'x' in line: check_math('x')
-        if 'y' in line: check_math('y')
-        if 'i' in line: check_math('i')
-        if 'j' in line: check_math('j')
-        if 'diameter>' in line:
+        elif holeEnable and 'g90.1' in line:
+                codeError = True
+                wng  = 'PlasmaC GCode parser only\n'
+                wng += 'supports Arc Distance Mode G91.1\n'
+                wng += '\nError near line #{}\n'.format(lineNum)
+                wng += '\nEdit GCode file to suit'
+                dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
+        elif holeEnable and 'x' in line: check_math('x')
+        elif holeEnable and 'y' in line: check_math('y')
+        elif holeEnable and 'i' in line: check_math('i')
+        elif holeEnable and 'j' in line: check_math('j')
+        elif holeEnable and 'diameter>' in line:
             if not line.startswith('#<m_d') and not line.startswith('#<i_d'):
                 codeError = True
                 wng  = 'Invalid diameter word\n'
@@ -290,215 +361,240 @@ for line in fRead:
                 wng  += '#<m_diameter> for metric\n'
                 wng  += '#<i_diameter> for imperial\n'
                 wng += '\nEdit GCode file to suit'
-                dialog_error('GCODE ERROR', wng)
-    # get overcut length
-    if line.startswith('#<oclength>'):
-        oclength = float(line.split('=')[1])
-    if (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or cutType == 1:
-        pierceOnly = True
-    if line.startswith('m3$1s'):
-        scribing = True
-    if pierceOnly and scribing:
-        codeError = True
-        wng  = 'scribe is invalid for pierce only mode\n'
-        wng += '\nError near line #{}\n'.format(lineNum)
-        wng += '\nEdit GCode file to suit'
-        dialog_error('GCODE ERROR', wng)
-        scribing = False
+                dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
 
 # second pass, process every line
 # if full cut
 if not pierceOnly:
-    fRead = open(infile, 'r')
-    if codeError:
-        lineNum = 1
-        print ('M30 (End due to GCode error)')
-    else:
-        lineNum = 0
-    for line in fRead:
-        lineNum += 1
-        # remove whitespace
-        line = line.strip()
-        # remove line numbers
-        if line.lower().startswith('n'):
-            line = line[1:]
-            while line[0].isdigit() or line[0] == '.':
-                line = line[1:].lstrip()
-                if not line:
-                    break
-        # remove leading 0's from G & M codes
-        if (line.lower().startswith('g') or \
-           line.lower().startswith('m')) and \
-           len(line) > 2:
-            while line[1] == '0':
-                if line[2].isdigit():
-                    line = line[:1] + line[2:]
+    with open(inCode, 'r') as fRead:
+        if codeError:
+            lineNum = 1
+            print ('M30 (End due to GCode error)')
+        else:
+            lineNum = 0
+            offsetG41 = False
+        for line in fRead:
+            lineNum += 1
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
+                line = line[1:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].lstrip()
+                    if not line:
+                        break
+            # remove leading 0's from G & M codes
+            if (line.lower().startswith('g') or \
+               line.lower().startswith('m')) and \
+               len(line) > 2:
+                while line[1] == '0':
+                    if line[2].isdigit():
+                        line = line[:1] + line[2:]
+                    else:
+                        break
+            # if a material edit line throw it away
+            if 'o=' in line and 'nu=' in line and 'na=' in line and 'ph=' in line and \
+                                'pd=' in line and 'ch=' in line and 'fr=' in line:
+                continue
+            # if a commented line then print it and get next line
+            if line.startswith(';') or line.startswith('('):
+                print line
+                continue
+            # if a ; comment at end of line preprocess it
+            elif ';' in line:
+                a,b = line.split(';', 1)
+                line = '{} ({})'.format(a.strip().lower(),b)
+            # if a () comment at end of line preprocess it
+            elif '(' in line:
+                a,b = line.split('(', 1)
+                line = '{} ({}'.format(a.strip().lower(),b)
+            # if any other line preprocess it
+            else:
+                line = line.lower()
+            # if material change
+            if line.startswith('m190'):
+                if '(' in line:
+                    a, b = line.split('p', 1)
+                    b, c = b.split('(', 1)
                 else:
-                    break
-        # if a commented line then print it and get next line
-        if line.startswith(';') or line.startswith('('):
-            print line
-            continue
-        # if a ; comment at end of line preprocess it
-        elif ';' in line:
-            a,b = line.split(';', 1)
-            line = '{} ({})'.format(a.strip().lower(),b)
-        # if a () comment at end of line preprocess it
-        elif '(' in line:
-            a,b = line.split('(', 1)
-            line = '{} ({}'.format(a.strip().lower(),b)
-        # if any other line preprocess it
-        else:
-            line = line.lower()
-        # if hole sense command
-        if line.startswith('#<holes>'):
-            if line.split('=')[1].replace(' ','')[0] == '2':
-                holeEnable = overCut = True
-                print('{} (overcut for holes)'.format('#<holes> = 2'))
-            elif line.split('=')[1].replace(' ','')[0] == '1':
-                holeEnable = True
-                overCut = False
-                print('{} (velocity reduction for holes)'.format('#<holes> = 1'))
-            else:
-                holeEnable = overCut = False
-                print('{} (disable hole sensing)'.format('#<holes> = 0'))
-        # if diameter command
-        elif '_diameter>' in line:
-            if line.startswith('#<i_d'):
-                multiplier = 25.4
-            else:
-                multiplier = 1
-            if (';') in line:
-                minDiameter = float(line.split('=')[1].split(';')[0]) * multiplier
-            elif ('(') in line:
-                minDiameter = float(line.split('=')[1].split('(')[0]) * multiplier
-            else:
-                minDiameter = float(line.split('=')[1]) * multiplier
-            print(line)
-        # if z axis in line but no other axes comment it
-        elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and\
-             line.split('z')[1][0].isdigit():
-            print('({})'.format(line))
-        # if z axis and other axes in line, comment out the Z axis
-        elif 'z' in line and line.split('z')[1][0].isdigit():
-            if holeEnable:
-                lastX, lastY = get_last_position(lastX, lastY)
-            comment_out_z_commands()
-        # if an arc command
-        elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
-            if holeEnable:
-                check_if_hole()
-            else:
+                    a, b = line.split('p', 1)
+                material = ''
+                # get the material number
+                for mNum in b.strip():
+                    if mNum in '0123456789':
+                        material += mNum
+                thisMaterial = int(material.lstrip('0')) if material.lstrip('0') else 0
                 print(line)
-        # if torch off, flag it then print it
-        elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
-            torchEnable = False
-            # if line.replace(' ','').startswith('m64p3'):
+            # if material change with cutter compensation
+            elif 'm66' in line and offsetG41:
+                wng  = 'Cannot complete a material change\n'
+                wng += 'with cutter compensation acive\n'
+                wng += '\nError near line #{}\n'.format(lineNum)
+                dialog_error(gtk.MESSAGE_ERROR, 'ERROR', wng)
+                print ';;; {} (((inactive due to g41)))'.format(line.strip())
+            # check for g41 offset set
+            elif 'g41' in line:
+                offsetG41 = True
+                print(line)
+            # check for g41 offset cleared
+            elif 'g40' in line:
+                offsetG41 = False
+                print(line)
+            # if hole sense command
+            elif line.startswith('#<holes>'):
+                if line.split('=')[1].replace(' ','')[0] == '2':
+                    holeEnable = overCut = True
+                    print('{} (overcut for holes)'.format('#<holes> = 2'))
+                elif line.split('=')[1].replace(' ','')[0] == '1':
+                    holeEnable = True
+                    overCut = False
+                    print('{} (velocity reduction for holes)'.format('#<holes> = 1'))
+                else:
+                    holeEnable = overCut = False
+                    print('{} (disable hole sensing)'.format('#<holes> = 0'))
+            # if diameter command
+            elif '_diameter>' in line:
+                if line.startswith('#<i_d'):
+                    multiplier = 25.4
+                else:
+                    multiplier = 1
+                if (';') in line:
+                    minDiameter = float(line.split('=')[1].split(';')[0]) * multiplier
+                elif ('(') in line:
+                    minDiameter = float(line.split('=')[1].split('(')[0]) * multiplier
+                else:
+                    minDiameter = float(line.split('=')[1]) * multiplier
+                print(line)
+            # if z axis in line but no other axes comment it
+            elif 'z' in line and 1 not in [c in line for c in 'xyabcuvw'] and\
+                 line.split('z')[1][0].isdigit():
+                print('({})'.format(line))
+            # if z axis and other axes in line, comment out the Z axis
+            elif 'z' in line and line.split('z')[1][0].isdigit():
+                if holeEnable:
+                    lastX, lastY = get_last_position(lastX, lastY)
+                comment_out_z_commands()
+            # if an arc command
+            elif (line.startswith('g2') or line.startswith('g3')) and line.replace(' ','')[2].isalpha():
+                if holeEnable:
+                    check_if_hole()
+                else:
+                    print(line)
+            # if torch off, flag it then print it
+            elif line.replace(' ','').startswith('m62p3') or line.replace(' ','').startswith('m64p3'):
+                torchEnable = False
+                # if line.replace(' ','').startswith('m64p3'):
+                #    pauseAtEnd += 1
+                print(line)
+            # if torch on, flag it then print it
+            elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
+                torchEnable = True
+                print(line)
+            # # if spindle on
+            # elif line.startswith('m3') and not line.startswith('m30'):
+            #    pauseAtEnd = 0
+            #    print(line)
+            # # if dwell
+            # elif line.replace(' ','').startswith('g4p'):
             #    pauseAtEnd += 1
-            print(line)
-        # if torch on, flag it then print it
-        elif line.replace(' ','').startswith('m63p3') or line.replace(' ','').startswith('m65p3'):
-            torchEnable = True
-            print(line)
-        # # if spindle on
-        # elif line.startswith('m3') and not line.startswith('m30'):
-        #    pauseAtEnd = 0
-        #    print(line)
-        # # if dwell
-        # elif line.replace(' ','').startswith('g4p'):
-        #    pauseAtEnd += 1
-        #    print(line)
-        # if spindle off
-        elif line.startswith('m5'):
-        # elif line.startswith('m5') and not line.startswith('m52'):
-        #    if pauseAtEnd < 2:
-        #        print('m64 p3 (disable torch)')
-        #        torchEnable = False
-        #        print('g4 p#<_hal[plasmac_run.pause-at-end-f]> (end of cut pause)')
-        #        pauseAtEnd = 2
-            print(line)
-            # restore velocity if required
-            if holeActive:
-                print('m68 e3 q0 (arc complete, velocity 100%)')
-                holeActive = False
-            # if torch off, allow torch on 
-            if not torchEnable:
-                print('m65 p3 (enable torch)')
-                torchEnable = True
-        # if program end
-        elif line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
-            # restore velocity if required
-            if holeActive:
-                print('m68 e3 q0 (arc complete, velocity 100%)')
-                holeActive = False
-            # if torch off, allow torch on 
-            if not torchEnable:
-                print('m65 p3 (enable torch)')
-                torchEnable = True
-            # restore hole sensing to default
-            if holeEnable:
-                print('#<holes> = 0 (disable hole sensing)')
-                holeEnable = False
-            print(line)
-        # any other line
-        else:
-            if holeEnable:
+            #    print(line)
+            # if spindle off
+            elif line.startswith('m5'):
+            # elif line.startswith('m5') and not line.startswith('m52'):
+            #    if pauseAtEnd < 2:
+            #        print('m64 p3 (disable torch)')
+            #        torchEnable = False
+            #        print('g4 p#<_hal[plasmac_run.pause-at-end-f]> (end of cut pause)')
+            #        pauseAtEnd = 2
+                print(line)
                 # restore velocity if required
                 if holeActive:
-                    print('m67 e3 q0 (arc complete, velocity 100%)')
+                    lineNum += 1
+                    print('m68 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
-                lastX, lastY = get_last_position(lastX, lastY)
-            print(line)
+                # if torch off, allow torch on 
+                if not torchEnable:
+                    lineNum += 1
+                    print('m65 p3 (enable torch)')
+                    torchEnable = True
+            # if program end
+            elif line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
+                # restore velocity if required
+                if holeActive:
+                    print('m68 e3 q0 (arc complete, velocity 100%)')
+                    holeActive = False
+                    lineNum += 1
+                # if torch off, allow torch on 
+                if not torchEnable:
+                    print('m65 p3 (enable torch)')
+                    torchEnable = True
+                    lineNum += 1
+                # restore hole sensing to default
+                if holeEnable:
+                    print('#<holes> = 0 (disable hole sensing)')
+                    holeEnable = False
+                    lineNum += 1
+                print(line)
+            # any other line
+            else:
+                if holeEnable:
+                    # restore velocity if required
+                    if holeActive:
+                        print('m67 e3 q0 (arc complete, velocity 100%)')
+                        holeActive = False
+                    lastX, lastY = get_last_position(lastX, lastY)
+                print(line)
 #if pierce only
 else:
     print('(Piercing Only)')
     spindleOn = False
     pierces = 0
-    fRead = open(infile, 'r')
-    # print all lines up to the first spindle on
-    for line in fRead:
-        # remove whitespace
-        line = line.strip()
-        # remove line numbers
-        if line.lower().startswith('n'):
-            line = line[1:]
-            while line[0].isdigit() or line[0] == '.':
-                line = line[1:].lstrip()
-        # if a rapid move
-        if line.lower().startswith('g0'):
-            rapidLine = line
-        # if a spindle on
-        elif line.lower().replace(' ','').startswith('m3') and not \
-             line.lower().replace(' ','').startswith('m3$1'):
-            spindleOn = True
-            break
-        elif not '#<pierce-only>' in line:
-            print(line)
-    #find all other spindle ons
-    for line in fRead:
-        if spindleOn:
-            pierces += 1
-            print('\n(Pierce #{})'.format(pierces))
-            print(rapidLine)
-            print('M3 $0 S1')
-            print('G91')
-            print('G1 X.000001')
-            print('G90\nM5')
-            rapidLine = ''
-            spindleOn = False
-        # remove whitespace
-        line = line.strip()
-        # remove line numbers
-        if line.lower().startswith('n'):
-            line = line[1:]
-            while line[0].isdigit() or line[0] == '.':
-                line = line[1:].strip()
-        # if a rapid move
-        if line.lower().startswith('g0'):
-            rapidLine = line
-        # if a spindle on
-        elif line.lower().replace(' ','').startswith('m3'):
-            spindleOn = True
+    with open(inCode, 'r') as fRead:
+        # print all lines up to the first spindle on
+        for line in fRead:
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
+                line = line[1:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].lstrip()
+            # if a rapid move
+            if line.lower().startswith('g0'):
+                rapidLine = line
+            # if a spindle on
+            elif line.lower().replace(' ','').startswith('m3') and not \
+                 line.lower().replace(' ','').startswith('m3$1'):
+                spindleOn = True
+                break
+            elif not '#<pierce-only>' in line:
+                print(line)
+        #find all other spindle ons
+        for line in fRead:
+            if spindleOn:
+                pierces += 1
+                print('\n(Pierce #{})'.format(pierces))
+                print(rapidLine)
+                print('M3 $0 S1')
+                print('G91')
+                print('G1 X.000001')
+                print('G90\nM5')
+                rapidLine = ''
+                spindleOn = False
+            # remove whitespace
+            line = line.strip()
+            # remove line numbers
+            if line.lower().startswith('n'):
+                line = line[1:]
+                while line[0].isdigit() or line[0] == '.':
+                    line = line[1:].strip()
+            # if a rapid move
+            if line.lower().startswith('g0'):
+                rapidLine = line
+            # if a spindle on
+            elif line.lower().replace(' ','').startswith('m3'):
+                spindleOn = True
     print('')
     if rapidLine:
         print('{}'.format(rapidLine))
