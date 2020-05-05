@@ -442,14 +442,14 @@ In addition to the above files, the following links are created to the files in 
 |*Filename*|*Function*
 |blank.ngc|for Gmoccapy shape library file loading
 |configurator.py|configure a new or upgrade/re-configure an existing PlasmaC configuration
-|xxx_startup.ngc|initial GCode startup for imperial or metric machines
+|xxx_startup.ngc|initial G-Code startup for imperial or metric machines
 |M190|for G-Code changing of materials
 |materialverter.py|tool table converter and material file creator
 |plasmac_axis.py|python code to customise the Axis GUI
 |plasmac_xxx.glade|a gladevcp panel for the PlasmaC configuration
 |plasmac_xxx.hal|HAL connections for the panel
 |plasmac_xxx.py|python code for the panel
-|plasmac_gcode.py|a preprocessor for the loaded G-Code file
+|plasmac_G-Code.py|a preprocessor for the loaded G-Code file
 |plasmac.tcl|permanent HAL connections for the plasmac component
 |pmx_test.py|test panel for powermax communications
 |pmx485.py|python code for powermax communications
@@ -798,7 +798,7 @@ image::images/plasmac_stats.png[width=60%]
 
 This provides a shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
 
-It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to load a GCode program and have an image displayed on the button.
+It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to load a G-Code program and have an image displayed on the button.
 
 See <<shape-library, shape library>> for shape usage.
  
@@ -838,7 +838,7 @@ If you intend to place the material randomly on the table then before each job y
 
 === Path Tolerance
 
-The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each GCode file.
+The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each G-Code file.
 
 [[multi-tool]]
 
@@ -899,7 +899,7 @@ The following codes may be used for a PlasmaC configuration:
 * *F#<_hal[plasmac.cut-feed-rate]>* - sets the feed rate to the feed rate shown in the cut parameters of the Run Panel.
 * *M3 $0 S1* - starts the PlasmaC component.
 
-For manual material handling you manually select the material from the materials list in the Run Panel before running your GCode which should have the following minimum code:
+For manual material handling you manually select the material from the materials list in the Run Panel before running your G-Code which should have the following minimum code:
 
 ----
 F#<_hal[plasmac.cut-feed-rate]>
@@ -929,11 +929,71 @@ When a material is changed it only changes the cut parameters in the Run Panel, 
 
 Materials can be selected manually with the either the Cut Parameters combobox or via MDI with M190 Pn.
 
-If a GCode program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
+If a G-Code program is loaded which contains one or more material change commands then the first material will be displayed in the Run Panel as the program is loading.
+
+==== Adding/Editing Materials From G-Code
+
+It is possible to add new materials or edit existing materials by using "magic comments" in a G-Code file.
+
+A full example is:
+
+----
+(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
+----
+
+This is made up of the following mandatory parameters:
+
+[width="75%",cols="0,1"]
+|===
+|*Name*|*Description*
+|o=|option
+|nu=|material number (see note below)
+|na=|material name (see note below)
+|ph=|pierce height
+|pd=|pierce delay
+|ch=|cut height
+|fr|feed rate
+|===
+
+Plus the following optional parameters:
+
+[width="75%",cols="0,1"]
+|===
+|*Name*|*Description*
+|kw=|kerf width
+|th=|thc enable (0=disable, 1=enable)
+|ca=|cut amps
+|cv=|cut voltage
+|pe=|pause at end delay
+|gp=|gas pressure (Powermax)
+|cm=|cut mode (Powermax)
+|jh=|puddle jump height
+|jd=|puddle jump delay
+|===
+
+The options are:
+
+[width="100%",cols="0,1"]
+|===
+|*Option*|*Description*
+|0|Create a temporary default material +
+     This will be discarded by a manual reload or a LinuxCNC restart
+|1|Add a new material if it does not exist
+|2|Overwrite an existing material if it exists +
+     Add a new material if it does not exist
+|===
+
+Formatting rules are:
+
+- The entire comment must be in parentheses
+- The beginning of the magic comment must be *(o=*
+- The equals sign must immediately follow each parameter with no space
+- The above mandatory parameters must be in the magic comment (see note below)
+- There can be any number and type of magic comments in a G-Code file with the exception of option 0. If more than one option 0 are in the G-Code file then only the first one found will be used and the others will have an error reported.
+
+NOTE: *nu* and *na* are not required for option 0.
 
 === THC
-
-NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Panel.
 
 THC can be controlled from the THC frame of the Run Panel, off = disabled, on = enabled and auto means abide by the THC Enable checkbox in the cut parameters.
 
@@ -988,6 +1048,8 @@ IMPORTANT: *G-Code THC* AND *Velocity Based THC* ARE NOT ABLE TO BE USED if *Cut
 
 WARNING: If Cut Feed Rate in the Run Panel is set to Zero then PlasmaC will use *motion.requested-velocity* for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
 
+NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Panel.
+
 === Cutter Compensation
 
 To use cutter compensation you will need to use G41.1, G42.1 and G40 with the kerf width HAL pin:
@@ -1026,8 +1088,8 @@ NOTE: Probe Height is the height above the minimum Z axis limit.
 
 PlasmaC allows two different cut types:
 
-* Pierce and Cut - runs the loaded GCode program to pierce then cut.
-* Pierce Only - converts then runs the loaded GCode program to do piercing only.
+* Pierce and Cut - runs the loaded G-Code program to pierce then cut.
+* Pierce Only - converts then runs the loaded G-Code program to do piercing only.
 
 Pierce Only mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced and cleaned off before cutting.
 
@@ -1036,7 +1098,7 @@ This also enables near end of life consumables to be used for piercing and they 
 There are two ways of enabling this feature:
 
 * Program a <<button-cut, custom user button>> to toggle between the cut types.
-* Adding a line *<pierce-only> = 1* anywhere in a gcode file to enable Pierce Only mode for the current file.
+* Adding a line *<pierce-only> = 1* anywhere in a G-Code file to enable Pierce Only mode for the current file.
 
 If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
 
@@ -1046,7 +1108,7 @@ It is recommended that any holes to be cut have a diameter no less than one and 
 
 It is also recommended that holes with a diameter of less than 32mm (1.25") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
-PlasmaC can utilise GCode commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you do not have a PP or your PP does not support these methods then PlasmaC can automatically adapt the GCode to suit. This automatic mode is disabled by default.
+PlasmaC can utilise G-Code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if you do not have a PP or your PP does not support these methods then PlasmaC can automatically adapt the G-Code to suit. This automatic mode is disabled by default.
 
 There are three methods available for improving the quality of small holes.
 
@@ -1059,9 +1121,9 @@ NOTE: If both *Arc Dwell* and *Overcut* are active at the same time then *Overcu
 IMPORTANT: *Overcut* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT, AN ERROR MESSAGE WILL BE DISPLAYED.
 
 
-=== Hole Cutting - GCode Commands
+=== Hole Cutting - G-Code Commands
 
-Your GCode commands are set up either by a CAM Post Processor (PP) or by hand coding.
+Your G-Code commands are set up either by a CAM Post Processor (PP) or by hand coding.
 
 [underline]*Velocity Reduction*
 
@@ -1111,9 +1173,9 @@ M2 (end job)
 
 [underline]*Overcut*
 
-The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62* or *M64*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the PlasmaC GCode parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
+The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62* or *M64*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the PlasmaC G-Code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.0157"). This distance may be specified by adding #<oclength> = n to the gcode file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.0157"). This distance may be specified by adding #<oclength> = n to the G-Code file.
 
 * *M62 P3* will turn the torch off (synchronised with motion)
 * *M63 P3* will allow the torch to be turned on (synchronised with motion)
@@ -1143,14 +1205,14 @@ M2 (end job)
 
 === Hole Cutting - Automatic
 
-PlasmaC has the ability to automatically modify the GCode to reduce the velocity and/or apply *Overcut*.
+PlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Overcut*.
 
 The default hole size for PlasmaC hole sensing is 32mm (1.26").  It is possible to change this value with the following commands:
 
 * #<m_diameter> = nn - To set a diameter in metric measurments
 * #<i_diameter> = nn - To set a diameter in imperial measurements
 
-PlasmaC hole sensing is enabled/disabled by setting the following GCode parameter. It is disabled by default.
+PlasmaC hole sensing is enabled/disabled by setting the following G-Code parameter. It is disabled by default.
 
 * #<holes> = 1 - Causes PlasmaC to reduce the speed of holes less than 32mm (1.25") to 60% of *CutFeedRate*.
 * #<holes> = 2 - As well as the velocity reduction above it also turns the torch off at the end of the hole and follows the hole path.
@@ -1204,13 +1266,13 @@ M2 (end job)
 
 [NOTE]
 ====
-* It is OK to have multiple and mixed #<*_diameter> commands in a GCode file.
-* It is OK to have multiple and mixed #<holes> commands in a GCode file.
+* It is OK to have multiple and mixed #<*_diameter> commands in a G-Code file.
+* It is OK to have multiple and mixed #<holes> commands in a G-Code file.
 ====
 
 === Single Cut
 
-A single cut is a single unidirectional cutting move often used to cut a sheet into smaller pieces prior to running a GCode program.
+A single cut is a single unidirectional cutting move often used to cut a sheet into smaller pieces prior to running a G-Code program.
 
 The machine needs to be homed before commencing a single cut.
 
@@ -1334,7 +1396,7 @@ The cut order of an array is from left to right, starting at the bottom row and 
 
 === Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the *Save* feature of the GCode Editor in the GUI.
+The current job displayed in the Preview Panel may be saved at any time by using the *Save* feature of the G-Code Editor in the GUI.
 
 === Running A Job
 
@@ -1350,7 +1412,7 @@ Using a scribe requires usage of the LinuxCNC tool table, Tool 0 is assigned to 
 
 There are two HAL output pins used to operate the scribe, one to arm the scribe which moves the scribe to the surface of the material then after a <<scribe-config, delay>> the other to start the scribe, then after a <<scribe-config, delay>> motion will begin.
 
-Using PlasmaC after enabling the scribe then requires selecting either the torch or the scribe in each GCode file as a LinuxCNC tool.
+Using PlasmaC after enabling the scribe then requires selecting either the torch or the scribe in each G-Code file as a LinuxCNC tool.
 
 To enable scribing, see <<multi-tool, multiple tools>>.
 
@@ -1369,7 +1431,7 @@ Save the Config parameters.
 
 The material can then be lined up with the torch as previously and the offsets can be applied so both tools operate at the correct coordinates.
 
-To use the scribe from GCode:
+To use the scribe from G-Code:
 
 -----
 ...
@@ -1389,7 +1451,7 @@ It is a good idea to switch back to the torch at the end of the program before y
 
 You can switch between the torch and the scribe any number of times during a program by using the above code and issuing *M3 $0 S1* to start PlasmaC with the torch.
 
-Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous GCode files.
+Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous G-Code files.
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
 
@@ -1401,13 +1463,13 @@ This is done by first setting the arc voltage threshold in the <<config-panel, C
 
 Then set the delay time in the <<config-panel, Config Panel>>. When the delay is complete, the torch will turn off. Times are adjustable from 0 to 9999 milli-seconds.
 
-The torch is then turned on in GCode with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
+The torch is then turned on in G-Code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
 
 To enable spotting, see <<multi-tool, multiple tools>>.
 
 LinuxCNC requires some motion between an *M3* command and a *M5* command so a minimal movement at a high speed is programmed.
 
-An example GCode is:
+An example G-Code is:
 
 -----
 G21 (metric)
@@ -1532,7 +1594,7 @@ BUTTON_n_IMAGE      = <IMAGE> (the image displayed by buttons 10~19)
 
 -----
 PROGRAM_EXTENSION = .ngc (filter *.ngc files)
-ngc               = ./plasmac_gcode.py (this parses the G-Code file and comments out any Z axis motion)
+ngc               = ./plasmac_G-Code.py (this parses the G-Code file and comments out any Z axis motion)
 -----
 
 [[rs274]]
@@ -1715,7 +1777,7 @@ BUTTON_n_NAME = HAL\Show
 
 === Button Code
 
-Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can <<button-load, Load>> a GCode program.
+Buttons can run <<button-cmds, External Commands>>, <<button-code, G-Code>> or any of four special functions, <<button-probe, Probe Test>>, <<button-ohmic, Ohmic Test>>, <<button-cut, Cut Type>> or <<button-consumables, Change Consumables>>. In addition to this, buttons 10~19 in the Extras panel can <<button-load, Load>> a G-Code program.
 
 [[button-cmds]]
 
@@ -1816,13 +1878,13 @@ There are three methods to return to the previous coordinates:
 
 [underline]*Load*
 
-Buttons 10~19 in the Extras Panel are able to load a GCode program by using the following format.
+Buttons 10~19 in the Extras Panel are able to load a G-Code program by using the following format.
 
 ----
-BUTTON_n_CODE = load path/to/gcode.ngc
+BUTTON_n_CODE = load path/to/G-Code.ngc
 ----
 
-The path is relative to the directory specified by *PROGRAM_PREFIX* in the .ini file. This is usually ~/linuxcnc/nc_files, so if your gcode file was in a subdirectory of your *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/gcode.ngc*.
+The path is relative to the directory specified by *PROGRAM_PREFIX* in the .ini file. This is usually ~/linuxcnc/nc_files, so if your G-Code file was in a subdirectory of your *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/G-Code.ngc*.
 
 === Button Image
 
@@ -1864,7 +1926,7 @@ The following variables are optional. If any are not detected or have no value a
 * GAS_PRESSURE
 * CUT_MODE
 
-WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the GCode to be run.
+WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the G-Code to be run.
 
 The material file uses the following format:
 

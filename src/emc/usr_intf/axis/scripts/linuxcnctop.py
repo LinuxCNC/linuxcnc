@@ -122,7 +122,11 @@ if s.kinematics_type == 1:
     maps['joint_actual_position'] = None
 
 def gui():
-    import tkinter
+    if sys.version_info[0] == 3:
+        import tkinter
+    else:
+        import Tkinter as tkinter
+
     from _tkinter import TclError
     root = tkinter.Tk(className="LinuxCNCTop")
     rs274.options.install(root)

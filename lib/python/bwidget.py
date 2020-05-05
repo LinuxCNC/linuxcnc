@@ -85,7 +85,7 @@ tkinter.Misc.nametowidget = nametowidget
     
 def makewidget(master, klass, path):
     path = str(path)
-    self = types.InstanceType(klass)
+    self = klass()
     self._name = path[len(master._w)+1:]
     self._w = path
     self.children = {}
