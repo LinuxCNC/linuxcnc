@@ -1421,7 +1421,7 @@ class SubFile():
                 dvalue = ''
 
             if name:
-                if comment is '':
+                if comment == '':
                     comment = name
                 pnum += 1
                 self.ndict[pnum] = (name,dvalue,comment)
