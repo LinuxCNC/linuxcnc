@@ -26,6 +26,7 @@ import linuxcnc
 import math
 import gtk
 import shutil
+import time
 from subprocess import Popen, PIPE
 
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
@@ -39,6 +40,7 @@ lastX = 0
 lastY = 0
 inCode = sys.argv[1]
 materialFile = ini.find('EMC', 'MACHINE').lower() + '_material.cfg'
+tmpMmaterialFile = ini.find('EMC', 'MACHINE').lower() + '_material.tmp'
 runFile = materialFile.replace('material','run')
 metric = [1, 4]
 minDiameter = 32
@@ -227,37 +229,215 @@ def check_math(axis):
         wng += 'or edit GCode file to suit\n'
         dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
 
+# write temporary materials file
+def write_temp_material(data):
+    with open(tmpMmaterialFile, 'w') as fWrite:
+        fWrite.write('#plasmac temp default material file, format is:\n')
+        fWrite.write('#name = value\n\n')
+        fWrite.write('kerf-width={}\n'.format(data[2]))
+        fWrite.write('thc-enable={}\n'.format(data[3]))
+        fWrite.write('pierce-height={}\n'.format(data[4]))
+        fWrite.write('pierce-delay={}\n'.format(data[5]))
+        fWrite.write('puddle-jump-height={}\n'.format(data[6]))
+        fWrite.write('puddle-jump-delay={}\n'.format(data[7]))
+        fWrite.write('cut-height={}\n'.format(data[8]))
+        fWrite.write('cut-feed-rate={}\n'.format(data[9]))
+        fWrite.write('cut-amps={}\n'.format(data[10]))
+        fWrite.write('cut-volts={}\n'.format(data[11]))
+        fWrite.write('pause-at-end={}\n'.format(data[12]))
+        fWrite.write('gas-pressure={}\n'.format(data[13]))
+        fWrite.write('cut-mode={}\n'.format(data[14]))
+        fWrite.write('\n')
+    Popen('halcmd setp plasmac_run.temp-material 1', stdout = PIPE, shell = True)
+    matDelay = time.time()
+    while 1:
+        if time.time() > matDelay + 3:
+            wng  = 'Temporary materials was not loaded in a timely manner:\n\n'
+            wng += 'Try to reload the G-Code file.\n'
+            dialog_error(gtk.MESSAGE_ERROR, 'MATERIAL ERROR', wng)
+            break
+        if Popen('halcmd getp plasmac_run.temp-material', stdout = PIPE, shell = True).communicate()[0] == 'FALSE\n':
+            break
+
+# rewrite the material file
+def rewrite_materials(newMats):
+    copyFile = '{}.bkp'.format(materialFile)
+    shutil.copy(materialFile, copyFile)
+    inFile = open(copyFile, 'r')
+    outFile = open(materialFile, 'w')
+    while 1:
+        line = inFile.readline()
+        if not line:
+            break
+        if not line.strip().startswith('[MATERIAL_NUMBER_'):
+            outFile.write(line)
+        else:
+            break
+    while 1:
+        if line.strip().startswith('[MATERIAL_NUMBER_'):
+            mNum = int(line.split('NUMBER_')[1].replace(']',''))
+            if mNum in newMats:
+                add_edit_material(mNum, newMats[mNum], outFile)
+        if mNum not in newMats:
+            outFile.write(line)
+        line = inFile.readline()
+        if not line:
+            break
+    for mat in sorted(newMats):
+        if newMats[mat][0] == 1 or mat not in materialDict:
+            add_edit_material(mat, newMats[mat], outFile)
+    inFile.close()
+    outFile.close()
+    Popen('halcmd setp plasmac_run.material-reload 1', stdout = PIPE, shell = True)
+    get_kerf_width()
+    get_materials()
+    matDelay = time.time()
+    while 1:
+        if time.time() > matDelay + 3:
+            wng  = 'Materials were not reloaded in a timely manner:\n\n'
+            wng += 'Try a manual Reload or reload the G-Code file.\n'
+            dialog_error(gtk.MESSAGE_ERROR, 'MATERIAL ERROR', wng)
+            break
+        if Popen('halcmd getp plasmac_run.material-reload', stdout = PIPE, shell = True).communicate()[0] == 'FALSE\n':
+            break
+
+# add a new material or or edit an existing material
+def add_edit_material(num, data, outFile):
+    outFile.write('[MATERIAL_NUMBER_{}]\n'.format(num))
+    outFile.write('NAME               = {}\n'.format(data[1]))
+    outFile.write('KERF_WIDTH         = {}\n'.format(data[2]))
+    outFile.write('THC                = {}\n'.format(data[3]))
+    outFile.write('PIERCE_HEIGHT      = {}\n'.format(data[4]))
+    outFile.write('PIERCE_DELAY       = {}\n'.format(data[5]))
+    outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(data[6]))
+    outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(data[7]))
+    outFile.write('CUT_HEIGHT         = {}\n'.format(data[8]))
+    outFile.write('CUT_SPEED          = {}\n'.format(data[9]))
+    outFile.write('CUT_AMPS           = {}\n'.format(data[10]))
+    outFile.write('CUT_VOLTS          = {}\n'.format(data[11]))
+    outFile.write('PAUSE_AT_END       = {}\n'.format(data[12]))
+    outFile.write('GAS_PRESSURE       = {}\n'.format(data[13]))
+    outFile.write('CUT_MODE           = {}\n'.format(data[14]))
+    outFile.write('\n')
+
 #get the default kerf width
-with open(runFile, 'r') as rFile:
-    kWidth = 0.0
-    for line in rFile:
-        if line.startswith('kerf-width'):
-                kWidth = float(line.split('=')[1])
+def get_kerf_width():
+    global kWidth
+    with open(runFile, 'r') as rFile:
+        kWidth = 0.0
+        for line in rFile:
+            if line.startswith('kerf-width'):
+                    kWidth = float(line.split('=')[1])
 
 # create a dict of material numbers and kerf widths
-mNumber = 0
-with open(materialFile, 'r') as mFile:
-    materialDict = {mNumber: kWidth}
-    while 1:
-        line = mFile.readline()
-        if not line:
-            if mNumber:
-                materialDict[mNumber] = kWidth
-            break
-        elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-            mNumber = int(line.rsplit('_', 1)[1].strip().strip(']'))
-            while 1:
-                line = mFile.readline()
-                if not line:
-                    materialDict[mNumber] = 0.0
-                    break
-                if line.startswith('KERF_WIDTH'):
-                    kWidth = float(line.split('=')[1].strip())
+def get_materials():
+    global kWidth, materialDict
+    mNumber = 0
+    with open(materialFile, 'r') as mFile:
+        materialDict = {mNumber: kWidth}
+        while 1:
+            line = mFile.readline()
+            if not line:
+                if mNumber:
                     materialDict[mNumber] = kWidth
-                    break
+                break
+            elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
+                mNumber = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                while 1:
+                    line = mFile.readline()
+                    if not line:
+                        materialDict[mNumber] = 0.0
+                        break
+                    if line.startswith('KERF_WIDTH'):
+                        kWidth = float(line.split('=')[1].strip())
+                        materialDict[mNumber] = kWidth
+                        break
 
+# start processing
+get_kerf_width()
+get_materials()
 
-# first pass, check for valid material numbers and distance modes
+# first pass check for material file edits
+with open(inCode, 'r') as fRead:
+    newMats = {}
+    tmpDefault = []
+    for line in fRead:
+        tmpDict = {}
+        tmpList = []
+        th = 0
+        kw = jh = jd = ca = cv = pe = gp = cm = 0.0
+        try:
+            if 'ph=' in line and 'pd=' in line and 'ch=' in line and 'fr=' in line:
+                if '(o=0' in line and not tmpDefault:
+                    nu = 0
+                    na = 'Temporary'
+                    tmpList.append(0)
+                elif '(o=1' in line and 'nu=' in line and 'na=' in line:
+                    tmpList.append(1)
+                elif '(o=2' in line and 'nu=' in line and 'na=' in line:
+                    tmpList.append(2)
+                if tmpList[0] in [0, 1, 2]:
+                    for item in line.split('(')[1].split(')')[0].split(','):
+                        # mandatory items
+                        if 'nu=' in item:
+                            nu = int(item.split('=')[1])
+                        elif 'na=' in item:
+                            na = item.split('=')[1]
+                        elif 'ph=' in item:
+                            ph = float(item.split('=')[1])
+                        elif 'pd=' in item:
+                            pd = float(item.split('=')[1])
+                        elif 'ch=' in item:
+                            ch = float(item.split('=')[1])
+                        elif 'fr=' in item:
+                            fr = float(item.split('=')[1])
+                        # optional items
+                        elif 'kw=' in item:
+                            kw = float(item.split('=')[1])
+                        elif 'th=' in item:
+                            th = int(item.split('=')[1])
+                        elif 'jh=' in item:
+                            jh = float(item.split('=')[1])
+                        elif 'jd=' in item:
+                            jd = float(item.split('=')[1])
+                        elif 'ca=' in item:
+                            ca = float(item.split('=')[1])
+                        elif 'cv=' in item:
+                            cv = float(item.split('=')[1])
+                        elif 'pe=' in item:
+                            pe = float(item.split('=')[1])
+                        elif 'gp=' in item:
+                            gp = float(item.split('=')[1])
+                        elif 'cm=' in item:
+                            cm = float(item.split('=')[1])
+                    for i in [na,kw,th,ph,pd,jh,jd,ch,fr,ca,cv,pe,gp,cm]:
+                        tmpList.append(i)
+                    if tmpList[0] == 0:
+                        tmpDefault = tmpList
+                    elif nu in materialDict and tmpList[0] == 1:
+                        wng  = 'Cannot add new Material #{}\n\n'.format(nu)
+                        wng += 'Material number is in use\n'
+                        dialog_error(gtk.MESSAGE_ERROR, 'GCODE MATERIALS ERROR', wng)
+                    else:
+                        newMats[nu] = tmpList
+                else:
+                    wng  = 'Cannot add or edit material from G-Code file.\n\n'
+                    wng += 'Invalid parameter or value in:'
+                    wng += '{}\n'.format(line)
+                    wng += 'This material will not be processed'
+                    dialog_error(gtk.MESSAGE_ERROR, 'GCODE MATERIALS ERROR', wng)
+        except:
+            wng  = 'Cannot add or edit material from G-Code file.\n\n'
+            wng += 'Invalid/missing parameter or value in:\n\n'
+            wng += '{}\n'.format(line)
+            wng += 'This material will not be processed'
+            dialog_error(gtk.MESSAGE_ERROR, 'GCODE MATERIALS ERROR', wng)
+    if newMats:
+        rewrite_materials(newMats)
+    if tmpDefault:
+        write_temp_material(tmpDefault)
+
+# second pass, check for valid material numbers and distance modes
 with open(inCode, 'r')as fRead:
     lineNum = 0
     firstMaterial = 0
@@ -363,7 +543,7 @@ with open(inCode, 'r')as fRead:
                 wng += '\nEdit GCode file to suit'
                 dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
 
-# second pass, process every line
+# third pass, process every line
 # if full cut
 if not pierceOnly:
     with open(inCode, 'r') as fRead:
