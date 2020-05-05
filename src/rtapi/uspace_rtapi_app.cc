@@ -872,7 +872,6 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 
   struct rtapi_task *task = do_task_new();
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
-  memset((char*)task, 0, sizeof(*task));
   task->id = n;
   task->owner = owner;
   task->uses_fp = uses_fp;

@@ -33,9 +33,9 @@ build-stamp:
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
 ifeq "$(kernel_version)" "uspace"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf --disable-check-runtime-deps --with-python=/usr/bin/python2.7
 else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf --disable-check-runtime-deps --with-python=/usr/bin/python2.7
 endif
 	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp

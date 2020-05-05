@@ -152,7 +152,7 @@ case "@KERNEL_VERS@" in
 "") ;;
 *)
     if [ `uname -r` != "@KERNEL_VERS@" ]; then
-        if tty -s; then
+        if tty -s || [ -z "$DISPLAY" ]; then
             echo "LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run."
             echo "Before running LinuxCNC, reboot and choose this kernel at the boot menu."
         else
@@ -671,6 +671,9 @@ if [ -f $LOCKFILE ]; then
   if tty -s; then
     echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
+  elif [ -z "$DISPLAY" ]; then
+    echo "No display, no tty, trying to clean up other instance automatically"
+    input=y
   else
     input=$(@WISH@ <<EOF
 wm wi .
