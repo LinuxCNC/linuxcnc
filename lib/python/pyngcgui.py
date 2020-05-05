@@ -93,7 +93,7 @@ gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 try:
     import pygtk
     pygtk.require('2.0')
-except ImportError,msg:
+except ImportError as msg:
     print('import pygtk failed: %s',msg)
     pass
 #------------------------------------------------------------------------------
