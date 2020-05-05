@@ -24,14 +24,15 @@ import os,sys
 from gladevcp.persistence import IniFile,widget_defaults,set_debug,select_widgets
 import hal
 import hal_glib
-import gtk
 import glib
 import linuxcnc
 import rsvg
 import cairo
 import signal
-import pango
-
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 debug = 0
 
 class HandlerClass:

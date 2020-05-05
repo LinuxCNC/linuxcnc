@@ -1,9 +1,10 @@
 # vim: sts=4 sw=4 et
-import gtk
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Gdk as gdk
 import cairo
 import math
-import gtk.glade
 
 # This creates the custom LED widget
 
@@ -29,11 +30,11 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'blink_when_off' : ( gobject.TYPE_BOOLEAN, 'Blink when off', 'Choose to blink while in on state (No) or off state (Yes)',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'pick_color_on'  : ( gtk.gdk.Color.__gtype__, 'Pick on color',  "",
+        'pick_color_on'  : ( gdk.Color.__gtype__, 'Pick on color',  "",
                     gobject.PARAM_READWRITE),
-        'pick_color_off' : ( gtk.gdk.Color.__gtype__, 'Pick off color', "",
+        'pick_color_off' : ( gdk.Color.__gtype__, 'Pick off color', "",
                         gobject.PARAM_READWRITE),
-        'pick_color_blink' : ( gtk.gdk.Color.__gtype__, 'Pick blink color', "",
+        'pick_color_blink' : ( gdk.Color.__gtype__, 'Pick blink color', "",
                         gobject.PARAM_READWRITE),
         'on_color'  : ( gobject.TYPE_STRING, 'LED On color', 'Use any valid Gdk color',
                         "green", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -55,7 +56,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self._blink_invert = False
         self._blink_magic = 0
         self.set_size_request(25, 25)
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
 
         self.led_blink_rate = 0
         self.pick_color_on = self.pick_color_off = self.pick_color_blink = None
@@ -72,8 +73,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
     # sets the fill as the on or off colour.
     def expose(self, widget, event):
-        cr = widget.window.cairo_create()
-        sensitive = self.flags() & gtk.PARENT_SENSITIVE
+        cr = widget.get_property('window').cairo_create()
+        sensitive = self.is_sensitive()
         if not sensitive: alpha = .3
         else: alpha = 1
         cr.set_line_width(3)
@@ -101,8 +102,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         # square led
         if self.led_shape == 2:
             self.set_size_request(self._dia*2+5, self._dia*2+5)
-            w = self.allocation.width
-            h = self.allocation.height
+            w = self.get_allocated_width()
+            h = self.get_allocated_height()
             cr.translate(w/2, h/2)
             cr.rectangle(-self._dia, -self._dia, self._dia*2, self._dia*2)
             cr.stroke_preserve()
@@ -124,8 +125,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         # horizontal led
         elif self.led_shape == 3:
             self.set_size_request(self._dia*5+5, self._dia+5)
-            w = self.allocation.width
-            h = self.allocation.height
+            w = self.get_allocated_width()
+            h = self.get_allocated_height()
             cr.translate(w/2, h/2)
             cr.rectangle(-self._dia*5/2, -self._dia/2, self._dia*5, self._dia)
             cr.stroke_preserve()
@@ -147,8 +148,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         # vertical led
         elif self.led_shape == 4:
             self.set_size_request(self._dia+5, self._dia*5+5)
-            w = self.allocation.width
-            h = self.allocation.height
+            w = self.get_allocated_width()
+            h = self.get_allocated_height()
             cr.translate(w/2, h/2)
             cr.rectangle(-self._dia/2, -self._dia*5/2, self._dia, self._dia*5)
             cr.stroke_preserve()
@@ -172,8 +173,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         elif self.led_shape == 1:
             if self.led_shiny:
                 self.set_size_request(self._dia*2+5, self._dia*2)
-                w = self.allocation.width
-                h = self.allocation.height
+                w = self.get_allocated_width()
+                h = self.get_allocated_height()
                 cr.translate(w/2, h/2)
                 cr.scale( 1, 0.7);
 
@@ -208,8 +209,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 cr.fill()
             else:
                 self.set_size_request(self._dia*2+5, self._dia*2)
-                w = self.allocation.width
-                h = self.allocation.height
+                w = self.get_allocated_width()
+                h = self.get_allocated_height()
                 cr.translate(w/2, h/2)
                 cr.scale( 1, 0.7);
                 cr.arc(0, 0, self._dia, 0, 2*math.pi)
@@ -221,8 +222,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         else:
             if self.led_shiny:
                 self.set_size_request(self._dia*2+5, self._dia*2+5)           
-                w = self.allocation.width
-                h = self.allocation.height
+                w = self.get_allocated_width()
+                h = self.get_allocated_height()
                 cr.translate(w/2, h/2)
 
                 radius = self._dia
@@ -256,8 +257,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                 cr.fill()
             else:
                 self.set_size_request(self._dia*2+5, self._dia*2+5)           
-                w = self.allocation.width
-                h = self.allocation.height
+                w = self.get_allocated_width()
+                h = self.get_allocated_height()
                 cr.translate(w/2, h/2)
                 lg2 = cairo.RadialGradient(0, 0, self._dia-2, 0, 0, self._dia+1)
                 lg2.add_color_stop_rgba(0.0, 0., 0., 0., 0.)
@@ -307,15 +308,15 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
     # if color = None uses colorname. only a few names supported
     # Usage: ledname.set_color("off",[r,g,b],"colorname")
     def set_color(self, state, color):
-        if isinstance(color, gtk.gdk.Color):
+        if isinstance(color, gdk.Color):
             pass
         elif color != 'dark':
-            color = gtk.gdk.Color(color)
+            color = gdk.Color.parse(color)[1]
         else:
             r = 0.4 * self._on_color.red
             g = 0.4 * self._on_color.green
             b = 0.4 * self._on_color.blue
-            color = gtk.gdk.Color(int(r), int(g), int(b))
+            color = gdk.Color(int(r), int(g), int(b))
         if state == "off":
             self._off_color = color
         elif state == "on":

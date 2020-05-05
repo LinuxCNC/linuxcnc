@@ -2,7 +2,8 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
-import gobject
+import gi
+from gi.repository import GObject as gobject
 
 import _hal, hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal

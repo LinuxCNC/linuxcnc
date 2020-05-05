@@ -13,11 +13,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
 import cairo
 import math
-import gtk.glade
 import time
 from collections import deque
 
@@ -61,9 +64,9 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
                     0, MAX_INT, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'xticks' : ( gobject.TYPE_FLOAT, 'X Tick scale', 'Ticks on X scale (in seconds)',
                     0, MAX_INT, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'fg_color' : ( gtk.gdk.Color.__gtype__, 'Graph color', "Set graphing color",
+        'fg_color' : ( gdk.Color.__gtype__, 'Graph color', "Set graphing color",
                         gobject.PARAM_READWRITE),
-        'bg_color' : ( gtk.gdk.Color.__gtype__, 'Background', "Choose background color",
+        'bg_color' : ( gdk.Color.__gtype__, 'Background', "Choose background color",
                         gobject.PARAM_READWRITE),
         'fg_fill' : ( gobject.TYPE_BOOLEAN, 'Fill graph', 'Fill area covered with graph',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -84,8 +87,8 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Graph, self).__init__()
 
-        self.bg_color = gtk.gdk.Color('white')
-        self.fg_color = gtk.gdk.Color('red')
+        self.bg_color = gdk.Color.parse('white')
+        self.fg_color = gdk.Color.parse('red')
 
         self.force_radius = None
         self.ticks = deque()
@@ -94,8 +97,8 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         self.tick_period = 0.1
 
         self.connect("button-press-event", self.snapshot)
-        self.connect("expose-event", self.expose)
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK)
+        self.connect("draw", self.expose)
+        self.add_events(gdk.EventMask.BUTTON_PRESS_MASK)
 
         self.tick = 500
         self.tick_idx = 0
@@ -129,8 +132,8 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
             self.ticks_saved = list(self.ticks)
 
     def expose(self, widget, event):
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
         fw = self.force_width
         fh = self.force_height
@@ -143,7 +146,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
         if fw != -1: w = fw
         if fh != -1: h = fh
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
 
         cr.set_line_width(2)
         cr.set_source_rgb(0, 0, 0)
@@ -219,7 +222,7 @@ class HAL_Graph(gtk.DrawingArea, _HalWidgetBase):
 
         self.draw_graph(cr, w, h, ymin, ymax, self.ticks, lambda t: t2x(t, tnow))
 
-        if not (self.flags() & gtk.PARENT_SENSITIVE):
+        if not self.is_sensitive():
             cr.set_source_rgba(0, 0, 0, 0.3)
             cr.set_operator(cairo.OPERATOR_DEST_OUT)
             cr.rectangle(0, 0, w, h)

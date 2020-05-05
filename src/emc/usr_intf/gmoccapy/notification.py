@@ -28,9 +28,10 @@
 #        it is caused because the height of the first message is not taken in care
 #        calculating the hight of the popup.
 
-import gtk
-import gobject
-import pango
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 
 class Notification(gtk.Window):
     '''Notification(gtk.Window)
@@ -68,7 +69,7 @@ class Notification(gtk.Window):
         gtk.Window.__init__(self)
         self.connect('destroy', lambda*w:gtk.main_quit())
         self.messages = []
-        self.popup = gtk.Window(gtk.WINDOW_POPUP)
+        self.popup = gtk.Window(gtk.WindowType.POPUP)
         self.vbox = gtk.VBox()
         self.popup.add(self.vbox)
         self.icon_size = 16
@@ -95,16 +96,16 @@ class Notification(gtk.Window):
         if self.use_frames:
             frame.add(hbox)
         labelnumber = gtk.Label(number)
-        hbox.pack_start(labelnumber)
+        hbox.pack_start(labelnumber, False, False, 0)
         icon = gtk.Image()
         if message[2]:
             icon.set_from_file(icon_file_name)
         else:
             icon.set_from_stock(gtk.STOCK_DIALOG_ERROR, self.icon_size)
-        hbox.pack_start(icon)
+        hbox.pack_start(icon, False, False, 0)
         label = gtk.Label()
         label.set_line_wrap(True)
-        label.set_line_wrap_mode(pango.WRAP_CHAR)
+        label.set_line_wrap_mode(pango.WrapMode.CHAR)
         label.set_size_request(self.message_width, -1)
         font_desc = pango.FontDescription(self.font)
         label.modify_font(font_desc)
@@ -119,22 +120,22 @@ class Notification(gtk.Window):
             label.set_markup(text)
         else:
             label.set_text(text)
-        hbox.pack_start(label)
+        hbox.pack_start(label, False, False, 0)
         btn_close = gtk.Button()
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_CANCEL, self.icon_size)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
-        hbox.pack_start(btn_close)
+        hbox.pack_start(btn_close, False, False, 0)
         if self.use_frames:
             widget = frame
         else:
             widget = hbox
         if self.top_to_bottom:
-            self.vbox.pack_end(widget)
+            self.vbox.pack_end(widget, False, False, 0)
         else:
-            self.vbox.pack_start(widget)
+            self.vbox.pack_start(widget, False, False, 0)
         if self.use_frames:
             frame.show()
         label.show()

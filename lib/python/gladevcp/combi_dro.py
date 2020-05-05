@@ -17,11 +17,15 @@
 # GNU General Public License for more details.
 
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 import os
 import sys
-import pango
 import math
 import linuxcnc
 from hal_glib import GStat
@@ -68,15 +72,15 @@ class Combi_DRO(gtk.VBox):
         'imperial_text_template' : (gobject.TYPE_STRING, 'Text template for Imperial Units',
                 'Text template to display. Python formatting may be used for one variable',
                 "%9.4f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'homed_color' : (gtk.gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
+        'homed_color' : (gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
                         gobject.PARAM_READWRITE),
-        'unhomed_color' : (gtk.gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
+        'unhomed_color' : (gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
                         gobject.PARAM_READWRITE),
-        'abs_color' : (gtk.gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
+        'abs_color' : (gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
                         gobject.PARAM_READWRITE),
-        'rel_color' : (gtk.gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
+        'rel_color' : (gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
                         gobject.PARAM_READWRITE),
-        'dtg_color' : (gtk.gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
+        'dtg_color' : (gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
                         gobject.PARAM_READWRITE),
         'font_size' : (gobject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
                     8, 96, 25, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -114,11 +118,11 @@ class Combi_DRO(gtk.VBox):
         self._ORDER = ["Rel", "Abs", "DTG"]
         self.system = "Rel"
         self.homed = False
-        self.homed_color = gtk.gdk.Color("green")
-        self.unhomed_color = gtk.gdk.Color("red")
-        self.abs_color = gtk.gdk.Color("blue")
-        self.rel_color = gtk.gdk.Color("black")
-        self.dtg_color = gtk.gdk.Color("yellow")
+        self.homed_color = gdk.Color.parse("green")[1]
+        self.unhomed_color = gdk.Color.parse("red")[1]
+        self.abs_color = gdk.Color.parse("blue")[1]
+        self.rel_color = gdk.Color.parse("black")[1]
+        self.dtg_color = gdk.Color.parse("yellow")[1]
         self.mm_text_template = "%10.3f"
         self.imperial_text_template = "%9.4f"
         self.font_size = 25
@@ -131,44 +135,44 @@ class Combi_DRO(gtk.VBox):
 
         # Make the GUI and connect signals
         self.eventbox = gtk.EventBox()
-        self.eventbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
+        self.eventbox.modify_bg(gtk.StateFlags.NORMAL, gdk.color_parse("black"))
         self.add(self.eventbox)
         vbox_main = gtk.VBox(False, 0)
         self.eventbox.add(vbox_main)
         hbox_up = gtk.HBox(False, 0)
-        vbox_main.pack_start(hbox_up)
+        vbox_main.pack_start(hbox_up, True, True, 0)
         attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size * 1000, 0, -1), (600, 0, -1))
         self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.axis_no])
         self.lbl_axisletter.set_attributes(attr)
-        hbox_up.pack_start(self.lbl_axisletter, False, False)
+        hbox_up.pack_start(self.lbl_axisletter, False, False, 0)
         vbox_ref_type = gtk.VBox(False, 0)
-        hbox_up.pack_start(vbox_ref_type, False, False)
+        hbox_up.pack_start(vbox_ref_type, False, False, 0)
         lbl_space = gtk.Label("")
-        vbox_ref_type.pack_start(lbl_space)
+        vbox_ref_type.pack_start(lbl_space, True, True, 0)
         attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
         self.lbl_sys_main = gtk.Label(self.system)
-        vbox_ref_type.pack_start(self.lbl_sys_main, False, False)
+        vbox_ref_type.pack_start(self.lbl_sys_main, False, False, 0)
         self.lbl_sys_main.set_attributes(attr)
         self.main_dro = gtk.Label("9999.999")
-        hbox_up.pack_start(self.main_dro)
+        hbox_up.pack_start(self.main_dro, False, False, 0)
         self.main_dro.set_alignment(1.0, 0.5)
         attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size, 0, -1), (600, 0, -1))
         self.main_dro.set_attributes(attr)
         hbox_down = gtk.HBox(False, 5)
-        vbox_main.pack_start(hbox_down)
+        vbox_main.pack_start(hbox_down, False, False, 0)
         self.lbl_sys_left = gtk.Label("Abs")
-        hbox_down.pack_start(self.lbl_sys_left)
+        hbox_down.pack_start(self.lbl_sys_left, False, False, 0)
         attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
         self.lbl_sys_left.set_attributes(attr)
         self.dro_left = gtk.Label("-11.111")
-        hbox_down.pack_start(self.dro_left)
+        hbox_down.pack_start(self.dro_left, False, False, 0)
         self.dro_left.set_alignment(1.0, 0.5)
         self.dro_left.set_attributes(attr)
         self.lbl_sys_right = gtk.Label("DTG")
-        hbox_down.pack_start(self.lbl_sys_right)
+        hbox_down.pack_start(self.lbl_sys_right, False, False, 0)
         self.lbl_sys_right.set_attributes(attr)
         self.dro_right = gtk.Label("22.222")
-        hbox_down.pack_start(self.dro_right)
+        hbox_down.pack_start(self.dro_right, False, False, 0)
         self.dro_right.set_alignment(1.0, 0.5)
         self.dro_right.set_attributes(attr)
 
@@ -204,14 +208,17 @@ class Combi_DRO(gtk.VBox):
     # make an pango attribute to be used with several labels
     def _set_attributes(self, bgcolor, fgcolor, size, weight):
         attr = pango.AttrList()
-        bg_color = pango.AttrBackground(bgcolor[0], bgcolor[1], bgcolor[2], 0, -1)
-        attr.insert(bg_color)
-        size_attr = pango.AttrSize(size[0], size[1], size[2])
-        attr.insert(size_attr)
-        weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
-        attr.insert(weight_attr)
-        fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 13)
-        attr.insert(fg_color)
+        
+        #TODO:
+        #Pango.AttrType.BACKGROUND
+        #bg_color = pango.AttrBackground(bgcolor[0], bgcolor[1], bgcolor[2], 0, -1)
+        #attr.insert(bg_color)
+        #size_attr = pango.AttrSize(size[0], size[1], size[2])
+        #attr.insert(size_attr)
+        #weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
+        #attr.insert(weight_attr)
+        #fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 13)
+        #attr.insert(fg_color)
         return attr
 
     # if the eventbox has been clicked, we like to toggle the DRO's
@@ -321,7 +328,7 @@ class Combi_DRO(gtk.VBox):
             bg_color = self.dtg_color
         else:
             bg_color = self.rel_color
-        self.eventbox.modify_bg(gtk.STATE_NORMAL, bg_color)
+        self.eventbox.modify_bg(gtk.StateFlags.NORMAL, bg_color)
         bg_color = self._convert_to_rgb(bg_color)
         if self.homed:
             fg_color = self.homed_color
@@ -607,7 +614,7 @@ class Combi_DRO(gtk.VBox):
 # for testing without glade editor:
 # to show some behavior and setting options
 def main():
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window = gtk.Window(gtk.WindowType.TOPLEVEL)
 
     vbox = gtk.VBox(False, 5)
     MDRO_X = Combi_DRO(0)

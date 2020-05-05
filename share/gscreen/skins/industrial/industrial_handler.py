@@ -15,10 +15,13 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
+
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import Pango as pango
+
 import hal
-import gtk
 import gladevcp.makepins # needed for the dialog's calulator widget
-import pango
 
 _MAN = 0;_MDI = 1;_AUTO = 2;_LOCKTOGGLE = 1
 
@@ -193,9 +196,9 @@ class HandlerClass:
         if _LOCKTOGGLE == 0: return True
         dialog = gtk.Dialog("Enter System Unlock Code",
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
         label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
@@ -204,7 +207,7 @@ class HandlerClass:
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit('response',gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : dialog.emit('response',gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(False)
         dialog.show_all()
@@ -213,7 +216,7 @@ class HandlerClass:
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == gtk.ResponseType.ACCEPT:
             if code == int(self.data.unlock_code):
                 self.gscreen.add_alarm_entry("System page unlocked")
                 _LOCKTOGGLE = 0

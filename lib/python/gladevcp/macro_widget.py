@@ -17,7 +17,9 @@
 
 import os, time, string
 
-import gobject, gtk
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -70,11 +72,11 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
 
         scroll = gtk.ScrolledWindow()
         scroll.add(self.tv)
-        scroll.props.hscrollbar_policy = gtk.POLICY_AUTOMATIC
-        scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
+        scroll.props.hscrollbar_policy = gtk.PolicyType.AUTOMATIC
+        scroll.props.vscrollbar_policy = gtk.PolicyType.AUTOMATIC
 
         self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
+        self.entry.set_icon_from_stock(gtk.EntryIconPosition.SECONDARY, 'gtk-ok')
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -143,7 +145,7 @@ class MacroSelect(gtk.VBox, _EMC_ActionBase):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        if gtk.gdk.keyval_name(event.keyval) == 'Return':
+        if gdk.keyval_name(event.keyval) == 'Return':
             self.entry.set_text(self.model[idx][0])
             self.entry.grab_focus()
             return True
@@ -172,16 +174,16 @@ def main(filename = None):
 
     window = gtk.Dialog("Macro Test dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     widget = MacroSelect()
     widget.connect("macro-submitted",macro_callback)
     window.vbox.add(widget)
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("True")
     else:
        print("False")

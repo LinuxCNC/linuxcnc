@@ -115,7 +115,7 @@ class QTVCP:
             # International translation
             locale.setlocale(locale.LC_ALL, '')
             locale.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
-            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR, unicode=True)
+            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR, str=True)
             gettext.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
 
             # if no handler file specified, use stock test one
@@ -229,7 +229,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # push the window id for embedment into an external program
         if opts.push_XID:
             wid = int(window.winId())
-            print >> sys.stdout,wid
+            print(wid, file=sys.stdout)
             sys.stdout.flush()
 
         # for window resize and or position options

@@ -19,8 +19,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
 from math import pi
 import hal
 
@@ -84,7 +86,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
                     20, 300, 100, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'unit' : ( gobject.TYPE_STRING, 'unit', 'Sets the unit to be shown in the bar after the value',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'color' : (gtk.gdk.Color.__gtype__, 'color', 'Sets the color of the bar',
+        'color' : (gdk.Color.__gtype__, 'color', 'Sets the color of the bar',
                         gobject.PARAM_READWRITE),
         'template' : (gobject.TYPE_STRING, 'Text template for bar value',
                 'Text template to display. Python formatting may be used for one variable',
@@ -110,7 +112,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self._value = value
         self._min = min
         self._max = max
-        self.color = gtk.gdk.Color(color)
+        self.color = gdk.Color.parse(color)
         self._unit = unit
         self._increment = (self._max - self._min) / 100.0
         self._template = template
@@ -127,12 +129,12 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
         self.btn_minus.connect("released", self.on_btn_minus_released)
         
         self.draw = gtk.DrawingArea()
-        self.draw.connect("expose-event", self.expose)
+        self.draw.connect("draw", self.expose)
 
         self.table = gtk.Table(rows=2,columns=5)
-        self.table.attach( self.btn_minus, 0, 1, 0, 1, gtk.SHRINK, gtk.SHRINK )
-        self.table.attach( self.draw, 1, 4, 0, 1, gtk.FILL|gtk.EXPAND, gtk.EXPAND )
-        self.table.attach( self.btn_plus, 4, 5, 0, 1, gtk.SHRINK, gtk.SHRINK )
+        self.table.attach( self.btn_minus, 0, 1, 0, 1, gtk.AttachOptions.SHRINK, gtk.AttachOptions.SHRINK )
+        self.table.attach( self.draw, 1, 4, 0, 1, gtk.AttachOptions.FILL|gtk.AttachOptions.EXPAND, gtk.AttachOptions.EXPAND )
+        self.table.attach( self.btn_plus, 4, 5, 0, 1, gtk.AttachOptions.SHRINK, gtk.AttachOptions.SHRINK )
 
         self.add(self.table)
         self.show_all()
@@ -165,14 +167,14 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
     def expose(self, widget, event):
         # create the cairo window
         # I do not know why this works without importing cairo
-        self.cr = widget.window.cairo_create()
+        self.cr = widget.get_property('window').cairo_create()
 
         # call to paint the widget
         self._draw_widget()
 
     # draws the frame, meaning the background
     def _draw_widget(self):
-        w = self.draw.allocation.width
+        w = self.draw.get_allocated_width()
 
         # draw a rectangle with rounded edges and a black frame
         linewith = self._size / 24
@@ -230,7 +232,7 @@ class SpeedControl(gtk.VBox, _HalSpeedControlBase):
 
         w,h = self.cr.text_extents(label)[2:4]
         self.draw.set_size_request(int(w) + int(h), self._size)
-        left = self.draw.allocation.width /2
+        left = self.draw.get_allocated_width() /2
         top = self._size / 2
         self.cr.move_to(left - w / 2 , top + h / 2)
         self.cr.show_text(label)
@@ -455,11 +457,11 @@ def main():
     speedcontrol = SpeedControl()
     window.add(speedcontrol)
     window.set_title("Button Speed Control")
-    window.set_position(gtk.WIN_POS_CENTER)
+    window.set_position(gtk.WindowPosition.CENTER)
     window.show_all()
     speedcontrol.set_property("height", 48)
     speedcontrol.set_property("unit", "mm/min")
-    speedcontrol.set_property("color", gtk.gdk.Color("#FF8116"))
+    speedcontrol.set_property("color", gdk.Color.parse("#FF8116")[1])
     speedcontrol.set_property("min", 0)
     speedcontrol.set_property("max", 15000)
     speedcontrol.set_property("increment", 250.123)

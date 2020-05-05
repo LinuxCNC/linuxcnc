@@ -20,10 +20,12 @@
 #------------------------------------------------------------------------------
 
 import os
-import gtk
-import gobject
-import pango
-import hal_actions
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
+
+from . import hal_actions
 import pyngcgui
 g_module = os.path.basename(__file__)
 #-----------------------------------------------------------------------------

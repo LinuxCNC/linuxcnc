@@ -13,8 +13,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
 import cairo
 import math
 
@@ -49,19 +53,19 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
                     -MAX_INT, MAX_INT, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'target_width' : ( gobject.TYPE_FLOAT, 'Target Width', 'Target pixel width',
                     1, 5, 2, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'z0_color' : ( gtk.gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
+        'z0_color' : ( gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
                         gobject.PARAM_READWRITE),
-        'z1_color' : ( gtk.gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
+        'z1_color' : ( gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
                         gobject.PARAM_READWRITE),
-        'z2_color' : ( gtk.gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
+        'z2_color' : ( gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
                         gobject.PARAM_READWRITE),
-        'target_color' : ( gtk.gdk.Color.__gtype__, 'Target color', "Set color for target indicator",
+        'target_color' : ( gdk.Color.__gtype__, 'Target color', "Set color for target indicator",
                         gobject.PARAM_READWRITE),
         'z0_border' : ( gobject.TYPE_FLOAT, 'Zone 0 up limit', 'Up limit (fraction) of zone 0',
                     0, 1, 1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'z1_border' : ( gobject.TYPE_FLOAT, 'Zone 1 up limit', 'Up limit (fraction) of zone 1',
                     0, 1, 1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'bg_color' : ( gtk.gdk.Color.__gtype__, 'Background', "Choose background color",
+        'bg_color' : ( gdk.Color.__gtype__, 'Background', "Choose background color",
                         gobject.PARAM_READWRITE),
         'force_width' : ( gobject.TYPE_INT, 'Forced width', 'Force bar width not dependent on widget size. -1 to disable',
                     -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -79,17 +83,17 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Bar, self).__init__()
 
-        self.bg_color = gtk.gdk.Color('gray')
-        self.z0_color = gtk.gdk.Color('green')
-        self.z1_color = gtk.gdk.Color('yellow')
-        self.z2_color = gtk.gdk.Color('red')
-        self.target_color = gtk.gdk.Color('purple')
+        self.bg_color = gdk.Color.parse('gray')
+        self.z0_color = gdk.Color.parse('green')
+        self.z1_color = gdk.Color.parse('yellow')
+        self.z2_color = gdk.Color.parse('red')
+        self.target_color = gdk.Color.parse('purple')
         self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]
         self.set_size_request(*self._size_request)
 
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
 
     def text_at(self, cr, text, x, y, xalign='center', yalign='center'):
         xbearing, ybearing, width, height, xadvance, yadvance = cr.text_extents(text)
@@ -106,13 +110,13 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         cr.show_text(text)
 
     def _expose_prepare(self, widget):
-        if self.flags() & gtk.PARENT_SENSITIVE:
+        if self.is_sensitive():
             alpha = 1
         else:
             alpha = 0.3
 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
         fw = self.force_width
         fh = self.force_height
@@ -125,12 +129,12 @@ class HAL_Bar(gtk.DrawingArea, _HalWidgetBase):
         if fw != -1: w = fw
         if fh != -1: h = fh
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         def set_color(c):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black')[1])
 
         #print w, h, aw, ah, fw, fh
         cr.translate((aw - w) / 2, (ah - h) / 2)
@@ -227,7 +231,7 @@ class HAL_HBar(HAL_Bar):
         cr, (w, h), set_color, alpha = self._expose_prepare(widget)
 
         # make bar
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black')[1])
         cr.save()
         zv = w * self.get_value_diff(self.zero)
         wv = w * self.get_value_diff(self.value)
@@ -277,7 +281,7 @@ class HAL_HBar(HAL_Bar):
             cr.stroke()
 
         # write text
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black')[1])
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:
@@ -299,7 +303,7 @@ class HAL_VBar(HAL_Bar):
 
         # make bar
         cr.save()
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black'))
         zv = h * self.get_value_diff(self.zero)
         wv = h * self.get_value_diff(self.value)
         if not self.invert:
@@ -350,7 +354,7 @@ class HAL_VBar(HAL_Bar):
             cr.stroke()
 
         # make text
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black'))
         tmpl = lambda s: self.text_template % s
         if self.show_limits:
             if not self.invert:

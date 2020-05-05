@@ -13,8 +13,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gobject
-import gtk
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
 import hal
 
@@ -279,7 +281,7 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
         self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
         if self.yellow_limit or self.red_limit:
             self.set_fraction(0)
-            self.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
+            self.modify_bg(gtk.STATE_PRELIGHT, gdk.Color.parse('#0f0'))
         if self.text_template:
             self.set_text(self.text_template % {'value':0})
 
@@ -317,7 +319,7 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
                 break
 
         if color:
-            self.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.color_parse(color))
+            self.modify_bg(gtk.STATE_PRELIGHT, gdk.color_parse(color))
 
 class HAL_Label(gtk.Label, _HalWidgetBase):
     __gtype_name__ = "HAL_Label"

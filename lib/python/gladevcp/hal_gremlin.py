@@ -25,8 +25,13 @@
 # 2015 Moses McKnight introduced mode 6 
 # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
 
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+
 import os
-import gtk,gobject
 
 import linuxcnc
 import gremlin

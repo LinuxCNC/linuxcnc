@@ -19,8 +19,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import math
 import hal
 
@@ -75,16 +76,16 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
         # connect our signals
         self.connect("destroy", gtk.main_quit)
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
         self.connect("button_press_event", self._button_press)
         self.connect("button_release_event", self._button_release)
         self.connect("motion_notify_event", self._motion)
         self.connect("scroll_event", self._scroll)
 
         # To use the the events, we have to unmask them
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK)
+        self.add_events(gdk.EventMask.BUTTON_PRESS_MASK |
+                        gdk.BUTTON_RELEASE_MASK |
+                        gdk.POINTER_MOTION_MASK)
 
     # init the hal pin management
     def _hal_init(self):
@@ -120,7 +121,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
         # create the cairo window
         # I do not know why this workes without importing cairo
-        self.cr = widget.window.cairo_create()
+        self.cr = widget.get_property('window').cairo_create()
 
         # the area of reactions
         self.cr.rectangle(event.area.x, event.area.x, event.area.width, event.area.height)
@@ -138,8 +139,8 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     # draws the frame, meaning the background
     def _draw_frame(self):
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
         # draw a black circle
         linewith = self._size / 75
@@ -253,9 +254,9 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     # handle the scroll wheel of the mouse
     def _scroll(self, widget, event):
-        if event.direction == gtk.gdk.SCROLL_UP:
+        if event.direction == gdk.SCROLL_UP:
             self._counts += 1
-        if event.direction == gtk.gdk.SCROLL_DOWN:
+        if event.direction == gdk.SCROLL_DOWN:
             self._counts -= 1
         self._angle = self._counts * self._delta_a
 

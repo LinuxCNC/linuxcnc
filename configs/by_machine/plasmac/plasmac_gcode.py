@@ -52,7 +52,7 @@ cutType = int(Popen('halcmd getp plasmac_run.cut-type', stdout = PIPE, shell = T
 # error dialog
 def dialog_error(title, error):
     md = gtk.MessageDialog(None,
-                           gtk.DIALOG_DESTROY_WITH_PARENT,
+                           gtk.DialogFlags.DESTROY_WITH_PARENT,
                            gtk.MESSAGE_ERROR,
                            gtk.BUTTONS_CLOSE,
                            error)

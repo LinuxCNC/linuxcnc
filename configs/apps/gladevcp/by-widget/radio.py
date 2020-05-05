@@ -6,8 +6,10 @@
 '''
 
 import pygtk
-import gtk
-import pango
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 
 debug = 0
 
