@@ -741,7 +741,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                           <object class="GtkTable" id="table8">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_columns">2</property>
+                            <property name="n_columns">3</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <property name="homogeneous">True</property>
@@ -771,6 +771,16 @@ for mode 2 this is the percentage of max velocity used for THC</property>
 </property>
                                 <signal name="clicked" handler="on_save_clicked" swapped="no"/>
                               </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="version-label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
                             </child>
                           </object>
                         </child>
