@@ -111,6 +111,12 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
+        case HM2_GTAG_RCPWMGEN:
+            switch (sec_pin) {
+                case 1: return "PWM";
+            }
+            break;
+
         case HM2_GTAG_TPPWM:
             switch (sec_pin) {
                 case 1: return "PWM A";
@@ -469,6 +475,12 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
                 case 1: return "out0";
                 case 2: return "out1";
                 case 3: return "enable";
+            }
+            break;
+ 
+       case HM2_GTAG_RCPWMGEN:
+            switch (sec_pin) {
+                case 1: return "pwm";
             }
             break;
 
@@ -920,6 +932,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_INM, hm2->inm.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_XY2MOD, hm2->xy2mod.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_RCPWMGEN,  hm2->rcpwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances);
