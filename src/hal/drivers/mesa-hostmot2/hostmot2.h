@@ -765,13 +765,15 @@ typedef struct {
             hal_float_t *posx_scale;
             hal_float_t *posy_scale;
             hal_bit_t 	*enable;
-            hal_bit_t 	*controlx0;
-            hal_bit_t 	*controlx1;
-            hal_bit_t 	*controlx2;
-            hal_bit_t 	*controly0;
-            hal_bit_t 	*controly1;
-            hal_bit_t 	*controly2;
-            hal_bit_t 	*status;
+            hal_u32_t 	*controlx;
+            hal_u32_t 	*controly;
+            hal_u32_t 	*commandx;
+            hal_u32_t 	*commandy;
+            hal_bit_t 	*mode18bitx;
+            hal_bit_t 	*mode18bity;
+            hal_bit_t 	*commandmodex;
+            hal_bit_t 	*commandmodey;
+            hal_u32_t 	*status;
             hal_bit_t 	*posx_overflow;
             hal_bit_t 	*posy_overflow;
             hal_bit_t 	*velx_overflow;
@@ -795,7 +797,8 @@ typedef struct {
 // these hal params affect all xy2mod instances
 typedef struct {
     struct {
-        hal_s32_t *dpll_timer_num;
+        hal_s32_t *dpll_rtimer_num;
+        hal_s32_t *dpll_wtimer_num;
     } pin;
 } hm2_xy2mod_module_global_t;
 
@@ -811,7 +814,8 @@ typedef struct {
     // module-global HAL objects...
 
     hm2_xy2mod_module_global_t *hal;
-    rtapi_u32 written_dpll_timer_num;
+    rtapi_u32 written_dpll_rtimer_num;
+    rtapi_u32 written_dpll_wtimer_num;
 
 
     rtapi_u32 accx_addr;
@@ -835,8 +839,17 @@ typedef struct {
     rtapi_u32 mode_addr;
     rtapi_u32 *mode_reg;
 
-    rtapi_u32 dpll_timer_num_addr;
-    rtapi_u32 *dpll_timer_num_reg;
+    rtapi_u32 status_addr;
+    rtapi_u32 *status_reg;
+
+    rtapi_u32 command_addr;
+    rtapi_u32 *command_reg;
+
+    rtapi_u32 dpll_rtimer_num_addr;
+    rtapi_u32 *dpll_rtimer_num_reg;
+
+    rtapi_u32 dpll_wtimer_num_addr;
+    rtapi_u32 *dpll_wtimer_num_reg;
 
 
 } hm2_xy2mod_t;
