@@ -80,7 +80,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+gettext.install(domain, localedir=LOCALEDIR)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)

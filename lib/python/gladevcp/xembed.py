@@ -83,9 +83,9 @@ def keyboard_forward(window, forward):
 
     def gtk2xlib(e, fw, g, type=None):
         if type is None: type = e.type
-        if type == gtk.gdk.KEY_PRESS:
+        if type == gdk.KEY_PRESS:
             klass = event.KeyPress
-        elif type == gtk.gdk.KEY_RELEASE:
+        elif type == gdk.KEY_RELEASE:
             klass = event.KeyRelease
         else:
             return
@@ -108,5 +108,5 @@ def keyboard_forward(window, forward):
 
     window.connect_after("key-press-event", forward, fw)
     window.connect("key-release-event", forward, fw)
-    window.add_events(gtk.gdk.KEY_PRESS_MASK)
-    window.add_events(gtk.gdk.KEY_RELEASE_MASK)
+    window.add_events(gdk.KEY_PRESS_MASK)
+    window.add_events(gdk.KEY_RELEASE_MASK)

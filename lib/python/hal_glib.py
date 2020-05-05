@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
 
-import _hal, hal, gobject
+import gi
+from gi.repository import GObject as gobject
+
+import _hal, hal
 import linuxcnc
 import os
 import math

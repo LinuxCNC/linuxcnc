@@ -40,9 +40,11 @@ import warnings
 
 import hal
 from optparse import Option, OptionParser
-import gtk
-import gtk.glade
-import gobject
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+
+
 import signal
 
 import gladevcp.makepins
@@ -231,7 +233,7 @@ def main():
             warnings.filterwarnings("ignore")
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
-        gtk.gdk.error_trap_push()
+        gdk.error_trap_push()
 
         forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
         if forward:
@@ -245,7 +247,7 @@ def main():
             warnings.filterwarnings("ignore")
         # block X errors since gdk error handling silently exits the
         # program without even the atexit handler given a chance
-        gtk.gdk.error_trap_push()
+        gdk.error_trap_push()
 
         window = xembed.reparent(window, opts.parent)
 
@@ -339,8 +341,8 @@ def main():
         halcomp.exit()
 
     if opts.parent or opts.push_XID:
-        gtk.gdk.flush()
-        error = gtk.gdk.error_trap_pop()
+        gdk.flush()
+        error = gdk.error_trap_pop()
         if error and opts.debug:
             print("**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error), file=sys.stderr)
 

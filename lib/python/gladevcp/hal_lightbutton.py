@@ -12,12 +12,15 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 import cairo
-import pango
 import math
-import gtk.glade
 
 # This creates the custom lighted button widget
 # A lighted button has a HAL_OUT or HAL_IO pin for the button.  This pin indicates if the button is pressed or toggled or not.
@@ -62,9 +65,9 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         #            False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'light_is_on' : ( gobject.TYPE_BOOLEAN, 'Light is on', 'Turns light on - for testing in glade',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'light_on_color' : ( gtk.gdk.Color.__gtype__, 'Light ON color', "Set color for light ON state",
+        'light_on_color' : ( gdk.Color.__gtype__, 'Light ON color', "Set color for light ON state",
                         gobject.PARAM_READWRITE),
-        'light_off_color' : ( gtk.gdk.Color.__gtype__, 'Light OFF color', "Set color for light OFF state",
+        'light_off_color' : ( gdk.Color.__gtype__, 'Light OFF color', "Set color for light OFF state",
                         gobject.PARAM_READWRITE),
         'border_width' : ( gobject.TYPE_INT, 'Border width', 'Number of pixels extra border around label',
                     0, 50, 6, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -74,9 +77,9 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
                     "Button", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
         'button_on_text' : ( gobject.TYPE_STRING, 'Button ON text', 'If not blank, this text will be shown on the button when light is on',
                     "", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'font_on_color' : ( gtk.gdk.Color.__gtype__, 'Font ON color', "Set color for button text when light is ON",
+        'font_on_color' : ( gdk.Color.__gtype__, 'Font ON color', "Set color for button text when light is ON",
                         gobject.PARAM_READWRITE),
-        'font_off_color' : ( gtk.gdk.Color.__gtype__, 'Font OFF color', "Set color for button text when light is OFF",
+        'font_off_color' : ( gdk.Color.__gtype__, 'Font OFF color', "Set color for button text when light is OFF",
                         gobject.PARAM_READWRITE),
         'font_face' : ( gobject.TYPE_STRING, 'Font name', 'Button text',
                     "Sans", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
@@ -101,8 +104,8 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
-        self.light_on_color = gtk.gdk.Color('green')
-        self.light_off_color = gtk.gdk.Color('gray')
+        self.light_on_color = gdk.Color.parse('green')
+        self.light_off_color = gdk.Color.parse('gray')
         self.border_width = 6
         self.corner_radius = 4
         self.button_text = 'Button'
@@ -110,8 +113,8 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.font_face = 'Sans'
         self.font_bold = False
         self.font_size = 10
-        self.font_on_color = gtk.gdk.Color('black')
-        self.font_off_color = gtk.gdk.Color('black')
+        self.font_on_color = gdk.Color.parse('black')
+        self.font_off_color = gdk.Color.parse('black')
         self.create_enable_pin = False
         
         self.active = False
@@ -122,15 +125,15 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
         self.on_pangolayout = self.create_pango_layout(self.button_on_text)
         
         self.set_size_request(*self._size_request)
-        self.set_events(gtk.gdk.EXPOSURE_MASK
-                       | gtk.gdk.ENTER_NOTIFY_MASK
-                       | gtk.gdk.LEAVE_NOTIFY_MASK
-                       | gtk.gdk.BUTTON_PRESS_MASK
-                       | gtk.gdk.BUTTON_RELEASE_MASK
-                       | gtk.gdk.POINTER_MOTION_MASK
-                       | gtk.gdk.POINTER_MOTION_HINT_MASK)
+        self.set_events(gdk.EXPOSURE_MASK
+                       | gdk.ENTER_NOTIFY_MASK
+                       | gdk.LEAVE_NOTIFY_MASK
+                       | gdk.EventMask.BUTTON_PRESS_MASK
+                       | gdk.BUTTON_RELEASE_MASK
+                       | gdk.POINTER_MOTION_MASK
+                       | gdk.POINTER_MOTION_HINT_MASK)
  
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
         #self.connect('button-press-event', self.pressed)
         #self.connect('button-release-event', self.released)
         #self.connect('state-changed', self._on_state_changed)
@@ -190,15 +193,15 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
 
 
     def expose(self, widget, event):
-        if (self.flags() & gtk.PARENT_SENSITIVE) and (self.flags() & gtk.SENSITIVE):
+        if self.is_sensitive():
             alpha = 1
         else:
             alpha = 0.3
 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         def set_color(c):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
@@ -221,20 +224,20 @@ class HAL_LightButton(gtk.DrawingArea, _HalWidgetBase):
             if (self.light_is_on):
                 color = self.light_on_color
                 if self.mouseover:
-                    color = gtk.gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
-                color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color = gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
+                color2 = gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
+                linecolor = gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
             else:
                 color = self.light_off_color
                 if self.mouseover:
-                    color = gtk.gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
+                    color = gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
                 if (self.dual_color):
-                    color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                    linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color2 = gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
+                    linecolor = gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
                 else:
-                    color1 = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
-                    color2 = gtk.gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
-                    linecolor = gtk.gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
+                    color1 = gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
+                    color2 = gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
+                    linecolor = gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
             
             cr.set_line_width(linewidth)
             set_color(linecolor)

@@ -21,7 +21,7 @@
 # set the var file to search
 # set the text formatting for metric/imperial separately
 
-import sys, os, pango, linuxcnc
+import sys, os, linuxcnc
 from hal_glib import GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
@@ -29,7 +29,11 @@ AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
 # as it causes big delays in response
 lncnc_running = False
 try:
-    import gobject, gtk
+    import gi
+    from gi.repository import Gtk as gtk
+    from gi.repository import Gdk as gdk
+    from gi.repository import GObject as gobject
+    from gi.repository import Pango as pango
 except:
     print('GTK not available')
     sys.exit(1)
@@ -60,9 +64,9 @@ class OffsetPage(gtk.VBox):
                 "%9.4f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'font' : (gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
                 "sans 12", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'highlight_color'  : (gtk.gdk.Color.__gtype__, 'Highlight color', "",
+        'highlight_color'  : (gdk.Color.__gtype__, 'Highlight color', "",
                     gobject.PARAM_READWRITE),
-        'foreground_color'  : (gtk.gdk.Color.__gtype__, 'Active text color', "",
+        'foreground_color'  : (gdk.Color.__gtype__, 'Active text color', "",
                     gobject.PARAM_READWRITE),
         'hide_columns' : (gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvw and t are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -90,9 +94,9 @@ class OffsetPage(gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        self.highlight_color = gtk.gdk.Color("lightblue")
-        self.foreground_color = gtk.gdk.Color("red")
-        self.unselectable_color = gtk.gdk.Color("lightgray")
+        self.highlight_color = gdk.Color.parse("lightblue")[1]
+        self.foreground_color = gdk.Color.parse("red")[1]
+        self.unselectable_color = gdk.Color.parse("lightgray")[1]
         self.hidejointslist = []
         self.hidecollist = []
         self.wTree = gtk.Builder()
@@ -108,7 +112,7 @@ class OffsetPage(gtk.VBox):
         self.view2 = self.wTree.get_object("treeview2")
         self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.selection = self.view2.get_selection()
-        self.selection.set_mode(gtk.SELECTION_SINGLE)
+        #self.selection.set_mode(gtk.SelectionMode.SINGLE) TODO:
         self.selection.connect("changed", self.on_selection_changed)
         self.modelfilter = self.wTree.get_object("modelfilter")
         self.edit_button = self.wTree.get_object("edit_button")
@@ -198,12 +202,12 @@ class OffsetPage(gtk.VBox):
                     self.store[row][column + 1] = locale.format(tmpl, i[column])
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
-                self.store[row][13] = self.foreground_color
+                self.store[row][13] = str(self.foreground_color)
             else:
                 self.store[row][13] = None
             # mark unselectable rows a dirrerent color
             if self.store[row][0] in self.selection_mask:
-                self.store[row][12] = self.unselectable_color
+                self.store[row][12] = str(self.unselectable_color)
 
     # This is for adding a filename path after the offsetpage is already loaded.
     def set_filename(self, filename):
@@ -439,11 +443,11 @@ class OffsetPage(gtk.VBox):
 
     # sets the color when editing is active
     def set_highlight_color(self, value):
-        self.highlight_color = gtk.gdk.Color(value)
+        self.highlight_color = gdk.Color.parse(value)[1]
 
     # sets the text color of the current system description name
     def set_foreground_color(self, value):
-        self.foreground_color = gtk.gdk.Color(value)
+        self.foreground_color = gdk.Color.parse(value)[1]
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self, value):
@@ -562,9 +566,9 @@ class OffsetPage(gtk.VBox):
 def main(filename = None):
     window = gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     offsetpage = OffsetPage()
 
     window.vbox.add(offsetpage)
@@ -574,7 +578,7 @@ def main(filename = None):
     # offsetpage.set_row_visible("89abc", True)
     # offsetpage.set_to_mm()
     # offsetpage.set_font("sans 20")
-    # offsetpage.set_property("highlight_color", gtk.gdk.Color('blue'))
+    # offsetpage.set_property("highlight_color", gdk.Color.parse('blue'))
     # offsetpage.set_highlight_color("violet")
     # offsetpage.set_foreground_color("yellow")
     # offsetpage.mark_active("G55")
@@ -585,7 +589,7 @@ def main(filename = None):
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("True")
     else:
        print("False")

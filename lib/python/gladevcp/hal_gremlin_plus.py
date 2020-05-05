@@ -19,11 +19,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #------------------------------------------------------------------------------
 
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import sys
 import os
-import gtk
 import gremlin_view
-import gobject
 
 #-----------------------------------------------------------------------------
 # determine if glade interface designer is running

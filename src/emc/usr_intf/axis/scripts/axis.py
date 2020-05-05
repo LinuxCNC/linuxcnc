@@ -43,7 +43,7 @@ if sys.version_info[0] == 3:
 else:
     import Tkinter
     import thread as _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 # Print Tk errors to stdout. python.org/sf/639266
 OldTk = Tkinter.Tk

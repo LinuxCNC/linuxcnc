@@ -43,7 +43,7 @@ class array:
         
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
-                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.DialogFlags.DESTROY_WITH_PARENT,
                                gtk.MESSAGE_ERROR, 
                                gtk.BUTTONS_CLOSE,
                                error)
@@ -180,7 +180,7 @@ class array:
                 mUnits = self.s.linear_units
                 if self.previewed:
                     md = gtk.MessageDialog(self.W, 
-                                           gtk.DIALOG_DESTROY_WITH_PARENT,
+                                           gtk.DialogFlags.DESTROY_WITH_PARENT,
                                            gtk.MESSAGE_INFO, 
                                            gtk.BUTTONS_NONE,
                                            'ARRAY\n\nCalculating.....')
@@ -266,7 +266,7 @@ class array:
         self.shapeMode = mode
         self.W = gtk.Dialog('Array',
                             None,
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                            gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                             buttons = None)
         self.W.set_keep_above(True)
         self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)

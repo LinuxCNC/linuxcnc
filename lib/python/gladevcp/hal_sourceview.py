@@ -16,15 +16,19 @@
 
 import os, time
 
-import gobject, gtk
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+gi.require_version("GtkSource","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import GtkSource as gtksourceview
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 from .hal_actions import _EMC_ActionBase, _EMC_Action
 from .hal_filechooser import _EMC_FileChooser
-
-import gtksourceview2 as gtksourceview
 
 class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
@@ -56,23 +60,23 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         # This gets the 'selected text' color
         # This is before the widget is realized so gives the system theme color
         style = self.get_style()
-        selected_color = style.base[gtk.STATE_SELECTED].to_string()
+#        selected_color = style.base[gtk.StateType.SELECTED].to_string() TODO: Broken
 
-        self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
-        self.set_mark_category_background('motion', gtk.gdk.Color(selected_color))
+#        self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
+#        self.set_mark_category_background('motion', gdk.Color(selected_color))
 
-        self.found_text_tag = self.buf.create_tag(background = selected_color)
-        self.update_iter()
+#        self.found_text_tag = self.buf.create_tag(background = selected_color)
+#        self.update_iter()
         self.connect('button-release-event', self.button_pressed)
 
     def change_style(self):
         # This gets us the 'base selected' color after the theme is selected
         # often looks like this in gkrc file:    base[SELECTED]    = "#FF0000"
         style= self.get_style()
-        selected_color = style.base[gtk.STATE_SELECTED].to_string()
-        #print "- text",style.base[gtk.STATE_SELECTED].to_string()
-        self.set_mark_category_background('motion', gtk.gdk.Color(selected_color))
-        self.found_text_tag.set_property('background',selected_color)
+#        selected_color = style.base[gtk.StateType.SELECTED].to_string()
+        #print "- text",style.base[gtk.StateType.SELECTED].to_string()
+#        self.set_mark_category_background('motion', gdk.Color(selected_color))
+#        self.found_text_tag.set_property('background',selected_color)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -336,7 +340,7 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         if not self.textview:
             return
         dialog = gtk.FileChooserDialog(title="Save As",action=gtk.FILE_CHOOSER_ACTION_SAVE,
-                    buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+                    buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.ResponseType.OK))
         dialog.set_do_overwrite_confirmation(True)
         dialog.set_current_folder(self.currentfolder)
         if self.textview.filename:
@@ -345,6 +349,6 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.destroy()
-        if r == gtk.RESPONSE_OK:
+        if r == gtk.ResponseType.OK:
             self.save(fn)
             self.currentfolder = os.path.dirname(fn)

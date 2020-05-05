@@ -22,7 +22,7 @@ from __future__ import print_function
 import os
 import errno
 import hashlib
-import commands
+import subprocess
 import xml.dom.minidom
 
 def md5sum(filename):
@@ -863,8 +863,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,
                      "\n".join(warnings))
             dialog.show_all()
             dialog.run()
@@ -1037,7 +1037,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:

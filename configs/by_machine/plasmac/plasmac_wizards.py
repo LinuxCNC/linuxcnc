@@ -20,12 +20,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
 import sys
-import gtk
 import linuxcnc
 import shutil
-import gobject
 import hal
 import time
 from subprocess import Popen, PIPE
@@ -115,7 +116,7 @@ class wizards:
 
     def dialog_error(self, eWizard, error):
         md = gtk.MessageDialog(self.W, 
-                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.DialogFlags.DESTROY_WITH_PARENT,
                                gtk.MESSAGE_ERROR, 
                                gtk.BUTTONS_CLOSE,
                                '{} WIZARD ERROR\n\n{}'.format(eWizard, error))

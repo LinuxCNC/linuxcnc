@@ -13,8 +13,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
 import cairo
 import math
 
@@ -43,17 +47,17 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
                     -MAX_INT, MAX_INT, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'minorscale'  : ( gobject.TYPE_FLOAT, 'Minor scale', 'Minor ticks',
                     -MAX_INT, MAX_INT, 2, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'z0_color' : ( gtk.gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
+        'z0_color' : ( gdk.Color.__gtype__, 'Zone 0 color', "Set color for first zone",
                         gobject.PARAM_READWRITE),
-        'z1_color' : ( gtk.gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
+        'z1_color' : ( gdk.Color.__gtype__, 'Zone 1 color', "Set color for second zone",
                         gobject.PARAM_READWRITE),
-        'z2_color' : ( gtk.gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
+        'z2_color' : ( gdk.Color.__gtype__, 'Zone 2 color', "Set color for third zone",
                         gobject.PARAM_READWRITE),
         'z0_border' : ( gobject.TYPE_FLOAT, 'Zone 0 up limit', 'Up limit of zone 0',
                     -MAX_INT, MAX_INT, MAX_INT, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'z1_border' : ( gobject.TYPE_FLOAT, 'Zone 1 up limit', 'Up limit of zone 1',
                     -MAX_INT, MAX_INT, MAX_INT, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'bg_color' : ( gtk.gdk.Color.__gtype__, 'Background', "Choose background color",
+        'bg_color' : ( gdk.Color.__gtype__, 'Background', "Choose background color",
                         gobject.PARAM_READWRITE),
         'force_size' : ( gobject.TYPE_INT, 'Forced size', 'Force meter size not dependent on widget size. -1 to disable',
                     -1, MAX_INT, -1, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -70,14 +74,14 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Meter, self).__init__()
 
-        self.bg_color = gtk.gdk.Color('white')
-        self.z0_color = gtk.gdk.Color('green')
-        self.z1_color = gtk.gdk.Color('yellow')
-        self.z2_color = gtk.gdk.Color('red')
+        self.bg_color = gdk.Color.parse('white')
+        self.z0_color = gdk.Color.parse('green')
+        self.z1_color = gdk.Color.parse('yellow')
+        self.z2_color = gdk.Color.parse('red')
 
         self.force_radius = None
 
-        self.connect("expose-event", self.expose)
+        self.connect("draw", self.expose)
 
     def _hal_init(self):
         _HalWidgetBase._hal_init(self)
@@ -86,13 +90,13 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
     def expose(self, widget, event):
-        if self.flags() & gtk.PARENT_SENSITIVE:
+        if self.is_sensitive():
             alpha = 1
         else:
             alpha = 0.3
 
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
         r = min(w, h) / 2
 
         fr = self.force_size
@@ -103,12 +107,12 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
             r = 40
             self.set_size_request(2 * r, 2 * r)
 
-        cr = widget.window.cairo_create()
+        cr = widget.get_property('window').cairo_create()
         def set_color(c):
             return cr.set_source_rgba(c.red_float, c.green_float, c.blue_float, alpha)
 
         cr.set_line_width(2)
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black'))
 
         #print w, h, aw, ah, fw, fh
         cr.translate(w / 2, h / 2)
@@ -141,7 +145,7 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         set_color(self.z0_color)
         self.draw_zone(cr, r, angle(self.min), angle(self.z0_border))
 
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black'))
         cr.set_font_size(r/10)
 
         v = self.min
@@ -160,10 +164,10 @@ class HAL_Meter(gtk.DrawingArea, _HalWidgetBase):
         cr.set_font_size(r/5)
         self.text_at(cr, self.label, 0, -r/5)
 
-        set_color(gtk.gdk.Color('red'))
+        set_color(gdk.Color.parse('red'))
         self.draw_arrow(cr, r, angle(self.value))
 
-        set_color(gtk.gdk.Color('black'))
+        set_color(gdk.Color.parse('black'))
         self.text_at(cr, self.text_template % self.value, 0, 0.8 * r)
         return True
 

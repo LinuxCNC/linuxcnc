@@ -39,8 +39,9 @@ import locale
 import copy
 import fnmatch
 import subprocess
-import gobject
-import gtk
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import gtk.glade
 
 import xml.dom.minidom
@@ -92,8 +93,8 @@ def excepthook(exc_type, exc_obj, exc_tb):
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
     m = gtk.MessageDialog(w,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_ERROR, gtk.ButtonsType.OK,
                 _("PNCconf encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
                 + "LinuxCNC Version:  %s\n\n"% LINUXCNCVERSION + ''.join(lines))
@@ -106,7 +107,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+gettext.install(domain, localedir=LOCALEDIR, str=True)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -194,7 +195,7 @@ class App:
         self.HAL = build_HAL.HAL(self)
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
-        wiz_pic = gtk.gdk.pixbuf_new_from_file(self._p.WIZARD)
+        wiz_pic = gdk.pixbuf_new_from_file(self._p.WIZARD)
         self.widgets.wizard_image.set_from_pixbuf(wiz_pic)
 
         self.window.hide()
@@ -206,9 +207,9 @@ class App:
         self.widgets.helppic2.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"HomeAxisTravel_V3.png")
         self.widgets.helppic3.set_from_file(axisdiagram)
-        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
+        self.map_7i76 = gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
         self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
-        self.map_7i77 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
+        self.map_7i77 = gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
         self.widgets.map_7i77_image.set_from_pixbuf(self.map_7i77)
         #self.widgets.openloopdialog.hide()
 
@@ -328,7 +329,7 @@ class App:
         result = self.widgets.boarddiscoverydialog.run()
         self.widgets.boarddiscoverydialog.hide()
         self.widgets.window1.set_sensitive(1)
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.ResponseType.OK:
             n = self.widgets.discovery_name_entry.get_text()
             itr = self.widgets.discovery_interface_combobox.get_active_iter()
             d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
@@ -362,7 +363,7 @@ class App:
         result = self.widgets.boardmetadialog.run()
         self.widgets.boardmetadialog.hide()
         self.widgets.window1.set_sensitive(1)
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.ResponseType.OK:
             itr = self.widgets.interface_combobox.get_active_iter()
             d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
             ppc = int(self.widgets.ppc_combobox.get_active_text())
@@ -374,7 +375,7 @@ class App:
 
     def splash_screen(self):
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
+        self.window.set_type_hint(gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
         self.window.set_title(_("Pncconf setup"))
         self.window.set_border_width(10)
 
@@ -411,19 +412,19 @@ class App:
         #label.modify_font(pango.FontDescription("sans 20"))
         entry = gtk.Entry()
         dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK_CANCEL, title)
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK_CANCEL, title)
 
         dialog.vbox.pack_start(label)
         dialog.vbox.add(entry)
         #allow the user to press enter to do ok
-        entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
+        entry.connect("activate", responseToDialog, dialog, gtk.ResponseType.OK)
         dialog.show_all()
         result = dialog.run()
 
         text = entry.get_text()
         dialog.destroy()
-        if result ==  gtk.RESPONSE_OK:
+        if result ==  gtk.ResponseType.OK:
             return text
         else:
             return None
@@ -431,15 +432,15 @@ class App:
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
            dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,message)
            dialog.show_all()
            result = dialog.run()
            dialog.destroy()
            return True
         else:   
             dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+               gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
             dialog.show_all()
             result = dialog.run()
@@ -472,7 +473,7 @@ class App:
 
     def print_page(self,print_dialog, context, n, imagename):
         ctx = context.get_cairo_context()
-        gdkcr = gtk.gdk.CairoContext(ctx)
+        gdkcr = gdk.CairoContext(ctx)
         gdkcr.set_source_pixbuf(self[imagename], 0,0)
         gdkcr.paint ()
 
@@ -838,8 +839,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
             self.widgets.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
             (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-             gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        dialog.set_default_response(gtk.RESPONSE_OK)
+             gtk.STOCK_OPEN, gtk.ResponseType.OK))
+        dialog.set_default_response(gtk.ResponseType.OK)
         dialog.add_filter(filter) 
         if not self.d._lastconfigname == "" and self.d._chooselastconfig:
             dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.pncconf"% self.d._lastconfigname))
@@ -847,7 +848,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
         dialog.show_all()
         result = dialog.run()
-        if result == gtk.RESPONSE_OK:
+        if result == gtk.ResponseType.OK:
             filename = dialog.get_filename()
             dialog.destroy()
             self.d.load(filename, self)

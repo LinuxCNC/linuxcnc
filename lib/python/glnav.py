@@ -1,4 +1,12 @@
 from minigl import *
+import OpenGL
+#OpenGL.ERROR_CHECKING = True 
+#OpenGL.ERROR_LOGGING = True 
+#OpenGL.FULL_LOGGING = True 
+#OpenGL.ERROR_ON_COPY = True 
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
 import math
 import array, itertools
 import sys
@@ -176,7 +184,7 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
 
     glLoadIdentity()
-    tx, ty, tz = mat[12:15]
+    tx, ty, tz = mat.flatten()[12:15]
     glTranslatef(tx, ty, tz)
     glRotatef(snap(lat), *w.rotation_vectors[0])
     glRotatef(snap(lon), *w.rotation_vectors[1])
@@ -246,8 +254,11 @@ class GlNavBase:
 
         self.activate()
         glLightfv(GL_LIGHT0, GL_POSITION, (1, -1, 1, 0))
-        glLightfv(GL_LIGHT0, GL_AMBIENT, (.4, .4, .4, 1))
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, (.6, .6, .6, 1))
+        glLightfv(GL_LIGHT0, GL_AMBIENT, (.0, .0, .0, 1))
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, (.0, .0, .0, 1))
+ 
+        #glLightfv(GL_LIGHT0, GL_AMBIENT, (.4, .4, .4, 1))
+        #glLightfv(GL_LIGHT0, GL_DIFFUSE, (.6, .6, .6, 1))
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glDepthFunc(GL_LESS)
@@ -310,8 +321,8 @@ class GlNavBase:
     def reset(self):
         """Reset rotation matrix for this widget."""
 
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+        #TODO:glMatrixMode(GL_MODELVIEW)
+        #glLoadIdentity()
         self._redraw()
 
 

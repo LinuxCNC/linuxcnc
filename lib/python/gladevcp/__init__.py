@@ -52,7 +52,7 @@ if support_aux_apps:
                         )
     p,e = s.communicate()
     gladevcp_aux_apps_dir = p.strip() # remove trailing \n
-    for auxdir in glob.glob(gladevcp_aux_apps_dir + "/*"):
+    for auxdir in glob.glob(gladevcp_aux_apps_dir + b"/*"):
         print("gladevcp: auxiliary dir:",auxdir)
         for fname in glob.glob(auxdir + "/*.py"):
             if excluded_filename(fname):

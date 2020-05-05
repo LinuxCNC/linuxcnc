@@ -18,8 +18,8 @@
 
 # This fixes integer division error
 # so dividing two integers gives a float
-from __future__ import division
-import sys, os, pango
+
+import sys, os
 import math
 
 # localization
@@ -29,7 +29,12 @@ locale.setlocale( locale.LC_ALL, '' )
 datadir = os.path.abspath( os.path.dirname( __file__ ) )
 
 try:
-    import gobject, gtk
+    import gi
+    gi.require_version("Gtk","3.0")
+    gi.require_version("Gdk","3.0")
+    from gi.repository import Gtk as gtk
+    from gi.repository import GObject as gobject
+    from gi.repository import Pango as pango
 except:
     print( 'GTK not available' )
     sys.exit( 1 )
@@ -274,9 +279,9 @@ class Calculator( gtk.VBox ):
 def main():
     window = gtk.Dialog( "My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   ( gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT ) )
+                   gtk.DialogFlags.MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   ( gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT ) )
     calc = Calculator()
 
     window.vbox.add( calc )
@@ -286,7 +291,7 @@ def main():
     calc.set_editable( True )
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print(calc.get_value())
     else:
        print(calc.get_preset_value())

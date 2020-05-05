@@ -91,9 +91,9 @@ class XEmbedFowarding():
 
     def gtk2xlib(e, fw, g, type=None):
         if type is None: type = e.type
-        if type == gtk.gdk.KEY_PRESS:
+        if type == gdk.KEY_PRESS:
             klass = event.KeyPress
-        elif type == gtk.gdk.KEY_RELEASE:
+        elif type == gdk.KEY_RELEASE:
             klass = event.KeyRelease
         else:
             return

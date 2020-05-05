@@ -14,12 +14,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os,pango
+import sys,os
 import math
 import linuxcnc
 
 try:
-    import gobject,gtk
+    import gi
+    gi.require_version("Gtk","3.0")
+    gi.require_version("Gdk","3.0")
+    from gi.repository import Gtk as gtk
+    from gi.repository import GObject as gobject
+    from gi.repository import Pango as pango
 except:
     print('GTK not available')
     sys.exit(1)
@@ -191,16 +196,16 @@ class HAL_DRO(gtk.Label):
 def main():
     window = gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DialogFlags.MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     dro = HAL_DRO()
     window.vbox.add(dro)
     window.connect("destroy", gtk.main_quit)
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("ok")
     else:
        print("cancel")

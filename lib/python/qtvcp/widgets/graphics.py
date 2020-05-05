@@ -23,8 +23,8 @@ from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QWindow, QResizeEvent
 from qtvcp.core import Status
 import thread
-import gobject
-
+import gi
+from gi.repository import GObject as gobject
 import linuxcnc
 import gremlin
 import rs274.glcanon
@@ -40,9 +40,9 @@ STATUS = Status()
 # Using a separate thread for GTK
 def run_gtk(self):
     try:
-        gtk.gdk.threads_enter()
+        gdk.threads_enter()
         gtk.main()
-        gtk.gdk.threads_leave()
+        gdk.threads_leave()
     except:
         pass
 
@@ -230,9 +230,9 @@ class PyApp(gtk.Plug):
 
     def on_destroy(self,w):
         try:
-            gtk.gdk.threads_enter()
+            gdk.threads_enter()
             gtk.main_quit()
-            gtk.gdk.threads_leave()
+            gdk.threads_leave()
         except:
             pass
 

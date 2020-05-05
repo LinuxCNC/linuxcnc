@@ -14,11 +14,14 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys,os,pango
+import sys,os
 import linuxcnc
 
 try:
-    import gobject,gtk
+    import gi
+    from gi.repository import Gtk as gtk
+    from gi.repository import GObject as gobject
+    from gi.repository import Pango as pango
 except:
     print('GTK not available')
     sys.exit(1)
@@ -146,9 +149,9 @@ class Override(gtk.HScale):
 def main():
     window = gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     t = gtk.Table(rows=4, columns=1, homogeneous=True)
     window.vbox.add(t)
 
@@ -172,7 +175,7 @@ def main():
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("ok")
     else:
        print("cancel")

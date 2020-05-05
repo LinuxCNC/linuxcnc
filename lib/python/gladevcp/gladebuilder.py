@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # vim: sts=4 sw=4 et
 
-import gtk
+import gi
+from gi.repository import Gtk as gtk
 
 class GladeBuilder:
     """ This is wrapper around Glade object that behaves just like gtk.Builder """

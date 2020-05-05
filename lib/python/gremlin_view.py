@@ -71,16 +71,17 @@ Callbacks are provided for the following buttons actions
   on_show_limits_clicked
 """
 
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 import os
 import sys
-import gtk
 import gladevcp.hal_actions  # reqd for Builder
 import linuxcnc
 import time
 import subprocess
 import gettext
 import datetime
-import gobject
 import glib # for glib.GError
 
 g_ui_dir          = linuxcnc.SHARE + "/linuxcnc"
@@ -91,7 +92,7 @@ g_progname        = os.path.basename(sys.argv[0])
 g_verbose         = False
 
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
+gettext.install("linuxcnc", localedir=LOCALEDIR)
 
 def ini_check ():
     """set environmental variable and change directory"""

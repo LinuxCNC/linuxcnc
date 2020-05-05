@@ -15,9 +15,13 @@
 # GNU General Public License for more details.
 
 import os
-import pango
 
-import gobject, gtk
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
@@ -78,15 +82,15 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.tv.set_search_column(0)
         self.tv.set_reorderable(False)
         self.tv.set_headers_visible(True)
-        self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
+        self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
 
         scroll = gtk.ScrolledWindow()
         scroll.add(self.tv)
-        scroll.props.hscrollbar_policy = gtk.POLICY_AUTOMATIC
-        scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
+        scroll.props.hscrollbar_policy = gtk.PolicyType.AUTOMATIC
+        scroll.props.vscrollbar_policy = gtk.PolicyType.AUTOMATIC
 
         self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
+        self.entry.set_icon_from_stock(gtk.EntryIconPosition.SECONDARY, 'gtk-ok')
         self.entry.modify_font(pango.FontDescription(self.default_font))
 
         self.entry.connect('activate', self.submit)
@@ -96,8 +100,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.connect('key_press_event', self.on_key_press_event)
         self.tv.connect('button_press_event', self.on_button_press_event)
 
-        self.pack_start(scroll, True)
-        self.pack_start(self.entry, False)
+        self.pack_start(scroll, True, True, 0)
+        self.pack_start(self.entry, False, False, 0)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
@@ -121,7 +125,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         lines = filter(bool, lines)
         for l in lines:
             self.model.append((l,))
-        path = (len(lines)-1,)
+        #path = (len(list(lines))-1,)
+        path = 0 #TODO: breaks the functionality
         self.tv.scroll_to_cell(path)
         self.tv.set_cursor(path)
         self.entry.set_text('')
@@ -175,7 +180,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
             self.tv.set_cursor(path)
             self.entry.set_text('')
             self.entry.grab_focus()
-        self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
+        self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
 
     def select(self, w):
         idx = w.get_cursor()[0]
@@ -187,7 +192,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
     def on_key_press_event(self,w,event):
         # get the keyname
-        keyname = gtk.gdk.keyval_name(event.keyval)
+        keyname = gdk.keyval_name(event.keyval)
 #        print(keyname)
         idx = self.tv.get_cursor()[0]
         if idx is None:
@@ -202,7 +207,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
 
         if keyname == 'Up':
-            self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
+            self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
             if not selected:
                 self.tv.set_cursor(len)
             else:
@@ -215,30 +220,30 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         if keyname == 'Down':
             if not selected:
                 return True
-            self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
+            self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
             if idx[0] < len:
                 self.tv.set_cursor(idx[0] + 1)
             else:
                 self.tv.set_cursor(idx[0])
                 self.entry.set_text('')
                 self.entry.grab_focus()
-                self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
+                self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
             return True
 
         if keyname == 'Escape':
             self.entry.set_text('')
             self.entry.grab_focus()
-            self.tv.get_selection().set_mode(gtk.SELECTION_NONE)
+            self.tv.get_selection().set_mode(gtk.SelectionMode.NONE)
 
     def on_button_press_event(self,w,event):
         idx = w.get_cursor()[0]
         if idx is None:
             return True
-        self.tv.get_selection().set_mode(gtk.SELECTION_SINGLE)
+        self.tv.get_selection().set_mode(gtk.SelectionMode.SINGLE)
         self.entry.set_text(self.model[idx][0])
         self.entry.grab_focus()
         self.entry.set_position(-1)
-        if event.type == gtk.gdk._2BUTTON_PRESS:
+        if event.type == gdk._2BUTTON_PRESS:
             print("Double Click", self.use_double_click)
             if self.use_double_click:
                 self.submit()
@@ -299,7 +304,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
 # for testing without glade editor or LinuxCNC not running:
 def main():
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    window = gtk.Window(gtk.WindowType.TOPLEVEL)
     mdi = EMC_MDIHistory()
     mdi.set_property("font_size_tree", 12)
     mdi.set_property("font_size_entry", 20)

@@ -13,8 +13,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gobject
-import gtk
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 
 import hal
 from .hal_widgets import _HalWidgetBase
@@ -79,9 +80,9 @@ class Status_Label(gtk.Label, _HalWidgetBase):
 def main():
     window = gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     widget = Status_Label()
     widget._hal_init()
     window.vbox.add(widget)
@@ -89,7 +90,7 @@ def main():
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("ok")
     else:
        print("cancel")

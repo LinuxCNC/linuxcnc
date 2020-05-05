@@ -1045,10 +1045,10 @@ LEDs have several properties which control their look and feel: +
 
 on_color::
    a String defining ON color of LED. May be any valid
-   gtk.gdk.Color name. Not working on Ubuntu 8.04.
+   gdk.Color name. Not working on Ubuntu 8.04.
 off_color::
    String defining OFF color of LED. May be any valid
-   gtk.gdk.Color name or special value `dark`. `dark` means that OFF color
+   gdk.Color name or special value `dark`. `dark` means that OFF color
    will be set to 0.4 value of ON color. Not working on Ubuntu 8.04.
 pick_color_on, pick_color_off::
    Colors for ON and OFF states may be
@@ -1851,8 +1851,8 @@ Direct program control::
     There a couple ways to directly control the widget using Python.
 
     Using goobject to set the above listed properties:
-    [widget name].set_property("highlight_color",gtk.gdk.Color('blue'))
-    [widget name].set_property("foreground_color",gtk.gdk.Color('black'))
+    [widget name].set_property("highlight_color",gdk.Color('blue'))
+    [widget name].set_property("foreground_color",gdk.Color('black'))
     [widget name].set_property("hide_columns","xyzabcuvwt")
     [widget name].set_property("hide_rows","123456789abc")
     [widget name].set_property("font","sans 25")

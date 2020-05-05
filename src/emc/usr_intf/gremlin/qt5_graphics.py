@@ -26,7 +26,8 @@ except ImportError:
     LOG.error('Qtvcp Error with graphics - is python-openGL installed?')
     LIB_GOOD = False
 
-import pango
+import gi
+from gi.repository import Pango as pango
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
@@ -39,7 +40,7 @@ import tempfile
 import shutil
 import os
 
-import thread
+import _thread
 from qtvcp.widgets.fake_status import fakeStatus
 
 ###################################
@@ -160,7 +161,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.get_geometry()
         )
         # start tracking linuxcnc position so we can plot it
-        thread.start_new_thread(self.logger.start, (.01,))
+        _thread.start_new_thread(self.logger.start, (.01,))
         glcanon.GlCanonDraw.__init__(self, stat, self.logger)
 
         # set defaults

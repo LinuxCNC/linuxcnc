@@ -18,32 +18,26 @@ libdir = os.path.join(BASE, "lib", "python")
 datadir = os.path.join(BASE, "share", "linuxcnc")
 sys.path.insert(0, libdir)
 themedir = "/usr/share/themes"
-try:
-        import pygtk
-        pygtk.require("2.0")
-except:
-        pass
-try:
-        import gtk
-        import gtk.glade
-        import gobject
-        import pango
-except:
-        sys.exit(1)
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 
 import atexit
 import tempfile
 import signal
 
 empty_program = tempfile.NamedTemporaryFile()
-empty_program.write("%\n%\n")
+empty_program.write(b"%\n%\n")
 empty_program.flush()
 
 import gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
-gtk.glade.textdomain("linuxcnc")
+gettext.install("linuxcnc", localedir=LOCALEDIR)
+#TODO
+#gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
+#gtk.glade.textdomain("linuxcnc")
 
 def set_active(w, s):
         if not w: return
@@ -71,13 +65,13 @@ from touchy import preferences
 pix_data = '''/* XPM */
 static char * invisible_xpm[] = {
 "1 1 1 1",
-"	c None",
+"        c None",
 " "};'''
 
 
-color = gtk.gdk.Color()
-pix = gtk.gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
-invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
+#color = gdk.Color(0,0,0)
+#pix = gdk.pixmap_create_from_data(None, pix_data, 1, 1, 1, color, color)
+#invisible = gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
         def __init__(self, inifile):
@@ -156,11 +150,12 @@ class touchy:
                     if self.window_max:
                         self.wTree.get_widget("MainWindow").window.maximize()
 
-                self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
-                if self.invisible_cursor:
-                        self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
-                else:
-                        self.wTree.get_widget("MainWindow").window.set_cursor(None)
+                #TODO:
+                #self.invisible_cursor = self.prefs.getpref('invisible_cursor', 0)
+                #if self.invisible_cursor:
+                #        self.wTree.get_widget("MainWindow").window.set_cursor(invisible)
+                #else:
+                #        self.wTree.get_widget("MainWindow").window.set_cursor(None)
                 self.wTree.get_widget("controlfontbutton").set_font_name(self.control_font_name)
                 self.control_font = pango.FontDescription(self.control_font_name)
 
@@ -324,7 +319,7 @@ class touchy:
                         "on_machine_on_clicked" : self.linuxcnc.machine_on,
                         "on_mdi_clear_clicked" : self.mdi_control.clear,
                         "on_mdi_back_clicked" : self.mdi_control.back,
-                        "on_mdi_next_clicked" : self.mdi_control.next,
+                        "on_mdi_next_clicked" : self.mdi_control.__next__,
                         "on_mdi_decimal_clicked" : self.mdi_control.decimal,
                         "on_mdi_minus_clicked" : self.mdi_control.minus,
                         "on_mdi_keypad_clicked" : self.mdi_control.keypad,
@@ -343,7 +338,7 @@ class touchy:
                         "on_listing_up_clicked" : self.listing.up,
                         "on_listing_down_clicked" : self.listing.down,
                         "on_listing_previous_clicked" : self.listing.previous,
-                        "on_listing_next_clicked" : self.listing.next,
+                        "on_listing_next_clicked" : self.listing.__next__,
                         "on_mist_on_clicked" : self.linuxcnc.mist_on,
                         "on_mist_off_clicked" : self.linuxcnc.mist_off,
                         "on_flood_on_clicked" : self.linuxcnc.flood_on,
@@ -397,9 +392,9 @@ class touchy:
                 gtk.main_quit()
 
         def send_message(self,socket,dest_xid,message):
-            event = gtk.gdk.Event(gtk.gdk.CLIENT_EVENT)
+            event = gdk.Event(gdk.CLIENT_EVENT)
             event.window = socket.get_window()                  # needs sending gdk window
-            event.message_type = gtk.gdk.atom_intern('Gladevcp')    # change to any text you like
+            event.message_type = gdk.atom_intern('Gladevcp')    # change to any text you like
             event.data_format = 8                               # 8 bit (char) data (options: long,short)
             event.data = message                                # must be exactly 20 char bytes (options: 5 long or 10 short)
             event.send_event = True                             # signals this was sent explicedly
@@ -653,18 +648,18 @@ class touchy:
                         if w:
                             w.modify_font(self.dro_font)
                             if "r" in i and not self.rel_textcolor == "default":
-                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.rel_textcolor))
+                                w.modify_fg(gtk.STATE_NORMAL,gdk.color_parse(self.rel_textcolor))
                             elif "a" in i and not self.abs_textcolor == "default":
-                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.abs_textcolor))
+                                w.modify_fg(gtk.STATE_NORMAL,gdk.color_parse(self.abs_textcolor))
                             elif "d" in i and not self.dtg_textcolor == "default":
-                                w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.dtg_textcolor))
+                                w.modify_fg(gtk.STATE_NORMAL,gdk.color_parse(self.dtg_textcolor))
 
                 # status bar
                 for i in ["error"]:
                         w = self.wTree.get_widget(i)
                         w.modify_font(self.error_font)
                         if not self.err_textcolor == "default":
-                            w.modify_fg(gtk.STATE_NORMAL,gtk.gdk.color_parse(self.err_textcolor))
+                            w.modify_fg(gtk.STATE_NORMAL,gdk.color_parse(self.err_textcolor))
 
         def mdi_set_tool(self, b):
                 self.mdi_control.set_tool(self.status.get_current_tool(), self.g10l11)

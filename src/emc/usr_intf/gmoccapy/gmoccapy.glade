@@ -515,7 +515,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="show_tabs">False</property>
-                                <property name="homogeneous">True</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox15">
                                     <property name="visible">True</property>
@@ -1123,9 +1122,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="show_tabs">False</property>
                                                             <property name="show_border">False</property>
-                                                            <property name="tab_border">0</property>
-                                                            <property name="tab_hborder">0</property>
-                                                            <property name="tab_vborder">0</property>
                                                             <child>
                                                             <object class="GtkTable" id="tbl_jog_btn_axes">
                                                             <property name="visible">True</property>
@@ -2875,10 +2871,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="tab_pos">left</property>
-                    <property name="tab_border">20</property>
-                    <property name="tab_hborder">5</property>
-                    <property name="tab_vborder">5</property>
-                    <property name="homogeneous">True</property>
                     <child>
                       <object class="GtkHBox" id="hbox_setup_apear">
                         <property name="visible">True</property>
@@ -3842,29 +3834,6 @@ clicking on the DRO</property>
                                             <property name="expand">False</property>
                                             <property name="fill">False</property>
                                             <property name="position">5</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkComboBoxEntry" id="cmb_mouse_button_mode">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="model">lst_button_mode</property>
-                                            <property name="text_column">1</property>
-                                            <signal name="changed" handler="on_cmb_mouse_button_mode_changed" swapped="no"/>
-                                            <child internal-child="entry">
-                                              <object class="GtkEntry" id="comboboxentry-entry2">
-                                                <property name="can_focus">False</property>
-                                                <property name="primary_icon_activatable">False</property>
-                                                <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                       </object>

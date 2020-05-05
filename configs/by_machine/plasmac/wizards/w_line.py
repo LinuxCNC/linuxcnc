@@ -40,7 +40,7 @@ class line:
 
     def dialog_error(self, error):
         md = gtk.MessageDialog(self.W, 
-            gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
+            gtk.DialogFlags.DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR, 
             gtk.BUTTONS_CLOSE, error)
         md.run()
         md.destroy()
@@ -184,7 +184,7 @@ class line:
         self.fWizard = fWizard
         self.W = gtk.Dialog('Line',
                        None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                       gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
                        buttons = None)
         self.W.set_keep_above(True)
         self.W.set_position(gtk.WIN_POS_CENTER_ALWAYS)

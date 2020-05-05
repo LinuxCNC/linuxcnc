@@ -22,12 +22,11 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 '''
-
-import gtk
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 import gladevcp
-import pango
-
-import gobject
 
 class Dialogs(gobject.GObject):
 
@@ -45,18 +44,18 @@ class Dialogs(gobject.GObject):
     def system_dialog(self, caller):
         dialog = gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
         label = gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(True)
         dialog.show_all()
@@ -64,7 +63,7 @@ class Dialogs(gobject.GObject):
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == gtk.ResponseType.ACCEPT:
             if code == int(caller.unlock_code):
                 return True
         return False
@@ -72,13 +71,13 @@ class Dialogs(gobject.GObject):
     def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
         dialog = gtk.Dialog(header,
                    caller.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
         label = gtk.Label(label)
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         if data != None:
             calc.set_value(data)
@@ -86,7 +85,7 @@ class Dialogs(gobject.GObject):
             calc.set_value("")
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(True)
         self.emit("play_sound", "alert")
@@ -97,7 +96,7 @@ class Dialogs(gobject.GObject):
         response = dialog.run()
         value = calc.get_value()
         dialog.destroy()
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == gtk.ResponseType.ACCEPT:
             if value != None:
                 if integer:
                     return int(value)
@@ -110,8 +109,8 @@ class Dialogs(gobject.GObject):
     # display warning dialog
     def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"), sound = True):
         dialog = gtk.MessageDialog(caller.widgets.window1,
-            gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_INFO, gtk.BUTTONS_OK, message)
+            gtk.DialogFlags.DESTROY_WITH_PARENT,
+            gtk.MessageType.INFO, gtk.ButtonsType.OK, message)
         # if there is a secondary message then the first message text is bold
         if secondary:
             dialog.format_secondary_text(secondary)
@@ -121,11 +120,11 @@ class Dialogs(gobject.GObject):
         dialog.set_title(title)
         responce = dialog.run()
         dialog.destroy()
-        return responce == gtk.RESPONSE_OK
+        return responce == gtk.ResponseType.OK
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
         dialog = gtk.MessageDialog(caller.widgets.window1,
-                                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                                   gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    gtk.MESSAGE_QUESTION,
                                    gtk.BUTTONS_YES_NO)
         if title:
@@ -139,9 +138,9 @@ class Dialogs(gobject.GObject):
 
     def show_user_message(self, caller, message, title = _("Operator Message")):
         dialog = gtk.MessageDialog(caller.widgets.window1,
-                                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                                   gtk.MESSAGE_INFO,
-                                   gtk.BUTTONS_OK)
+                                   gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                   gtk.MessageType.INFO,
+                                   gtk.ButtonsType.OK)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
@@ -149,7 +148,7 @@ class Dialogs(gobject.GObject):
         self.emit("play_sound", "alert")
         responce = dialog.run()
         dialog.destroy()
-        return responce == gtk.RESPONSE_OK
+        return responce == gtk.ResponseType.OK
 
     # dialog for run from line
     def restart_dialog(self, caller):
@@ -176,12 +175,12 @@ class Dialogs(gobject.GObject):
             obj.widgets.gcode_view.set_line_number(line)
 
         restart_dialog = gtk.Dialog(_("Restart Entry"),
-                   caller.widgets.window1, gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   caller.widgets.window1, gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                     gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
         label = gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        restart_dialog.vbox.pack_start(label)
+        restart_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         restart_dialog.vbox.add(calc)
         calc.set_value("%d" % caller.widgets.gcode_view.get_line_number())
@@ -206,7 +205,7 @@ class Dialogs(gobject.GObject):
         self.emit("play_sound", "alert")
         result = restart_dialog.run()
         restart_dialog.destroy()
-        if result == gtk.RESPONSE_REJECT:
+        if result == gtk.ResponseType.REJECT:
             line = 0
         else:
             line = int(calc.get_value())

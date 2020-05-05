@@ -15,11 +15,14 @@
 # GNU General Public License for more details.
 
 from __future__ import print_function
-import sys, os, pango, linuxcnc, hashlib, glib
+import sys, os, linuxcnc, hashlib, glib
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
-    import gobject,gtk
+    import gi
+    from gi.repository import Gtk as gtk
+    from gi.repository import GObject as gobject
+    from gi.repository import Pango as pango
 except:
     print('GTK not available')
     sys.exit(1)
@@ -136,7 +139,7 @@ class ToolEdit(gtk.VBox):
         #self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.view2.connect("key-release-event", self.on_tree_navigate_key_press, 'wear')
         self.selection = self.view2.get_selection()
-        self.selection.set_mode(gtk.SELECTION_SINGLE)
+        self.selection.set_mode(gtk.SelectionMode.SINGLE)
         self.view3 = self.wTree.get_object("treeview3")
         #self.view3.connect('button_press_event', self.on_treeview2_button_press_event)
         self.view3.connect("key-release-event", self.on_tree_navigate_key_press, 'tool')
@@ -536,7 +539,7 @@ class ToolEdit(gtk.VBox):
 
     # define the callback for keypress events
     def on_tree_navigate_key_press(self, treeview, event, filter):
-        keyname = gtk.gdk.keyval_name(event.keyval)
+        keyname = gdk.keyval_name(event.keyval)
         path, col = treeview.get_cursor()
         columns = [c for c in treeview.get_columns()]
         colnum = columns.index(col)
@@ -655,9 +658,9 @@ class ToolEdit(gtk.VBox):
 def main(filename=None):
     window = gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
+                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
     tooledit = ToolEdit(filename)
     
     window.vbox.add(tooledit)
@@ -670,7 +673,7 @@ def main(filename=None):
     window.show_all()
     #tooledit.set_lathe_display(True)
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
+    if response == gtk.ResponseType.ACCEPT:
        print("True")
     else:
        print("False")
