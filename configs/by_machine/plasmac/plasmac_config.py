@@ -42,6 +42,7 @@ class HandlerClass:
     def configure_widgets(self):
         # set_digits = number of digits after decimal
         # configure  = (value, lower limit, upper limit, step size, 0, 0)
+        self.builder.get_object('version-label').set_text(self.plasmacVersion)
         self.builder.get_object('arc-fail-delay').set_digits(1)
         self.builder.get_object('arc-fail-delay-adj').configure(3,0.1,60,0.1,0,0)
         self.builder.get_object('arc-ok-low').set_digits(0)
@@ -318,6 +319,9 @@ class HandlerClass:
                     self.builder.get_object(key).update()
 
     def __init__(self, halcomp,builder,useropts):
+
+        self.plasmacVersion = 'PlasmaC v0.121'
+
         self.halcomp = halcomp
         self.builder = builder
         self.i = linuxcnc.ini(os.environ['INI_FILE_NAME'])

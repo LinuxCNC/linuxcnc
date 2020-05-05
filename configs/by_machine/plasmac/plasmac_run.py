@@ -127,6 +127,7 @@ class HandlerClass:
 
     def display_materials(self):
         self.materialList = []
+        self.builder.get_object('materials').clear()
         for key in sorted(self.materialFileDict):
             iter = self.builder.get_object('materials').append()
             self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(key, self.materialFileDict[key][0]))
@@ -262,6 +263,50 @@ class HandlerClass:
         self.get_material()
         self.builder.get_object('material').set_active(material)
         self.materialUpdate = False
+        hal.set_p('plasmac_run.material-reload', '0')
+
+    def on_material_reload_pin(self, halpin):
+        if halpin.get():
+            self.on_reload_clicked(1)
+
+    def on_temp_material_pin(self, halpin):
+        if halpin.get():
+            t_number = 0
+            t_name = 'Temporary'
+            t_item = 0
+            with open(self.tmpMaterialFile, 'r') as f_in:
+                for line in f_in:
+                    if line.startswith('kerf-width'):
+                        k_width = float(line.split('=')[1].strip()) 
+                    elif line.startswith('thc-enable'):
+                        thc_enable = int(line.split('=')[1].strip())
+                    elif line.startswith('pierce-height'):
+                        p_height = float(line.split('=')[1].strip())
+                    elif line.startswith('pierce-delay'):
+                        p_delay = float(line.split('=')[1].strip())
+                    elif line.startswith('puddle-jump-height'):
+                        pj_height = float(line.split('=')[1].strip())
+                    elif line.startswith('puddle-jump-delay'):
+                        pj_delay = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-height'):
+                        c_height = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-feed-rate'):
+                        c_speed = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-amps'):
+                        c_amps = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-volts'):
+                        c_volts = float(line.split('=')[1].strip())
+                    elif line.startswith('pause-at-end'):
+                        pause = float(line.split('=')[1].strip())
+                    elif line.startswith('gas-pressure'):
+                        g_press = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-mode'):
+                        c_mode = float(line.split('=')[1].strip())
+            self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+            self.display_materials()
+            self.change_material(0, 'tmp')
+            self.builder.get_object('material').set_active(0)
+            hal.set_p('plasmac_run.temp-material', '0')
 
     def on_new_clicked(self, widget):
         response, num, nam = self.dialog_common('Add Material',\
@@ -389,13 +434,14 @@ class HandlerClass:
             self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
 
     def on_material_changed(self,widget):
-        if self.getMaterial: return
-        if self.autoChange == False:
-            self.manualChange = True
-            material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
-            self.change_material(int(material),'box')
-        else:
-            self.autoChange = False
+        if self.builder.get_object('material').get_active_text():
+            if self.getMaterial: return
+            if self.autoChange == False:
+                self.manualChange = True
+                material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
+                self.change_material(int(material),'box')
+            else:
+                self.autoChange = False
 
     def material_change_number_changed(self,halpin):
         if self.getMaterial: return
@@ -999,10 +1045,14 @@ class HandlerClass:
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
         self.firstMaterialPin = hal_glib.GPin(halcomp.newpin('first-material', hal.HAL_S32, hal.HAL_IN))
+        self.materialReloadPin = hal_glib.GPin(halcomp.newpin('material-reload', hal.HAL_BIT, hal.HAL_IN))
+        self.tempMaterialPin = hal_glib.GPin(halcomp.newpin('temp-material', hal.HAL_BIT, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
         self.firstMaterialPin.connect('value-changed', self.first_material_changed)
+        self.materialReloadPin.connect('value-changed', self.on_material_reload_pin)
+        self.tempMaterialPin.connect('value-changed', self.on_temp_material_pin)
         self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
         hal.connect('plasmac_run.program-is-idle', 'plasmac:program-is-idle') 
         self.idlePin.connect('value-changed', self.idle_changed)
@@ -1013,6 +1063,7 @@ class HandlerClass:
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
         self.prefFile = self.i.find('EMC', 'MACHINE') + '.pref'
         self.materialFile = self.i.find('EMC', 'MACHINE').lower() + '_material.cfg'
+        self.tmpMaterialFile = self.materialFile.replace('.cfg','.tmp')
         self.materialFileDict = {}
         self.materialDict = {}
         self.configDict = {}
