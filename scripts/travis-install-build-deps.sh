@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 sudo sh -c 'echo deb-src http://us.archive.ubuntu.com/ubuntu/ xenial main universe >> /etc/apt/sources.list'
 grep . /etc/apt/sources.list /etc/apt/sources.list.d/*
 sudo apt-get update -qq
