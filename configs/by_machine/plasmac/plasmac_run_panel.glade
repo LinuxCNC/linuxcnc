@@ -80,7 +80,6 @@
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">cutting current in amps
 indicator only, not used by plasmac.</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -133,7 +132,6 @@ indicator only, not used by plasmac.</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">cutting voltage in volts
 only used if not using auto volts</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -181,7 +179,6 @@ only used if not using auto volts</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">piercing height in machine units</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -309,7 +306,6 @@ set to 0 to disable</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">piercing delay in seconds</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -332,7 +328,6 @@ set to 0 to disable</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">cutting height in machine units</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -356,7 +351,6 @@ set to 0 to disable</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">cutting feed rate in machine units per minute
 set this to 0 to use feed rate from gcode</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -380,7 +374,6 @@ set this to 0 to use feed rate from gcode</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump height as a percentage of pierce height
 set to 0 to disable</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
@@ -404,7 +397,6 @@ set to 0 to disable</property>
                                 <property name="has_tooltip">True</property>
                                 <property name="tooltip_text" translatable="yes">puddle jump delay in seconds
 set to 0 to disable</property>
-                                <property name="max_length">5</property>
                                 <property name="invisible_char">●</property>
                                 <property name="xalign">1</property>
                                 <property name="primary_icon_activatable">False</property>
