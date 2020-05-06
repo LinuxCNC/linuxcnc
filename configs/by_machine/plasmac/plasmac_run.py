@@ -170,7 +170,7 @@ class HandlerClass:
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
-                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = 0.0
+                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
                     t_item += 1
                     received = []
                 elif line.startswith('NAME'):
@@ -735,8 +735,8 @@ class HandlerClass:
                     outFile.write('CUT_AMPS           = {}\n'.format(self.builder.get_object('cut-amps').get_value()))
                 elif line.startswith('CUT_VOLTS'):
                     outFile.write('CUT_VOLTS          = {}\n'.format(self.builder.get_object('cut-volts').get_value()))
-                elif line.startswith('TORCH_OFF_DELAY'):
-                    outFile.write('TORCH_OFF_DELAY    = {}\n'.format(self.builder.get_object('torch-off-delay').get_value()))
+                elif line.startswith('PAUSE_AT_END'):
+                    outFile.write('PAUSE_AT_END       = {}\n'.format(self.builder.get_object('pause-at-end').get_value()))
                 elif line.startswith('GAS_PRESSURE'):
                     outFile.write('GAS_PRESSURE       = {}\n'.format(self.builder.get_object('gas-pressure').get_value()))
                 elif line.startswith('CUT_MODE'):
