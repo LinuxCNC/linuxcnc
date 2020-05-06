@@ -30,7 +30,11 @@ __all__ = """
     CASCADE CHECKBUTTON COMMAND RADIOBUTTON SEPARATOR STATUS PROGRESSION
 """.split()
 
-import Tkinter, types
+import sys, types
+if sys.version_info[0] == 3:
+    import tkinter
+else:
+    import Tkinter as tkinter
 
 def returnswidget(f):
     def w(self, *args, **kw):
@@ -77,11 +81,11 @@ def nametowidget(self, name):
         name = tail
     return w
 
-Tkinter.Misc.nametowidget = nametowidget
+tkinter.Misc.nametowidget = nametowidget
     
 def makewidget(master, klass, path):
     path = str(path)
-    self = types.InstanceType(klass)
+    self = klass()
     self._name = path[len(master._w)+1:]
     self._w = path
     self.children = {}
@@ -95,33 +99,33 @@ class BWidget:
         master.tk.call("package", "require", "BWidget")
     def __init__(self, master, cnf={}, **kw):
         self._require(master)
-        Tkinter.Widget.__init__(self, master, self.__class__.__name__, cnf, kw)
+        tkinter.Widget.__init__(self, master, self.__class__.__name__, cnf, kw)
 
 # Simple Widgets
-class Entry(BWidget, Tkinter.Entry):
+class Entry(BWidget, tkinter.Entry):
     def invoke(self):
         return self.tk.call(self._w, "invoke")
 
-class Label(BWidget, Tkinter.Label):
+class Label(BWidget, tkinter.Label):
     def setfocus(self):
         return self.tk.call(self._w, "setfocus")
 
-class Button(BWidget, Tkinter.Button): pass
+class Button(BWidget, tkinter.Button): pass
 
-class ArrowButton(BWidget, Tkinter.Button): pass
+class ArrowButton(BWidget, tkinter.Button): pass
 
-class ProgressBar(BWidget, Tkinter.Widget): pass
+class ProgressBar(BWidget, tkinter.Widget): pass
 
-class ScrollView(BWidget, Tkinter.Widget): pass
+class ScrollView(BWidget, tkinter.Widget): pass
 
-class Separator(BWidget, Tkinter.Widget): pass
+class Separator(BWidget, tkinter.Widget): pass
     
 # Manager Widgets
 
 class _Frame:
     def getframe(self):
         return self.tk.call(self._w, "getframe")
-    getframe = makeswidget(getframe, Tkinter.Frame)
+    getframe = makeswidget(getframe, tkinter.Frame)
 
 class _Items:
     def itemcget(self, index, option):
@@ -138,7 +142,7 @@ SEPARATOR="separator"
 STATUS = "status"
 PROGRESSION = "progression"
 
-class MainFrame(BWidget, _Frame, Tkinter.Widget):
+class MainFrame(BWidget, _Frame, tkinter.Widget):
     def addindicator(self, **kw):
         return self.tk.call(self._w, "addindicator", *self._options(kw))
     addindicator = makeswidget(addindicator, Label)
@@ -160,19 +164,19 @@ class MainFrame(BWidget, _Frame, Tkinter.Widget):
     def showtoolbar(self, index, bool_):
         return self.tk.call(self._w, "showtoolbar", index, bool_)
 
-class LabelFrame(BWidget, _Frame, Tkinter.Widget):
+class LabelFrame(BWidget, _Frame, tkinter.Widget):
     def align(self, others):
         return self.tk.call("LabelFrame::align", self, *others)
 
-class TitleFrame(BWidget, _Frame, Tkinter.Frame): pass
+class TitleFrame(BWidget, _Frame, tkinter.Frame): pass
 
-class PanelFrame(BWidget, Tkinter.Frame): pass
+class PanelFrame(BWidget, tkinter.Frame): pass
 
-class ScrolledWindow(BWidget, _Frame, Tkinter.Frame):
+class ScrolledWindow(BWidget, _Frame, tkinter.Frame):
     def setwidget(self, child):
         return self.tk.call(self._w, "setwidget", child)
 
-class ScrollableFrame(BWidget, _Frame, Tkinter.Frame):
+class ScrollableFrame(BWidget, _Frame, tkinter.Frame):
     def see(self, w, vert=None, horiz=None):
         if vert is None and horiz is None:
             return self.tk.call(self._w, "see", w)
@@ -184,16 +188,16 @@ class ScrollableFrame(BWidget, _Frame, Tkinter.Frame):
     def yview(self, *args):
         return self.tk.call(self._w, "yview", *args)
 
-class PanedWindow(BWidget, Tkinter.Frame):
+class PanedWindow(BWidget, tkinter.Frame):
     def add(self, **kw):
         return self.tk.call(self._w, "add", *self._options(kw))
-    add = makeswidget(add, Tkinter.Frame)
+    add = makeswidget(add, tkinter.Frame)
 
     def getframe(self, index):
         return self.tk.call(self._w, "getframe", index)
-    getframe = makeswidget(getframe, Tkinter.Frame)
+    getframe = makeswidget(getframe, tkinter.Frame)
 
-class ButtonBox(BWidget, _Items, Tkinter.Frame):
+class ButtonBox(BWidget, _Items, tkinter.Frame):
     def add(self, **kw):
         return self.tk.call(self._w, "add", *self._options(kw))
     add = makeswidget(add, Button)
@@ -214,10 +218,10 @@ class ButtonBox(BWidget, _Items, Tkinter.Frame):
     def setfocus(self, index):
         return self.tk.call(self._w, "setfocus", index)
 
-class PagesManager(BWidget, Tkinter.Frame):
+class PagesManager(BWidget, tkinter.Frame):
     def add(self, page):
         return self.tk.call(self._w, "add", page)
-    add = makeswidget(add, Tkinter.Frame)
+    add = makeswidget(add, tkinter.Frame)
 
     def compute_size(self):
         return self.tk.call(self._w, "compute_size")
@@ -227,7 +231,7 @@ class PagesManager(BWidget, Tkinter.Frame):
 
     def getframe(self, page):
         return self.tk.call(self._w, "getframe", page)
-    getframe = makeswidget(getframe, Tkinter.Frame)
+    getframe = makeswidget(getframe, tkinter.Frame)
 
     def pages(self, *args):
         return self.tk.call(self._w, "pages", *args)
@@ -246,7 +250,7 @@ class NoteBook(PagesManager, _Items):
 
     def insert(self, index, page, **kw):
         return self.tk.call(self._w, "insert", index, page, *self._options(kw))
-    insert = makeswidget(insert, Tkinter.Frame)
+    insert = makeswidget(insert, tkinter.Frame)
 
     def move(self, page, index):
         return self.tk.call(self._w, "move", page, index)
@@ -260,7 +264,7 @@ class NoteBook(PagesManager, _Items):
         else:
             return self.tk.call(self._w, "raise", page)
 
-class Dialog(ButtonBox, Tkinter.BaseWidget, _Frame):
+class Dialog(ButtonBox, tkinter.BaseWidget, _Frame):
     def draw(self, focus=None):
         if focus is None:
             return self.tk.call(self, "draw")
@@ -289,7 +293,7 @@ class ComboBox(Entry):
             if c == "ListBox":
                 return makewidget(self, ListBox, r)
             else:
-                return makewidget(self, Tkinter.Listbox, r)
+                return makewidget(self, tkinter.Listbox, r)
 
     def getvalue(self):
         return self.tk.call(self._w, "getvalue")
@@ -313,7 +317,7 @@ class SpinBox(Entry):
     def getvalue(self):
         return self.tk.call(self._w, "getvalue")
 
-class Tree(BWidget, Tkinter.Widget, _Items):
+class Tree(BWidget, tkinter.Widget, _Items):
     def bind_image(self, event, script):
         return self.tk.call(self._w, "bindImage", event, script)
 
@@ -391,7 +395,7 @@ class Tree(BWidget, Tkinter.Widget, _Items):
     def yview(self, *args):
         return self.tk.call(self.yview, *args)
 
-class ListBox(BWidget, Tkinter.Widget, _Items):
+class ListBox(BWidget, tkinter.Widget, _Items):
     def bind_image(self, event, script):
         return self.tk.call(self._w, "bindImage", event, script)
 
@@ -457,17 +461,17 @@ class ListBox(BWidget, Tkinter.Widget, _Items):
 class MessageDialog(Dialog):
     def __init__(self, master, cnf={}, **kw):
         self._require(master)
-        Tkinter.Widget.__init__(self, master, "MessageDlg", cnf, kw)
+        tkinter.Widget.__init__(self, master, "MessageDlg", cnf, kw)
     
 class ProgressDialog(Dialog):
     def __init__(self, master, cnf={}, **kw):
         self._require(master)
-        Tkinter.Widget.__init__(self, master, "ProgressDlg", cnf, kw)
+        tkinter.Widget.__init__(self, master, "ProgressDlg", cnf, kw)
 
 class PasswordDialog(Dialog):
     def __init__(self, master, cnf={}, **kw):
         self._require(master)
-        Tkinter.Widget.__init__(self, master, "PasswdDlg", cnf, kw)
+        tkinter.Widget.__init__(self, master, "PasswdDlg", cnf, kw)
 
 class SelectFont(Dialog): pass
 class SelectColor(Dialog):

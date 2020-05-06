@@ -29,6 +29,7 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to pncconf.py
 
+from __future__ import print_function
 import gtk
 import os
 import gobject
@@ -1029,7 +1030,7 @@ class Pages:
             self.d[p] = signal
             self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
-        print '** pport** ',self.d.pp1_direction
+        print('** pport** ',self.d.pp1_direction)
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 

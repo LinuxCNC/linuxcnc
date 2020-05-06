@@ -16,4 +16,4 @@ def quote(n):
 
 for fn in args:
     if join: fn = os.path.join(join, fn)
-    print(quote(os.path.normpath(fn))).encode('ascii')
+    print(quote(os.path.normpath(fn)))

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 '''Copied from m61-test'''
 
 import linuxcnc
@@ -36,6 +36,6 @@ if len(sys.argv)>1:
     e.wait_on_program()
 
 else:
-    print "No G code specified, setup complete"
+    print("No G code specified, setup complete")
 
 

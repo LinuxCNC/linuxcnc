@@ -92,6 +92,7 @@ class bolt_circle:
         else:
             inTmp = open(self.fTmp, 'r')
             outWiz = open(self.fWizard, 'w')
+            outWiz.write('(preamble)\n')
             outWiz.write('{}\n'.format(self.preamble))
             outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             for line in inTmp:
@@ -117,11 +118,15 @@ class bolt_circle:
         else:
             holes = 0
         if cRadius > 0 and hRadius > 0 and holes > 0:
+            ijDiff = 0
+            if self.offset.get_active():
+                if self.offset.get_active():
+                    ijDiff = hal.get_value('plasmac_run.kerf-width-f') / 2
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
             down = math.radians(270)
-            if hRadius < self.scRadius:
+            if hRadius < self.sRadius:
                 sHole = True
             else:
                 sHole = False
@@ -171,21 +176,20 @@ class bolt_circle:
                         break
                     outNgc.write(line)
             else:
+                outNgc.write('(preamble)\n')
                 outNgc.write('{}\n'.format(self.preamble))
                 outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             for hole in range(holes):
                 outTmp.write('\n(wizard bolt circle, hole #{})\n'.format(hole + 1))
                 xhC = xC + cRadius * math.cos(hAngle * hole + angle)
                 yhC = yC + cRadius * math.sin(hAngle * hole + angle)
-                xS = xhC + hRadius * math.cos(left)
-                yS = yhC + hRadius * math.sin(left)
+                xS = xhC - hRadius + ijDiff
+                yS = yhC
                 if sHole:
                     outTmp.write('m67 E3 Q{}\n'.format(self.hSpeed))
-                    xlStart = xS + leadIn * math.cos(right)
-                    ylStart = yS + leadIn * math.sin(right)
+                    xlStart = xS + leadIn
+                    ylStart = yhC
                     outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-                    if self.offset.get_active():
-                        outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
                     outTmp.write('m3 $0 s1\n')
                     outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
                 else:
@@ -194,20 +198,24 @@ class bolt_circle:
                     xlStart = xlCentre + (leadInOffset * math.cos(angle + up))
                     ylStart = ylCentre + (leadInOffset * math.sin(angle + up))
                     outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-                    if self.offset.get_active():
-                        outTmp.write('g41.1 d#<_hal[plasmac_run.kerf-width-f]>\n')
                     outTmp.write('m3 $0 s1\n')
                     outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
-                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f}\n'.format(xS, yS, hRadius * math.cos(right)))
+                outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f}\n'.format(xS, yS, hRadius - ijDiff))
                 if not sHole:
                     xlEnd = xlCentre + (leadInOffset * math.cos(angle + down))
                     ylEnd = ylCentre + (leadInOffset * math.sin(angle + down))
                     outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd, xlCentre - xS, ylCentre - yS))
-                if self.offset.get_active():
-                    outTmp.write('g40\n')
-                if sHole:
-                    outTmp.write('m67 E3 Q0\n')
+                torch = True
+                if self.overcut.get_active() and sHole:
+                    Torch = False
+                    outTmp.write('m62 p3 (disable torch)\n')
+                    self.over_cut(xS, yS, hRadius - ijDiff, hRadius - ijDiff, outTmp)
                 outTmp.write('m5\n')
+                if sHole:
+                    outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')
+                if not torch:
+                    torch = True
+                    outTmp.write('m65 p3 (enable torch)\n')
             outTmp.close()
             outTmp = open(self.fTmp, 'r')
             for line in outTmp:
@@ -230,10 +238,40 @@ class bolt_circle:
                 msg += '# of Holes are required'
             self.dialog_error(msg)
 
+    def over_cut(self, lastX, lastY, IJ, radius, outTmp):
+        scale = 0.039370 if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else 1.0
+        try:
+            oclength = float(self.ocEntry.get_text())
+        except:
+            oclength = 4 * scale
+        centerX = lastX + IJ
+        centerY = lastY
+        cosA = math.cos(oclength / radius)
+        sinA = math.sin(oclength / radius)
+        cosB = ((lastX - centerX) / radius)
+        sinB = ((lastY - centerY) / radius)
+        endX = centerX + radius * ((cosB * cosA) - (sinB * sinA))
+        endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
+        outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, IJ, 0))
+
+    def diameter_changed(self,widget):
+        try:
+            rad = float(self.hdEntry.get_text()) / 2
+        except:
+            rad = 0
+        if rad >= self.sRadius:
+            self.overcut.set_active(False)
+            self.ocEntry.set_text('')
+            self.overcut.set_sensitive(False)
+            self.ocEntry.set_sensitive(False)
+        else:
+            self.overcut.set_sensitive(True)
+            self.ocEntry.set_sensitive(True)
+
     def do_bolt_circle(self, fWizard, tmpDir):
         self.tmpDir = tmpDir
         self.fWizard = fWizard
-        self.scRadius = 0.0
+        self.sRadius = 0.0
         self.hSpeed = 100
         self.W = gtk.Dialog('Bolt Circle',
                        None,
@@ -251,6 +289,21 @@ class bolt_circle:
         t.attach(offsetLabel, 0, 1, 0, 1)
         self.offset = gtk.CheckButton('Kerf Width')
         t.attach(self.offset, 1, 2, 0, 1)
+        ocBox = gtk.HBox()
+        self.ocBlank = gtk.Label('    ')
+        ocBox.pack_start(self.ocBlank, expand = True, fill = True)
+        self.overcut = gtk.CheckButton('Over Cut')
+        self.overcut.set_sensitive(False)
+        ocBox.pack_start(self.overcut)
+        ocLabel = gtk.Label('OC Length')
+        ocLabel.set_alignment(0.95, 0.5)
+        ocLabel.set_width_chars(9)
+        ocBox.pack_start(ocLabel)
+        self.ocEntry = gtk.Entry()
+        self.ocEntry.set_width_chars(5)
+        self.ocEntry.set_sensitive(False)
+        ocBox.pack_start(self.ocEntry)
+        t.attach(ocBox, 2, 5, 0, 1)
         lLabel = gtk.Label('Lead In')
         lLabel.set_alignment(0.95, 0.5)
         lLabel.set_width_chars(10)
@@ -296,6 +349,7 @@ class bolt_circle:
         t.attach(hdLabel, 0, 1, 7, 8)
         self.hdEntry = gtk.Entry()
         self.hdEntry.set_width_chars(10)
+        self.hdEntry.connect('changed', self.diameter_changed)
         t.attach(self.hdEntry, 1, 2, 7, 8)
         hLabel = gtk.Label('# of holes')
         hLabel.set_alignment(0.95, 0.5)
@@ -343,7 +397,7 @@ class bolt_circle:
                 elif line.startswith('lead-out'):
                     self.loEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('hole-diameter'):
-                    self.scRadius = float(line.strip().split('=')[1]) / 2
+                    self.sRadius = float(line.strip().split('=')[1]) / 2
                 elif line.startswith('hole-speed'):
                     self.hSpeed = float(line.strip().split('=')[1])
         response = self.W.run()

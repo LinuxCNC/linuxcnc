@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -16,7 +16,7 @@ program_start = time.time()
 
 def log(msg):
     delta_t = time.time() - program_start;
-    print "%.3f: %s" % (delta_t, msg)
+    print("%.3f: %s" % (delta_t, msg))
     sys.stdout.flush()
 
 
@@ -67,10 +67,10 @@ def wait_for_halui_mode(pin_name):
 
     while ((time.time() - start) < timeout):
         if h[pin_name]:
-            print "halui reports mode", pin_name
+            print("halui reports mode {}".format(pin_name))
             return
         time.sleep(0.1)
-    print "timeout waiting for halui to report mode", pin_name
+    print("timeout waiting for halui to report mode {}".format(pin_name))
     sys.exit(1)
 
 

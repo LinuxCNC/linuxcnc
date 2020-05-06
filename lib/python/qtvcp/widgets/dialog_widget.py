@@ -491,7 +491,6 @@ class FileDialog(QFileDialog, GeometryMixin):
             dir = message.get('DIRECTORY')
             if dir is None:
                 dir = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
-            print 'one',dir
             geo = message.get('GEONAME') or 'FileDialog-geometry'
             self.read_preference_geometry(geo)
             if name == self._load_request_name:

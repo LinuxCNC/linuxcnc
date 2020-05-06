@@ -32,6 +32,8 @@
 
     -g option allows setting of the initial position of the panel
 """
+
+from __future__ import print_function
 import sys, os, subprocess
 import traceback
 import warnings
@@ -82,7 +84,7 @@ gladevcp_debug = 0
 def dbg(string):
     global gladevcp_debug
     if not gladevcp_debug: return
-    print string
+    print(string)
 
 def on_window_destroy(widget, data=None):
         gtk.main_quit()
@@ -116,8 +118,8 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
         try:
             mod = __import__(basename)
-        except ImportError,msg:
-            print "module '%s' skipped - import error: %s" %(basename,msg)
+        except ImportError as msg:
+            print("module '%s' skipped - import error: %s" %(basename,msg))
             continue
         dbg("module '%s' imported OK" % mod.__name__)
         try:
@@ -136,17 +138,17 @@ def load_handlers(usermod,halcomp,builder,useropts):
             for object in objlist:
                 dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
-                    methods = dict.items()
+                    methods = list(dict.items())
                 else:
-                    methods = map(lambda n: (n, getattr(object, n, None)), dir(object))
+                    methods = [(n, getattr(object, n, None)) for n in dir(object)]
                 for method,f in methods:
                     if method.startswith('_'):
                         continue
                     if callable(f):
                         dbg("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
-        except Exception, e:
-            print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
+        except Exception as e:
+            print("gladevcp: trouble looking for handlers in '%s': %s" %(basename, e))
             traceback.print_exc()
 
     # Wrap lists in Trampoline, unwrap single functions
@@ -196,8 +198,8 @@ def main():
             builder = gtk.glade.XML(xmlname)
             builder = GladeBuilder(builder)
 
-        except Exception,e:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e)
+        except Exception as e:
+            print("**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e), file=sys.stderr)
             sys.exit(0)
 
     window = builder.get_object("window1")
@@ -207,7 +209,7 @@ def main():
     try:
         halcomp = hal.component(opts.component)
     except:
-        print >> sys.stderr, "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+        print("*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists.", file=sys.stderr)
         sys.exit(0)
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
@@ -261,7 +263,7 @@ def main():
             pos = j[2].partition("+")
             window.move( int(pos[0]), int(pos[2]) )
         except:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With window position data"
+            print("**** GLADE VCP ERROR:    With window position data", file=sys.stderr)
             parser.print_usage()
             sys.exit(1)
     if "x" in opts.geometry:
@@ -273,7 +275,7 @@ def main():
                 t = window_geometry.partition("x")
             window.resize( int(t[0]), int(t[2]) )
         except:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With window resize data"
+            print("**** GLADE VCP ERROR:    With window resize data", file=sys.stderr)
             parser.print_usage()
             sys.exit(1)
 
@@ -310,7 +312,7 @@ def main():
             cmd = ["halcmd", "-f", opts.halfile]
         res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
         if res:
-            print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+            print("'%s' exited with %d" %(' '.join(cmd), res), file=sys.stderr)
             sys.exit(res)
 
     # User components are set up so report that we are ready
@@ -321,10 +323,10 @@ def main():
     if opts.push_XID or opts.parent:
         gdkwin = window.get_window()
         w_id = gdkwin.xid
-        print >> sys.stdout,w_id
+        print(w_id, file=sys.stdout)
         sys.stdout.flush()
 
-    if handlers.has_key(signal_func):
+    if signal_func in handlers:
         dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
         signal.signal(signal.SIGINT,  handlers[signal_func])
@@ -340,7 +342,7 @@ def main():
         gtk.gdk.flush()
         error = gtk.gdk.error_trap_pop()
         if error and opts.debug:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
+            print("**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error), file=sys.stderr)
 
 
 if __name__ == '__main__':

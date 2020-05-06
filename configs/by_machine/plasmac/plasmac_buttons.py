@@ -31,28 +31,28 @@ import time
 class HandlerClass:
 
     def on_button1_pressed(self,button):
-        self.user_button_pressed(button.get_name(),self.iniButtonCode[1])
+        self.user_button_pressed(button,self.iniButtonCode[1])
 
     def on_button1_released(self,button):
-        self.user_button_released(button.get_name(),self.iniButtonCode[1])
+        self.user_button_released(button,self.iniButtonCode[1])
 
     def on_button2_pressed(self,button):
-        self.user_button_pressed(button.get_name(),self.iniButtonCode[2])
+        self.user_button_pressed(button,self.iniButtonCode[2])
 
     def on_button2_released(self,button):
-        self.user_button_released(button.get_name(),self.iniButtonCode[2])
+        self.user_button_released(button,self.iniButtonCode[2])
 
     def on_button3_pressed(self,button):
-        self.user_button_pressed(button.get_name(),self.iniButtonCode[3])
+        self.user_button_pressed(button,self.iniButtonCode[3])
 
     def on_button3_released(self,button):
-        self.user_button_released(button.get_name(),self.iniButtonCode[3])
+        self.user_button_released(button,self.iniButtonCode[3])
 
     def on_button4_pressed(self,button):
-        self.user_button_pressed(button.get_name(),self.iniButtonCode[4])
+        self.user_button_pressed(button,self.iniButtonCode[4])
 
     def on_button4_released(self,button):
-        self.user_button_released(button.get_name(),self.iniButtonCode[4])
+        self.user_button_released(button,self.iniButtonCode[4])
 
     def user_button_pressed(self, button, commands):
         if not commands: return
@@ -72,11 +72,16 @@ class HandlerClass:
         elif commands.lower() == 'ohmic-test':
             hal.set_p('plasmac.ohmic-test','1')
         elif 'probe-test' in commands.lower():
-            self.probePressed = True
-            self.probeButton = button
-            if commands.lower().replace('probe-test','').strip():
-                self.probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
-            hal.set_p('plasmac.probe-test','1')
+            if not self.probeTimer:
+                self.probePressed = True
+                self.probeButton = button
+                if commands.lower().replace('probe-test','').strip():
+                    self.probeStart = time.time()
+                    self.probeTimer = float(commands.lower().replace('probe-test','').strip())
+                    hal.set_p('plasmac.probe-test','1')
+                    self.probeText = self.probeButton.get_label()
+                    self.probeButton.set_label(str(int(self.probeTimer)))
+                    self.probeButton.set_style(self.buttonRed)
         elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running') and self.s.file:
             self.cutType ^= 1
             if not 'PlaSmaC' in self.s.file:
@@ -140,13 +145,15 @@ class HandlerClass:
                         self.c.wait_complete()
 
     def user_button_released(self, button, commands):
-        self.probePressed = False
         if not commands: return
-        if commands.lower() == 'ohmic-test':
+        if 'ohmic-test' in commands.lower():
             hal.set_p('plasmac.ohmic-test','0')
         elif 'probe-test' in commands.lower():
+            self.probePressed = False
             if not self.probeTimer and button == self.probeButton:
                 hal.set_p('plasmac.probe-test','0')
+                self.probeButton.set_label(self.probeText)
+                self.probeButton.set_style(self.buttonPlain)
                 self.probeButton = ''
 
     def set_theme(self):
@@ -166,6 +173,9 @@ class HandlerClass:
         self.buttonOrange = self.builder.get_object('button1').get_style().copy()
         self.buttonOrange.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse('orange')
         self.buttonOrange.bg[gtk.STATE_PRELIGHT] = gtk.gdk.color_parse('dark orange')
+        self.buttonRed = self.builder.get_object('button1').get_style().copy()
+        self.buttonRed.bg[gtk.STATE_NORMAL] = gtk.gdk.color_parse('red')
+        self.buttonRed.bg[gtk.STATE_PRELIGHT] = gtk.gdk.color_parse('red')
 
     def periodic(self):
         self.s.poll()
@@ -198,10 +208,17 @@ class HandlerClass:
                 else:
                     self.builder.get_object('button' + str(n)).set_sensitive(False)
         if self.probeTimer:
-            if time.time() >= self.probeTimer:
+            if hal.get_value('plasmac.probe-test-error') and not self.probePressed:
                 self.probeTimer = 0
-                if not self.probePressed:
-                    hal.set_p('plasmac.probe-test','0')
+            elif time.time() >= self.probeStart + 1:
+                self.probeStart += 1
+                self.probeTimer -= 1
+                self.probeButton.set_label(str(int(self.probeTimer)))
+                self.probeButton.set_style(self.buttonRed)
+            if not self.probeTimer and not self.probePressed:
+                hal.set_p('plasmac.probe-test','0')
+                self.probeButton.set_label(self.probeText)
+                self.probeButton.set_style(self.buttonPlain)
         if self.inFile and self.inFile != self.s.file:
             if not 'PlaSmaC' in self.s.file or 'PlaSmaC0' in self.s.file:
                 self.builder.get_object(self.cutButton).set_style(self.buttonPlain)

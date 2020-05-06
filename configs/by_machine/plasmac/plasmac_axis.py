@@ -362,8 +362,9 @@ w('canvas',fmonitor + '.led-kerf-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
 w('label',fmonitor + '.lKLlab','-text','THC Void Lock')
 # populate the monitor frame
-w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
-w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2','-sticky','w')
+if inifile.find('PLASMAC', 'MODE') != '2':
+    w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
+    w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2','-sticky','w')
 w('grid',fmonitor + '.led-arc-ok','-row','2','-column','0','-sticky','e')
 w('grid',fmonitor + '.lAOlab','-row','2','-column','1','-sticky','w')
 w('grid',fmonitor + '.led-torch','-row','3','-column','0','-sticky','e')
@@ -382,8 +383,9 @@ w('grid',fmonitor + '.led-up','-row','1','-column','4','-sticky','e')
 w('grid',fmonitor + '.updown','-row','1','-column','5','-sticky','e')
 w('grid',fmonitor + '.led-corner-locked','-row','2','-column','4','-sticky','e')
 w('grid',fmonitor + '.lCLlab','-row','2','-column','5','-sticky','w')
-w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
-w('grid',fmonitor + '.lKLlab','-row','3','-column','5','-sticky','w')
+if inifile.find('PLASMAC', 'MODE') != '2':
+    w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
+    w('grid',fmonitor + '.lKLlab','-row','3','-column','5','-sticky','w')
 w('grid','rowconfigure',fmonitor,'0 1 2 3','-pad','4')
 w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','current arc voltage')
 w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','a valid arc is established')
@@ -567,11 +569,20 @@ def user_button_pressed(button,commands):
         global probePressed
         global probeTimer
         global probeButton
-        probePressed = True
-        probeButton = button
-        if commands.lower().replace('probe-test','').strip():
-            probeTimer = float(commands.lower().replace('probe-test','').strip()) + time.time()
-        hal.set_p('plasmac.probe-test','1')
+        global probeStart
+        global probeText
+        global probeColor
+        if not probeTimer:
+            probePressed = True
+            probeButton = button
+            if commands.lower().replace('probe-test','').strip():
+                probeStart = time.time()
+                probeTimer = float(commands.lower().replace('probe-test','').strip())
+                hal.set_p('plasmac.probe-test','1')
+                probeText = w(fbuttons + '.button' + probeButton,'cget','-text')
+                probeColor = w(fbuttons + '.button' + probeButton,'cget','-bg')
+                w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
+                w(fbuttons + '.button' + probeButton,'configure','-bg','red')
     elif 'cut-type' in commands.lower() and not hal.get_value('halui.program.is-running'):
         global cutType
         cutType ^= 1
@@ -621,14 +632,18 @@ def user_button_pressed(button,commands):
 def user_button_released(button,commands):
     if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
        not commands: return
-    global probeButton
-    global probePressed
-    probePressed = False
-    if commands.lower() == 'ohmic-test':
+    if 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','0')
-    elif commands.lower() == 'probe-test':
+    elif 'probe-test' in commands.lower():
+        global probeButton
+        global probePressed
+        global probeText
+        global probeColor
+        probePressed = False
         if not probeTimer and button == probeButton:
             hal.set_p('plasmac.probe-test','0')
+            w(fbuttons + '.button' + probeButton,'configure','-text',probeText)
+            w(fbuttons + '.button' + probeButton,'configure','-bg',probeColor)
             probeButton = ''
 
 # this is run from axis every cycle
@@ -638,7 +653,11 @@ def user_live_update():
     stat.poll()
     global firstrundone
     global probeTimer
+    global probeStart
+    global probeButton
+    global probeText
     global probePressed
+    global probeColor
     if not firstrundone:
         spaceWidth = w('winfo','width',fmanual)
         spaceWidth -= w('winfo','width',fmonitor)
@@ -712,10 +731,17 @@ def user_live_update():
         w(foverride + '.reset','configure','-state','disabled')
     # decrement probe timer if active
     if probeTimer:
-        if time.time() >= probeTimer:
+        if hal.get_value('plasmac.probe-test-error') and not probePressed:
             probeTimer = 0
-            if not probePressed:
-                hal.set_p('plasmac.probe-test','0')
+        elif time.time() >= probeStart + 1:
+            probeStart += 1
+            probeTimer -= 1
+            w(fbuttons + '.button' + probeButton,'configure','-text',str(int(probeTimer)))
+            w(fbuttons + '.button' + probeButton,'configure','-bg','red')
+        if not probeTimer and not probePressed:
+            hal.set_p('plasmac.probe-test','0')
+            w(fbuttons + '.button' + probeButton,'configure','-text',probeText)
+            w(fbuttons + '.button' + probeButton,'configure','-bg',probeColor)
     if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
         hal.set_p('plasmac.consumable-change', '0')
     try:
@@ -724,6 +750,7 @@ def user_live_update():
             hal.set_p('plasmac_run.preview-tab', '0')
     except:
         pass
+
 def user_hal_pins():
     # create new hal pins
     comp.newpin('arc-voltage', hal.HAL_FLOAT, hal.HAL_IN)

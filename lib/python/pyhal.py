@@ -132,7 +132,7 @@ class port(pin):
         if self.dir != pinDir.OUT:
            raise HalException("cannot write input port")
 
-        return lib.hal_port_write(self.__port, buff, len(buff))
+        return lib.hal_port_write(self.__port, buff.encode(), len(buff))
 
     def readable(self):
         if self.dir != pinDir.IN:
@@ -209,7 +209,7 @@ class component:
         ctype = halType.typeConversion[type]
 
         ptr = self.halMalloc(sizeof(c_void_p))
-        result = lib.hal_pin_new("{0}.{1}".format(self.name, name), type, dir, ptr, self.id)
+        result = lib.hal_pin_new("{0}.{1}".format(self.name, name).encode(), type, dir, ptr, self.id)
         if result < 0:
             raise HalException('failed to create pin "{0}" with code {1}'.format(name, result))
 
@@ -224,13 +224,13 @@ class component:
         if not type in halType.values:
             raise HalException('failed to create signal "{0}". Invalid type {1}'.format(name, type))
 
-        result = lib.hal_signal_new(name, type)
+        result = lib.hal_signal_new(name.encode(), type)
 
         if result < 0:
             raise HalException('failed to create signal "{0}" with code {1}'.format(name, result))
 
     def sigLink(self, pin_name, sig_name):
-        result = lib.hal_link(pin_name, sig_name)
+        result = lib.hal_link(pin_name.encode(), sig_name.encode())
         if result < 0:
             raise HalException('failed to link sig "{0}" to pin "{1}" with result {2}'.format(sig_name, pin_name, result))
 

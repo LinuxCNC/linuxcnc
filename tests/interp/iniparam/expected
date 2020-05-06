@@ -1,6 +1,4 @@
 executing
-Named parameter #<_ini[nosuchsection]nosuchname> not defined
-#4711 =  #<_iNI[nosuchsection]nosuchname>
     1 N..... USE_LENGTH_UNITS(CANON_UNITS_MM)
     2 N..... SET_G5X_OFFSET(1, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
     3 N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
@@ -10,4 +8,6 @@ Named parameter #<_ini[nosuchsection]nosuchname> not defined
     7 N..... STRAIGHT_TRAVERSE(10.0000, 20.0000, 30.0000, 0.0000, 0.0000, 0.0000)
     8 N..... MESSAGE(" position now: 10.000000 20.000000 30.000000")
     9 N..... MESSAGE(" not in ini: ######")
+Named parameter #<_ini[nosuchsection]nosuchname> not defined
+#4711 =  #<_iNI[nosuchsection]nosuchname>
    10 N..... ON_RESET()

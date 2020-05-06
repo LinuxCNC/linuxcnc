@@ -92,6 +92,7 @@ class circle:
         else:
             inTmp = open(self.fTmp, 'r')
             outWiz = open(self.fWizard, 'w')
+            outWiz.write('(preamble)\n')
             outWiz.write('{}\n'.format(self.preamble))
             outWiz.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             for line in inTmp:
@@ -147,8 +148,8 @@ class circle:
                     yC = yPos
                 else:
                     yC = yPos + radius
-            xS = xC - ijOffset
-            yS = yC - ijOffset
+            xS = xC - ijOffset - ijDiff
+            yS = yC - ijOffset - ijDiff
             right = math.radians(0)
             up = math.radians(90)
             left = math.radians(180)
@@ -180,8 +181,10 @@ class circle:
             else:
                 outNgc.write('(preamble)\n')
                 outNgc.write('{}\n'.format(self.preamble))
-                outNgc.write('f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(speed))
+                outNgc.write('f#<_hal[plasmac.cut-feed-rate]>\n')
             outTmp.write('\n(wizard circle)\n')
+            if sHole:
+                outTmp.write('M67 E3 Q60 (reduce feed rate to 60%)\n')
             if leadInOffset > 0:
                 if sHole and not self.outside.get_active():
                     xlStart = xS + leadInOffset * math.cos(angle)
@@ -219,8 +222,9 @@ class circle:
                 Torch = False
                 outTmp.write('m62 p3 (disable torch)\n')
                 self.over_cut(xS, yS, ijOffset + ijDiff, radius, outTmp)
-            outTmp.write('g40\n')
             outTmp.write('m5\n')
+            if sHole:
+                outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')
             if not torch:
                 torch = True
                 outTmp.write('m65 p3 (enable torch)\n')

@@ -44,7 +44,7 @@ c.newpin("x-offset", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool-offset", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 tooltip = Capture()
 

@@ -1187,6 +1187,15 @@ The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
 Reduced accels are applied for wheel jogging only (not for nml commands
 issued by guis).
 
+=== XHC-WHB04B-6 pendant support
+
+See the documentation for the xhc-whb04b-6 component.
+
+=== bldc3_hall
+
+The bldc_hall3 component has been removed. The *bldc* component is more
+flexible and better tested.
+
 === [JOINT_n]HOME_SEQUENCE Starting values
 
 Starting sequence values may be 0, 1 (or -1) only.  See the

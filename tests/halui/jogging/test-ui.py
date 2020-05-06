@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -12,14 +12,14 @@ timeout = 5.0
 
 
 # unbuffer stdout
-sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w')
 
 
 program_start = time.time()
 
 def log(msg):
     delta_t = time.time() - program_start;
-    print "%.3f: %s" % (delta_t, msg)
+    print("%.3f: %s" % (delta_t, msg))
     sys.stdout.flush()
 
 
@@ -282,16 +282,16 @@ start_position0 = h[name0 + '-position']
 start_position1 = h[name1 + '-position']
 start_position2 = h[name2 + '-position']
 
-print "%s starting at %.3f" % (name0, start_position0)
-print "%s starting at %.3f" % (name1, start_position1)
-print "%s starting at %.3f" % (name2, start_position2)
+print("%s starting at %.3f" % (name0, start_position0))
+print("%s starting at %.3f" % (name1, start_position1))
+print("%s starting at %.3f" % (name2, start_position2))
 
 
 #
 # start joint0 jogging in the positive direction
 #
 
-print "jogging %s positive using the private per-joint jog pins" % name0
+print("jogging %s positive using the private per-joint jog pins" % name0)
 h[name0 + '-jog-plus'] = 1
 
 # wait for this joint to come up to speed
@@ -299,7 +299,7 @@ start = time.time()
 while (h[name0 + '-velocity'] <= 0) and ((time.time() - start) < timeout):
     time.sleep(0.1)
 if h[name0 + '-velocity'] <= 0:
-    print "%s did not start jogging" % name0
+    print("%s did not start jogging" % name0)
     sys.exit(1)
 
 
@@ -307,7 +307,7 @@ if h[name0 + '-velocity'] <= 0:
 # start the selected joint1 jogging in the negative direction
 #
 
-print "jogging selected joint (%s) negative" % (name1)
+print("jogging selected joint (%s) negative" % (name1))
 select_joint(name1)
 h['jog-selected-minus'] = 1
 
@@ -316,22 +316,22 @@ start = time.time()
 while (h[name1 + '-velocity'] >= 0) and ((time.time() - start) < timeout):
     time.sleep(0.1)
 if h[name1 + '-velocity'] >= 0:
-    print "%s did not start jogging" % name1
+    print("%s did not start jogging" % name1)
     sys.exit(1)
 
 if h[name0 + '-velocity'] <= 0:
-    print "%s stopped jogging" % name0
+    print("%s stopped jogging" % name0)
     sys.exit(1)
 
 if h[name1 + '-position'] >= start_position1:
-    print "%s was selected but did not jog negative (start=%.3f, end=%.3f)" % (name1, start_position1, h[name1 + '-position'])
+    print("%s was selected but did not jog negative (start=%.3f, end=%.3f)" % (name1, start_position1, h[name1 + '-position']))
     sys.exit(1)
 
 if h[name2 + '-position'] != start_position2:
-    print "%s was not selected but moved (start=%.3f, end=%.3f)" % (name2, start_position2, h[name2 + '-position'])
+    print("%s was not selected but moved (start=%.3f, end=%.3f)" % (name2, start_position2, h[name2 + '-position']))
     sys.exit(1)
 
-print "%s was selected and jogged, %s was not selected and stayed still" % (name1, name2)
+print("%s was selected and jogged, %s was not selected and stayed still" % (name1, name2))
 
 
 start_position1 = h[name1 + '-position']
@@ -340,47 +340,47 @@ start_position2 = h[name2 + '-position']
 start_velocity1 = h[name1 + '-velocity']
 start_velocity2 = h[name2 + '-velocity']
 
-print "selecting %s" % name2
+print("selecting %s" % name2)
 select_joint(name2)
 
 wait_for_joint_to_stop(1)
 
 if h[name0 + '-velocity'] <= 0:
-    print "%s stopped jogging" % name0
+    print("%s stopped jogging" % name0)
     sys.exit(1)
 
 if h[name1 + '-velocity'] != 0:
-    print "%s was deselected but did not stop (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity'])
+    print("%s was deselected but did not stop (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity']))
     sys.exit(1)
 
 if h[name2 + '-velocity'] >= 0:
-    print "%s was selected but did not move (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity'])
+    print("%s was selected but did not move (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity']))
     sys.exit(1)
 
-print "%s was deselected and stopped, %s was selected and jogged" % (name1, name2)
+print("%s was deselected and stopped, %s was selected and jogged" % (name1, name2))
 
 
 start_velocity1 = h[name1 + '-velocity']
 start_velocity2 = h[name2 + '-velocity']
 
-print "stopping jog"
+print("stopping jog")
 h['jog-selected-minus'] = 0
 
 wait_for_joint_to_stop(2)
 
 if h[name0 + '-velocity'] <= 0:
-    print "%s stopped jogging" % name0
+    print("%s stopped jogging" % name0)
     sys.exit(1)
 
 if h[name1 + '-velocity'] != 0:
-    print "%s started moving again (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity'])
+    print("%s started moving again (start_vel=%.3f, end_vel=%.3f)" % (name1, start_velocity1, h[name1 + '-velocity']))
     sys.exit(1)
 
 if h[name2 + '-velocity'] != 0:
-    print "%s did not stop (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity'])
+    print("%s did not stop (start_vel=%.3f, end_vel=%.3f)" % (name2, start_velocity2, h[name2 + '-velocity']))
     sys.exit(1)
 
-print "%s stopped" % name2
+print("%s stopped" % name2)
 
 
 sys.exit(0)

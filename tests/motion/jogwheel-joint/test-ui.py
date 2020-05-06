@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -19,8 +19,8 @@ def wait_for_joint_to_stop(joint_number):
         if new_pos == prev_pos:
             return
         prev_pos = new_pos
-    print "Error: joint didn't stop jogging!"
-    print "joint %d is at %.6f %.6f seconds after reaching target (prev_pos=%.6f)" % (joint_number, h[pos_pin], timeout, prev_pos)
+    print("Error: joint didn't stop jogging!")
+    print("joint %d is at %.6f %.6f seconds after reaching target (prev_pos=%.6f)" % (joint_number, h[pos_pin], timeout, prev_pos))
     sys.exit(1)
 
 
@@ -48,18 +48,18 @@ def jog_joint(joint_number, counts=1, scale=0.001):
 
     h['joint-%d-jog-enable' % joint_number] = 0
 
-    print "joint jogged from %.6f to %.6f (%d counts at scale %.6f)" % (start_pos[joint_number], h['joint-%d-position' % joint_number], counts, scale)
+    print("joint jogged from %.6f to %.6f (%d counts at scale %.6f)" % (start_pos[joint_number], h['joint-%d-position' % joint_number], counts, scale))
 
     success = True
     for j in range(0,3):
         pin_name = 'joint-%d-position' % j
         if j == joint_number:
             if not close_enough(h[pin_name], target):
-                print "joint %d didn't get to target (start=%.6f, target=%.6f, got to %.6f)" % (joint_number, start_pos[joint_number], target, h['joint-%d-position' % joint_number])
+                print("joint %d didn't get to target (start=%.6f, target=%.6f, got to %.6f)" % (joint_number, start_pos[joint_number], target, h['joint-%d-position' % joint_number]))
                 success = False
         else:
             if h[pin_name] != start_pos[j]:
-                print "joint %d moved from %.6f to %.6f but shouldnt have!" % (j, start_pos[j], h[pin_name])
+                print("joint %d moved from %.6f to %.6f but shouldnt have!" % (j, start_pos[j], h[pin_name]))
                 success = False
 
     wait_for_joint_to_stop(joint_number)

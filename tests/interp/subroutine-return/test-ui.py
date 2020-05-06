@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import linuxcnc_util
@@ -53,7 +53,7 @@ while (time.time() - start_time) < 2.0:
     time.sleep(0.001)
 
 if s.interp_state == linuxcnc.INTERP_IDLE:
-    print "failed to start interpreter, interp_state is", e.s.interp_state
+    print("failed to start interpreter, interp_state is {}".format(e.s.interp_state))
     sys.exit(1)
 
 # tee hee!
@@ -67,7 +67,7 @@ os.rename('moved-test.ngc', 'test.ngc')
 #os.rename('subs/moved-sub.ngc', 'subs/sub.ngc')
 
 
-print "done! it all worked"
+print("done! it all worked")
 
 # if we get here it all worked!
 sys.exit(0)

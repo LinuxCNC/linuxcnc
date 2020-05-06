@@ -1,66 +1,145 @@
 from minigl import *
 import math
 import array, itertools
+import sys
 
-def use_pango_font(font, start, count, will_call_prepost=False):
-    import pango, cairo, pangocairo
-    fontDesc = pango.FontDescription(font)
-    a = array.array('b', itertools.repeat(0, 256*256))
-    surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
-    context = pangocairo.CairoContext(cairo.Context(surface))
-    layout = context.create_layout()
-    fontmap = pangocairo.cairo_font_map_get_default()
-    font = fontmap.load_font(fontmap.create_context(), fontDesc)
-    layout.set_font_description(fontDesc)
-    metrics = font.get_metrics()
-    descent = metrics.get_descent()
-    d = pango.PIXELS(descent)
-    linespace = metrics.get_ascent() + metrics.get_descent()
-    width = metrics.get_approximate_char_width()
+if sys.version_info[0] == 3:
+    def use_pango_font(font, start, count, will_call_prepost=False):
+        import gi
+        gi.require_version('Pango','1.0')
+        gi.require_version('PangoCairo','1.0')
+        from gi.repository import Pango
+        from gi.repository import PangoCairo
+        #from gi.repository import Cairo as cairo
+        import cairo
 
-    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT)
-    glPixelStorei(GL_UNPACK_SWAP_BYTES, 0)
-    glPixelStorei(GL_UNPACK_LSB_FIRST, 1)
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 256)
-    glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 256)
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
-    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
-    glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0)
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
-    glPixelZoom(1, -1)
+        fontDesc = Pango.FontDescription(font)
+        a = array.array('b', itertools.repeat(0, 256*256))
+        surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
+        context  = cairo.Context(surface)
+        pango_context = PangoCairo.create_context(context)
+        layout = PangoCairo.create_layout(context)
+        fontmap = PangoCairo.font_map_get_default()
+        font = fontmap.load_font(fontmap.create_context(), fontDesc)
+        layout.set_font_description(fontDesc)
+        metrics = font.get_metrics()
+        descent = metrics.get_descent()
+        d = descent / Pango.SCALE
+        linespace = metrics.get_ascent() + metrics.get_descent()
+        width = metrics.get_approximate_char_width()
 
-    base = glGenLists(count)
-    for i in range(count):
-        ch = unichr(start+i)
-        layout.set_text(ch)
-        w, h = layout.get_size()
-        context.save()
-        context.new_path()
-        context.rectangle(0, 0, 256, 256)
-        context.set_source_rgba(0., 0., 0., 0.)
-        context.set_operator (cairo.OPERATOR_SOURCE);
-        context.paint()
-        context.restore()
+        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT)
+        glPixelStorei(GL_UNPACK_SWAP_BYTES, 0)
+        glPixelStorei(GL_UNPACK_LSB_FIRST, 1)
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 256)
+        glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 256)
+        glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
+        glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
+        glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glPixelZoom(1, -1)
 
-        context.save()
-        context.set_source_rgba(1., 1., 1., 1.)
-        context.set_operator (cairo.OPERATOR_SOURCE);
-        context.move_to(0, 0)
-        context.update_layout(layout)
-        context.show_layout(layout)
-        context.restore()
+        base = glGenLists(count)
+        for i in range(count):
+            ch = chr(start+i)
+            layout.set_text(ch, -1)
+            w, h = layout.get_size()
+            context.save()
+            context.new_path()
+            context.rectangle(0, 0, 256, 256)
+            context.set_source_rgba(0., 0., 0., 0.)
+            context.set_operator (cairo.OPERATOR_SOURCE)
+            context.paint()
+            context.restore()
 
-        w, h = pango.PIXELS(w), pango.PIXELS(h)
-        glNewList(base+i, GL_COMPILE)
-        glBitmap(0, 0, 0, 0, 0, h-d, '');
-        if not will_call_prepost: pango_font_pre()
-        if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a)
-        glBitmap(0, 0, 0, 0, w, -h+d, '');
-        if not will_call_prepost: pango_font_post()
-        glEndList()
+            context.save()
+            context.set_source_rgba(1., 1., 1., 1.)
+            context.set_operator (cairo.OPERATOR_SOURCE)
+            context.move_to(0, 0)
+            PangoCairo.update_context(context,pango_context)
+            PangoCairo.show_layout(context,layout)
+            context.restore()
+            w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
+            glNewList(base+i, GL_COMPILE)
+            glBitmap(0, 0, 0, 0, 0, h-d, ''.encode())
+            #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
+            if not will_call_prepost:
+                pango_font_pre()
+            if w and h: 
+                try:
+                    pass
+                    glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a.tostring())
+                except Exception as e:
+                    print("glnav Exception ",e)
 
-    glPopClientAttrib()
-    return base, pango.PIXELS(width), pango.PIXELS(linespace)
+            glBitmap(0, 0, 0, 0, w, -h+d, ''.encode())
+            if not will_call_prepost:
+                pango_font_post()
+            glEndList()
+
+        glPopClientAttrib()
+        return base, int(width / Pango.SCALE), int(linespace / Pango.SCALE)
+else:
+    def use_pango_font(font, start, count, will_call_prepost=False):
+        import pango, cairo, pangocairo
+        fontDesc = pango.FontDescription(font)
+        a = array.array('b', itertools.repeat(0, 256*256))
+        surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
+        context = pangocairo.CairoContext(cairo.Context(surface))
+        layout = context.create_layout()
+        fontmap = pangocairo.cairo_font_map_get_default()
+        font = fontmap.load_font(fontmap.create_context(), fontDesc)
+        layout.set_font_description(fontDesc)
+        metrics = font.get_metrics()
+        descent = metrics.get_descent()
+        d = pango.PIXELS(descent)
+        linespace = metrics.get_ascent() + metrics.get_descent()
+        width = metrics.get_approximate_char_width()
+
+        glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT)
+        glPixelStorei(GL_UNPACK_SWAP_BYTES, 0)
+        glPixelStorei(GL_UNPACK_LSB_FIRST, 1)
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 256)
+        glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 256)
+        glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0)
+        glPixelStorei(GL_UNPACK_SKIP_ROWS, 0)
+        glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0)
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1)
+        glPixelZoom(1, -1)
+
+        base = glGenLists(count)
+        for i in range(count):
+            ch = unichr(start+i)
+            layout.set_text(ch)
+            w, h = layout.get_size()
+            context.save()
+            context.new_path()
+            context.rectangle(0, 0, 256, 256)
+            context.set_source_rgba(0., 0., 0., 0.)
+            context.set_operator (cairo.OPERATOR_SOURCE);
+            context.paint()
+            context.restore()
+
+            context.save()
+            context.set_source_rgba(1., 1., 1., 1.)
+            context.set_operator (cairo.OPERATOR_SOURCE);
+            context.move_to(0, 0)
+            context.update_layout(layout)
+            context.show_layout(layout)
+            context.restore()
+
+            w, h = pango.PIXELS(w), pango.PIXELS(h)
+            glNewList(base+i, GL_COMPILE)
+            glBitmap(0, 0, 0, 0, 0, h-d, '');
+            if not will_call_prepost: pango_font_pre()
+            if w and h: glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a)
+            glBitmap(0, 0, 0, 0, w, -h+d, '');
+            if not will_call_prepost: pango_font_post()
+            glEndList()
+
+        glPopClientAttrib()
+        return base, pango.PIXELS(width), pango.PIXELS(linespace)
+
 
 def pango_font_pre(rgba=(1., 1., 0., 1.)):
     glPushAttrib(GL_COLOR_BUFFER_BIT)
@@ -106,7 +185,7 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     w.lon = lon
 
 def sub(x, y):
-    return map(lambda a, b: a-b, x, y)
+    return list(map(lambda a, b: a-b, x, y))
 
 def dot(x, y):
     t = 0
@@ -115,8 +194,8 @@ def dot(x, y):
     return t
 
 def glDistFromLine(x, p1, p2):
-    f = map(lambda x, y: x-y, p2, p1)
-    g = map(lambda x, y: x-y, x, p1)
+    f = list(map(lambda x, y: x-y, p2, p1))
+    g = list(map(lambda x, y: x-y, x, p1))
     return dot(g, g) - dot(f, g)**2/dot(f, f)
 
 def v3distsq(a,b):
@@ -401,7 +480,7 @@ class GlNavBase:
         if size > 1e99: size = 5. # in case there are no moves in the preview
         w = self.winfo_width()
         h = self.winfo_height()
-        fovx = self.fovy * w / h
+        fovx = self.fovy if h == 0 else self.fovy * w / h
         fov = min(fovx, self.fovy)
         self.set_eyepoint((size * 1.1 + 1.0) / 2 / math.sin ( fov * math.pi / 180 / 2))
         self.lat = -60

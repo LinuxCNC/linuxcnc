@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 from pyhal import *
 import os
 
@@ -97,15 +97,15 @@ assert port_out.write("hello")
 assert port_out.writable() == 3
 
 assert port_in.readable() == 5
-assert port_in.read(2) == "he"
+assert port_in.read(2) == b"he"
 assert port_in.peek(10) == ""
-assert port_in.peek(3) == "llo"
+assert port_in.peek(3) == b"llo"
 assert port_in.readable() == 3
-assert port_in.read(3) == "llo"
+assert port_in.read(3) == b"llo"
 
 assert port_in.readable() == 0
 assert port_out.write("hello")
-assert port_in.read(5) == "hello"
+assert port_in.read(5) == b"hello"
 
 assert port_in.readable() == 0
 assert port_in.read(5) == ''
@@ -118,7 +118,7 @@ assert port_out.write("12345678")
 assert port_in.readable() == 8
 assert port_out.writable() == 0
 
-assert port_in.read(8) == "12345678"
+assert port_in.read(8) == b"12345678"
 
 c.exit()
 os.system("halrun -U")

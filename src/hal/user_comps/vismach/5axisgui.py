@@ -26,8 +26,8 @@ import sys
 # resulting cylinder is on the Z axis
 class HalToolCylinder(CylinderZ):
     def __init__(self, comp, *args):
-	CylinderZ.__init__(self, *args)
-	self.comp = comp
+        CylinderZ.__init__(self, *args)
+        self.comp = comp
 
     def coords(self):
         return -self.comp.tool_length, 20, 0, 20
@@ -44,7 +44,7 @@ c.ready()
 pivot_len=100
 tool_radius=25
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 tooltip = Capture()
 tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
@@ -102,8 +102,8 @@ ram = Collection([ram,
 
 work = Capture()
 table = Collection([
-	work,
-	Box(-500,-500,-400, 500,500,-450)
+        work,
+        Box(-500,-500,-400, 500,500,-450)
         ])
 
 model = Collection([ram, table])

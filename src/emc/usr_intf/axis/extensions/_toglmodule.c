@@ -14,6 +14,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <Python.h>
+#include "py3c/py3c.h"
 #include <emc/usr_intf/axis/extensions/togl.c>
 static int first_time = 1;
 
@@ -68,7 +69,16 @@ PyMethodDef togl_methods[] = {
     {NULL}
 };
 
-PyMODINIT_FUNC
-init_togl(void) {
-    Py_InitModule3("_togl", togl_methods, "togl extension for Tkinter");
+static struct PyModuleDef togl_moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_togl",
+    "togl extension for Tkinter",
+    -1,
+    togl_methods
+};
+
+MODULE_INIT_FUNC(_togl)
+{
+    PyObject *m = PyModule_Create(&togl_moduledef);
+    return m;
 }

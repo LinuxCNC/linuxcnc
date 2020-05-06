@@ -65,6 +65,7 @@ DOC_SRCS_EN := \
 	drivers/opto22.txt \
 	drivers/pico-ppmc.txt \
 	drivers/pluto-p.txt \
+	drivers/pmx485.txt \
 	drivers/servo-to-go.txt \
 	drivers/shuttle.txt \
 	examples/gcode.txt \

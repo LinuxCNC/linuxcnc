@@ -276,7 +276,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self._redraw()
 
     def calculate_gcode_properties(self, canon):
-        def dist((x,y,z),(p,q,r)):
+        def dist(xxx_todo_changeme, xxx_todo_changeme1):
+            (x,y,z) = xxx_todo_changeme
+            (p,q,r) = xxx_todo_changeme1
             return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
         def from_internal_units(pos, unit=None):
             if unit is None:

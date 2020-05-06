@@ -120,6 +120,7 @@
 #define HM2_GTAG_INM               (35) 
 #define HM2_GTAG_DPAINTER          (42) 
 #define HM2_GTAG_XY2MOD            (43) 
+#define HM2_GTAG_RCPWMGEN          (44) 
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -563,6 +564,54 @@ typedef struct {
 } hm2_pwmgen_t;
 
 //
+// rcpwmgen pwmgen optimized for RC servos
+// 
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *width;
+            hal_float_t *scale;
+            hal_float_t *offset;
+        } pin;
+
+    } hal;
+} hm2_rcpwmgen_instance_t;
+
+
+// this hal param affects all rcpwmgen instances
+typedef struct {
+    struct {
+        hal_float_t rate;
+    } param;
+} hm2_rcpwmgen_module_global_t;
+
+
+typedef struct {
+    int num_instances;
+    hm2_rcpwmgen_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    // module-global HAL objects...
+    hm2_rcpwmgen_module_global_t *hal;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 rate_reg;
+ 
+    double written_rate;
+    rtapi_u32 error_throttle;
+
+} hm2_rcpwmgen_t;
+
+
+//
 // inmux
 // 
 
@@ -765,13 +814,15 @@ typedef struct {
             hal_float_t *posx_scale;
             hal_float_t *posy_scale;
             hal_bit_t 	*enable;
-            hal_bit_t 	*controlx0;
-            hal_bit_t 	*controlx1;
-            hal_bit_t 	*controlx2;
-            hal_bit_t 	*controly0;
-            hal_bit_t 	*controly1;
-            hal_bit_t 	*controly2;
-            hal_bit_t 	*status;
+            hal_u32_t 	*controlx;
+            hal_u32_t 	*controly;
+            hal_u32_t 	*commandx;
+            hal_u32_t 	*commandy;
+            hal_bit_t 	*mode18bitx;
+            hal_bit_t 	*mode18bity;
+            hal_bit_t 	*commandmodex;
+            hal_bit_t 	*commandmodey;
+            hal_u32_t 	*status;
             hal_bit_t 	*posx_overflow;
             hal_bit_t 	*posy_overflow;
             hal_bit_t 	*velx_overflow;
@@ -795,7 +846,8 @@ typedef struct {
 // these hal params affect all xy2mod instances
 typedef struct {
     struct {
-        hal_s32_t *dpll_timer_num;
+        hal_s32_t *dpll_rtimer_num;
+        hal_s32_t *dpll_wtimer_num;
     } pin;
 } hm2_xy2mod_module_global_t;
 
@@ -811,7 +863,8 @@ typedef struct {
     // module-global HAL objects...
 
     hm2_xy2mod_module_global_t *hal;
-    rtapi_u32 written_dpll_timer_num;
+    rtapi_u32 written_dpll_rtimer_num;
+    rtapi_u32 written_dpll_wtimer_num;
 
 
     rtapi_u32 accx_addr;
@@ -835,8 +888,17 @@ typedef struct {
     rtapi_u32 mode_addr;
     rtapi_u32 *mode_reg;
 
-    rtapi_u32 dpll_timer_num_addr;
-    rtapi_u32 *dpll_timer_num_reg;
+    rtapi_u32 status_addr;
+    rtapi_u32 *status_reg;
+
+    rtapi_u32 command_addr;
+    rtapi_u32 *command_reg;
+
+    rtapi_u32 dpll_rtimer_num_addr;
+    rtapi_u32 *dpll_rtimer_num_reg;
+
+    rtapi_u32 dpll_wtimer_num_addr;
+    rtapi_u32 *dpll_wtimer_num_reg;
 
 
 } hm2_xy2mod_t;
@@ -1337,6 +1399,7 @@ typedef struct {
         struct rtapi_list_head absenc_formats;
         int num_resolvers;
         int num_pwmgens;
+        int num_rcpwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
         int stepgen_width;
@@ -1383,6 +1446,7 @@ typedef struct {
     hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
+    hm2_rcpwmgen_t rcpwmgen;
     hm2_tp_pwmgen_t tp_pwmgen;
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
@@ -1540,6 +1604,17 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
+
+//
+// rcpwmgen functions
+//
+
+int hm2_rcpwmgen_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_rcpwmgen_print_module(hostmot2_t *hm2);
+void hm2_rcpwmgen_cleanup(hostmot2_t *hm2);
+void hm2_rcpwmgen_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_force_write(hostmot2_t *hm2);
+void hm2_rcpwmgen_prepare_tram_write(hostmot2_t *hm2);
 
 
 //

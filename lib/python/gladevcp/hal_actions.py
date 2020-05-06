@@ -20,7 +20,7 @@ import os
 import time
 import re, string
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
 
@@ -66,12 +66,12 @@ class _EMC_ActionBase(_HalWidgetBase):
 
     def is_auto_mode(self):
         self.stat.poll()
-        print self.stat.task_mode, linuxcnc.MODE_AUTO
+        print(self.stat.task_mode, linuxcnc.MODE_AUTO)
         return self.stat.task_mode == linuxcnc.MODE_AUTO
 
     def is_file_loaded(self):
         self.stat.poll()
-        print "file name:",self.stat.file
+        print("file name:",self.stat.file)
         if self.stat.file:
             return True
         else:
@@ -83,7 +83,7 @@ class _EMC_ActionBase(_HalWidgetBase):
         for i,h in enumerate(self.stat.homed):
             #Don't worry about joint to axis mapping
             if h: homed_count +=1
-        print self.stat.joints
+        print(self.stat.joints)
         if homed_count == self.stat.joints:
             return True
         return False
@@ -183,7 +183,7 @@ def _action(klass, f, *a, **kw):
     class _C(_EMC_Action):
         __gtype_name__ = klass
         def on_activate(self, w):
-            print klass
+            print(klass)
             f(self, *a, **kw)
     return _C
 
@@ -204,10 +204,10 @@ class EMC_ToggleAction_ESTOP(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ESTOP'
+            print('Issuing ESTOP')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP)
         else:
-            print 'Issuing ESTOP RESET'
+            print('Issuing ESTOP RESET')
             self.linuxcnc.state(linuxcnc.STATE_ESTOP_RESET)
 
 class EMC_ToggleAction_Power(_EMC_ToggleAction):
@@ -225,10 +225,10 @@ class EMC_ToggleAction_Power(_EMC_ToggleAction):
 
     def on_toggled(self, w):
         if self.get_active():
-            print 'Issuing ON'
+            print('Issuing ON')
             self.linuxcnc.state(linuxcnc.STATE_ON)
         else:
-            print 'Issuing OFF'
+            print('Issuing OFF')
             self.linuxcnc.state(linuxcnc.STATE_OFF)
 
 class EMC_RadioAction_ESTOP(_EMC_RadioAction):
@@ -381,7 +381,7 @@ class EMC_Action_Pause(_EMC_Action):
 class EMC_Action_Resume(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Resume'
     def on_activate(self, w):
-        print "RESUME"
+        print("RESUME")
         self.stat.poll()
         if not self.stat.paused:
             return

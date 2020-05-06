@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -29,9 +29,9 @@ def end_log(logfile_name):
     os.rename("out.motion-logger", 'result.%s' % logfile_name)
     status = subprocess.call(['diff', '-u', 'expected.%s' % logfile_name, 'result.%s' % logfile_name], shell=False)
     if status == 0:
-        print "sub-test %s ok" % logfile_name
+        print("sub-test %s ok" % logfile_name)
     else:
-        print "unexpected output in logfile '%s'" % logfile_name
+        print("unexpected output in logfile '%s'" % logfile_name)
         global retval
         retval = 1
     sys.stdout.flush()
@@ -78,5 +78,5 @@ for ngc in glob.glob('*.ngc'):
     end_log(basename)
 
 
-print >>sys.stderr, "trying to exit"
+sys.stderr.write("trying to exit")
 sys.exit(retval)

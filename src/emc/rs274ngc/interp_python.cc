@@ -33,6 +33,7 @@
 // this is actually a bug in libgl1-mesa-dri and it looks
 // it has been fixed in mesa - 7.10.1-0ubuntu2
 
+#include "py3c/py3c.h"
 #define BOOST_PYTHON_MAX_ARITY 4
 #include "python_plugin.hh"
 #include "interp_python.hh"
@@ -68,29 +69,33 @@ extern    PythonPlugin *python_plugin;
         }                                                      \
     } while(0)
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
-
 // decode a Python exception into a string.
 std::string handle_pyerror()
 {
-    using namespace boost::python;
-    using namespace boost;
-
     PyObject *exc,*val,*tb;
-    object formatted_list, formatted;
+    bp::object formatted_list, formatted;
+
     PyErr_Fetch(&exc,&val,&tb);
-    handle<> hexc(exc),hval(allow_null(val)),htb(allow_null(tb));
-    object traceback(import("traceback"));
+    PyErr_NormalizeException(&exc,&val,&tb);
+    bp::handle<> 
+        hexc(bp::allow_null(exc)), 
+        hval(bp::allow_null(val)),
+        htb(bp::allow_null(tb));
+    if(!hval)
+    {
+        return bp::extract<std::string>(bp::str(hexc));
+    } else{
+        bp::object traceback(bp::import("traceback"));
     if (!tb) {
-	object format_exception_only(traceback.attr("format_exception_only"));
+        bp::object format_exception_only(traceback.attr("format_exception_only"));
 	formatted_list = format_exception_only(hexc,hval);
     } else {
-	object format_exception(traceback.attr("format_exception"));
+        bp::object format_exception(traceback.attr("format_exception"));
 	formatted_list = format_exception(hexc,hval,htb);
     }
-    formatted = str("\n").join(formatted_list);
-    return extract<std::string>(formatted);
+    formatted = bp::str("\n").join(formatted_list);
+    return bp::extract<std::string>(formatted);
+    }
 }
 
 int Interp::py_reload()
@@ -154,7 +159,7 @@ int Interp::pycall(setup_pointer settings,
 	try {
 	    retval = frame->pystuff.impl->generator_next();
 	}
-	catch (const bp::error_already_set&) {
+	catch (bp::error_already_set &) {
 	    if (PyErr_Occurred()) {
 		// StopIteration is raised when the generator executes 'return'
 		// instead of another 'yield INTERP_EXECUTE_FINISH
@@ -207,14 +212,16 @@ int Interp::pycall(setup_pointer settings,
 
 		    // a generator was returned. This must have been the first time call to a handler
 		    // which contains a yield. Extract next() method.
-		    frame->pystuff.impl->generator_next = bp::getattr(retval, "next");
-
+			#if PY_MAJOR_VERSION >=3
+		    frame->pystuff.impl->generator_next = bp::getattr(retval, "__next__");
+			#else
+			frame->pystuff.impl->generator_next = bp::getattr(retval, "next");
+			#endif
 		    // and  call it for the first time.
 		    // Expect execution up to first 'yield INTERP_EXECUTE_FINISH'.
 		    frame->pystuff.impl->py_returned_int = bp::extract<int>(frame->pystuff.impl->generator_next());
 		    frame->pystuff.impl->py_return_type = RET_YIELD;
-		
-		} else if (PyString_Check(retval.ptr())) {  
+        } else if (PyStr_Check(retval.ptr())) {
 		    // returning a string sets the interpreter error message and aborts
 		    char *msg = bp::extract<char *>(retval);
 		    ERM("%s", msg);
@@ -234,8 +241,8 @@ int Interp::pycall(setup_pointer settings,
 		    Py_XDECREF(res_str);
 		    ERM("Python call %s.%s returned '%s' - expected generator, int, or float value, got %s",
 			module, funcname,
-			PyString_AsString(res_str),
-			retval.ptr()->ob_type->tp_name);
+			PyStr_AsString(res_str),
+			Py_TYPE(retval.ptr())->tp_name);
 		    status = INTERP_ERROR;
 		}
 	    } else {
@@ -260,8 +267,8 @@ int Interp::pycall(setup_pointer settings,
 		res_str = PyObject_Str(retval.ptr());
 		ERM("Python internal function '%s' expected tuple or int return value, got '%s' (%s)",
 		    funcname,
-		    PyString_AsString(res_str),
-		    retval.ptr()->ob_type->tp_name);
+		    PyStr_AsString(res_str),
+		    Py_TYPE(retval.ptr())->tp_name);
 		Py_XDECREF(res_str);
 		status = INTERP_ERROR;
 	    }
@@ -272,7 +279,7 @@ int Interp::pycall(setup_pointer settings,
 	default: ;
 	}
     }
-    catch (const bp::error_already_set&) {
+    catch (bp::error_already_set &) {
 	if (PyErr_Occurred()) {
 	    msg = handle_pyerror();
 	}

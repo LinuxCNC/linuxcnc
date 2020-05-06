@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env linuxcnc-python
 import tempfile
 import gcode
 import sys
@@ -13,8 +13,8 @@ class Canon:
         its args and return None"""
 
         def inner(*args):
-            args = map(float_fmt, args)
-            print "%-17s %s" % (attr, " ".join(args))
+            args = list(map(float_fmt, args))
+            print("%-17s %s" % (attr, " ".join(args)))
         return inner
 
     # this is just noisy
@@ -32,4 +32,4 @@ parameter = tempfile.NamedTemporaryFile()
 canon = Canon()
 canon.parameter_file = parameter.name
 result, seq = gcode.parse(sys.argv[1], canon, '', '', '')
-if result > gcode.MIN_ERROR: raise SystemExit, gcode.strerror(result)
+if result > gcode.MIN_ERROR: raise SystemExit(gcode.strerror(result))

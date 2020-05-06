@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 
 import linuxcnc
 import hal
@@ -52,7 +52,7 @@ def wait_for_mdi_queue(queue_len, timeout=10):
         if s.queued_mdi_commands == queue_len:
             return
         time.sleep(0.1)
-    print "queued_mdi_commands at %d after %.3f seconds" % (s.queued_mdi_commands, timeout)
+    print("queued_mdi_commands at %d after %.3f seconds" % (s.queued_mdi_commands, timeout))
     sys.exit(1)
 
 

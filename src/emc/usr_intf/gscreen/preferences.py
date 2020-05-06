@@ -36,12 +36,12 @@ class preferences(cp):
         m = self.types.get(type)
         try:
             o = m(self, section, option)
-        except Exception, detail:
-            print detail
+        except Exception as detail:
+            print (detail)
             try:
                 self.set(section, option, default)
             except ConfigParser.NoSectionError:
-                print 'Adding section %s'%section
+                print ('Adding section %s'%section)
                 # Create non-existent section
                 self.add_section(section)
                 self.set(section, option, default)
@@ -56,7 +56,7 @@ class preferences(cp):
         try:
             self.set(section, option, type(value))
         except ConfigParser.NoSectionError:
-            print 'Adding section %s'%section
+            print ('Adding section %s'%section)
             # Create non-existent section
             self.add_section(section)
             self.set(section, option, type(value))

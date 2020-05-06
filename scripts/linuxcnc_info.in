@@ -149,7 +149,7 @@ show "          serial" $(cat /proc/ioports|grep serial)
 echo
 echo "Versions:"
 show "             gcc" $(gcc --version|head -1)
-show "          python" $(python --version 2>&1)
+show "          python" $(@PYTHON@ --version 2>&1)
 show "             git" $(tryversion git)
 show "      git commit" $(git_commit)
 show "             tcl" $(echo "puts $::tcl_version"|tclsh)
