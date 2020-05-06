@@ -34,7 +34,7 @@ parser Hal:
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
-    token POP: "[-()+*/]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
+    token POP: "[-()+*/:?]|&&|\\|\\||personality|==|&|!=|<<|<|<=|>>|>|>="
     token TSTRING: "r?\"\"\"(\\.|\\\n|[^\\\"]|\"(?!\"\")|\n)*\"\"\""
 
     rule File: ComponentDeclaration Declaration* "$" {{ return True }}
