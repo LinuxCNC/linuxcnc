@@ -799,9 +799,12 @@ class HandlerClass:
                     self.fault = '0000'
                     if self.pmx485Connected:
                         self.builder.get_object('powermax-label').set_text('Comms Error')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                         self.dialog_error('Communications Error', '\nPowermax communications error\n\nCheck cables and connections\n')
                     else:
+                        if not self.builder.get_object('powermax-label').get_text() == 'Connecting':
+                            self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').set_text('Connecting')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(blue = 1.0))
                         if self.connTimer:
@@ -829,10 +832,12 @@ class HandlerClass:
                         if faultRaw != self.fault:
                             self.fault = faultRaw
                             self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultCode))
+                            self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultMsg))
                             self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                             self.dialog_error('Powermax Error', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
                     else:
                         self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultRaw))
+                        self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultRaw))
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                         self.dialog_error('Powermax Error', '\nUnknown Powermax fault code: {}'.format(faultRaw))
                 elif hal.get_value('pmx485.mode') or hal.get_value('pmx485.current') or hal.get_value('pmx485.pressure'):
@@ -855,6 +860,8 @@ class HandlerClass:
                         for widget in ['cut-amps','cut-amps-label']:
                                 self.builder.get_object(widget).set_tooltip_text(toolTip)
                         self.on_reload_clicked(None)
+                    if not self.builder.get_object('powermax-label').get_text() == 'Connected':
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                     self.builder.get_object('powermax-label').set_text('Connected')
                     if not self.pmx485Connected:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
@@ -865,6 +872,7 @@ class HandlerClass:
                 self.pmx485Started = False
                 self.pmx485Connected = False
                 self.builder.get_object('powermax-label').set_text('pmx485 unloaded')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                 self.builder.get_object('powermax-enable').set_active(False)
                 self.dialog_error('Communications Error', '\nPowermax component unloaded:\n\nCheck cables and connections\n\nThen re-enable\n')
@@ -928,6 +936,7 @@ class HandlerClass:
                     if time.time() > timeout:
                         self.builder.get_object('powermax-enable').set_active(False)
                         self.builder.get_object('powermax-label').set_text('')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.dialog_error('Communication Error', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
                         return
                     if hal.component_exists('pmx485'):
@@ -953,6 +962,7 @@ class HandlerClass:
             if hal.component_exists('pmx485'):
                 hal.set_p('pmx485.enable', '0')
                 self.builder.get_object('powermax-label').set_text('')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('gas-pressure-adj').configure(0,0,0,1,0,0)
                 toolTip = 'cutting current in amps\nindicator only, not used by plasmac.'
                 for widget in ['cut-amps','cut-amps-label']:
