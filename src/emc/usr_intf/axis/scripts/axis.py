@@ -106,10 +106,11 @@ class AxisPreferences(cp):
 
     def getpref(self, option, default=False, type=bool):
         m = self.types.get(type)
+        if type == repr and len(default) == 0: default=""
         try:
             o = m(self, "DEFAULT", option)
         except Exception as detail:
-            print(detail)
+            if default != "": print(detail)
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
             o = default
@@ -1124,6 +1125,7 @@ def update_recent_menu():
 
 def add_recent_file(f):
     recent = ap.getpref('recentfiles', [], repr)
+    if len(recent) == 0: recent=[]
     if f in recent: recent.remove(f)
     recent.insert(0, f)
     recent = recent[:10]
@@ -2945,19 +2947,19 @@ vars = nf.Variables(root_window,
     ("spindledir", IntVar),
     ("running_line", IntVar),
     ("highlight_line", IntVar),
-    ("show_program", IntVar),
-    ("program_alpha", IntVar),
-    ("show_live_plot", IntVar),
-    ("show_tool", IntVar),
-    ("show_extents", IntVar),
-    ("show_offsets", IntVar),
+    ("show_program", BooleanVar),
+    ("program_alpha", BooleanVar),
+    ("show_live_plot", BooleanVar),
+    ("show_tool", BooleanVar),
+    ("show_extents", BooleanVar),
+    ("show_offsets", BooleanVar),
     ("grid_size", DoubleVar),
-    ("show_machine_limits", IntVar),
-    ("show_machine_speed", IntVar),
-    ("show_distance_to_go", IntVar),
-    ("dro_large_font", IntVar),
-    ("show_pyvcppanel", IntVar),
-    ("show_rapids", IntVar),
+    ("show_machine_limits", BooleanVar),
+    ("show_machine_speed", BooleanVar),
+    ("show_distance_to_go", BooleanVar),
+    ("dro_large_font", BooleanVar),
+    ("show_pyvcppanel", BooleanVar),
+    ("show_rapids", BooleanVar),
     ("feedrate", IntVar),
     ("rapidrate", IntVar),
     ("spindlerate", IntVar),
@@ -2990,22 +2992,22 @@ vars = nf.Variables(root_window,
 vars.linuxcnctop_command.set(os.path.join(os.path.dirname(sys.argv[0]), "linuxcnctop"))
 vars.highlight_line.set(-1)
 vars.running_line.set(-1)
-vars.tto_g11.set(ap.getpref("tto_g11", False))
-vars.show_program.set(ap.getpref("show_program", True))
-vars.show_rapids.set(ap.getpref("show_rapids", True))
-vars.program_alpha.set(ap.getpref("program_alpha", False))
-vars.show_live_plot.set(ap.getpref("show_live_plot", True))
-vars.show_tool.set(ap.getpref("show_tool", True))
-vars.show_extents.set(ap.getpref("show_extents", True))
-vars.show_offsets.set(ap.getpref("show_offsets", True))
-vars.grid_size.set(ap.getpref("grid_size", 0.0, type=float))
-vars.show_machine_limits.set(ap.getpref("show_machine_limits", True))
-vars.show_machine_speed.set(ap.getpref("show_machine_speed", True))
-vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", False))
-vars.dro_large_font.set(ap.getpref("dro_large_font", False))
-vars.show_pyvcppanel.set(True)
-vars.block_delete.set(ap.getpref("block_delete", True))
-vars.optional_stop.set(ap.getpref("optional_stop", True))
+vars.tto_g11.set(ap.getpref("tto_g11", "False"))
+vars.show_program.set(ap.getpref("show_program", "True"))
+vars.show_rapids.set(ap.getpref("show_rapids", "True"))
+vars.program_alpha.set(ap.getpref("program_alpha", "False"))
+vars.show_live_plot.set(ap.getpref("show_live_plot", "True"))
+vars.show_tool.set(ap.getpref("show_tool", "True"))
+vars.show_extents.set(ap.getpref("show_extents", "True"))
+vars.show_offsets.set(ap.getpref("show_offsets", "True"))
+vars.grid_size.set(ap.getpref("grid_size", str(0.0), type=float))
+vars.show_machine_limits.set(ap.getpref("show_machine_limits", "True"))
+vars.show_machine_speed.set(ap.getpref("show_machine_speed", "True"))
+vars.show_distance_to_go.set(ap.getpref("show_distance_to_go", "False"))
+vars.dro_large_font.set(ap.getpref("dro_large_font", "False"))
+vars.show_pyvcppanel.set("True")
+vars.block_delete.set(ap.getpref("block_delete", "True"))
+vars.optional_stop.set(ap.getpref("optional_stop", "True"))
 
 # placeholder function for LivePlotter.update():
 def user_live_update():
