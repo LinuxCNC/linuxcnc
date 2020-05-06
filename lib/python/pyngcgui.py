@@ -66,7 +66,7 @@ import gobject
 import glob
 import shutil
 import popupkeyboard
-import exceptions  # for debug printing
+if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
