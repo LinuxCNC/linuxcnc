@@ -765,14 +765,20 @@ class HandlerClass:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 1:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 2:
                 self.builder.get_object('kerfcross-enable').hide()
                 self.builder.get_object('kerfcross-enable-label').hide()
                 self.builder.get_object('volts-box').hide()
+                self.builder.get_object('use-auto-volts').hide()
+                self.builder.get_object('use-auto-volts-label').hide()
             else:
                 pass
             self.oldMode = mode
