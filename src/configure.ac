@@ -1136,11 +1136,6 @@ fi
 
 # Programs required only for building the PDF documentation
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-    AC_PATH_PROG(DBLATEX,dblatex,"none")
-    if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-    fi
-
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
