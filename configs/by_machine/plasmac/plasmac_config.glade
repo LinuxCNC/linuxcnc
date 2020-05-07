@@ -355,7 +355,6 @@ Note: this is the height above minimum limit</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">minimum voltage change required to allow THC to activate</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -459,7 +458,6 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">delay from start of cut until THC is active in seconds</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -606,7 +604,6 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">THC is locked if actual speed drops below this percentage of requested speed</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -657,7 +654,6 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
                                     <property name="tooltip_text" translatable="yes">percentage of calculated kerfcross threshold to apply</property>
-                                    <property name="max_length">5</property>
                                     <property name="invisible_char">●</property>
                                     <property name="xalign">1</property>
                                     <property name="invisible_char_set">True</property>
@@ -741,7 +737,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                           <object class="GtkTable" id="table8">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_columns">2</property>
+                            <property name="n_columns">3</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <property name="homogeneous">True</property>
@@ -771,6 +767,16 @@ for mode 2 this is the percentage of max velocity used for THC</property>
 </property>
                                 <signal name="clicked" handler="on_save_clicked" swapped="no"/>
                               </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="version-label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                              </packing>
                             </child>
                           </object>
                         </child>

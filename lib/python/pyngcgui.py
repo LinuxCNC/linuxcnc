@@ -66,7 +66,7 @@ import gobject
 import glob
 import shutil
 import popupkeyboard
-import exceptions  # for debug printing
+if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
@@ -93,7 +93,7 @@ gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 try:
     import pygtk
     pygtk.require('2.0')
-except ImportError,msg:
+except ImportError as msg:
     print('import pygtk failed: %s',msg)
     pass
 #------------------------------------------------------------------------------
@@ -1421,7 +1421,7 @@ class SubFile():
                 dvalue = ''
 
             if name:
-                if comment is '':
+                if comment == '':
                     comment = name
                 pnum += 1
                 self.ndict[pnum] = (name,dvalue,comment)

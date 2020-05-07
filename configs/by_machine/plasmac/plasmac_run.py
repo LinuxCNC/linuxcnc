@@ -127,6 +127,7 @@ class HandlerClass:
 
     def display_materials(self):
         self.materialList = []
+        self.builder.get_object('materials').clear()
         for key in sorted(self.materialFileDict):
             iter = self.builder.get_object('materials').append()
             self.builder.get_object('materials').set(iter, 0, '{:05d}: {}'.format(key, self.materialFileDict[key][0]))
@@ -169,7 +170,7 @@ class HandlerClass:
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
-                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = 0.0
+                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
                     t_item += 1
                     received = []
                 elif line.startswith('NAME'):
@@ -262,6 +263,50 @@ class HandlerClass:
         self.get_material()
         self.builder.get_object('material').set_active(material)
         self.materialUpdate = False
+        hal.set_p('plasmac_run.material-reload', '0')
+
+    def on_material_reload_pin(self, halpin):
+        if halpin.get():
+            self.on_reload_clicked(1)
+
+    def on_temp_material_pin(self, halpin):
+        if halpin.get():
+            t_number = 0
+            t_name = 'Temporary'
+            t_item = 0
+            with open(self.tmpMaterialFile, 'r') as f_in:
+                for line in f_in:
+                    if line.startswith('kerf-width'):
+                        k_width = float(line.split('=')[1].strip()) 
+                    elif line.startswith('thc-enable'):
+                        thc_enable = int(line.split('=')[1].strip())
+                    elif line.startswith('pierce-height'):
+                        p_height = float(line.split('=')[1].strip())
+                    elif line.startswith('pierce-delay'):
+                        p_delay = float(line.split('=')[1].strip())
+                    elif line.startswith('puddle-jump-height'):
+                        pj_height = float(line.split('=')[1].strip())
+                    elif line.startswith('puddle-jump-delay'):
+                        pj_delay = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-height'):
+                        c_height = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-feed-rate'):
+                        c_speed = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-amps'):
+                        c_amps = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-volts'):
+                        c_volts = float(line.split('=')[1].strip())
+                    elif line.startswith('pause-at-end'):
+                        pause = float(line.split('=')[1].strip())
+                    elif line.startswith('gas-pressure'):
+                        g_press = float(line.split('=')[1].strip())
+                    elif line.startswith('cut-mode'):
+                        c_mode = float(line.split('=')[1].strip())
+            self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+            self.display_materials()
+            self.change_material(0, 'tmp')
+            self.builder.get_object('material').set_active(0)
+            hal.set_p('plasmac_run.temp-material', '0')
 
     def on_new_clicked(self, widget):
         response, num, nam = self.dialog_common('Add Material',\
@@ -389,13 +434,14 @@ class HandlerClass:
             self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
 
     def on_material_changed(self,widget):
-        if self.getMaterial: return
-        if self.autoChange == False:
-            self.manualChange = True
-            material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
-            self.change_material(int(material),'box')
-        else:
-            self.autoChange = False
+        if self.builder.get_object('material').get_active_text():
+            if self.getMaterial: return
+            if self.autoChange == False:
+                self.manualChange = True
+                material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
+                self.change_material(int(material),'box')
+            else:
+                self.autoChange = False
 
     def material_change_number_changed(self,halpin):
         if self.getMaterial: return
@@ -689,8 +735,8 @@ class HandlerClass:
                     outFile.write('CUT_AMPS           = {}\n'.format(self.builder.get_object('cut-amps').get_value()))
                 elif line.startswith('CUT_VOLTS'):
                     outFile.write('CUT_VOLTS          = {}\n'.format(self.builder.get_object('cut-volts').get_value()))
-                elif line.startswith('TORCH_OFF_DELAY'):
-                    outFile.write('TORCH_OFF_DELAY    = {}\n'.format(self.builder.get_object('torch-off-delay').get_value()))
+                elif line.startswith('PAUSE_AT_END'):
+                    outFile.write('PAUSE_AT_END       = {}\n'.format(self.builder.get_object('pause-at-end').get_value()))
                 elif line.startswith('GAS_PRESSURE'):
                     outFile.write('GAS_PRESSURE       = {}\n'.format(self.builder.get_object('gas-pressure').get_value()))
                 elif line.startswith('CUT_MODE'):
@@ -719,14 +765,20 @@ class HandlerClass:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 1:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 2:
                 self.builder.get_object('kerfcross-enable').hide()
                 self.builder.get_object('kerfcross-enable-label').hide()
                 self.builder.get_object('volts-box').hide()
+                self.builder.get_object('use-auto-volts').hide()
+                self.builder.get_object('use-auto-volts-label').hide()
             else:
                 pass
             self.oldMode = mode
@@ -747,9 +799,12 @@ class HandlerClass:
                     self.fault = '0000'
                     if self.pmx485Connected:
                         self.builder.get_object('powermax-label').set_text('Comms Error')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                         self.dialog_error('Communications Error', '\nPowermax communications error\n\nCheck cables and connections\n')
                     else:
+                        if not self.builder.get_object('powermax-label').get_text() == 'Connecting':
+                            self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').set_text('Connecting')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(blue = 1.0))
                         if self.connTimer:
@@ -777,10 +832,12 @@ class HandlerClass:
                         if faultRaw != self.fault:
                             self.fault = faultRaw
                             self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultCode))
+                            self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultMsg))
                             self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                             self.dialog_error('Powermax Error', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
                     else:
                         self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultRaw))
+                        self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultRaw))
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                         self.dialog_error('Powermax Error', '\nUnknown Powermax fault code: {}'.format(faultRaw))
                 elif hal.get_value('pmx485.mode') or hal.get_value('pmx485.current') or hal.get_value('pmx485.pressure'):
@@ -803,6 +860,8 @@ class HandlerClass:
                         for widget in ['cut-amps','cut-amps-label']:
                                 self.builder.get_object(widget).set_tooltip_text(toolTip)
                         self.on_reload_clicked(None)
+                    if not self.builder.get_object('powermax-label').get_text() == 'Connected':
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                     self.builder.get_object('powermax-label').set_text('Connected')
                     if not self.pmx485Connected:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
@@ -813,6 +872,7 @@ class HandlerClass:
                 self.pmx485Started = False
                 self.pmx485Connected = False
                 self.builder.get_object('powermax-label').set_text('pmx485 unloaded')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                 self.builder.get_object('powermax-enable').set_active(False)
                 self.dialog_error('Communications Error', '\nPowermax component unloaded:\n\nCheck cables and connections\n\nThen re-enable\n')
@@ -876,6 +936,7 @@ class HandlerClass:
                     if time.time() > timeout:
                         self.builder.get_object('powermax-enable').set_active(False)
                         self.builder.get_object('powermax-label').set_text('')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.dialog_error('Communication Error', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
                         return
                     if hal.component_exists('pmx485'):
@@ -901,6 +962,7 @@ class HandlerClass:
             if hal.component_exists('pmx485'):
                 hal.set_p('pmx485.enable', '0')
                 self.builder.get_object('powermax-label').set_text('')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('gas-pressure-adj').configure(0,0,0,1,0,0)
                 toolTip = 'cutting current in amps\nindicator only, not used by plasmac.'
                 for widget in ['cut-amps','cut-amps-label']:
@@ -999,10 +1061,14 @@ class HandlerClass:
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
         self.firstMaterialPin = hal_glib.GPin(halcomp.newpin('first-material', hal.HAL_S32, hal.HAL_IN))
+        self.materialReloadPin = hal_glib.GPin(halcomp.newpin('material-reload', hal.HAL_BIT, hal.HAL_IN))
+        self.tempMaterialPin = hal_glib.GPin(halcomp.newpin('temp-material', hal.HAL_BIT, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
         self.firstMaterialPin.connect('value-changed', self.first_material_changed)
+        self.materialReloadPin.connect('value-changed', self.on_material_reload_pin)
+        self.tempMaterialPin.connect('value-changed', self.on_temp_material_pin)
         self.idlePin = hal_glib.GPin(halcomp.newpin('program-is-idle', hal.HAL_BIT, hal.HAL_IN))
         hal.connect('plasmac_run.program-is-idle', 'plasmac:program-is-idle') 
         self.idlePin.connect('value-changed', self.idle_changed)
@@ -1013,6 +1079,7 @@ class HandlerClass:
         self.configFile = self.i.find('EMC', 'MACHINE').lower() + '_run.cfg'
         self.prefFile = self.i.find('EMC', 'MACHINE') + '.pref'
         self.materialFile = self.i.find('EMC', 'MACHINE').lower() + '_material.cfg'
+        self.tmpMaterialFile = self.materialFile.replace('.cfg','.tmp')
         self.materialFileDict = {}
         self.materialDict = {}
         self.configDict = {}

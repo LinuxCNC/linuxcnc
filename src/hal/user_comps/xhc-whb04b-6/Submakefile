@@ -1,6 +1,5 @@
-GCC_VERSION := $(shell gcc -dumpversion)
-MIN_VERSION := 4.7
-ifeq ($(MIN_VERSION),$(firstword $(sort $(GCC_VERSION) $(MIN_VERSION))))
+GCC_GTEQ_470 := $(shell expr `gcc -dumpfullversion | awk -F '.' '{print $$1*10000+$$2*100+$$3}'` \>= 40700)
+ifeq "$(GCC_GTEQ_470)" "1"
 ifdef HAVE_LIBUSB10
 
 XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0

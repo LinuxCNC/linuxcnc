@@ -13,8 +13,9 @@ try:
     def try_set(p, v):
         try:
             h[p] = v
-            print("set {} {} {}".format(p, v, h[p]))
-        except (ValueError, OverflowError):
+            hp = h[p]
+            print("set {} {} {}".format(p, v, "ok" if hp == v else repr(hp)))
+        except (ValueError, OverflowError) as e:
             print("set {} {} {}".format(p, v, "fail"))
 
     def try_set_pin(p, v):

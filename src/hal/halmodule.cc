@@ -64,16 +64,9 @@ bool from_python(PyObject *o, double *d) {
         *d = PyFloat_AsDouble(o);
         return true;
     } else if(PyInt_Check(o)) {
-        #if PYTHON_MAJOR_VERSION >= 3 
+        #if PY_MAJOR_VERSION >= 3
         *d = PyLong_AsDouble(o);
-        if (PyErr_Occurred()){
-            if(*d < 0 || d != (double *)d) {
-              PyErr_Format(PyExc_OverflowError, "Value %lld out of range", *d);
-              goto fail;
-            }
-            PyErr_Print();
-            return false;
-        }
+        return !PyErr_Occurred();
         #else
         *d = PyInt_AsLong(o);
         #endif
@@ -90,11 +83,8 @@ bool from_python(PyObject *o, double *d) {
     }
 
     *d = PyFloat_AsDouble(tmp);
-    if(tmp != o) Py_XDECREF(tmp);
+    Py_XDECREF(tmp);
     return true;
-fail:
-    if(tmp != o) Py_XDECREF(tmp);
-    return false;
 }
 
 bool from_python(PyObject *o, uint32_t *u) {

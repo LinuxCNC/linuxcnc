@@ -8,7 +8,10 @@ else:
     gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
 
 import linuxcnc
-import tkinter
+if sys.version_info[0] == 3:
+    import tkinter
+else:
+    import Tkinter as tkinter
 import time
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
