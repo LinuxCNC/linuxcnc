@@ -88,14 +88,21 @@ the data_layout dictionary describes the layout of the data like this:
 class VBO():
     def __init__(self):
         self.vboid = -1
-        self.data_layout = {'position': {
-            'datatype': GL_FLOAT,
-            'size': 3,
-            'stride': 0,
-            'offset': 0,
+        self.data_layout = {
+            'position': {
+                'datatype': GL_FLOAT,
+                'size': 3,
+                'stride': 3*4*2,
+                'offset': 0,
             },
+            "color": {
+                'datatype': GL_FLOAT,
+                'size': 3,
+                'stride': 3*4*2,
+                'offset': 3*4,
+            }
         }
-    
+        
     def gen(self):
         # Generate buffers to hold our vertices
         self.vboid = glGenBuffers(1)
@@ -144,11 +151,11 @@ class Camera():
         self.lookpos = glm.vec3(0)
         
         # View settings
-        self.zoom = 10.0
+        self.zoomlevel = 10.0
         self.perspective = 0
         self.fovy = 30.0
         # Position of clipping planes.
-        self.near = 0.1
+        self.near = -1000.0
         self.far = 1000.0
 
         # projection matrix -> handles ortho / perspective
@@ -160,7 +167,7 @@ class Camera():
 
     # returns the projection-view matrix
     def get(self):
-        return self.proj * self.view
+        return glm.scale(self.proj * self.view, glm.vec3(self.zoomlevel))
 
     def setpos(self, pos):
         self.position = pos
@@ -169,6 +176,13 @@ class Camera():
         self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
         self.view = glm.lookAt(self.position, center, glm.vec3(0.0,1.0,0))
+
+    def rotate(self, angle, axis):
+        self.view = glm.rotate(self.view, angle, axis)
+
+    def zoom(self, level):
+        self.zoomlevel = self.zoomlevel * level
+        self.update(self.w, self.h)
 
     # this method is called on resize and may not contain
     # any gl calls, because the context may not be bound
@@ -192,38 +206,129 @@ class Camera():
 class NavigationUI():
     def __init__(self):
         pass
+
+    def init(self):
+        self.vbo = VBO()
+        self.vao = VAO()
         
+        self.vbo.gen()
+
+        # axes
+        axes = np.array([1.0,0.0,0.0,
+                         0.2,1.0,0.2,
+                         0.0,0.0,0.0,
+                         0.2,1.0,0.2,
+                         0.0,1.0,0.0,
+                         1.0,0.2,0.2,
+                         0.0,0.0,0.0,
+                         1.0,0.2,0.2,
+                         0.0,0.0,1.0,
+                         0.2,0.2,1.0,
+                         0.0,0.0,0.0,
+                         0.2,0.2,1.0,
+        ], dtype=np.float32)
+        
+        self.vbo.fill(axes, len(axes)*4)
+
+    def render(self):
+        pass
+        
+
 class Gremlin(Gtk.GLArea):
+
+    def init_glcanondraw(self):
+        pass
+    def activate(self):
+        pass
+    def deactivate(self):
+        pass
+    def set_current_view(self):
+        pass
     
-    def __init__(self, inifile):        
+    def __init__(self, inifile):
+        self.initialised = True
+        self.lathe_option = None
+        
         Gtk.GLArea.__init__(self)
 
+        self.set_auto_render(True)
+
+        # save mouseposition, because
+        # it's the only way to get a position delta
+        # (thankyou gtk)
+        self.mouse_x = 0
+        self.mouse_y = 0
+
+        # camera is for managing the projection and view matrices
         self.camera = Camera()
-        self.camera.setpos(glm.vec3(0,0,-10))
+        self.camera.setpos(glm.vec3(0,0,-5))
         self.camera.lookat(glm.vec3(0,0,0))
         
-        self.FRAGMENT_SOURCE ='''
-        #version 330
-        in vec4 inputColor;
-        out vec4 outputColor;
-
-        void main() {
-          outputColor = vec4(1.0,1.0,1.0,1.0);
-        };'''
-    
         self.VERTEX_SOURCE = '''
         #version 330
+
         uniform mat4 proj; // view / projection matrix
         uniform mat4 model; // model matrix 
         in vec4 position;
+        in vec4 color;
+        out vec4 v_color;
 
         void main() {
           gl_Position = proj * model * position;
+          v_color = color;
         }'''
+        
+        self.FRAGMENT_SOURCE ='''
+        #version 330
+
+        in vec4 v_color;
+        out vec4 out_color;
+
+        void main() {
+          out_color = v_color;
+        };'''
         
         self.connect("realize", self.on_realize)
         self.connect("render", self.on_render)
         self.connect("resize", self.on_resize)
+        # mouse events
+        self.connect('motion-notify-event', self.on_motion)
+        self.connect("button-press-event", self.on_button_pressed)
+        self.connect("button-release-event", self.on_button_released)
+        self.connect("scroll-event", self.on_scroll)
+        
+        self.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.POINTER_MOTION_HINT_MASK)
+        self.add_events(Gdk.EventMask.SCROLL_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+
+    def on_motion(self, widget, event):
+        button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
+        button2 = event.state & Gdk.ModifierType.BUTTON2_MASK
+        button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
+        shift = event.state & Gdk.ModifierType.SHIFT_MASK
+
+        if button1:
+            self.camera.rotate((self.mouse_x - event.x)*0.5, glm.vec3(1,0,0))
+            self.camera.rotate((self.mouse_y - event.y)*0.5, glm.vec3(0,1,0))
+            self.queue_render()
+            
+        self.mouse_x = event.x
+        self.mouse_y = event.y
+        
+    def on_button_pressed(self, widget, event):
+        pass
+    
+    def on_button_released(self, widget, event):
+        pass
+
+    def on_scroll(self, widget, event):
+        if event.direction == Gdk.ScrollDirection.DOWN:
+            self.camera.zoom(1.1)
+        if event.direction == Gdk.ScrollDirection.UP:
+            self.camera.zoom(1/1.1)
         
     def on_realize(self, area):
         ctx = self.get_context()
@@ -249,29 +354,37 @@ class Gremlin(Gtk.GLArea):
         self.vbo = VBO()
         self.vbo.gen()
 
-        vertices = np.array([-0.6, -0.6, 0.0,
-                             0.0, 0.6, 0.0,
-                             0.6, -0.6, 0.0,
-                             0.7, -0.1, 0.0,
-                             0.8, 0.1, 0.0,
-                             0.9, -0.1, 0.0
-                             ], dtype=np.float32)
+        axes = np.array([
+            # x axis
+            1.0,0.0,0.0,
+            0.2,1.0,0.2,
+            0.0,0.0,0.0,
+            0.2,1.0,0.2,
+            # y axis
+            0.0,1.0,0.0,
+            1.0,0.2,0.2,
+            0.0,0.0,0.0,
+            1.0,0.2,0.2,
+            # z axis
+            0.0,0.0,1.0,
+            0.2,0.2,1.0,
+            0.0,0.0,0.0,
+            0.2,0.2,1.0,
+        ], dtype=np.float32)
         
-        self.vbo.fill(vertices, len(vertices)*4)
+        self.vbo.fill(axes, len(axes)*4)
 
         self.vao = VAO()
         self.vao.gen(self.shader_prog, [self.vbo])
         self.vao.unbind()
 
     def on_resize(self, area, width, height):
-        print("on_resize")
         self.w = width
         self.h = height
 
         self.camera.update(self.w,self.h)
         
     def on_render(self, area, context):
-        print("on_render")
         # gtk doc says area not context
         area.make_current()
         
@@ -286,19 +399,24 @@ class Gremlin(Gtk.GLArea):
 
         # render an object
         self.model = glm.mat4()
-        self.model = glm.scale(self.model, glm.vec3(50,50,50))
-        self.model = glm.rotate(self.model, 1, glm.vec3(1,0,0))
+        self.model = glm.scale(self.model, glm.vec3(100,100,100))
         glUniformMatrix4fv(self.modelmat, 1, GL_FALSE, glm.value_ptr(self.model));
 
+        '''
         print("matrices:")
         print(self.camera.get())
         print(self.model)
+        '''
         
-        glDrawArrays(GL_LINE_STRIP, 0, 7)
+        glDrawArrays(GL_LINES, 0,2)
+        glDrawArrays(GL_LINES, 2,2)
+        glDrawArrays(GL_LINES, 4,2)
         
         self.vao.unbind()
         
         glUseProgram(0)
+
+        self.queue_render()
 
         
 """
