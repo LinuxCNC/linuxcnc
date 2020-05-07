@@ -140,9 +140,8 @@ class VAO():
 class Camera():
     def __init__(self):
         # camera position
-        self.position = glm.vec3()
-        # vector the camera looks to
-        self.eye = glm.vec3()
+        self.position = glm.vec3(0,0,-10)
+        self.lookpos = glm.vec3(0)
         
         # View settings
         self.zoom = 10.0
@@ -152,28 +151,41 @@ class Camera():
         self.near = 0.1
         self.far = 1000.0
 
+        # projection matrix -> handles ortho / perspective
+        self.proj = glm.mat4()
+        # view matrix -> handles where the camera looks to/at
+        self.view = glm.mat4()
 
-    # returns projection matrix
-    # (actually it's the projection-view matrix,
-    # since it also contains methods like lookat)
+        self.lookat(self.lookpos)
+
+    # returns the projection-view matrix
     def get(self):
-        return self.mat
+        return self.proj * self.view
+
+    def setpos(self, pos):
+        self.position = pos
 
     def lookat(self, center):
+        self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
-        glm.lookat(self.eye, center, vec3(0.0,1.0,0))
+        self.view = glm.lookAt(self.position, center, glm.vec3(0.0,1.0,0))
 
+    # this method is called on resize and may not contain
+    # any gl calls, because the context may not be bound
+    # (generally, this class should only calc the matrix and
+    # not change anything else)
     def update(self, w, h):
         self.w = w
-        self.h = h        
+        self.h = h
 
         if self.perspective:
-            self.mat = glm.perspective(self.fovy,
+            self.proj = glm.perspective(self.fovy,
                                        float(w)/float(h), # aspect ratio
                                        self.near, # clipping planes
                                        self.far)
         else:
-            self.mat = glm.ortho(0,0,w,h,self.near, self.far)
+            # left, right, bottom, top
+            self.proj = glm.ortho(-w/2,w/2,-h/2,h/2,self.near,self.far)
 
 # responsible for rendering the basic navigation UI elements
 # bounding box, axis, etc.
@@ -187,6 +199,8 @@ class Gremlin(Gtk.GLArea):
         Gtk.GLArea.__init__(self)
 
         self.camera = Camera()
+        self.camera.setpos(glm.vec3(0,0,-10))
+        self.camera.lookat(glm.vec3(0,0,0))
         
         self.FRAGMENT_SOURCE ='''
         #version 330
@@ -215,9 +229,7 @@ class Gremlin(Gtk.GLArea):
         ctx = self.get_context()
         ctx.make_current()
 
-        w = self.get_allocated_width()
-        h = self.get_allocated_height()
-        glViewport(0,0,w,h)
+        self.on_resize(area,self.get_allocated_width(),self.get_allocated_height())
         
         glClearColor(0, 0, 0, 1)
         
@@ -230,7 +242,6 @@ class Gremlin(Gtk.GLArea):
         self.projmat = glGetUniformLocation(self.shader_prog, "proj");
         self.modelmat = glGetUniformLocation(self.shader_prog, "model");
 
-        self.proj = glm.mat4(1)
         self.model = glm.mat4(1)
         
         # create vbo and vao and connect them to
@@ -253,29 +264,36 @@ class Gremlin(Gtk.GLArea):
         self.vao.unbind()
 
     def on_resize(self, area, width, height):
+        print("on_resize")
         self.w = width
         self.h = height
-        
-        ctx = self.get_context()
-        ctx.make_current()
 
-        w = self.get_allocated_width()
-        h = self.get_allocated_height()
-        glViewport(0,0,w,h)
-        self.camera.update(w,h)
+        self.camera.update(self.w,self.h)
         
-    def on_render(self, area, ctx):
+    def on_render(self, area, context):
+        print("on_render")
+        # gtk doc says area not context
+        area.make_current()
+        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glViewport(0,0,self.w,self.h)
         
         glUseProgram(self.shader_prog)
         
-        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(self.proj));
+        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(self.camera.get()));
 
         self.vao.bind()
 
         # render an object
+        self.model = glm.mat4()
+        self.model = glm.scale(self.model, glm.vec3(50,50,50))
         self.model = glm.rotate(self.model, 1, glm.vec3(1,0,0))
         glUniformMatrix4fv(self.modelmat, 1, GL_FALSE, glm.value_ptr(self.model));
+
+        print("matrices:")
+        print(self.camera.get())
+        print(self.model)
+        
         glDrawArrays(GL_LINE_STRIP, 0, 7)
         
         self.vao.unbind()
