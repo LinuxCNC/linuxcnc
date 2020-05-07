@@ -12,9 +12,9 @@
 
 
 
-import os, ConfigParser
+import os, configparser
 
-cp = ConfigParser.RawConfigParser
+cp = configparser.RawConfigParser
 class preferences(cp):
     types = {
         bool: cp.getboolean,
