@@ -43,6 +43,8 @@ from gi.repository import GObject
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
+from OpenGL.GL import shaders
+import numpy as np
 
 #import gtk
 #import gtk.gtkgl.widget
@@ -65,10 +67,223 @@ import shutil
 import os
 import sys
 
+import glm
+
 import _thread
 
-#from minigl import *
+import pdb
 
+"""
+very simple vertex buffer object abstraction, no error checking performed currently (TODO)
+
+the data_layout dictionary describes the layout of the data like this:
+
+ 'shader_name': {
+    datatype: GL_TYPE_REPR,
+    size: size of the data (bytes) / sizeof(typerepr)
+    stride: stride of the data (bytes) between elements
+    offset: offset of the data (bytes)
+}
+"""
+class VBO():
+    def __init__(self):
+        self.vboid = -1
+        self.data_layout = {'position': {
+            'datatype': GL_FLOAT,
+            'size': 3,
+            'stride': 0,
+            'offset': 0,
+            },
+        }
+    
+    def gen(self):
+        # Generate buffers to hold our vertices
+        self.vboid = glGenBuffers(1)
+        self.bind()
+        
+    def bind(self):
+        glBindBuffer(GL_ARRAY_BUFFER, self.vboid)
+
+    def unbind(self):
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    def bind_vao(self, shader):
+        for shadername, layout in self.data_layout.items():
+            location = glGetAttribLocation(shader, shadername)
+            glEnableVertexAttribArray(location)
+            # normalized currently unused & ignored
+            glVertexAttribPointer(location, layout['size'], layout['datatype'], False, layout['stride'], ctypes.c_void_p(layout['offset']))
+        
+    
+    def fill(self, data, size):
+        self.bind()
+        glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW)
+
+class VAO():
+    def __init__(self):
+        self.vaoid=-1
+
+    # this binds vbos with their respective bindings
+    # to the used shader program
+    def gen(self, shader, vbos):
+        self.vaoid = glGenVertexArrays(1)
+        self.bind()
+        for vbo in vbos:
+            vbo.bind_vao(shader)
+
+    def bind(self):
+        glBindVertexArray(self.vaoid)
+
+    def unbind(self):
+        glBindVertexArray(0)
+
+class Camera():
+    def __init__(self):
+        # camera position
+        self.position = glm.vec3()
+        # vector the camera looks to
+        self.eye = glm.vec3()
+        
+        # View settings
+        self.zoom = 10.0
+        self.perspective = 0
+        self.fovy = 30.0
+        # Position of clipping planes.
+        self.near = 0.1
+        self.far = 1000.0
+
+
+    # returns projection matrix
+    # (actually it's the projection-view matrix,
+    # since it also contains methods like lookat)
+    def get(self):
+        return self.mat
+
+    def lookat(self, center):
+        # todo: check if the up vector is always (0,1,0)
+        glm.lookat(self.eye, center, vec3(0.0,1.0,0))
+
+    def update(self, w, h):
+        self.w = w
+        self.h = h        
+
+        if self.perspective:
+            self.mat = glm.perspective(self.fovy,
+                                       float(w)/float(h), # aspect ratio
+                                       self.near, # clipping planes
+                                       self.far)
+        else:
+            self.mat = glm.ortho(0,0,w,h,self.near, self.far)
+
+# responsible for rendering the basic navigation UI elements
+# bounding box, axis, etc.
+class NavigationUI():
+    def __init__(self):
+        pass
+        
+class Gremlin(Gtk.GLArea):
+    
+    def __init__(self, inifile):        
+        Gtk.GLArea.__init__(self)
+
+        self.camera = Camera()
+        
+        self.FRAGMENT_SOURCE ='''
+        #version 330
+        in vec4 inputColor;
+        out vec4 outputColor;
+
+        void main() {
+          outputColor = vec4(1.0,1.0,1.0,1.0);
+        };'''
+    
+        self.VERTEX_SOURCE = '''
+        #version 330
+        uniform mat4 proj; // view / projection matrix
+        uniform mat4 model; // model matrix 
+        in vec4 position;
+
+        void main() {
+          gl_Position = proj * model * position;
+        }'''
+        
+        self.connect("realize", self.on_realize)
+        self.connect("render", self.on_render)
+        self.connect("resize", self.on_resize)
+        
+    def on_realize(self, area):
+        ctx = self.get_context()
+        ctx.make_current()
+
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
+        glViewport(0,0,w,h)
+        
+        glClearColor(0, 0, 0, 1)
+        
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        # generate shaders, get uniform locations
+        VERTEX_SHADER_PROG = shaders.compileShader(self.VERTEX_SOURCE, GL_VERTEX_SHADER)
+        FRAGMENT_SHADER_PROG = shaders.compileShader(self.FRAGMENT_SOURCE, GL_FRAGMENT_SHADER)
+        self.shader_prog = shaders.compileProgram(VERTEX_SHADER_PROG, FRAGMENT_SHADER_PROG)
+        self.projmat = glGetUniformLocation(self.shader_prog, "proj");
+        self.modelmat = glGetUniformLocation(self.shader_prog, "model");
+
+        self.proj = glm.mat4(1)
+        self.model = glm.mat4(1)
+        
+        # create vbo and vao and connect them to
+        # the attributes
+        self.vbo = VBO()
+        self.vbo.gen()
+
+        vertices = np.array([-0.6, -0.6, 0.0,
+                             0.0, 0.6, 0.0,
+                             0.6, -0.6, 0.0,
+                             0.7, -0.1, 0.0,
+                             0.8, 0.1, 0.0,
+                             0.9, -0.1, 0.0
+                             ], dtype=np.float32)
+        
+        self.vbo.fill(vertices, len(vertices)*4)
+
+        self.vao = VAO()
+        self.vao.gen(self.shader_prog, [self.vbo])
+        self.vao.unbind()
+
+    def on_resize(self, area, width, height):
+        self.w = width
+        self.h = height
+        
+        ctx = self.get_context()
+        ctx.make_current()
+
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
+        glViewport(0,0,w,h)
+        self.camera.update(w,h)
+        
+    def on_render(self, area, ctx):
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        
+        glUseProgram(self.shader_prog)
+        
+        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(self.proj));
+
+        self.vao.bind()
+
+        # render an object
+        self.model = glm.rotate(self.model, 1, glm.vec3(1,0,0))
+        glUniformMatrix4fv(self.modelmat, 1, GL_FALSE, glm.value_ptr(self.model));
+        glDrawArrays(GL_LINE_STRIP, 0, 7)
+        
+        self.vao.unbind()
+        
+        glUseProgram(0)
+
+        
+"""
 class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
@@ -89,7 +304,7 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
 
 
-class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
+class Gremlin(Gtk.GLArea):#,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     rotation_vectors = [(1.,0.,0.), (0.,0.,1.)]
 
     def __init__(self, inifile):
@@ -531,3 +746,4 @@ class Gremlin(Gtk.GLArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     def rotate_view(self,x,y):
         self.rotateOrTranslate(x, y)
+"""
