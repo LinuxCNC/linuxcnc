@@ -102,12 +102,12 @@ class VBO():
                 'offset': 3*4,
             }
         }
-        
+
     def gen(self):
         # Generate buffers to hold our vertices
         self.vboid = glGenBuffers(1)
         self.bind()
-        
+    
     def bind(self):
         glBindBuffer(GL_ARRAY_BUFFER, self.vboid)
 
@@ -136,6 +136,7 @@ class VAO():
         self.vaoid = glGenVertexArrays(1)
         self.bind()
         for vbo in vbos:
+
             vbo.bind_vao(shader)
 
     def bind(self):
@@ -149,7 +150,7 @@ class Camera():
         # camera position
         self.position = glm.vec3(0,0,-10)
         self.lookpos = glm.vec3(0)
-        
+
         # View settings
         self.zoomlevel = 10.0
         self.perspective = 0
@@ -165,24 +166,25 @@ class Camera():
 
         self.lookat(self.lookpos)
 
-    # returns the projection-view matrix
-    # applies scale
+    # returns the zoomed projection-view matrix
+    # used for displaying the objects
     def get(self):
         return glm.scale(self.proj * self.view, glm.vec3(self.zoomlevel))
-    
+
+    # returns the not-zoomed projection-view matrix
+    # used for unscaled UI elements (like text)
+    def get_mats(self):
+        return self.proj * self.view
+
     def setpos(self, pos):
         self.position = pos
         self.lookat(self.lookpos)
 
-    def translate(self, pos):
-        self.position += pos
-        self.lookat(self.lookpos)
-        
     def lookat(self, center):
         self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
         self.view = glm.lookAt(self.position, self.lookpos, glm.vec3(0.0,1.0,0))
-        
+
     def rotate(self, angle, axis):
         self.view = glm.rotate(self.view, angle, axis)
 
@@ -206,69 +208,10 @@ class Camera():
             # left, right, bottom, top
             self.proj = glm.ortho(-w/2,w/2,-h/2,h/2,self.near,self.far)
 
-# responsible for rendering the basic navigation UI elements
-# bounding box, axis, etc.
-class NavigationUI():
+# responsible for rendering everything scaled in the scene,
+# like bounding box, axis, objects, etc.
+class ObjectRenderer():
     def __init__(self):
-        pass
-
-    def init(self):
-        self.vbo = VBO()
-        self.vao = VAO()
-        
-        self.vbo.gen()
-
-        # axes
-        axes = np.array([1.0,0.0,0.0,
-                         0.2,1.0,0.2,
-                         0.0,0.0,0.0,
-                         0.2,1.0,0.2,
-                         0.0,1.0,0.0,
-                         1.0,0.2,0.2,
-                         0.0,0.0,0.0,
-                         1.0,0.2,0.2,
-                         0.0,0.0,1.0,
-                         0.2,0.2,1.0,
-                         0.0,0.0,0.0,
-                         0.2,0.2,1.0,
-        ], dtype=np.float32)
-        
-        self.vbo.fill(axes, len(axes)*4)
-
-    def render(self):
-        pass
-        
-
-class Gremlin(Gtk.GLArea):
-
-    def init_glcanondraw(self):
-        pass
-    def activate(self):
-        pass
-    def deactivate(self):
-        pass
-    def set_current_view(self):
-        pass
-    
-    def __init__(self, inifile):
-        self.initialised = True
-        self.lathe_option = None
-        
-        Gtk.GLArea.__init__(self)
-
-        self.set_auto_render(True)
-
-        # save mouseposition, because
-        # it's the only way to get a position delta
-        # (thankyou gtk)
-        self.mouse_x = 0
-        self.mouse_y = 0
-
-        # camera is for managing the projection and view matrices
-        self.camera = Camera()
-        self.camera.setpos(glm.vec3(0,0,-5))
-        self.camera.lookat(glm.vec3(0,0,0))
-        
         self.VERTEX_SOURCE = '''
         #version 330
 
@@ -282,7 +225,7 @@ class Gremlin(Gtk.GLArea):
           gl_Position = proj * model * position;
           v_color = color;
         }'''
-        
+
         self.FRAGMENT_SOURCE ='''
         #version 330
 
@@ -292,66 +235,9 @@ class Gremlin(Gtk.GLArea):
         void main() {
           out_color = v_color;
         };'''
-        
-        self.connect("realize", self.on_realize)
-        self.connect("render", self.on_render)
-        self.connect("resize", self.on_resize)
-        # mouse events
-        self.connect('motion-notify-event', self.on_motion)
-        self.connect("button-press-event", self.on_button_pressed)
-        self.connect("button-release-event", self.on_button_released)
-        self.connect("scroll-event", self.on_scroll)
-        
-        self.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
-        self.add_events(Gdk.EventMask.POINTER_MOTION_HINT_MASK)
-        self.add_events(Gdk.EventMask.SCROLL_MASK)
-        self.add_events(Gdk.EventMask.BUTTON_MOTION_MASK)
-        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
-        self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
 
-    def on_motion(self, widget, event):
-        button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
-        button2 = event.state & Gdk.ModifierType.BUTTON2_MASK
-        button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
-        shift = event.state & Gdk.ModifierType.SHIFT_MASK
 
-        print(f"{button1} {button2} {button3} {shift}")
-        
-        d_x = self.mouse_x - event.x
-        d_y = self.mouse_y - event.y
-        
-        if button1:
-            self.camera.rotate(d_x*0.5, glm.vec3(1,0,0))
-            self.camera.rotate(d_y*0.5, glm.vec3(0,1,0))
-
-        if button3:
-            self.camera.translate(glm.vec3(d_x, d_y, 0.0))
-            
-        self.mouse_x = event.x
-        self.mouse_y = event.y
-        
-    def on_button_pressed(self, widget, event):
-        pass
-    
-    def on_button_released(self, widget, event):
-        pass
-
-    def on_scroll(self, widget, event):
-        if event.direction == Gdk.ScrollDirection.DOWN:
-            self.camera.zoom(1.1)
-        elif event.direction == Gdk.ScrollDirection.UP:
-            self.camera.zoom(1/1.1)
-        
-    def on_realize(self, area):
-        ctx = self.get_context()
-        ctx.make_current()
-
-        self.on_resize(area,self.get_allocated_width(),self.get_allocated_height())
-        
-        glClearColor(0, 0, 0, 1)
-        
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
+    def init(self):
         # generate shaders, get uniform locations
         VERTEX_SHADER_PROG = shaders.compileShader(self.VERTEX_SOURCE, GL_VERTEX_SHADER)
         FRAGMENT_SHADER_PROG = shaders.compileShader(self.FRAGMENT_SOURCE, GL_FRAGMENT_SHADER)
@@ -359,11 +245,12 @@ class Gremlin(Gtk.GLArea):
         self.projmat = glGetUniformLocation(self.shader_prog, "proj");
         self.modelmat = glGetUniformLocation(self.shader_prog, "model");
 
-        self.model = glm.mat4(1)
-        
-        # create vbo and vao and connect them to
-        # the attributes
+        # model matrix
+        self.model = glm.scale(glm.mat4(), glm.vec3(100,100,100))
+
         self.vbo = VBO()
+        self.vao = VAO()
+
         self.vbo.gen()
 
         axes = np.array([
@@ -383,35 +270,19 @@ class Gremlin(Gtk.GLArea):
             0.0,0.0,0.0,
             0.2,0.2,1.0,
         ], dtype=np.float32)
-        
+
         self.vbo.fill(axes, len(axes)*4)
-
-        self.vao = VAO()
         self.vao.gen(self.shader_prog, [self.vbo])
-        self.vao.unbind()
 
-    def on_resize(self, area, width, height):
-        self.w = width
-        self.h = height
+    def move(self, v):
+        self.model = glm.translate(self.model, v)
 
-        self.camera.update(self.w,self.h)
-        
-    def on_render(self, area, context):
-        # gtk doc says area not context
-        area.make_current()
-        
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glViewport(0,0,self.w,self.h)
-        
-        glUseProgram(self.shader_prog)
-
-        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(self.camera.get()));
-
+    def render(self,projmat):
         self.vao.bind()
 
-        # render an object
-        self.model = glm.mat4()
-        self.model = glm.scale(self.model, glm.vec3(100,100,100))
+        glUseProgram(self.shader_prog)
+
+        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(projmat));
         glUniformMatrix4fv(self.modelmat, 1, GL_FALSE, glm.value_ptr(self.model));
 
         '''
@@ -419,18 +290,130 @@ class Gremlin(Gtk.GLArea):
         print(self.camera.get())
         print(self.model)
         '''
-        
+
         glDrawArrays(GL_LINES, 0,2)
         glDrawArrays(GL_LINES, 2,2)
         glDrawArrays(GL_LINES, 4,2)
-        
+
         self.vao.unbind()
-        
+
         glUseProgram(0)
 
+
+class Gremlin(Gtk.GLArea):
+
+    def init_glcanondraw(self):
+        pass
+    def activate(self):
+        pass
+    def deactivate(self):
+        pass
+    def set_current_view(self):
+        pass
+
+    def __init__(self, inifile):
+        self.initialised = True
+        self.lathe_option = None
+
+        Gtk.GLArea.__init__(self)
+
+        self.set_auto_render(True)
+
+        # save mouseposition, because
+        # it's the only way to get a position delta
+        # (thankyou gtk)
+        self.mouse_x = 0
+        self.mouse_y = 0
+
+        # camera is for managing the projection and view matrices
+        self.camera = Camera()
+        self.camera.setpos(glm.vec3(0,0,-5))
+        self.camera.lookat(glm.vec3(0,0,0))
+
+        self.connect("realize", self.on_realize)
+        self.connect("render", self.on_render)
+        self.connect("resize", self.on_resize)
+        # mouse events
+        self.connect('motion-notify-event', self.on_motion)
+        self.connect("button-press-event", self.on_button_pressed)
+        self.connect("button-release-event", self.on_button_released)
+        self.connect("scroll-event", self.on_scroll)
+
+        self.add_events(Gdk.EventMask.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.POINTER_MOTION_HINT_MASK)
+        self.add_events(Gdk.EventMask.SCROLL_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+
+        self.object_renderer = ObjectRenderer()
+
+    def on_motion(self, widget, event):
+        button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
+        button2 = event.state & Gdk.ModifierType.BUTTON2_MASK
+        button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
+        shift = event.state & Gdk.ModifierType.SHIFT_MASK
+
+#        print(f"{button1} {button2} {button3} {shift}")
+        d_x = self.mouse_x - event.x
+        d_y = self.mouse_y - event.y
+
+        if button1:
+            self.camera.rotate(d_x*0.5, glm.vec3(1,0,0))
+            self.camera.rotate(d_y*0.5, glm.vec3(0,1,0))
+
+        if button3:
+            pass
+            #self.camera.translate(glm.vec3(d_x, d_y, 0.0))
+
+        self.mouse_x = event.x
+        self.mouse_y = event.y
+
+    def on_button_pressed(self, widget, event):
+        pass
+
+    def on_button_released(self, widget, event):
+        pass
+
+    def on_scroll(self, widget, event):
+        if event.direction == Gdk.ScrollDirection.DOWN:
+            self.camera.zoom(1.1)
+        elif event.direction == Gdk.ScrollDirection.UP:
+            self.camera.zoom(1/1.1)
+
+    # initialization of all gl objects, as per gtk documentation
+    # the opengl context is initialized at this point
+    def on_realize(self, area):
+        ctx = self.get_context()
+        ctx.make_current()
+
+        self.on_resize(area,self.get_allocated_width(),self.get_allocated_height())
+
+        glClearColor(0, 0, 0, 1)
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        self.object_renderer.init()
+
+    # the projection matrices need to be updated on resize
+    def on_resize(self, area, width, height):
+        self.w = width
+        self.h = height
+
+        self.camera.update(self.w,self.h)
+
+    def on_render(self, area, context):
+        # gtk doc says area not context
+        area.make_current()
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        glViewport(0,0,self.w,self.h)
+
+        self.object_renderer.render(self.camera.get())
+
+        # render every frame, #yolo
         self.queue_render()
 
-        
 """
 class DummyProgress:
     def nextphase(self, unused): pass
