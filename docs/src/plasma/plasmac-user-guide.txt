@@ -1671,8 +1671,9 @@ Changing the FONT size changes the minimum window size. PlasmaC requires a large
 
 Window size varies depending on whether you have the Run Panel as a Tab or a Panel on the right side.
 [width="25%",cols="1,1,1"]
+
 |===
-|*FONT*|*Tab*|*Panel*
+|*Font*|*Tab*|*Panel*
 | 9| 900x668|1146x708
 |10| 930x696|1196x730
 |11|1016x776|1308x800
@@ -1682,7 +1683,7 @@ Window size varies depending on whether you have the Run Panel as a Tab or a Pan
 |15|11258x944|1612x956
 |===
 
-[axis-display-section]]
+[[axis-display-section]]
 
 [underline]*[DISPLAY]* Section
 
