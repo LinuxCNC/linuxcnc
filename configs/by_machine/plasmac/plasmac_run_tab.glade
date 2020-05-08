@@ -73,7 +73,7 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cut-amps">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -125,7 +125,7 @@ indicator only, not used by plasmac.</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cut-volts">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -173,7 +173,7 @@ only used if not using auto volts</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="pierce-height">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -300,7 +300,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="pierce-delay">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -322,7 +322,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="cut-height">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -344,7 +344,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="cut-feed-rate">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -367,7 +367,7 @@ set this to 0 to use feed rate from gcode</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="puddle-jump-height">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -390,7 +390,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="puddle-jump-delay">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -430,7 +430,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="kerf-width">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -469,7 +469,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="GtkHBox" id="hbox2">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -529,7 +529,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="pause-at-end">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -607,7 +607,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="gas-pressure">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -630,7 +630,7 @@ set to 0 to disable</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="cut-mode">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1098,7 +1098,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="tooltip_text" translatable="yes">length of X axis travel for a single cut</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">X Axis Length</property>
+                                <property name="label" translatable="yes">X Length</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -1113,7 +1113,7 @@ turn off to use cut volts from parameters</property>
                                 <property name="tooltip_text" translatable="yes">length of Y axis travel for a single cut</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Y Axis Length</property>
+                                <property name="label" translatable="yes">Y Length</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -1124,7 +1124,7 @@ turn off to use cut volts from parameters</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="y-single-cut">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1164,7 +1164,7 @@ turn off to use cut volts from parameters</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="x-single-cut">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1220,7 +1220,7 @@ turn off to use cut volts from parameters</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="GtkLabel" id="label">
-                                <property name="width_request">60</property>
+                                <property name="width_request">72</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
