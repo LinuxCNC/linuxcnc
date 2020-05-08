@@ -166,23 +166,28 @@ class Camera():
         self.lookat(self.lookpos)
 
     # returns the projection-view matrix
+    # applies scale
     def get(self):
         return glm.scale(self.proj * self.view, glm.vec3(self.zoomlevel))
-
+    
     def setpos(self, pos):
         self.position = pos
+        self.lookat(self.lookpos)
 
+    def translate(self, pos):
+        self.position += pos
+        self.lookat(self.lookpos)
+        
     def lookat(self, center):
         self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
-        self.view = glm.lookAt(self.position, center, glm.vec3(0.0,1.0,0))
-
+        self.view = glm.lookAt(self.position, self.lookpos, glm.vec3(0.0,1.0,0))
+        
     def rotate(self, angle, axis):
         self.view = glm.rotate(self.view, angle, axis)
 
     def zoom(self, level):
-        self.zoomlevel = self.zoomlevel * level
-        self.update(self.w, self.h)
+        self.zoomlevel *= level
 
     # this method is called on resize and may not contain
     # any gl calls, because the context may not be bound
@@ -310,10 +315,17 @@ class Gremlin(Gtk.GLArea):
         button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
         shift = event.state & Gdk.ModifierType.SHIFT_MASK
 
+        print(f"{button1} {button2} {button3} {shift}")
+        
+        d_x = self.mouse_x - event.x
+        d_y = self.mouse_y - event.y
+        
         if button1:
-            self.camera.rotate((self.mouse_x - event.x)*0.5, glm.vec3(1,0,0))
-            self.camera.rotate((self.mouse_y - event.y)*0.5, glm.vec3(0,1,0))
-            self.queue_render()
+            self.camera.rotate(d_x*0.5, glm.vec3(1,0,0))
+            self.camera.rotate(d_y*0.5, glm.vec3(0,1,0))
+
+        if button3:
+            self.camera.translate(glm.vec3(d_x, d_y, 0.0))
             
         self.mouse_x = event.x
         self.mouse_y = event.y
@@ -327,7 +339,7 @@ class Gremlin(Gtk.GLArea):
     def on_scroll(self, widget, event):
         if event.direction == Gdk.ScrollDirection.DOWN:
             self.camera.zoom(1.1)
-        if event.direction == Gdk.ScrollDirection.UP:
+        elif event.direction == Gdk.ScrollDirection.UP:
             self.camera.zoom(1/1.1)
         
     def on_realize(self, area):
@@ -392,7 +404,7 @@ class Gremlin(Gtk.GLArea):
         glViewport(0,0,self.w,self.h)
         
         glUseProgram(self.shader_prog)
-        
+
         glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(self.camera.get()));
 
         self.vao.bind()
