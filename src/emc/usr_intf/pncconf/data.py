@@ -20,10 +20,15 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import print_function
 import os
+import sys
 import errno
 import hashlib
-import commands
 import xml.dom.minidom
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
 
 def md5sum(filename):
     try:
@@ -1037,7 +1042,7 @@ If you have a REALLY large config that you wish to convert to this newer version
 
         # make system link and shortcut to pncconf files
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
-        desktop = commands.getoutput("""
+        desktop = subprocess.getoutput("""
             test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs
             echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}""")
         if self.createsymlink:
