@@ -973,7 +973,7 @@ Plus the following optional parameters:
 
 The options are:
 
-[width="100%",cols="0,1"]
+[width="75%",cols="0,1"]
 |===
 |*Option*|*Description*
 |0|Create a temporary default material +
@@ -1662,12 +1662,27 @@ NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for m
 [underline]*[PLASMAC]* Section
 
 -----
-FONT      = sans 11 (valid font sizes are from 10 to 15)
+FONT      = sans 10 (valid font sizes are from 9 to 15 inclusive)
 THEME     = Clearlooks (any installed theme)
 MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 -----
 
-[[axis-display-section]]
+Changing the FONT size changes the minimum window size. PlasmaC requires a larger window size than the standard Axis window. Minimum sizes are listed below:
+
+Window size varies depending on whether you have the Run Panel as a Tab or a Panel on the right side.
+[width="25%",cols="1,1,1"]
+|===
+|*FONT*|*Tab*|*Panel*
+| 9| 900x668|1146x708
+|10| 930x696|1196x730
+|11|1016x776|1308x800
+|12|1042x802|1336x824
+|13|1090x830|1408x848
+|14|11168x886|1512x896
+|15|11258x944|1612x956
+|===
+
+[axis-display-section]]
 
 [underline]*[DISPLAY]* Section
 

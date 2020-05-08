@@ -23,14 +23,11 @@ w = root_window.tk.call
 
 ################################################################################
 # disable the 'do you want to close' dialog
-
 w('wm','protocol','.','WM_DELETE_WINDOW','destroy .')
-
 
 
 ################################################################################
 # set the default font, gcode font and help balloons
-
 font = inifile.find('PLASMAC','FONT') or 'sans 10'
 fname, fsize = font.split()
 w('font','configure','TkDefaultFont','-family', fname, '-size', fsize)
@@ -38,18 +35,18 @@ w('.pane.bottom.t.text','configure','-height','10','-font', font, '-foreground',
 w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','yellow')
 
 
-
 ################################################################################
 # set the window size
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
 if wsize == '0':
-    fsizes = ['9','10','11','12','13','14','15','16']
-    heights = ['688','708','736','748','816','858','900','950']
+    fsizes = ['9','10','11','12','13','14','15']
     if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-        aspect = 1.5
+        widths = [ '900','930','1016','1042','1090','1168','1258']
+        heights = ['668','696', '776', '802', '830', '886', '944']
     else:
-        aspect = 1.7
-    width = str(int(float(heights[fsizes.index(fsize)]) * aspect))
+        widths = ['1146','1196','1308','1336','1408','1512','1612']
+        heights = ['708', '730', '800', '824', '848', '896', '956']
+    width = str(int(float(widths[fsizes.index(fsize)])))
     height = str(int(float(heights[fsizes.index(fsize)])))
     wxpos = '20'
     wypos = '20'
@@ -74,7 +71,6 @@ print('\nAxis window is {0} x {1}\n'.format(width,height))
 # change dro screen
 
 w('.pane.top.right.fnumbers.text','configure','-foreground','green','-background','black')
-
 
 
 ################################################################################
@@ -153,14 +149,13 @@ w('pack','.toolbar.space4','-after','.toolbar.program_optpause','-side','left')
 
 # set some sizes for widgets
 swidth = 5  # spinboxes width
-lwidth = 15 # labels width
-bwidth = 12  # buttons width
+bwidth = 2  # buttons width
 cwidth = int(fsize) * 2 #canvas width
 cheight = int(fsize) * 2 #canvas height
 ledwidth = cwidth - 2 #led width
 ledheight = cheight - 2 #led height
-ledx = cwidth-ledwidth # led x start
-ledy = cheight-ledheight # led y start
+ledx = (cwidth-ledwidth) / 2 # led x start
+ledy = (cheight-ledheight) /2 # led y start
 
 # rework the axis/joints frame
 w('destroy',faxes)
@@ -264,7 +259,7 @@ w('Button',ftorch + '.torch-button','-text','PULSE','-takefocus','0','-width','3
 w('bind',ftorch + '.torch-button','<Button-1>','torch_pulse 1')
 w('bind',ftorch + '.torch-button','<ButtonRelease-1>','torch_pulse 0')
 w('append','manualgroup',' ' + ftorch + '.torch-button')
-w('scale',ftorch + '.torch-pulse-time','-orient','horizontal','-variable','torchPulse','-showvalue','0')
+w('scale',ftorch + '.torch-pulse-time','-takefocus','0','-orient','horizontal','-variable','torchPulse','-showvalue','0')
 w('label',ftorch + '.torch-time','-textvariable','torchPulse','-width','3','-anchor','e')
 w('label',ftorch + '.torch-label','-text','Sec','-anchor','e')
 # populate the torch frame
@@ -301,7 +296,7 @@ w('labelframe',fpausedmotion,'-text','Paused Motion Speed: %','-relief','flat')
 w('Button',fpausedmotion + '.reverse','-text','Rev','-takefocus','0','-width','3')
 w('bind',fpausedmotion + '.reverse','<Button-1>','paused_motion -1')
 w('bind',fpausedmotion + '.reverse','<ButtonRelease-1>','paused_motion 0')
-w('scale',fpausedmotion + '.paused-motion-speed','-orient','horizontal')
+w('scale',fpausedmotion + '.paused-motion-speed','-takefocus','0','-orient','horizontal')
 w('Button',fpausedmotion + '.forward','-text','Fwd','-takefocus','0','-width','3')
 w('bind',fpausedmotion + '.forward','<Button-1>','paused_motion 1')
 w('bind',fpausedmotion + '.forward','<ButtonRelease-1>','paused_motion 0')
@@ -319,74 +314,77 @@ w('pack','forget','.pane.bottom.t.text')
 w('pack','forget','.pane.bottom.t.sb')
 
 # new common frame
-w('labelframe',fcommon,'-text','','-relief','flat','-bd','1')
+w('labelframe',fcommon,'-text','','-relief','raised','-bd','1')
 
 # new monitor frame
 w('labelframe',fmonitor,'-text','','-relief','flat')
-arcfont = fname + ' ' + str(int(fsize) * 3) + ' bold'
-w('label',fmonitor + '.arc-voltage','-anchor','e','-width',3,'-fg','blue','-font',arcfont)
-w('label',fmonitor + '.aVlab','-text','Arc Voltage')
+arcfont = fname + ' ' + str(int(fsize) * 3)
+w('label',fmonitor + '.arc-voltage','-anchor','se','-width','3','-fg','blue','-font',arcfont)
+w('label',fmonitor + '.aVlab','-text','Arc Voltage','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-arc-ok','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-arc-ok','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#37F608','-disabledfill','grey')
-w('label',fmonitor + '.lAOlab','-text','Arc OK')
+w('label',fmonitor + '.lAOlab','-text','Arc OK','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-torch','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-torch','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#F99B0B','-disabledfill','grey')
-w('label',fmonitor + '.lTlab','-text','Torch On')
+w('label',fmonitor + '.lTlab','-text','Torch On','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-thc-enabled','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-thc-enabled','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#37F608','-disabledfill','grey')
-w('label',fmonitor + '.lTElab','-text','THC Enabled')
+w('label',fmonitor + '.lTElab','-text','THC Enabled','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-ohmic','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-ohmic','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lOlab','-text','Ohmic Probe')
+w('label',fmonitor + '.lOlab','-text','Ohmic Probe','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-float','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-float','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.lFlab','-text','Float Switch')
+w('label',fmonitor + '.lFlab','-text','Float Switch','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-breakaway','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-breakaway','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lBlab','-text','Breakaway')
+w('label',fmonitor + '.lBlab','-text','Breakaway','-anchor','w','-width','11')
 w('canvas',fmonitor + '.led-thc-active','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-thc-active','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','#37F608','-disabledfill','grey')
-w('label',fmonitor + '.lTAlab','-text','THC Active')
-w('labelframe',fmonitor + '.updown','-text','','-relief','flat','-width','20')
-w('canvas',fmonitor + '.led-up','-width',cwidth,'-height',cheight)
-w(fmonitor + '.led-up','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
+w('label',fmonitor + '.lTAlab','-text','THC Active','-anchor','w','-width','15')
+w('frame',fmonitor + '.updown','-relief','flat')
+w('canvas',fmonitor + '.updown.led-up','-width',cwidth,'-height',cheight)
+w(fmonitor + '.updown.led-up','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
 w('canvas',fmonitor + '.updown.led-down','-width',cwidth,'-height',cheight)
 w(fmonitor + '.updown.led-down','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','yellow','-disabledfill','grey')
-w('label',fmonitor + '.updown.lab','-text','Up> THC <Down')
-w('pack',fmonitor + '.updown.led-down','-side','right','-fill','none','-expand','0')
-w('pack',fmonitor + '.updown.lab','-side','right','-fill','x','-expand','1')
+w('label',fmonitor + '.updown.labup','-text','Up','-anchor','w')
+w('label',fmonitor + '.updown.lab','-text','<THC>','-anchor','center')
+w('label',fmonitor + '.updown.labdn','-text','Dn','-anchor','e')
+w('pack',fmonitor + '.updown.led-up','-side','left','-fill','none','-expand','0')
+w('pack',fmonitor + '.updown.labup','-side','left','-fill','none','-expand','0')
+w('pack',fmonitor + '.updown.lab','-side','left','-fill','x','-expand','1')
+w('pack',fmonitor + '.updown.labdn','-side','left','-fill','none','-expand','0')
+w('pack',fmonitor + '.updown.led-down','-side','left','-fill','none','-expand','0')
 w('canvas',fmonitor + '.led-corner-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-corner-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock')
+w('label',fmonitor + '.lCLlab','-text','THC Velocity Lock','-anchor','w','-width','15')
 w('canvas',fmonitor + '.led-kerf-locked','-width',cwidth,'-height',cheight)
 w(fmonitor + '.led-kerf-locked','create','oval',ledx,ledy,ledwidth,ledheight,'-fill','red','-disabledfill','grey')
-w('label',fmonitor + '.lKLlab','-text','THC Void Lock')
-# populate the monitor frame
+w('label',fmonitor + '.lKLlab','-text','THC Void Lock','-anchor','w','-width','15')
 if inifile.find('PLASMAC', 'MODE') != '2':
-    w('grid',fmonitor + '.arc-voltage','-row','0','-column','0','-rowspan','2','-sticky','e')
-    w('grid',fmonitor + '.aVlab','-row','0','-column','1','-rowspan','2','-sticky','w')
-w('grid',fmonitor + '.led-arc-ok','-row','2','-column','0','-sticky','e')
-w('grid',fmonitor + '.lAOlab','-row','2','-column','1','-sticky','w')
-w('grid',fmonitor + '.led-torch','-row','3','-column','0','-sticky','e')
-w('grid',fmonitor + '.lTlab','-row','3','-column','1','-sticky','w')
-w('grid',fmonitor + '.led-thc-enabled','-row','0','-column','2','-sticky','e')
-w('grid',fmonitor + '.lTElab','-row','0','-column','3','-sticky','w')
-w('grid',fmonitor + '.led-ohmic','-row','1','-column','2','-sticky','e')
-w('grid',fmonitor + '.lOlab','-row','1','-column','3','-sticky','w')
-w('grid',fmonitor + '.led-float','-row','2','-column','2','-sticky','e')
-w('grid',fmonitor + '.lFlab','-row','2','-column','3','-sticky','w')
-w('grid',fmonitor + '.led-breakaway','-row','3','-column','2','-sticky','e')
-w('grid',fmonitor + '.lBlab','-row','3','-column','3','-sticky','w')
-w('grid',fmonitor + '.led-thc-active','-row','0','-column','4','-sticky','e')
-w('grid',fmonitor + '.lTAlab','-row','0','-column','5','-sticky','w')
-w('grid',fmonitor + '.led-up','-row','1','-column','4','-sticky','e')
-w('grid',fmonitor + '.updown','-row','1','-column','5','-sticky','e')
-w('grid',fmonitor + '.led-corner-locked','-row','2','-column','4','-sticky','e')
-w('grid',fmonitor + '.lCLlab','-row','2','-column','5','-sticky','w')
+    w('grid',fmonitor + '.arc-voltage',    '-row','0','-column', '0','-columnspan','4','-rowspan','2','-sticky','se')
+    w('grid',fmonitor + '.aVlab',          '-row','1','-column', '4','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-thc-enabled',    '-row','0','-column', '8',                  '-sticky','e')
+w('grid',fmonitor + '.lTElab',             '-row','0','-column', '9','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-thc-active',     '-row','0','-column','13',                  '-sticky','e')
+w('grid',fmonitor + '.lTAlab',             '-row','0','-column','14','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-ohmic',          '-row','1','-column', '8',                  '-sticky','e')
+w('grid',fmonitor + '.lOlab',              '-row','1','-column', '9','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.updown',             '-row','1','-column','13','-columnspan','5','-sticky','ew')
+w('grid',fmonitor + '.led-arc-ok',         '-row','2','-column', '3',                  '-sticky','e')
+w('grid',fmonitor + '.lAOlab',             '-row','2','-column', '4','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-float',          '-row','2','-column', '8',                  '-sticky','e')
+w('grid',fmonitor + '.lFlab',              '-row','2','-column', '9','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-corner-locked',  '-row','2','-column','13',                  '-sticky','e')
+w('grid',fmonitor + '.lCLlab',             '-row','2','-column','14','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-torch',          '-row','3','-column', '3',                  '-sticky','e')
+w('grid',fmonitor + '.lTlab',              '-row','3','-column', '4','-columnspan','4','-sticky','w')
+w('grid',fmonitor + '.led-breakaway',      '-row','3','-column', '8',                  '-sticky','e')
+w('grid',fmonitor + '.lBlab',              '-row','3','-column', '9','-columnspan','4','-sticky','w')
 if inifile.find('PLASMAC', 'MODE') != '2':
-    w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','4','-sticky','e')
-    w('grid',fmonitor + '.lKLlab','-row','3','-column','5','-sticky','w')
-w('grid','rowconfigure',fmonitor,'0 1 2 3','-pad','4')
+    w('grid',fmonitor + '.led-kerf-locked','-row','3','-column','13',                  '-sticky','e')
+    w('grid',fmonitor + '.lKLlab',         '-row','3','-column','14','-columnspan','4','-sticky','w')
+
 w('DynamicHelp::add',fmonitor + '.arc-voltage','-text','current arc voltage')
 w('DynamicHelp::add',fmonitor + '.led-arc-ok','-text','a valid arc is established')
 w('DynamicHelp::add',fmonitor + '.led-torch','-text','torch on signal is being sent to plasma supply')
@@ -395,22 +393,18 @@ w('DynamicHelp::add',fmonitor + '.led-ohmic','-text','the ohmic probe is sensed'
 w('DynamicHelp::add',fmonitor + '.led-float','-text','the float switch is activated')
 w('DynamicHelp::add',fmonitor + '.led-breakaway','-text','the breakaway switch is activated')
 w('DynamicHelp::add',fmonitor + '.led-thc-active','-text','THC is active')
-w('DynamicHelp::add',fmonitor + '.led-up','-text','THC is moving the Z axis up')
+w('DynamicHelp::add',fmonitor + '.updown.led-up','-text','THC is moving the Z axis up')
 w('DynamicHelp::add',fmonitor + '.updown.led-down','-text','THC is moving the Z axis down')
 w('DynamicHelp::add',fmonitor + '.led-corner-locked','-text','THC is locked due to velocity constraints')
 w('DynamicHelp::add',fmonitor + '.led-kerf-locked','-text','THC is locked due to void sensing constraints')
 
 # new buttons frame
-w('labelframe',fbuttons,'-relief','groove')
-w('button',fbuttons + '.torch-enable','-width',bwidth/2,'-height','2')
-w('button',fbuttons + '.button1','-width',bwidth/2,'-height','2')
-w('button',fbuttons + '.button2','-width',bwidth/2,'-height','2')
-w('button',fbuttons + '.button3','-width',bwidth/2,'-height','2')
-w('button',fbuttons + '.button4','-width',bwidth/2,'-height','2')
-w('button',fbuttons + '.button5','-width',bwidth/2,'-height','2')
+w('labelframe',fbuttons,'-relief','flat')
+w('button',fbuttons + '.torch-enable','-width',bwidth,'-height','2')
 iniButtonName = ['Names']
 iniButtonCode = ['Codes']
 for button in range(1,6):
+    w('button',fbuttons + '.button' + str(button),'-width',bwidth,'-takefocus','0')
     bname = inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_NAME') or '0'
     iniButtonName.append(bname)
     iniButtonCode.append(inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'))
@@ -433,13 +427,12 @@ w('bind',fbuttons + '.button4','<ButtonRelease-1>','button_action 4 0')
 w('bind',fbuttons + '.button5','<ButtonPress-1>','button_action 5 1')
 w('bind',fbuttons + '.button5','<ButtonRelease-1>','button_action 5 0')
 # populate the buttons frame
-w('grid',fbuttons + '.torch-enable','-row','0','-column','0')
-w('grid',fbuttons + '.button1','-row','0','-column','1')
-w('grid',fbuttons + '.button2','-row','0','-column','2')
-w('grid',fbuttons + '.button3','-row','0','-column','3')
-w('grid',fbuttons + '.button4','-row','0','-column','4')
-w('grid',fbuttons + '.button5','-row','0','-column','5')
-w('grid','rowconfigure',fbuttons,0,'-weight','1')
+w('pack',fbuttons + '.torch-enable','-side','left','-padx','1','-fill','both','-expand','1')
+w('pack',fbuttons + '.button1',     '-side','left','-padx','1','-fill','both','-expand','1')
+w('pack',fbuttons + '.button2',     '-side','left','-padx','1','-fill','both','-expand','1')
+w('pack',fbuttons + '.button3',     '-side','left','-padx','1','-fill','both','-expand','1')
+w('pack',fbuttons + '.button4',     '-side','left','-padx','1','-fill','both','-expand','1')
+w('pack',fbuttons + '.button5',     '-side','left','-padx','1','-fill','both','-expand','1')
 
 w('DynamicHelp::add',fbuttons + '.torch-enable','-text','enable/disable torch\nif disabled when run pressed then dry run will commence')
 w('DynamicHelp::add',fbuttons + '.button1','-text','User button 1\nconfigured in ini file')
@@ -448,15 +441,16 @@ w('DynamicHelp::add',fbuttons + '.button3','-text','User button 3\nconfigured in
 w('DynamicHelp::add',fbuttons + '.button4','-text','User button 4\nconfigured in ini file')
 w('DynamicHelp::add',fbuttons + '.button5','-text','User button 5\nconfigured in ini file')
 
-w('pack',fmonitor,'-fill','y','-side','top')
-w('pack',fbuttons,'-fill','y','-side','top')
-w('pack',fcommon,'-fill','both','-side','left')
+
+w('grid',fmonitor,'-row','0','-column','0','-padx','0','-pady','0')
+w('grid',fbuttons,'-row','1','-column','0','-sticky','ew','-padx','0','-pady','0')
+w('pack',fcommon,'-fill','none','-side','left')
+w(ft + '.sb','configure','-bd','1')
 w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
 w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-padx','0','-pady','0')
 w(ft,'configure','-relief','flat')
 w(ft + '.sb','configure','-width', '16')
 w(ft + '.text','configure','-width', '42', '-borderwidth','1','-relief','sunken')
-
 
 
 ################################################################################
@@ -565,6 +559,7 @@ def user_button_pressed(button,commands):
             hal.set_p('plasmac.consumable-change', '1')
     elif 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','1')
+#        print('Width={}   Height={}'.format(w('winfo','width',root_window), w('winfo','height',root_window)))
     elif 'probe-test' in commands.lower():
         global probePressed
         global probeTimer
@@ -869,18 +864,6 @@ for button in range(1,6):
         else:
             print('consumable change parameters required\n')
         break
-wLabels = [\
-    fmonitor + '.aVlab',\
-    fmonitor + '.lTlab',\
-    fmonitor + '.lAOlab',\
-    fmonitor + '.lTElab',\
-    fmonitor + '.lFlab',\
-    fmonitor + '.lBlab',\
-    fmonitor + '.lOlab',\
-    fmonitor + '.updown.lab',\
-    fmonitor + '.lCLlab',\
-    fmonitor + '.lKLlab',\
-    ]
 wScales = [\
     ftorch + '.torch-pulse-time',\
     fpausedmotion + '.paused-motion-speed',\
@@ -896,7 +879,7 @@ wLeds = [\
     fmonitor + '.led-float',\
     fmonitor + '.led-breakaway',\
     fmonitor + '.led-thc-active',\
-    fmonitor + '.led-up',\
+    fmonitor + '.updown.led-up',\
     fmonitor + '.updown.led-down',\
     fmonitor + '.led-corner-locked',\
     fmonitor + '.led-kerf-locked',\
@@ -906,8 +889,6 @@ w(fpausedmotion + '.paused-motion-speed','set',inifile.find('PLASMAC','PAUSED_MO
 w(ftorch + '.torch-pulse-time','set',inifile.find('PLASMAC','TORCH_PULSE_TIME') or '1')
 hal.set_p('plasmac.torch-pulse-time',inifile.find('PLASMAC','TORCH_PULSE_TIME') or '1')
 
-for widget in wLabels:
-    w(widget,'configure','-anchor','w','-width',lwidth)
 widgetValues = {}
 for widget in wScales:
     widgetValues[widget] = float(w(widget,'get'))

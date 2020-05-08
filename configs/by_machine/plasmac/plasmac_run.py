@@ -586,7 +586,8 @@ class HandlerClass:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
             fSize = int(font.split()[1])
-            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+#            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+            font = '{} {}'.format(font.split()[0],fSize)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
