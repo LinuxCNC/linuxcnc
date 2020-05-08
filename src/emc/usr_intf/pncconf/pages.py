@@ -30,9 +30,15 @@
 # add large or common function calls to pncconf.py
 
 from __future__ import print_function
-import gtk
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+from gi.repository import GObject
+
 import os
-import gobject
 
 class Pages:
     def __init__(self, app):
@@ -62,7 +68,7 @@ class Pages:
 
     def on_window1_destroy(self, *args):
         if self.a.warning_dialog (self._p.MESS_ABORT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
             return True
         else:
             return True
@@ -149,8 +155,8 @@ class Pages:
     def set_buttons_sensitive(self,bstate,fstate):
         self.w.button_fwd.set_sensitive(fstate)
         self.w.button_back.set_sensitive(bstate)
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     # Sets the visual state of a list of page(s)
     # The page names must be the one used in self._p.available_page
@@ -194,8 +200,9 @@ class Pages:
         # get the original background color, must realize the widget first to get the true color.
         # we use this later to high light missing axis info
         self.w.xencoderscale.realize()
-        self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
-        self.w.window1.set_geometry_hints(min_width=750)
+        #TODO:
+        #self.a.origbg = self.w.xencoderscale.style.bg[Gtk.STATE_NORMAL]
+        #self.w.window1.set_geometry_hints(min_width=750)
 
 #************
 # INTRO PAGE
@@ -375,7 +382,7 @@ class Pages:
     def on_latency_test_clicked(self, w):
         self.latency_pid = os.spawnvp(os.P_NOWAIT,"latency-test", ["latency-test"])
         self.w['window1'].set_sensitive(0)
-        gobject.timeout_add(1, self.latency_running_callback)
+        GObject.timeout_add(1, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
@@ -1134,7 +1141,7 @@ class Pages:
 # X_MOTOR PAGE
 #************
     def x_motor_prepare(self):
-        #self.w.xencoderscale.modify_bg(gtk.STATE_NORMAL, self.w.xencoderscale.get_colormap().alloc_color("red"))
+        #self.w.xencoderscale.modify_bg(Gtk.STATE_NORMAL, self.w.xencoderscale.get_colormap().alloc_color("red"))
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('x')
         state = True

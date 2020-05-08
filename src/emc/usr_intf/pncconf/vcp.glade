@@ -741,7 +741,7 @@ panel</property>
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkComboBox" id="gladevcptheme">
+                                                      <object class="GtkComboBoxText" id="gladevcptheme">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
                                                         <property name="model">glade_themestore</property>

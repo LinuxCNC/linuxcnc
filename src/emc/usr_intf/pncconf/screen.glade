@@ -172,7 +172,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkComboBox" id="combo_screentype">
+                          <object class="GtkComboBoxText" id="combo_screentype">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="model">screen_names</property>
@@ -525,7 +525,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="position_offset">
+                                  <object class="GtkComboBoxText" id="position_offset">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_offset_store</property>
@@ -542,7 +542,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="position_feedback">
+                                  <object class="GtkComboBoxText" id="position_feedback">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_feedback_store</property>
@@ -1445,7 +1445,7 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="touchytheme">
+                                  <object class="GtkComboBoxText" id="touchytheme">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">themestore</property>
@@ -1996,7 +1996,7 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="gmcpy_theme">
+                                  <object class="GtkComboBoxText" id="gmcpy_theme">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">themestore</property>

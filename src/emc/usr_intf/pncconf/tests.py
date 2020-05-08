@@ -19,8 +19,12 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import print_function
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
 import os
-import gtk
 import time
 
 class TESTS:
@@ -81,8 +85,8 @@ class TESTS:
             textbuffer.set_text(signaltext)
             self.w.helpnotebook.set_current_page(2)
             self.w.help_window.show_all()
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
         except:
             text = _("Pin names are unavailable\n")
             self.a.warning_dialog(text,True)
@@ -717,7 +721,7 @@ But there is not one in the machine-named folder.."""),True)
         self.w['window1'].set_sensitive(0)
         result = w.tunedialog.run()
         w.tunedialog.hide()
-        if result == gtk.RESPONSE_OK:
+        if result == Gtk.RESPONSE_OK:
             w[axis+"maxvel"].set_value( get_value(w.xtunevel))
             w[axis+"maxacc"].set_value( get_value(w.xtuneacc))
             w[axis+"P"].set_value( get_value(w.xtunecurrentP))
@@ -1043,7 +1047,7 @@ But there is not one in the machine-named folder.."""),True)
         widgets.openloopdialog.hide()
         time.sleep(.001)
         halrun.close()        
-        if result == gtk.RESPONSE_OK:
+        if result == Gtk.RESPONSE_OK:
             #widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
             widgets[axis+"invertmotor"].set_active(widgets.testinvertmotor.get_active())
             widgets[axis+"invertencoder"].set_active(widgets.testinvertencoder.get_active())
@@ -1263,7 +1267,7 @@ class Data2:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class LED(gtk.DrawingArea):
+class LED(Gtk.DrawingArea):
 
     def __init__(self, parent):
         self.par = parent       
@@ -1333,7 +1337,7 @@ class LED(gtk.DrawingArea):
         self._dia = dia
         self.queue_draw()
  
-class PyApp(gtk.Window): 
+class PyApp(Gtk.Window): 
 
     def switch_callback(self, widget, component , boardnum,number, data=None):   
         print(component,boardnum,number,data)
@@ -1395,11 +1399,11 @@ class PyApp(gtk.Window):
     # this keeps the page uniform
     def make_blank(self,container,boardnum,number):
         #blankname = "enc-%d" % (number)
-        #self.data2["brd%denc%d" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
+        #self.data2["brd%denc%d" % (boardnum,number)]= Gtk.Button("Reset-%d"% number)
         #self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
-        label = gtk.Label("     ")
+        label = Gtk.Label("     ")
         container.pack_start(label, False, False, 10)
-        label = gtk.Label("      ")
+        label = Gtk.Label("      ")
         container.pack_start(label, False, False, 10)
   
     # This creates widgets and HAL pins for encoder controls
@@ -1409,14 +1413,14 @@ class PyApp(gtk.Window):
         self.hal.c.newpin(encname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(encname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+encname,encname+"-signal")
-        self.data2["brd%denc%dreset" % (boardnum,number)]= gtk.Button("Reset-%d"% number)
+        self.data2["brd%denc%dreset" % (boardnum,number)]= Gtk.Button("Reset-%d"% number)
         container.pack_start(self.data2["brd%denc%dreset" % (boardnum,number)], False, False, 10)
         encname = "brd.%d.enc.%d.count" % (boardnum,number)
         print("making HAL pin enc s32 brd %d num %d"%(boardnum,number))      
         self.hal.c.newpin(encname, hal.HAL_S32, hal.HAL_IN)
         hal.new_sig(encname+"-signal",hal.HAL_S32)
         hal.connect("testpanel."+encname,encname+"-signal")
-        label = self.data2["brd%denc%dcount" % (boardnum,number)] = gtk.Label("Encoder-%d"% (number))
+        label = self.data2["brd%denc%dcount" % (boardnum,number)] = Gtk.Label("Encoder-%d"% (number))
         label.set_size_request(100, -1)
         container.pack_start(label, False, False, 10)
     
@@ -1430,11 +1434,11 @@ class PyApp(gtk.Window):
         self.hal.c.newpin(stpname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(stpname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+stpname,stpname+"-signal")
-        adj = gtk.Adjustment(0.0, -1000.0, 1000.0, 1.0, 5.0, 0.0)
-        spin = self.data2["brd%dstp%dcmd" % (boardnum,number)]= gtk.SpinButton(adj, 0, 1)  
+        adj = Gtk.Adjustment(0.0, -1000.0, 1000.0, 1.0, 5.0, 0.0)
+        spin = self.data2["brd%dstp%dcmd" % (boardnum,number)]= Gtk.SpinButton(adj, 0, 1)  
         adj.connect("value_changed", self.stp_callback,"stp",boardnum,number,None)    
         container.pack_start(spin, False, False, 10)
-        ckb = self.data2["brd%dstp_ckbutton%d"% (boardnum,number)] = gtk.CheckButton("Enable %d"% (number))
+        ckb = self.data2["brd%dstp_ckbutton%d"% (boardnum,number)] = Gtk.CheckButton("Enable %d"% (number))
         ckb.connect("toggled", self.stp_callback, "stp",boardnum,number,None)
         container.pack_start(ckb, False, False, 10)
         
@@ -1452,13 +1456,13 @@ class PyApp(gtk.Window):
         self.hal.c.newpin(pwmname, hal.HAL_BIT, hal.HAL_OUT)
         hal.new_sig(pwmname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+pwmname,pwmname+"-signal")
-        adj = self.data2["brd%dpwm%dadj" % (boardnum,number)] = gtk.Adjustment(0.0, -10.0, 10.0, 0.1, 0.5, 0.0)
+        adj = self.data2["brd%dpwm%dadj" % (boardnum,number)] = Gtk.Adjustment(0.0, -10.0, 10.0, 0.1, 0.5, 0.0)
         adj.connect("value_changed", self.pwm_callback,"pwm",boardnum,number,None)      
-        pwm = self.data2["brd%dpwm%d" % (boardnum,number)] = gtk.HScale(adj)
+        pwm = self.data2["brd%dpwm%d" % (boardnum,number)] = Gtk.HScale(adj)
         pwm.set_digits(1)
         pwm.set_size_request(100, -1)      
         container.pack_start(pwm, False, False, 10)        
-        ckb = self.data2["brd%dpmw_ckbutton%d"% (boardnum,number)] = gtk.CheckButton("PWM-%d\nON"% (number))
+        ckb = self.data2["brd%dpmw_ckbutton%d"% (boardnum,number)] = Gtk.CheckButton("PWM-%d\nON"% (number))
         ckb.connect("toggled", self.pwm_callback, "pwm",boardnum,number,None)
         container.pack_start(ckb, False, False, 10)
     
@@ -1475,7 +1479,7 @@ class PyApp(gtk.Window):
         led.set_color("off",[1,0,0]) # red
         led.set_color("on",[0,1,0]) # Green
         container.pack_start(led, False, False, 10)
-        label = gtk.Label("<--GPIO-%d"% (number))
+        label = Gtk.Label("<--GPIO-%d"% (number))
         container.pack_start(label, False, False, 10)
 
     # This is for placing a button (switch) and an invert check box into
@@ -1489,13 +1493,13 @@ class PyApp(gtk.Window):
         hal.new_sig(switchname+"-signal",hal.HAL_BIT)
         hal.connect("testpanel."+switchname,switchname+"-signal")
         # add button to container using boarnum and number as a reference     
-        button = self.data2["brd%dswch%d" % (boardnum,number)]= gtk.Button("OUT-%d"% number)
+        button = self.data2["brd%dswch%d" % (boardnum,number)]= Gtk.Button("OUT-%d"% number)
         container.pack_start(button, False, False, 10)
         # connect signals
         button.connect("pressed", self.switch_callback, "switch",boardnum,number,True)
         button.connect("released", self.switch_callback, "switch",boardnum,number,False) 
         # add invert switch
-        ckb = self.data2["brd%dinv%d" % (boardnum,number)]= gtk.CheckButton("Invert")
+        ckb = self.data2["brd%dinv%d" % (boardnum,number)]= Gtk.CheckButton("Invert")
         container.pack_start(ckb, False, False, 10) 
         ckb.connect("toggled", self.switch_callback, "invert",boardnum,number,None)
     
@@ -1512,25 +1516,25 @@ class PyApp(gtk.Window):
         #print "done HAL init"
         self.set_title("Mesa Test Panel")
         self.set_size_request(450, 450)        
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_position(Gtk.WIN_POS_CENTER)
         self.connect_after("destroy", self.quit)
         self.timer = gobject.timeout_add(100, self.update)
         #print "added timer"
-        brdnotebook = gtk.Notebook()
-        brdnotebook.set_tab_pos(gtk.POS_TOP)
+        brdnotebook = Gtk.Notebook()
+        brdnotebook.set_tab_pos(Gtk.POS_TOP)
         brdnotebook.show()
         self.add(brdnotebook)             
         
         for boardnum in range(0,int(self.d.number_mesa)):
             board = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._BOARDNAME]+".%d"% boardnum
-            self.data2["notebook%d"%boardnum] = gtk.Notebook()
-            self.data2["notebook%d"%boardnum].set_tab_pos(gtk.POS_TOP)
+            self.data2["notebook%d"%boardnum] = Gtk.Notebook()
+            self.data2["notebook%d"%boardnum].set_tab_pos(Gtk.POS_TOP)
             self.data2["notebook%d"%boardnum].show()
-            label = gtk.Label("Mesa Board Number %d"% (boardnum))      
+            label = Gtk.Label("Mesa Board Number %d"% (boardnum))      
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
             for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
-                table = gtk.Table(12, 3, False)
-                seperator = gtk.VSeparator()
+                table = Gtk.Table(12, 3, False)
+                seperator = Gtk.VSeparator()
                 table.attach(seperator, 1, 2, 0, 12,True)
                 for pin in range (0,24):
                     if pin >11:
@@ -1547,7 +1551,7 @@ class PyApp(gtk.Window):
                     truepinnum = (concount*24) + pin
                     # for output / open drain pins
                     if  pintype in (_PD.GPIOO,_PD.GPIOD): 
-                        h = gtk.HBox(False,2)
+                        h = Gtk.HBox(False,2)
                         self.make_switch(h,boardnum,truepinnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                         hal.set_p("hm2_%s.gpio.%03d.is_output"% (board,truepinnum ),"true")
@@ -1555,14 +1559,14 @@ class PyApp(gtk.Window):
                         hal.connect("hm2_%s.gpio.%03d.out"% (board,truepinnum ),"brd.%d.switch.%d-signal" % (boardnum,truepinnum))
                     # for input pins
                     elif pintype == _PD.GPIOI: 
-                        h = gtk.HBox(False,2)
+                        h = Gtk.HBox(False,2)
                         self.make_led(h,boardnum,truepinnum)
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                         if pininv: hal.connect("hm2_%s.gpio.%03d.in_not"% (board,truepinnum),"brd.%d.led.%d-signal"% (boardnum,truepinnum))
                         else:   hal.connect("hm2_%s.gpio.%03d.in"% (board,truepinnum),"brd.%d.led.%d-signal"% (boardnum,truepinnum))
                     # for encoder pins
                     elif pintype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM):
-                        h = gtk.HBox(False,2)
+                        h = Gtk.HBox(False,2)
                         if pintype == _PD.ENCA:
                             self.make_enc(h,boardnum,compnum)
                             hal.connect("hm2_%s.encoder.%02d.reset"% (board,compnum), "brd.%d.enc.%d.reset-signal"% (boardnum,compnum))
@@ -1572,7 +1576,7 @@ class PyApp(gtk.Window):
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                     # for PWM pins
                     elif pintype in (_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMD,_PD.UDME):
-                        h = gtk.HBox(False,2)
+                        h = Gtk.HBox(False,2)
                         if pintype in (_PD.PWMP,_PD.PDMP,_PD.UDMU):
                             self.make_pwm(h,boardnum,compnum)
                             hal.connect("hm2_%s.pwmgen.%02d.enable"% (board,compnum),"brd.%d.pwm.%d.enable-signal"% (boardnum,compnum)) 
@@ -1583,7 +1587,7 @@ class PyApp(gtk.Window):
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                     # for Stepgen pins
                     elif pintype in (_PD.STEPA,_PD.STEPB):
-                        h = gtk.HBox(False,2)
+                        h = Gtk.HBox(False,2)
                         if pintype == _PD.STEPA:          
                             self.make_stp(h,boardnum,compnum)
                             hal.connect("hm2_%s.stepgen.%02d.enable"% (board,compnum),"brd.%d.stp.%d.enable-signal"% (boardnum,compnum))
@@ -1599,7 +1603,7 @@ class PyApp(gtk.Window):
                         table.attach(h, 0 + column, 1 + column, pin + adjust, pin +1+ adjust,True)
                     else:
                         print("pintype error IN mesa test panel method pintype %s boardnum %d connector %d pin %d"% (pintype,boardnum,connector,pin))
-                label = gtk.Label("Mesa %d-Connector %d"% (boardnum,connector))      
+                label = Gtk.Label("Mesa %d-Connector %d"% (boardnum,connector))      
                 self.data2["notebook%d"%boardnum].append_page(table, label)
            
         self.show_all() 

@@ -48,7 +48,7 @@ import textwrap
 import hal
 import shutil
 import time
-from multifilebuilder_gtk3 import MultiFileBuilder
+from multifilebuilder import MultiFileBuilder
 
 if sys.version_info[0] == 3:
     import subprocess
