@@ -1,6 +1,9 @@
 .PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
+# To make linuxcnc-python widely available
+export PATH:=$(BASEPWD)/../scripts:$(PATH)
+
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
