@@ -20,6 +20,13 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from __future__ import print_function
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GdkPixbuf
+
 import sys
 import os
 # this is for importing modules from lib/python/pncconf
@@ -40,8 +47,6 @@ import copy
 import fnmatch
 import subprocess
 import gobject
-import gtk
-import gtk.glade
 
 import xml.dom.minidom
 import xml.etree.ElementTree
@@ -91,9 +96,9 @@ def excepthook(exc_type, exc_obj, exc_tb):
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    m = gtk.MessageDialog(w,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
+    m = Gtk.MessageDialog(w,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.ERROR, Gtk.ButtonsType.OK,
                 _("PNCconf encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
                 + "LinuxCNC Version:  %s\n\n"% LINUXCNCVERSION + ''.join(lines))
@@ -106,7 +111,10 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 import gettext;
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+if sys.version_info[0] == 3:
+    gettext.install(domain, localedir=LOCALEDIR)
+else:
+    gettext.install(domain, localedir=LOCALEDIR, unicode=True)
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -157,8 +165,8 @@ class App:
 
         self.splash_screen()
         #self.pbar.set_fraction(.2)
-        #while gtk.events_pending():
-        #    gtk.main_iteration()
+        #while Gtk.events_pending():
+        #    Gtk.main_iteration()
 
         bar_size = 0
         # build the glade files
@@ -181,8 +189,8 @@ class App:
             page = self.builder.get_object(name)
             notebook1.append_page(page)
             self.pbar.set_fraction(bar_size)
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
             bar_size += .0555
         if not 'dev' in dbgstate:
             notebook1.set_show_tabs(False)
@@ -194,7 +202,7 @@ class App:
         self.HAL = build_HAL.HAL(self)
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
-        wiz_pic = gtk.gdk.pixbuf_new_from_file(self._p.WIZARD)
+        wiz_pic = GdkPixbuf.Pixbuf.new_from_file(self._p.WIZARD)
         self.widgets.wizard_image.set_from_pixbuf(wiz_pic)
 
         self.window.hide()
@@ -206,9 +214,9 @@ class App:
         self.widgets.helppic2.set_from_file(axisdiagram)
         axisdiagram = os.path.join(self._p.HELPDIR,"HomeAxisTravel_V3.png")
         self.widgets.helppic3.set_from_file(axisdiagram)
-        self.map_7i76 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
+        self.map_7i76 = GdkPixbuf.Pixbuf.new_from_file(os.path.join(self._p.HELPDIR,"7i76_map.png"))
         self.widgets.map_7i76_image.set_from_pixbuf(self.map_7i76)
-        self.map_7i77 = gtk.gdk.pixbuf_new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
+        self.map_7i77 = GdkPixbuf.Pixbuf.new_from_file(os.path.join(self._p.HELPDIR,"7i77_map.png"))
         self.widgets.map_7i77_image.set_from_pixbuf(self.map_7i77)
         #self.widgets.openloopdialog.hide()
 
@@ -316,7 +324,7 @@ class App:
         self.HAL.write_halfile(base)
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_QUIT,False):
-            gtk.main_quit()
+            Gtk.main_quit()
 
 # helper functions
 
@@ -328,7 +336,7 @@ class App:
         result = self.widgets.boarddiscoverydialog.run()
         self.widgets.boarddiscoverydialog.hide()
         self.widgets.window1.set_sensitive(1)
-        if result == gtk.RESPONSE_OK:
+        if result == Gtk.ResponseType.OK:
             n = self.widgets.discovery_name_entry.get_text()
             itr = self.widgets.discovery_interface_combobox.get_active_iter()
             d = self.widgets.discovery_interface_combobox.get_model().get_value(itr, 1)
@@ -362,7 +370,7 @@ class App:
         result = self.widgets.boardmetadialog.run()
         self.widgets.boardmetadialog.hide()
         self.widgets.window1.set_sensitive(1)
-        if result == gtk.RESPONSE_OK:
+        if result == Gtk.ResponseType.OK:
             itr = self.widgets.interface_combobox.get_active_iter()
             d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
             ppc = int(self.widgets.ppc_combobox.get_active_text())
@@ -373,28 +381,28 @@ class App:
             return meta
 
     def splash_screen(self):
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
+        self.window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
+        self.window.set_type_hint(Gdk.WindowTypeHint.SPLASHSCREEN)     
         self.window.set_title(_("Pncconf setup"))
         self.window.set_border_width(10)
 
-        vbox = gtk.VBox(False, 5)
+        vbox = Gtk.VBox(False, 5)
         vbox.set_border_width(10)
         self.window.add(vbox)
         vbox.show()
-        align = gtk.Alignment(0.5, 0.5, 0, 0)
+        align = Gtk.Alignment()
         vbox.pack_start(align, False, False, 5)
         align.show()
 
-        self.pbar = gtk.ProgressBar()
+        self.pbar = Gtk.ProgressBar()
         self.pbar.set_text(_("Pncconf is setting up"))
         self.pbar.set_fraction(.1)
 
         align.add(self.pbar)
         self.pbar.show()
         self.window.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
 
     def dbg(self,message,mtype='all'):
         for hint in _DEBUGSTRING:
@@ -407,44 +415,44 @@ class App:
     def query_dialog(self,title, message):
         def responseToDialog(entry, dialog, response):
             dialog.response(response)
-        label = gtk.Label(message)
+        label = Gtk.Label(message)
         #label.modify_font(pango.FontDescription("sans 20"))
-        entry = gtk.Entry()
-        dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK_CANCEL, title)
+        entry = Gtk.Entry()
+        dialog = Gtk.MessageDialog(self.widgets.window1,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK_CANCEL, title)
 
         dialog.vbox.pack_start(label)
         dialog.vbox.add(entry)
         #allow the user to press enter to do ok
-        entry.connect("activate", responseToDialog, dialog, gtk.RESPONSE_OK)
+        entry.connect("activate", responseToDialog, dialog, Gtk.ResponseType.OK)
         dialog.show_all()
         result = dialog.run()
 
         text = entry.get_text()
         dialog.destroy()
-        if result ==  gtk.RESPONSE_OK:
+        if result ==  Gtk.ResponseType.OK:
             return text
         else:
             return None
 
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
+           dialog = Gtk.MessageDialog(self.widgets.window1,
+                Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                Gtk.MessageType.WARNING, Gtk.ButtonsType.OK,message)
            dialog.show_all()
            result = dialog.run()
            dialog.destroy()
            return True
         else:   
-            dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+            dialog = Gtk.MessageDialog(self.widgets.window1,
+               Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,message)
             dialog.show_all()
             result = dialog.run()
             dialog.destroy()
-            if result == gtk.RESPONSE_YES:
+            if result == Gtk.ResponseType.YES:
                 return True
             else:
                 return False
@@ -472,20 +480,20 @@ class App:
 
     def print_page(self,print_dialog, context, n, imagename):
         ctx = context.get_cairo_context()
-        gdkcr = gtk.gdk.CairoContext(ctx)
+        gdkcr = Gdk.CairoContext(ctx)
         gdkcr.set_source_pixbuf(self[imagename], 0,0)
         gdkcr.paint ()
 
     def print_image(self,image_name):
         print('print image')
-        print_dialog = gtk.PrintOperation()
+        print_dialog = Gtk.PrintOperation()
         print_dialog.set_n_pages(1)
-        settings = gtk.PrintSettings()
-        settings.set_orientation(gtk.PAGE_ORIENTATION_LANDSCAPE)
+        settings = Gtk.PrintSettings()
+        settings.set_orientation(Gtk.PAGE_ORIENTATION_LANDSCAPE)
         print_dialog.set_print_settings(settings)
         print_dialog.connect("draw-page", self.print_page, image_name)
-        res = print_dialog.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, self.widgets.help_window)
-        if res == gtk.PRINT_OPERATION_RESULT_APPLY:
+        res = print_dialog.run(Gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, self.widgets.help_window)
+        if res == Gtk.PRINT_OPERATION_RESULT_APPLY:
             settings = print_dialog.get_print_settings()
 
     # check for realtime kernel
@@ -540,72 +548,72 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
 
     def fill_pintype_model(self):
         # notused
-        self.d._notusedliststore = gtk.ListStore(str,int)
+        self.d._notusedliststore = Gtk.ListStore(str,int)
         self.d._notusedliststore.append([_PD.pintype_notused[0],0])
-        self.d._ssrliststore = gtk.ListStore(str,int)
+        self.d._ssrliststore = Gtk.ListStore(str,int)
         self.d._ssrliststore.append([_PD.pintype_ssr[0],0])
         # gpio
-        self.d._gpioliststore = gtk.ListStore(str,int)
+        self.d._gpioliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_gpio):
             self.d._gpioliststore.append([text,0])
         # stepper
-        self.d._stepperliststore = gtk.ListStore(str,int)
+        self.d._stepperliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_stepper):
             self.d._stepperliststore.append([text,number])
         # encoder
-        self.d._encoderliststore = gtk.ListStore(str,int)
+        self.d._encoderliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_encoder):
             self.d._encoderliststore.append([text,number])
         # mux encoder
-        self.d._muxencoderliststore = gtk.ListStore(str,int)
+        self.d._muxencoderliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_muxencoder):
             self.d._muxencoderliststore.append([text,number])
         # resolver
-        self.d._resolverliststore = gtk.ListStore(str,int)
+        self.d._resolverliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_resolver):
             self.d._resolverliststore.append([text,number])
         # 8i20 AMP
-        self.d._8i20liststore = gtk.ListStore(str,int)
+        self.d._8i20liststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_8i20):
             self.d._8i20liststore.append([text,number])
         # potentiometer output
-        self.d._potliststore = gtk.ListStore(str,int)
+        self.d._potliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_potentiometer):
             self.d._potliststore.append([text,number])
         # analog input
-        self.d._analoginliststore = gtk.ListStore(str,int)
+        self.d._analoginliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_analog_in):
             self.d._analoginliststore.append([text,number])
         # pwm
-        self.d._pwmrelatedliststore = gtk.ListStore(str,int)
+        self.d._pwmrelatedliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_pwm):
             self.d._pwmrelatedliststore.append([text,number])
-        self.d._pwmcontrolliststore = gtk.ListStore(str,int)
+        self.d._pwmcontrolliststore = Gtk.ListStore(str,int)
         self.d._pwmcontrolliststore.append([_PD.pintype_pwm[0],0])
         self.d._pwmcontrolliststore.append([_PD.pintype_pdm[0],0])
         self.d._pwmcontrolliststore.append([_PD.pintype_udm[0],0])
         # pdm
-        self.d._pdmrelatedliststore = gtk.ListStore(str,int)
+        self.d._pdmrelatedliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_pdm):
             self.d._pdmrelatedliststore.append([text,number])
-        self.d._pdmcontrolliststore = gtk.ListStore(str,int)
+        self.d._pdmcontrolliststore = Gtk.ListStore(str,int)
         self.d._pdmcontrolliststore.append([_PD.pintype_pwm[0],0])
         self.d._pdmcontrolliststore.append([_PD.pintype_pdm[0],0])
         self.d._pdmcontrolliststore.append([_PD.pintype_udm[0],0])
         # udm
-        self.d._udmrelatedliststore = gtk.ListStore(str,int)
+        self.d._udmrelatedliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_udm):
             self.d._udmrelatedliststore.append([text,number])
-        self.d._udmcontrolliststore = gtk.ListStore(str,int)
+        self.d._udmcontrolliststore = Gtk.ListStore(str,int)
         self.d._udmcontrolliststore.append([_PD.pintype_pwm[0],0])
         self.d._udmcontrolliststore.append([_PD.pintype_pdm[0],0])
         self.d._udmcontrolliststore.append([_PD.pintype_udm[0],0])
         #tppwm
-        self.d._tppwmliststore = gtk.ListStore(str,int)
+        self.d._tppwmliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_tp_pwm):
             self.d._tppwmliststore.append([text,number])
         #sserial
-        self.d._sserialliststore = gtk.ListStore(str,int)
+        self.d._sserialliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_sserial):
             self.d._sserialliststore.append([text,number])
 
@@ -621,7 +629,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             count = 0
             end = len(item[1])-1
             # treestore(parentname,parentnum,signalname,signaltreename,signal index number)
-            self.d[item[0]]= gtk.TreeStore(str,int,str,str,int)
+            self.d[item[0]]= Gtk.TreeStore(str,int,str,str,int)
             for i,parent in enumerate(item[1]):
                 ############################
                 # if there are no children:
@@ -714,7 +722,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             count = 0
             end = len(item[1])-1
             # treestore(parentname,parentnum,signalname,signaltreename,signal index number)
-            self.d[item[0]]= gtk.TreeStore(str,int,str,str,int)
+            self.d[item[0]]= Gtk.TreeStore(str,int,str,str,int)
             for i,parent in enumerate(item[1]):
                 ############################
                 # if there are no children:
@@ -789,7 +797,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                             count +=item[2]
                             
         self.fill_combobox_models2()
-        self.d._notusedsignaltree = gtk.TreeStore(str,int,str,str,int)
+        self.d._notusedsignaltree = Gtk.TreeStore(str,int,str,str,int)
         self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0,'unused-unused','_notusedsignaltree',0])
         # make a filter for sserial encoder as they can't be used for AXES
         self.d._encodersignalfilter = self.d._encodersignaltree.filter_new()
@@ -832,14 +840,14 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         return False
 
     def load_config(self):
-        filter = gtk.FileFilter()
+        filter = Gtk.FileFilter()
         filter.add_pattern("*.pncconf")
         filter.set_name(_("LinuxCNC 'PNCconf' configuration files"))
-        dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
-            self.widgets.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
-            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-             gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
+            self.widgets.window1, Gtk.FILE_CHOOSER_ACTION_OPEN,
+            (Gtk.STOCK_CANCEL, Gtk.RESPONSE_CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+        dialog.set_default_response(Gtk.ResponseType.OK)
         dialog.add_filter(filter) 
         if not self.d._lastconfigname == "" and self.d._chooselastconfig:
             dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.pncconf"% self.d._lastconfigname))
@@ -847,7 +855,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
         dialog.show_all()
         result = dialog.run()
-        if result == gtk.RESPONSE_OK:
+        if result == Gtk.ResponseType.OK:
             filename = dialog.get_filename()
             dialog.destroy()
             self.d.load(filename, self)
@@ -876,8 +884,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         self.pbar.set_text("Loading external firmware")
         self.pbar.set_fraction(0)
         self.window.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
         firmlist = []
         for root, dirs, files in os.walk(self._p.FIRMDIR):
             folder = root.lstrip(self._p.FIRMDIR)
@@ -893,8 +901,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         dbg("\nXML list:%s"%firmlist,mtype="firmname")
         for n,currentfirm in enumerate(firmlist):
             self.pbar.set_fraction(n*1.0/len(firmlist))
-            while gtk.events_pending():
-                gtk.main_iteration()
+            while Gtk.events_pending():
+                Gtk.main_iteration()
             # XMLs don't tell us the driver type so set to None (parse will guess)
             firmdata = self.parse_xml(None,boardtitle, currentfirm,os.path.join(
                                 self._p.FIRMDIR,boardtitle,currentfirm+".xml"))
@@ -2374,8 +2382,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
         self.window.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
         for search, item in enumerate(self._p.MESA_FIRMWAREDATA):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[_PD._BOARDTITLE] == title:continue
@@ -2423,8 +2431,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
-                while gtk.events_pending():
-                    gtk.main_iteration()
+                while Gtk.events_pending():
+                    Gtk.main_iteration()
                 firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]       
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
@@ -2439,7 +2447,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # kill all widget signals:
                 self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
                 self.widgets[p].handler_block(self.d[blocksignal]) 
-                self.widgets[p].child.handler_block(self.d[actblocksignal])
+                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
                 self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
 
@@ -2463,7 +2471,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 actblocksignal = "_mesa%dactivatehandlerc%ipin%i"  % (boardnum, connector, pin) 
                 self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
                 self.widgets[p].handler_unblock(self.d[blocksignal]) 
-                self.widgets[p].child.handler_unblock(self.d[actblocksignal])
+                self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         self.mesa_mainboard_data_to_widgets(boardnum)
         self.window.hide()
         self.p.set_buttons_sensitive(1,1)
@@ -2477,16 +2485,16 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.pbar.set_text("Setting up Mesa Smart Serial tabs")
         self.pbar.set_fraction(0)
         self.window.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
+        while Gtk.events_pending():
+            Gtk.main_iteration()
         for subnum,temp in enumerate(self._p.MESA_DAUGHTERDATA):
             #print self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME],subboardname
             if self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME] == subboardname: break
         #print "found subboard name:",self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBFIRMNAME],subboardname,subnum,"channel:",channel
         for pin in range (0,self._p._SSCOMBOLEN):
             self.pbar.set_fraction((pin+1)/60.0)
-            while gtk.events_pending():
-                gtk.main_iteration()      
+            while Gtk.events_pending():
+                Gtk.main_iteration()      
             p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
             ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, pin)
             pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
@@ -2499,7 +2507,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # kill all widget signals:
             self.widgets[ptype].handler_block(self.d[ptypeblocksignal])
             self.widgets[p].handler_block(self.d[blocksignal])
-            self.widgets[p].child.handler_block(self.d[actblocksignal])
+            self.widgets[p].get_child().handler_block(self.d[actblocksignal])
             ppc = 0
             concount = 0
             numofencoders = 10
@@ -2521,7 +2529,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # unblock all widget signals:
             self.widgets[ptype].handler_unblock(self.d[ptypeblocksignal])
             self.widgets[p].handler_unblock(self.d[blocksignal]) 
-            self.widgets[p].child.handler_unblock(self.d[actblocksignal])
+            self.widgets[p].get_child().handler_unblock(self.d[actblocksignal])
         # now that the widgets are set up as per firmware, change them as per the loaded data and add signals
         for pin in range (0,self._p._SSCOMBOLEN):
             firmptype,compnum = self._p.MESA_DAUGHTERDATA[subnum][self._p._SUBSTARTOFDATA+pin]       
@@ -2556,7 +2564,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[ptype].show()
                     self.widgets[pinv].show()
                     self.widgets[complabel].show()
-                    self.widgets[p].child.set_editable(True)
+                    self.widgets[p].get_child().set_editable(True)
 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT--- 
                 # check that we are not converting more encoders that user requested
@@ -2812,7 +2820,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         self.widgets[ptype].set_active(_PD.pintype_sserial.index(firmptype))
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_active(0)
-                        self.widgets[p].child.set_editable(False) # sserial cannot have custom names
+                        self.widgets[p].get_child().set_editable(False) # sserial cannot have custom names
                         # controlling combbox
                         if CONTROL:
                             self.widgets[complabel].set_text("%d:"% (channelnum -1))
@@ -3627,7 +3635,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         blocksignal1 = "_%s_%s%dsignalhandler" % (data[1], data[2], data[4])
                         blocksignal2 = "_%s_%s%dactivatehandler"  % (data[1], data[2], data[4])
                     self.widgets[data[0]].handler_block(self.d[blocksignal1])
-                    self.widgets[data[0]].child.handler_block(self.d[blocksignal2])
+                    self.widgets[data[0]].get_child().handler_block(self.d[blocksignal2])
                     if custom:
                         if basetree == signaltree:
                             temp = newiter
@@ -3637,7 +3645,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         self.widgets[data[0]].set_active_iter(piter)
 
-                    self.widgets[data[0]].child.handler_unblock(self.d[blocksignal2])
+                    self.widgets[data[0]].get_child().handler_unblock(self.d[blocksignal2])
                     self.widgets[data[0]].handler_unblock(self.d[blocksignal1])
                 #self.debug_iter(0,p,"pin changed")
                 #if boardtype == "mesa": self.debug_iter(0,ptype,"pin changed")
@@ -4573,12 +4581,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.findsignal(axis+"-pot-outpot"): pot = True
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].modify_bg(gtk.STATE_NORMAL, self.widgets[axis+"encoderscale"].get_colormap().alloc_color("red"))
+                self.widgets[axis+"encoderscale"].modify_bg(Gtk.STATE_NORMAL, self.widgets[axis+"encoderscale"].get_colormap().alloc_color("red"))
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].modify_bg(gtk.STATE_NORMAL, self.widgets[axis+"stepscale"].get_colormap().alloc_color("red"))
+                self.widgets[axis+"stepscale"].modify_bg(Gtk.STATE_NORMAL, self.widgets[axis+"stepscale"].get_colormap().alloc_color("red"))
                 dbg('step scale bad')
                 bad = True
         if not (encoder or resolver) and not stepdrive and not axis == "s":
@@ -4597,8 +4605,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].modify_bg(gtk.STATE_NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].modify_bg(gtk.STATE_NORMAL, self.origbg)
+            self.widgets[axis+"encoderscale"].modify_bg(Gtk.STATE_NORMAL, self.origbg)
+            self.widgets[axis+"stepscale"].modify_bg(Gtk.STATE_NORMAL, self.origbg)
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
@@ -5313,5 +5321,5 @@ if __name__ == "__main__":
         app = App(dbgstate=options.debug)
     else:
         app = App('')
-    gtk.main()
+    Gtk.main()
 
