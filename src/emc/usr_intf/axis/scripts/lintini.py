@@ -33,9 +33,9 @@ def report_problem(msg, *args):
 
 
 def get_int(section, key):
-	return int(ini.find(section, key).split()[0])
+    return int(ini.find(section, key).split()[0])
 def get_float(section, key):
-	return float(ini.find(section, key).split()[0])
+    return float(ini.find(section, key).split()[0])
 
 if ini.find("EMCMOT", "BASE_PERIOD") is None:
     period = 0.

@@ -14,8 +14,7 @@ def substall(s, r):
 
 def mkpre(s):
     msubst = [('\\', '\\\\'), (' ', '\\ ')]
-    hsubst = [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'),
-		('  ', ' &nbsp;'), ('\n', '<BR>'), ('\\', '&#92;')]
+    hsubst = [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;'),('  ', ' &nbsp;'), ('\n', '<BR>'), ('\\', '&#92;')]
 
     h = "".join(s)
     print(".ie '\\*[.T]'html' .HTML <PRE>%s</PRE>" % substall(h, hsubst))

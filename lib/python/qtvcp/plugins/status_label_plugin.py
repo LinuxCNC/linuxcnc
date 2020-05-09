@@ -290,7 +290,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
         tab = QtWidgets.QTabWidget()
         self.tab1 = QtWidgets.QWidget()
         self.tab2 = QtWidgets.QWidget()
-		
+
         tab.addTab(self.tab1,'Actions')
         self.buildtab1()
 
