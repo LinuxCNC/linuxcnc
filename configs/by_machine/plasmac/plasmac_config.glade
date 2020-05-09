@@ -121,7 +121,7 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="float-switch-travel">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -141,7 +141,7 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="probe-feed-rate">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -163,7 +163,7 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="skip-ihs-distance">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -187,7 +187,7 @@ if THC off then skip IHS if start of this cut is less than this distance from st
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="probe-start-height">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -228,7 +228,7 @@ Note: this is the height above minimum limit</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="ohmic-max-attempts">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -285,7 +285,7 @@ Note: this is the height above minimum limit</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="ohmic-probe-offset">
-                                <property name="width_request">75</property>
+                                <property name="width_request">86</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -350,7 +350,7 @@ Note: this is the height above minimum limit</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="thc-threshold">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -400,7 +400,7 @@ Note: this is the height above minimum limit</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pid-p-gain">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -453,7 +453,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="thc-delay">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -501,7 +501,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pid-i-gain">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -550,7 +550,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="pid-d-gain">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -599,7 +599,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="cornerlock-threshold">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -649,7 +649,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="kerfcross-override">
-                                    <property name="width_request">75</property>
+                                    <property name="width_request">86</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -737,7 +737,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                           <object class="GtkTable" id="table8">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="n_columns">3</property>
+                            <property name="n_columns">4</property>
                             <property name="column_spacing">2</property>
                             <property name="row_spacing">2</property>
                             <property name="homogeneous">True</property>
@@ -775,7 +775,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
+                                <property name="right_attach">4</property>
                               </packing>
                             </child>
                           </object>
@@ -827,7 +827,7 @@ for mode 2 this is the percentage of max velocity used for THC</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="safe-height">
-                                <property name="width_request">75</property>
+                                <property name="width_request">124</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -906,7 +906,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arc-voltage-scale">
-                                    <property name="width_request">90</property>
+                                    <property name="width_request">128</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -955,7 +955,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arc-voltage-offset">
-                                    <property name="width_request">90</property>
+                                    <property name="width_request">124</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1004,7 +1004,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arc-ok-high">
-                                    <property name="width_request">90</property>
+                                    <property name="width_request">124</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1053,7 +1053,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="arc-ok-low">
-                                    <property name="width_request">90</property>
+                                    <property name="width_request">124</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1065,6 +1065,7 @@ this may be reduced due to THC movement</property>
                                     <property name="primary_icon_sensitive">True</property>
                                     <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">arc-ok-low-adj</property>
+                                    <property name="climb_rate">0.059999999999999998</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
@@ -1147,7 +1148,7 @@ this may be reduced due to THC movement</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="arc-fail-delay">
-                                <property name="width_request">90</property>
+                                <property name="width_request">124</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1167,7 +1168,7 @@ this may be reduced due to THC movement</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="arc-max-starts">
-                                <property name="width_request">90</property>
+                                <property name="width_request">124</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1189,7 +1190,7 @@ this may be reduced due to THC movement</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="arc-restart-delay">
-                                <property name="width_request">90</property>
+                                <property name="width_request">124</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1215,7 +1216,7 @@ this may be reduced due to THC movement</property>
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="HAL_SpinButton" id="height-per-volt">
-                                    <property name="width_request">90</property>
+                                    <property name="width_request">124</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="has_tooltip">True</property>
@@ -1314,7 +1315,7 @@ this may be reduced due to THC movement</property>
                             </child>
                             <child>
                               <object class="GtkLabel" id="max-offset-velocity-in">
-                                <property name="width_request">55</property>
+                                <property name="width_request">100</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="has_tooltip">True</property>
@@ -1350,7 +1351,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="setup-feed-rate">
-                                <property name="width_request">75</property>
+                                <property name="width_request">124</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1427,7 +1428,7 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-arm-delay">
-                                <property name="width_request">60</property>
+                                <property name="width_request">66</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1447,7 +1448,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="scribe-on-delay">
-                                <property name="width_request">60</property>
+                                <property name="width_request">66</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1535,7 +1536,7 @@ this also sets the maximum probe feed rate</property>
                             <property name="row_spacing">2</property>
                             <child>
                               <object class="HAL_SpinButton" id="spotting-time">
-                                <property name="width_request">60</property>
+                                <property name="width_request">66</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>
@@ -1563,7 +1564,7 @@ this also sets the maximum probe feed rate</property>
                                 <property name="tooltip_text" translatable="yes">delay time after threshold voltage reached to turn torch off (mS)</property>
                                 <property name="xalign">1</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Delay (mS)</property>
+                                <property name="label" translatable="yes">Delay(mS)</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1579,7 +1580,7 @@ this also sets the maximum probe feed rate</property>
 0 = start timer when torch started</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">2</property>
-                                <property name="label" translatable="yes">Threshold (V)</property>
+                                <property name="label" translatable="yes">Threshold(V)</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -1588,7 +1589,7 @@ this also sets the maximum probe feed rate</property>
                             </child>
                             <child>
                               <object class="HAL_SpinButton" id="spotting-threshold">
-                                <property name="width_request">60</property>
+                                <property name="width_request">66</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="has_tooltip">True</property>

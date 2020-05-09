@@ -139,6 +139,7 @@ class HandlerClass:
             self.w.actionButton_home.setText("Home Selected")
             self.w.actionButton_home.set_home_select(True)
         self.make_corner_widgets()
+        self.make_progressbar()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -231,6 +232,21 @@ class HandlerClass:
     def leftTabChanged(self, num):
         if num == 0:
             ACTION.SET_MANUAL_MODE()
+
+    def percentLoaded(self, fraction):
+        if fraction <1:
+            self.w.progressbar.setValue(0)
+            self.w.progressbar.setFormat('')
+        else:
+            self.w.progressbar.setValue(fraction)
+            self.w.progressbar.setFormat('Loading: {}%'.format(fraction))
+
+    def percentCompleted(self, fraction):
+        self.w.progressbar.setValue(fraction)
+        if fraction <1:
+            self.w.progressbar.setFormat('')
+        else:
+            self.w.progressbar.setFormat('Completed: {}%'.format(fraction))
 
     #####################
     # general functions #
@@ -432,6 +448,11 @@ class HandlerClass:
         self.w.tool_stat.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.w.tool_stat.setFixedWidth(60)
         self.w.leftTab.setCornerWidget(self.w.tool_stat)
+
+    def make_progressbar(self):
+        self.w.progressbar = QtWidgets.QProgressBar()
+        self.w.progressbar.setRange(0,100)
+        self.w.statusbar.addWidget(self.w.progressbar)
 
     def g53_in_dro_changed(self, w, data):
         if data:

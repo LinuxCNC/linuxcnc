@@ -45,13 +45,17 @@ import hashlib
 import math
 import errno
 import textwrap
-import commands
 import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
-reload(sys)
-sys.setdefaultencoding('utf8')
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -80,7 +84,11 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 domain = "linuxcnc"
-gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+if sys.version_info[0] == 3:
+    gettext.install(domain, localedir=LOCALEDIR)
+else:
+    gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
@@ -1056,7 +1064,7 @@ class StepconfApp:
         # Really I have not found a better way to change the background color
         # I hate the person who removed the get_background_color function in GTK3...
         provider = Gtk.CssProvider()
-        provider.load_from_data(mystyle)
+        provider.load_from_data(bytes(mystyle.encode()))
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(),
             provider,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 from __future__ import print_function
 import os, sys
 
@@ -7,13 +7,13 @@ d = {}
 strip = sys.argv[1]
 
 for f in sys.argv[2:]:
-	base = os.path.splitext(f)[0]
-	if base.startswith(strip):
-		base = base[len(strip):]
-	for l in open(f):
-		l = l.strip().replace(' ', '_')
-		if not l:
-			continue
-		d[l] = base
+    base = os.path.splitext(f)[0]
+    if base.startswith(strip):
+        base = base[len(strip):]
+    for l in open(f):
+        l = l.strip().replace(' ', '_')
+        if not l:
+            continue
+        d[l] = base
 for k, v in list(d.items()):
-	print('%s\t%s' % (k, v))
+    print('%s\t%s' % (k, v))

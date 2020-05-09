@@ -39,7 +39,7 @@ class get_refs(sgmllib.SGMLParser, MetaHandler):
         if self.encoding:
             href = href.decode(self.encoding)
         href = urllib.unquote(href)
-	self.refs.add(href)
+        self.refs.add(href)
 
 class get_anchors(sgmllib.SGMLParser, MetaHandler):
     entitydefs = htmlentitydefs.entitydefs
@@ -67,16 +67,16 @@ class get_anchors(sgmllib.SGMLParser, MetaHandler):
 _anchors = {}
 def get_anchors_cached(filename):
     if filename not in _anchors:
-	a = get_anchors()
-	a.feed(open(filename).read())
-	_anchors[filename] = a.anchors
+        a = get_anchors()
+        a.feed(open(filename).read())
+        _anchors[filename] = a.anchors
     return _anchors[filename]
 
 def resolve_file(src, target):
     if "#" in target:
-	a, b = target.split("#", 1)
+        a, b = target.split("#", 1)
     else:
-	a, b = target, None
+        a, b = target, None
 
     a = a or src
 
@@ -99,13 +99,13 @@ good = set()
 for r in refs:
     target, anchor = resolve_file(ref, r)
     if targets and not target in targets:
-	unlisted_targets.add(target)
+        unlisted_targets.add(target)
     elif not os.path.exists(target):
-	missing_file.add(r)
+        missing_file.add(r)
     elif not resolve(target, anchor):
-	missing_anchor.add(r)
+        missing_anchor.add(r)
     else:
-	good.add(r)
+        good.add(r)
 
 if missing_file:
     print "Files linked to in %s but could not be found:" % (
@@ -120,7 +120,7 @@ if missing_anchor:
 if unlisted_targets:
     print "Links to files not listed as targets:"
     for i in sorted(unlisted_targets):
-	print "\t%r" % i
+        print "\t%r" % i
     print "If all link targets are not listed in the Submakefile, then the results of this program is unreliable."
 print "Good links: %d/%d" % (len(good), len(refs))
 if missing_anchor or missing_file or unlisted_targets:

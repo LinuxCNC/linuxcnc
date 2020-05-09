@@ -172,12 +172,15 @@ class FileManager(QWidget, _HalWidgetBase):
             self.load(fname)
 
     # this can be class patched to do somethibg else
-    def load(self, fname):
-            if self.PREFS_:
-                self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
-                self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
-            ACTION.OPEN_PROGRAM(fname)
-            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+    def load(self, fname=None):
+        if fname is None:
+            self._getPathActivated()
+            return
+        if self.PREFS_:
+            self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
+            self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
+        ACTION.OPEN_PROGRAM(fname)
+        STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
 
     # moves the selection up
     # used with MPG scrolling

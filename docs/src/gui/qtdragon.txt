@@ -34,6 +34,14 @@ For the basicprobe routines to work the SUBROUTINE_PATH must be set properly. +
 SUBROUTINE_PATH = ../../../../nc_files/probe/basic_probe/macros
 ----
 
+It also requires extra analog I/O pins for probing. +
+Make sure this line in the HAL file has the 'num_aio=13' entry: +
+The rest of the line depends on your setup and could be different and should not be changed. +
+[source,{ini}]
+----
+loadrt motmod servo_period_nsec = [EMCMOT] SERVO_PERIOD num_joints = 4 num_aio = 13
+----
+
 SilverDragon has custom INI entries: +
 [source,{ini}]
 ----
