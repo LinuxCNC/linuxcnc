@@ -233,10 +233,10 @@ class ObjectRenderer():
         #version 330
 
         uniform mat4 proj; // view / projection matrix
-        uniform mat4 model; // model matrix 
+        uniform mat4 model; // model matrix
         in vec4 position;
-        in vec4 color;
-        out vec4 v_color;
+        in vec3 color;
+        out vec3 v_color;
 
         void main() {
           gl_Position = proj * model * position;
@@ -246,12 +246,54 @@ class ObjectRenderer():
         self.FRAGMENT_SOURCE ='''
         #version 330
 
-        in vec4 v_color;
-        out vec4 out_color;
+        in vec3 v_color;
+        out vec3 out_color;
 
         void main() {
           out_color = v_color;
-        };'''
+        }'''
+
+        # used for emulating deprecated glLineStipple
+        self.LINE_VERTEX_SOURCE = '''
+        #version 330
+
+        uniform mat4 proj; // view / projection matrix
+        uniform mat4 model; // model matrix
+
+        in vec4 position;
+        in vec3 color;
+        out vec3 v_color;
+        flat out vec4 v_start; // does not get interpolated, because of flat
+        out vec4 v_pos;
+
+        void main() {
+          v_pos = proj * model * position;
+          v_start = v_pos;
+          v_color = color;
+        }'''
+
+        self.LINE_FRAGMENT_SOURCE ='''
+        #version 330
+
+        flat in vec4 v_start;
+        in vec4 v_pos;
+        in vec3 v_color;
+        out vec3 out_color;
+
+        uniform vec2 u_resolution;
+        uniform uint u_pattern;
+        uniform float u_factor;
+
+        void main() {
+          out_color = v_color;
+
+          vec2 dir = (v_pos.xy-v_start.xy) * u_resolution/2.0;
+          float dist = length(dir);
+
+          uint bit = uint(round(dist / u_factor)) & 15U;
+          if ((u_pattern & (1U<<bit)) == 0U)
+            discard;
+        }'''
 
 
     def init(self):
