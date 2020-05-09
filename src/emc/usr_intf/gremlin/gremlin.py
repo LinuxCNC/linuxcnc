@@ -137,6 +137,10 @@ class VBO():
             # normalized currently unused & ignored
             glVertexAttribPointer(location, layout['size'], layout['datatype'], False, layout['stride'], ctypes.c_void_p(layout['offset']))
 
+    def update(self, offset, data, size):
+        self.bind()
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data)
+
     def fill(self, data, size):
         self.bind()
         glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW)
@@ -307,7 +311,7 @@ class ObjectRenderer():
         # initial position / rotation / scale
         self.pos = glm.vec3(0,0,0)
         self.rotation = glm.mat4()
-        self.scale = glm.vec3(100,100,100)
+        self.scale = glm.vec3(1,1,1)
         # generate model matrix
         self._update_matrix()
 
@@ -316,7 +320,7 @@ class ObjectRenderer():
 
         self.vbo.gen()
 
-        axes = np.array([
+        self.axes = np.array([
             # x axis
             1.0,0.0,0.0,
             0.2,1.0,0.2,
@@ -334,8 +338,87 @@ class ObjectRenderer():
             0.2,0.2,1.0,
         ], dtype=np.float32)
 
-        self.vbo.fill(axes, len(axes)*4)
+        self.min_limit = glm.vec3(-1000)
+        self.max_limit = glm.vec3(1000)
+
+        self.box = self._get_bound_box(glm.vec3(-1000),glm.vec3(1000))
+
+        data = np.concatenate([self.axes,self.box])
+
+        self.vbo.fill(data, len(data)*4)
         self.vao.gen(self.shader_prog, [self.vbo])
+
+    def _get_bound_box(self, machine_limit_min, machine_limit_max):
+        return np.array([
+            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+
+
+            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+
+            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+
+
+            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+
+            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
+            1.0,0.0,0.0,
+        ], dtype=np.float32)
+
+    def change_box(self, machine_limit_min, machine_limit_max):
+        if self.min_limit != machine_limit_min or self.max_limit != machine_limit_max:
+            self.box = self._get_bound_box(machine_limit_min, machine_limit_max)
+            self.vbo.update(len(self.axes)*4, self.box, len(self.box)*4)
+            self.min_limit = machine_limit_min
+            self.max_limit = machine_limit_max
 
     def _update_matrix(self):
         newmat = glm.translate(glm.mat4(), self.pos)
@@ -377,11 +460,45 @@ class ObjectRenderer():
         glDrawArrays(GL_LINES, 0,2)
         glDrawArrays(GL_LINES, 2,2)
         glDrawArrays(GL_LINES, 4,2)
+        glDrawArrays(GL_LINES, 6,24)
 
         self.vao.unbind()
 
         glUseProgram(0)
 
+class StatWrapper():
+    def __init__(self, s):
+        self.stat = s
+
+    def poll(self):
+        self.stat.poll()
+
+    def to_internal_linear_unit(self, v, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+        return v/lu
+
+
+    def to_internal_units(self, pos, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+
+        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+        return [a/b for a, b in zip(pos, lus)]
+
+    def soft_limits(self):
+        def fudge(x):
+            if abs(x) > 1e30: return 0
+            return x
+
+        ax = self.stat.axis
+        return (
+            self.to_internal_units([fudge(ax[i]['min_position_limit'])
+                for i in range(3)]),
+            self.to_internal_units([fudge(ax[i]['max_position_limit'])
+                for i in range(3)]))
 
 class Gremlin(Gtk.GLArea):
 
@@ -397,6 +514,7 @@ class Gremlin(Gtk.GLArea):
     def __init__(self, inifile):
         self.initialised = True
         self.lathe_option = None
+        self.inifile = inifile
 
         Gtk.GLArea.__init__(self)
 
@@ -427,6 +545,9 @@ class Gremlin(Gtk.GLArea):
         self.add_events(Gdk.EventMask.BUTTON_MOTION_MASK)
         self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
+
+        self.statwrapper = StatWrapper(s=linuxcnc.stat())
+        self.statwrapper.poll()
 
         self.object_renderer = ObjectRenderer()
 
@@ -487,9 +608,14 @@ class Gremlin(Gtk.GLArea):
         # gtk doc says area not context
         area.make_current()
 
+        self.statwrapper.poll()
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glViewport(0,0,self.w,self.h)
 
+        min, max = self.statwrapper.soft_limits()
+
+        self.object_renderer.change_box(min,max)
         self.object_renderer.render(self.camera.get())
 
         # render every frame, #yolo
