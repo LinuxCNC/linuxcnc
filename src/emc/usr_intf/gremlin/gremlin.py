@@ -73,6 +73,22 @@ import _thread
 
 import pdb
 
+# this helper function calculates a pixel transformation
+# to the fitting object transformation
+# vec3 oldpos: the position of the object to be moved
+# uint dx, dy: the pixel delta
+# mat4 model, proj: model, view, and projection matrices
+# vec4 view: the current viewport (set with glViewport)
+def px_delta_to_obj(oldpos, dx, dy, model, proj, view):
+    # first get the px position of the current object position
+    oldpos_px = glm.project(oldpos, model, proj, view)
+    # calculate the new position of the object in window/pixel coordinates
+    newpos_px = glm.vec3(oldpos_px.x + dx, oldpos_px.y + dy, 0)
+    # transform the new position into object space
+    newpos = glm.unProject(newpos_px, model, proj, view)
+    # calculate the delta of the two positions
+    return newpos - oldpos
+
 """
 very simple vertex buffer object abstraction, no error checking performed currently (TODO)
 
@@ -107,7 +123,7 @@ class VBO():
         # Generate buffers to hold our vertices
         self.vboid = glGenBuffers(1)
         self.bind()
-    
+
     def bind(self):
         glBindBuffer(GL_ARRAY_BUFFER, self.vboid)
 
@@ -120,8 +136,7 @@ class VBO():
             glEnableVertexAttribArray(location)
             # normalized currently unused & ignored
             glVertexAttribPointer(location, layout['size'], layout['datatype'], False, layout['stride'], ctypes.c_void_p(layout['offset']))
-        
-    
+
     def fill(self, data, size):
         self.bind()
         glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW)
@@ -152,7 +167,7 @@ class Camera():
         self.lookpos = glm.vec3(0)
 
         # View settings
-        self.zoomlevel = 10.0
+        self.zoomlevel = 10
         self.perspective = 0
         self.fovy = 30.0
         # Position of clipping planes.
@@ -164,32 +179,34 @@ class Camera():
         # view matrix -> handles where the camera looks to/at
         self.view = glm.mat4()
 
-        self.lookat(self.lookpos)
+        #self.lookat(self.lookpos)
 
-    # returns the zoomed projection-view matrix
-    # used for displaying the objects
+    # returns the projection-view matrix for convenience
     def get(self):
-        return glm.scale(self.proj * self.view, glm.vec3(self.zoomlevel))
-
-    # returns the not-zoomed projection-view matrix
-    # used for unscaled UI elements (like text)
-    def get_mats(self):
         return self.proj * self.view
 
     def setpos(self, pos):
         self.position = pos
-        self.lookat(self.lookpos)
+        self.update_view()
 
+    def translate(self, delta):
+        self.position += delta
+        self.update_view()
+
+    def zoom(self, level):
+        self.zoomlevel *= level
+        self.update_view()
+
+    def update_view(self):
+        self.view = glm.translate(glm.mat4(), self.position)
+        self.view = glm.scale(self.view, glm.vec3(self.zoomlevel))
+
+    """
     def lookat(self, center):
         self.lookpos = center
         # todo: check if the up vector is always (0,1,0)
         self.view = glm.lookAt(self.position, self.lookpos, glm.vec3(0.0,1.0,0))
-
-    def rotate(self, angle, axis):
-        self.view = glm.rotate(self.view, angle, axis)
-
-    def zoom(self, level):
-        self.zoomlevel *= level
+    """
 
     # this method is called on resize and may not contain
     # any gl calls, because the context may not be bound
@@ -245,8 +262,12 @@ class ObjectRenderer():
         self.projmat = glGetUniformLocation(self.shader_prog, "proj");
         self.modelmat = glGetUniformLocation(self.shader_prog, "model");
 
-        # model matrix
-        self.model = glm.scale(glm.mat4(), glm.vec3(100,100,100))
+        # initial position / rotation / scale
+        self.pos = glm.vec3(0,0,0)
+        self.rotation = glm.mat4()
+        self.scale = glm.vec3(100,100,100)
+        # generate model matrix
+        self._update_matrix()
 
         self.vbo = VBO()
         self.vao = VAO()
@@ -274,8 +295,28 @@ class ObjectRenderer():
         self.vbo.fill(axes, len(axes)*4)
         self.vao.gen(self.shader_prog, [self.vbo])
 
-    def move(self, v):
-        self.model = glm.translate(self.model, v)
+    def _update_matrix(self):
+        newmat = glm.translate(glm.mat4(), self.pos)
+        newmat *= self.rotation
+        self.model = glm.scale(newmat, self.scale)
+
+    # sets position / center of the scene to this location
+    def move(self, pos):
+        self.pos = pos
+        self._update_matrix()
+
+    def translate(self, delta):
+        self.pos += delta
+        self._update_matrix()
+
+    def rotate(self, angle, axis):
+        self.rotation = glm.rotate(self.rotation, angle, axis)
+        self._update_matrix()
+
+    # updates scale of the scene
+    def scale(self, scale):
+        self.scale = scale
+        self._update_matrix()
 
     def render(self,projmat):
         self.vao.bind()
@@ -328,7 +369,6 @@ class Gremlin(Gtk.GLArea):
         # camera is for managing the projection and view matrices
         self.camera = Camera()
         self.camera.setpos(glm.vec3(0,0,-5))
-        self.camera.lookat(glm.vec3(0,0,0))
 
         self.connect("realize", self.on_realize)
         self.connect("render", self.on_render)
@@ -359,12 +399,11 @@ class Gremlin(Gtk.GLArea):
         d_y = self.mouse_y - event.y
 
         if button1:
-            self.camera.rotate(d_x*0.5, glm.vec3(1,0,0))
-            self.camera.rotate(d_y*0.5, glm.vec3(0,1,0))
+            self.object_renderer.rotate(d_x*0.5, glm.vec3(1,0,0))
+            self.object_renderer.rotate(d_y*0.5, glm.vec3(0,1,0))
 
         if button3:
-            pass
-            #self.camera.translate(glm.vec3(d_x, d_y, 0.0))
+            self.camera.translate(glm.vec3(-d_x, d_y, 0))
 
         self.mouse_x = event.x
         self.mouse_y = event.y
