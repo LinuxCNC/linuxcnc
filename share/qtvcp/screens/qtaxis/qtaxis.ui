@@ -1319,7 +1319,7 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="tab">
                 <attribute name="title">
@@ -2322,9 +2322,43 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gcodegraphics</sender>
+   <signal>percentLoaded(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percentLoaded()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>446</x>
+     <y>187</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>451</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcode_editor</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percentCompleted()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>298</x>
+     <y>535</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>-2</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>tool_offset_clicked()</slot>
   <slot>leftTabChanged()</slot>
+  <slot>percentLoaded()</slot>
+  <slot>percentCompleted()</slot>
  </slots>
 </ui>

@@ -107,12 +107,50 @@ class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
 
+class Progress:
+    def __init__(self, phases, total):
+        self.num_phases = phases
+        self.phase = 0
+        self.total = total or 1
+        self.lastcount = 0
+        self.text = None
+
+    def update(self, count, force=0):
+        if force or count - self.lastcount > 400:
+            fraction = (self.phase + count * 1. / self.total) / self.num_phases
+            self.lastcount = count
+            self.emit_percent(int(fraction *100))
+
+    # this is class patched
+    def emit_percent(self, percent):
+        pass
+
+    def nextphase(self, total):
+        self.phase += 1
+        self.total = total or 1
+        self.lastcount = -100
+        self.update(0, True)
+
+    def done(self):
+        self.emit_percent(-1)
+
+    # not sure if this is used - copied from AXIS code
+    def set_text(self, text):
+        if self.text is None:
+            self.text = ".info.progress"
+        else:
+            print(".info.progress", text)
+
 class StatCanon(glcanon.GLCanon, interpret.StatMixin):
-    def __init__(self, colors, geometry, lathe_view_option, stat, random):
+    def __init__(self, colors, geometry, lathe_view_option, stat, random, text, linecount, progress, arcdivision):
         glcanon.GLCanon.__init__(self, colors, geometry)
         interpret.StatMixin.__init__(self, stat, random)
-        self.progress = DummyProgress()
         self.lathe_view_option = lathe_view_option
+        self.text = text
+        self.linecount = linecount
+        self.progress = progress
+        self.aborted = False
+        self.arcdivision = arcdivision
 
     def is_lathe(self): return self.lathe_view_option
 
@@ -120,10 +158,28 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
         glcanon.GLCanon.change_tool(self,pocket)
         interpret.StatMixin.change_tool(self,pocket)
 
+    # not sure if this is used - copied from AXIS code
+    def do_cancel(self, event):
+        self.aborted = True
+
+    # not sure if this is used - copied from AXIS code
+    def check_abort(self):
+        #root_window.update()
+        if self.aborted: raise KeyboardInterrupt
+
+    def next_line(self, st):
+        glcanon.GLCanon.next_line(self, st)
+        self.progress.update(self.lineno)
+        # not sure if this is used - copied from AXIS code
+        if self.notify:
+            print("info",self.notify_message)
+            self.notify = 0
+
 ###############################
 # widget for graphics plotting
 ###############################
 class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
+    percentLoaded = pyqtSignal(int)
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
     zRotationChanged = pyqtSignal(int)
@@ -252,11 +308,31 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         elif not filename and not s.file:
             return
 
+
+        lines = open(filename).readlines()
+        progress = Progress(2, len(lines))
+        progress.emit_percent = self.emit_percent
+
+        code = []
+        i = 0
+        for i, l in enumerate(lines):
+            l = l.expandtabs().replace("\r", "")
+            code.extend(["%6d: " % (i+1), "lineno", l, ""])
+            if i % 1000 == 0:
+                del code[:]
+                progress.update(i)
+        if code:
+            pass
+        progress.nextphase(len(lines))
+
+
         td = tempfile.mkdtemp()
         self._current_file = filename
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
-            canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, random)
+            arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
+            text = ''
+            canon = StatCanon(self.colors, self.get_geometry(),self.lathe_option, s, text, random, i, progress, arcdivision)
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
             temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
@@ -268,12 +344,21 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)
-        except:
+        except Exception as e:
+            print e
             self.gcode_properties = None
         finally:
             shutil.rmtree(td)
-
+            if canon:
+                canon.progress = DummyProgress()
+            try:
+                progress.done()
+            except UnboundLocalError:
+                pass
         self._redraw()
+
+    def emit_percent(self, percent):
+        self.percentLoaded.emit(percent)
 
     def calculate_gcode_properties(self, canon):
         def dist(xxx_todo_changeme, xxx_todo_changeme1):
