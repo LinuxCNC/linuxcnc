@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import sys
 import math
 
@@ -345,7 +347,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 self.report_gcode_error(result, seq, filename)
             self.calculate_gcode_properties(canon)
         except Exception as e:
-            print e
+            print (e)
             self.gcode_properties = None
         finally:
             shutil.rmtree(td)
