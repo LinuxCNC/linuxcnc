@@ -742,6 +742,8 @@ class StepconfApp:
         # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
+        # Try find parport
+        self.d.lparport = self.find_parport()
         # build the glade files
         self.builder = MultiFileBuilder()
         self.builder.set_translation_domain(domain)
@@ -910,6 +912,34 @@ class StepconfApp:
             self.w.dirhold.set_sensitive(1)
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
+        
+    # parport io preset
+    def find_parport(self):
+        # Try to find parallel port
+        lparport=[]
+        # open file.
+        try:
+            in_file = open("/proc/ioports","r")
+        except:
+            print ("Unable to open /proc/ioports")
+            return([])
+
+        try:
+            for line in in_file:
+                if "parport" in line:
+                    tmprow = line.strip()
+                    lrow = tmprow.split(":")
+                    address_range = lrow[0].strip()
+                    init_address = address_range.split("-")[0].strip()
+                    lparport.append("0x" + init_address)
+        except:
+            print ("Error find parport")
+            in_file.close()
+            return([])
+        in_file.close()
+        if lparport == []:
+            return([])
+        return(lparport)
 
     # preset out pins
     def preset_sherline_outputs(self):
