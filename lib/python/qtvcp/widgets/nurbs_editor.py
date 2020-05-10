@@ -51,7 +51,8 @@ from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Path, Action
 
 from qtvcp import logger
-LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.DEBUG)
+LOG = logger.getLogger(__name__)
+#LOG = logger.initBaseLogger('QTvcp1', log_file=None, log_level=logger.DEBUG)
 
 INFO = Info()
 PATH = Path()
