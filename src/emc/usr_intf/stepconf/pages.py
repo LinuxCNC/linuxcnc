@@ -177,6 +177,14 @@ class Pages:
         model = self.w.input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport io preset
+        self.w.pp1_preset_io_liststore.clear()
+        for myport in self.d.lparport:
+            treeiter = self.w.pp1_preset_io_liststore.append([myport])
+        if(self.d.lparport):
+            self.w.pp1_preset_io_combo.set_active(0)
+            self.d.ioaddr = self.d.lparport[0]
+
         # pport2 comboboxes
         model = self.w.pp2_output_list
         model.clear()
@@ -186,6 +194,14 @@ class Pages:
         model = self.w.pp2_input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport2 io preset
+        self.w.pp2_preset_io_liststore.clear()
+        for myport in self.d.lparport:
+            treeiter = self.w.pp2_preset_io_liststore.append([myport])
+        if(self.d.lparport):
+            self.w.pp2_preset_io_combo.set_active(0)
+            self.d.ioaddr2 = self.d.lparport[0]
+
         self.intro_prepare()
 
 #************
@@ -579,6 +595,16 @@ class Pages:
         elif state ==3:
             self.a.preset_tb6560_4axes_outputs()
 
+    def on_pp1_preset_io_combo_changed(self, widget):
+        state = self.w.pp1_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp1_preset_io_liststore.get_iter(path)
+            value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
+            self.w.ioaddr.set_text(value)
+        else:
+            return
+
 #************
 # pport2 PAGE
 #************
@@ -628,7 +654,16 @@ class Pages:
     def on_exclusive_check_pp2(self, widget):
         self.a.do_exclusive_inputs(widget,2)
 
-
+    def on_pp2_preset_io_combo_changed(self, widget):
+        state = self.w.pp2_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp2_preset_io_liststore.get_iter(path)
+            value = self.w.pp2_preset_io_liststore.get_value(treeiter, 0)
+            self.w.ioaddr2.set_text(value)
+        else:
+            return
+            
 #*******************
 # AXIS X PAGE
 #*******************
