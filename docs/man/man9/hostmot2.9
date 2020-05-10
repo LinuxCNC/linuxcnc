@@ -42,9 +42,8 @@ carefully.
 hostmot2 is a device driver that interfaces the Mesa HostMot2 firmware
 to the LinuxCNC HAL.  This driver by itself does nothing, the boards
 that actually run the firmware require their own drivers before anything
-can happen.  Currently drivers are available for the 5i20, 5i22, 5i23,
-5i25, 3x20, 4i65, and 4i68 (all using the hm2_pci module) and the 7i43
-(using the hm2_7i43 module).
+can happen.  Currently drivers are available for  PCI, Ethernet, SPI
+and EPP interfaced cards.
 
 The HostMot2 firmware provides modules such as encoders, PWM generators,
 step/dir generators, and general purpose I/O pins (GPIOs).  These things are
@@ -53,7 +52,7 @@ to provide zero or more instances of each of these Modules.
 .SH Board I/O Pins
 
 The HostMot2 firmware runs on an FPGA board.  The board interfaces with
-the computer via PCI, PC-104/Plus, or EPP, and interfaces with motion
+the computer via PCI, Ethernet, SPI, or EPP, and interfaces with motion
 control hardware such as servos and stepper motors via I/O pins on
 the board.
 
@@ -76,7 +75,7 @@ limited interface in HAL.  This is described in the General Purpose
 I/O section below.
 .SH config modparam
 
-All the board-driver modules (hm2_pci and hm2_7i43) accept a load-time
+All the board-driver modules (hm2_pci, hm2_eth etc) accept a load-time
 modparam of type string array, named "config".  This array has one config
 string for each board the driver should use.  Each board's config string
 is passed to and parsed by the hostmot2 driver when the board-driver
@@ -100,7 +99,7 @@ loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=
 Note: this assumes that the hm2_pci driver detects the 5i20 first and
 the 5i23 second.  If the detection order does not match the order
 of the config strings, the hostmot2 driver will refuse to load the
-firmware and the board-driver (hm2_pci or hm2_7i43) will fail to load.
+firmware and the board-driver (hm2_pci etc) will fail to load.
 To the best of my knowledge, there is no way to predict the order in
 which PCI boards will be detected by the driver, but the detection
 order will be consistent as long as PCI boards are not moved around.
@@ -464,8 +463,8 @@ before reporting the encoder stopped.  This parameter is in seconds.
 (s32 r/w) hm2_XXXX.N.encoder.timer\-number (default: \-1)
 Sets the hm2dpll timer instance to be used to latch encoder counts.  A setting
 of \-1 does not latch encoder counts.  A setting of 0 latches at the same time
-as the main hostmot2 write.  A setting of 1..4 uses a time offset from the main
-hostmot2 write according to the dpll's timer\-us setting.
+as the main hostmot2 read.  A setting of 1..4 uses a time offset from the main
+hostmot2 read according to the dpll's timer\-us setting.
 
 Typically, timer\-us should be a negative number with a magnitude larger than
 the largest latency (e.g., \-100 for a system with mediocre latency, \-50 for a
@@ -1275,11 +1274,11 @@ Pins:
 
 .TP
 (bit out) input and input-not
-true and inverted filtered input states
+true and inverted filtered input states.
 
 .TP 
 (bit out) raw-input and raw-input-not
-true and inverted unfiltered input states
+true and inverted unfiltered input states.
 
 .TP 
 (bit in) input-slow
@@ -1297,28 +1296,28 @@ Parameters:
 .TP
 (u32 in) scan_rate
 This sets the input scan rate in Hz. Default scan rate is 20 KHz
-(50 uS per scan)
+(50 uS scan period).
 
 .TP
 (u32 in) fast_scans
-This sets the fast time constant for all input pins (the time constant used 
-when input-slow for the correspondin input is false) the range is 0 to 63
- and the default value is 5 (250 uS at the default 20 Khz scan_rate)
+This sets the fast time constant for all input pins. This is the time constant 
+used when the input-slow pin for the corresponding input is false. The range is 0 to 
+63 scan periods and the default value is 5 = 250 uS at the default 20 Khz scan_rate.
 
 .TP
 (u32 in) slow_scans
-This sets the slow time constant for all input pins (the time constant used 
-when input-slow for the correspondin input is true) the range is 0 to 1023
- and the default value is 500 (25 mS at the default 20 Khz scan_rate)
+This sets the slow time constant for all input pins. This is the time constant 
+used when the input-slow pin for the corresponding input is true. The range is 0 to 1023
+scan periods and the default value is 500 = 25 mS at the default 20 Khz scan_rate.
 
 .TP
 (bit in) enc0_4xmode, enc1_4xmode, enc2_4xmode, and enc3_4xmode
 These set the MPG encoder operating modes to 4X when true and 1X
-when false 
+when false. 
 
 .TP
 (u32 out) scan_width
-This read only parameter specifies the number of inputs scanned by the module
+This read only parameter specifies the number of inputs scanned by the module.
 
 
 .SH led
