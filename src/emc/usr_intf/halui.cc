@@ -2219,7 +2219,7 @@ static void modify_hal_pins()
       *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;
       double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
       double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
-      x = x * cos(-emcStatus->task.rotation_xy * (M_PI / 180.0)) - y * sin(-emcStatus->task.rotation_xy * (M_PI / 180.0));
+      x = x * cos(-emcStatus->task.rotation_xy * TO_RAD) - y * sin(-emcStatus->task.rotation_xy * TO_RAD);
       *(halui_data->axis_pos_relative[0]) = x - emcStatus->task.g92_offset.tran.x;
     }
 
@@ -2228,7 +2228,7 @@ static void modify_hal_pins()
       *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;
       double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
       double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
-      y = y * cos(-emcStatus->task.rotation_xy * (M_PI / 180.0)) + x * sin(-emcStatus->task.rotation_xy * (M_PI / 180.0));
+      y = y * cos(-emcStatus->task.rotation_xy * TO_RAD) + x * sin(-emcStatus->task.rotation_xy * TO_RAD);
       *(halui_data->axis_pos_relative[1]) = y - emcStatus->task.g92_offset.tran.y;
     }
 
