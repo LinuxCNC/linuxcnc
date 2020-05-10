@@ -1300,7 +1300,7 @@ void DeleteTheDefaultSection( )
 	SectionArray[ 0 ].Used = FALSE;
 }
 
-char FileName[500];
+static char FileName[500];
 void LoadAllLadderDatas(char * DatasDirectory)
 {
 	ClassicLadder_InitAllDatas( );
