@@ -16,7 +16,8 @@
 
 import os
 
-from PyQt5.QtWidgets import QWidget, QLabel, QHBoxLayout, QVBoxLayout, QPushButton, QDialog
+from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
+                QVBoxLayout, QPushButton, QDialog, QProgressBar)
 from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent
 from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter
 
@@ -144,6 +145,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     def _hal_init(self):
         STATUS.connect('focus-overlay-changed', lambda w, data, text, color: 
                         self._status_response(data, text, color))
+        STATUS.connect('graphics-loading-progress',lambda w,f: self.updateProgress(f))
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('overlay_play_sound', False, bool, 'SCREEN_OPTIONS')
             self.sound_type = self.PREFS_.getpref('overlay_sound_type', 'RING', str, 'SCREEN_OPTIONS')
@@ -207,6 +209,17 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # Helper functions
     #################################################
 
+    def updateProgress(self,fraction):
+        if fraction <0:
+            self.progressbar.setValue(0)
+            self.progressbar.setFormat('')
+            self.progressbar.setVisible(False)
+            self.hide()
+        else:
+            self.progressbar.setVisible(True)
+            self.progressbar.setValue(fraction)
+            self.progressbar.setFormat('Loading: {}%'.format(fraction))
+
     # The basic overlay -transparence is set by bg_color
     def colorBackground(self, qp):
         qp.fillRect(self.rect(), self.bg_color)
@@ -238,14 +251,23 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # buttons could be used as a dialog but would require a focus widget per
     # dialog action or some fancy coding for responses.
     def box(self):
+        hbox2 = QHBoxLayout()
+        hbox2.addStretch(1)
         self.mb = QLabel('<html><head/><body><p><span style=" font-size:30pt; \
                        font-weight:600;">%s</span></p></body></html>' % self.text, self)
         self.mb.setStyleSheet("background-color: black; color: white")
         self.mb.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
         self.mb.setVisible(self._show_text)
+        hbox2.addWidget(self.mb)
+
+        self.progressbar = QProgressBar()
+        self.progressbar.setStyleSheet("background-color: black; color: white")
+        self.progressbar.setRange(0,100)
+        self.progressbar.setVisible(False)
+        hbox2.addWidget(self.progressbar)
+
         hbox = QHBoxLayout()
         hbox.addStretch(1)
-
         self.okButton = QPushButton("OK")
         self.okButton.pressed.connect(self.okChecked)
         self.cancelButton = QPushButton("Cancel")
@@ -256,9 +278,10 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         hbox.addWidget(l)
         hbox.addWidget(self.okButton)
         hbox.addWidget(self.cancelButton)
+
         vbox = QVBoxLayout()
         vbox.addStretch(1)
-        vbox.addWidget(self.mb)
+        vbox.addLayout(hbox2)
         vbox.addLayout(hbox)
         self.setLayout(vbox)
         self.setGeometry(300, 300, 300, 150)
