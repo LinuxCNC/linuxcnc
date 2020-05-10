@@ -1738,6 +1738,10 @@ AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
+AC_SUBST([CFLAGS])
+AC_SUBST([CPPFLAGS])
+AC_SUBST([CXXFLAGS])
+AC_SUBST([LDFLAGS])
 
 ##############################################################################
 # files that get created by ./configure                                      #
