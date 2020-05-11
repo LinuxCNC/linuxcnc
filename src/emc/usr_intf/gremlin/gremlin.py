@@ -40,20 +40,6 @@ gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
-from OpenGL.GL import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-from OpenGL.GL import shaders
-import numpy as np
-
-#import gtk
-#import gtk.gtkgl.widget
-#import gtk.gdkgl
-#import gtk.gdk
-
-import glnav
-#import gobject
-#import pango
 
 import rs274.glcanon
 import rs274.interpret
@@ -71,434 +57,11 @@ import glm
 
 import _thread
 
+from glutils import Camera
+from objectrenderer import ObjectRenderer
+from statwrapper import StatWrapper
+
 import pdb
-
-# this helper function calculates a pixel transformation
-# to the fitting object transformation
-# vec3 oldpos: the position of the object to be moved
-# uint dx, dy: the pixel delta
-# mat4 model, proj: model, view, and projection matrices
-# vec4 view: the current viewport (set with glViewport)
-def px_delta_to_obj(oldpos, dx, dy, model, proj, view):
-    # first get the px position of the current object position
-    oldpos_px = glm.project(oldpos, model, proj, view)
-    # calculate the new position of the object in window/pixel coordinates
-    newpos_px = glm.vec3(oldpos_px.x + dx, oldpos_px.y + dy, 0)
-    # transform the new position into object space
-    newpos = glm.unProject(newpos_px, model, proj, view)
-    # calculate the delta of the two positions
-    return newpos - oldpos
-
-"""
-very simple vertex buffer object abstraction, no error checking performed currently (TODO)
-
-the data_layout dictionary describes the layout of the data like this:
-
- 'shader_name': {
-    datatype: GL_TYPE_REPR,
-    size: size of the data (bytes) / sizeof(typerepr)
-    stride: stride of the data (bytes) between elements
-    offset: offset of the data (bytes)
-}
-"""
-class VBO():
-    def __init__(self):
-        self.vboid = -1
-        self.data_layout = {
-            'position': {
-                'datatype': GL_FLOAT,
-                'size': 3,
-                'stride': 3*4*2,
-                'offset': 0,
-            },
-            "color": {
-                'datatype': GL_FLOAT,
-                'size': 3,
-                'stride': 3*4*2,
-                'offset': 3*4,
-            }
-        }
-
-    def gen(self):
-        # Generate buffers to hold our vertices
-        self.vboid = glGenBuffers(1)
-        self.bind()
-
-    def bind(self):
-        glBindBuffer(GL_ARRAY_BUFFER, self.vboid)
-
-    def unbind(self):
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-    def bind_vao(self, shader):
-        for shadername, layout in self.data_layout.items():
-            location = glGetAttribLocation(shader, shadername)
-            glEnableVertexAttribArray(location)
-            # normalized currently unused & ignored
-            glVertexAttribPointer(location, layout['size'], layout['datatype'], False, layout['stride'], ctypes.c_void_p(layout['offset']))
-
-    def update(self, offset, data, size):
-        self.bind()
-        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data)
-
-    def fill(self, data, size):
-        self.bind()
-        glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW)
-
-class VAO():
-    def __init__(self):
-        self.vaoid=-1
-
-    # this binds vbos with their respective bindings
-    # to the used shader program
-    def gen(self, shader, vbos):
-        self.vaoid = glGenVertexArrays(1)
-        self.bind()
-        for vbo in vbos:
-
-            vbo.bind_vao(shader)
-
-    def bind(self):
-        glBindVertexArray(self.vaoid)
-
-    def unbind(self):
-        glBindVertexArray(0)
-
-class Camera():
-    def __init__(self):
-        # camera position
-        self.position = glm.vec3(0,0,-10)
-        self.lookpos = glm.vec3(0)
-
-        # View settings
-        self.zoomlevel = 10
-        self.perspective = 0
-        self.fovy = 30.0
-        # Position of clipping planes.
-        self.near = -1000.0
-        self.far = 1000.0
-
-        # projection matrix -> handles ortho / perspective
-        self.proj = glm.mat4()
-        # view matrix -> handles where the camera looks to/at
-        self.view = glm.mat4()
-
-        #self.lookat(self.lookpos)
-
-    # returns the projection-view matrix for convenience
-    def get(self):
-        return self.proj * self.view
-
-    def setpos(self, pos):
-        self.position = pos
-        self.update_view()
-
-    def translate(self, delta):
-        self.position += delta
-        self.update_view()
-
-    def zoom(self, level):
-        self.zoomlevel *= level
-        self.update_view()
-
-    def update_view(self):
-        self.view = glm.translate(glm.mat4(), self.position)
-        self.view = glm.scale(self.view, glm.vec3(self.zoomlevel))
-
-    """
-    def lookat(self, center):
-        self.lookpos = center
-        # todo: check if the up vector is always (0,1,0)
-        self.view = glm.lookAt(self.position, self.lookpos, glm.vec3(0.0,1.0,0))
-    """
-
-    # this method is called on resize and may not contain
-    # any gl calls, because the context may not be bound
-    # (generally, this class should only calc the matrix and
-    # not change anything else)
-    def update(self, w, h):
-        self.w = w
-        self.h = h
-
-        if self.perspective:
-            self.proj = glm.perspective(self.fovy,
-                                       float(w)/float(h), # aspect ratio
-                                       self.near, # clipping planes
-                                       self.far)
-        else:
-            # left, right, bottom, top
-            self.proj = glm.ortho(-w/2,w/2,-h/2,h/2,self.near,self.far)
-
-# responsible for rendering everything scaled in the scene,
-# like bounding box, axis, objects, etc.
-class ObjectRenderer():
-    def __init__(self):
-        self.VERTEX_SOURCE = '''
-        #version 330
-
-        uniform mat4 proj; // view / projection matrix
-        uniform mat4 model; // model matrix
-        in vec4 position;
-        in vec3 color;
-        out vec3 v_color;
-
-        void main() {
-          gl_Position = proj * model * position;
-          v_color = color;
-        }'''
-
-        self.FRAGMENT_SOURCE ='''
-        #version 330
-
-        in vec3 v_color;
-        out vec3 out_color;
-
-        void main() {
-          out_color = v_color;
-        }'''
-
-        # used for emulating deprecated glLineStipple
-        self.LINE_VERTEX_SOURCE = '''
-        #version 330
-
-        uniform mat4 proj; // view / projection matrix
-        uniform mat4 model; // model matrix
-
-        in vec4 position;
-        in vec3 color;
-        out vec3 v_color;
-        flat out vec4 v_start; // does not get interpolated, because of flat
-        out vec4 v_pos;
-
-        void main() {
-          v_pos = proj * model * position;
-          v_start = v_pos;
-          v_color = color;
-        }'''
-
-        self.LINE_FRAGMENT_SOURCE ='''
-        #version 330
-
-        flat in vec4 v_start;
-        in vec4 v_pos;
-        in vec3 v_color;
-        out vec3 out_color;
-
-        uniform vec2 u_resolution;
-        uniform uint u_pattern;
-        uniform float u_factor;
-
-        void main() {
-          out_color = v_color;
-
-          vec2 dir = (v_pos.xy-v_start.xy) * u_resolution/2.0;
-          float dist = length(dir);
-
-          uint bit = uint(round(dist / u_factor)) & 15U;
-          if ((u_pattern & (1U<<bit)) == 0U)
-            discard;
-        }'''
-
-
-    def init(self):
-        # generate shaders, get uniform locations
-        VERTEX_SHADER_PROG = shaders.compileShader(self.VERTEX_SOURCE, GL_VERTEX_SHADER)
-        FRAGMENT_SHADER_PROG = shaders.compileShader(self.FRAGMENT_SOURCE, GL_FRAGMENT_SHADER)
-        self.shader_prog = shaders.compileProgram(VERTEX_SHADER_PROG, FRAGMENT_SHADER_PROG)
-        self.projmat = glGetUniformLocation(self.shader_prog, "proj");
-        self.modelmat = glGetUniformLocation(self.shader_prog, "model");
-
-        # initial position / rotation / scale
-        self.pos = glm.vec3(0,0,0)
-        self.rotation = glm.mat4()
-        self.scale = glm.vec3(1,1,1)
-        # generate model matrix
-        self._update_matrix()
-
-        self.vbo = VBO()
-        self.vao = VAO()
-
-        self.vbo.gen()
-
-        self.axes = np.array([
-            # x axis
-            1.0,0.0,0.0,
-            0.2,1.0,0.2,
-            0.0,0.0,0.0,
-            0.2,1.0,0.2,
-            # y axis
-            0.0,1.0,0.0,
-            1.0,0.2,0.2,
-            0.0,0.0,0.0,
-            1.0,0.2,0.2,
-            # z axis
-            0.0,0.0,1.0,
-            0.2,0.2,1.0,
-            0.0,0.0,0.0,
-            0.2,0.2,1.0,
-        ], dtype=np.float32)
-
-        self.min_limit = glm.vec3(-1000)
-        self.max_limit = glm.vec3(1000)
-
-        self.box = self._get_bound_box(glm.vec3(-1000),glm.vec3(1000))
-
-        data = np.concatenate([self.axes,self.box])
-
-        self.vbo.fill(data, len(data)*4)
-        self.vao.gen(self.shader_prog, [self.vbo])
-
-    def _get_bound_box(self, machine_limit_min, machine_limit_max):
-        return np.array([
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-        ], dtype=np.float32)
-
-    def change_box(self, machine_limit_min, machine_limit_max):
-        if self.min_limit != machine_limit_min or self.max_limit != machine_limit_max:
-            self.box = self._get_bound_box(machine_limit_min, machine_limit_max)
-            self.vbo.update(len(self.axes)*4, self.box, len(self.box)*4)
-            self.min_limit = machine_limit_min
-            self.max_limit = machine_limit_max
-
-    def _update_matrix(self):
-        newmat = glm.translate(glm.mat4(), self.pos)
-        newmat *= self.rotation
-        self.model = glm.scale(newmat, self.scale)
-
-    # sets position / center of the scene to this location
-    def move(self, pos):
-        self.pos = pos
-        self._update_matrix()
-
-    def translate(self, delta):
-        self.pos += delta
-        self._update_matrix()
-
-    def rotate(self, angle, axis):
-        self.rotation = glm.rotate(self.rotation, angle, axis)
-        self._update_matrix()
-
-    # updates scale of the scene
-    def scale(self, scale):
-        self.scale = scale
-        self._update_matrix()
-
-    def render(self,projmat):
-        self.vao.bind()
-
-        glUseProgram(self.shader_prog)
-
-        glUniformMatrix4fv(self.projmat, 1, GL_FALSE, glm.value_ptr(projmat));
-        glUniformMatrix4fv(self.modelmat, 1, GL_FALSE, glm.value_ptr(self.model));
-
-        '''
-        print("matrices:")
-        print(self.camera.get())
-        print(self.model)
-        '''
-
-        glDrawArrays(GL_LINES, 0,2)
-        glDrawArrays(GL_LINES, 2,2)
-        glDrawArrays(GL_LINES, 4,2)
-        glDrawArrays(GL_LINES, 6,24)
-
-        self.vao.unbind()
-
-        glUseProgram(0)
-
-class StatWrapper():
-    def __init__(self, s):
-        self.stat = s
-
-    def poll(self):
-        self.stat.poll()
-
-    def to_internal_linear_unit(self, v, unit=None):
-        if unit is None:
-            unit = self.stat.linear_units
-        lu = (unit or 1) * 25.4
-        return v/lu
-
-
-    def to_internal_units(self, pos, unit=None):
-        if unit is None:
-            unit = self.stat.linear_units
-        lu = (unit or 1) * 25.4
-
-        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
-        return [a/b for a, b in zip(pos, lus)]
-
-    def soft_limits(self):
-        def fudge(x):
-            if abs(x) > 1e30: return 0
-            return x
-
-        ax = self.stat.axis
-        return (
-            self.to_internal_units([fudge(ax[i]['min_position_limit'])
-                for i in range(3)]),
-            self.to_internal_units([fudge(ax[i]['max_position_limit'])
-                for i in range(3)]))
 
 class Gremlin(Gtk.GLArea):
 
@@ -512,10 +75,6 @@ class Gremlin(Gtk.GLArea):
         pass
 
     def __init__(self, inifile):
-        self.initialised = True
-        self.lathe_option = None
-        self.inifile = inifile
-
         Gtk.GLArea.__init__(self)
 
         self.set_auto_render(True)
@@ -546,11 +105,14 @@ class Gremlin(Gtk.GLArea):
         self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
 
-        self.statwrapper = StatWrapper(s=linuxcnc.stat())
+        self.statwrapper = StatWrapper(linuxcnc.stat(), inifile)
         self.statwrapper.poll()
 
         self.object_renderer = ObjectRenderer()
 
+    def load(self, f):
+        self.statwrapper.load(f)
+        
     def on_motion(self, widget, event):
         button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
         button2 = event.state & Gdk.ModifierType.BUTTON2_MASK
@@ -562,8 +124,8 @@ class Gremlin(Gtk.GLArea):
         d_y = self.mouse_y - event.y
 
         if button1:
-            self.object_renderer.rotate(d_x*0.5, glm.vec3(1,0,0))
-            self.object_renderer.rotate(d_y*0.5, glm.vec3(0,1,0))
+            self.object_renderer.rotate(-d_x*0.05, glm.vec3(1,0,0))
+            self.object_renderer.rotate(d_y*0.05, glm.vec3(0,1,0))
 
         if button3:
             self.camera.translate(glm.vec3(-d_x, d_y, 0))
@@ -591,11 +153,9 @@ class Gremlin(Gtk.GLArea):
 
         self.on_resize(area,self.get_allocated_width(),self.get_allocated_height())
 
-        glClearColor(0, 0, 0, 1)
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
         self.object_renderer.init()
+
+        self.statwrapper.load()
 
     # the projection matrices need to be updated on resize
     def on_resize(self, area, width, height):
@@ -610,13 +170,10 @@ class Gremlin(Gtk.GLArea):
 
         self.statwrapper.poll()
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glViewport(0,0,self.w,self.h)
-
         min, max = self.statwrapper.soft_limits()
 
         self.object_renderer.change_box(min,max)
-        self.object_renderer.render(self.camera.get())
+        self.object_renderer.render(self.camera.get(), self.w, self.h)
 
         # render every frame, #yolo
         self.queue_render()

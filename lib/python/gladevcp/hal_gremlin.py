@@ -125,24 +125,19 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         self.gstat = GStat()
         self.gstat.connect('file-loaded', self.fileloaded)
         self.gstat.connect('reload-display', self.reloadfile)
-        self.init_glcanondraw(
+        """self.init_glcanondraw(
              trajcoordinates=self.inifile.find('TRAJ','COORDINATES'),
-             kinsmodule=self.inifile.find('KINS','KINEMATICS'))
+             kinsmodule=self.inifile.find('KINS','KINEMATICS'))"""
         self.show()
 
     def reloadfile(self,w):
-        try:
-            self.fileloaded(None,self._reload_filename)
-        except:
-            pass
+        print(f"reloading file {self._reload_filename}")
+        self.load(self._reload_filename)
 
     def fileloaded(self,w,f):
         self._reload_filename=f
-        try:
-            self._load(f)
-        except AttributeError as detail:
-               #AttributeError: 'NoneType' object has no attribute 'gl_end'
-            print('hal_gremlin: continuing after',detail)
+        print(f"loading file {self._reload_filename}")
+        self.load(f)
 
 
     def do_get_property(self, property):
@@ -274,10 +269,6 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
     def realize(self, widget):
         gremlin.Gremlin.realize(self, widget)
-
-    @rs274.glcanon.with_context
-    def _load(self, filename):
-        return self.load(filename)
 
     def report_gcode_error(self, result, seq, filename):
         error_str = gcode.strerror(result)
