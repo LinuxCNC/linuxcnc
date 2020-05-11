@@ -499,7 +499,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 # document tree (docs/html in the git repo).  This is where the CSS files
 # and javascript files will be installed.
 $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
-    D=$$(python -c "print '../' * '$*'.count('/')"); \
+    D=$$($(BASEPWD)/../scripts/linuxcnc-python -c "print('../' * '$*'.count('/'))"); \
     if [ ! -z $$D ]; then \
         echo "-a 'scriptsdir=$$D' -a 'stylesdir=$$D'"; \
     fi \

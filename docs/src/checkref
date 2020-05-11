@@ -12,7 +12,7 @@ shift
 
 FILES="$@"
 
-if [ -z $(which checklink) ]; then
+if [ -z $(which linuxcnc-checklink) ]; then
     echo "ERROR: checklink not found, install w3c-linkchecker for HTML link validation" 1>&2
     exit 1
 fi
@@ -22,7 +22,7 @@ BAD_LINKS=0
 for F in $FILES; do
     OUT=.checklink.$LANGUAGE.$(basename $F).tmp
     rm -f $OUT
-    checklink --quiet --exclude "http(s?)://" $F | tee $OUT 2>&1
+    linuxcnc-checklink --quiet --exclude "http(s?)://" $F | tee $OUT 2>&1
     egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' $OUT
     if [ $? -ne 1 ]; then
         BAD_LINKS=1
