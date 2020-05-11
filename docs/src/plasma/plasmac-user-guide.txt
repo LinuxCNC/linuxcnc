@@ -810,9 +810,9 @@ The Extras panel may be disabled by commenting out the appropriate entries in th
 
 == Using PlasmaC
 
-The only mandatory G-Code requirement for a PlasmaC configuration is *M3 $0 S1* to begin a cut and *M5* to end a cut, plus of course standard motion codes to move from start to end.
+The only mandatory G-Code requirement for a PlasmaC configuration is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut, plus of course standard motion codes to move from start to end.
 
-If you are using PlasmaC without <<multi-tool, multiple tools>> enabled then it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job.
+If you are using PlasmaC without <<multi-tool, multiple tools>> enabled then it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0*.
 
 === Coordinates
 
@@ -905,7 +905,7 @@ For manual material handling you manually select the material from the materials
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
 ...
-M5
+M5 $0
 ----
 
 NOTE: Manual material handling does restrict you to only one material for the entire job.
@@ -920,7 +920,7 @@ M66 P3 L3 Q1
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
 ...
-M5
+M5 $0
 ----
 
 Material numbers in the materials file do not need to be consecutive nor do they need to be in numerical order.
@@ -1098,7 +1098,7 @@ This also enables near end of life consumables to be used for piercing and they 
 There are two ways of enabling this feature:
 
 * Program a <<button-cut, custom user button>> to toggle between the cut types.
-* Adding a line *<pierce-only> = 1* anywhere in a G-Code file to enable Pierce Only mode for the current file.
+* Adding a line *#<pierce-only> = 1* anywhere in a G-Code file to enable Pierce Only mode for the current file.
 
 If using a custom user button then the GUI will automatically reload the file when the cut type is toggled.
 
@@ -1144,7 +1144,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 (end cut)
+M5 $0(end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1166,7 +1166,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 (end cut)
+M5 $0(end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1198,7 +1198,7 @@ M62 P3 (turn torch off)
 G3 X0.8 Y6.081 I10 (continue motion for 4mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 (end cut)
+M5 $0(end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1235,7 +1235,7 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 (end cut)
+M5 $0(end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1259,7 +1259,7 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 (end cut)
+M5 $0(end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1444,14 +1444,14 @@ M3 $1 S1 (start plasmac with scribe)
 T0 M6 (select torch)
 G43 H0(apply ofsets)
 G0 X0 Y0 (parking position)
-M5 (end)
+M5 $1(end)
 -----
 
 It is a good idea to switch back to the torch at the end of the program before your final rapid parking move so your machine is always in the same state at idle.
 
 You can switch between the torch and the scribe any number of times during a program by using the above code and issuing *M3 $0 S1* to start PlasmaC with the torch.
 
-Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous G-Code files.
+Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing M5 (without $n) will cause the machine to behave as if an *M5 $0* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous G-Code files.
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
 
@@ -1480,7 +1480,7 @@ m3 $2 s1 (spotting on)
 g91 (relative distance mode)
 g1 x0.000001
 g90 (absolute distance mode)
-m5 (spotting off)
+m5 $2(spotting off)
 
 g0 x0 y0
 g90
@@ -1670,8 +1670,8 @@ MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
 Changing the FONT size changes the minimum window size. PlasmaC requires a larger window size than the standard Axis window. Minimum sizes are listed below:
 
 Window size varies depending on whether you have the Run Panel as a Tab or a Panel on the right side.
-[width="25%",cols="1,1,1"]
 
+[width="25%",cols="1,1,1"]
 |===
 |*Font*|*Tab*|*Panel*
 | 9| 900x668|1146x708
