@@ -1,6 +1,6 @@
-GCC_VERSION := $(shell gcc -dumpversion)
-MIN_VERSION := 4.7
-ifeq ($(MIN_VERSION),$(firstword $(sort $(GCC_VERSION) $(MIN_VERSION))))
+
+GCC_GTEQ_470 := $(shell $(CC) --version | head -n1 | grep gcc >/dev/null && (expr `($(CC) -dumpfullversion 2>/dev/null || $(CC) -dumpversion) | awk -F '.' '{print $$1*10000+$$2*100+$$3}'` \>= 40700 || true) || echo 1)
+ifeq "$(GCC_GTEQ_470)" "1"
 ifdef HAVE_LIBUSB10
 
 XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
@@ -27,5 +27,5 @@ TARGETS += ../bin/xhc-whb04b-6
 endif # HAVE_LIBUSB10
 
 else
-$(info gcc version $(GCC_VERSION) too old: skipping hal/user_comps/xhc-whb04b-6)
+$(info Compiler version: "$(shell $(CC) --version | head -n1)" is too old: skipping hal/user_comps/xhc-whb04b-6)
 endif # GCC VERSION CHECK
