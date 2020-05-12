@@ -18,8 +18,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 
+################################################################################
 # call to tk window
 w = root_window.tk.call
+
 
 ################################################################################
 # disable the 'do you want to close' dialog
@@ -27,44 +29,62 @@ w('wm','protocol','.','WM_DELETE_WINDOW','destroy .')
 
 
 ################################################################################
+# get monitor orientation
+orientation = inifile.find('PLASMAC','AXIS_ORIENT') or 'landscape'
+
+
+################################################################################
 # set the default font, gcode font and help balloons
 font = inifile.find('PLASMAC','FONT') or 'sans 10'
 fname, fsize = font.split()
 w('font','configure','TkDefaultFont','-family', fname, '-size', fsize)
-w('.pane.bottom.t.text','configure','-height','10','-font', font, '-foreground','blue')
+w('.pane.bottom.t.text','configure','-height','8','-font', font, '-foreground','blue')
 w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','yellow')
 
 
 ################################################################################
 # set the window size
 wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
+maxgeo = w('wm','maxsize','.')
+if type(maxgeo) == tuple:
+    fullsize = str(maxgeo[0]),str(maxgeo[1])
+else:
+    fullsize = maxgeo.split(' ')[0],maxgeo.split(' ')[1]
+mwidth = int(fullsize[0])
+mheight = int(fullsize[1])
 if wsize == '0':
     fsizes = ['9','10','11','12','13','14','15']
-    if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-        widths = [ '900','930','1016','1042','1090','1168','1258']
-        heights = ['668','696', '776', '802', '830', '886', '944']
+    if orientation == 'portrait':
+        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
+            widths = [ 900, 900, 900, 900, 910, 978,1043]
+        else:
+            widths = [1147,1165,1192,1198,1226,1321,1398]
+        if (s.axis_mask & 56 == 0) and not ("ANGULAR" in joint_type):
+            heights = [1022,1054,1148,1178,1210,1288,1372]
+        else:
+            heights = [1022,1054, 1180, 1226,1272,1362,1454]
     else:
-        widths = ['1146','1196','1308','1336','1408','1512','1612']
-        heights = ['708', '730', '800', '824', '848', '896', '956']
-    width = str(int(float(widths[fsizes.index(fsize)])))
-    height = str(int(float(heights[fsizes.index(fsize)])))
-    wxpos = '20'
-    wypos = '20'
+        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
+            widths = [ 900,930,1016,1042,1090,1168,1258]
+            heights = [668,696, 776, 802, 830, 886, 944]
+        else:
+            widths = [1146,1196,1308,1336,1408,1512,1612]
+            heights = [708, 730, 800, 824, 848, 896, 956]
+    width = widths[fsizes.index(fsize)]
+    height = heights[fsizes.index(fsize)]
+    wxpos = (mwidth-width)/2
+    wypos = (mheight-height)/2
 else:
     # change pad_width and pad_height for smaller than fullscreen
     pad_width = 0
     pad_height = 0
-    maxgeo = w('wm','maxsize','.')
-    if type(maxgeo) == tuple:
-        fullsize = str(maxgeo[0]),str(maxgeo[1])
-    else:
-        fullsize = maxgeo.split(' ')[0],maxgeo.split(' ')[1]
-    width = str(int(fullsize[0])-pad_width)
-    height = str(int(fullsize[1])-pad_height)
-    wxpos = str(pad_width/2)
-    wypos = str(pad_height/2)
-w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(width,height,wxpos,wypos))
-print('\nAxis window is {0} x {1}\n'.format(width,height))
+    width = mwidth-pad_width
+    height = mwidth-pad_height
+    wxpos = pad_width/2
+    wypos = pad_height/2
+if width: # fixme - remove when portrait sizes fixed
+    w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(str(width),str(height),str(wxpos),str(wypos)))
+    print('\nAxis window is {0} x {1}\n'.format(width,height))
 
 
 ################################################################################
@@ -84,14 +104,19 @@ fmanual = ftabs + '.fmanual'
 faxes = fmanual + '.axes'
 fjoints = fmanual + '.joints'
 fjogf = fmanual + '.jogf'
-ftorch = fmanual + '.torch'
-foverride = fmanual + '.override'
-fpausedmotion = fmanual + '.pausedmotion'
+if orientation == 'portrait':
+    ftorch = ftop + '.torch'
+    foverride = ftop + '.override'
+    fpausedmotion = ftop + '.pausedmotion'
+else:
+    ftorch = fmanual + '.torch'
+    foverride = fmanual + '.override'
+    fpausedmotion = fmanual + '.pausedmotion'
 fmdi = ftabs + '.fmdi'
 ft = '.pane.bottom.t'
-fcommon = '.pane.bottom.t.common'
-fmonitor = '.pane.bottom.t.common.monitor'
-fbuttons = '.pane.bottom.t.common.buttons'
+fcommon = '.pane.bottom.common'
+fmonitor = '.pane.bottom.common.monitor'
+fbuttons = '.pane.bottom.common.buttons'
 
 # redo the text in tabs so they resize for the new default font
 w(ftabs,'configure','-arcradius','2','-tabbevelsize','8')
@@ -120,22 +145,23 @@ w('grid','forget',fmanual + '.flood')
 w('grid','forget',ftop + '.spinoverride')
 
 # change layout for some scales
-w('pack','forget',ftop + '.jogspeed.l0')
-w('pack','forget',ftop + '.jogspeed.l')
-w('pack','forget',ftop + '.jogspeed.l1')
-w('pack','forget',ftop + '.jogspeed.s')
-w('pack','forget',ftop + '.maxvel.l0')
-w('pack','forget',ftop + '.maxvel.l')
-w('pack','forget',ftop + '.maxvel.l1')
-w('pack','forget',ftop + '.maxvel.s')
-w('pack',ftop + '.jogspeed.s','-side','right')
-w('pack',ftop + '.jogspeed.l1','-side','right')
-w('pack',ftop + '.jogspeed.l','-side','right')
-w('pack',ftop + '.jogspeed.l0','-side','left')
-w('pack',ftop + '.maxvel.s','-side','right')
-w('pack',ftop + '.maxvel.l1','-side','right')
-w('pack',ftop + '.maxvel.l','-side','right')
-w('pack',ftop + '.maxvel.l0','-side','left')
+if orientation != 'portrait':
+    w('pack','forget',ftop + '.jogspeed.l0')
+    w('pack','forget',ftop + '.jogspeed.l')
+    w('pack','forget',ftop + '.jogspeed.l1')
+    w('pack','forget',ftop + '.jogspeed.s')
+    w('pack','forget',ftop + '.maxvel.l0')
+    w('pack','forget',ftop + '.maxvel.l')
+    w('pack','forget',ftop + '.maxvel.l1')
+    w('pack','forget',ftop + '.maxvel.s')
+    w('pack',ftop + '.jogspeed.s','-side','right')
+    w('pack',ftop + '.jogspeed.l1','-side','right')
+    w('pack',ftop + '.jogspeed.l','-side','right')
+    w('pack',ftop + '.jogspeed.l0','-side','left')
+    w('pack',ftop + '.maxvel.s','-side','right')
+    w('pack',ftop + '.maxvel.l1','-side','right')
+    w('pack',ftop + '.maxvel.l','-side','right')
+    w('pack',ftop + '.maxvel.l0','-side','left')
 
 # modify the toolbar
 w('label','.toolbar.space1','-width','5')
@@ -223,9 +249,10 @@ w('button',fjogf + '.zerohome.home','-command','home_joint','-height','1')
 w('setup_widget_accel',fjogf + '.zerohome.home',_('Home Axis'))
 w('button',fjogf + '.zerohome.zero','-command','touch_off_system','-height','1')
 w('setup_widget_accel',fjogf + '.zerohome.zero',_('Touch Off'))
+w('checkbutton',fjogf + '.override','-text','bbbbbbbbb','-command','toggle_override_limits','-variable','override_limits')
+w('setup_widget_accel',fjogf + '.override',_('Override Limits'))
 # unused, just for tcl hierarchy
 w('button',fjogf + '.zerohome.tooltouch')
-w('checkbutton',fjogf + '.override')
 # populate the jog frame
 w('grid',fjogf + '.jog.jogminus','-row','0','-column','0','-padx','0 3','-sticky','nsew')
 w('grid',fjogf + '.jog.jogplus','-row','0','-column','1','-padx','3 3','-sticky','nsew')
@@ -233,12 +260,10 @@ w('grid',fjogf + '.jog.jogincr','-row','0','-column','2','-padx','3 0','-sticky'
 w('grid',fjogf + '.jog','-row','0','-column','0','-sticky','ew')
 w('grid',fjogf + '.zerohome.home','-row','0','-column','0','-padx','0 3','-sticky','ew')
 w('grid',fjogf + '.zerohome.zero','-row','0','-column','1','-padx','3 0','-sticky','ew')
-w('grid',fjogf + '.zerohome','-row','1','-column','0','-pady','4 0','-sticky','ew')
+w('grid',fjogf + '.zerohome','-row','2','-column','0','-pady','4 0','-sticky','ew')
+if has_limit_switch:
+    w('grid',fjogf + '.override','-column','0','-row','1','-columnspan','3','-pady','2','-sticky','w')
 w('grid',fjogf,'-column','0','-row','1','-padx','4','-pady','2 0','-sticky','ew')
-w('grid','columnconfigure',fmanual,'0','-weight','1')
-w('grid','columnconfigure',fjogf,'0','-weight','1')
-w('grid','columnconfigure',fjogf + '.jog','0 1 2','-weight','1')
-w('grid','columnconfigure',fjogf + '.zerohome','0 1','-weight','1')
 w('DynamicHelp::add',fjogf + '.jog.jogminus','-text','Jog selected axis\nin negative direction')
 w('DynamicHelp::add',fjogf + '.jog.jogplus','-text','Jog selected axis\nin positive direction')
 w('DynamicHelp::add',fjogf + '.jog.jogincr','-text','Select jog increment')
@@ -263,11 +288,14 @@ w('scale',ftorch + '.torch-pulse-time','-takefocus','0','-orient','horizontal','
 w('label',ftorch + '.torch-time','-textvariable','torchPulse','-width','3','-anchor','e')
 w('label',ftorch + '.torch-label','-text','Sec','-anchor','e')
 # populate the torch frame
-w('pack',ftorch + '.torch-button','-side','left','-pady','2')
+w('pack',ftorch + '.torch-button','-side','left','-fill','y','-pady','2')
 w('pack',ftorch + '.torch-pulse-time','-side','left','-fill','x','-expand','1')
 w('pack',ftorch + '.torch-label','-side','right')
 w('pack',ftorch + '.torch-time','-side','right')
-w('grid',ftorch,'-column','0','-row','2','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
+if orientation == 'portrait':
+    w(ftorch,'configure','-relief','raised','-bd','1')
+else:
+    w('grid',ftorch,'-column','0','-row','2','-padx','4','-pady','2 0','-sticky','ew')
 w('DynamicHelp::add',ftorch + '.torch-button','-text','Pulse torch on for\nselected time')
 w('DynamicHelp::add',ftorch + '.torch-pulse-time','-text','Length of torch pulse (seconds)')
 
@@ -281,11 +309,14 @@ w('label',foverride + '.height-override','-width','3','-justify','center')
 w('Button',foverride + '.reset','-text','Reset','-takefocus','0','-width','3')
 w('bind',foverride + '.reset','<ButtonPress-1>','height_reset')
 # populate the override frame
-w('pack',foverride + '.raise','-side','left')
-w('pack',foverride + '.lower','-side','left')
+w('pack',foverride + '.raise','-side','left','-fill','y')
+w('pack',foverride + '.lower','-side','left','-fill','y')
 w('pack',foverride + '.height-override','-side','left','-fill','x','-expand','1')
-w('pack',foverride + '.reset','-side','right')
-w('grid',foverride,'-column','0','-row','3','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
+w('pack',foverride + '.reset','-side','right','-fill','y')
+if orientation == 'portrait':
+    w(foverride,'configure','-relief','raised','-bd','1')
+else:
+    w('grid',foverride,'-column','0','-row','3','-padx','4','-pady','2 0','-sticky','ew')
 w('DynamicHelp::add',foverride + '.raise','-text','Voltage value to raise height')
 w('DynamicHelp::add',foverride + '.lower','-text','Voltage value to lower height')
 w('DynamicHelp::add',foverride + '.reset','-text','Set height override to 0')
@@ -304,10 +335,13 @@ w('bind',fpausedmotion + '.forward','<ButtonRelease-1>','paused_motion 0')
 w('pack',fpausedmotion + '.reverse','-side','left','-fill','y')
 w('pack',fpausedmotion + '.paused-motion-speed','-side','left','-fill','x','-expand','1')
 w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
+if orientation == 'portrait':
+    w(fpausedmotion,'configure','-relief','raised','-bd','1')
+else:
+    w('grid',fpausedmotion,'-column','0','-row','4','-padx','4','-pady','2 0','-sticky','ew')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
 w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
 w('DynamicHelp::add',fpausedmotion + '.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
-w('grid',fpausedmotion,'-column','0','-row','4','-columnspan','1','-padx','4','-pady','2 0','-sticky','ew')
 
 # hide bottom pane until modified
 w('pack','forget','.pane.bottom.t.text')
@@ -427,12 +461,20 @@ w('bind',fbuttons + '.button4','<ButtonRelease-1>','button_action 4 0')
 w('bind',fbuttons + '.button5','<ButtonPress-1>','button_action 5 1')
 w('bind',fbuttons + '.button5','<ButtonRelease-1>','button_action 5 0')
 # populate the buttons frame
-w('pack',fbuttons + '.torch-enable','-side','left','-padx','1','-fill','both','-expand','1')
-w('pack',fbuttons + '.button1',     '-side','left','-padx','1','-fill','both','-expand','1')
-w('pack',fbuttons + '.button2',     '-side','left','-padx','1','-fill','both','-expand','1')
-w('pack',fbuttons + '.button3',     '-side','left','-padx','1','-fill','both','-expand','1')
-w('pack',fbuttons + '.button4',     '-side','left','-padx','1','-fill','both','-expand','1')
-w('pack',fbuttons + '.button5',     '-side','left','-padx','1','-fill','both','-expand','1')
+if orientation == 'portrait':
+    w('grid',fbuttons + '.torch-enable','-column','0','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button1',     '-column','1','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button2',     '-column','2','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button3',     '-column','0','-row','1','-sticky','ew')
+    w('grid',fbuttons + '.button4',     '-column','1','-row','1','-sticky','ew')
+    w('grid',fbuttons + '.button5',     '-column','2','-row','1','-sticky','ew')
+else:
+    w('grid',fbuttons + '.torch-enable','-column','0','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button1',     '-column','1','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button2',     '-column','2','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button3',     '-column','3','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button4',     '-column','4','-row','0','-sticky','ew')
+    w('grid',fbuttons + '.button5',     '-column','5','-row','0','-sticky','ew')
 
 w('DynamicHelp::add',fbuttons + '.torch-enable','-text','enable/disable torch\nif disabled when run pressed then dry run will commence')
 w('DynamicHelp::add',fbuttons + '.button1','-text','User button 1\nconfigured in ini file')
@@ -441,21 +483,139 @@ w('DynamicHelp::add',fbuttons + '.button3','-text','User button 3\nconfigured in
 w('DynamicHelp::add',fbuttons + '.button4','-text','User button 4\nconfigured in ini file')
 w('DynamicHelp::add',fbuttons + '.button5','-text','User button 5\nconfigured in ini file')
 
-
-w('grid',fmonitor,'-row','0','-column','0','-padx','0','-pady','0')
-w('grid',fbuttons,'-row','1','-column','0','-sticky','ew','-padx','0','-pady','0')
-w('pack',fcommon,'-fill','none','-side','left')
+# change layout for portrait mode
+if orientation == 'portrait':
+    # configure bottom pane
+    w('.pane','configure','-handlesize','0','-sashwidth','0')
+    w(ft,'configure','-bd','1')
+    # remove some frames
+    w('grid','forget',fright)
+    w('grid','forget',ftabs)
+    w('destroy',ftop + '.feedoverride')
+    w('destroy',ftop + '.rapidoverride')
+    w('destroy',ftop + '.jogspeed')
+    w('destroy',ftop + '.ajogspeed')
+    w('destroy',ftop + '.maxvel')
+    # new feed override slider
+    w('labelframe',ftop + '.feedoverride','-text','Feed Override:','-relief','raised','-bd','1')
+    w('label',ftop + '.feedoverride.foentry','-textvariable','feedrate','-width','4','-anchor','e')
+    w('setup_widget_accel',ftop + '.feedoverride.foentry','0')
+    w('scale',ftop + '.feedoverride.foscale','-command','set_feedrate','-orient','horizontal','-resolution','1.0','-showvalue','0','-takefocus','0','-to','120.0','-variable','feedrate')
+    w('label',ftop + '.feedoverride.m','-width','1')
+    w('setup_widget_accel',ftop + '.feedoverride.m','[_ "% "]')
+    w('grid',ftop + '.feedoverride.foscale','-column','0','-row','1','-sticky','ew')
+    w('grid',ftop + '.feedoverride.m','-column','1','-row','1')
+    w('grid',ftop + '.feedoverride.foentry','-column','1','-row','0')
+    w('grid','columnconfigure',ftop + '.feedoverride','0','-weight','1')
+    # new rapid override slider
+    w('labelframe',ftop + '.rapidoverride','-text','Rapid Override:','-relief','raised','-bd','1')
+    w('label',ftop + '.rapidoverride.foentry','-textvariable','rapidrate','-width','4','-anchor','e')
+    w('setup_widget_accel',ftop + '.rapidoverride.foentry','0')
+    w('scale',ftop + '.rapidoverride.foscale','-command','set_rapidrate','-orient','horizontal','-resolution','1.0','-showvalue','0','-takefocus','0','-to','120.0','-variable','rapidrate')
+    w('label',ftop + '.rapidoverride.m','-width','1')
+    w('setup_widget_accel',ftop + '.rapidoverride.m','[_ "% "]')
+    w('grid',ftop + '.rapidoverride.foscale','-column','0','-row','1','-sticky','ew')
+    w('grid',ftop + '.rapidoverride.m','-column','1','-row','1')
+    w('grid',ftop + '.rapidoverride.foentry','-column','1','-row','0')
+    w('grid','columnconfigure',ftop + '.rapidoverride','0','-weight','1')
+    # new linear jog speed slider
+    w('labelframe',ftop + '.jogspeed','-text','Jog Speed:','-relief','raised','-bd','1')
+    w('label',ftop + '.jogspeed.l1')
+    w('scale',ftop + '.jogspeed.s','-bigincrement','0','-from','.06','-to','1','-resolution','.020','-showvalue','0','-variable','jog_slider_val','-command','update_jog_slider_vel','-orient','h','-takefocus','0')
+    w('label',ftop + '.jogspeed.l','-textv','jog_speed','-width','6','-anchor','e')
+    w('grid',ftop + '.jogspeed.s','-column','0','-row','1','-sticky','ew')
+    w('grid',ftop + '.jogspeed.l1','-column','1','-row','1')
+    w('grid',ftop + '.jogspeed.l','-column','1','-row','0')
+    w('grid','columnconfigure',ftop + '.jogspeed','0','-weight','1')
+    # new angular jog speed slider
+    w('labelframe',ftop + '.ajogspeed','-text','Angular Jog Speed:','-relief','raised','-bd','1')
+    w('label',ftop + '.ajogspeed.l1')
+    w('scale',ftop + '.ajogspeed.s','-bigincrement','0','-from','.06','-to','1','-resolution','.020','-showvalue','0','-variable','ajog_slider_val','-command','update_ajog_slider_vel','-orient','h','-takefocus','0')
+    w('label',ftop + '.ajogspeed.l','-textv','jog_aspeed','-width','6','-anchor','e')
+    w('grid',ftop + '.ajogspeed.s','-column','0','-row','1','-sticky','ew')
+    w('grid',ftop + '.ajogspeed.l1','-column','1','-row','1')
+    w('grid',ftop + '.ajogspeed.l','-column','1','-row','0')
+    w('grid','columnconfigure',ftop + '.ajogspeed','0','-weight','1')
+    # new maximum velocity slider
+    w('labelframe',ftop + '.maxvel','-text','Maximum Velocity:','-relief','raised','-bd','1')
+    w('label',ftop + '.maxvel.l1')
+    w('scale',ftop + '.maxvel.s','-bigincrement','0','-from','.06','-to','1','-resolution','.020','-showvalue','0','-variable','maxvel_slider_val','-command','update_maxvel_slider_vel','-orient','h','-takefocus','0')
+    w('label',ftop + '.maxvel.l','-textv','maxvel_speed','-width','6','-anchor','e')
+    w('grid',ftop + '.maxvel.s','-column','0','-row','1','-sticky','ew')
+    w('grid',ftop + '.maxvel.l1','-column','1','-row','1')
+    w('grid',ftop + '.maxvel.l','-column','1','-row','0')
+    w('grid','columnconfigure',ftop + '.maxvel','0','-weight','1')
+    # display the top panel widgets
+    w('grid', ftabs,'-column','0','-row','0','-rowspan','5','-padx','2','-pady','2 0','-sticky','nsew','-padx','2')
+    w('grid',ftorch,'-column','2','-row','2','-sticky','nsew','-padx','2 4')
+    w('grid',foverride,'-column','2','-row','3','-sticky','nsew','-padx','2 4')
+    w('grid',fpausedmotion,'-column','2','-row','4','-sticky','nsew','-padx','2 4')
+    # don't display angular jog if not required (56 = 0x38 = 000111000 (ABC))
+    if (s.axis_mask & 56 == 0) and not ("ANGULAR" in joint_type):
+        w('grid',ftop + '.feedoverride','-column','4','-row','1','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.rapidoverride','-column','4','-row','2','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.jogspeed','-column','4','-row','3','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.maxvel','-column','4','-row','4','-sticky','nsew','-padx','2 4')
+    else:
+        w('grid',ftop + '.feedoverride','-column','4','-row','0','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.rapidoverride','-column','4','-row','1','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.jogspeed','-column','4','-row','2','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.ajogspeed','-column','4','-row','3','-sticky','nsew','-padx','2 4')
+        w('grid',ftop + '.maxvel','-column','4','-row','4','-sticky','nsew','-padx','2 4')
+    w('grid',fright,'-column','0','-row','5','-columnspan','5','-padx','2','-pady','2','-sticky','nesw')
+    w('grid','columnconfigure',fcommon,'0','-weight','1')
+    # configure resizing
+    w('grid','rowconfigure',   ftop,'1 2 3 4','-weight','0','-uniform','phillc54-0')
+    w('grid','rowconfigure',   ftop,'5','-weight','1')
+    w('grid','columnconfigure',ftop, '0 2 4','-weight','0','-uniform','phillc54-1')
+    w('grid','columnconfigure',ftop,   '1 3','-weight','1','-uniform','phillc54-2')
+    w('grid','rowconfigure',fmanual,'99','-weight','0')
+    w('grid','columnconfigure',fmanual,'99','-weight','0')
+    w('grid','columnconfigure',fmdi,'0','-weight','0')
+    w('grid','rowconfigure',fmdi,'1','-weight','1')
+    # set slider values
+    if lu == 1:
+        root_window.tk.eval(ftop + ".jogspeed.l1 configure -text mm/min")
+        root_window.tk.eval(ftop + ".maxvel.l1 configure -text mm/min")
+    else:
+        root_window.tk.eval(ftop + ".jogspeed.l1 configure -text in/min")
+        root_window.tk.eval(ftop + ".maxvel.l1 configure -text in/min")
+    root_window.tk.eval(ftop + ".ajogspeed.l1 configure -text deg/min")
+    w('update_jog_slider_vel','999999')
+    w('update_maxvel_slider_vel','999999')
+    max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
+    max_feed_override = int(max_feed_override * 100 + 0.5)
+    widgets.feedoverride.configure(to=max_feed_override)
+    # display the bottom panel widgets
+    w('label',fcommon + '.spacer')
+    w('grid',fmonitor,'-row','0','-column','0','-pady','0')
+    w('grid',fcommon + '.spacer','-row','0','-column','1','-pady','0')
+    w('grid',fbuttons,'-row','0','-column','2','-sticky','ew','-pady','0')
+    w(fbuttons + '.torch-enable','configure','-width',bwidth * 3)
+    for button in range(1,6):
+        w(fbuttons + '.button' + str(button),'configure','-width',bwidth * 3)
+    w('grid','columnconfigure',fcommon,'1','-weight','1')
+    w('pack',ft + '.text','-fill','both','-expand','1','-side','top','-pady','0')
+    w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-pady','0')
+    w('pack',ft + '.sb','-fill','y','-side','right','-padx','1')
+    w('grid',fcommon,'-column','1','-row','2','-sticky','nsew')
+# landscape mode display the bottom panel widgets
+else:
+    w('grid',fmonitor,'-row','0','-column','0','-pady','0')
+    w('grid',fbuttons,'-row','1','-column','0','-sticky','ew','-pady','0')
+    w('grid',fcommon,'-column','0','-row','1','-sticky','nsew')
+    w('grid','columnconfigure',fbuttons,'0 1 2 3 4 5','-weight','1')
+    w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
+    w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-pady','0')
+# configure the bottom panel widgets
 w(ft + '.sb','configure','-bd','1')
-w('pack',ft + '.sb','-fill','y','-side','left','-padx','1')
-w('pack',ft + '.text','-fill','both','-expand','1','-side','left','-padx','0','-pady','0')
 w(ft,'configure','-relief','flat')
-w(ft + '.sb','configure','-width', '16')
-w(ft + '.text','configure','-width', '42', '-borderwidth','1','-relief','sunken')
+w(ft + '.sb','configure','-width', '8')
+w(ft + '.text','configure','-width', '10', '-borderwidth','1','-relief','sunken')
 
 
 ################################################################################
 # some new commands for TCL
-
 def button_action(button,pressed):
     if int(pressed):
         user_button_pressed(button,iniButtonCode[int(button)])
@@ -500,13 +660,13 @@ def torch_enable():
 def joint_mode_switch(a,b,c):
     if vars.motion_mode.get() == linuxcnc.TRAJ_MODE_FREE and s.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
         w('grid','forget',fmanual + '.axes')
-        w('grid',fmanual + '.joints','-column','0','-row','0','-padx','4','-pady','0','-sticky','ew')
+        w('grid',fmanual + '.joints','-column','0','-row','0','-padx','4','-sticky','ew')
         widget = getattr(widgets, "joint_%d" % 0)
         widget.focus()
         vars.ja_rbutton.set(0)
     else:
         w('grid','forget',fmanual + '.joints')
-        w('grid',fmanual + '.axes','-column','0','-row','0','-padx','4','-pady','0','-sticky','ew')
+        w('grid',fmanual + '.axes','-column','0','-row','0','-padx','4','-sticky','ew')
         widget = getattr(widgets, "axis_%s" % first_axis)
         widget.focus()
         vars.ja_rbutton.set(first_axis)
@@ -533,10 +693,8 @@ TclCommands.ja_button_activated = ja_button_activated
 commands = TclCommands(root_window)
 
 
-
 ################################################################################
 # some python functions
-
 def user_button_pressed(button,commands):
     if w(fbuttons + '.button' + button,'cget','-state') == 'disabled' or \
        not commands: return
@@ -559,6 +717,7 @@ def user_button_pressed(button,commands):
             hal.set_p('plasmac.consumable-change', '1')
     elif 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','1')
+# for testing window sizes
 #        print('Width={}   Height={}'.format(w('winfo','width',root_window), w('winfo','height',root_window)))
     elif 'probe-test' in commands.lower():
         global probePressed
@@ -741,7 +900,7 @@ def user_live_update():
         hal.set_p('plasmac.consumable-change', '0')
     try:
         if hal.get_value('plasmac_run.preview-tab'):
-            root_window.tk.call('.pane.top.right','raise','preview')
+            w('.pane.top.right','raise','preview')
             hal.set_p('plasmac_run.preview-tab', '0')
     except:
         pass
@@ -840,7 +999,6 @@ def consumable_change_setup(ccParm):
     hal.set_p('plasmac.x-y-velocity', str(ccVel))
     hal.set_p('axis.x.eoffset-enable', '1')
     hal.set_p('axis.y.eoffset-enable', '1')
-
 
 
 ################################################################################
