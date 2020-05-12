@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env linuxcnc-python
 # -*- encoding: utf-8 -*-
 #
 #    This is stepconf, a graphical configuration editor for LinuxCNC
@@ -49,6 +49,11 @@ import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
+
+try:
+    from defusedexpat import pyexpat as expat
+except ImportError:
+    from xml.parsers import expat
 
 if sys.version_info[0] == 3:
     import subprocess
@@ -512,7 +517,7 @@ class Data:
         filename = os.path.expanduser("~/.stepconf-preferences")
         if os.path.exists(filename):
             version = 0.0
-            d = xml.dom.minidom.parse(open(filename, "r"))
+            d = xml.dom.minidom.parse(open(filename, "rt"))
             for n in d.getElementsByTagName("property"):
                 name = n.getAttribute("name")
                 text = n.getAttribute('value')
@@ -577,7 +582,7 @@ class Data:
         n2.setAttribute('name', "machinename")
         n2.setAttribute('value', str("%s"%self.machinename))
 
-        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        d2.writexml(open(filename, "wt"), addindent="  ", newl="\n")
 
     def load(self, filename, app=None, force=False):
         def str2bool(s):
@@ -676,8 +681,8 @@ class Data:
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+
+        d.writexml(open(filename, "wt"), addindent="  ", newl="\n")
         print("%s" % base)
 
         # see http://freedesktop.org/wiki/Software/xdg-user-dirs
@@ -767,7 +772,20 @@ class StepconfApp:
         image.set_from_file(wizard)
         wiz_pic = image.get_pixbuf()
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
-        self.d.load_preferences()
+        try:
+            self.d.load_preferences()
+        except expat.ExpatError as ee:
+            message = _("Loading configuration error:\n\n{}").format(str(ee))
+            dialog = Gtk.MessageDialog(
+                         parent=window,
+                         modal=True,
+                         message_type=Gtk.MessageType.WARNING,
+                         buttons=Gtk.ButtonsType.OK,
+                         text=message)
+            dialog.show_all()
+            dialog.run()
+            dialog.destroy()
+
         self.p.initialize()
         window.show()
         #self.w.xencoderscale.realize()
