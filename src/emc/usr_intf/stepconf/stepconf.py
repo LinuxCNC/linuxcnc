@@ -49,11 +49,7 @@ import hal
 import shutil
 import time
 from multifilebuilder_gtk3 import MultiFileBuilder
-
-try:
-    from defusedexpat import pyexpat as expat
-except ImportError:
-    from xml.parsers import expat
+from xml.parsers import expat
 
 if sys.version_info[0] == 3:
     import subprocess
