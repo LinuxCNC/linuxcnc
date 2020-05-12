@@ -112,6 +112,10 @@ class Gremlin(Gtk.GLArea):
 
     def load(self, f):
         self.statwrapper.load(f)
+        self.object_renderer.set_feed(self.statwrapper.feed_data)
+        self.object_renderer.set_rapids(self.statwrapper.rapids_data)
+        self.object_renderer.change_extents(self.statwrapper.min_extents,
+                                            self.statwrapper.max_extents)
         
     def on_motion(self, widget, event):
         button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
@@ -165,6 +169,8 @@ class Gremlin(Gtk.GLArea):
         self.camera.update(self.w,self.h)
 
     def on_render(self, area, context):
+
+        #print(self.statwrapper.traverse)
         # gtk doc says area not context
         area.make_current()
 

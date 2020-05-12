@@ -3,8 +3,6 @@ from OpenGL.GLU import *
 from OpenGL.GLUT import *
 from OpenGL.GL import shaders
 
-import numpy as np
-
 import glm
 
 
@@ -24,6 +22,19 @@ def px_delta_to_obj(oldpos, dx, dy, model, proj, view):
     # calculate the delta of the two positions
     return newpos - oldpos
 
+class GLObject:
+    def __init__(self):
+        self.initialized = 0
+
+    def __del__(self):
+        self.deinit()
+        
+    def init(self):
+        self.initialized = 1
+
+    def deinit(self):
+        self.initialized = 0
+
 """
 very simple vertex buffer object abstraction, no error checking performed currently (TODO)
 
@@ -36,8 +47,9 @@ the data_layout dictionary describes the layout of the data like this:
     offset: offset of the data (bytes)
 }
 """
-class VBO():
+class VBO(GLObject):
     def __init__(self):
+        super().__init__()
         self.vboid = -1
         self.data_layout = {
             'position': {
@@ -56,10 +68,14 @@ class VBO():
             }
         }
 
-    def gen(self):
+    def init(self):
         # Generate buffers to hold our vertices
         self.vboid = glGenBuffers(1)
         self.bind()
+
+    def deinit(self):
+        glDeleteBuffers(1,self.vboid)
+        super().deinit()
 
     def bind(self):
         glBindBuffer(GL_ARRAY_BUFFER, self.vboid)
@@ -77,23 +93,35 @@ class VBO():
         self.bind()
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data)
 
+    def arrayupdate(self, offset, arr):
+        self.update(offset, arr.tobytes(), arr.buffer_info()[1] * arr.itemsize)
+
     def fill(self, data, size):
         self.bind()
         glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW)
 
-class VAO():
+    def arrayfill(self, arr):
+        self.fill(arr.tobytes(), arr.buffer_info()[1] * arr.itemsize)
+
+class VAO(GLObject):
     def __init__(self):
         self.vaoid=-1
+        super().__init__()
 
     # this binds vbos with their respective bindings
     # to the used shader program
-    def gen(self, vbos):
+    def init(self, vbos):
         self.vaoid = glGenVertexArrays(1)
         self.bind()
         for vbo in vbos:
-
             vbo.bind_vao()
 
+        super().init()
+
+    def deinit(self):
+        glDeleteVertexArrays(1,self.vaoid)
+        super().deinit()
+        
     def bind(self):
         glBindVertexArray(self.vaoid)
 
