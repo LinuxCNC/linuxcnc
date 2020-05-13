@@ -12,7 +12,13 @@
 
 
 
-import os, configparser
+import os
+import sys
+
+if sys.version_info[0] == 3:
+    import configparser
+else:
+    import ConfigParser as configparser
 
 cp = configparser.ConfigParser
 class preferences(cp):

@@ -199,6 +199,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def user_plot(self):
         return
 
+    def emit_percent(self, f):
+        super( GCodeGraphics, self).emit_percent(f)
+        STATUS.emit('graphics-loading-progress',f)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # property getter/setters

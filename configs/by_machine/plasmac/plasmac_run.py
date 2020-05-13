@@ -171,7 +171,7 @@ class HandlerClass:
                     firstpass = False
                     t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                     self.materialNumList.append(t_number)
-                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = 0.0
+                    t_name = k_width = thc_enable = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
                     t_item += 1
                     received = []
                 elif line.startswith('NAME'):
@@ -587,7 +587,8 @@ class HandlerClass:
             theme = self.i.find('PLASMAC', 'THEME') or gtk.settings_get_default().get_property('gtk-theme-name')
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
             fSize = int(font.split()[1])
-            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+#            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
+            font = '{} {}'.format(font.split()[0],fSize)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
@@ -736,8 +737,8 @@ class HandlerClass:
                     outFile.write('CUT_AMPS           = {}\n'.format(self.builder.get_object('cut-amps').get_value()))
                 elif line.startswith('CUT_VOLTS'):
                     outFile.write('CUT_VOLTS          = {}\n'.format(self.builder.get_object('cut-volts').get_value()))
-                elif line.startswith('TORCH_OFF_DELAY'):
-                    outFile.write('TORCH_OFF_DELAY    = {}\n'.format(self.builder.get_object('torch-off-delay').get_value()))
+                elif line.startswith('PAUSE_AT_END'):
+                    outFile.write('PAUSE_AT_END       = {}\n'.format(self.builder.get_object('pause-at-end').get_value()))
                 elif line.startswith('GAS_PRESSURE'):
                     outFile.write('GAS_PRESSURE       = {}\n'.format(self.builder.get_object('gas-pressure').get_value()))
                 elif line.startswith('CUT_MODE'):
@@ -766,14 +767,20 @@ class HandlerClass:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 1:
                 self.builder.get_object('kerfcross-enable').show()
                 self.builder.get_object('kerfcross-enable-label').show()
                 self.builder.get_object('volts-box').show()
+                self.builder.get_object('use-auto-volts').show()
+                self.builder.get_object('use-auto-volts-label').show()
             elif mode == 2:
                 self.builder.get_object('kerfcross-enable').hide()
                 self.builder.get_object('kerfcross-enable-label').hide()
                 self.builder.get_object('volts-box').hide()
+                self.builder.get_object('use-auto-volts').hide()
+                self.builder.get_object('use-auto-volts-label').hide()
             else:
                 pass
             self.oldMode = mode
@@ -794,9 +801,12 @@ class HandlerClass:
                     self.fault = '0000'
                     if self.pmx485Connected:
                         self.builder.get_object('powermax-label').set_text('Comms Error')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                         self.dialog_error('Communications Error', '\nPowermax communications error\n\nCheck cables and connections\n')
                     else:
+                        if not self.builder.get_object('powermax-label').get_text() == 'Connecting':
+                            self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.builder.get_object('powermax-label').set_text('Connecting')
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(blue = 1.0))
                         if self.connTimer:
@@ -824,10 +834,12 @@ class HandlerClass:
                         if faultRaw != self.fault:
                             self.fault = faultRaw
                             self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultCode))
+                            self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultMsg))
                             self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                             self.dialog_error('Powermax Error', '\nPowermax fault code: {}\n\n{}'.format(faultCode, faultMsg))
                     else:
                         self.builder.get_object('powermax-label').set_text('Fault Code: {}'.format(faultRaw))
+                        self.builder.get_object('powermax-label').set_tooltip_text('Powermax error:\n\n{}'.format(faultRaw))
                         self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 0.75))
                         self.dialog_error('Powermax Error', '\nUnknown Powermax fault code: {}'.format(faultRaw))
                 elif hal.get_value('pmx485.mode') or hal.get_value('pmx485.current') or hal.get_value('pmx485.pressure'):
@@ -850,6 +862,8 @@ class HandlerClass:
                         for widget in ['cut-amps','cut-amps-label']:
                                 self.builder.get_object(widget).set_tooltip_text(toolTip)
                         self.on_reload_clicked(None)
+                    if not self.builder.get_object('powermax-label').get_text() == 'Connected':
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                     self.builder.get_object('powermax-label').set_text('Connected')
                     if not self.pmx485Connected:
                         if hal.get_value('pmx485.current_min') > 0 and hal.get_value('pmx485.current_max') > 0:
@@ -860,6 +874,7 @@ class HandlerClass:
                 self.pmx485Started = False
                 self.pmx485Connected = False
                 self.builder.get_object('powermax-label').set_text('pmx485 unloaded')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('powermax-label').modify_fg(gtk.STATE_NORMAL, gtk.gdk.Color(red = 1.0))
                 self.builder.get_object('powermax-enable').set_active(False)
                 self.dialog_error('Communications Error', '\nPowermax component unloaded:\n\nCheck cables and connections\n\nThen re-enable\n')
@@ -923,6 +938,7 @@ class HandlerClass:
                     if time.time() > timeout:
                         self.builder.get_object('powermax-enable').set_active(False)
                         self.builder.get_object('powermax-label').set_text('')
+                        self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                         self.dialog_error('Communication Error', '\nTimeout while reconnecting\n\nCheck cables and connections\n\nThen re-enable\n')
                         return
                     if hal.component_exists('pmx485'):
@@ -948,6 +964,7 @@ class HandlerClass:
             if hal.component_exists('pmx485'):
                 hal.set_p('pmx485.enable', '0')
                 self.builder.get_object('powermax-label').set_text('')
+                self.builder.get_object('powermax-label').set_tooltip_text('status of powermax communications')
                 self.builder.get_object('gas-pressure-adj').configure(0,0,0,1,0,0)
                 toolTip = 'cutting current in amps\nindicator only, not used by plasmac.'
                 for widget in ['cut-amps','cut-amps-label']:

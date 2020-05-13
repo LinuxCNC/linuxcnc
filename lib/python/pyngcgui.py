@@ -69,7 +69,7 @@ import hashlib
 import glob
 import shutil
 import popupkeyboard
-#import exceptions  # for debug printing TODO: not found!
+if sys.version_info[0] != 3: import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
@@ -91,15 +91,14 @@ g_alive = not g_is_glade
 
 import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR)
+gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
-#TODO:
-#try:
-#    import pygtk
-#    pygtk.require('2.0')
-#except ImportError as msg:
-#    print(('import pygtk failed: %s',msg))
-#    pass
+try:
+    import pygtk
+    pygtk.require('2.0')
+except ImportError as msg:
+    print('import pygtk failed: %s',msg)
+    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
@@ -1425,7 +1424,7 @@ class SubFile():
                 dvalue = ''
 
             if name:
-                if comment is '':
+                if comment == '':
                     comment = name
                 pnum += 1
                 self.ndict[pnum] = (name,dvalue,comment)

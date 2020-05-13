@@ -2241,8 +2241,13 @@ proc update_recent {args} {
             -command [list open_file_name $f]
         incr i
     }
+    if {0 != [llength $args]} {
+        .menu.file.recent add separator
+        .menu.file.recent add command \
+                -command clear_recent_files
+        setup_menu_accel .menu.file.recent end [_ "_Clear Recents List"]
+    }
 }
-
 
 bind . <Configure> {
     if {"%W" == "."} {

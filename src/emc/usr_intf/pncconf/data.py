@@ -20,10 +20,15 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from __future__ import print_function
 import os
+import sys
 import errno
 import hashlib
-import subprocess
 import xml.dom.minidom
+
+if sys.version_info[0] == 3:
+    import subprocess
+else:
+    import commands as subprocess
 
 def md5sum(filename):
     try:

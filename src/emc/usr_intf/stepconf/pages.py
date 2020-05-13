@@ -35,9 +35,10 @@ from gi.repository import Gtk
 #import gobject
 from gi.repository import GObject
 import sys
-import importlib
-importlib.reload(sys)
-sys.setdefaultencoding('utf8')
+
+if sys.version_info[0] == 2:
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 class Pages:
     def __init__(self, app):

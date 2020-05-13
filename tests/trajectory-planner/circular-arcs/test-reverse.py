@@ -5,7 +5,7 @@ How to use this test script:
     1) Launch linuxcnc, set up / run a program as usual
     2) Pause the program
     3) Open a new terminal and launch this script interactively:
-        python -i test-reverse.py
+        linuxcnc-python -i test-reverse.py
     4) Press "resume" in GUI to see reverse run motion (can pause and resume as with normal motion)
     5) manually type this command to run in forward direction:
         c.auto(linuxcnc.AUTO_FORWARD)
