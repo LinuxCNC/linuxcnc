@@ -14,9 +14,12 @@ import glm
 class ObjectRenderer(GLObject):
     def __init__(self):
         # initial position / rotation / scale
-        self.pos = glm.vec3(0,0,0)
-        self.rotation = glm.mat4()
-        self.scale = glm.vec3(1,1,1)
+        self.pos = glm.vec3(0)
+        self.rot_x = 0
+        self.rot_y = 0
+        self.rot_z = 0
+        self.rotate_pos = glm.vec3(0)
+        self.scale = glm.vec3(1)
         # generate model matrix
         self._update_matrix()
 
@@ -359,7 +362,11 @@ class ObjectRenderer(GLObject):
             
     def _update_matrix(self):
         newmat = glm.translate(glm.mat4(), self.pos)
-        newmat *= self.rotation
+        #newmat *= glm.translate(newmat, self.rotate_pos)
+        newmat *= glm.rotate(newmat, self.rot_x, glm.vec3(1,0,0))
+        newmat *= glm.rotate(newmat, self.rot_y, glm.vec3(0,1,0))
+        newmat *= glm.rotate(newmat, self.rot_z, glm.vec3(0,0,1))
+        #newmat *= glm.translate(newmat, -self.rotate_pos)
         self.model = glm.scale(newmat, self.scale)
 
     # sets position / center of the scene to this location
@@ -371,8 +378,14 @@ class ObjectRenderer(GLObject):
         self.pos += delta
         self._update_matrix()
 
-    def rotate(self, angle, axis):
-        self.rotation = glm.rotate(self.rotation, angle, axis)
+    def set_rotate_pos(self, pos):
+        self.rotate_pos = pos
+        self._update_matrix()
+        
+    def rotate(self, x, y, z):
+        self.rot_x = x
+        self.rot_y = y
+        self.rot_z = z
         self._update_matrix()
 
     # updates scale of the scene

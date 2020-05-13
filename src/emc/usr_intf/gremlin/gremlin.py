@@ -116,8 +116,21 @@ class Gremlin(Gtk.GLArea):
         self.object_renderer.set_rapids(self.statwrapper.rapids_data)
         self.object_renderer.change_extents(self.statwrapper.min_extents,
                                             self.statwrapper.max_extents)
+        self.object_renderer.set_rotate_pos(self.statwrapper.max_extents - self.statwrapper.min_extents)
         
     def on_motion(self, widget, event):
+        def snap(a):
+            m = a%90
+            if m < 3:
+                return a-m
+            elif m > 87:
+                return a-m+90
+            else:
+                return a
+
+        maxlat = 360
+        minlat = 180
+        
         button1 = event.state & Gdk.ModifierType.BUTTON1_MASK
         button2 = event.state & Gdk.ModifierType.BUTTON2_MASK
         button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
@@ -128,10 +141,21 @@ class Gremlin(Gtk.GLArea):
         d_y = self.mouse_y - event.y
 
         if button1:
-            self.object_renderer.rotate(-d_x*0.05, glm.vec3(1,0,0))
-            self.object_renderer.rotate(d_y*0.05, glm.vec3(0,1,0))
+            rot_x = glm.degrees(self.camera.rot_x)
+            rot_x = min(maxlat, max(minlat, rot_x + d_y*0.5))
+            
+            rot_z = glm.degrees(self.camera.rot_z)
+            rot_z = (rot_z - d_x * .5) % 360
+            
+            print(self.camera.rot_x, self.camera.rot_z)
+            print(rot_x, rot_z)
+            
+            self.camera.rotate(glm.radians(snap(rot_x)), 0, glm.radians(snap(rot_z)))
 
         if button3:
+            self.camera.set_rotate_pos(self.camera.rotate_pos + (self.camera.position.x,
+                                                                 self.camera.position.y,
+                                                                 0))
             self.camera.translate(glm.vec3(-d_x, d_y, 0))
 
         self.mouse_x = event.x
@@ -392,7 +416,8 @@ class Gremlin(Gtk.GLArea):#,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             return
         self._current_file = None
 
-        self.font_base, width, linespace = glnav.use_pango_font('courier bold 16', 0, 128)
+        self.font_base, width, linespace = \
+                glnav.use_pango_font('courier bold 16', 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         rs274.glcanon.GlCanonDraw.realize(self)

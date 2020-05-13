@@ -132,6 +132,10 @@ class Camera():
     def __init__(self):
         # camera position
         self.position = glm.vec3(0,0,-10)
+        self.rot_x = 30
+        self.rot_y = 0
+        self.rot_z = 30
+        self.rotate_pos = glm.vec3(0)
         self.lookpos = glm.vec3(0)
 
         # View settings
@@ -161,13 +165,27 @@ class Camera():
         self.position += delta
         self.update_view()
 
+    def set_rotate_pos(self, pos):
+        self.rotate_pos = pos
+        self.update_view()
+        
+    def rotate(self, x, y, z):
+        self.rot_x = x
+        self.rot_y = y
+        self.rot_z = z
+        self.update_view()
+        
     def zoom(self, level):
         self.zoomlevel *= level
         self.update_view()
 
     def update_view(self):
-        self.view = glm.translate(glm.mat4(), self.position)
-        #self.view = glm.rotate(self.view, -90.0, glm.vec3(1.0,0.0,0.0))
+        self.view = glm.mat4()
+        self.view = glm.translate(self.view, self.rotate_pos)
+        self.view = glm.rotate(self.view, self.rot_x, glm.vec3(1,0,0))
+        self.view = glm.rotate(self.view, self.rot_y, glm.vec3(0,1,0))
+        self.view = glm.rotate(self.view, self.rot_z, glm.vec3(0,0,1))
+        self.view = glm.translate(self.view, self.position)
         self.view = glm.scale(self.view, glm.vec3(self.zoomlevel))
 
     """
