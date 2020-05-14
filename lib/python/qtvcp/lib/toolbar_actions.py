@@ -46,6 +46,7 @@ class ToolBarActions():
         self.selected_line = 0
         self._viewActiongroup = QtWidgets.QActionGroup(None)
         self._touchoffActiongroup = QtWidgets.QActionGroup(None)
+        self.runfromLineWidget = None
 
     def configure_action(self, widget, action, extFunction = None):
         action = action.lower()
@@ -62,6 +63,8 @@ class ToolBarActions():
             self.gcode_properties = d
         def update_selected(line):
             self.selected_line = line
+            if self.runfromLineWidget is not None:
+                self.runfromLineWidget.setText('Run From Line: {}'.format(line+1))
 
         if action == 'estop':
             STATUS.connect('state-estop', lambda w: widget.setChecked(True))
@@ -153,10 +156,11 @@ class ToolBarActions():
             self._touchoffActiongroup.addAction(widget)
             self._touchoffActiongroup.setExclusive(True)
         elif action == 'runfromline':
+            self.runfromLineWidget = widget
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
-            STATUS.connect('mode-mdi', lambda w: widget.setEnabled(False))
-            STATUS.connect('mode-manual', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('mode-auto', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: widget.setChecked(homed_on_test()))
             STATUS.connect('gcode-line-selected', lambda w, line: update_selected(line))
