@@ -1696,6 +1696,9 @@
                <height>500</height>
               </size>
              </property>
+             <property name="auto_show_mdi_status" stdset="0">
+              <bool>false</bool>
+             </property>
             </widget>
            </item>
           </layout>
