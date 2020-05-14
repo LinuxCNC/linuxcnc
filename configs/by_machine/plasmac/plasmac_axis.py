@@ -44,7 +44,9 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 
 ################################################################################
 # set the window size
-wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
+wsize = inifile.find('PLASMAC','WINDOW_SIZE')
+if not wsize:
+    wsize = inifile.find('PLASMAC','MAXIMISED')
 maxgeo = w('wm','maxsize','.')
 if type(maxgeo) == tuple:
     fullsize = str(maxgeo[0]),str(maxgeo[1])
@@ -52,7 +54,18 @@ else:
     fullsize = maxgeo.split(' ')[0],maxgeo.split(' ')[1]
 mwidth = int(fullsize[0])
 mheight = int(fullsize[1])
-if wsize == '0':
+if wsize and 'x' in wsize.lower():
+    width, height = wsize.lower().replace(' ','').split('x')
+    wxpos = (mwidth-int(width))/2
+    wypos = (mheight-int(height))/2
+elif wsize == '1':
+    pad_width = 0
+    pad_height = 0
+    width = mwidth-pad_width
+    height = mwidth-pad_height
+    wxpos = pad_width/2
+    wypos = pad_height/2
+else:
     fsizes = ['9','10','11','12','13','14','15']
     if orientation == 'portrait':
         if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
@@ -74,14 +87,6 @@ if wsize == '0':
     height = heights[fsizes.index(fsize)]
     wxpos = (mwidth-width)/2
     wypos = (mheight-height)/2
-else:
-    # change pad_width and pad_height for smaller than fullscreen
-    pad_width = 0
-    pad_height = 0
-    width = mwidth-pad_width
-    height = mwidth-pad_height
-    wxpos = pad_width/2
-    wypos = pad_height/2
 if width: # fixme - remove when portrait sizes fixed
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(str(width),str(height),str(wxpos),str(wypos)))
     print('\nAxis window is {0} x {1}\n'.format(width,height))
