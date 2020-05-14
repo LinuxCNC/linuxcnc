@@ -111,7 +111,7 @@ class plasmacTest:
 
     def __init__(self):
         self.lcnc = linuxCNC()
-        gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.iniFile.find('PLASMAC', 'THEME'))
+#        gtk.settings_get_default().set_property('gtk-theme-name', self.lcnc.iniFile.find('PLASMAC', 'THEME'))
         self.gui = "./test/plasmac_test.glade"
         self.B = gtk.Builder()
         self.B.add_from_file(self.gui)
