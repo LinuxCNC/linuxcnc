@@ -538,8 +538,9 @@ class FileDialog(QFileDialog, GeometryMixin):
                 self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
-        # overlay hides it's self after loading
-        #STATUS.emit('focus-overlay-changed', False, None, None)
+            # overlay hides it's self after loading
+        else:
+            STATUS.emit('focus-overlay-changed', False, None, None)
         return fname
 
     def save_dialog(self, extensions = None, preselect = None, directory = None):
