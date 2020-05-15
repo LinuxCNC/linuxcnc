@@ -217,6 +217,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                 ('Home Selected',['home_select', 0], []),
                 ('Unhome Selected',['unhome_select', 0], []),
                 ('Run',['run', 0], []),
+                ('Run from Line Status',['run_from_status', 0], []),
+                ('Run From Line Slot',['run_from_slot', 0], []),
                 ('Abort',['abort', 0], []),
                  ('Pause',['pause', 0], []),
                  ('Step',['step', 0], []),
