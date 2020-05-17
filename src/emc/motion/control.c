@@ -837,7 +837,8 @@ static void set_operating_mode(void)
         dbg_show("enbl");dbg_enable_ct=dbg_ct;
 #endif
         if (*(emcmot_hal_data->eoffset_limited)) {
-            reportError("Starting beyond Soft Limits");
+            reportError("Note: Motion enabled after reaching a coordinate "
+                        "soft limit with active external offsets");
             *(emcmot_hal_data->eoffset_limited) = 0;
         }
         initialize_external_offsets();
