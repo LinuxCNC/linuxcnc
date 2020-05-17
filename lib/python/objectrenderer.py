@@ -361,13 +361,14 @@ class ObjectRenderer(GLObject):
             self.max_extent = max_extent
             
     def _update_matrix(self):
-        newmat = glm.translate(glm.mat4(), self.pos)
-        #newmat *= glm.translate(newmat, self.rotate_pos)
-        newmat *= glm.rotate(newmat, self.rot_x, glm.vec3(1,0,0))
-        newmat *= glm.rotate(newmat, self.rot_y, glm.vec3(0,1,0))
-        newmat *= glm.rotate(newmat, self.rot_z, glm.vec3(0,0,1))
-        #newmat *= glm.translate(newmat, -self.rotate_pos)
-        self.model = glm.scale(newmat, self.scale)
+        self.model = glm.mat4()
+        self.model = glm.translate(self.model, self.pos)
+        self.model = glm.translate(self.model, self.rotate_pos)
+        self.model = glm.rotate(self.model, self.rot_x, glm.vec3(1,0,0))
+        self.model = glm.rotate(self.model, self.rot_y, glm.vec3(0,1,0))
+        self.model = glm.rotate(self.model, self.rot_z, glm.vec3(0,0,1))
+        self.model = glm.translate(self.model, -self.rotate_pos)
+        self.model = glm.scale(self.model, glm.vec3(self.scale))
 
     # sets position / center of the scene to this location
     def move(self, pos):
