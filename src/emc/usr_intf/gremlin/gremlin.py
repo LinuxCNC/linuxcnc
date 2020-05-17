@@ -116,7 +116,8 @@ class Gremlin(Gtk.GLArea):
         self.object_renderer.set_rapids(self.statwrapper.rapids_data)
         self.object_renderer.change_extents(self.statwrapper.min_extents,
                                             self.statwrapper.max_extents)
-        self.object_renderer.set_rotate_pos(self.statwrapper.max_extents - self.statwrapper.min_extents)
+        rotatepos = glm.vec3(self.statwrapper.max_extents) - glm.vec3(self.statwrapper.min_extents)
+        self.object_renderer.set_rotate_pos(rotatepos/2)
         
     def on_motion(self, widget, event):
         def snap(a):
@@ -141,21 +142,15 @@ class Gremlin(Gtk.GLArea):
         d_y = self.mouse_y - event.y
 
         if button1:
-            rot_x = glm.degrees(self.camera.rot_x)
-            rot_x = min(maxlat, max(minlat, rot_x + d_y*0.5))
+            rot_x = glm.degrees(self.object_renderer.rot_x)
+            rot_x = min(maxlat, max(minlat, rot_x - d_y*0.1))
             
-            rot_z = glm.degrees(self.camera.rot_z)
-            rot_z = (rot_z - d_x * .5) % 360
+            rot_z = glm.degrees(self.object_renderer.rot_z)
+            rot_z = (rot_z - d_x * .1) % 360
             
-            print(self.camera.rot_x, self.camera.rot_z)
-            print(rot_x, rot_z)
-            
-            self.camera.rotate(glm.radians(snap(rot_x)), 0, glm.radians(snap(rot_z)))
+            self.object_renderer.rotate(glm.radians(snap(rot_x)), 0, glm.radians(snap(rot_z)))
 
         if button3:
-            self.camera.set_rotate_pos(self.camera.rotate_pos + (self.camera.position.x,
-                                                                 self.camera.position.y,
-                                                                 0))
             self.camera.translate(glm.vec3(-d_x, d_y, 0))
 
         self.mouse_x = event.x
