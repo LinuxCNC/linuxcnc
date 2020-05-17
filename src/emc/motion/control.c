@@ -1529,14 +1529,29 @@ static void get_pos_cmds(long period)
     }
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
-	    /* just hit the limit */
+        /* Unexpectedly hit a joint soft limit.
+        ** Possibile causes:
+        **  1) a joint positional limit was reduced by an ini halpin
+        **     (like ini.N.max_limit) -- undetected by trajectory planning
+        **     including simple_tp
+        **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
+        **  3) kins module misbehavior
+        **  4) poorly tuned servo motion (not detected by ferror settings)
+        **
+        ** Non-identity kins can often be switched to joint mode to recover
+        ** using the '$' shortcut provided by the gui.
+        ** Guis may not provide a means to recover for identity kins except
+        ** by unhoming/jogging/rehoming.  (For trivkins, using kinstype=both
+        ** can be used as a workaround).
+        ** 
+        */
 	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	        if (joint_limit[joint_num][0] == 1) {
                     joint = &joints[joint_num];
                     reportError(_("Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"),
                                   joint->min_pos_limit, joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
@@ -1545,7 +1560,7 @@ static void get_pos_cmds(long period)
                     reportError(_("Exceeded POSITIVE soft limit (%.5f) on joint %d\n"),
                                   joint->max_pos_limit,joint_num);
                     if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
-                        reportError(_("Stop, fix joints and axis LIMITS, then Restart"));
+                        reportError(_("Joint must be unhomed, jogged into limits, rehomed"));
                     } else {
                         reportError(_("Hint: switch to joint mode to jog off soft limit"));
                     }
