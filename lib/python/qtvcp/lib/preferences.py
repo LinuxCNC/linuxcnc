@@ -32,8 +32,8 @@ class Access(cp):
         self.fn = os.path.expanduser(path)
         try:
             fp = open(self.fn)
-        except IOError:
-            print 'preference file does not exist -makeing file - ()'.format(self.fn)
+        except:
+            print 'preference file does not exist -makeing file - {}'.format(self.fn)
             # If not exists, create the file
             fp = open(self.fn, 'w+')
         self.read(self.fn)

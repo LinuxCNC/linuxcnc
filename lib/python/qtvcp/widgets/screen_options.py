@@ -27,7 +27,7 @@ from qtvcp.lib.notify import Notify
 from qtvcp.lib.audio_player import Player
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.machine_log import MachineLogger
-from qtvcp.core import Status, Info, Tool
+from qtvcp.core import Status, Info, Tool, Path
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -43,6 +43,7 @@ NOTICE = Notify()
 MSG = Message()
 INFO = Info()
 TOOL = Tool()
+PATH = Path()
 MLOG = MachineLogger()
 LOG = logger.getLogger(__name__)
 
@@ -52,7 +53,7 @@ except:
     LOG.warning('Sound Player did not load')
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
@@ -235,13 +236,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to ther widgets
-    def _pref_init(self, conf_path):
+    def _pref_init(self):
         if self.use_pref_file:
+            # we prefer INI settings
             if INFO.PREFERENCE_PATH:
                 self.pref_filename = INFO.PREFERENCE_PATH
                 LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
-            self.pref_filename = self.pref_filename.replace('CONFIGFOLDER',conf_path)
-            return Access(self.pref_filename), self.pref_filename
+            # substitute for keywords
+            self.pref_filename = self.pref_filename.replace('CONFIGFOLDER',PATH.CONFIGPATH)
+            self.pref_filename = self.pref_filename.replace('WORKINGFOLDER',PATH.WORKINGDIR)
+            # check that there is a directory present
+            dir = os.path.split(str(self.pref_filename))
+            dir = os.path.expanduser(dir[0])
+            if os.path.exists(dir):
+                return Access(self.pref_filename), self.pref_filename
+            else:
+                raise Exception('Cannot find directory: {} for preference file.'.format(dir))
         return None,None
 
     # allow screen option to inject data to the main VCP object (basically the window)
