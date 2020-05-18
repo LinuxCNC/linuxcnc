@@ -362,6 +362,45 @@ indicate that the pulse has occurred.
 Total number of encoder counts since the start,
 not adjusted for index or reset.
 
+.TP
+(bit out) input-a, input-b, input-index
+Real time filtered values of A,B,Index encoder signals 
+
+.TP
+(bit in) quad-error-enable
+When this pin is true quadrature error reporting is enabled.
+when false, existing quadrature errors are cleared and error reporting is disabled
+
+.TP
+(bit out) quad-error
+This bit indicates that a quadrature sequence error has been detected.
+It can only be set if the corresponding quad-error-enable bit is true
+
+.TP
+(u32 in) hm2_XXXX.N.encoder.sample-frequency
+This is the sample frequency that determines all standard encoder 
+channels digital filter time constant (see filter parameter)
+
+.TP
+(u32 in) hm2_XXXX.N.encoder.muxed-sample-frequency
+This is the sample frequency that determines all muxed encoder 
+channels digital filter time constant (see filter parameter)
+This also sets the encoder multiplexing frequency
+
+.TP
+(float in) hm2_XXXX.N.encoder.muxed-skew
+This sets the muxed encoder sample time delay (in ns) from the multiplex signal.
+Setting this properly can increase the usable multiplex frequency and compensate 
+for cable delays (suggested value is 3* cable length in feet +20)
+
+.TP
+(bit in) hm2_XXXX.N.encoder.hires-timestamp
+When this pin is true the encoder timestamp counter frequency is ~10 MHz
+when false the timestamp counter frequency is ~2 MHz. This should be set true
+for frequency counting applications to improve the resolution. It should be 
+set false when servo thread periods longer than 1 ms are used.
+
+.TP
 Parameters:
 
 .TP
