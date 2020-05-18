@@ -490,12 +490,20 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 except Exception as e:
                     print e
                     pass
-        elif self.spindle_fwd:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_FORWARD,
-                 INFO['DEFAULT_SPINDLE_{}_SPEED'.format(self.joint)],self.joint)
-        elif self.spindle_rev:
-            ACTION.SET_SPINDLE_ROTATION(linuxcnc.SPINDLE_REVERSE,
-                 INFO['DEFAULT_SPINDLE_{}_SPEED'.format(self.joint)],self.joint)
+        elif True in (self.spindle_fwd, self.spindle_rev):
+            if self.spindle_fwd:
+                spindir = linuxcnc.SPINDLE_FORWARD
+            else:
+                spindir = linuxcnc.SPINDLE_REVERSE
+            if self.joint == -1:
+                a = 0
+                b = INFO.AVAILABLE_SPINDLES
+            else:
+                a = self.joint
+                b = self.joint +1
+            for i in range(a,b):
+                ACTION.SET_SPINDLE_ROTATION(spindir,
+                    INFO['DEFAULT_SPINDLE_{}_SPEED'.format(i)],i)
         elif self.spindle_stop:
             ACTION.SET_SPINDLE_STOP(self.joint)
         elif self.spindle_up:
