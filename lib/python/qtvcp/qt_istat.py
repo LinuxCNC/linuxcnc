@@ -33,7 +33,8 @@ class _IStat(object):
             # Linuxcnc isn't running so we expect INI errors
             log.setLevel(logger.CRITICAL)
         self.LINUXCNC_VERSION = LINUXCNCVERSION
-        self.inifile = linuxcnc.ini(INIPATH)
+        self.INIPATH = INIPATH
+        self.INI = linuxcnc.ini(INIPATH)
         self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
         self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
@@ -69,11 +70,11 @@ class _IStat(object):
         self.update()
 
     def update(self):
-        self.MDI_HISTORY_PATH = self.inifile.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
-        self.QTVCP_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
-        self.MACHINE_LOG_HISTORY_PATH = self.inifile.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
-        self.PREFERENCE_PATH = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH") or None
-        self.SUB_PATH = (self.inifile.find("RS274NGC", "SUBROUTINE_PATH")) or None
+        self.MDI_HISTORY_PATH = self.INI.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
+        self.QTVCP_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
+        self.MACHINE_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
+        self.PREFERENCE_PATH = self.INI.find("DISPLAY","PREFERENCE_FILE_PATH") or None
+        self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         if self.SUB_PATH is not None:
             for mpath in (self.SUB_PATH.split(':')):
                 self.SUB_PATH_LIST.append(mpath)
@@ -83,18 +84,18 @@ class _IStat(object):
             self.MACRO_PATH = mpath or None
         else:
             self.MACRO_PATH = None
-        self.INI_MACROS = self.inifile.findall("DISPLAY", "MACRO")
-        self.MACHINE_IS_LATHE = bool(self.inifile.find("DISPLAY", "LATHE"))
-        extensions = self.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
+        self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
+        extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
-        self.PARAMETER_FILE = (self.inifile.find("RS274NGC", "PARAMETER_FILE")) or None
+        self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
         try:
             # check the ini file if UNITS are set to mm"
             # first check the global settings
-            units=self.inifile.find("TRAJ","LINEAR_UNITS")
+            units=self.INI.find("TRAJ","LINEAR_UNITS")
             if units==None:
                 # else then the X axis units
-                units=self.inifile.find("AXIS_0","UNITS")
+                units=self.INI.find("AXIS_0","UNITS")
         except:
             units = "inch"
         # set up the conversion arrays based on what units we discovered
@@ -109,7 +110,7 @@ class _IStat(object):
             self.MACHINE_UNIT_CONVERSION_9 = [25.4]*3+[1]*3+[25.4]*3
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION ))
 
-        axes = self.inifile.find("TRAJ", "COORDINATES")
+        axes = self.INI.find("TRAJ", "COORDINATES")
         if axes is not None: # i.e. LCNC is running, not just in Qt Desinger
             axes = axes.replace(" ", "")
             log.debug('TRAJ COORDINATES: {}'.format(axes))
@@ -143,11 +144,11 @@ class _IStat(object):
                 self.AVAILABLE_JOINTS.append(num)
 
                 # AXIS sanity check
-                av = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_VELOCITY') or None
-                aa = self.inifile.find('AXIS_%s'% letter.upper(), 'MAX_ACCELERATION') or None
+                av = self.INI.find('AXIS_%s'% letter.upper(), 'MAX_VELOCITY') or None
+                aa = self.INI.find('AXIS_%s'% letter.upper(), 'MAX_ACCELERATION') or None
                 if av is None or aa is None:
                     log.critical('MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
-        self.NO_HOME_REQUIRED = int(self.inifile.find("TRAJ", "NO_FORCE_HOMING") or 0)
+        self.NO_HOME_REQUIRED = int(self.INI.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
         # home all check
         self.HOME_ALL_FLAG = 1
@@ -155,7 +156,7 @@ class _IStat(object):
         jointcount = len(self.AVAILABLE_JOINTS)
         self.JOINT_SEQUENCE_LIST = {}
         for j in range(jointcount):
-            seq = self.inifile.find("JOINT_"+str(j), "HOME_SEQUENCE")
+            seq = self.INI.find("JOINT_"+str(j), "HOME_SEQUENCE")
             if seq is None:
                 seq = -1
                 self.HOME_ALL_FLAG = 0
@@ -165,8 +166,8 @@ class _IStat(object):
         self.JOINT_SEQUENCE = [None] * jointcount
         for j in range(jointcount):
             section = "JOINT_%d" % j
-            self.JOINT_TYPE[j] = self.inifile.find(section, "TYPE") or "LINEAR"
-            self.JOINT_SEQUENCE[j]  = int(self.inifile.find(section, "HOME_SEQUENCE") or 0)
+            self.JOINT_TYPE[j] = self.INI.find(section, "TYPE") or "LINEAR"
+            self.JOINT_SEQUENCE[j]  = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
         # jog syncronized sequence
         templist = []
@@ -184,7 +185,7 @@ class _IStat(object):
         self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist)) 
 
         # jogging increments
-        increments = self.inifile.find("DISPLAY", "INCREMENTS")
+        increments = self.INI.find("DISPLAY", "INCREMENTS")
         if increments:
             if "," in increments:
                 self.JOG_INCREMENTS = [i.strip() for i in increments.split(",")]
@@ -199,7 +200,7 @@ class _IStat(object):
                 self.JOG_INCREMENTS = ["Continuous",".0001 in",".001 in",".01 in",".1 in"]
 
         # angular jogging increments
-        increments = self.inifile.find("DISPLAY", "ANGULAR_INCREMENTS")
+        increments = self.INI.find("DISPLAY", "ANGULAR_INCREMENTS")
         if increments:
             if "," in increments:
                 self.ANGULAR_INCREMENTS = [i.strip() for i in increments.split(",")]
@@ -210,7 +211,7 @@ class _IStat(object):
         else:
             self.ANGULAR_INCREMENTS = ["Continuous","1","45","180","360"]
         # grid increments
-        grid_increments = self.inifile.find("DISPLAY", "GRIDS")
+        grid_increments = self.INI.find("DISPLAY", "GRIDS")
         if grid_increments:
             if "," in grid_increments:
                 self.GRID_INCREMENTS = [i.strip() for i in grid_increments.split(",")]
@@ -228,12 +229,12 @@ class _IStat(object):
             else:
                 self.GRID_INCREMENTS = ["0", ".5 in", "1 in","2 in","6 in"]
 
-        temp = self.inifile.find("TRAJ", "COORDINATES")
+        temp = self.INI.find("TRAJ", "COORDINATES")
         if temp:
             self.TRAJ_COORDINATES = temp.lower().replace(" ","")
         else:
             self.TRAJ_COORDINATES = None
-        self.JOINT_COUNT = int(self.inifile.find("KINS","JOINTS")or 0)
+        self.JOINT_COUNT = int(self.INI.find("KINS","JOINTS")or 0)
         self.DEFAULT_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","DEFAULT_LINEAR_VELOCITY", 1)) * 60
         self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_LINEAR_VELOCITY",1)) * 60
         self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_LINEAR_VELOCITY",5)) * 60
@@ -241,7 +242,7 @@ class _IStat(object):
         self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MIN_ANGULAR_VELOCITY",1)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
 
-        self.AVAILABLE_SPINDLES = int(self.inifile.find("TRAJ", "SPINDLES") or 1)
+        self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
         for i in range(0,self.AVAILABLE_SPINDLES):
             self['DEFAULT_SPINDLE_{}_SPEED'.format(i)] = int(
                         self.get_error_safe_setting("DISPLAY","DEFAULT_SPINDLE_{}_SPEED".format(i),200))
@@ -252,16 +253,16 @@ class _IStat(object):
             self['MIN_SPINDLE_{}_OVERRIDE'.format(i)] = float(
                         self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_{}_OVERRIDE".format(i),0.5)) * 100
         # check Legacy
-        self.DEFAULT_SPINDLE_SPEED = int(self.inifile.find("DISPLAY","DEFAULT_SPINDLE_SPEED")or -1)
+        self.DEFAULT_SPINDLE_SPEED = int(self.INI.find("DISPLAY","DEFAULT_SPINDLE_SPEED")or -1)
         if self.DEFAULT_SPINDLE_SPEED <0:
             self.DEFAULT_SPINDLE_SPEED = self.DEFAULT_SPINDLE_0_SPEED
-        self.MAX_SPINDLE_SPEED = int(self.inifile.find("DISPLAY","MAX_SPINDLE_SPEED")or -1)
+        self.MAX_SPINDLE_SPEED = int(self.INI.find("DISPLAY","MAX_SPINDLE_SPEED")or -1)
         if self.MAX_SPINDLE_SPEED <0:
             self.MAX_SPINDLE_SPEED = self.MAX_SPINDLE_0_SPEED
-        self.MAX_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MAX_SPINDLE_OVERRIDE")or -1) * 100
+        self.MAX_SPINDLE_OVERRIDE = float(self.INI.find("DISPLAY","MAX_SPINDLE_OVERRIDE")or -1) * 100
         if self.MAX_SPINDLE_OVERRIDE <0:
             self.MAX_SPINDLE_OVERRIDE = self.MAX_SPINDLE_0_OVERRIDE
-        self.MIN_SPINDLE_OVERRIDE = float(self.inifile.find("DISPLAY","MIN_SPINDLE_OVERRIDE")or -1) * 100
+        self.MIN_SPINDLE_OVERRIDE = float(self.INI.find("DISPLAY","MIN_SPINDLE_OVERRIDE")or -1) * 100
         if self.MIN_SPINDLE_OVERRIDE <0:
             self.MIN_SPINDLE_OVERRIDE = self.MIN_SPINDLE_0_OVERRIDE
 
@@ -270,12 +271,12 @@ class _IStat(object):
                                     self.get_error_safe_setting("AXIS_X","MAX_VELOCITY", 5) )) * 60
 
         # user message dialog system
-        self.USRMESS_BOLDTEXT = self.inifile.findall("DISPLAY", "MESSAGE_BOLDTEXT")
-        self.USRMESS_TEXT = self.inifile.findall("DISPLAY", "MESSAGE_TEXT")
-        self.USRMESS_TYPE = self.inifile.findall("DISPLAY", "MESSAGE_TYPE")
-        self.USRMESS_PINNAME = self.inifile.findall("DISPLAY", "MESSAGE_PINNAME")
-        self.USRMESS_DETAILS = self.inifile.findall("DISPLAY", "MESSAGE_DETAILS")
-        self.USRMESS_ICON = self.inifile.findall("DISPLAY", "MESSAGE_ICON")
+        self.USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
+        self.USRMESS_TEXT = self.INI.findall("DISPLAY", "MESSAGE_TEXT")
+        self.USRMESS_TYPE = self.INI.findall("DISPLAY", "MESSAGE_TYPE")
+        self.USRMESS_PINNAME = self.INI.findall("DISPLAY", "MESSAGE_PINNAME")
+        self.USRMESS_DETAILS = self.INI.findall("DISPLAY", "MESSAGE_DETAILS")
+        self.USRMESS_ICON = self.INI.findall("DISPLAY", "MESSAGE_ICON")
         if len(self.USRMESS_TEXT) != len(self.USRMESS_TYPE):
             log.warning('Invalid message configuration (missing text or type) in INI File [DISPLAY] section ')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_PINNAME):
@@ -291,12 +292,12 @@ class _IStat(object):
 
         # XEmbed tabs
         # AXIS panel style:
-        self.GLADEVCP = (self.inifile.find("DISPLAY", "GLADEVCP")) or None
+        self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
         
         # tab style for qtvcp tab style is used everty where
-        self.TAB_NAMES = (self.inifile.findall("DISPLAY", "EMBED_TAB_NAME")) or None
-        self.TAB_LOCATIONS = (self.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
-        self.TAB_CMDS   = (self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+        self.TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
+        self.TAB_LOCATIONS = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
+        self.TAB_CMDS   = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
         if self.TAB_NAMES is not None and len(self.TAB_NAMES) != len(self.TAB_CMDS):
             log.critical('Embeded tab configuration -invalaid number of TAB_NAMES vrs TAB_CMDs')
         if self.TAB_NAMES is not None and len(self.TAB_LOCATIONS) != len(self.TAB_NAMES):
@@ -312,16 +313,16 @@ class _IStat(object):
         except:
             self.ZIPPED_TABS = None
 
-        self.MDI_COMMAND_LIST = (self.inifile.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        self.MDI_COMMAND_LIST = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
-        self.POSTGUI_HALFILE_PATH = (self.inifile.find("HAL", "POSTGUI_HALFILE")) or None
+        self.POSTGUI_HALFILE_PATH = (self.INI.find("HAL", "POSTGUI_HALFILE")) or None
 
     ###################
     # helper functions
     ###################
 
     def get_error_safe_setting(self, heading, detail, default=None):
-        result = self.inifile.find(heading, detail)
+        result = self.INI.find(heading, detail)
         if result:
             return result
         else:
@@ -378,7 +379,7 @@ class _IStat(object):
     def get_filter_program(self, fname):
         ext = os.path.splitext(fname)[1]
         if ext:
-            return self.inifile.find("FILTER", ext[1:])
+            return self.INI.find("FILTER", ext[1:])
         else:
             return None
 
