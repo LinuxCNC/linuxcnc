@@ -395,11 +395,15 @@ class ObjectRenderer(GLObject):
         self._update_matrix()
 
     def set_feed(self, data):
+        if not len(data):
+            return
         self.feed_data = data
         if self.initialized:
             self.feed_vbo.arrayfill(data)
         
     def set_rapids(self, data):
+        if not len(data):
+            return
         self.rapids_data = data
         if self.initialized:
             self.rapids_vbo.arrayfill(data)
