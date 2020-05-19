@@ -19,7 +19,7 @@ class INI:
         print(_("# Using LinuxCNC version:  %s") % self.d.linuxcnc_version, file=file)
         print(_("# If you make changes to this file, they will be"), file=file)
         print(_("# overwritten when you run PNCconf again"), file=file)
-        
+
         print(file=file)
         print("[EMC]", file=file)
         print("MACHINE = %s" % self.d.machinename, file=file)
