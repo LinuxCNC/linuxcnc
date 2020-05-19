@@ -261,6 +261,8 @@ You can select one of these actions: +
 'mdi' +
 'manual' +
 'run' +
+'run_from_line status' (gets line number from STATUS message gcode-line-selected) +
+'run_from_line slot' (gets line number from designer int/str slot setRunFromLine) +
 'abort' +
 'pause' +
 'load dialog' (requires a dialog widget present) +
