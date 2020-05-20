@@ -41,3 +41,4 @@ position.txt
 # Ignore test results
 *.result
 *~
+linuxcnc-checklink
