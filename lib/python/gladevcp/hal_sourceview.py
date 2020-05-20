@@ -205,7 +205,8 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
-        self.buf.remove_tag(self.found_text_tag, start, end)
+        #TODO: not implemented in Gremlin yet
+        #self.buf.remove_tag(self.found_text_tag, start, end)
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
