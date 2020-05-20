@@ -197,14 +197,15 @@ class ObjectRenderer(GLObject):
             self.max_extent = max_extent
             
     def _update_matrix(self):
-        newmat = glm.mat4()
-        newmat = glm.translate(newmat, self.rotate_pos)
-        newmat = glm.rotate(newmat, self.rot_x, glm.vec3(1,0,0))
-        newmat = glm.rotate(newmat, self.rot_y, glm.vec3(0,1,0))
-        newmat = glm.rotate(newmat, self.rot_z, glm.vec3(0,0,1))
-        newmat = glm.translate(newmat, self.position)
-        self.model = glm.scale(newmat, glm.vec3(self.scale))
-        
+        self.model = glm.mat4()
+        self.model = glm.translate(self.model, self.pos)
+        self.model = glm.translate(self.model, self.rotate_pos)
+        self.model = glm.rotate(self.model, self.rot_x, glm.vec3(1,0,0))
+        self.model = glm.rotate(self.model, self.rot_y, glm.vec3(0,1,0))
+        self.model = glm.rotate(self.model, self.rot_z, glm.vec3(0,0,1))
+        self.model = glm.translate(self.model, -self.rotate_pos)
+        self.model = glm.scale(self.model, glm.vec3(self.scale))
+
     # sets position / center of the scene to this location
     def move(self, pos):
         self.position = pos
@@ -230,11 +231,15 @@ class ObjectRenderer(GLObject):
         self._update_matrix()
 
     def set_feed(self, data):
+        if not len(data):
+            return
         self.feed_data = data
         if self.initialized:
             self.feed_vbo.arrayfill(data)
         
     def set_rapids(self, data):
+        if not len(data):
+            return
         self.rapids_data = data
         if self.initialized:
             self.rapids_vbo.arrayfill(data)

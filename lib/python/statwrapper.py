@@ -189,10 +189,11 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
 
             print(f"parsing {filename}")
             result, seq = gcode.parse(filename, self, unitcode, initcode)
-            
+
+            self.feed_data = array.array('f')
+            self.rapids_data = array.array('f')            
             if result <= gcode.MIN_ERROR:
                 self.calc_extents()
-                self.feed_data = array.array('f')
                 # update feed_data
                 for line in self.feed + self.arcfeed:
                     self.feed_data.extend(line[1][:3])
@@ -200,12 +201,13 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
                     self.feed_data.extend(line[2][:3])
                     self.feed_data.extend([1.0,1.0,1.0])
 
-                self.rapids_data = array.array('f')
                 for line in self.traverse:
                     self.rapids_data.extend(line[1][:3])
                     self.rapids_data.extend([1.0,1.0,1.0])
                     self.rapids_data.extend(line[2][:3])
                     self.rapids_data.extend([1.0,1.0,1.0])
+            else:
+                print(f"error parsing {filename} : {result}")
             
             #result, seq = self.load_preview(filename, unitcode, initcode)
             #if result > gcode.MIN_ERROR:
