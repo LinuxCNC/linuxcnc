@@ -1371,7 +1371,15 @@ widgets = nf.Widgets(root_window,*widget_list)
 # context in Tcl's typeless value system.
 # https://github.com/LinuxCNC/linuxcnc/issues/146
 # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=834783
+widgets.axis_x.configure(value="x")
 widgets.axis_y.configure(value="y")
+widgets.axis_z.configure(value="z")
+widgets.axis_a.configure(value="a")
+widgets.axis_b.configure(value="b")
+widgets.axis_c.configure(value="c")
+widgets.axis_u.configure(value="u")
+widgets.axis_v.configure(value="v")
+widgets.axis_w.configure(value="w")
 
 def activate_ja_widget(i, force=0):
     if not force and not manual_ok(): return
