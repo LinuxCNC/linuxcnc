@@ -198,7 +198,7 @@ class ObjectRenderer(GLObject):
             
     def _update_matrix(self):
         self.model = glm.mat4()
-        self.model = glm.translate(self.model, self.pos)
+        self.model = glm.translate(self.model, self.position)
         self.model = glm.translate(self.model, self.rotate_pos)
         self.model = glm.rotate(self.model, self.rot_x, glm.vec3(1,0,0))
         self.model = glm.rotate(self.model, self.rot_y, glm.vec3(0,1,0))
