@@ -29,6 +29,8 @@
 '''
 
 import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GObject as gobject
@@ -388,7 +390,8 @@ class IconFileSelection(gtk.HBox):
         if state:
             self.file_label.show()
         else:
-            self.file_label.hide()
+            pass
+            #self.file_label.hide()
 
     def on_btn_home_clicked(self, widget):
         self.cur_dir = self.user_dir
