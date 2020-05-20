@@ -6,6 +6,7 @@ from OpenGL.GL import shaders
 import array
 
 from glutils import GLObject, VBO, VAO
+from vertexfunctions import create_axis, create_box, create_extents
 
 import glm
 
@@ -14,7 +15,7 @@ import glm
 class ObjectRenderer(GLObject):
     def __init__(self):
         # initial position / rotation / scale
-        self.pos = glm.vec3(0)
+        self.position = glm.vec3(0)
         self.rot_x = 0
         self.rot_y = 0
         self.rot_z = 0
@@ -146,30 +147,13 @@ class ObjectRenderer(GLObject):
 
         self.vbo.init()
 
-        self.axes = array.array('f', [
-            # x axis
-            1.0,0.0,0.0,
-            0.2,1.0,0.2,
-            0.0,0.0,0.0,
-            0.2,1.0,0.2,
-            # y axis
-            0.0,1.0,0.0,
-            1.0,0.2,0.2,
-            0.0,0.0,0.0,
-            1.0,0.2,0.2,
-            # z axis
-            0.0,0.0,1.0,
-            0.2,0.2,1.0,
-            0.0,0.0,0.0,
-            0.2,0.2,1.0,
-        ])
-
         self.min_limit = glm.vec3(-1000)
         self.max_limit = glm.vec3(1000)
 
-        self.box = self._get_bound_box(glm.vec3(-1000),glm.vec3(1000))
-        self.extent_data = self._get_extents([glm.vec3(0), glm.vec3(2)])
-        
+        self.axes = create_axis()
+        self.box = create_box(glm.vec3(-1000),glm.vec3(1000))
+        self.extent_data = create_extents([glm.vec3(0), glm.vec3(2)])
+
         data = array.array('f')
         data.extend(self.axes)
         data.extend(self.box)
@@ -193,159 +177,11 @@ class ObjectRenderer(GLObject):
             self.set_feed(self.feed_data)
             
         if len(self.rapids_data):
-            self.set_rapids(self.rapids_data)
-        
-
-    def _get_bound_box(self, machine_limit_min, machine_limit_max):
-        return array.array('f', [
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_min[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_max[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-
-            machine_limit_min[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,
-            machine_limit_max[0], machine_limit_min[1], machine_limit_max[2],
-            1.0,0.0,0.0,]
-        )
-
-    def _get_extents(self, extents):
-        x,y,z,p = 0,1,2,3
-
-        min_extents = extents[0]
-        max_extents = extents[1]
-        
-        pullback = max(max_extents[x] - min_extents[x],
-                       max_extents[y] - min_extents[y],
-                       max_extents[z] - min_extents[z],
-                       2 ) * .1
-            
-        dashwidth = pullback/4
-        zdashwidth = dashwidth
-        charsize = dashwidth * 1.5
-        halfchar = charsize * .5
-        
-        """
-            if view == z or view == p:
-                z_pos = min_extents[z]
-                zdashwidth = 0
-            else:
-                z_pos = min_extents[z] - pullback
-                zdashwidth = dashwidth
-            """
-        x_pos = min_extents[x] - pullback
-        y_pos = min_extents[y] - pullback
-        z_pos = min_extents[z] - pullback
-        
-        return array.array('f', [
-            #if view != x and max_extents[x] > min_extents[x]:
-            
-            min_extents[x], y_pos, z_pos,
-            1.0, 0.51, 0.53,
-            max_extents[x], y_pos, z_pos,
-            1.0, 0.51, 0.53,
-            
-            min_extents[x], y_pos - dashwidth, z_pos - zdashwidth,
-            1.0, 0.51, 0.53,
-            min_extents[x], y_pos + dashwidth, z_pos + zdashwidth,
-            1.0, 0.51, 0.53,
-        
-            max_extents[x], y_pos - dashwidth, z_pos - zdashwidth,
-            1.0, 0.51, 0.53,
-            max_extents[x], y_pos + dashwidth, z_pos + zdashwidth,
-            1.0, 0.51, 0.53,
-
-            # y dimension
-            #if view != y and max_extents[y] > min_extents[y]:
-            
-            x_pos, min_extents[y], z_pos,
-            1.0, 0.51, 0.53,
-            x_pos, max_extents[y], z_pos,
-            1.0, 0.51, 0.53,
-            
-            x_pos - dashwidth, min_extents[y], z_pos - zdashwidth,
-            1.0, 0.51, 0.53,
-            x_pos + dashwidth, min_extents[y], z_pos + zdashwidth,
-            1.0, 0.51, 0.53,
-
-            x_pos - dashwidth, max_extents[y], z_pos - zdashwidth,
-            1.0, 0.51, 0.53,
-            x_pos + dashwidth, max_extents[y], z_pos + zdashwidth,
-            1.0, 0.51, 0.53,
-
-            # z dimension
-            #if view != z and max_extents[z] > min_extents[z]:
-            x_pos, y_pos, min_extents[z],
-            1.0, 0.51, 0.53,
-            x_pos, y_pos, max_extents[z],
-            1.0, 0.51, 0.53,
-            
-            x_pos - dashwidth, y_pos - zdashwidth, min_extents[z],
-            1.0, 0.51, 0.53,
-            x_pos + dashwidth, y_pos + zdashwidth, min_extents[z],
-            1.0, 0.51, 0.53,
-            
-            x_pos - dashwidth, y_pos - zdashwidth, max_extents[z],
-            1.0, 0.51, 0.53,
-            x_pos + dashwidth, y_pos + zdashwidth, max_extents[z],
-            1.0, 0.51, 0.53,
-        ])  
+            self.set_rapids(self.rapids_data)        
 
     def change_box(self, machine_limit_min, machine_limit_max):
         if self.min_limit != machine_limit_min or self.max_limit != machine_limit_max:
-            self.box = self._get_bound_box(machine_limit_min, machine_limit_max)
+            self.box = create_box(machine_limit_min, machine_limit_max)
             self.vbo.arrayupdate(self.axes_size*6*4,
                                  self.box)
             self.min_limit = machine_limit_min
@@ -353,7 +189,7 @@ class ObjectRenderer(GLObject):
 
     def change_extents(self, min_extent, max_extent):
         if self.min_extent != min_extent or self.max_extent != max_extent:
-            self.extent_data = self._get_extents((min_extent, max_extent))
+            self.extent_data = create_extents((min_extent, max_extent))
             self.vbo.arrayupdate((self.axes_size+self.box_size)*6*4,
                             self.extent_data)
             
@@ -361,21 +197,21 @@ class ObjectRenderer(GLObject):
             self.max_extent = max_extent
             
     def _update_matrix(self):
-        newmat = glm.translate(glm.mat4(), self.pos)
-        #newmat *= glm.translate(newmat, self.rotate_pos)
-        newmat *= glm.rotate(newmat, self.rot_x, glm.vec3(1,0,0))
-        newmat *= glm.rotate(newmat, self.rot_y, glm.vec3(0,1,0))
-        newmat *= glm.rotate(newmat, self.rot_z, glm.vec3(0,0,1))
-        #newmat *= glm.translate(newmat, -self.rotate_pos)
-        self.model = glm.scale(newmat, self.scale)
-
+        newmat = glm.mat4()
+        newmat = glm.translate(newmat, self.rotate_pos)
+        newmat = glm.rotate(newmat, self.rot_x, glm.vec3(1,0,0))
+        newmat = glm.rotate(newmat, self.rot_y, glm.vec3(0,1,0))
+        newmat = glm.rotate(newmat, self.rot_z, glm.vec3(0,0,1))
+        newmat = glm.translate(newmat, self.position)
+        self.model = glm.scale(newmat, glm.vec3(self.scale))
+        
     # sets position / center of the scene to this location
     def move(self, pos):
-        self.pos = pos
+        self.position = pos
         self._update_matrix()
 
     def translate(self, delta):
-        self.pos += delta
+        self.position += delta
         self._update_matrix()
 
     def set_rotate_pos(self, pos):
