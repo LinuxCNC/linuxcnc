@@ -150,6 +150,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             raise AttributeError('unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
+        # TODO: fix do_set_property
+        return
         name = property.name.replace('-', '_')
 
         if name == 'view':
