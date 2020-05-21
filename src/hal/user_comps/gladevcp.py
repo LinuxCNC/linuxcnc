@@ -42,6 +42,7 @@ import hal
 from optparse import Option, OptionParser
 import gi
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
 from gi.repository import GObject as gobject
 
 
@@ -323,8 +324,7 @@ def main():
 
     # push the XWindow id number to standard out
     if opts.push_XID or opts.parent:
-        gdkwin = window.get_window()
-        w_id = gdkwin.xid
+        w_id = window.get_property('window').get_xid()
         print(w_id, file=sys.stdout)
         sys.stdout.flush()
 

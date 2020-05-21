@@ -91,15 +91,11 @@ g_alive = not g_is_glade
 
 import gettext
 LOCALEDIR = linuxcnc.SHARE + "/locale"
-gettext.install("linuxcnc", localedir=LOCALEDIR)
+if sys.version_info[0] == 3:
+    gettext.install("linuxcnc", localedir=LOCALEDIR)
+else:
+    gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
-#TODO:
-#try:
-#    import pygtk
-#    pygtk.require('2.0')
-#except ImportError as msg:
-#    print(('import pygtk failed: %s',msg))
-#    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
