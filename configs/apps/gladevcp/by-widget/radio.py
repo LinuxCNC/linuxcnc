@@ -5,7 +5,6 @@
     Michael Haberler 12/2010
 '''
 
-import pygtk
 import gi
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
