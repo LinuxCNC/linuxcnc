@@ -2388,10 +2388,12 @@ class gmoccapy(object):
         self._set_motion_mode(0)
         
     def on_hal_status_file_loaded(self, widget, filename):
+        return
         widgetlist = ["btn_use_current" ]
         # this test is only necessary, because of remap and toolchange, it will emit a file loaded signal
         if filename:
-            fileobject = file(filename, 'r')
+            #todo
+            #fileobject = file(filename, 'r')
             lines = fileobject.readlines()
             fileobject.close()
             self.halcomp["program.length"] = len(lines)
