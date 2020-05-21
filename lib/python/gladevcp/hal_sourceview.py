@@ -137,7 +137,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.update_iter()
         self.highlight_line(self.gstat, self.gstat.stat.motion_line)
         self.offset = self.gstat.stat.motion_line
-        f = file(fn, 'r')
+        f = open(fn, 'r')
         p = f.readlines()
         f.close()
         self.program_length = len(p)
