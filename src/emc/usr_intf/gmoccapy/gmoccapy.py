@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding:UTF-8 -*-
+# -*- coding:utf-8 -*-
 """
     A GUI for LinuxCNC based on gladevcp and Python
     Based on the design of moccagui from Tom
