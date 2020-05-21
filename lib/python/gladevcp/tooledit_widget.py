@@ -15,12 +15,13 @@
 # GNU General Public License for more details.
 
 from __future__ import print_function
-import sys, os, linuxcnc, hashlib, glib
+import sys, os, linuxcnc, hashlib
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 try:
     import gi
     from gi.repository import Gtk as gtk
+    from gi.repository import Gdk as gdk
     from gi.repository import GObject as gobject
     from gi.repository import Pango as pango
 except:
@@ -544,7 +545,7 @@ class ToolEdit(gtk.VBox):
         columns = [c for c in treeview.get_columns()]
         colnum = columns.index(col)
 
-        focuschild = treeview.focus_child
+        focuschild = treeview.get_focus_child()
 
         if filter == 'wear':
             store_path = self.wear_filter.convert_path_to_child_path(path)
@@ -581,8 +582,8 @@ class ToolEdit(gtk.VBox):
             if keyname == 'Right':
                 renderer = columns[colnum].get_cell_renderers()
                 if type(focuschild) is gtk.Entry:
-                    self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
-            glib.timeout_add(50,
+                    self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
+            gobject.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -613,8 +614,8 @@ class ToolEdit(gtk.VBox):
 
             renderer = columns[colnum].get_cell_renderers()
             if type(focuschild) is gtk.Entry:
-                self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
-            glib.timeout_add(50,
+                self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
+            gobject.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -625,13 +626,13 @@ class ToolEdit(gtk.VBox):
             if path[0] + 1 == len(model):
                 path = (0, )
                 # treeview.set_cursor(path, columns[colnum], True)
-                glib.timeout_add(50,
+                gobject.timeout_add(50,
                                  treeview.set_cursor,
                                  path, columns[colnum], True)
             else:
                 newpath = path[0] + 1
                 # treeview.set_cursor(path, columns[colnum], True)
-                glib.timeout_add(50,
+                gobject.timeout_add(50,
                                  treeview.set_cursor,
                                  newpath, columns[colnum], True)
 
@@ -641,7 +642,7 @@ class ToolEdit(gtk.VBox):
                 newpath = len(model)-1
             else:
                 newpath = path[0] - 1
-            glib.timeout_add(50,
+            gobject.timeout_add(50,
                              treeview.set_cursor,
                              newpath, columns[colnum], True)
 
