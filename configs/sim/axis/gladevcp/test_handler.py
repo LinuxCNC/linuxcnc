@@ -10,7 +10,7 @@ class HandlerClass:
     '''
 
     def on_button_press(self, widget, data=None):
-        print widget, data
+        print(widget, data)
         
     def __init__(self, halcomp,builder,useropts):
         '''
