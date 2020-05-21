@@ -243,9 +243,12 @@ class _IStat(object):
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY","MAX_ANGULAR_VELOCITY",60)) * 60
 
         self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
+        self.SPINDLE_INCREMENT = int(self.INI.find("DISPLAY","SPINDLE_INCREMENT")or 100)
         for i in range(0,self.AVAILABLE_SPINDLES):
             self['DEFAULT_SPINDLE_{}_SPEED'.format(i)] = int(
                         self.get_error_safe_setting("DISPLAY","DEFAULT_SPINDLE_{}_SPEED".format(i),200))
+            self['MIN_SPINDLE_{}_SPEED'.format(i)] = int(
+                        self.get_error_safe_setting("DISPLAY","MIN_SPINDLE_{}_SPEED".format(i),100))
             self['MAX_SPINDLE_{}_SPEED'.format(i)] = int(
                         self.get_error_safe_setting("DISPLAY","MAX_SPINDLE_{}_SPEED".format(i),2500))
             self['MAX_SPINDLE_{}_OVERRIDE'.format(i)] = float(
@@ -256,6 +259,9 @@ class _IStat(object):
         self.DEFAULT_SPINDLE_SPEED = int(self.INI.find("DISPLAY","DEFAULT_SPINDLE_SPEED")or -1)
         if self.DEFAULT_SPINDLE_SPEED <0:
             self.DEFAULT_SPINDLE_SPEED = self.DEFAULT_SPINDLE_0_SPEED
+        self.MIN_SPINDLE_SPEED = int(self.INI.find("DISPLAY","MIN_SPINDLE_SPEED")or -1)
+        if self.MIN_SPINDLE_SPEED <0:
+            self.MIN_SPINDLE_SPEED = self.MIN_SPINDLE_0_SPEED
         self.MAX_SPINDLE_SPEED = int(self.INI.find("DISPLAY","MAX_SPINDLE_SPEED")or -1)
         if self.MAX_SPINDLE_SPEED <0:
             self.MAX_SPINDLE_SPEED = self.MAX_SPINDLE_0_SPEED
