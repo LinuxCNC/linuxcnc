@@ -85,6 +85,8 @@ class Gremlin(Gtk.GLArea):
         self.mouse_x = 0
         self.mouse_y = 0
 
+        self.object_renderer = ObjectRenderer()
+
         # camera is for managing the projection and view matrices
         self.camera = Camera()
         self.camera.setpos(glm.vec3(0,0,-5))
@@ -106,9 +108,6 @@ class Gremlin(Gtk.GLArea):
         self.add_events(Gdk.EventMask.BUTTON_RELEASE_MASK)
 
         self.statwrapper = StatWrapper(linuxcnc.stat(), inifile)
-        self.statwrapper.poll()
-
-        self.object_renderer = ObjectRenderer()
 
     def load(self, f):
         self.statwrapper.load(f)
@@ -147,7 +146,7 @@ class Gremlin(Gtk.GLArea):
             
             rot_z = glm.degrees(self.object_renderer.rot_z)
             rot_z = (rot_z - d_x * .1) % 360
-            
+
             self.object_renderer.rotate(glm.radians(snap(rot_x)), 0, glm.radians(snap(rot_z)))
 
         if button3:
@@ -209,7 +208,7 @@ class DummyProgress:
     def progress(self): pass
 
 class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
-    def __init__(self, colors, geometry, lathe_view_option, stat, random):
+    def __init__(self, colors, geometry, lathe_view_option, stat, ran<dom):
         rs274.glcanon.GLCanon.__init__(self, colors, geometry)
         rs274.interpret.StatMixin.__init__(self, stat, random)
         self.progress = DummyProgress()
