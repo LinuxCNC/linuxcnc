@@ -16,9 +16,9 @@ class ObjectRenderer(GLObject):
     def __init__(self):
         # initial position / rotation / scale
         self.position = glm.vec3(0)
-        self.rot_x = 0
+        self.rot_x = 180
         self.rot_y = 0
-        self.rot_z = 0
+        self.rot_z = 180
         self.rotate_pos = glm.vec3(0)
         self.scale = glm.vec3(1)
         # generate model matrix
