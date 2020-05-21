@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 import mdi_text as mdiText
+from qtvcp.qt_makegui import VCPWindow
+
+WIDGETS = VCPWindow()
 
 class GCodes:
-    def __init__(self, widgets):
-        self.w = widgets
+    def __init__(self, widgets=None):
+        self.w = WIDGETS
 
     def setup_list(self):
         self.w.gcode_list.currentRowChanged.connect(self.list_row_changed)

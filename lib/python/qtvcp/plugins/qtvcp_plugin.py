@@ -41,4 +41,5 @@ from qtvcp.plugins.camview_plugin import CamViewPlugin
 from qtvcp.plugins.toolbutton_plugin import SystemToolButtonPlugin
 from qtvcp.plugins.versa_probe_plugin import VersaProbePlugin
 from qtvcp.plugins.basic_probe_plugin import BasicProbePlugin
-from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin 
+from qtvcp.plugins.tab_widget_plugin import TabWidgetPlugin
+from qtvcp.plugins.virtualkeyboard_plugin import VirtualKeyboardPlugin

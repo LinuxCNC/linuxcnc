@@ -294,6 +294,8 @@ typedef struct {
             hal_bit_t counter_mode;
             hal_bit_t filter;
             hal_float_t vel_timeout;
+
+
         } param;
 
     } hal;
@@ -322,12 +324,14 @@ typedef struct {
 } hm2_encoder_instance_t;
 
 
-// these hal params affect all encoder instances
+// these hal pins affect all encoder instances
 typedef struct {
     struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
+	hal_bit_t *hires_timestamp;
+
     } pin;
 } hm2_encoder_module_global_t;
 
@@ -345,6 +349,7 @@ typedef struct {
     rtapi_u32 written_sample_frequency;
     int has_skew;
     rtapi_u32 written_skew;
+    rtapi_u32 written_hires_timestamp;
     uint32_t desired_dpll_timer_reg, written_dpll_timer_reg;
 
     // hw registers

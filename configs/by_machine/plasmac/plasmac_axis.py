@@ -44,7 +44,9 @@ w('DynamicHelp::configure','-borderwidth','5','-topbackground','yellow','-bg','y
 
 ################################################################################
 # set the window size
-wsize = inifile.find('PLASMAC','MAXIMISED') or '0'
+wsize = inifile.find('PLASMAC','WINDOW_SIZE')
+if not wsize:
+    wsize = inifile.find('PLASMAC','MAXIMISED')
 maxgeo = w('wm','maxsize','.')
 if type(maxgeo) == tuple:
     fullsize = str(maxgeo[0]),str(maxgeo[1])
@@ -52,36 +54,39 @@ else:
     fullsize = maxgeo.split(' ')[0],maxgeo.split(' ')[1]
 mwidth = int(fullsize[0])
 mheight = int(fullsize[1])
-if wsize == '0':
-    fsizes = ['9','10','11','12','13','14','15']
-    if orientation == 'portrait':
-        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-            widths = [ 900, 900, 900, 900, 910, 978,1043]
-        else:
-            widths = [1147,1165,1192,1198,1226,1321,1398]
-        if (s.axis_mask & 56 == 0) and not ("ANGULAR" in joint_type):
-            heights = [1022,1054,1148,1178,1210,1288,1372]
-        else:
-            heights = [1022,1054, 1180, 1226,1272,1362,1454]
-    else:
-        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
-            widths = [ 900,930,1016,1042,1090,1168,1258]
-            heights = [668,696, 776, 802, 830, 886, 944]
-        else:
-            widths = [1146,1196,1308,1336,1408,1512,1612]
-            heights = [708, 730, 800, 824, 848, 896, 956]
-    width = widths[fsizes.index(fsize)]
-    height = heights[fsizes.index(fsize)]
-    wxpos = (mwidth-width)/2
-    wypos = (mheight-height)/2
-else:
-    # change pad_width and pad_height for smaller than fullscreen
+if wsize and 'x' in wsize.lower():
+    width, height = wsize.lower().replace(' ','').split('x')
+    wxpos = (mwidth-int(width))/2
+    wypos = (mheight-int(height))/2
+elif wsize == '1':
     pad_width = 0
     pad_height = 0
     width = mwidth-pad_width
     height = mwidth-pad_height
     wxpos = pad_width/2
     wypos = pad_height/2
+else:
+    fsizes = ['9','10','11','12','13','14','15']
+    if orientation == 'portrait':
+        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
+            widths = [  864, 864, 868, 868, 910, 978,1043]
+        else:
+            widths = [ 1106,1112,1132,1160,1208,1294,1386]
+        if (s.axis_mask & 56 == 0) and not ("ANGULAR" in joint_type):
+            heights = [1060,1094,1156,1220,1250,1314,1400]
+        else:
+            heights = [1060,1058,1186,1266,1314,1392,1484]
+    else:
+        if (inifile.find('DISPLAY','GLADEVCP') or '0') == '0':
+            widths = [ 900,930,1016,1042,1090,1168,1258]
+            heights = [636,664, 702, 764, 794, 828, 878]
+        else:
+            widths = [1120,1158,1230,1316,1358,1432,1522]
+            heights = [636, 664, 702, 768, 792, 828, 878]
+    width = widths[fsizes.index(fsize)]
+    height = heights[fsizes.index(fsize)]
+    wxpos = (mwidth-width)/2
+    wypos = (mheight-height)/2
 if width: # fixme - remove when portrait sizes fixed
     w('wm','geometry','.','{0}x{1}-{2}-{3}'.format(str(width),str(height),str(wxpos),str(wypos)))
     print('\nAxis window is {0} x {1}\n'.format(width,height))
@@ -337,8 +342,6 @@ w('pack',fpausedmotion + '.paused-motion-speed','-side','left','-fill','x','-exp
 w('pack',fpausedmotion + '.forward','-side','right','-fill','y')
 if orientation == 'portrait':
     w(fpausedmotion,'configure','-relief','raised','-bd','1')
-else:
-    w('grid',fpausedmotion,'-column','0','-row','4','-padx','4','-pady','2 0','-sticky','ew')
 w('DynamicHelp::add',fpausedmotion + '.reverse','-text','Move while paused\nin reverse direction')
 w('DynamicHelp::add',fpausedmotion + '.forward','-text','Move while paused\nin foward direction')
 w('DynamicHelp::add',fpausedmotion + '.paused-motion-speed','-text','Paused motion speed (% of feed rate)')
@@ -626,28 +629,26 @@ def torch_pulse(value):
     hal.set_p('plasmac.torch-pulse-start',value)
 
 def paused_motion(direction):
-    if w(fpausedmotion + '.forward','cget','-state') == 'normal' or\
-       w(fpausedmotion + '.reverse','cget','-state') == 'normal':
-        speed = float(w(fpausedmotion + '.paused-motion-speed','get')) * 0.01
-        hal.set_p('plasmac.paused-motion-speed','%f' % (speed * int(direction)))
+    speed = float(w(fpausedmotion + '.paused-motion-speed','get')) * 0.01
+    hal.set_p('plasmac.paused-motion-speed','%f' % (speed * int(direction)))
 
 def height_lower():
-        global torch_height 
-        torch_height -= 0.1
-        w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
-        hal.set_p('plasmac.height-override','%f' %(torch_height))
+    global torch_height 
+    torch_height -= 0.1
+    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def height_raise():
-        global torch_height 
-        torch_height += 0.1
-        w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
-        hal.set_p('plasmac.height-override','%f' %(torch_height))
+    global torch_height 
+    torch_height += 0.1
+    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def height_reset():
-        global torch_height 
-        torch_height = 0
-        w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
-        hal.set_p('plasmac.height-override','%f' %(torch_height))
+    global torch_height 
+    torch_height = 0
+    w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
+    hal.set_p('plasmac.height-override','%f' %(torch_height))
 
 def torch_enable():
     if hal.get_value('plasmac.torch-enable'):
@@ -718,7 +719,7 @@ def user_button_pressed(button,commands):
     elif 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','1')
 # for testing window sizes
-#        print('Width={}   Height={}'.format(w('winfo','width',root_window), w('winfo','height',root_window)))
+        print('Width={}   Height={}'.format(w('winfo','width',root_window), w('winfo','height',root_window)))
     elif 'probe-test' in commands.lower():
         global probePressed
         global probeTimer
@@ -812,6 +813,7 @@ def user_live_update():
     global probeText
     global probePressed
     global probeColor
+    global pm_cycles
     if not firstrundone:
         spaceWidth = w('winfo','width',fmanual)
         spaceWidth -= w('winfo','width',fmonitor)
@@ -869,12 +871,24 @@ def user_live_update():
         w(ftorch + '.torch-button','configure','-state','normal')
     else:
         w(ftorch + '.torch-button','configure','-state','disabled')
-    if hal.get_value('halui.program.is-paused') or hal.get_value('plasmac.paused-motion-speed'):
-        w(fpausedmotion + '.reverse','configure','-state','normal')
-        w(fpausedmotion + '.forward','configure','-state','normal')
+    if hal.get_value('halui.program.is-paused')  or hal.get_value('plasmac.paused-motion-speed'):
+        if orientation == 'portrait':
+            w(fpausedmotion + '.reverse','configure','-state','normal')
+            w(fpausedmotion + '.forward','configure','-state','normal')
+        else:
+            w('grid','forget',foverride)
+            w('grid',fpausedmotion,'-column','0','-row','3','-padx','4','-pady','2 0','-sticky','ew')
     else:
-        w(fpausedmotion + '.reverse','configure','-state','disabled')
-        w(fpausedmotion + '.forward','configure','-state','disabled')
+        if pm_cycles > 2:
+            pm_cycles = 0
+            if orientation == 'portrait':
+                w(fpausedmotion + '.reverse','configure','-state','disabled')
+                w(fpausedmotion + '.forward','configure','-state','disabled')
+            else:
+                w('grid','forget',fpausedmotion)
+                w('grid',foverride,'-column','0','-row','3','-padx','4','-pady','2 0','-sticky','ew')
+        else:
+            pm_cycles += 1
     if hal.get_value('halui.machine.is-on'):
         w(foverride + '.raise','configure','-state','normal')
         w(foverride + '.lower','configure','-state','normal')
@@ -947,7 +961,7 @@ def user_hal_pins():
 
 def configure_widgets():
     w(ftorch + '.torch-pulse-time','configure','-from','0','-to','3','-resolution','0.1')
-    w(fpausedmotion + '.paused-motion-speed','configure','-from','0','-to','100','-resolution','1')
+    w(fpausedmotion + '.paused-motion-speed','configure','-from','1','-to','100','-resolution','1')
 
 def consumable_change_setup(ccParm):
     global ccX
@@ -1010,10 +1024,11 @@ probeButton = ''
 torchPulse = 0
 torch_height = 0
 cutType = 0
+pm_cycles = 0
 hal.set_p('plasmac.torch-enable','0')
 hal.set_p('plasmac.height-override','%f' % (torch_height))
 w(fbuttons + '.torch-enable','configure','-bg','red','-activebackground','#AA0000','-text','Torch\nDisabled')
-w(foverride + '.height-override','configure','-text','%0.1f V' % (torch_height))
+w(foverride + '.height-override','configure','-text','%0.1fV' % (torch_height))
 for button in range(1,6):
     if 'change-consumables' in inifile.find('PLASMAC', 'BUTTON_' + str(button) + '_CODE'):
         ccParm = inifile.find('PLASMAC','BUTTON_' + str(button) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None

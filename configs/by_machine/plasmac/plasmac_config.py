@@ -215,7 +215,7 @@ class HandlerClass:
             font = self.i.find('PLASMAC', 'FONT') or gtk.settings_get_default().get_property('gtk-font-name')
             fSize = int(font.split()[1])
 #            font = '{} {}'.format(font.split()[0],fSize - 1 if fSize < 12 else fSize - 2)
-            font = '{} {}'.format(font.split()[0],fSize)
+            font = '{} {}'.format(font.split()[0],fSize - 1)
             gtk.settings_get_default().set_property('gtk-font-name', font)
         gtk.settings_get_default().set_property('gtk-theme-name', theme)
 
@@ -322,7 +322,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.124'
+        self.plasmacVersion = 'PlasmaC v0.126'
 
         self.halcomp = halcomp
         self.builder = builder

@@ -322,10 +322,36 @@ class _Lcnc_Action(object):
             a = number
             b = number +1
         for i in range(a,b):
-            if abs(STATUS.get_spindle_speed(number)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]: return
-            self.cmd.spindle(linuxcnc.SPINDLE_INCREASE, i)
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur + (INFO.SPINDLE_INCREMENT * dir)) >= INFO['MAX_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MAX_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur + (INFO.SPINDLE_INCREMENT * dir)), i)
+
     def SET_SPINDLE_SLOWER(self, number = 0):
-        self.cmd.spindle(linuxcnc.SPINDLE_DECREASE, number)
+        # if all spindles (-1) command , we must check each spindle
+        if number == -1:
+            a = 0
+            b = INFO.AVAILABLE_SPINDLES
+        else:
+            a = number
+            b = number +1
+        for i in range(a,b):
+            cur = STATUS.get_spindle_speed(i)
+            if cur > 0:
+                dir = 1
+            else:
+                dir = -1
+            if abs(cur - (INFO.SPINDLE_INCREMENT * dir)) <= INFO['MIN_SPINDLE_{}_SPEED'.format(i)]:
+                self.cmd.spindle(dir, INFO['MIN_SPINDLE_{}_SPEED'.format(i)], i)
+                continue
+            else:
+                self.cmd.spindle(dir, abs(cur - (INFO.SPINDLE_INCREMENT * dir)), i)
     def SET_SPINDLE_STOP(self, number = 0):
         self.cmd.spindle(linuxcnc.SPINDLE_OFF, number)
 

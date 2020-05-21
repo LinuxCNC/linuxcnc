@@ -1667,13 +1667,26 @@ NOTE: PlasmaC uses the External Offsets feature for all Z axis motion, and for m
 [underline]*[PLASMAC]* Section
 
 ----
-FONT      = sans 10 (valid font sizes are from 9 to 15 inclusive)
-THEME     = Clearlooks (any installed theme)
-MAXIMISED = 0 (0 = sized to suit font, 1 = maximised)
+FONT        = sans 10 (valid font sizes are from 9 to 15 inclusive)
+THEME       = Clearlooks (any installed theme, only for the plasmac tabs)
+WINDOW_SIZE = 0 (0 = minimum size to suit font, 1 = maximised, width x height = custom size)
 AXIS_ORIENT = portrait
 ----
 
+Defaults for the above if they are not specified are:
+
+----
+FONT        = sans 10
+THEME       = current system theme
+WINDOW_SIZE = minimum size to suit font
+AXIS_ORIENT = landscape
+----
+
 Changing the FONT size changes the minimum window size. PlasmaC requires a larger window size than the standard Axis window. Window size varies depending on whether you have the Run Panel as a Tab or a Panel on the right side. If using portrait mode then window height will vary depending on whether or not you have a rotary axis. If the window doesn't completely fit in the screen then you will need to reduce the font size.
+
+Custom window size is specified as width x height e.g. 1600 x 900. Spaces are ignored but may be used for readability and *x* may be lower or upper case.
+
+NOTE: WINDOW_SIZE has replaced MAXIMISED. For backwards compatibility these names are interchangeable.
 
 [[axis-display-section]]
 

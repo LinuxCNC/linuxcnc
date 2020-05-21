@@ -66,6 +66,8 @@ class MyEventFilter(QtCore.QObject):
                     p,k,c,s,ctrl = self.process_event(event,False)
                     handled = self.w.handler_instance.processed_key_event__(receiver,event,p,k,c,s,ctrl)
                 if handled: return True
+            elif event.type() in (QtCore.QEvent.FocusIn, QtCore.QEvent.FocusOut):
+                self.w.handler_instance.processed_focus_event__(receiver,event)
             #Call Base Class Method to Continue Normal Event Processing
             return super(MyEventFilter,self).eventFilter(receiver, event)
         except:

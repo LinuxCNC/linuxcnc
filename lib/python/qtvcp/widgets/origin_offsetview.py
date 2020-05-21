@@ -63,7 +63,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.delay = 0
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
-                                                    and STATUS.is_all_homed()))
+                                                    and (STATUS.is_all_homed()
+                                                         or INFO.NO_HOME_REQUIRED)))
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('periodic', self.periodic_check)
         STATUS.connect('metric-mode-changed', lambda w, data: self.metricMode(data))

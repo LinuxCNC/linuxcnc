@@ -410,6 +410,13 @@ Setting this properly can increase the usable multiplex frequency and compensate
 for cable delays (suggested value is 3* cable length in feet +20)
 
 .TP
+(bit in) hm2_XXXX.N.encoder.hires-timestamp
+When this pin is true the encoder timestamp counter frequency is ~10 MHz
+when false the timestamp counter frequency is ~2 MHz. This should be set true
+for frequency counting applications to improve the resolution. It should be 
+set false when servo thread periods longer than 1 ms are used.
+
+.TP
 Parameters:
 
 .TP

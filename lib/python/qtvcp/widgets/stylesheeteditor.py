@@ -63,6 +63,7 @@ class StyleSheetEditor(QDialog):
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
+        self.styleSheetCombo.setFixedWidth(200)
 
         self.setWindowTitle('Style SHeet Editor Dialog');
         self.parent = parent
@@ -126,6 +127,9 @@ class StyleSheetEditor(QDialog):
             self.parent.setStyleSheet(self.styleTextView.toPlainText())
         else:
            self.parent.setStyleSheet(self.styleTextEdit.toPlainText())
+        # styles can have affect on the dialog widgets
+        # make sure one can still read the combo box
+        self.styleSheetCombo.setFixedWidth(200)
 
     @pyqtSlot()
     def on_openButton_clicked(self):

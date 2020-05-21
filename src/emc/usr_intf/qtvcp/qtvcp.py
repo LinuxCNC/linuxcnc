@@ -6,6 +6,7 @@ import shutil
 import traceback
 import hal
 import signal
+
 from optparse import Option, OptionParser
 from PyQt5 import QtWidgets, QtCore
 from qtvcp.core import Status, Info, QComponent, Path
@@ -339,7 +340,7 @@ Pressing cancel will close linuxcnc.""" % target)
                     + "information may be useful in troubleshooting:\n"
                     + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
         if ERROR_COUNT > 5:
-            LOG.critical("Too many errors: {}".format(message))
+            LOG.critical("Too Manu Errors \n {}\n{}\n".format(message,''.join(lines)))
             self.shutdown()
         msg = QtWidgets.QMessageBox()
         msg.setIcon(QtWidgets.QMessageBox.Critical)
