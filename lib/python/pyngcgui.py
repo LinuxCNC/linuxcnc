@@ -96,12 +96,6 @@ if sys.version_info[0] == 3:
 else:
     gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
-try:
-    import pygtk
-    pygtk.require('2.0')
-except ImportError as msg:
-    print('import pygtk failed: %s',msg)
-    pass
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False

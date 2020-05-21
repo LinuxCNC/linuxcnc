@@ -4,7 +4,8 @@
 XEmbed helper functions to allow correct embeding inside Axis
 """
 
-import gtk
+import gi
+from gi.repository import Gtk as gtk
 
 def reparent(window, parent):
     """ Forced reparent. When reparenting Gtk applications into Tk
@@ -20,7 +21,7 @@ def reparent(window, parent):
     plug.show()
 
     d = display.Display()
-    w = drawable.Window(d.display, plug.window.xid, 0)
+    w = drawable.Window(d.display, plug.get_property('window').get_xid(), 0)
     # Honor XEmbed spec
     atom = d.get_atom('_XEMBED_INFO')
     w.change_property(atom, atom, 32, [0, 1])
@@ -72,14 +73,14 @@ def keyboard_forward(window, forward):
 
     d = display.Display()
     fw = drawable.Window(d.display, forward, 0)
-
-    ks = gtk.keysyms
-    ignore = [ ks.Tab, ks.Page_Up, ks.Page_Down
-             , ks.KP_Page_Up, ks.KP_Page_Down
-             , ks.Left, ks.Right, ks.Up, ks.Down
-             , ks.KP_Left, ks.KP_Right, ks.KP_Up, ks.KP_Down
-             , ks.bracketleft, ks.bracketright
-             ]
+#TODO
+#    ks = gtk.keysyms
+    ignore = []#[ ks.Tab, ks.Page_Up, ks.Page_Down
+#             , ks.KP_Page_Up, ks.KP_Page_Down
+#             , ks.Left, ks.Right, ks.Up, ks.Down
+#             , ks.KP_Left, ks.KP_Right, ks.KP_Up, ks.KP_Down
+#             , ks.bracketleft, ks.bracketright
+#             ]
 
     def gtk2xlib(e, fw, g, type=None):
         if type is None: type = e.type
@@ -108,5 +109,6 @@ def keyboard_forward(window, forward):
 
     window.connect_after("key-press-event", forward, fw)
     window.connect("key-release-event", forward, fw)
-    window.add_events(gdk.KEY_PRESS_MASK)
-    window.add_events(gdk.KEY_RELEASE_MASK)
+    #TODO:
+    #window.add_events(gdk.KEY_PRESS_MASK)
+    #window.add_events(gdk.KEY_RELEASE_MASK)

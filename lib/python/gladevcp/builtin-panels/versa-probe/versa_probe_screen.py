@@ -23,7 +23,6 @@ import hal_glib             # needed to make our own hal pins
 import gtk.glade
 import sys                  # handle system calls
 import linuxcnc             # to get our own error sytsem
-import pygtk
 import gladevcp
 import time
 import math
