@@ -16,6 +16,7 @@ def float_fmt(f):
 class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
     def __init__(self, s, inifile):
         self.s = s
+        self.poll()
         self.inifile = inifile
         StatMixin.__init__(self, s, int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0))
         # traverse list - [line number, [start position], [end position], [tlo x, tlo y, tlo z]]
@@ -75,9 +76,27 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
     def poll(self):
         self.s.poll()
 
-    def set_spindle_rate(self, arg): pass
+    def comment(self, arg):
+        #TODO
+        print(f"TODO comment({arg})")
+
+    def message(self, message):
+        #TODO
+        print(f"TODO message({message})")
+
+    def check_abort(self):
+        #TODO
+        print(f"TODO check_abort()")
+        
+    def set_spindle_rate(self, arg):
+        #TODO
+        print(f"TODO set_spindle_rate({arg})")
+        
     def set_feed_rate(self, arg): self.feedrate = arg / 60.
-    def select_plane(self, arg): pass
+    
+    def select_plane(self, arg):
+        #TODO
+        print(f"TODO select_plane({arg})")
     
     def straight_traverse(self, x,y,z, a,b,c, u, v, w):
         if self.suppress > 0: return
@@ -157,6 +176,29 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
         lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
         return [a/b for a, b in zip(pos, lus)]
 
+    def from_internal_units(self, pos, unit=None):
+        if unit is None:
+            unit = self.s.linear_units
+        lu = (unit or 1) * 25.4
+
+        lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+        return [a*b for a, b in zip(pos, lus)]
+
+    def comp(self, sx_sy, cx_cy):
+        (sx, sy) = sx_sy
+        (cx, cy) = cx_cy
+        return -(sx*cx + sy*cy) / (sx*sx + sy*sy)
+
+    def param(self, x1_y1, dx1_dy1, x3_y3, dx3_dy3):
+        (x1, y1) = x1_y1
+        (dx1, dy1) = dx1_dy1
+        (x3, y3) = x3_y3
+        (dx3, dy3) = dx3_dy3
+        den = (dy3)*(dx1) - (dx3)*(dy1)
+        if den == 0: return 0
+        num = (dx3)*(y1-y3) - (dy3)*(x1-x3)
+        return num * 1. / den
+    
     def soft_limits(self):
         def fudge(x):
             if abs(x) > 1e30: return 0
@@ -187,7 +229,7 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
             unitcode = "G%d" % (20 + (self.s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
 
-            print(f"parsing {filename}")
+            print(f"parsing {filename} {unitcode} {initcode}")
             result, seq = gcode.parse(filename, self, unitcode, initcode)
 
             self.feed_data = array.array('f')
@@ -207,7 +249,7 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
                     self.rapids_data.extend(line[2][:3])
                     self.rapids_data.extend([1.0,1.0,1.0])
             else:
-                print(f"error parsing {filename} : {result}")
+                print(f"error parsing {filename} : {result} : {seq}")
             
             #result, seq = self.load_preview(filename, unitcode, initcode)
             #if result > gcode.MIN_ERROR:
