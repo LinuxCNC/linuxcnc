@@ -96,7 +96,7 @@ def create_extents(extents):
                    2 ) * .1
             
     dashwidth = pullback/4
-    zdashwidth = dashwidth
+    zdashwidth = 0
     charsize = dashwidth * 1.5
     halfchar = charsize * .5
         
@@ -110,8 +110,10 @@ def create_extents(extents):
             """
     x_pos = min_extents[x] - pullback
     y_pos = min_extents[y] - pullback
-    z_pos = min_extents[z] - pullback
-        
+    z_pos = min_extents[z]
+
+    print(extents)
+    
     return array.array('f', [
         #if view != x and max_extents[x] > min_extents[x]:
         

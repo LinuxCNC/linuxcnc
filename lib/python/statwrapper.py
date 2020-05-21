@@ -60,6 +60,7 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
         self.g5x_offset_w = 0.0
         self.foam_z = 0
         self.foam_w = 1.5
+        self.is_foam = False
         self.notify = 0
         self.notify_message = ""
         self.highlight_line = None
@@ -229,13 +230,12 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
             unitcode = "G%d" % (20 + (self.s.linear_units == 1))
             initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
 
-            print(f"parsing {filename} {unitcode} {initcode}")
+            print(f"parsing {filename} unitcode {unitcode} initcode {initcode}")
             result, seq = gcode.parse(filename, self, unitcode, initcode)
-
+            
             self.feed_data = array.array('f')
-            self.rapids_data = array.array('f')            
+            self.rapids_data = array.array('f')      
             if result <= gcode.MIN_ERROR:
-                self.calc_extents()
                 # update feed_data
                 for line in self.feed + self.arcfeed:
                     self.feed_data.extend(line[1][:3])
@@ -248,6 +248,8 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
                     self.rapids_data.extend([1.0,1.0,1.0])
                     self.rapids_data.extend(line[2][:3])
                     self.rapids_data.extend([1.0,1.0,1.0])
+
+                self.calc_extents()
             else:
                 print(f"error parsing {filename} : {result} : {seq}")
             
@@ -260,7 +262,8 @@ class StatWrapper(Translated, ArcsToSegmentsMixin, StatMixin):
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
-        if self.is_foam:
+
+        if False and self.is_foam:
             min_z = min(self.foam_z, self.foam_w)
             max_z = max(self.foam_z, self.foam_w)
             self.min_extents = self.min_extents[0], self.min_extents[1], min_z
