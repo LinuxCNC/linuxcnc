@@ -466,6 +466,9 @@ FUNCTION(_) {
 
     /* calculate arc voltage */
     arc_voltage = (arc_voltage_in - arc_voltage_offset) * arc_voltage_scale;
+    if(arc_voltage < 0 && arc_voltage > -0.5){
+        arc_voltage = 0;
+    }
     if(lowpass_frequency){
         arc_voltage_out += (arc_voltage - arc_voltage_out) * (1 - pow(2.71828, -(2 * M_PI * lowpass_frequency) * fperiod));
     }else{
