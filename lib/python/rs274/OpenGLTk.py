@@ -9,11 +9,13 @@
 # University of York, UK
 # 
 
-from minigl import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
 import math
 import os,sys
 import _togl
 import glnav
+import itertools
 
 import sys
 if sys.version_info[0] == 3:
@@ -126,6 +128,7 @@ class RawOpengl(Togl, Misc):
         self.update_idletasks()
         self.tk.call(self._w, 'makecurrent')
         _mode = glGetDoublev(GL_MATRIX_MODE)
+        _mode = [i for i in itertools.chain(*_mode.tolist())]
         try:
             glMatrixMode(GL_PROJECTION)
             glPushMatrix()
@@ -340,6 +343,7 @@ http://www.yorvic.york.ac.uk/~mjh/
             # Now translate the scene origin away from the world origin
             glMatrixMode(GL_MODELVIEW)
             mat = glGetDoublev(GL_MODELVIEW_MATRIX)
+            mat = [i for i in itertools.chain(*mat.tolist())]
             glLoadIdentity()
             glTranslatef(-self.xcenter, -self.ycenter, -(self.zcenter+self.distance))
             glMultMatrixd(mat)

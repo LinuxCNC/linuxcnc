@@ -37,6 +37,9 @@
 
 #include <cmath>
 
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
+
 #ifndef T_BOOL
 // The C++ standard probably doesn't specify the amount of storage for a 'bool',
 // and on some systems it might be more than one byte.  However, on x86 and
@@ -1549,8 +1552,6 @@ static PyTypeObject Error_Type = {
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
 };
-
-#include <GL/gl.h>
 
 static void rotate_z(double pt[3], double a) {
     double theta = a * M_PI / 180;

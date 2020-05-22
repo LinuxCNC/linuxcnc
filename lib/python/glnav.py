@@ -1,5 +1,4 @@
-from minigl import *
-import OpenGL
+#import OpenGL
 #OpenGL.ERROR_CHECKING = True 
 #OpenGL.ERROR_LOGGING = True 
 #OpenGL.FULL_LOGGING = True 
@@ -160,6 +159,7 @@ def pango_font_post():
 def glTranslateScene(w, s, x, y, mousex, mousey):
     glMatrixMode(GL_MODELVIEW)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
+    mat = [i for i in itertools.chain(*mat.tolist())]
     glLoadIdentity()
     glTranslatef(s * (x - mousex), s * (mousey - y), 0.0)
     glMultMatrixd(mat)
@@ -182,9 +182,10 @@ def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
 
     glTranslatef(xcenter, ycenter, zcenter)
     mat = glGetDoublev(GL_MODELVIEW_MATRIX)
+    mat = [i for i in itertools.chain(*mat.tolist())]
 
     glLoadIdentity()
-    tx, ty, tz = mat.flatten()[12:15]
+    tx, ty, tz = mat[12:15]
     glTranslatef(tx, ty, tz)
     glRotatef(snap(lat), *w.rotation_vectors[0])
     glRotatef(snap(lon), *w.rotation_vectors[1])

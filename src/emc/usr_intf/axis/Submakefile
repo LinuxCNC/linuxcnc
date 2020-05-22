@@ -1,11 +1,9 @@
 
 EMCMODULESRCS := emc/usr_intf/axis/extensions/emcmodule.cc
-MINIGLMODULESRCS := emc/usr_intf/axis/extensions/minigl.c
 TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
-PYSRCS += $(EMCMODULESRCS) $(MINIGLMODULESRCS) $(TOGLMODULESRCS)
+PYSRCS += $(EMCMODULESRCS) $(TOGLMODULESRCS)
 
 EMCMODULE := ../lib/python/linuxcnc.so
-MINIGLMODULE := ../lib/python/minigl.so
 TOGLMODULE := ../lib/python/_togl.so
 
 $(call TOOBJSDEPS, $(TOGLMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
@@ -14,18 +12,13 @@ $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
 $(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
-
-
-$(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
-	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lGLU -lGL
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lepoxy
 
 $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lepoxy -lXmu $(TCL_LIBS)
 
-PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(TOGLMODULE)
+PYTARGETS += $(EMCMODULE) $(TOGLMODULE)
 
 PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
 	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py

@@ -24,6 +24,7 @@ from rs274 import Translated, ArcsToSegmentsMixin, OpenGLTk
 #from minigl import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
+import itertools
 import math
 import glnav
 import hershey
@@ -199,6 +200,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         return linuxcnc.draw_dwells(self.geometry, dwells, alpha, for_selection, self.is_lathe())
 
     def calc_extents(self):
+        print(len(self.feed))
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
         if self.is_foam:
             min_z = min(self.foam_z, self.foam_w)
@@ -495,6 +497,7 @@ class GlCanonDraw:
     def select(self, x, y):
         if self.canon is None: return
         pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
+        pmatrix = [i for i in itertools.chain(*pmatrix.tolist())]
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
