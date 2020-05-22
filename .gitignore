@@ -43,4 +43,4 @@ position.txt
 *~
 linuxcnc-checklink
 *.swp
-#*#
+*#
