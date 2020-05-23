@@ -660,14 +660,21 @@ static void signal_handler(int sig, siginfo_t *si, void *uctx)
 }
 
 const size_t PRE_ALLOC_SIZE = 1024*1024*32;
-const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory()
 {
-    int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
-    if(res < 0) perror("setrlimit");
+    struct rlimit limit;
+    int res = getrlimit(RLIMIT_MEMLOCK, &limit);
+    if(res < 0)
+        perror("getrlimit");
+    else {
+        rtapi_print_msg(RTAPI_MSG_WARN,"RLIMIT_MEMLOCK: curr: %ju, max: %ju\n",
+                        (uintmax_t)limit.rlim_cur, (uintmax_t)limit.rlim_max);
 
-    res = mlockall(MCL_CURRENT | MCL_FUTURE);
-    if(res < 0) perror("mlockall");
+        if (limit.rlim_max >= 2* PRE_ALLOC_SIZE) {
+            res = mlockall(MCL_CURRENT | MCL_FUTURE);
+            if(res < 0) perror("mlockall");
+        }
+    }
 
 #ifdef __linux__
     /* Turn off malloc trimming.*/
@@ -699,40 +706,24 @@ static void configure_memory()
 
 static int harden_rt()
 {
-    if(!rtapi_is_realtime()) return -EINVAL;
-
-    WITH_ROOT;
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
+        rtapi_print_msg(RTAPI_MSG_WARN,
                         "cannot gain I/O privileges - "
                         "forgot 'sudo make setuid'?\n");
-        return -EPERM;
     }
 #endif
 
     struct sigaction sig_act = {};
 #ifdef __linux__
-    // enable realtime
-    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
-    {
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit(RTLIMIT_RTPRIO): %s\n",
-		  strerror(errno));
-        return -errno;
-    }
+    struct rlimit limit;
 
-    // enable core dumps
-    if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
-		  strerror(errno));
-
-    // even when setuid root
-    if (prctl(PR_SET_DUMPABLE, 1) < 0)
-	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
-		  errno, strerror(errno));
+    int res = getrlimit(RLIMIT_MEMLOCK, &limit);
+    if(res < 0)
+        perror("getrlimit");
+    else
+        rtapi_print_msg(RTAPI_MSG_WARN,"RLIMIT_RTPRIO: curr: %ju, max: %ju\n",
+                        (uintmax_t)limit.rlim_cur, (uintmax_t)limit.rlim_max);
 #endif /* __linux__ */
 
     configure_memory();
@@ -772,11 +763,8 @@ static int harden_rt()
 
 static RtapiApp *makeApp()
 {
-    if(euid != 0 || harden_rt() < 0)
-    {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
-        return new Posix(SCHED_OTHER);
-    }
+    harden_rt();
+
     WithRoot r;
     void *dll = nullptr;
     if(detect_xenomai()) {
@@ -795,8 +783,7 @@ static RtapiApp *makeApp()
             return result;
         }
     }
-    rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
-    return new Posix(SCHED_FIFO);
+    return new Posix();
 }
 RtapiApp &App()
 {
