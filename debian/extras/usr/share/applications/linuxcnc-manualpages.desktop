@@ -9,5 +9,5 @@ Terminal=false
 Comment=Integrator Information
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC;
-Keywords=cnc;linuxcnc;
-Name[en_US]=Manual Pages
+Keywords=cnc;linuxcnc;cncdoc;
+Name[en_US]=LinuxCNC Manual Pages

@@ -9,4 +9,4 @@ Terminal=false
 Comment=Details about the Hardware Abstract Layer.
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC;
-Keywords=cnc;linuxcnc;
+Keywords=cnc;linuxcnc;cncdoc;
