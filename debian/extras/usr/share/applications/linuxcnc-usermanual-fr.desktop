@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_User_Manual_fr.pdf
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_User_Manual_fr.pdf
 Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
 Name=French User Manual
 Comment=The LinuxCNC User Manual
 StartupNotify=false
-Categories=X-CNC;
+Categories=Utility;Engineering;X-CNC;
 Keywords=cnc;linuxcnc;
