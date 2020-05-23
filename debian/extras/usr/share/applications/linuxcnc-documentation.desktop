@@ -9,4 +9,4 @@ Name=Documentation
 Comment=LinuxCNC Documentation
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC;
-Keywords=cnc;linuxcnc;
+Keywords=cnc;linuxcnc;cncdoc
