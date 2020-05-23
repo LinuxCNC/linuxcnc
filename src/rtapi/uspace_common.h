@@ -442,7 +442,7 @@ static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
 {
     (void)pnow;
 #if defined(HAVE_CLOCK_NANOSLEEP)
-    return clock_nanosleep(clock_id, flags, prequest, remain);
+    return TEMP_FAILURE_RETRY(clock_nanosleep(clock_id, flags, prequest, remain));
 #else
     if(flags == 0)
         return nanosleep(prequest, remain);
