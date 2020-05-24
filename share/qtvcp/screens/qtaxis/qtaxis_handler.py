@@ -234,17 +234,18 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
 
     def percentLoaded(self, fraction):
-        if fraction <1:
+        if fraction <0:
             self.w.progressbar.setValue(0)
-            self.w.progressbar.setFormat('')
+            self.w.progressbar.setFormat('Progress')
         else:
             self.w.progressbar.setValue(fraction)
             self.w.progressbar.setFormat('Loading: {}%'.format(fraction))
 
     def percentCompleted(self, fraction):
         self.w.progressbar.setValue(fraction)
-        if fraction <1:
-            self.w.progressbar.setFormat('')
+        if fraction <0:
+            self.w.progressbar.setValue(0)
+            self.w.progressbar.setFormat('Progress')
         else:
             self.w.progressbar.setFormat('Completed: {}%'.format(fraction))
 
