@@ -98,6 +98,10 @@ class _GStat(gobject.GObject):
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-mdi': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
+        'command-running': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'command-stopped': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'command-error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+
         'interp-run': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-idle': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -230,6 +234,7 @@ class _GStat(gobject.GObject):
         gobject.timeout_add(100, self.update)
 
     def merge(self):
+        self.old['command-state'] = self.stat.state
         self.old['state'] = self.stat.task_state
         self.old['mode']  = self.stat.task_mode
         self.old['interp']= self.stat.interp_state
@@ -345,6 +350,15 @@ class _GStat(gobject.GObject):
         self._status_active = True
         old = dict(self.old)
         self.merge()
+        cmd_state_old = old.get('command-state')
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new != cmd_state_old:
+            if cmd_state_new == linuxcnc.RCS_EXEC:
+                self.emit('command-running')
+            elif cmd_state_new == linuxcnc.RCS_DONE:
+                self.emit('command-stopped')
+            elif cmd_state_new == linuxcnc.RCS_ERROR:
+                self.emit('command-error')
 
         state_old = old.get('state', 0)
         state_new = self.old['state']
@@ -617,6 +631,14 @@ class _GStat(gobject.GObject):
             # Reschedule
             return True
         self.merge()
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new == linuxcnc.RCS_EXEC:
+            self.emit('command-running')
+        elif cmd_state_new == linuxcnc.RCS_DONE:
+            self.emit('command-stopped')
+        elif cmd_state_new == linuxcnc.RCS_ERROR:
+            self.emit('command-error')
+
         state_new = self.old['state']
         if state_new > linuxcnc.STATE_ESTOP:
             self.emit('state-estop-reset')
