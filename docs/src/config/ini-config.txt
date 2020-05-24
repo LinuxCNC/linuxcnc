@@ -225,16 +225,16 @@ is .inc.  Do not use a file extension of .ini for included files.
 === [DISPLAY] Section
 
 Different user interface programs use different options, and not every
-option is supported by every user interface. The main two interfaces
-for LinuxCNC are AXIS and Touchy. There are several newer interfaces,
-like gmoccapy and gscreen. Axis is an interface for use with normal
+option is supported by every user interface. There are several interfaces,
+like Axis, Gmoccapy, Touchy, qtvcp's QtDragon and Gscreen.
+Axis is an interface for use with normal
 computer and monitor, Touchy is for use with touch screens. Gmoccapy
 can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc'
+   may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp'
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
@@ -270,12 +270,31 @@ User Manual.
   select. 0.5 means 50% of the programmed spindle speed. (This is used to
   set the minimum spindle speed).
 
+* 'MIN_SPINDLE_0_OVERRIDE = 0.5'- The minimum spindle override the user may
+  select. 0.5 means 50% of the programmed spindle speed. (This is used to
+  set the minimum spindle speed). On multi spindle machine there will be entries for each spindle number. Qtvcp only
+
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
   select. 1.0 means 100% of the programmed spindle speed.
+
+* 'MAX_SPINDLE_0_OVERRIDE = 1.0' - The maximum feed override the user may select.
+  1.2 means 120% of the programmed feed rate.
+On multi spindle machine there will be entries for each spindle number. Qtvcp only
 
 * 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
   is started in manual mode. if this setting is not present, this
   defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
+
+* 'DEFAULT_SPINDLE_0_SPEED = 100' - The default spindle RPM when the spindle
+  is started in manual mode. On multi spindle machine there will be entries for each spindle number. Qtvcp only
+
+* 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons Qtvcp only
+
+* 'MIN_SPINDLE_0_SPEED = 1000' - The minimum RPM that can be manually selected.
+On multi spindle machine there will be entries for each spindle number. Qtvcp only
+
+* 'MAX_SPINDLE_0_SPEED = 20000' - The maximum RPM that can be manually selected.
+On multi spindle machine there will be entries for each spindle number. Qtvcp only
 
 * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
   files and the location for user-defined M-codes. This location is searched
@@ -299,10 +318,10 @@ The following [DISPLAY] items are used by GladeVCP, see the
 
 
 [NOTE]
-The following [DISPLAY] items are for the AXIS interface only, see the
-<<cha:axis-gui,AXIS GUI>> document for details.
-Many of them are used also from gmoccapy, see the
-<<cha:gmoccapy,gmoccapy>> document for details.
+Different user interface programs use different options, and not every
+option is supported by every user interface.
+See <<cha:axis-gui,AXIS GUI>> document for AXIS details.
+See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
    <<sec:traj-section,machine units>> per second.
