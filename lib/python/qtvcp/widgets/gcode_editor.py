@@ -336,6 +336,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         STATUS.connect('file-loaded', self.load_program)
         STATUS.connect('line-changed', self.highlight_line)
         STATUS.connect('graphics-line-selected', self.highlight_line)
+        STATUS.connect('command-stopped', lambda w: self.run_stopped())
 
         if self.idle_line_reset:
             STATUS.connect('interp_idle', lambda w: self.set_line_number(None, 0))
@@ -409,6 +410,9 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def emit_percent(self, percent):
         pass
+
+    def run_stopped(self):
+        self.emit_percent(-1)
 
     def set_line_number(self, line):
         STATUS.emit('gcode-line-selected', line)
