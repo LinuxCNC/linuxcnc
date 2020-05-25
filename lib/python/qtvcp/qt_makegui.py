@@ -146,19 +146,29 @@ Python Error:\n {}'''.format(str(e))
             QtWidgets.qApp.setStyle(fname)
             return
         
-        # apply default qss file or specified file
+        # Check for Preference file specified qss
+        if fname is None:
+            if self.PREFS_:
+                path = self.PREFS_.getpref('style_QSS_Path', 'DEFAULT' , str, 'BOOK_KEEPING')
+                if path.lower() == 'none':
+                    return
+                if not path.lower() == 'default':
+                    fname = path
+
+        # check for default base named qss file 
         if fname is None:
             if self.PATHS.QSS is not None:
-                qssname = self.PATHS.QSS
-            else:
-                return
-        elif not os.path.isfile(fname):
+                fname = self.PATHS.QSS
+
+        # if qss file is not a file, try expanding/adding a leading path
+        if not os.path.isfile(fname):
             temp = os.path.join(os.path.expanduser(fname))
             qssname = os.path.join(DIR, BNAME,fname+'.qss')
             if not os.path.isfile(fname):
                 qssname = temp
         else:
             qssname = fname
+
         try:
             qss_file = open(qssname).read()
             # qss files aren't friendly about changing image paths
