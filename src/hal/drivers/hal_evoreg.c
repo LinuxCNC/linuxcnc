@@ -66,19 +66,8 @@
 #include <rtapi_ctype.h>	/* isspace() */
 #include <rtapi.h>		/* RTAPI realtime OS API */
 #include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_io.h>		/* rtapi_inb(), rtapi_outb() */
 #include <hal.h>		/* HAL public API decls */
-
-/* If FASTIO is defined, uses outb() and inb() from <asm.io>,
-   instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
-   are inlined, and save a microsecond or two (on my 233MHz box)
-*/
-#define FASTIO
-
-#ifdef FASTIO
-#define rtapi_inb inb
-#define rtapi_outb outb
-#include <asm/io.h>
-#endif
 
 /* module information */
 MODULE_AUTHOR("Martin Kuhnle");
