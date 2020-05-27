@@ -12,9 +12,9 @@ image::common/images/emc2-intro.png[]
 
 The LinuxCNC Team
 
-include::common/overleaf_fr.txt[]
+include::common/overleaf-fr.txt[]
 
-include::common/outdated-notice_fr.txt[]
+include::common/outdated-notice-fr.txt[]
 include::common/Integrator_Concepts_fr.txt[]
 :leveloffset: 0
 = Configuration de LinuxCNC
@@ -58,7 +58,7 @@ include::examples/gs2_example_fr.txt[]
 :leveloffset: 1
 include::common/Stepper_Diagnostics_fr.txt[]
 include::common/Glossary_fr.txt[]
-include::common/gpld-copyright.txt[]
+include::common/gpld-copyright-fr.txt[]
 
 // = Index
 

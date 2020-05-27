@@ -12,9 +12,9 @@ image::common/images/emc2-intro.*[]
 
 The LinuxCNC Team
 
-include::common/overleaf_fr.txt[]
+include::common/overleaf-fr.txt[]
 
-include::common/outdated-notice_fr.txt[]
+include::common/outdated-notice-fr.txt[]
 include::user/user-foreword-fr.txt[]
 include::user/user-intro-fr.txt[]
 :leveloffset: 0
@@ -42,7 +42,7 @@ include::lathe/lathe-user_fr.txt[]
 include::gcode/rs274ngc_fr.txt[]
 include::gui/image-to-gcode_fr.txt[]
 include::common/Glossary_fr.txt[]
-include::common/gpld-copyright.txt[]
+include::common/gpld-copyright-fr.txt[]
 
 // = Index
 

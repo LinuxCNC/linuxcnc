@@ -12,9 +12,9 @@ image::common/images/emc2-intro.*[]
 
 The LinuxCNC Team
 
-include::common/overleaf_fr.txt[]
+include::common/overleaf-fr.txt[]
 
-include::common/outdated-notice_fr.txt[]
+include::common/outdated-notice-fr.txt[]
 :leveloffset: 0
 = HAL
 :leveloffset: 1
