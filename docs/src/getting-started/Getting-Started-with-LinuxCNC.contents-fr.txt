@@ -8,7 +8,7 @@ include::System_Requirements_fr.txt[]
 
 include::Getting-LinuxCNC_fr.txt[]
 
-include::Updating_LinuxCNC_fr.txt[]
+include::updating_linuxcnc_fr.txt[]
 
 include::Running-LinuxCNC_fr.txt[]
 
