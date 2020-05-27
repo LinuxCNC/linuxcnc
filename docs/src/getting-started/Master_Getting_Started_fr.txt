@@ -2,9 +2,9 @@
 
 include::../common/outdated-notice_fr.txt[]
 
-include::About-LinuxCNC_fr.txt[]
+include::about-linuxcnc_fr.txt[]
 
-include::System_Requirements_fr.txt[]
+include::system_requirements_fr.txt[]
 
 include::getting-linuxcnc_fr.txt[]
 
