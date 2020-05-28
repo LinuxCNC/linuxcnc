@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.127 - 2020 May 22
+0.128 - 2020 May 28
 
 .I SUMMARY:
 .br
@@ -743,8 +743,7 @@ FUNCTION(_) {
                 if(safe_height == 0){
                     safe_target = offset_max;
                     ohmic_enable = FALSE;
-//                    state = ZERO_HEIGHT;
-                    state = PIERCE_HEIGHT;
+                    state = ZERO_HEIGHT;
                 }else if(offset_counts + safe_min >= offset_max){
                     safe_target = offset_max;
                     rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
@@ -757,13 +756,11 @@ FUNCTION(_) {
                     safe_target = offset_max;
                     safe_height_is_limited = TRUE;
                     ohmic_enable = FALSE;
-//                    state = ZERO_HEIGHT;
-                    state = PIERCE_HEIGHT;
+                    state = ZERO_HEIGHT;
                 }else{
                     safe_target = offset_counts + safe_preferred;
                     ohmic_enable = FALSE;
-//                    state = ZERO_HEIGHT;
-                    state = PIERCE_HEIGHT;
+                    state = ZERO_HEIGHT;
                 }
             }
             break;
