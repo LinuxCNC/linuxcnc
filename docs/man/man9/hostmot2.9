@@ -831,6 +831,15 @@ it alone.  Accepted values are 1 (PWM on Out0 and Direction on Out1), 2
 (Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and Dir on Out1),
 and 4 (Direction on Out0 and PWM on Out1, "for locked antiphase").
 
+.TP
+(bit input) offset\-mode
+When true, offset\-mode modifies the PWM behavior so that a PWM value 
+of 0 results in a 50% duty cycle PWM output, a -1 value results in a 0%  
+duty cycle and +1 results in a 100% duty cycle (with default scaling)
+This mode is used by some PWM motor drives and PWM to analog converters.
+Typically the direction signal is not used in this mode.
+
+
 In addition to the per-instance HAL Parameters listed above, there are
 a couple of HAL Parameters that affect all the pwmgen instances:
 
