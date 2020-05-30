@@ -7,6 +7,6 @@ X-GNOME-DocPath=
 Terminal=false
 Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
-Categories=X-CNC;
+Categories=Utility;Engineering;X-CNC;
 Name=Pncconf Wizard
 Keywords=cnc;linuxcnc;

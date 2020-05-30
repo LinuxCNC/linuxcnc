@@ -2,12 +2,11 @@
 Version=1.0
 Name=Integrator Information
 Type=Application
-Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
 Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
-Comment=Integrator Information
 StartupNotify=false
-Categories=X-CNC;
+Categories=Utility;Engineering;X-CNC;
 Keywords=cnc;linuxcnc;
 Name[en_US]=Integrator Info
