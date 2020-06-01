@@ -117,6 +117,14 @@ class bolt_circle:
             holes = int(self.hEntry.get_text())
         else:
             holes = 0
+        if self.cAEntry.get_text():
+            cAngle = float(self.cAEntry.get_text())
+        else:
+            cAngle = 360.0
+        if cAngle == 360:
+            hAngle = math.radians(cAngle / holes)
+        else:
+            hAngle = math.radians(cAngle / (holes - 1))
         if cRadius > 0 and hRadius > 0 and holes > 0:
             ijDiff = 0
             if self.offset.get_active():
@@ -144,7 +152,6 @@ class bolt_circle:
                 leadIn = hRadius
             if leadInOffset > hRadius:
                 leadInOffset = hRadius
-            hAngle = math.radians(360 / float(holes))
             if self.xSEntry.get_text():
                 if self.centre.get_active():
                     xC = float(self.xSEntry.get_text())
@@ -366,6 +373,14 @@ class bolt_circle:
         self.aEntry.set_width_chars(10)
         self.aEntry.set_text('0')
         t.attach(self.aEntry, 1, 2, 9, 10)
+        cALabel = gtk.Label('Circle Angle')
+        cALabel.set_alignment(0.95, 0.5)
+        cALabel.set_width_chars(10)
+        t.attach(cALabel, 2, 3, 9, 10)
+        self.cAEntry = gtk.Entry()
+        self.cAEntry.set_width_chars(10)
+        self.cAEntry.set_text('360')
+        t.attach(self.cAEntry, 3, 4, 9, 10)
         preview = gtk.Button('Preview')
         preview.connect('pressed', self.send_preview)
         t.attach(preview, 0, 1, 11, 12)

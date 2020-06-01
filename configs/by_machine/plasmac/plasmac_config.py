@@ -321,7 +321,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.126'
+        self.plasmacVersion = 'PlasmaC v0.129'
 
         self.halcomp = halcomp
         self.builder = builder
