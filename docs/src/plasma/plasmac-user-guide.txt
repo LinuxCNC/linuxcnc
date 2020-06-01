@@ -845,8 +845,6 @@ If you intend to place the material randomly on the table then before each job y
 
 The provided <<rs274, RS274NGC_STARTUP_CODE>> files, metric_startup.ngc and imperial_startup.ngc set the path tolerance to 0.1mm (0.004") with a G64 command. If LinuxCNC sees an Estop at any stage then the path tolerance if set to default which will round corners off so it is recommended that the path tolerance is set in the header of each G-Code file.
 
-[[multi-tool]]
-
 === Pause At End Of Cut
 
 This causes all motion to pause at the end of the cut with the torch still on. After the specified dwell time has passed the torch will turn off and the Z axis will rise.
@@ -854,6 +852,8 @@ This causes all motion to pause at the end of the cut with the torch still on. A
 The time value for this feature is *Pause At End* in the Cut Parameters of the Run Panel. This value is also in the material file and may be set for each material.
 
 This feature is used to allow the arc to catch up to the torch position to fully finish the cut. It is usually required for thicker materials, especially stainless.
+
+[[multi-tool]]
 
 === Multiple Tools
 
@@ -909,7 +909,8 @@ For manual material handling you manually select the material from the materials
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
-...
+.
+.
 M5 $0
 ----
 
@@ -924,7 +925,8 @@ M190 Pn
 M66 P3 L3 Q1
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
-...
+.
+.
 M5 $0
 ----
 
@@ -996,6 +998,8 @@ A complete example is:
 (o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
 ----
 
+[[thc]]
+
 === THC
 
 THC can be controlled from the THC frame of the Run Panel, off = disabled, on = enabled and auto means abide by the THC Enable checkbox in the cut parameters.
@@ -1052,6 +1056,8 @@ IMPORTANT: *G-Code THC* AND *Velocity Based THC* ARE NOT ABLE TO BE USED if *Cut
 WARNING: If Cut Feed Rate in the Run Panel is set to Zero then PlasmaC will use *motion.requested-velocity* for the THC calculations which is not a very reliable way of velocity based THC and is not recommended.
 
 NOTE: All references to CutFeedRate mean Cut Feed Rate as displayed in the Run Panel.
+
+[[cutter-compensation]]
 
 === Cutter Compensation
 
@@ -1132,6 +1138,8 @@ IMPORTANT: *Overcut* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT,
 
 Your G-Code commands are set up either by a CAM Post Processor (PP) or by hand coding.
 
+[[velocity-reduction]]
+
 [underline]*Velocity Reduction*
 
 If a hole requires a reduced velocity then set the velocity with *M67 E3 Q60* which would set the velocity to 60% of *CutFeedRate*.
@@ -1151,7 +1159,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1173,10 +1181,12 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
+
+[[overcut]]
 
 [underline]*Overcut*
 
@@ -1205,10 +1215,12 @@ M62 P3 (turn torch off)
 G3 X0.8 Y6.081 I10 (continue motion for 4mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
+
+[[hole-cutting]]
 
 === Hole Cutting - Automatic
 
@@ -1242,7 +1254,7 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1266,7 +1278,7 @@ G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
 G3 I10 (the hole)
-M5 $0(end cut)
+M5 $0 (end cut)
 G0 X0 Y0
 M2 (end job)
 ----
@@ -1445,13 +1457,14 @@ To use the scribe from G-Code:
 M52 P1 (paused motion on)
 F#<_hal[plasmac.cut-feed-rate]>
 T1 M6 (select scribe)
-G43 H0 (apply ofsets)
+G43 H0 (apply offsets)
 M3 $1 S1 (start plasmac with scribe)
-...
+.
+.
 T0 M6 (select torch)
-G43 H0(apply ofsets)
+G43 H0 (apply offsets)
 G0 X0 Y0 (parking position)
-M5 $1(end)
+M5 $1 (end)
 ----
 
 It is a good idea to switch back to the torch at the end of the program before your final rapid parking move so your machine is always in the same state at idle.
@@ -1461,6 +1474,8 @@ You can switch between the torch and the scribe any number of times during a pro
 Issuing M3 S1 (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing M5 (without $n) will cause the machine to behave as if an *M5 $0* had been issued, so the machine will attempt a torch cut. This is to provide compatibility for previous G-Code files.
 
 WARNING: If you have an existing manual toolchange in your machine .hal file then PlasmaC will convert it to an automatic toolchange.
+
+[[spotting]]
 
 == Spotting
 
@@ -1481,17 +1496,19 @@ An example G-Code is:
 ----
 G21 (metric)
 F99999 (high feed rate)
-
-g0 x10 y10
-m3 $2 s1 (spotting on)
-g91 (relative distance mode)
-g1 x0.000001
-g90 (absolute distance mode)
-m5 $2(spotting off)
-
-g0 x0 y0
-g90
-m30
+.
+.
+G0 X10 Y10
+M3 $2 S1 (spotting on)
+G91 (relative distance mode)
+G1 X0.000001
+G90 (absolute distance mode)
+M5 $2 (spotting off)
+.
+.
+G0 X0 Y0
+G90
+M2
 ----
 
 NOTE: The *high feed rate* is to ensure that the motion is at the machines highest feed rate.
@@ -2317,6 +2334,197 @@ It should be noted that during the initial testing phase of this feature it was 
 On line help and support are available from the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum].
 
 == Appendix
+
+
+=== Plasmac Specific Gcodes
+
+[width="100%",cols="1,2"]
+|===
+|*Description*|*Code*
+|Begin <<multi-tool, cut>>
+   |M3 $0 S1
+|End <<multi-tool, cut>>|M5 $0
+|Begin <<scribe, scribe>>
+   |M3 $1 S1
+|End <<scribe, scribe>>
+   |M5 $1
+|Begin <<spotting, centre spot>>
+   |M3 $2 S1
+|End <<spotting, centre spot>>
+   |M5 $0
+|End all the above
+   |M5 $-1 
+|Select a <<material-handling, material>>
+   |M190 Pn +
+    n denotes material number
+|Wait for <<material-handling, material>> change confirmation
+   |M66 P3 L3 Q1 +
+    Q1 is number of seconds to wait, 
+    may need to be increased for very 
+    large material files
+|Set feed rate from <<material-handling, material>>
+   |F#<_hal[plasmac.cut-feed-rate]>
+|Disable <<thc, THC>>
+   |M62 P2 (synchronised with motion) +
+    M64 P2 (immediate)
+|Enable <<thc, THC>>
+   |M63 P2 (synchronised with motion) +
+    M65 P2 (immediate)
+|Disable <<overcut, Torch>>
+   |M62 P3 (synchronised with motion) +
+    M64 P3 (immediate)
+|Enable <<overcut, Torch>>
+   |M63 P3 (synchronised with motion) +
+    M65 P3 (immediate)
+|Set <<velocity_thc, velocity>> to a percentage of feed rate
+   |M67 E3 Qn (synchronised with motion) +
+    M68 E3 Qn (immediate) +
+    n is the percentage to set +
+    10 is the minimum, below this will set to 100% +
+    *It is recommended to have M68 E3 Q0 in preamble and postamble*
+|Cutter <<cutter-compensation, compensation>> - left of path
+   |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<cutter-compensation, compensation>> - right of path
+   |G42.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<cutter-compensation, compensation>> off
+   |G40 +
+    *Note that M62 through M68 are invalid while cutter compensation is on*
+|Cut <<hole-cutting, holes>> at 60% feed rate
+   |#<holes> = 1 +
+    for holes less than 32mm (1.25") diameter
+|Cut <<hole-cutting, holes>> at 60% feed rate, +
+turn torch off at hole end, + 
+continue hole path for overcut
+   |#<holes> = 2 +
+    for holes less than 32mm (1.25") diameter
+    overcut length = 4mm (0.157")
+|Specify <<hole-cutting, hole>> diameter for +
+#<holes> = 1 and +
+#<holes> = 2
+   |#<m_diameter> = nn (metric) +
+    #<i_diameter> = nn (imperial)
+|Specify <<overcut, overcut>> length
+   |#<oclength> = n
+|===
+
+=== Plasmac Gcode Examples
+
+[width="100%",cols="1,2"]
+|===
+|*Description*|*Example*
+|Select material and do a normal cut
+   |M190 P3 +
+    M66 P3 L3 Q1 +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    M3 $0 S1 +
+    . +
+    . +
+    M5 $0
+|Set velocity to 100% of CutFeedRate
+   |M67 E3 Q0 or M67 E3 Q100
+|Set velocity to 40% of CutFeedRate
+   |M67 E3 Q60
+|Set velocity to 40% of CutFeedRate
+   |M67 E3 Q40
+|Cut a hole with 60% reduced speed using velocity setting
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    M67 E3 Q60 (reduce feed rate to 60%) +
+    G3 I10 (the hole) +
+    M67 E3 Q0 (restore feed rate to 100%) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Cut a hole with 60% reduced speed using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 1 (velocity reduction for holes) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Cut a hole with overcut using torch disable
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    M67 E3 Q60 (reduce feed rate to 60%) +
+    G3 I10 (the hole) +
+    M62 P3 (turn torch off) +
+    G3 X0.8 Y6.081 I10 (continue motion for 4mm) +
+    M63 P3 (allow torch to be turned on) +
+    M67 E3 Q0 (restore feed rate to 100%) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job) +
+|Cut a hole with overcut using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 2 (overcut for holes) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job) +
+|Cut a hole with 6.5mm overcut using the #<holes> command
+   |G21 (metric) +
+    G64 P0.05 +
+    M52 P1 (allow paused motion) +
+    \#<holes> = 2 (overcut for holes) +
+    #<oclength> = 6.5 (6.5mm overcut length) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    G0 X10 Y10 +
+    M3 $0 S1 (start cut) +
+    G1 X0 +
+    G3 I10 (the hole) +
+    M5 $0 (end cut) +
+    G0 X0 Y0 +
+    M2 (end job)
+|Select scribe and select torch at end of scribing
+   |. +
+    . +
+    M52 P1 (paused motion on) +
+    F#<_hal[plasmac.cut-feed-rate]> +
+    T1 M6 (select scribe) +
+    G43 H0 (apply offsets) +
+    M3 $1 S1 (start plasmac with scribe) +
+    . +
+    . +
+    T0 M6 (select torch) +
+    G43 H0 (apply offsets) +
+    G0 X0 Y0 (parking position) +
+    M5 $1 (end)
+|Hole centre spotting. +
+  |(Requires a small motion command or nothing happens) +
+    G21 (metric) +
+    F99999 (high feed rate) +
+    G0 X10 Y10 +
+    M3 $2 S1 (spotting on) +
+    G91 (relative distance mode) +
+    G1 X0.000001 +
+    G90 (absolute distance mode) +
+    M5 $2 (spotting off) +
+    G0 X0 Y0 +
+    G90 +
+    M2 +
+|===
 
 [[rs485_connections]]
 
