@@ -341,8 +341,8 @@ class bolt_circle:
         t.attach(self.ySEntry, 1, 2, 4, 5)
         self.centre = gtk.RadioButton(None, 'Centre')
         t.attach(self.centre, 1, 2, 5, 6)
-        bLeft = gtk.RadioButton(self.centre, 'Bottom Left')
-        t.attach(bLeft, 0, 1, 5, 6)
+        self.bLeft = gtk.RadioButton(self.centre, 'Bottom Left')
+        t.attach(self.bLeft, 0, 1, 5, 6)
         dLabel = gtk.Label('Diameter')
         dLabel.set_alignment(0.95, 0.5)
         dLabel.set_width_chars(10)
@@ -407,6 +407,11 @@ class bolt_circle:
                     self.preamble = line.strip().split('=')[1]
                 elif line.startswith('postamble'):
                     self.postamble = line.strip().split('=')[1]
+                elif line.startswith('origin'):
+                    if line.strip().split('=')[1] == 'True':
+                        self.centre.set_active(1)
+                    else:
+                        self.bLeft.set_active(1)
                 elif line.startswith('lead-in'):
                     self.liEntry.set_text(line.strip().split('=')[1])
                 elif line.startswith('lead-out'):
