@@ -801,11 +801,11 @@ image::images/plasmac_stats.png[width=60%]
 
 === Extras Panel
 
-This provides a shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
+This provides a conversational shapes library with some simple shapes that can be selected and loaded into LinuxCNC.
 
 It also provides ten custom user buttons which operate the same as the other custom user buttons plus they have the ability to load a G-Code program and have an image displayed on the button.
 
-See <<shape-library, shape library>> for shape usage.
+See <<shape-library, conversational shape library>> for shape usage.
  
 See <<custom-user-buttons, custom user buttons>> for button usage.
 
@@ -1345,20 +1345,20 @@ If you wish to use the keyboard jogging keys then enable keyboard shortcuts in t
 
 [[shape-library]]
 
-== Shape Library
+== Conversational Shape Library
 
-The shape library is not meant to be a CAD/CAM replacement and there are limitations as to what can be achieved.
+The conversational shape library consists of several basic shapes and functions and is available from the *Extras* tab in the Gui. It is not meant to be a CAD/CAM replacement and there are limitations to what can be achieved.
 
-Blank entries in the shape dialogs will use whatever is current. e.g. If *X start* was blank then the current X axis position would be used.
+Blank entries in the shape dialogs will use the current setting at the time. e.g. If *X start* was blank then the current X axis position would be used.
 
 All lead-ins and lead-outs are arcs except for:
 
 * Small holes
 * Stars
 
-The *New* button in the Extras Panel is only required if you wish to begin a new job and a current job exists.
+The *New* button in the Extras Panel is only required if you wish to begin a new shape or group and a current shape or group exists.
 
-All distances are in machine units and all angles are in degrees.
+All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
 === Settings
 
@@ -1368,6 +1368,7 @@ The default parameters available are:
 
 * Preamble
 * Postamble
+* Origin (one of centre or bottom left)
 * Lead-in length
 * Lead-out length
 * Small hole diameter
@@ -1377,45 +1378,63 @@ Any internal circle that has a diameter less than *Small hole diameter* is class
 
 === Single Shape
 
-. Open the Extras Panel.
-. Select the shape you wish to create which will open a shape dialog.
-. If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel. +
-  If using Axis the Preview Panel will open automatically when *Preview* is pressed.
+. Select the shape you wish to create which will open a dialog for that shape.
+. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
+  If using Gmoccapy, open the Preview Panel and move the shape dialog so you can see the Preview Panel.
 . Enter the appropriate values in the shape dialog and press *Preview* to load the shape.
 . If the shape is not correct, edit the values and press *Preview* and the new shape will be shown. Repeat until you are satisfied with the shape.
 
-=== Multiple Shapes
+=== Group Of Shapes
 
-Multiple shapes can be added together to create a complex job.
+Multiple shapes can be added together to create a complex group.
 
-The cut order of the job is determined by the order in which the individual shapes are added to the job.
+The cut order of the group is determined by the order in which the individual shapes are added to the group.
 
-Once a shape is added to the job it cannot be edited or removed.
+Once a shape is added to the group it cannot be edited or removed.
 
-Jobs cannot be edited, only added to.
+Groups cannot be edited, only added to.
 
 . Create the first shape as in *Single Shape*.
-. Press *Add* and the shape will be added to the job.
-. If you wish to add another version of the same shape then edit the parameters as in #5 above and press *Add* when you are satisfied with the shape.
-. If you wish to add a different shape, press *Return* in the shape dialog and create a new a new shape as in *Single Shape*.
-. Repeat until you have completed adding all the required shapes. 
+. Press *Add* and the shape will be added to the group.
+. If you wish to add another version of the same shape then edit the parameters as in #4 above and press *Add* when you are satisfied with the shape.
+. If you wish to add a different shape, press *Return* in the shape dialog and create a new shape as in *Single Shape*.
+. Repeat until you have added all the required shapes to complete the group. 
 
-=== Array of Shapes
+=== Rotate
 
-When you are satisfied with the job you have created, an array of the job can be created.
+The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group or a loaded G-Code file.
+
+Arrays cannot be rotated but rotated shapes can be arrayed.
+
+Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
+
+. Create a shape, a group or load a G-Code file.
+. Press *Rotate* to open the rotate dialog.
+. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
+  If using Gmoccapy, open the Preview Panel and move the rotate dialog so you can see the Preview Panel.
+. Enter the appropriate values in the rotate dialog and press *Preview* to load the rotated code.
+. If the rotation is not correct, edit the values and press *Preview* and the new rotated code will be shown. Repeat until you are satisfied with the rotated code.
+. Press *Accept* to complete the procedure.
+
+TIP: A loaded G-Code program may be rotated zero degrees then Accepted and you can than add other shapes to create a group.
+
+=== Array
+
+An array can be created from a shape, a group or a loaded G-Code file.
 
 The cut order of an array is from left to right, starting at the bottom row and ending at the top row.
 
-. Press *Array* in the Extras Panel which will open the array dialog.
-. If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel. +
-  If using Axis the Preview Panel will open automatically when *Preview* is pressed.
+. Create a shape, a group or load a G-Code file.
+. Press *Array* to open the array dialog.
+. If using Axis the Preview Panel will open automatically when *Preview* is pressed. +
+  If using Gmoccapy, open the Preview Panel and move the array dialog so you can see the Preview Panel.
 . Enter the appropriate values in the array dialog and press *Preview* to load the array.
-. If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until you are satisfied with the shape.
+. If the array is not correct, edit the values and press *Preview* and the new array will be shown. Repeat until you are satisfied with the array.
 . Press *Accept* to complete the procedure.
 
 === Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the *Save* feature of the G-Code Editor in the GUI.
+The current job displayed in the Preview Panel may be saved at any time by using the *Save G-Code* feature in the GUI.
 
 === Running A Job
 
