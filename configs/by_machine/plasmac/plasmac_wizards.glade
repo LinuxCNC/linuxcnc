@@ -74,24 +74,6 @@
                   <placeholder/>
                 </child>
                 <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
                   <object class="GtkButton" id="line">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -171,10 +153,10 @@
                     <signal name="pressed" handler="on_new_pressed" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
+                    <property name="left_attach">4</property>
+                    <property name="right_attach">6</property>
+                    <property name="top_attach">9</property>
+                    <property name="bottom_attach">10</property>
                   </packing>
                 </child>
                 <child>
@@ -183,13 +165,14 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Create array from group</property>
+                    <property name="tooltip_text" translatable="yes">Create array from existing G-Code</property>
                     <signal name="pressed" handler="on_array_pressed" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">10</property>
-                    <property name="bottom_attach">11</property>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">4</property>
+                    <property name="top_attach">9</property>
+                    <property name="bottom_attach">10</property>
                   </packing>
                 </child>
                 <child>
@@ -202,8 +185,7 @@
                     <signal name="pressed" handler="on_settings_pressed" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="left_attach">4</property>
-                    <property name="right_attach">6</property>
+                    <property name="right_attach">2</property>
                     <property name="top_attach">10</property>
                     <property name="bottom_attach">11</property>
                   </packing>
@@ -266,6 +248,33 @@
                     <property name="top_attach">4</property>
                     <property name="bottom_attach">6</property>
                   </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="rotate">
+                    <property name="label" translatable="yes">Rotate</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Rotate existing G-Code</property>
+                    <signal name="pressed" handler="on_rotate_pressed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">9</property>
+                    <property name="bottom_attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>

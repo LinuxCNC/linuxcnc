@@ -42,6 +42,7 @@ import w_bolt_circle
 import w_slot
 import w_star
 import w_gusset
+import w_rotate
 
 class wizards:
 
@@ -220,6 +221,26 @@ class wizards:
         error = gusset.do_gusset(self.fWizard, self.tmpDir)
         if error:
             self.dialog_error('GUSSET', error)
+
+    def on_rotate_pressed(self, widget):
+        self.s.poll()
+        if os.path.basename(self.s.file) == 'array.ngc':
+            self.dialog_error('ROTATE', 'Cannot rotate an array')
+            return
+        if os.path.basename(self.s.file) == os.path.basename(self.fWizard):
+            inFile = self.fWizard
+            mode = 'wizard'
+        elif self.s.file:
+            inFile = self.s.file
+            mode = 'file'
+        else:
+            self.dialog_error('ROTATE', 'No file available to rotate')
+            return
+        reload(w_rotate)
+        rotate = w_rotate.rotate()
+        error = rotate.do_rotate(self.fWizard, inFile, self.tmpDir)
+        if error:
+            self.dialog_error('ROTATE', error)
 
     def button_setup(self):
         self.iniButtonName = ['Names','','','','','','','','','']
