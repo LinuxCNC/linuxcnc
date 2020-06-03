@@ -1274,6 +1274,10 @@ lib/python/vismach.py: new hal pin vismach.plotclear
 
 sim_home_switch: added I/O pin for index-enable
 
+==== Motion module pins
+
+motion.feed-upm -- current feed in units per minute
+
 === Configs
 
 ==== Simulation Configs
