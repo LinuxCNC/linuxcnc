@@ -26,9 +26,8 @@ jobs:
     - ./autogen.sh
     - ./configure --with-realtime=uspace --disable-check-runtime-deps
     - make -O -j$((1+$(nproc))) default pycheck V=1
-    ../scripts/rip-environment runtests
+    - ../scripts/rip-environment runtests
     
-  # Note that the package build covers html docs
   htmldocs:
     runs-on: ubuntu-16.04
     steps:
@@ -46,6 +45,7 @@ jobs:
     - ./autogen.sh
     - ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
     - make -O -j$((1+$(nproc))) docs
+    - # Note that the package build covers html docs
 
   package:
     runs-on: ubuntu-16.04
