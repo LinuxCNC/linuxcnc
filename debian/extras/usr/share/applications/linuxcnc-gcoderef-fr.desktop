@@ -9,4 +9,4 @@ Name=French G-Code Quick Reference
 Comment=Quick reference for G, M and O codes in LinuxCNC
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC;
-Keywords=cnc;linuxcnc;
+Keywords=cnc;linuxcnc;cncdoc
