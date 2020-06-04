@@ -21,12 +21,14 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-    - run: ./scripts/travis-install-build-deps.sh
-    - cd src
-    - ./autogen.sh
-    - ./configure --with-realtime=uspace --disable-check-runtime-deps
-    - make -O -j$((1+$(nproc))) default pycheck V=1
-    - ../scripts/rip-environment runtests
+    - run: |
+        ./scripts/travis-install-build-deps.sh
+        cd src
+        ./autogen.sh
+        ./configure --with-realtime=uspace --disable-check-runtime-deps
+        make -O -j$((1+$(nproc))) default pycheck V=1
+        # Note that the package build covers html docs
+        ../scripts/rip-environment runtests
     
   htmldocs:
     runs-on: ubuntu-16.04
@@ -40,12 +42,13 @@ jobs:
         submodules: true
         fetch-depth: 0
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-    - run: ./scripts/travis-install-build-deps.sh
-    - cd src
-    - ./autogen.sh
-    - ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
-    - make -O -j$((1+$(nproc))) docs
-    - # Note that the package build covers html docs
+    - run: |
+        ./scripts/travis-install-build-deps.sh
+        cd src
+        ./autogen.sh
+        ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        make -O -j$((1+$(nproc))) docs
+        # Note that the package build covers html docs
 
   package:
     runs-on: ubuntu-16.04
@@ -58,8 +61,9 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-    - run: ./scripts/travis-install-build-deps.sh
-    - run: debuild -uc -us -I -i -j$(nproc)
-    - run: sudo apt install -y lintian
-    - run: lintian --info --display-info --pedantic --display-experimental ../*.deb
+    - run: |
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        ./scripts/travis-install-build-deps.sh
+        debuild -uc -us -I -i -j$(nproc)
+        sudo apt install -y lintian
+        lintian --info --display-info --pedantic --display-experimental ../*.deb
