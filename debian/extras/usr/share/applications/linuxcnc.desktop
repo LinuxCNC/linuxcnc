@@ -9,4 +9,4 @@ Name=LinuxCNC
 Comment=Configuration Launcher
 StartupNotify=false
 Categories=Utility;Engineering;X-CNC;
-Keywords=cnc;linuxcnc;
+Keywords=cnc;linuxcnc;cncprog;
