@@ -21,13 +21,13 @@ G1 X33.067 Y28.333
 G1 X33.067 Y26.667
 G1 X31.733 Y25.000
 G1 X27.733 Y25.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X34.933 Y30.000
 M3 $1  S1 (start air-scribe)
 G1 X34.933 Y21.667
 G1 X36.267 Y20.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X42.133 Y25.000
 M3 $1  S1 (start air-scribe)
@@ -39,12 +39,12 @@ G1 X38.133 Y25.000
 G1 X39.467 Y26.667
 G1 X40.800 Y26.667
 G1 X42.133 Y25.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X42.133 Y21.667
 M3 $1  S1 (start air-scribe)
 G1 X43.467 Y20.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X45.333 Y20.000
 M3 $1  S1 (start air-scribe)
@@ -55,26 +55,26 @@ G1 X46.667 Y23.333
 G1 X45.333 Y25.000
 G1 X46.667 Y26.667
 G1 X50.667 Y26.667
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X52.533 Y20.000
 M3 $1  S1 (start air-scribe)
 G1 X52.533 Y26.667
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X52.533 Y25.000
 M3 $1  S1 (start air-scribe)
 G1 X53.867 Y26.667
 G1 X55.200 Y25.000
 G1 X55.200 Y23.333
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X55.200 Y25.000
 M3 $1  S1 (start air-scribe)
 G1 X56.533 Y26.667
 G1 X57.867 Y25.000
 G1 X57.867 Y20.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X63.733 Y25.000
 M3 $1  S1 (start air-scribe)
@@ -86,12 +86,12 @@ G1 X59.733 Y25.000
 G1 X61.067 Y26.667
 G1 X62.400 Y26.667
 G1 X63.733 Y25.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X63.733 Y21.667
 M3 $1  S1 (start air-scribe)
 G1 X65.067 Y20.000
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 G0 X72.267 Y21.667
 M3 $1  S1 (start air-scribe)
@@ -102,7 +102,7 @@ G1 X66.933 Y28.333
 G1 X68.267 Y30.000
 G1 X70.933 Y30.000
 G1 X72.267 Y28.333
-M5 (stop air-scribe)
+M5 $1 (stop air-scribe)
 
 M6 T0 (torch tool)
 G43 (apply offsets)
@@ -114,5 +114,5 @@ G0 X0 Y0
 
 G40 (cutter compensation: off)
 G90 (distance mode: absolute)
-M5 (plasmac stop)
+M5 $-1 (plasmac stop)
 M30 (end program)
