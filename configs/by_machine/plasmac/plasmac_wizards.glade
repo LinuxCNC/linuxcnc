@@ -62,18 +62,6 @@
                   <placeholder/>
                 </child>
                 <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
                   <object class="GtkButton" id="line">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -262,6 +250,20 @@
                     <property name="right_attach">2</property>
                     <property name="top_attach">9</property>
                     <property name="bottom_attach">10</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="sector">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Sector</property>
+                    <signal name="pressed" handler="on_sector_pressed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">6</property>
+                    <property name="bottom_attach">8</property>
                   </packing>
                 </child>
                 <child>
