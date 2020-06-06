@@ -43,6 +43,7 @@ import w_slot
 import w_star
 import w_gusset
 import w_rotate
+import w_sector
 
 class wizards:
 
@@ -62,7 +63,7 @@ class wizards:
         self.fWizard = '{}/wizard.ngc'.format(self.tmpDir)
         self.check_settings()
         self.set_theme()
-        for wizard in ['line', 'circle', 'triangle', 'rectangle', 'polygon', 'bolt-circle', 'slot', 'star', 'gusset']:
+        for wizard in ['line', 'circle', 'triangle', 'rectangle', 'polygon', 'bolt-circle', 'slot', 'star', 'gusset', 'sector']:
             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                     filename='./wizards/images/{}-thumb.png'.format(wizard), 
                     width=60, 
@@ -221,6 +222,13 @@ class wizards:
         error = gusset.do_gusset(self.fWizard, self.tmpDir)
         if error:
             self.dialog_error('GUSSET', error)
+
+    def on_sector_pressed(self, widget):
+        reload(w_sector)
+        sector = w_sector.sector()
+        error = sector.do_sector(self.fWizard, self.tmpDir)
+        if error:
+            self.dialog_error('SECTOR', error)
 
     def on_rotate_pressed(self, widget):
         self.s.poll()
