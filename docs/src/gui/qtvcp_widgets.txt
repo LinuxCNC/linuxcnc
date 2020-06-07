@@ -590,8 +590,8 @@ playing sounds using 'beep', 'espeak' and the system sound
 
 * 'use_pref_file_option':
 setting up a preference filepath +
-Using the magic word 'CONFIGFOLDER' in the preference file path will be replaced with +
-the launched configuration path ie. CONFIGFOLDER/my_preferences
+Using the magic word 'WORKINGFOLDER' in the preference file path will be replaced with +
+the launched configuration path ie. WORKINFOLDER/my_preferences
 
 * 'embedded_program_option':
 Embed programs defined in the INI. There is a property for a default +
