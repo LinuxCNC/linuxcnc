@@ -70,6 +70,20 @@ class HandlerClass:
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.html = """<html>
+<head>
+<title>Test page for the download:// scheme</title>
+</head>
+<body>
+<h1>Setup Tab</h1>
+<p>If a loaded Gcode file has a setup file with the same base name but with .html as a file ending, it will be shown here..</p>
+<img src="file://%s" alt="lcnc_swoop" />
+<hr />
+
+<a href="http://www.linuxcnc.org/docs/2.8/html/gui/qtdragon.html">QtDragon Documentation link</a>
+</body>
+</html>
+""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -222,6 +236,7 @@ class HandlerClass:
         # web view widget for SETUP page
         self.web_view = QWebView()
         self.w.verticalLayout_setup.addWidget(self.web_view)
+        self.web_view.setHtml(self.html)
         # check for virtual keyboard enabled
         if self.w.chk_use_virtual.isChecked():
             self.w.btn_keyboard.show()
