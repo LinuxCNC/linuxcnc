@@ -76,7 +76,7 @@ class HandlerClass:
 </head>
 <body>
 <h1>Setup Tab</h1>
-<p>If a loaded Gcode file has a setup file with the same base name but with .html as a file ending, it will be shown here..</p>
+<p>If you select a file with .html as a file ending, it will be shown here..</p>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 
@@ -490,7 +490,13 @@ class HandlerClass:
         start_line = int(self.w.lbl_start_line.text().encode('utf-8'))
         self.add_status("Started program from line {}".format(start_line))
         self.run_time = 0
-        ACTION.RUN(start_line)
+        if start_line == 1:
+            ACTION.RUN(start_line)
+        else:
+            # instantiate preset dialog
+            info = '<b>Running from Line: {} <\b>'.format(start_line)
+            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':start_line}
+            ACTION.CALL_DIALOG(mess)
 
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
@@ -529,7 +535,7 @@ class HandlerClass:
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
             ACTION.CALL_DIALOG(mess)
-        
+
     # override frame
     def slow_button_clicked(self, state):
         slider = self.w.sender().property('slider')
