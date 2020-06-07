@@ -95,6 +95,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tooloffset_dialog = False
         self.add_calculator_dialog = False
         self.add_machinelog_dialog = False
+        self.add_runFromLine_dialog = False
 
         self.pref_filename = '~/.qtvcp_screen_preferences'
         self._default_tab_name = ''
@@ -112,6 +113,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -156,6 +158,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_machinelog_dialog:
             self.init_machinelog_dialog()
+
+        if self.add_runFromLine_dialog:
+            self.init_runfromline_dialog()
 
         # Read user preferences
         if self.PREFS_:
@@ -510,6 +515,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
              w.machineLogDialog_, w, w.PATHS, self.PREFS_)
         w.machineLogDialog_.overlay_color = self._machineLogDialogColor
 
+    def init_runfromline_dialog(self):
+        from qtvcp.widgets.dialog_widget import RunFromLineDialog
+        w = self.QTVCP_INSTANCE_
+        w.runFromLineDialog_ = RunFromLineDialog()
+        w.runFromLineDialog_.hal_init(self.HAL_GCOMP_, self.HAL_NAME_,
+             w.runFromLineDialog_, w, w.PATHS, self.PREFS_)
+        w.runFromLineDialog_.overlay_color = self._runFromLineDialogColor
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -766,6 +779,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_machineLogDialogColor(self, value):
         self._machineLogDialogColor = value
     machineLog_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_machineLogDialogColor, set_machineLogDialogColor)
+
+    def set_runFromLineDialog(self, data):
+        self.add_runFromLine_dialog = data
+    def get_runFromLineDialog(self):
+        return self.add_runFromLine_dialog
+    def reset_runFromLineDialog(self):
+        self.add_runFromLine_dialog = False
+    runFromLineDialog_option = QtCore.pyqtProperty(bool, get_runFromLineDialog, set_runFromLineDialog, reset_runFromLineDialog)
+    def get_runFromLineDialogColor(self):
+        return self._runFromLineDialogColor
+    def set_runFromLineDialogColor(self, value):
+        self._runFromLineDialogColor = value
+    runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
 
     ##############################
     # required boiler code #
