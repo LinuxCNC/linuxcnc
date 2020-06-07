@@ -348,7 +348,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # XEmbed program into tabs
     def add_xembed_tabs(self):
-
         if INFO.GLADEVCP:
             cmd = 'halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} %s' %(INFO.GLADEVCP)
             LOG.debug('AXIS style side panel vcp: {} '.format(cmd))
@@ -364,15 +363,19 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
-                if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
-                    tw = QtWidgets.QWidget()
-                    self.QTVCP_INSTANCE_[loc].addTab(tw, name)
-                elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
-                    tw = QtWidgets.QWidget()
-                    self.QTVCP_INSTANCE_[loc].addWidget(tw)
-                else:
-                    LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
-                    continue
+                try:
+                    if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                        tw = QtWidgets.QWidget()
+                        self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                    elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                        tw = QtWidgets.QWidget()
+                        self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                    else:
+                        LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                        continue
+                except Exception as e:
+                    LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
+                    return
                 self._embed(cmd,loc,tw)
 
     def _embed(self, cmd,loc,twidget):
