@@ -135,6 +135,9 @@
       <property name="machineLogDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="runFromLineDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="styleEditorDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -13462,7 +13465,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>07:36:23 PM</string>
+                  <string>01:00:47 PM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -14237,7 +14240,7 @@ ALL</string>
   <slot>percent_completed_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

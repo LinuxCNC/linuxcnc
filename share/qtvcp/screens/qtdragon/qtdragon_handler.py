@@ -70,6 +70,20 @@ class HandlerClass:
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.html = """<html>
+<head>
+<title>Test page for the download:// scheme</title>
+</head>
+<body>
+<h1>Setup Tab</h1>
+<p>If you select a file with .html as a file ending, it will be shown here..</p>
+<img src="file://%s" alt="lcnc_swoop" />
+<hr />
+
+<a href="http://www.linuxcnc.org/docs/2.8/html/gui/qtdragon.html">QtDragon Documentation link</a>
+</body>
+</html>
+""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -222,6 +236,7 @@ class HandlerClass:
         # web view widget for SETUP page
         self.web_view = QWebView()
         self.w.verticalLayout_setup.addWidget(self.web_view)
+        self.web_view.setHtml(self.html)
         # check for virtual keyboard enabled
         if self.w.chk_use_virtual.isChecked():
             self.w.btn_keyboard.show()
@@ -475,7 +490,13 @@ class HandlerClass:
         start_line = int(self.w.lbl_start_line.text().encode('utf-8'))
         self.add_status("Started program from line {}".format(start_line))
         self.run_time = 0
-        ACTION.RUN(start_line)
+        if start_line == 1:
+            ACTION.RUN(start_line)
+        else:
+            # instantiate preset dialog
+            info = '<b>Running from Line: {} <\b>'.format(start_line)
+            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':start_line}
+            ACTION.CALL_DIALOG(mess)
 
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
@@ -514,7 +535,7 @@ class HandlerClass:
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
             ACTION.CALL_DIALOG(mess)
-        
+
     # override frame
     def slow_button_clicked(self, state):
         slider = self.w.sender().property('slider')
