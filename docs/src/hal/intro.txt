@@ -23,6 +23,16 @@ limit switches, pushbutton pendants, perhaps a VFD for the spindle
 drive, a PLC to run a toolchanger, etc. The machine builder must
 select, mount and wire these pieces together to make a complete system.
 
+.HAL Concept - Connecting like elctrical circuits.
+image::images/hal_circuit_concept.png["HAL Circuit Concept",align="left"]
+
+Figure one would be written in HAL code like this: 
+
+----
+net signal-blue    component.0.pin1-in      component.1.pin1-out
+net signal-red     component.0.pin3-out     component.1.pin3-in     component.1.pin4-in
+----
+
 === Part Selection
 
 The machine builder does not need to worry about how each individual
