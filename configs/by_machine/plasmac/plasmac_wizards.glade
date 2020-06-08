@@ -62,11 +62,23 @@
                   <placeholder/>
                 </child>
                 <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
                   <object class="GtkButton" id="line">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_markup">Line</property>
+                    <property name="tooltip_markup">Lines and Arcs</property>
                     <signal name="pressed" handler="on_line_pressed" swapped="no"/>
                   </object>
                   <packing>
@@ -265,18 +277,6 @@
                     <property name="top_attach">6</property>
                     <property name="bottom_attach">8</property>
                   </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
                 </child>
               </object>
               <packing>

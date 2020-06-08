@@ -1384,6 +1384,32 @@ Any internal circle that has a diameter less than *Small hole diameter* is class
 . Enter the appropriate values in the shape dialog and press *Preview* to load the shape.
 . If the shape is not correct, edit the values and press *Preview* and the new shape will be shown. Repeat until you are satisfied with the shape.
 
+=== Lines And Arcs
+
+Lines and arcs have an additional option in that they are able to be strung together to create a complex shape.
+
+There are two line types and three arc types available.
+
+. Line from start point and end point
+. Line from start point, length and angle
+. Arc from start point, waypoint and end point
+. Arc from start point, end point and radius
+. Arc from start point, length, angle and radius
+
+To use this feature:
+
+. Select Lines and Arcs to open the dialog
+. Select the type of line to create
+. Preview the shape
+. If satisfied with the shape press Continue
+. The start point is now hidden as it is automatically set to the end of the previous shape
+. Change the line type if needed and continue this procedure until the shape is complete.
+
+If you create a closed shape then you will need to create any required leadin and leadout as the first and last moves.
+
+NOTE: At this stage there is no automatic option for a leadin/leadout if the shape is closed. +
+It is intended that this will be available in the future as well as kerf width compensation.
+
 === Group Of Shapes
 
 Multiple shapes can be added together to create a complex group.
