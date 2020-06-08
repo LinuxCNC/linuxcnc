@@ -1,0 +1,3 @@
+#!/bin/sh
+# Python script exit indicates test success/fail
+exit 0
