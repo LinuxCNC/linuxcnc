@@ -33,6 +33,7 @@ else
     export HEADERS=@includedir@/linuxcnc
     export LIBDIR=@EMC2_HOME@/lib
     export INCLUDEPY=@INCLUDEPY@
+    export SUDO=sudo
 fi
 export INCLUDEPY=@INCLUDEPY@
 export RUNTESTS="$(readlink -f $0)"

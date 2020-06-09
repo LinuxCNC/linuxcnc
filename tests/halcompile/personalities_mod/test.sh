@@ -1,8 +1,8 @@
 #!/bin/sh
 DIR=../../../src/hal/components ;# use in-tree components
-halcompile --personalities=2 --install $DIR/lincurve.comp
-halcompile --personalities=2 --install $DIR/logic.comp
-halcompile --personalities=2 --install $DIR/bitslice.comp
+${SUDO} halcompile --personalities=2 --install $DIR/lincurve.comp
+${SUDO} halcompile --personalities=2 --install $DIR/logic.comp
+${SUDO} halcompile --personalities=2 --install $DIR/bitslice.comp
 
 for HAL in *.hal; do
     echo "testing $HAL"
@@ -12,6 +12,6 @@ for HAL in *.hal; do
 done
 
 # restore using default to avoid interfering with other tests
-halcompile --install $DIR/lincurve.comp
-halcompile --install $DIR/logic.comp
-halcompile --install $DIR/bitslice.comp
+${SUDO} halcompile --install $DIR/lincurve.comp
+${SUDO} halcompile --install $DIR/logic.comp
+${SUDO} halcompile --install $DIR/bitslice.comp
