@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.133 - 2020 Jun 09
+0.134 - 2020 Jun 09
 
 .I SUMMARY:
 .br
@@ -670,7 +670,7 @@ FUNCTION(_) {
                     }
                 }
             }else if(float_switch && !float_detected){
-                if(ohmic_attempts >= ohmic_max_attempts){
+                if(ohmic_attempts >= ohmic_max_attempts || !ohmic_probe_enable){
                     probe_type = FLOAT;
                     target_sensed = TRUE;
                     probe_force = probe_force_val;
