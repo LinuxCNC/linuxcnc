@@ -18,6 +18,10 @@ endif
 EXTRAFLAGS :=
 EXTRA_DEBUG ?=
 
+ifndef DESTDIR
+DESTDIR :=
+endif
+
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
 # to trace make execution of make in more detail:
 # make VV=1
@@ -583,16 +587,8 @@ NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-ifeq ($(DESTDIR),)
-install:
-	$(Q)echo "'make install' is only supported for building packages,"
-	$(Q)echo "and it doesn't look like that is what is going on because"
-	$(Q)echo "you have not set DESTDIR."
-	$(Q)exit 99
-else
 install: install-kernel-dep install-kernel-indep
-	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
-endif
+	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
