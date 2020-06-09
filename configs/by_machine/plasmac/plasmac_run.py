@@ -238,20 +238,21 @@ class HandlerClass:
 
     def on_save_clicked(self,widget,data=None):
         self.save_settings()
-        self.materialFileDict[0][0] = self.materialName
-        self.materialFileDict[0][1] = self.builder.get_object('kerf-width').get_value()
-        self.materialFileDict[0][2] = self.builder.get_object('thc-enable').get_active()
-        self.materialFileDict[0][3] = self.builder.get_object('pierce-height').get_value()
-        self.materialFileDict[0][4] = self.builder.get_object('pierce-delay').get_value()
-        self.materialFileDict[0][5] = self.builder.get_object('puddle-jump-height').get_value()
-        self.materialFileDict[0][6] = self.builder.get_object('puddle-jump-delay').get_value()
-        self.materialFileDict[0][7] = self.builder.get_object('cut-height').get_value()
-        self.materialFileDict[0][8] = self.builder.get_object('cut-feed-rate').get_value()
-        self.materialFileDict[0][9] = self.builder.get_object('cut-amps').get_value()
-        self.materialFileDict[0][10] = self.builder.get_object('cut-volts').get_value()
-        self.materialFileDict[0][11] = self.builder.get_object('pause-at-end').get_value()
-        self.materialFileDict[0][12] = self.builder.get_object('gas-pressure').get_value()
-        self.materialFileDict[0][13] = self.builder.get_object('cut-mode').get_value()
+        active = int(self.builder.get_object('material').get_active_text().split(': ', 1)[0])
+        self.materialFileDict[active][0] = self.materialName
+        self.materialFileDict[active][1] = self.builder.get_object('kerf-width').get_value()
+        self.materialFileDict[active][2] = self.builder.get_object('thc-enable').get_active()
+        self.materialFileDict[active][3] = self.builder.get_object('pierce-height').get_value()
+        self.materialFileDict[active][4] = self.builder.get_object('pierce-delay').get_value()
+        self.materialFileDict[active][5] = self.builder.get_object('puddle-jump-height').get_value()
+        self.materialFileDict[active][6] = self.builder.get_object('puddle-jump-delay').get_value()
+        self.materialFileDict[active][7] = self.builder.get_object('cut-height').get_value()
+        self.materialFileDict[active][8] = self.builder.get_object('cut-feed-rate').get_value()
+        self.materialFileDict[active][9] = self.builder.get_object('cut-amps').get_value()
+        self.materialFileDict[active][10] = self.builder.get_object('cut-volts').get_value()
+        self.materialFileDict[active][11] = self.builder.get_object('pause-at-end').get_value()
+        self.materialFileDict[active][12] = self.builder.get_object('gas-pressure').get_value()
+        self.materialFileDict[active][13] = self.builder.get_object('cut-mode').get_value()
 
     def on_reload_clicked(self,widget,data=None):
         self.materialUpdate = True
@@ -662,32 +663,33 @@ class HandlerClass:
     def save_settings(self):
         material = hal.get_value('plasmac_run.material-change-number')
         position = self.builder.get_object('material').get_active()
-        try:
-            with open(self.configFile, 'w') as f_out:
-                f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
-                for key in sorted(self.configDict.iterkeys()):
-                    if key == 'material-number': # or key == 'kerf-width':
-                        pass
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
-                        self.builder.get_object(key).update()
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
-                        value = self.builder.get_object(key).get_active()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif key == 'torchPulseTime':
-                        value = self.builder.get_object(key).get_value()
-                        f_out.write(key + '=' + str(value) + '\n')
-                    elif key == 'thc-mode':
-                        if self.builder.get_object('thc-auto').get_active():
-                            f_out.write(key + '=thc-auto\n')
-                        if self.builder.get_object('thc-on').get_active():
-                            f_out.write(key + '=thc-on\n')
-                        if self.builder.get_object('thc-off').get_active():
-                            f_out.write(key + '=thc-off\n')
-        except:
-            self.dialog_error('Config File Error', 'Error opening {}'.format(self.configFile))
-            print('*** error opening {}'.format(self.configFile))
+        if material == 0:
+            try:
+                with open(self.configFile, 'w') as f_out:
+                    f_out.write('#plasmac run tab/panel configuration file, format is:\n#name = value\n\n')
+                    for key in sorted(self.configDict.iterkeys()):
+                        if key == 'material-number': # or key == 'kerf-width':
+                            pass
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
+                            self.builder.get_object(key).update()
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_CheckButton):
+                            value = self.builder.get_object(key).get_active()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif key == 'torchPulseTime':
+                            value = self.builder.get_object(key).get_value()
+                            f_out.write(key + '=' + str(value) + '\n')
+                        elif key == 'thc-mode':
+                            if self.builder.get_object('thc-auto').get_active():
+                                f_out.write(key + '=thc-auto\n')
+                            if self.builder.get_object('thc-on').get_active():
+                                f_out.write(key + '=thc-on\n')
+                            if self.builder.get_object('thc-off').get_active():
+                                f_out.write(key + '=thc-off\n')
+            except:
+                self.dialog_error('Config File Error', 'Error opening {}'.format(self.configFile))
+                print('*** error opening {}'.format(self.configFile))
         if material != 0:
             for key in sorted(self.configDict.iterkeys()):
                 if isinstance(self.builder.get_object(key), gladevcp.hal_widgets.HAL_SpinButton):
