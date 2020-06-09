@@ -23,11 +23,18 @@ TOPDIR=$(cd $MYDIR/..; pwd)
 prefix=@prefix@
 if test @RUN_IN_PLACE@ = yes; then
     . $TOPDIR/scripts/rip-environment >&/dev/null
+    export HEADERS=@EMC2_HOME@/include
+    export LIBDIR=${TOPDIR}/lib
+    export INCLUDEPY=@INCLUDEPY@
 else
     # Set $EMC2_HOME to $prefix for tests that depend on it
     export SYSTEM_BUILD=1
     export EMC2_HOME=@EMC2_HOME@
+    export HEADERS=@includedir@/linuxcnc
+    export LIBDIR=@EMC2_HOME@/lib
+    export INCLUDEPY=@INCLUDEPY@
 fi
+export INCLUDEPY=@INCLUDEPY@
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
