@@ -35,6 +35,7 @@ else
     export INCLUDEPY=@INCLUDEPY@
 fi
 export INCLUDEPY=@INCLUDEPY@
+export RUNTESTS="$(readlink -f $0)"
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
