@@ -149,6 +149,9 @@ run_tests () {
 	$testdir"
 		echo "*** $testdir: FAIL: $reason"
 	    fi
+            if test $STOP = 1; then
+	        break
+	    fi
 	else
 	    if [ -f $testdir/xfail ]; then
 		echo "*** $testdir: XPASS: Passed, but was expected to fail"
@@ -177,9 +180,9 @@ usage () {
 $P: Run HAL test suite items
 
 Usage:
-    $P [-n] tests
+    $P [-n] [-s] tests
 	Run tests.  With '-n', do not remove temporary files for successful
-	tests.
+	tests.  With '-s', stop after any failed test.
 
     $P -c tests
 	Remove temporary files from an earlier test run.
@@ -191,11 +194,13 @@ EOF
 
 CLEAN_ONLY=0
 NOCLEAN=0
-while getopts cnvh opt; do
+STOP=0
+while getopts cnvsh opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
     v) VERBOSE=1 ;;
+    s) STOP=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
