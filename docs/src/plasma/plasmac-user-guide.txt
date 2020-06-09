@@ -589,9 +589,9 @@ NOTE: Setup Speed has no effect on THC speed which is capable of Max. Speed.
 
 [underline]*Save & Reload Buttons*
 
-The **Save** button will save the currently displayed parameters as the default.
+The **Save** button will save the currently displayed parameters.
 
-The **Reload** button will reload the last saved parameters.
+The **Reload** button will reload all the parameters.
 
 [[run-panel]]
 
@@ -686,8 +686,8 @@ NOTE: This frame is only visible if a PM_PORT is configured in the [PLASMAC] sec
 
 The **Save** button has two modes of operation:
 
-. If the Default material is displayed then all the currently displayed parameters on the Run Panel will be saved as the default.
-. If any other material is showing then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
+. If the Default material is displayed then only this will be saved.
+. If any other material is displayed then the displayed Cut Parameters will be saved for that material, all other materials remain unchanged.
 
 [underline]*Reload Button*
 
