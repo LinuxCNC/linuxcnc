@@ -20,7 +20,14 @@ esac
 MYDIR=$(cd $MYDIR; pwd);
 TOPDIR=$(cd $MYDIR/..; pwd)
 
-. $TOPDIR/scripts/rip-environment >/dev/null
+prefix=@prefix@
+if test @RUN_IN_PLACE@ = yes; then
+    . $TOPDIR/scripts/rip-environment >&/dev/null
+else
+    # Set $EMC2_HOME to $prefix for tests that depend on it
+    export SYSTEM_BUILD=1
+    export EMC2_HOME=@EMC2_HOME@
+fi
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
