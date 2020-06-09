@@ -91,6 +91,15 @@ run_without_overruns () {
     return 1
 }
 
+run_test() {
+    testname=$1
+    case $testname in
+        *.hal) run_without_overruns $testname ;;
+        *.sh) run_shell_script $testname ;;
+        *) run_executable $testname ;;
+    esac
+}
+
 TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
 trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
@@ -109,11 +118,14 @@ run_tests () {
 	fi
 	NUM=$(($NUM+1))
 	echo "Running test: $testdir" 1>&2
-        case $testname in
-        *.hal) run_without_overruns $testname ;;
-        *.sh) run_shell_script $testname ;;
-        *) run_executable $testname ;;
-        esac
+        if test -n "$SYSTEM_BUILD"; then
+            # Tell `halcompile` where to install comps
+            USER_MODULE_DIR=$(readlink -f $testdir) \
+                PATH=$(readlink -f $testdir):$PATH \
+                run_test $testname
+        else
+            run_test $testname
+        fi
 	exitcode=$?
 	if [ $exitcode -ne 0 ]; then
 	    reason="test run exited with $exitcode"

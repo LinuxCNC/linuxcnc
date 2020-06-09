@@ -100,6 +100,7 @@ parser Hal:
 
 import os, sys, tempfile, shutil, getopt, time
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+BINDIR = os.getenv('USER_MODULE_DIR', None) or os.path.join(BASE, "bin")
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
 MAX_USERSPACE_NAMES = 16 # for userspace (loadusr) components
@@ -802,7 +803,7 @@ def build_usr(tempdir, filename, mode, origfilename):
         raise SystemExit(os.WEXITSTATUS(result) or 1)
     output = os.path.join(tempdir, binname)
     if mode == INSTALL:
-        shutil.copy(output, os.path.join(BASE, "bin", binname))
+        shutil.copy(output, os.path.join(BINDIR, binname))
     elif mode == COMPILE:
         shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
 
@@ -1185,7 +1186,7 @@ def main():
                 lines = open(f).readlines()
                 if lines[0].startswith("#!"): del lines[0]
                 lines[0] = "#!%s\n" % sys.executable
-                outfile = os.path.join(BASE, "bin", basename)
+                outfile = os.path.join(BINDIR, basename)
                 try: os.unlink(outfile)
                 except os.error: pass
                 open(outfile, "w").writelines(lines)
