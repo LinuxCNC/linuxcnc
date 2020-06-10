@@ -1,4 +1,4 @@
 #!/bin/sh
-realtime start
+$REALTIME start
 ./test.py
-realtime stop
+$REALTIME stop

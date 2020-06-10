@@ -1,8 +1,8 @@
 #!/bin/bash
 
-realtime start
+$REALTIME start
 linuxcnc-python hallink.py
 
-realtime stop
+$REALTIME stop
 
 exit $?

@@ -26,6 +26,7 @@ if test @RUN_IN_PLACE@ = yes; then
     export HEADERS=@EMC2_HOME@/include
     export LIBDIR=${TOPDIR}/lib
     export INCLUDEPY=@INCLUDEPY@
+    export REALTIME=realtime
 else
     # Set $EMC2_HOME to $prefix for tests that depend on it
     export SYSTEM_BUILD=1
@@ -34,6 +35,7 @@ else
     export LIBDIR=@EMC2_HOME@/lib
     export INCLUDEPY=@INCLUDEPY@
     export LINUXCNC_EMCSH=@WISH@
+    export REALTIME=/etc/init.d/realtime
     export SUDO=sudo
 fi
 export INCLUDEPY=@INCLUDEPY@
