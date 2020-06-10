@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: vsnprintf.h
+* Description: rtapi_vsnprintf.h
 *   Implementation of vsnprintf for kernel space.
 *
 *   Derived from the Linux 2.4.18 kernel  (linux/lib/vsprintf.c)

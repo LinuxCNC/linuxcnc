@@ -405,7 +405,8 @@ HEADERS := \
     rtapi/rtapi_stdint.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
-    rtapi/rtapi_string.h
+    rtapi/rtapi_string.h \
+    rtapi/rtapi_vsnprintf.h
 
 # the "headers" target installs all the header files in ../include
 .PHONY: headers
