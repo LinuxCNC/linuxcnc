@@ -218,8 +218,9 @@ if version == "$Revision$" or version < "1.0":
     if section: section = section.group(1)
     newini.write("\n[RS274NGC]\n")
     if section != None:
-        features = int(ini.find('RS274NGC', 'FEATURES'))
+        features = ini.find('RS274NGC', 'FEATURES')
         if features != None:
+            features = int(features)
             section = re.sub("FEATURES.*?\n", "", section)
             section += ("RETAIN_G43 = %s\n"   % ("1" if features & 0x1 else "0"))
             section += ("INI_VARS = %s\n"     % ("1" if features & 0x4 else "0"))
