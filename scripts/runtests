@@ -136,9 +136,16 @@ run_tests () {
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
+	    echo "*** $testdir: XFAIL: $reason"
+            if test $PRINT = 1; then
+                echo "************** result:"
+                tail -500 $testdir/result | sed 's/^/        /'
+                echo "************** stderr:"
+                tail -500 $testdir/stderr | sed 's/^/        /'
+                echo "**************"
+            fi
 	    if [ -f $testdir/xfail ]; then
 		XFAIL=$(($XFAIL+1))
-		echo "*** $testdir: XFAIL: $reason"
 		if [ $NOCLEAN -eq 0 ]; then
 		    rm -f $testdir/stderr $testdir/result \
 			$testdir/*.var $testdir/*.var.bak
@@ -147,7 +154,6 @@ run_tests () {
 		FAIL=$(($FAIL+1))
 		FAIL_NAMES="$FAIL_NAMES
 	$testdir"
-		echo "*** $testdir: FAIL: $reason"
 	    fi
             if test $STOP = 1; then
 	        break
@@ -180,9 +186,10 @@ usage () {
 $P: Run HAL test suite items
 
 Usage:
-    $P [-n] [-s] tests
+    $P [-n] [-s] [-p] tests
 	Run tests.  With '-n', do not remove temporary files for successful
-	tests.  With '-s', stop after any failed test.
+	tests.  With '-s', stop after any failed test.  With '-p', print
+        stderr and result files.
 
     $P -c tests
 	Remove temporary files from an earlier test run.
@@ -195,12 +202,14 @@ EOF
 CLEAN_ONLY=0
 NOCLEAN=0
 STOP=0
-while getopts cnvsh opt; do
+PRINT=0
+while getopts cnvsph opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
+    p) PRINT=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac
