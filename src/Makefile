@@ -153,6 +153,8 @@ SUBDIRS := \
     po \
     \
     ../docs/src ../docs/src/source-highlight \
+    \
+    ../tests \
 
 
 

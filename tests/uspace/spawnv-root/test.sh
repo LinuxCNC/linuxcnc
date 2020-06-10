@@ -2,7 +2,7 @@
 set -eo pipefail
 set -x
 
-. ../../../scripts/rtapi.conf
+. ./rtapi.conf
 
 if [ "$RTPREFIX" != uspace ]; then
     echo "test only meaningful on uspace"
