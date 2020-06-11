@@ -582,6 +582,7 @@ class EMC_TRAJ_SET_MAX_VELOCITY:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     double velocity;
+    double velocity_angular;
 };
 
 class EMC_TRAJ_SET_MAX_ACCELERATION:public EMC_TRAJ_CMD_MSG {
@@ -1003,6 +1004,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double acceleration;	// system acceleration, for subsequent
     // motions
     double maxVelocity;		// max system velocity
+    double maxAngularVelocity;	// max system angular velocity
     double maxAcceleration;	// system acceleration
 
     EmcPose probedPosition;	// last position where probe was tripped.

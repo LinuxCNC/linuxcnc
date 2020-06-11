@@ -1,0 +1,76 @@
+# core HAL config file for simulation
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# load 6 differentiators for velocity signals
+loadrt ddt count=6
+# load hypotenuse and minmax comps for capturing combined motion velocities
+loadrt hypot count=2
+loadrt minmax count=6
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+# link the differentiator functions into the code
+addf ddt.0 servo-thread
+addf ddt.1 servo-thread
+addf ddt.2 servo-thread
+addf ddt.3 servo-thread
+addf ddt.4 servo-thread
+addf ddt.5 servo-thread
+addf hypot.0 servo-thread
+addf hypot.1 servo-thread
+addf minmax.0 servo-thread
+addf minmax.1 servo-thread
+addf minmax.2 servo-thread
+addf minmax.3 servo-thread
+addf minmax.4 servo-thread
+addf minmax.5 servo-thread
+
+# create HAL signals for position commands from motion module loop
+# position commands back to motion module feedback, and into
+# differentiators to capture velocities
+net Xpos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt.0.in
+net Ypos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt.1.in
+net Zpos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt.2.in
+net Apos axis.3.motor-pos-cmd => axis.3.motor-pos-fb ddt.3.in
+net Bpos axis.4.motor-pos-cmd => axis.4.motor-pos-fb ddt.4.in
+net Cpos axis.5.motor-pos-cmd => axis.5.motor-pos-fb ddt.5.in
+
+# joint velocities into joint vel minmax
+net Xvel ddt.0.out => minmax.0.in
+net Yvel ddt.1.out => minmax.1.in
+net Zvel ddt.2.out => minmax.2.in
+net Avel ddt.3.out => minmax.3.in
+net Bvel ddt.4.out => minmax.4.in
+net Cvel ddt.5.out => minmax.5.in
+
+# joint vel minmax reset
+net reset => minmax.0.reset
+net reset => minmax.1.reset
+net reset => minmax.2.reset
+net reset => minmax.3.reset
+net reset => minmax.4.reset
+net reset => minmax.5.reset
+
+# joint vel minmax to cartesian and angular 3-axis velocity minmax in
+net Xvelmax minmax.0.max => hypot.0.in0
+net Yvelmax minmax.1.max => hypot.0.in1
+net Zvelmax minmax.2.max => hypot.0.in2
+net Avelmax minmax.3.max => hypot.1.in0
+net Bvelmax minmax.4.max => hypot.1.in1
+net Cvelmax minmax.5.max => hypot.1.in2
+
+# combined cartesian and angular 3-axis velocity minmax out
+net XYZmax <= hypot.0.out
+net ABCmax <= hypot.1.out
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

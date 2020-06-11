@@ -348,6 +348,8 @@ static PyMemberDef Stat_members[] = {
     {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
     {(char*)"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
     {(char*)"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
+    {(char*)"max_angular_velocity", T_DOUBLE,
+     O(motion.traj.maxAngularVelocity), READONLY},
     {(char*)"max_acceleration", T_DOUBLE, O(motion.traj.maxAcceleration), READONLY},
     {(char*)"probe_tripped", T_BOOL, O(motion.traj.probe_tripped), READONLY},
     {(char*)"probing", T_BOOL, O(motion.traj.probing), READONLY},
@@ -784,7 +786,8 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *maxvel(pyCommandChannel *s, PyObject *o) {
     EMC_TRAJ_SET_MAX_VELOCITY m;
-    if(!PyArg_ParseTuple(o, "d", &m.velocity)) return NULL;
+    if(!PyArg_ParseTuple(o, "dd", &m.velocity, &m.velocity_angular))
+	return NULL;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;

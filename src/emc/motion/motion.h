@@ -152,7 +152,8 @@ extern "C" {
 	EMCMOT_SET_MIN_FERROR,	/* minimum following error, input units */
 	EMCMOT_SET_MAX_FERROR,	/* maximum following error, input units */
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
-	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
+	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves
+				   (linear and rotary-only) */
 	EMCMOT_SET_JOINT_VEL_LIMIT,	/* set the max joint vel */
 	EMCMOT_SET_JOINT_ACC_LIMIT,	/* set the max joint accel */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
@@ -212,7 +213,8 @@ extern "C" {
 	PmCartesian center;	/* center for circle */
 	PmCartesian normal;	/* normal vec for circle */
 	int turn;		/* turns for circle or which rotary to unlock for a line */
-	double vel;		/* max velocity */
+	double vel;		/* max linear velocity */
+	double vela;		/* max angular velocity */
         double ini_maxvel;      /* max velocity allowed by machine
                                    constraints (the ini file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
@@ -739,7 +741,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int interpolationRate;	/* grep control.c for an explanation....
 				   approx line 50 */
 
-	double limitVel;	/* scalar upper limit on vel */
+	double limitVel;	/* scalar upper limit on linear vel */
+	double limitVelAng;	/* scalar upper limit on angular vel */
 	KINEMATICS_TYPE kinematics_type;
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */

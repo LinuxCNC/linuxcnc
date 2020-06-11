@@ -343,6 +343,8 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("velocity", &EMC_TRAJ_STAT::velocity )
 	.def_readwrite("acceleration", &EMC_TRAJ_STAT::acceleration)
 	.def_readwrite("maxVelocity", &EMC_TRAJ_STAT::maxVelocity )
+	.def_readwrite("maxAngularVelocity",
+		       &EMC_TRAJ_STAT::maxAngularVelocity )
 	.def_readwrite("maxAcceleration", &EMC_TRAJ_STAT::maxAcceleration )
 	.def_readwrite("probedPosition", &EMC_TRAJ_STAT::probedPosition )
 	.def_readwrite("probe_tripped", &EMC_TRAJ_STAT::probe_tripped )

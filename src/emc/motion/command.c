@@ -996,7 +996,9 @@ check_stuff ( "before command_handler()" );
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
 	    emcmotConfig->limitVel = emcmotCommand->vel;
-	    tpSetVlimit(&emcmotDebug->tp, emcmotConfig->limitVel);
+	    emcmotConfig->limitVelAng = emcmotCommand->vela;
+	    tpSetVlimit(&emcmotDebug->tp,
+			emcmotConfig->limitVel, emcmotConfig->limitVelAng);
 	    break;
 
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
@@ -1457,6 +1459,8 @@ check_stuff ( "before command_handler()" );
 		reportError
 		    (_("need to be enabled, in teleop mode for teleop move"));
 	    } else {
+		// FIXME how should this change for angular velocity
+		// in rotary-only moves?
 		double velmag;
 		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
 		pmCartMag(&emcmotDebug->teleop_data.desiredVel.tran, &velmag);

@@ -13,6 +13,7 @@ net joint-0-jog-scale <= test-ui.joint-0-jog-scale
 net joint-0-jog-scale => axis.0.jog-scale
 
 net Xpos => test-ui.joint-0-position
+net Xvelmax => test-ui.joint-0-velocity
 
 
 #
@@ -29,6 +30,7 @@ net joint-1-jog-scale <= test-ui.joint-1-jog-scale
 net joint-1-jog-scale => axis.1.jog-scale
 
 net Ypos => test-ui.joint-1-position
+net Yvelmax => test-ui.joint-1-velocity
 
 
 #
@@ -45,6 +47,7 @@ net joint-2-jog-scale <= test-ui.joint-2-jog-scale
 net joint-2-jog-scale => axis.2.jog-scale
 
 net Zpos => test-ui.joint-2-position
+net Zvelmax => test-ui.joint-2-velocity
 
 #
 # joint 3
@@ -60,6 +63,7 @@ net joint-3-jog-scale <= test-ui.joint-3-jog-scale
 net joint-3-jog-scale => axis.3.jog-scale
 
 net Apos => test-ui.joint-3-position
+net Avelmax => test-ui.joint-3-velocity
 
 #
 # joint 4
@@ -75,6 +79,7 @@ net joint-4-jog-scale <= test-ui.joint-4-jog-scale
 net joint-4-jog-scale => axis.4.jog-scale
 
 net Bpos => test-ui.joint-4-position
+net Bvelmax => test-ui.joint-4-velocity
 
 #
 # joint 5
@@ -90,4 +95,16 @@ net joint-5-jog-scale <= test-ui.joint-5-jog-scale
 net joint-5-jog-scale => axis.5.jog-scale
 
 net Cpos => test-ui.joint-5-position
+net Cvelmax => test-ui.joint-5-velocity
 
+#
+# XYZ and ABC max velocities
+#
+
+net XYZmax => test-ui.XYZmax
+net ABCmax => test-ui.ABCmax
+
+#
+# Reset minmax
+#
+net reset <= test-ui.minmax-reset
