@@ -243,6 +243,15 @@ int do_unlinkp_cmd(char *pin)
     return retval;
 }
 
+int do_set_debug_cmd(char* level){
+    int new_level = atoi(level);
+    if (new_level < 0 || new_level > 5){
+        halcmd_error("Debug level must be >=0 and <= 5\n");
+        return -EINVAL;
+    }
+    return rtapi_set_msg_level(atoi(level));
+}
+
 int do_source_cmd(char *hal_filename) {
     FILE *f = fopen(hal_filename, "r");
     char buf[MAX_CMD_LEN+1];
@@ -2920,6 +2929,16 @@ int do_help_cmd(char *command)
 	printf("  'type' is 'lock', 'mem', or 'all'. \n");
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
+    } else if (strcmp(command, "debug")==0){
+    printf("debug [level]\n");
+    printf("   set the messaging level for the realtime API (calls rtapi_set_msg_level)\n");
+    printf("   levels are \n");
+    printf("   0 = None\n");
+	printf("   1 = Errors only (default)\n");
+	printf("   2 = Warnings and above\n");
+	printf("   3 = Info and above\n");
+	printf("   4 = Debug and above\n");
+	printf("   5 = All messages\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type] [filename]\n");
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
@@ -2998,6 +3017,7 @@ static void print_help_commands(void)
     printf("  list                Display names of HAL objects\n");
     printf("  source              Execute commands from another .hal file\n");
     printf("  status              Display status information\n");
+    printf("  debug               Set the rtapi message level\n");
     printf("  save                Print config as commands\n");
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");

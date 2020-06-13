@@ -349,6 +349,7 @@ int hal_exit(int comp_id)
     --ref_cnt;
 #ifdef ULAPI
     if(ref_cnt == 0) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "HAL:  releasing RTAPI resources");
 	/* release RTAPI resources */
 	rtapi_shmem_delete(lib_mem_id, lib_module_id);
 	rtapi_exit(lib_module_id);
@@ -1973,7 +1974,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp)
     hal_ready(new->comp_id);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: thread created\n");
-    return 0;
+    return new->comp_id;
 }
 
 extern int hal_thread_delete(const char *name)
@@ -2878,7 +2879,10 @@ static void *shmalloc_up(long int size)
 
     /* deal with alignment requirements */
     tmp_bot = hal_data->shmem_bot;
-    if (size >= 8) {
+    if (size >= 16) {
+	/* align on 16 byte boundary */
+	tmp_bot = (tmp_bot + 15) & (~15);
+    } else if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_bot = (tmp_bot + 7) & (~7);
     } else if (size >= 4) {
@@ -2897,6 +2901,7 @@ static void *shmalloc_up(long int size)
     retval = SHMPTR(tmp_bot);
     hal_data->shmem_bot = tmp_bot + size;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
+    rtapi_print_msg(RTAPI_MSG_INFO, "smalloc_up: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 
@@ -2908,7 +2913,10 @@ static void *shmalloc_dn(long int size)
     /* tentatively allocate memory */
     tmp_top = hal_data->shmem_top - size;
     /* deal with alignment requirements */
-    if (size >= 8) {
+    if (size >= 16) {
+	/* align on 16 byte boundary */
+	tmp_top &= (~15);
+    } else if (size >= 8) {
 	/* align on 8 byte boundary */
 	tmp_top &= (~7);
     } else if (size >= 4) {
@@ -2927,6 +2935,7 @@ static void *shmalloc_dn(long int size)
     retval = SHMPTR(tmp_top);
     hal_data->shmem_top = tmp_top;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
+    rtapi_print_msg(RTAPI_MSG_INFO, "smalloc_dn: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 

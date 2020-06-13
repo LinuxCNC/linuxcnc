@@ -752,7 +752,12 @@ static int task_delete(int task_id)
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "RTAPI: WARNING: tried to delete task %02d while running\n",
 	    task_id);
-	rtapi_task_pause(task_id);
+        int retval = rtapi_task_pause(task_id);
+        if (retval  != 0){
+            rtapi_print_msg(RTAPI_MSG_WARN,
+	    "RTAPI: WARNING: Failed to pause task  %02d, return %i\n", task_id, retval);
+            return -EINVAL;
+        }
     }
     /* get rid of it */
     rt_task_delete(ostask_array[task_id]);
@@ -904,7 +909,7 @@ int rtapi_task_pause(int task_id)
     oldstate = task->state;
     task->state = PAUSED;
     retval = rt_task_suspend(ostask_array[task_id]);
-    if (retval != 0) {
+    if (retval < 0) {
         task->state = oldstate;
 	return -EINVAL;
     }

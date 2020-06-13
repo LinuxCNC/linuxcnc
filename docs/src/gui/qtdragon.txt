@@ -11,7 +11,7 @@ Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
 .qtdragon - 3 or 4 Axis Sample
-image::images/silverdragon.png["QTDragon Router",align="left"]
+image::images/silverdragon.png["QTDragon Router",scale="25%"]
 
 == Getting Started
 
@@ -140,7 +140,7 @@ to watch the DROs and stop the routine at any time.
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
 .qtdragon - Probe Sample
-image::images/silverdragon_probe.png["QTDragon Probe",align="left"]
+image::images/silverdragon_probe.png["QTDragon Probe",scale="25%"]
 
 == Run from Line
 
@@ -165,13 +165,16 @@ It's possible to load Html file (.html ending) with setup notes. They will be di
 Some program, such as Fusion and Aspire will create this files for you.
 
 .qtdragon - Setup Tab Sample
-image::images/silverdragon_setup.png["QTDragon Setup Tab",align="left"]
+image::images/silverdragon_setup.png["QTDragon Setup Tab",scale="25%"]
 
 == Styles
 
 Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss stylesheet file. The file can be edited manually or 
 through the stylesheet dialog widget in the GUI. To call up the dialog, press F12 on the main window. New styles can be applied
 temporarily and then saved to a new qss file, or overwrite the current qss file.
+
+.qtdragon - Two Style Examples
+image::images/style-comparison.png["QTDragon stlyes",scale="25%"]
 
 == Screen resolution
 
@@ -184,4 +187,7 @@ All aspects of the GUI are fully customizable through qtdesigner. This is includ
 The extensive use of qtvcp widgets keeps the amount of required python code to a minimum, allowing relatively easy modifications.
 The LinuxCNC website has extensive documentation on the installation and use of qtvcp libraries.
 <<cha:qtvcp,QtVCP Overview>> for more information
+
+.qtdragon - Customized Silverdragon
+image::images/silverdragon_custom.png["QTDragon customized",scale=25]
 
