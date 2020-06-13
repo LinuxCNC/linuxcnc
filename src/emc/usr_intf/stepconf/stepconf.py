@@ -944,7 +944,7 @@ class StepconfApp:
                     # read base-addr file
                     try:
                         for line in in_file:
-                            # get init_address
+                            # get init_address (Not used)
                             lline=line.split()
                             dec_address=lline[0].strip()
                             init_address=hex(int(dec_address))
