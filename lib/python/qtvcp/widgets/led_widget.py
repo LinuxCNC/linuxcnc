@@ -204,9 +204,10 @@ class LED(QWidget, _HalWidgetBase):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     led = LED()
     led.show()
-    led.setFlashing(True)
+    led.setState(True)
+    #led.setFlashing(True)
     sys.exit(app.exec_())
