@@ -204,7 +204,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 # for testing without editor:
 def main():
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     widget = DROLabel()

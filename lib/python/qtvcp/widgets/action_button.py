@@ -1420,11 +1420,16 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
 
     widget = ActionButton('Action')
     # this doesn't get called without qtvcp loading the widget
+    widget.HAL_NAME_ = 'test'
+    widget.PREFS_ = None
+    widget.QTVCP_INSTANCE_ = None
+    widget.draw_indicator = True
+    widget._indicator_state = True
     widget._hal_init()
 
     widget.show()
