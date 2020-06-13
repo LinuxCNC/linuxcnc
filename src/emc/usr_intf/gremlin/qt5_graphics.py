@@ -828,7 +828,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # Also stop the display from pausing plotting update while searching
     # probably needs a thread - strange that Tkinter and GTK don't suffer...
     def select_fire(self):
-        if self.inhibt_selection: return
+        if self.inhibit_selection: return
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
