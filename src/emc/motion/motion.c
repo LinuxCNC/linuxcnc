@@ -359,7 +359,7 @@ static int init_hal_io(void)
 
     /* state tags pins */
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_upm), mot_comp_id, "motion.feed-upm")) < 0) goto error;
-
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->arc_radius), mot_comp_id, "motion.arc-radius")) < 0) goto error;
     /* export motion-synched digital output pins */
     /* export motion digital input pins */
     for (n = 0; n < num_dio; n++) {

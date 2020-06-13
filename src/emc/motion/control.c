@@ -1857,6 +1857,9 @@ static void output_to_hal(void)
         case EMC_MOTION_TYPE_ARC:
             *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
                                          * emcmotStatus->net_feed_scale;
+            *(emcmot_hal_data->arc_radius) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_ARC_RADIUS];
+
+
             break;
         default:
             *(emcmot_hal_data->feed_upm) = 0;
