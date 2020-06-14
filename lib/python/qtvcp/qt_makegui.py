@@ -161,14 +161,16 @@ Python Error:\n {}'''.format(str(e))
                 fname = self.PATHS.QSS
 
         # if qss file is not a file, try expanding/adding a leading path
-        if not os.path.isfile(fname):
-            temp = os.path.join(os.path.expanduser(fname))
-            qssname = os.path.join(DIR, BNAME,fname+'.qss')
+        if fname is not None:
             if not os.path.isfile(fname):
-                qssname = temp
+                temp = os.path.join(os.path.expanduser(fname))
+                qssname = os.path.join(DIR, BNAME,fname+'.qss')
+                if not os.path.isfile(fname):
+                    qssname = temp
+            else:
+                qssname = fname
         else:
-            qssname = fname
-
+            return
         try:
             qss_file = open(qssname).read()
             # qss files aren't friendly about changing image paths
