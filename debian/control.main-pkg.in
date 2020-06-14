@@ -1,0 +1,23 @@
+Package: @MAIN_PACKAGE_NAME@
+Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
+Architecture: any
+Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
+Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
+    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends}, ${misc:Depends},
+    python@PYTHON_VERSION@-tk,
+    python@PYTHON_VERSION@-glade2 | python-glade2,
+    python@PYTHON_VERSION@-numpy | python-numpy,
+    @PYTHON_IMAGING@,
+    @PYTHON_IMAGING_TK@,
+    python-gtksourceview2,
+    python-vte | gir1.2-vte-2.91,
+    @PYTHON_GST@,
+    python-xlib, python-gtkglext1, python-configobj,
+    tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
+    mesa-utils, blt, udev
+Description: motion controller for CNC machines and robots
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).

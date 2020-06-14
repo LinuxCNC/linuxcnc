@@ -902,22 +902,25 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-if test $INSMOD = "none"
-then
-    AC_MSG_ERROR([insmod not found])
-fi
+if test "$RTS" != uspace; then
+    # Module utilities not needed for uspace
+    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+    if test $INSMOD = "none"
+    then
+        AC_MSG_ERROR([insmod not found])
+    fi
 
-AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-if test $RMMOD = "none"
-then
-    AC_MSG_ERROR([rmmod not found])
-fi
+    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+    if test $RMMOD = "none"
+    then
+        AC_MSG_ERROR([rmmod not found])
+    fi
 
-AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-if test $LSMOD = "none"
-then
-    AC_MSG_ERROR([lsmod not found])
+    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+    if test $LSMOD = "none"
+    then
+        AC_MSG_ERROR([lsmod not found])
+    fi
 fi
 
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
