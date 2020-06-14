@@ -918,7 +918,7 @@ FUNCTION(_) {
                     if(cut_feed_rate > 0){
                         requested_feed_rate = cut_feed_rate;
                     }else{
-                        requested_feed_rate = requested_velocity;
+                        requested_feed_rate = requested_velocity * 60;
                     }
                     feed_hold = FALSE;
                     thc_delay_timer = thc_delay;
