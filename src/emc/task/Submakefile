@@ -5,7 +5,7 @@ USERSRCS += $(EMCSVRSRCS)
 
 ../bin/linuxcncsvr: $(call TOOBJS, $(EMCSVRSRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) $(LDFLAGS) -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/linuxcncsvr
 
 # disabled:	emc/task/iotaskintf.cc
