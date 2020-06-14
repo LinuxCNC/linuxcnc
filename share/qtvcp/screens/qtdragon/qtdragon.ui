@@ -13269,7 +13269,7 @@ ALL</string>
                    </widget>
                   </item>
                   <item alignment="Qt::AlignHCenter">
-                   <widget class="LED" name="hal_led_home_p">
+                   <widget class="LED" name="hal_led_probe">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -13465,7 +13465,7 @@ ALL</string>
                   <number>2</number>
                  </property>
                  <property name="text">
-                  <string>01:00:47 PM</string>
+                  <string>10:41:14 AM</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -14240,7 +14240,7 @@ ALL</string>
   <slot>percent_completed_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
