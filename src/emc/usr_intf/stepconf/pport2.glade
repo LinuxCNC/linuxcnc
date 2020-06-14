@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.4"/>
   <object class="GtkListStore" id="pp2_input_list">
@@ -27,6 +27,17 @@
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="pp2_preset_io_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">0x0378</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkListStore" id="pport_dir_list">
     <columns>
       <!-- column-name gchararray1 -->
@@ -44,58 +55,25 @@
   <object class="GtkBox" id="pport2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="orientation">vertical</property>
+    <property name="spacing">10</property>
     <child>
-      <object class="GtkGrid" id="table2">
+      <object class="GtkGrid" id="grid_outputs">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="column_homogeneous">True</property>
         <child>
-          <object class="GtkBox" id="all_in_box">
+          <object class="GtkBox" id="pp2_pin1_out_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
+            <property name="hexpand">True</property>
             <child>
-              <object class="GtkBox" id="box1">
+              <object class="GtkLabel" id="label11">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label10">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label168">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Inputs (Mill to PC):</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label176">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Invert</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
+                <property name="label" translatable="yes"> Pin _1:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -104,1587 +82,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="pp2_pin2_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 2:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin2_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext18"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin2_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin3_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 3:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin3_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext19"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin3_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin4_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 4:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin4_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext20"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin4_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin5_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 5:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin5_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext21"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin5_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin6_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 6:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin6_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext22"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin6_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin7_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 7:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin7_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext23"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin7_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin8_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 8:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin8_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext24"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin8_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin9_in_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label8">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin 9:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin9_in">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_input_list</property>
-                    <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext25"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin9_in_inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">8</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="in_pin_box">
+              <object class="GtkComboBox" id="pp2_pin1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
+                <property name="model">pp2_output_list</property>
                 <child>
-                  <object class="GtkBox" id="hbox1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label163">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Pin 1_0:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="pp2_pin10_in">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">pp2_input_list</property>
-                        <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext17"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pp2_pin10_in_inv">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0.5</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label164">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Pin 1_1:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="pp2_pin11_in">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">pp2_input_list</property>
-                        <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext13"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pp2_pin11_in_inv">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0.5</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label165">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Pin 1_2:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="pp2_pin12_in">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">pp2_input_list</property>
-                        <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext14"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pp2_pin12_in_inv">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0.5</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label166">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Pin 1_3:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="pp2_pin13_in">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">pp2_input_list</property>
-                        <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext15"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pp2_pin13_in_inv">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0.5</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox" id="hbox5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <child>
-                      <object class="GtkLabel" id="label167">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Pin 1_5:</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="pp2_pin15_in">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="model">pp2_input_list</property>
-                        <signal name="changed" handler="on_exclusive_check_pp2" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext16"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="pp2_pin15_in_inv">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">False</property>
-                        <property name="use_underline">True</property>
-                        <property name="xalign">0.5</property>
-                        <property name="draw_indicator">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">9</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">2</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="vbox1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkBox" id="hbox6">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label162">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Outputs (PC to Mill):</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label175">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Invert</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="pack_type">end</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox7">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label13">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _1: </property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin1inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin2_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label14">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _2:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin2inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin3_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label15">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _3:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext3"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin3inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin4_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label16">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _4:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin4inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin5_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label17">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _5:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin5inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin6_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label18">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _6:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin6inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin7_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label19">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _7:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin7">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext7"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin7inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin8_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label20">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _8:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin8">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext8"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin8inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">8</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="pp2_pin9_out_box">
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label21">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pin _9:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin9">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext9"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin9inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox8">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label22">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">_Pin 14:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin14">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext10"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin14inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">10</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox9">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label23">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">P_in 16:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin16">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext11"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin16inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">11</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox10">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="label24">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">Pi_n 17:</property>
-                    <property name="use_underline">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="pp2_pin17">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">pp2_output_list</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext12"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="pp2_pin17inv">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="xalign">0.5</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">12</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox" id="hbox11">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">13</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="box2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="valign">end</property>
-            <property name="margin_left">10</property>
-            <property name="margin_right">10</property>
-            <property name="margin_top">10</property>
-            <property name="margin_bottom">10</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkEntry" id="ioaddr2">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="halign">center</property>
-                <property name="invisible_char">●</property>
-                <property name="width_chars">7</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="pp2_direction">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">center</property>
-                <property name="model">pport_dir_list</property>
-                <property name="active">0</property>
-                <signal name="changed" handler="on_pp2_direction_changed" swapped="no"/>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext26"/>
+                  <object class="GtkCellRendererText" id="cellrenderertext27"/>
                   <attributes>
                     <attribute name="text">0</attribute>
                   </attributes>
@@ -1696,21 +99,1652 @@
                 <property name="position">1</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin1inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
           </object>
           <packing>
-            <property name="left_attach">1</property>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin2_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label12">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _2:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext28"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin2inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin4_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label25">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _4:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext29"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin4inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin3_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label26">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _3:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext30"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin3inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin5_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label27">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _5:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin5">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext31"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin5inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin6_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label28">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _6:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin6">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext32"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin6inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin7_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label29">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _7:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin7">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext33"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin7inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin8_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label30">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _8:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext34"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin8inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin9_out_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label31">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _9:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin9">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext35"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin9inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">9</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin14_out_box">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label32">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Pin 14:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin14">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext36"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin14inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin16_out_box">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label33">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">P_in 16:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin16">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext37"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin16inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">11</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin17_out_box">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label34">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Pi_n 17:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin17">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_output_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext38"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin17inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">12</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box16">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label35">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Outputs (PC to Mill):</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label36">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label37">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="label" translatable="yes">Invert</property>
+                <property name="justify">right</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
             <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box_opzioni">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label207">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">start</property>
+                <property name="label" translatable="yes">Parport _Number:</property>
+                <property name="use_underline">True</property>
+                <property name="justify">right</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box23">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkComboBox" id="pp2_preset_io_combo">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_preset_io_liststore</property>
+                    <property name="active">0</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext39"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">13</property>
           </packing>
         </child>
       </object>
       <packing>
-        <property name="expand">True</property>
+        <property name="expand">False</property>
         <property name="fill">True</property>
         <property name="position">0</property>
       </packing>
     </child>
     <child>
-      <placeholder/>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkComboBox" id="pp2_direction">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="halign">center</property>
+            <property name="margin_top">25</property>
+            <property name="model">pport_dir_list</property>
+            <property name="active">0</property>
+            <signal name="changed" handler="on_pp2_direction_changed" swapped="no"/>
+            <child>
+              <object class="GtkCellRendererText" id="cellrenderertext1"/>
+              <attributes>
+                <attribute name="text">0</attribute>
+              </attributes>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox" id="all_in_box">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkBox" id="box24">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label168">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Inputs (Mill to PC):</property>
+                <property name="xalign">1</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label47">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label48">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="label" translatable="yes">Invert</property>
+                <property name="justify">right</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin2_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label49">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _2:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin2_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext40"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin2_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin3_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label50">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _3:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin3_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext41"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin3_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin4_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label51">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _4:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin4_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext42"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin4_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin5_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label56">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _5:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin5_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext47"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin5_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin6_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label52">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _6:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin6_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext43"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin6_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin7_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label53">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _7:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin7_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext44"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin7_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin8_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label54">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _8:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin8_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext45"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin8_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="pp2_pin9_in_box">
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label55">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> Pin _9:</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="pp2_pin9_in">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">pp2_input_list</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext46"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="pp2_pin9_in_inv">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="in_pin_box">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox" id="pp2_pin10_out_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label38">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Pin 1_0:</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="pp2_pin10_in">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_input_list</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext_pp1_10"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pp2_pin10_in_inv">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="pp2_pin11_out_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label39">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Pin 1_1:</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="pp2_pin11_in">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_input_list</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext_pp1_11"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pp2_pin11_in_inv">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="pp2_pin12_out_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label40">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Pin 1_2:</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="pp2_pin12_in">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_input_list</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext_pp1_12"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pp2_pin12_in_inv">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="pp2_pin13_out_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label41">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Pin 1_3:</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="pp2_pin13_in">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_input_list</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext_pp1_13"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pp2_pin13_in_inv">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="pp2_pin15_out_box">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label42">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Pin 1_5:</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="pp2_pin15_in">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="model">pp2_input_list</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext_pp1_15"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="pp2_pin15_in_inv">
+                    <property name="use_action_appearance">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="halign">start</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">14</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
     </child>
   </object>
 </interface>
