@@ -446,6 +446,13 @@ with open(inCode, 'r')as fRead:
         lineNum += 1
         # convert to lower case and remove whitespace and spaces
         line = line.lower().strip().replace(' ','')
+        # remove line numbers
+        if line.lower().startswith('n'):
+            line = line[1:]
+            while line[0].isdigit() or line[0] == '.':
+                line = line[1:].lstrip()
+                if not line:
+                    break
         # if line is a comment get next line
         if line.startswith(';') or line.startswith('('):
             continue

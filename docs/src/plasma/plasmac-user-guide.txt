@@ -959,12 +959,12 @@ Mandatory parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|o=|option
-|nu=|material number (not required for option 0)
-|na=|material name (not required for option 0)
-|ph=|pierce height
-|pd=|pierce delay
-|ch=|cut height
+|o|option
+|nu|material number (not required for option 0)
+|na|material name (not required for option 0)
+|ph|pierce height
+|pd|pierce delay
+|ch|cut height
 |fr|feed rate
 |===
 
@@ -973,15 +973,15 @@ Optional parameters are:
 [width="75%",cols="0,1"]
 |===
 |*Name*|*Description*
-|kw=|kerf width
-|th=|thc enable (0=disable, 1=enable)
-|ca=|cut amps
-|cv=|cut voltage
-|pe=|pause at end delay
-|gp=|gas pressure (Powermax)
-|cm=|cut mode (Powermax)
-|jh=|puddle jump height
-|jd=|puddle jump delay
+|kw|kerf width
+|th|thc enable (0=disable, 1=enable)
+|ca|cut amps
+|cv|cut voltage
+|pe|pause at end delay
+|gp|gas pressure (Powermax)
+|cm|cut mode (Powermax)
+|jh|puddle jump height
+|jd|puddle jump delay
 |===
 
 Formatting rules are:
@@ -2450,6 +2450,15 @@ continue hole path for overcut
     #<i_diameter> = nn (imperial)
 |Specify <<overcut, overcut>> length
    |#<oclength> = n
+|Create or edit materials. +
+options: +
+1 - Create temporary default +
+2 - Add if not existing +
+3 - Overwrite if existing else add new +
+   |mandatory parameters: +
+    (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
+    optional parameters: +
+    kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>
 |===
 
 === Plasmac Gcode Examples
@@ -2569,6 +2578,10 @@ continue hole path for overcut
     G0 X0 Y0 +
     G90 +
     M2 +
+|Create temporay default material
+   |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
+|Edit material, if not existing create a new one
+   |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
 |===
 
 [[rs485_connections]]
