@@ -1674,6 +1674,57 @@ int hal_param_alias(const char *param_name, const char *alias)
 }
 
 /***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
+{
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    if ((pin = halpr_find_pin_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (connected != NULL)
+        *connected = pin && pin->signal;
+    *type = pin->type;
+    if (pin->signal != 0) {
+        sig = (hal_sig_t *) SHMPTR(pin->signal);
+        *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    } else {
+        *data = (hal_data_u *) &(pin->dummysig);
+    }
+    return 0;
+}
+
+int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers)
+{
+    hal_sig_t *sig;
+    if ((sig = halpr_find_sig_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (has_writers != NULL)
+        *has_writers = !!sig->writers;
+    *type = sig->type;
+    *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    return 0;
+}
+
+int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data)
+{
+    hal_param_t *param;
+    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
+        return -1;
+
+    *type = param->type;
+    *data = (hal_data_u *) SHMPTR(param->data_ptr);
+    return 0;
+}
+
+
+/***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
