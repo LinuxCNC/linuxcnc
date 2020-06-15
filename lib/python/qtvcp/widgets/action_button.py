@@ -78,6 +78,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.launch_status = False
         self.launch_halshow = False
         self.launch_halscope = False
+        self.launch_calibration = False
         self.mdi = False
         self.auto = False
         self.manual = False
@@ -281,6 +282,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             pass
         elif self.launch_halscope:
             pass
+        elif self.launch_calibration:
+            pass
         elif self.auto:
             STATUS.connect('mode-auto', lambda w: _safecheck(True))
             STATUS.connect('mode-mdi', lambda w: _safecheck(False))
@@ -438,6 +441,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             AUX_PRGM.load_halshow()
         elif self.launch_halscope:
             AUX_PRGM.load_halscope()
+        elif self.launch_calibration:
+            AUX_PRGM.load_calibration()
         elif self.auto:
             ACTION.SET_AUTO_MODE()
         elif self.mdi:
@@ -708,6 +713,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'limits_override', 'flood', 'mist', 'optional_stop', 'mdi_command',
                 'ini_mdi_command', 'command_text', 'block_delete', 'dro_absolute',
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
+                'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
                  'origin_offset_dialog', 'run_from_status', 'run_from_slot')
 
@@ -978,6 +984,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         return self.launch_halscope
     def reset_launch_halscope(self):
         self.launch_halscope = False
+
+    def set_launch_calibration(self, data):
+        self.launch_calibration = data
+        if data:
+            self._toggle_properties('launch_calibration')
+    def get_launch_calibration(self):
+        return self.launch_calibration
+    def reset_launch_calibration(self):
+        self.launch_calibration = False
 
     def set_auto(self, data):
         self.auto = data
@@ -1333,6 +1348,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
     launch_halshow_action = QtCore.pyqtProperty(bool, get_launch_halshow, set_launch_halshow, reset_launch_halshow)
     launch_halscope_action = QtCore.pyqtProperty(bool, get_launch_halscope, set_launch_halscope, reset_launch_halscope)
+    launch_calibration_action = QtCore.pyqtProperty(bool, get_launch_calibration, set_launch_calibration, reset_launch_calibration)
     home_action = QtCore.pyqtProperty(bool, get_home, set_home, reset_home)
     unhome_action = QtCore.pyqtProperty(bool, get_unhome, set_unhome, reset_unhome)
     home_select_action = QtCore.pyqtProperty(bool, get_home_select, set_home_select, reset_home_select)

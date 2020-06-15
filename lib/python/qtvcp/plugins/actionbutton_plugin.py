@@ -247,7 +247,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
         node_4 = (('Launch HALmeter',['launch_halmeter', 0], []),
                 ('Launch Status',['launch_status', 0], []),
                 ('Launch HALshow',['launch_halshow', 0], []),
-                ('Launch HALscope',['launch_halscope', 0], [])  )
+                ('Launch HALscope',['launch_halscope', 0], []),
+                ('Launch Calibration',['launch_calibration', 0], [])  )
         node_5 = (('Set MDI Mode',['mdi', 0], []),
                 ('Set Auto Mode',['auto', 0], []),
                 ('Set Manual Mode',['manual', 0], []) )
