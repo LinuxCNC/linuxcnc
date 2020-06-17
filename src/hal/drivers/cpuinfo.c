@@ -85,7 +85,8 @@ int get_rpi_revision(void)
             (strcmp(revision, "b03111") == 0) ||
             (strcmp(revision, "b03112") == 0) ||
             (strcmp(revision, "c03111") == 0) ||
-            (strcmp(revision, "c03112") == 0))
+            (strcmp(revision, "c03112") == 0) ||
+            (strcmp(revision, "d03114") == 0))
       return 5;
    else // assume rev 6
       return 6;
