@@ -80,15 +80,15 @@ def check_if_hole():
         if 'j' in line: J = get_position('j')
         radius = get_hole_radius(I, J)
         print(line)
-        if overCut and radius < (minDiameter / 2 / scale):
-            negative_cutoff(I, J, radius)
+        if overCut and radius <= (minDiameter / 2 / scale):
+            overburn(I, J, radius)
     else:
         print(line)
         lastX = endX
         lastY = endY
 
 # turn torch off and move 4mm (0.157) past hole end
-def negative_cutoff(I, J, radius):
+def overburn(I, J, radius):
     global lastX, lastY, torchEnable, lineNum
     centerX = lastX + I
     centerY = lastY + J
@@ -127,9 +127,9 @@ def get_hole_radius(I, J):
     if offsetG41:
         radius = math.sqrt((I ** 2) + (J ** 2))
     else:
-        radius = math.sqrt((I ** 2) + (J ** 2)) + (materialDict[thisMaterial] / 2)
+        radius = math.sqrt((I ** 2) + (J ** 2)) + (materialDict[thisMaterial][1] / 2)
     # velocity reduction required
-    if radius < (minDiameter / 2 / scale):
+    if radius <= (minDiameter / 2 / scale):
         if offsetG41:
             print(';;; m67 e3 q0 (((inactive due to g41)))')
             lineNum += 1
@@ -289,7 +289,7 @@ def rewrite_materials(newMats):
     inFile.close()
     outFile.close()
     Popen('halcmd setp plasmac_run.material-reload 1', stdout = PIPE, shell = True)
-    get_kerf_width()
+    get_defaults()
     get_materials()
     matDelay = time.time()
     while 1:
@@ -320,41 +320,45 @@ def add_edit_material(num, data, outFile):
     outFile.write('CUT_MODE           = {}\n'.format(data[14]))
     outFile.write('\n')
 
-#get the default kerf width
-def get_kerf_width():
-    global kWidth
+#get the default feed rate and kerf width
+def get_defaults():
+    global fRate, kWidth
     with open(runFile, 'r') as rFile:
-        kWidth = 0.0
+        fRate = kWidth = 0.0
         for line in rFile:
+            if line.startswith('cut-feed-rate'):
+                fRate = float(line.split('=')[1])
             if line.startswith('kerf-width'):
-                    kWidth = float(line.split('=')[1])
+                kWidth = float(line.split('=')[1])
 
 # create a dict of material numbers and kerf widths
 def get_materials():
-    global kWidth, materialDict
+    global fRate, kWidth, materialDict
     mNumber = 0
     with open(materialFile, 'r') as mFile:
-        materialDict = {mNumber: kWidth}
+        materialDict = {mNumber: [fRate, kWidth]}
         while 1:
             line = mFile.readline()
             if not line:
-                if mNumber:
-                    materialDict[mNumber] = kWidth
                 break
             elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                 mNumber = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                while 1:
-                    line = mFile.readline()
-                    if not line:
-                        materialDict[mNumber] = 0.0
-                        break
-                    if line.startswith('KERF_WIDTH'):
-                        kWidth = float(line.split('=')[1].strip())
-                        materialDict[mNumber] = kWidth
-                        break
+                break
+        while 1:
+            line = mFile.readline()
+            if not line:
+                materialDict[mNumber] = [fRate, kWidth]
+                break
+            elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
+                materialDict[mNumber] = [fRate, kWidth]
+                mNumber = int(line.rsplit('_', 1)[1].strip().strip(']'))
+            elif line.startswith('CUT_SPEED'):
+                fRate = float(line.split('=')[1].strip())
+            elif line.startswith('KERF_WIDTH'):
+                kWidth = float(line.split('=')[1].strip())
 
 # start processing
-get_kerf_width()
+get_defaults()
 get_materials()
 
 # first pass check for material file edits
@@ -362,6 +366,9 @@ with open(inCode, 'r') as fRead:
     newMats = {}
     tmpDefault = []
     for line in fRead:
+        # if end of program
+        if line.lower().strip().startswith('m2') or line.lower().strip().startswith('m30'):
+            break
         tmpDict = {}
         tmpList = []
         th = 0
@@ -382,7 +389,7 @@ with open(inCode, 'r') as fRead:
                         if 'nu=' in item:
                             nu = int(item.split('=')[1])
                         elif 'na=' in item:
-                            na = item.split('=')[1]
+                            na = item.split('=')[1].strip()
                         elif 'ph=' in item:
                             ph = float(item.split('=')[1])
                         elif 'pd=' in item:
@@ -440,7 +447,8 @@ with open(inCode, 'r') as fRead:
 # second pass, check for valid material numbers and distance modes
 with open(inCode, 'r')as fRead:
     lineNum = 0
-    firstMaterial = 0
+    material = 0
+    firstMaterial = False
     oclength = 4
     for line in fRead:
         lineNum += 1
@@ -456,6 +464,9 @@ with open(inCode, 'r')as fRead:
         # if line is a comment get next line
         if line.startswith(';') or line.startswith('('):
             continue
+        # if end of program
+        if line.startswith('m2') or line.startswith('m30'):
+            break
         # get overcut length
         if line.startswith('#<oclength>'):
             oclength = float(line.split('=')[1])
@@ -482,14 +493,13 @@ with open(inCode, 'r')as fRead:
             else:
                 c = line
             a, b = c.split('p', 1)
-            material = ''
+            m = ''
             # get the material number
             for mNum in b.strip():
                 if mNum in '0123456789':
-                    material += mNum
-            material = material.lstrip('0') if material.lstrip('0') else '0'
-            # if invalid material number
-            if int(material) not in materialDict:
+                    m += mNum
+            material = int(m)
+            if material not in materialDict:
                 codeError = True
                 wng  = 'Material {} is missing from:\n'.format(material)
                 wng += '{}\n'.format(materialFile)
@@ -497,8 +507,8 @@ with open(inCode, 'r')as fRead:
                 wng += '\nAdd a new material\n'
                 wng += 'or edit GCode file to suit'
                 dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
-            if firstMaterial == 0:
-                firstMaterial = material
+            if not firstMaterial:
+                firstMaterial = True
                 Popen('halcmd setp plasmac_run.first-material {}'.format(material), stdout = PIPE, shell = True)
         # set units
         elif 'g21' in line:
@@ -547,8 +557,42 @@ with open(inCode, 'r')as fRead:
                 wng  += '\nOptions are:\n'
                 wng  += '#<m_diameter> for metric\n'
                 wng  += '#<i_diameter> for imperial\n'
-                wng += '\nEdit GCode file to suit'
+                wng  += '\nEdit GCode file to suit'
                 dialog_error(gtk.MESSAGE_ERROR, 'GCODE ERROR', wng)
+        elif 'f' in line and material in materialDict:
+            inFeed = line.split('f')[1].strip()
+            rawFeed = ''
+            codeFeed = 0.0
+            while len(inFeed) and (inFeed[0].isdigit() or inFeed[0] == '.'):
+                rawFeed = rawFeed + inFeed[0]
+                inFeed = inFeed[1:].lstrip()
+            if rawFeed:
+                codeFeed = float(rawFeed)
+                if codeFeed != float(materialDict[material][0]):
+                    cutFeed = materialDict[material][0]
+                    dec = 0 if scale == 1 else 1
+
+#                   FIX_ME if state tag ups pin released in master branch
+                    if linuxcnc.version.startswith('2.9.') or True:
+                        if cutFeed and cutFeed != codeFeed:
+                            wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
+                            wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
+                            wng  += '\nTHC calculations will be based on the\n'
+                            wng  += 'material #{} feed rate which may cause issues.\n'.format(material)
+                        else:
+                            wng   = 'Gcode feed rate is F{:0.{}f}\n'.format(codeFeed, dec)
+                            wng  += '\nMaterial #{} feed rate is F{:0.{}f}\n'.format(material, cutFeed, dec)
+                            wng  += '\nThis will cause the THC calculations\n'
+                            wng  += 'to use the motion.requested-vel HAL pin\n'
+                            wng  += 'which is not recommended.\n'
+                        wng  += '\nThe recommended settings are to use\n'
+                        wng  += 'F#<_hal[plasmac.cut-feed-rate]>\n'
+                        wng  += 'in the G-Code file and a valid cut feed rate\n'
+                        wng  += 'in the material cut parameters.\n'
+                        wng  += '\nWarning near line #{}\n'.format(lineNum)
+                        dialog_error(gtk.MESSAGE_WARNING, 'Feed Rate WARNING', wng)
+                    else:
+                        pass
 
 # third pass, process every line
 # if full cut
@@ -556,7 +600,7 @@ if not pierceOnly:
     with open(inCode, 'r') as fRead:
         if codeError:
             lineNum = 1
-            print ('M30 (End due to GCode error)')
+            print ('M2 (End due to GCode error)')
         else:
             lineNum = 0
             offsetG41 = False
@@ -606,12 +650,15 @@ if not pierceOnly:
                     b, c = b.split('(', 1)
                 else:
                     a, b = line.split('p', 1)
-                material = ''
+                m = ''
                 # get the material number
                 for mNum in b.strip():
                     if mNum in '0123456789':
-                        material += mNum
-                thisMaterial = int(material.lstrip('0')) if material.lstrip('0') else 0
+                        m += mNum
+                material = int(m)
+                thisMaterial = material
+                print(';    material = {}'.format(material))
+                print(';thisMaterial = {}'.format(thisMaterial))
                 print(line)
             # if material change with cutter compensation
             elif 'm66' in line and offsetG41:
@@ -658,7 +705,6 @@ if not pierceOnly:
                  line.split('z')[1][0].isdigit():
                 print('({})'.format(line))
             # if z axis and other axes in line, comment out the Z axis
-#            elif 'z' in line and line.split('z')[1][0].isdigit():
             elif 'z' in line and line.split('z')[1][0] in '0123456789.- ':
                 if holeEnable:
                     lastX, lastY = get_last_position(lastX, lastY)
