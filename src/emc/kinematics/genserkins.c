@@ -342,7 +342,7 @@ int kinematicsForward(const double *joint,
     pos->tran.z = world->tran.z;
 
     // pos will be the world location
-    // jcopy: joitn position in radians
+    // jcopy: joint position in radians
     ret = genser_kin_fwd(KINS_PTR, jcopy, pos);
     if (ret < 0)
 	return ret;
