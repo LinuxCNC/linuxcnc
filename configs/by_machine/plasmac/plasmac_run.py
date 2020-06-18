@@ -134,7 +134,7 @@ class HandlerClass:
             self.materialList.append(key)
 
     def get_material(self):
-        self.getMaterial = 1
+        self.getMaterialBusy = 1
         self.builder.get_object('materials').clear()
         t_number = 0
         t_name = 'Default'
@@ -234,7 +234,7 @@ class HandlerClass:
                         self.dialog_error('Materials Error', '\n{} is missing from Material #{}'.format(item, t_number))
         self.display_materials()
         self.builder.get_object('material').set_active(0)
-        self.getMaterial = 0
+        self.getMaterialBusy = 0
 
     def on_save_clicked(self,widget,data=None):
         self.save_settings()
@@ -262,6 +262,8 @@ class HandlerClass:
         self.materialFileDict = {}
         self.materialNumList = []
         self.get_material()
+        if material not in self.materialFileDict:
+            material = 0
         self.builder.get_object('material').set_active(material)
         self.materialUpdate = False
         hal.set_p('plasmac_run.material-reload', '0')
@@ -305,7 +307,7 @@ class HandlerClass:
                         c_mode = float(line.split('=')[1].strip())
             self.write_materials(t_number,t_name,k_width,thc_enable,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
             self.display_materials()
-            self.change_material(0, 'tmp')
+            self.change_material(0)
             self.builder.get_object('material').set_active(0)
             hal.set_p('plasmac_run.temp-material', '0')
 
@@ -434,41 +436,71 @@ class HandlerClass:
             self.builder.get_object('thc-enable').set_sensitive(False)
             self.builder.get_object('thc-enable-label').set_text('THC DISABLED')
 
-    def on_material_changed(self,widget):
-        if self.builder.get_object('material').get_active_text():
-            if self.getMaterial: return
-            if self.autoChange == False:
-                self.manualChange = True
-                material, name = self.builder.get_object('material').get_active_text().split(': ', 1)
-                self.change_material(int(material),'box')
-            else:
-                self.autoChange = False
+    def first_material_changed(self, halpin):
+        material = halpin.get()
+        if not self.material_exists(material):
+            return
+        self.builder.get_object('material').set_active(self.materialList.index(material))
 
     def material_change_number_changed(self,halpin):
-        if self.getMaterial: return
-        material = halpin.get()
-        if material not in self.materialList:
-            self.dialog_error('Materials Error', '\nMaterial #{} not in material list'.format(material))
+        if self.getMaterialBusy:
             return
-        if self.manualChange == False:
+        material = int(halpin.get())
+        oldMaterial = int(self.builder.get_object('material').get_active_text().split(': ', 1)[0])
+        if hal.get_value('plasmac_run.material-change') == 1:
             self.autoChange = True
-            hal.set_p('motion.digital-in-03','0')
-            if material in self.materialList:
-                self.change_material(int(material),'pin')
-                hal.set_p('plasmac_run.material-change','1')
+            # material already loaded so do a phantom handshake
+            if material < 0:
+                hal.set_p('plasmac_run.material-change','2')
                 hal.set_p('motion.digital-in-03','1')
-                self.autoChange = False
-            else:
-                hal.set_p('plasmac_run.material-change','-1')
+                hal.set_p('plasmac_run.material-change-number','{}'.format(material * -1))
+                return
+        # does material exist
+        if not self.material_exists(material):
+            self.autoChange = False
+            return
+        self.builder.get_object('material').set_active(self.materialList.index(material))
+
+    def material_exists(self, material):
+        if int(material) in self.materialList:
+            return True
         else:
-            self.manualChange = False
+            if self.autoChange:
+                hal.set_p('plasmac_run.material-change','-1')
+                hal.set_p('plasmac_run.material-change-number', '{}'.format(int(self.builder.get_object('material').get_active_text().split(': ', 1)[0])))
+            self.dialog_error('Materials Error', '\nMaterial #{} not in material list'.format(int(material)))
+            return False
+
+    def on_material_changed(self,widget):
+        if widget.get_active_text():
+            if self.getMaterialBusy:
+                hal.set_p('plasmac_run.material-change','0')
+                self.autoChange = False
+                return
+            material = int(widget.get_active_text().split(': ', 1)[0])
+            if self.autoChange:
+                hal.set_p('motion.digital-in-03','0')
+                self.change_material(material)
+                hal.set_p('plasmac_run.material-change','2')
+                hal.set_p('motion.digital-in-03','1')
+            else:
+                self.change_material(material)
+        self.autoChange = False
 
     def material_change_changed(self, halpin):
         if halpin.get() == 0:
             hal.set_p('motion.digital-in-03','0')
 
-    def change_material(self, material, fr):
-        if material in self.materialList:
+    def material_change_timeout(self, halpin):
+        if halpin.get():
+            material = int(self.builder.get_object('material').get_active_text().split(': ', 1)[0])
+#           FIX_ME do we need to stop the program if a timeout occurs???
+            print('\nMaterial change timeout occured for material #{}'.format(material))
+            hal.set_p('plasmac_run.material-change-number', '{}'.format(material))
+            hal.set_p('plasmac_run.material-change-timeout', '0')
+            hal.set_p('motion.digital-in-03','0')
+
+    def change_material(self, material):
             self.materialName = self.materialFileDict[material][0]
             self.builder.get_object('kerf-width').set_value(self.materialFileDict[material][1])
             self.builder.get_object('thc-enable').set_active(self.materialFileDict[material][2])
@@ -484,15 +516,6 @@ class HandlerClass:
             self.builder.get_object('gas-pressure').set_value(self.materialFileDict[material][12])
             self.builder.get_object('cut-mode').set_value(self.materialFileDict[material][13])
             hal.set_p('plasmac_run.material-change-number',str(material))
-        else:
-            print('material not in material list')
-        if material in self.materialList:
-            if self.autoChange:
-                self.builder.get_object('material').set_active(self.materialList.index(material))
-        self.oldMaterial = material
-
-    def first_material_changed(self, halpin):
-        self.change_material(halpin.get(), 'pin')
 
     def on_setupFeedRate_value_changed(self, widget):
         self.builder.get_object('probe-feed-rate-adj').configure(self.builder.get_object('probe-feed-rate').get_value(),0,self.builder.get_object('setup-feed-rate').get_value(),1,0,0)
@@ -1063,12 +1086,14 @@ class HandlerClass:
         self.cutTypePin = hal_glib.GPin(halcomp.newpin('cut-type', hal.HAL_S32, hal.HAL_IN))
         self.materialNumberPin = hal_glib.GPin(halcomp.newpin('material-change-number', hal.HAL_S32, hal.HAL_IN))
         self.materialChangePin = hal_glib.GPin(halcomp.newpin('material-change', hal.HAL_S32, hal.HAL_IN))
+        self.materialTimeoutPin = hal_glib.GPin(halcomp.newpin('material-change-timeout', hal.HAL_BIT, hal.HAL_IN))
         self.firstMaterialPin = hal_glib.GPin(halcomp.newpin('first-material', hal.HAL_S32, hal.HAL_IN))
         self.materialReloadPin = hal_glib.GPin(halcomp.newpin('material-reload', hal.HAL_BIT, hal.HAL_IN))
         self.tempMaterialPin = hal_glib.GPin(halcomp.newpin('temp-material', hal.HAL_BIT, hal.HAL_IN))
         self.thcEnablePin = hal_glib.GPin(halcomp.newpin('thc-enable-out', hal.HAL_BIT, hal.HAL_OUT))
         self.materialNumberPin.connect('value-changed', self.material_change_number_changed)
         self.materialChangePin.connect('value-changed', self.material_change_changed)
+        self.materialTimeoutPin.connect('value-changed', self.material_change_timeout)
         self.firstMaterialPin.connect('value-changed', self.first_material_changed)
         self.materialReloadPin.connect('value-changed', self.on_material_reload_pin)
         self.tempMaterialPin.connect('value-changed', self.on_temp_material_pin)
@@ -1089,10 +1114,8 @@ class HandlerClass:
         self.materialNumList = []
         hal.set_p('plasmac.mode','{}'.format(int(self.i.find('PLASMAC','MODE') or '0')))
         self.oldMode = 9
-        self.oldMaterial = -1
         self.materialUpdate = False
         self.autoChange = False
-        self.manualChange = False
         self.fault = '0000'
         self.configure_widgets()
         self.load_settings()
