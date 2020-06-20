@@ -1592,6 +1592,26 @@
                           <number>0</number>
                          </property>
                          <item>
+                          <layout class="QHBoxLayout" name="horizontalLayout_g53_x">
+                           <item>
+                            <widget class="DROLabel" name="dro_label_g53_x">
+                             <property name="sizePolicy">
+                              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                               <horstretch>0</horstretch>
+                               <verstretch>0</verstretch>
+                              </sizepolicy>
+                             </property>
+                             <property name="metric_template" stdset="0">
+                              <string>X %10.3f</string>
+                             </property>
+                             <property name="imperial_template" stdset="0">
+                              <string>X %9.4f</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                         <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_g53_y">
                            <property name="spacing">
                             <number>0</number>
@@ -1642,22 +1662,6 @@
                             </widget>
                            </item>
                           </layout>
-                         </item>
-                         <item>
-                          <widget class="DROLabel" name="dro_label_g53_x">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="metric_template" stdset="0">
-                            <string>X %10.3f</string>
-                           </property>
-                           <property name="imperial_template" stdset="0">
-                            <string>X %9.4f</string>
-                           </property>
-                          </widget>
                          </item>
                         </layout>
                        </item>
