@@ -703,16 +703,17 @@ def user_button_pressed(button,commands):
     if 'change-consumables' in commands.lower():
         if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
             hal.set_p('plasmac.consumable-change', '0')
+            hal.set_p('plasmac.x-offset', '0')
+            hal.set_p('plasmac.y-offset', '0')
         else:
-            global ccX
-            global ccY
-            global ccScale
+            global ccF, ccX, ccY
+            hal.set_p('plasmac.xy-feed-rate', str(int(ccF)))
             if ccX or ccX == 0:
-                hal.set_p('plasmac.x-offset', '{:.0f}'.format((ccX - s.position[0]) / ccScale, 0))
+                hal.set_p('plasmac.x-offset', '{:.0f}'.format((ccX - s.position[0]) / hal.get_value('plasmac.offset-scale')))
             else:
                 hal.set_p('plasmac.x-offset', '0')
             if ccY or ccY == 0:
-                hal.set_p('plasmac.y-offset', '{:.0f}'.format((ccY - s.position[1]) / ccScale, 0))
+                hal.set_p('plasmac.y-offset', '{:.0f}'.format((ccY - s.position[1]) / hal.get_value('plasmac.offset-scale')))
             else:
                 hal.set_p('plasmac.y-offset', '0')
             hal.set_p('plasmac.consumable-change', '1')
@@ -721,12 +722,8 @@ def user_button_pressed(button,commands):
 # for testing window sizes
         print('Width={}   Height={}'.format(w('winfo','width',root_window), w('winfo','height',root_window)))
     elif 'probe-test' in commands.lower():
-        global probePressed
-        global probeTimer
-        global probeButton
-        global probeStart
-        global probeText
-        global probeColor
+        global probePressed, probeTimer, probeButton
+        global probeStart, probeText, probeColor
         if not probeTimer:
             probePressed = True
             probeButton = button
@@ -790,10 +787,7 @@ def user_button_released(button,commands):
     if 'ohmic-test' in commands.lower():
         hal.set_p('plasmac.ohmic-test','0')
     elif 'probe-test' in commands.lower():
-        global probeButton
-        global probePressed
-        global probeText
-        global probeColor
+        global probeButton, probePressed, probeText, probeColor
         probePressed = False
         if not probeTimer and button == probeButton:
             hal.set_p('plasmac.probe-test','0')
@@ -806,14 +800,8 @@ def user_button_released(button,commands):
 def user_live_update():
     stat = linuxcnc.stat()
     stat.poll()
-    global firstrundone
-    global probeTimer
-    global probeStart
-    global probeButton
-    global probeText
-    global probePressed
-    global probeColor
-    global pm_cycles
+    global firstrundone, probeTimer, probeStart, probeButton
+    global probeText, probePressed, probeColor, pm_cycles
     if not firstrundone:
         spaceWidth = w('winfo','width',fmanual)
         spaceWidth -= w('winfo','width',fmonitor)
@@ -912,6 +900,9 @@ def user_live_update():
             w(fbuttons + '.button' + probeButton,'configure','-bg',probeColor)
     if (hal.get_value('axis.x.eoffset') or hal.get_value('axis.y.eoffset')) and not hal.get_value('halui.program.is-paused'):
         hal.set_p('plasmac.consumable-change', '0')
+        hal.set_p('plasmac.x-offset', '0')
+        hal.set_p('plasmac.y-offset', '0')
+        hal.set_p('plasmac.xy-feed-rate', '0')
     try:
         if hal.get_value('plasmac_run.preview-tab'):
             w('.pane.top.right','raise','preview')
@@ -964,9 +955,7 @@ def configure_widgets():
     w(fpausedmotion + '.paused-motion-speed','configure','-from','1','-to','100','-resolution','1')
 
 def consumable_change_setup(ccParm):
-    global ccX
-    global ccY
-    global ccScale
+    global ccF, ccX, ccY
     ccX = ccY = ccF = ''
     X = Y = F = ''
     ccAxis = [X, Y, F]
@@ -1006,13 +995,6 @@ def consumable_change_setup(ccParm):
     if not ccF:
         print('invalid consumable change feed rate\n')
         raise SystemExit()
-    ccScale = round(hal.get_value('plasmac.offset-scale'), 3) / 100
-    ccVel = int(1 / hal.get_value('halui.machine.units-per-mm') / 60 * ccF * 100)
-    hal.set_p('axis.x.eoffset-scale', str(ccScale))
-    hal.set_p('axis.y.eoffset-scale', str(ccScale))   
-    hal.set_p('plasmac.x-y-velocity', str(ccVel))
-    hal.set_p('axis.x.eoffset-enable', '1')
-    hal.set_p('axis.y.eoffset-enable', '1')
 
 
 ################################################################################

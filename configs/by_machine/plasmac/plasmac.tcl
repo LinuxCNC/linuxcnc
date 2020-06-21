@@ -23,20 +23,20 @@ net plasmac:requested-velocity      motion.requested-vel        =>  plasmac.requ
 net plasmac:thc-disable             motion.digital-out-02       =>  plasmac.thc-disable
 net plasmac:torch-off               motion.digital-out-03       =>  plasmac.torch-off
 net plasmac:units-per-mm            halui.machine.units-per-mm  =>  plasmac.units-per-mm
-net plasmac:x-offset-counts         plasmac.x-offset-counts     =>  axis.x.eoffset-counts
-net plasmac:y-offset-counts         plasmac.y-offset-counts     =>  axis.y.eoffset-counts
 
 # outputs
 net plasmac:adaptive-feed           plasmac.adaptive-feed       =>  motion.adaptive-feed
 net plasmac:feed-hold               plasmac.feed-hold           =>  motion.feed-hold
-net plasmac:offset-counts           plasmac.offset-counts       =>  axis.z.eoffset-counts
-net plasmac:offset-enable           plasmac.offset-enable       =>  axis.z.eoffset-enable
-net plasmac:offset-scale            plasmac.offset-scale        =>  axis.z.eoffset-scale
+net plasmac:offset-enable           plasmac.offset-enable       =>  axis.x.eoffset-enable axis.y.eoffset-enable axis.z.eoffset-enable
+net plasmac:offset-scale            plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale
 net plasmac:program-pause           plasmac.program-pause       =>  halui.program.pause
 net plasmac:program-resume          plasmac.program-resume      =>  halui.program.resume
 net plasmac:program-run             plasmac.program-run         =>  halui.program.run
 net plasmac:program-stop            plasmac.program-stop        =>  halui.program.stop
 net plasmac:torch-on                plasmac.torch-on
+net plasmac:x-offset-counts         plasmac.x-offset-counts     =>  axis.x.eoffset-counts
+net plasmac:y-offset-counts         plasmac.y-offset-counts     =>  axis.y.eoffset-counts
+net plasmac:z-offset-counts         plasmac.z-offset-counts     =>  axis.z.eoffset-counts
 
 # multiple spindles
 if [info exists ::TRAJ(SPINDLES)] {
