@@ -735,6 +735,23 @@ class _GStat(gobject.GObject):
         tool_info_new = self.old['tool-info']
         self.emit('tool-info-changed', tool_info_new)
 
+        # homing
+        homed_joints = 0
+        unhomed_joints = ""
+        for joint in range(0, self.stat.joints):
+            if self.stat.homed[joint]:
+                homed_joints += 1
+                self.emit('homed', joint)
+            else:
+                self.emit('unhomed', joint)
+                unhomed_joints += str(joint)
+        if homed_joints == self.stat.joints:
+            self._is_all_homed = True
+            self.emit('all-homed')
+        else:
+            self._is_all_homed = False
+            self.emit('not-all-homed', unhomed_joints)
+
         # update external ojects
         self.emit('forced-update')
 

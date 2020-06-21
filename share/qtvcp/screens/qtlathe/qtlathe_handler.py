@@ -106,7 +106,8 @@ class HandlerClass:
         # so we catch and process the events directly.
         # We do want ESC, F1 and F2 to call keybinding functions though
         if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F4,QtCore.Qt.Key_F5,
+                    QtCore.Qt.Key_F6,QtCore.Qt.Key_F7,QtCore.Qt.Key_F12):
             raise
 
         # ok if we got here then try keybindings
