@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-0.137 - 2020 Jun 21
+0.138 - 2020 Jun 23
 
 .I SUMMARY:
 .br
@@ -927,13 +927,16 @@ FUNCTION(_) {
             }
             break;
         case CUT:
+            /* if program is idle then we shouldn't be here */
+            if(program_is_idle){
+                state = IDLE;
+            }
             /* while cutting and it is not a dry run:
              * if thc is enabled then vary the torch height to keep the arc voltage constant
              * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
              * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage (modes 0 & 1 only)
              * adjust torch height and target voltage to suit if height override requested (modes 0 & 1 only)*/
             if(torch_on){
-//            if(torch_enable){
                 /* thc control by arc voltage */
                 if(mode < 2){
                     thc_delay_timer -= fperiod;
