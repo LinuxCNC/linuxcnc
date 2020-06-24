@@ -1255,7 +1255,7 @@ class configurator:
                     if param in hostmot:
                         line = line.replace('[HOSTMOT2]' + param,hostmot[param])
             # comment out old spindle lines
-            elif 'spindle.0.on' in line:
+            elif 'spindle.0.' in line:
                 line = '# {}'.format(line)
             # comment out old toolchange lines
             elif 'hal_manualtoolchange' in line or 'iocontrol.0.tool' in line:
