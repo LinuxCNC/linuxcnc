@@ -676,9 +676,10 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         }
     }
 
-    // initialize with hires off and force update
+    // initialize with hires off and force update 
+    // (with somewhat shady trick to force update if set true in halfile)
     *hm2->encoder.hal->pin.hires_timestamp = 0;    
-     hm2->encoder.written_hires_timestamp = 1; 
+     hm2->encoder.written_hires_timestamp = 666; 
 
 
     if (md->gtag == HM2_GTAG_ENCODER) {
