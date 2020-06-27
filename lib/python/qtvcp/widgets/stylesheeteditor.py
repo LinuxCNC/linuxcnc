@@ -119,7 +119,7 @@ class StyleSheetEditor(QDialog):
             fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
             for i in(fileNames):
                 item = QtGui.QStandardItem(i)
-                item.setData(localqss, role = QtCore.Qt.UserRole + 1)
+                item.setData(os.path.join(localqss, i), role = QtCore.Qt.UserRole + 1)
                 model.appendRow(item)
         except Exception as e:
             print e
