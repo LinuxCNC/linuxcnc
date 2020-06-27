@@ -841,6 +841,9 @@ class _GStat(gobject.GObject):
     def get_jog_increment(self):
         return self.current_jog_distance
 
+    def get_max_velocity(self):
+        return self.old['max-velocity-or'] * 60
+
     def set_selected_joint(self, data):
         self.selected_joint = int(data)
         self.emit('joint-selection-changed', data)
