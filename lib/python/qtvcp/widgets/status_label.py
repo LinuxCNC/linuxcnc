@@ -80,11 +80,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         elif self.rapid_override:
             STATUS.connect('rapid-override-changed', lambda w, data: _f(data))
         elif self.max_velocity_override:
-            STATUS.connect('max-velocity-override-changed', lambda w, data: _f(data))
+            STATUS.connect('max-velocity-override-changed', lambda w, data: self._set_max_velocity(data))
+            STATUS.connect('metric-mode-changed', self._switch_max_velocity_units)
         elif self.spindle_override:
             STATUS.connect('spindle-override-changed', lambda w, data: _f(data))
         elif self.jograte:
-            STATUS.connect('jograte-changed', lambda w, data: _f(data))
+            STATUS.connect('jograte-changed', lambda w, data: self._set_jograte(data))
+            STATUS.connect('metric-mode-changed', self._switch_jog_units)
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: _f(data))
         elif self.jogincr:
@@ -177,6 +179,14 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _switch_units(self, widget, data):
         self.display_units_mm = data
 
+    def _switch_jog_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_jograte(STATUS.get_jograte())
+
+    def _switch_max_velocity_units(self, widget, data):
+        self.display_units_mm = data
+        self._set_max_velocity(STATUS.get_max_velocity())
+
     def _tool_info(self, data, field):
         if data.id is not -1:
             if field == 'diameter':
@@ -251,6 +261,14 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     def _set_timestamp(self, w):
         self.setText(time.strftime(self._textTemplate))
+
+    def _set_jograte(self, data):
+        rate = self.conversion(data)
+        self._set_text(rate)
+
+    def _set_max_velocity(self, data):
+        rate = self.conversion(data)
+        self._set_text(rate)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
