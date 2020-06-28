@@ -73,6 +73,8 @@ using namespace boost::python;
 
 AS_IF([test "x$ac_cv_boost_python" = xyes],
 [
+  PYTHON_MAJOR=`$PYTHON -c 'import sys; print(sys.version_info.major)'`
+  PYTHON_MINOR=`$PYTHON -c 'import sys; print(sys.version_info.minor)'`
   BOOST_PYTHON_LIBS=
   ax_python_lib=boost_python
   AC_ARG_WITH([boost-python],
@@ -88,7 +90,7 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
     ax_boost_python_lib=boost_python-$with_boost_python
   fi])
   AC_MSG_CHECKING([for boost::python shared library])
-  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python${PYTHON_MAJOR}${PYTHON_MINOR} boost_python${PYTHON_MAJOR} boost_python
   do
     # Note that this requires LIBPYTHON from configure.ac
     LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
