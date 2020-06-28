@@ -73,7 +73,7 @@
 
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
 
-#include "vsnprintf.h"
+#include "rtapi_vsnprintf.h"
 
 #include <rtai.h>
 #include <rtai_sched.h>

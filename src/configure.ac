@@ -703,6 +703,7 @@ else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
+    DEFAULT_TOOLTABLE=${prefix}/share/doc/linuxcnc/examples/sample-configs/common/tool.tbl
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
@@ -1756,6 +1757,7 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/halcmd_twopass], [chmod +x ../scripts/halcmd_twopass])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
+AC_CONFIG_FILES([../scripts/runtests], [chmod +x ../scripts/runtests])
 AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES([../scripts/linuxcnc-checklink], [chmod +x ../scripts/linuxcnc-checklink])
 AC_CONFIG_FILES(Makefile.inc)

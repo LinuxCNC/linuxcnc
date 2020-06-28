@@ -20,7 +20,26 @@ esac
 MYDIR=$(cd $MYDIR; pwd);
 TOPDIR=$(cd $MYDIR/..; pwd)
 
-. $TOPDIR/scripts/rip-environment >/dev/null
+prefix=@prefix@
+if test @RUN_IN_PLACE@ = yes; then
+    . $TOPDIR/scripts/rip-environment >&/dev/null
+    export HEADERS=@EMC2_HOME@/include
+    export LIBDIR=${TOPDIR}/lib
+    export INCLUDEPY=@INCLUDEPY@
+    export REALTIME=realtime
+else
+    # Set $EMC2_HOME to $prefix for tests that depend on it
+    export SYSTEM_BUILD=1
+    export EMC2_HOME=@EMC2_HOME@
+    export HEADERS=@includedir@/linuxcnc
+    export LIBDIR=@EMC2_HOME@/lib
+    export INCLUDEPY=@INCLUDEPY@
+    export LINUXCNC_EMCSH=@WISH@
+    export REALTIME=/etc/init.d/realtime
+    export SUDO=sudo
+fi
+export INCLUDEPY=@INCLUDEPY@
+export RUNTESTS="$(readlink -f $0)"
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
@@ -84,6 +103,15 @@ run_without_overruns () {
     return 1
 }
 
+run_test() {
+    testname=$1
+    case $testname in
+        *.hal) run_without_overruns $testname ;;
+        *.sh) run_shell_script $testname ;;
+        *) run_executable $testname ;;
+    esac
+}
+
 TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
 trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
@@ -102,11 +130,14 @@ run_tests () {
 	fi
 	NUM=$(($NUM+1))
 	echo "Running test: $testdir" 1>&2
-        case $testname in
-        *.hal) run_without_overruns $testname ;;
-        *.sh) run_shell_script $testname ;;
-        *) run_executable $testname ;;
-        esac
+        if test -n "$SYSTEM_BUILD"; then
+            # Tell `halcompile` where to install comps
+            USER_MODULE_DIR=$(readlink -f $testdir) \
+                PATH=$(readlink -f $testdir):$PATH \
+                run_test $testname
+        else
+            run_test $testname
+        fi
 	exitcode=$?
 	if [ $exitcode -ne 0 ]; then
 	    reason="test run exited with $exitcode"
@@ -136,9 +167,16 @@ run_tests () {
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
+	    echo "*** $testdir: XFAIL: $reason"
+            if test $PRINT = 1; then
+                echo "************** result:"
+                tail -500 $testdir/result | sed 's/^/        /'
+                echo "************** stderr:"
+                tail -500 $testdir/stderr | sed 's/^/        /'
+                echo "**************"
+            fi
 	    if [ -f $testdir/xfail ]; then
 		XFAIL=$(($XFAIL+1))
-		echo "*** $testdir: XFAIL: $reason"
 		if [ $NOCLEAN -eq 0 ]; then
 		    rm -f $testdir/stderr $testdir/result \
 			$testdir/*.var $testdir/*.var.bak
@@ -147,7 +185,9 @@ run_tests () {
 		FAIL=$(($FAIL+1))
 		FAIL_NAMES="$FAIL_NAMES
 	$testdir"
-		echo "*** $testdir: FAIL: $reason"
+	    fi
+            if test $STOP = 1; then
+	        break
 	    fi
 	else
 	    if [ -f $testdir/xfail ]; then
@@ -177,9 +217,10 @@ usage () {
 $P: Run HAL test suite items
 
 Usage:
-    $P [-n] tests
+    $P [-n] [-s] [-p] tests
 	Run tests.  With '-n', do not remove temporary files for successful
-	tests.
+	tests.  With '-s', stop after any failed test.  With '-p', print
+        stderr and result files.
 
     $P -c tests
 	Remove temporary files from an earlier test run.
@@ -191,11 +232,15 @@ EOF
 
 CLEAN_ONLY=0
 NOCLEAN=0
-while getopts cnvh opt; do
+STOP=0
+PRINT=0
+while getopts cnvsph opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
     v) VERBOSE=1 ;;
+    s) STOP=1 ;;
+    p) PRINT=1 ;;
     h|?) usage; exit 0 ;;
     *) usage; exit 1 ;;
     esac

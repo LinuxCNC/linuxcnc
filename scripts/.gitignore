@@ -7,6 +7,7 @@ halrun
 haltcl
 realtime
 rtapi.conf
+runtests
 linuxcncmkdesktop
 linuxcnc_var
 halcmd_twopass
