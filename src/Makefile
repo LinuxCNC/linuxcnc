@@ -773,6 +773,7 @@ EXTRA_CFLAGS += -msse
 EXTRA_CFLAGS += -g
 endif
 endif
+EXTRA_CFLAGS += -fno-builtin-sin -fno-builtin-cos -fno-builtin-sincos
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
