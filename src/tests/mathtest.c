@@ -34,6 +34,7 @@
 #include <math.h>		/* sin(), cos(), isnan() etc. */
 #include <float.h>		/* DBL_MAX */
 #include <errno.h>		/* errno, EDOM */
+#include "sincos.h"
 
 /*
   math functions are:
@@ -138,7 +139,7 @@ int math_test(void)
       floor(a) + fabs(a) + ldexp(a, b);
 
   /* Test the sincos func */
-  sincos(x, &v, &u);
+  pm_sincos(x, &v, &u);
 
   return 0;
 }
