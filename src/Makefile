@@ -282,6 +282,7 @@ INFILES = \
 	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
 	../scripts/halcmd_twopass \
+	../scripts/runtests \
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
