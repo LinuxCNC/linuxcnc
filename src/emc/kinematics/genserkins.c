@@ -340,10 +340,6 @@ int kinematicsForward(const double *joint,
     pos->tran.x = world->tran.x;
     pos->tran.y = world->tran.y;
     pos->tran.z = world->tran.z;
-	//pass through unused axis
-    world->u = joint[6];
-    world->v = joint[7];
-    world->w = joint[8];
 
     // pos will be the world location
     // jcopy: joint position in radians
@@ -361,6 +357,11 @@ int kinematicsForward(const double *joint,
     world->a = rpy.r * 180 / PM_PI;
     world->b = rpy.p * 180 / PM_PI;
     world->c = rpy.y * 180 / PM_PI;
+
+    //pass through unused axis
+    world->u = joint[6];
+    world->v = joint[7];
+    world->w = joint[8];
 
     if (changed) {
 //	rtapi_print("kinematicsForward(world: %f %f %f %f %f %f)\n", world->tran.x, world->tran.y, world->tran.z, world->a, world->b, world->c);
