@@ -61,7 +61,7 @@ class array:
                     os.remove(self.outFile)
                 self.outFile = '{}/array_{}.ngc'.format(self.tmpDir, time.time())
                 shutil.copyfile(fName, self.outFile)
-                self.c.program_open('blank.ngc')
+                self.c.program_open('./plasmac/blank.ngc')
                 self.c.program_open(self.outFile)
         else:
             print('Unknown GUI in .ini file')

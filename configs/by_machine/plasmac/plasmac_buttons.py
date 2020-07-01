@@ -100,7 +100,7 @@ class HandlerClass:
                 self.outFile = '{}/PlaSmaC0_{}'.format(self.inPath,self.inBase)
             import subprocess
             outBuf = open(self.outFile, 'w')
-            filter = subprocess.Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac_gcode.py', self.inFile)],
+            filter = subprocess.Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac/plasmac_gcode.py', self.inFile)],
                                   stdin=subprocess.PIPE,
                                   stdout=outBuf,
                                   stderr=subprocess.PIPE)
