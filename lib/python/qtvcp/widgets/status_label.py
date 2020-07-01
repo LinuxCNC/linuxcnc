@@ -38,7 +38,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         super(StatusLabel, self).__init__(parent)
         self.display_units_mm = False
         self._textTemplate = '%s'
-        self._alt_textTemplate = 'None'
+        self._alt_textTemplate = '%s'
         self._actual_RPM = 0
         self._diameter = 1
         self._index = 0
@@ -153,14 +153,20 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def _set_feedrate_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
-        self._set_text(data)
+        if self.display_units_mm:
+            self._set_alt_text(data)
+        else:
+            self._set_text(data)
 
     def _set_feedunit_text(self, widget, data):
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             data = INFO.convert_units(data)
         try:
             data = (data/self._actual_RPM)
-            self._set_text(data)
+            if self.display_units_mm:
+                self._set_alt_text(data)
+            else:
+                self._set_text(data)
         except:
             self.setText('')
             return
@@ -264,11 +270,17 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
 
     def _set_jograte(self, data):
         rate = self.conversion(data)
-        self._set_text(rate)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
 
     def _set_max_velocity(self, data):
         rate = self.conversion(data)
-        self._set_text(rate)
+        if self.display_units_mm:
+            self._set_alt_text(rate)
+        else:
+            self._set_text(rate)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
