@@ -287,7 +287,7 @@ class HandlerClass:
     def upgrade_check(self):
         with open(self.configFile, 'r') as f_in:
             for line in f_in:
-                if line.startswith('version=0.1'):
+                if line.startswith('version='):
                     return
                 elif line.startswith('arc-fail-delay'):
                     break

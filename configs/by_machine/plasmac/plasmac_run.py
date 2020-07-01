@@ -138,6 +138,7 @@ class HandlerClass:
         self.builder.get_object('materials').clear()
         t_number = 0
         t_name = 'Default'
+        self.materialName = t_name
         k_width = (self.builder.get_object('kerf-width').get_value())
         thc_enable = self.builder.get_object('thc-enable').get_active()
         p_height = self.builder.get_object('pierce-height').get_value()
@@ -1064,10 +1065,10 @@ class HandlerClass:
     def upgrade_check(self):
         # the latest version that configurator is required for *****************
         # this may or may not be the current version ***************************
-        latestUpgrade = 0.097
-        lastUpgrade = float(self.i.find('PLASMAC', 'LAST_UPGRADE') or 0.0)
+        latestMajorUpgrade = 0.140
+        lastMajorUpgrade = float(self.i.find('PLASMAC', 'LAST_MAJOR_UPGRADE') or self.i.find('PLASMAC', 'LAST_UPGRADE') or 0.0)
         manualUpgrade = int(self.i.find('PLASMAC', 'MANUAL_UPGRADE') or 0)
-        if lastUpgrade < latestUpgrade and manualUpgrade != 1:
+        if lastMajorUpgrade < latestMajorUpgrade and manualUpgrade != 1:
             iniFile = os.environ['INI_FILE_NAME']
             iniPath = os.path.dirname(iniFile)
             basePath = os.path.realpath(os.path.dirname(os.readlink('{}/{}'.format(iniPath, 'M190'))))

@@ -30,7 +30,7 @@ import hal
 import time
 from subprocess import Popen, PIPE
 
-sys.path.append('./wizards')
+sys.path.append('./plasmac/wizards')
 import w_settings
 import w_array
 import w_line
@@ -65,7 +65,7 @@ class wizards:
         self.set_theme()
         for wizard in ['line', 'circle', 'triangle', 'rectangle', 'polygon', 'bolt-circle', 'slot', 'star', 'gusset', 'sector']:
             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
-                    filename='./wizards/images/{}-thumb.png'.format(wizard), 
+                    filename='./plasmac/wizards/images/{}-thumb.png'.format(wizard), 
                     width=60, 
                     height=60)
             image = gtk.Image()
@@ -102,14 +102,16 @@ class wizards:
                     if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch':
                         f_out.write('preamble=G20 G64P0.004 {}\n'.format(ambles))
                         f_out.write('postamble=G20 G64P0.004 {}\n'.format(ambles))
-                        f_out.write('lead-in=0.25\n')
-                        f_out.write('lead-out=0.25\n')
+                        f_out.write('origin=False\n')
+                        f_out.write('lead-in=0.16\n')
+                        f_out.write('lead-out=0\n')
                         f_out.write('hole-diameter=1.25\n')
                     else:
                         f_out.write('preamble=G21 G64P0.1 {}\n'.format(ambles))
                         f_out.write('postamble=G21 G64P0.1 {}\n'.format(ambles))
-                        f_out.write('lead-in=6.0\n')
-                        f_out.write('lead-out=6.0\n')
+                        f_out.write('origin=False\n')
+                        f_out.write('lead-in=4.0\n')
+                        f_out.write('lead-out=0\n')
                         f_out.write('hole-diameter=32\n')
                     f_out.write('hole-speed=60\n')
             except:
@@ -341,7 +343,7 @@ class wizards:
                 Popen('axis-remote -r', stdout = PIPE, shell = True)
             else:
                 outBuf = open(self.outFile, 'w')
-                filter = Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac_gcode.py', self.inFile)], stdin=PIPE, stdout=outBuf, stderr=PIPE)
+                filter = Popen(['sh', '-c', '%s \'%s\'' % ('./plasmac/plasmac_gcode.py', self.inFile)], stdin=PIPE, stdout=outBuf, stderr=PIPE)
                 filter.stdin.close()
                 stderr_text = []
                 try:
