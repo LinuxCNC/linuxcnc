@@ -1618,6 +1618,8 @@ class configurator:
             fName = os.path.join(self.configDir, file)
             if os.path.exists(fName):
                 os.remove(fName)
+            if os.path.islink(fName):
+                os.unlink(fName)
         # make links to plasmac source
         for fileName in ['/','/configurator.py','/materialverter.py','/pmx_test.py','/tool.tbl']:
             src = '{}{}'.format(self.copyPath,fileName)
@@ -1630,6 +1632,9 @@ class configurator:
                     os.unlink(dst)
                     shutil.copy(src,dst)
             else:
+                print dst
+                if os.path.islink(dst):
+                    os.unlink(dst)
                 os.symlink(src,dst)
         return True
 
