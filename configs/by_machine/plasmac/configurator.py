@@ -454,6 +454,7 @@ class configurator:
         # *** set LAST_MAJOR_UPGRADE in upgrade_ini_file function ***
         # *** set LAST_MAJOR_UPGRADE in all example .ini files    ***
         # *** set VERSION in plasmac.comp                         ***
+        # *** set self.plasmacVersion in plasmac_config.py        ***
         # *** update versions.html                                ***
         # ***********************************************************
         self.latestMajorUpgrade = 0.140
