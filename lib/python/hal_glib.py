@@ -363,17 +363,22 @@ class _GStat(gobject.GObject):
         state_old = old.get('state', 0)
         state_new = self.old['state']
         if state_new != state_old:
-            if state_new > linuxcnc.STATE_ESTOP:
-                self.emit('state-estop-reset')
-            else:
-                self.emit('state-estop')
-            self.emit('state-off')
-            self.emit('interp-idle')
 
-        if state_new != state_old:
-            if state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
+            # set machine estop/clear
+            if state_old == linuxcnc.STATE_ESTOP and state_new == linuxcnc.STATE_ESTOP_RESET:
+                self.emit('state-estop-reset')
+                self.emit('interp-idle')
+            elif state_new == linuxcnc.STATE_ESTOP:
+                self.emit('state-estop')
+                self.emit('interp-idle')
+
+            # set machine on/off
+            if state_new == linuxcnc.STATE_ON:
+                self.emit('state-on')
+            elif state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
-            self.emit(self.STATES[state_new])
+
+            # reset modes/interpeter on machine on
             if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
