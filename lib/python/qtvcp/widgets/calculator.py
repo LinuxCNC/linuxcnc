@@ -4,7 +4,8 @@ import math
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLayout, QLineEdit,
-        QSizePolicy, QToolButton, QDialog, QDialogButtonBox, QMenu, QAction)
+        QSizePolicy, QToolButton, QDialog, QDialogButtonBox, QMenu, QAction,
+        QHBoxLayout)
 from PyQt5.QtGui import QIcon
 
 from qtvcp.core import Status, Info
@@ -118,16 +119,27 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.reciprocalButton, 4, 5)
         mainLayout.addWidget(self.equalButton, 5, 5)
 
+        self.cBox = QHBoxLayout()
+        self.cBox.addWidget(self.createButton('-> mm',
+                    self.convertClicked, 'Convert inch to mm'))
+        self.cBox.addWidget(self.createButton('-> inch',
+                    self.convertClicked, 'Convert mm to inch'))
+        self.cBox.addWidget(self.createButton('25.4/x',
+                    self.convertClicked, 'Convert metric pitch to TPI or TPI to metric pitch'))
+        mainLayout.addLayout(self.cBox,6,0,1,2)
+
         self.bBox = QDialogButtonBox()
         self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
         self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
         self.bBox.rejected.connect( self.reject)
         self.bBox.accepted.connect(self.accept)
-        mainLayout.addWidget(self.bBox)
+        mainLayout.addWidget(self.bBox,7,0)
 
         self.setLayout(mainLayout)
 
         self.setWindowTitle("Calculator")
+        if not INFO.LINUXCNC_IS_RUNNING:
+            self.axisButton.setEnabled(False)
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
 
@@ -293,6 +305,28 @@ class Calculator(QDialog):
 
         self.display.setText(text)
 
+    def convertClicked(self):
+        clickedButton = self.sender()
+        clickedOperator = clickedButton.text()
+        operand = float(self.display.text())
+
+        if clickedOperator == "-> mm":
+            result = operand * 25.4
+        elif clickedOperator == "-> inch":
+            if operand == 0:
+                result = 0
+            else:
+                result = operand / 25.4
+        elif clickedOperator == "25.4/x":
+            if operand == 0:
+                result = 0
+            else:
+                result = 25.4 / operand
+        else:
+            return
+        self.display.setText(str(result))
+        self.waitingForOperand = True
+
     def clear(self):
         if self.waitingForOperand:
             return
@@ -323,9 +357,11 @@ class Calculator(QDialog):
         self.equalClicked()
         self.sumInMemory += float(self.display.text())
 
-    def createButton(self, text, member):
+    def createButton(self, text, member, tip=None):
         button = Button(text)
         button.clicked.connect(member)
+        if tip is not None:
+            button.setToolTip(tip)
         return button
 
     def createAxisButton(self, text, member):
