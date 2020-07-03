@@ -2952,7 +2952,7 @@ static void *shmalloc_up(long int size)
     retval = SHMPTR(tmp_bot);
     hal_data->shmem_bot = tmp_bot + size;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
-    rtapi_print_msg(RTAPI_MSG_INFO, "smalloc_up: shmem available %d\n", hal_data->shmem_avail);
+    rtapi_print_msg(RTAPI_MSG_DBG, "smalloc_up: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 
@@ -2986,7 +2986,7 @@ static void *shmalloc_dn(long int size)
     retval = SHMPTR(tmp_top);
     hal_data->shmem_top = tmp_top;
     hal_data->shmem_avail = hal_data->shmem_top - hal_data->shmem_bot;
-    rtapi_print_msg(RTAPI_MSG_INFO, "smalloc_dn: shmem available %d\n", hal_data->shmem_avail);
+    rtapi_print_msg(RTAPI_MSG_DBG, "smalloc_dn: shmem available %d\n", hal_data->shmem_avail);
     return retval;
 }
 

@@ -1248,25 +1248,6 @@ AH_VERBATIM([_GNU_SOURCE],
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
-LIBS_hold=$LIBS
-LIBS="$LIBS -lm"
-
-AC_MSG_CHECKING([for sincos function])
-sincos_ok=yes
-AC_TRY_LINK(
-    [double a, b;],
-    [sincos(1.0, &a, &b);],
-    AC_DEFINE(
-        [HAVE_SINCOS],
-        1,
-        [Define to 1 if sincos is available.]
-    ),
-    [sincos_ok=no]
-)
-AC_MSG_RESULT([$sincos_ok])
-
-AC_CHECK_FUNCS(__sincos)
-LIBS=$LIBS_hold
 
 AC_MSG_CHECKING([for optreset])
 AC_TRY_LINK(
