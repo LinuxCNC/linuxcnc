@@ -303,7 +303,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.feed_over or self.rapid_over or self.spindle_over or self.jog_rate or \
             self.max_velocity_over:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
             STATUS.connect('state-on', lambda w: _safecheck(True))
             STATUS.connect('state-off', lambda w: _safecheck(False))
         elif self.view_change:
